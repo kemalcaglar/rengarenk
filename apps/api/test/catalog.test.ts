@@ -6,6 +6,7 @@ import { AppModule } from '../src/app.module.js';
 import { CatalogImportService } from '../src/catalog/catalog-import.service.js';
 import { CatalogPipelineService } from '../src/catalog/catalog-pipeline.service.js';
 import { TSB_CLIENT, type TsbClient } from '../src/catalog/tsb-client.js';
+import { VEHICLESDB_CLIENT, type VehiclesDbClient } from '../src/catalog/vehiclesdb-client.js';
 import { VMM_CLIENT, type VmmClient } from '../src/catalog/vmm-client.js';
 import { WIKIDATA_CLIENT, type WikidataClient } from '../src/catalog/wikidata-client.js';
 import { registerXlsxBody, XLSX_MIME } from '../src/catalog/xlsx-body.js';
@@ -161,8 +162,37 @@ const fakeWikidata: WikidataClient = {
   productions: async () => ({ 'BMW 3 Series (G20)': { revision: 7, production: 'October 2018 – present' } }),
 };
 
+/** VehiclesDB sürümü: motosiklet, moped, kamyon (seri), otomobil (alınmaz) ve kalite için dolgu */
+const VDB_CSV = [
+  'kind,make_slug,make_name,model_slug,model_name,body_types,countries,regions,global_popularity_decile,aliases,former_ids,mass_popularity_decile',
+  'motorcycle,honda,Honda,cbr650r,CBR650R,,nl|gb,eu,9,"","",7',
+  'motorcycle,honda,Honda,cbr-650r,CBR 650R,,de,eu,3,"","",1',
+  'moped,piaggio,Piaggio,liberty-50,Liberty 50,,it,eu,8,"","",6',
+  'truck,mercedes-benz,Mercedes-Benz,actros,Actros,,nl,eu,9,"","",5',
+  'car,bmw,BMW,3-series,3 Series,sedan,nl,eu,10,"","",10',
+  ...Array.from({ length: 1100 }, (_, i) => `motorcycle,motodolgu,Motodolgu,m${i},M${i},,nl,eu,1,"","",1`),
+].join(String.fromCharCode(10));
+const vdb = { downloads: 0 };
+const fakeVehiclesDb: VehiclesDbClient = {
+  latest: async () => ({
+    tag: 'v2026.10.4',
+    csvUrl: 'https://github.com/vehiclesdb/vehicles.csv',
+    attributionUrl: 'https://github.com/vehiclesdb/ATTRIBUTION.md',
+  }),
+  download: async (url: string) => {
+    vdb.downloads++;
+    return new TextEncoder().encode(
+      url.endsWith('.md')
+        ? '# Attribution\n\n> Vehicle data by [VehiclesDB](https://vehiclesdb.com)\n'
+        : VDB_CSV,
+    );
+  },
+};
+
 beforeAll(async () => {
   const mod = await Test.createTestingModule({ imports: [AppModule] })
+    .overrideProvider(VEHICLESDB_CLIENT)
+    .useValue(fakeVehiclesDb)
     .overrideProvider(WIKIDATA_CLIENT)
     .useValue(fakeWikidata)
     .overrideProvider(TSB_CLIENT)
@@ -519,6 +549,42 @@ describe('ad eşleme (catalog_aliases)', () => {
       409,
     );
     await expect(db.catalogAlias.delete({ where: { id: s.id } })).rejects.toThrow();
+  });
+});
+
+describe('VehiclesDB: motosiklet, kamyon, otobüs, van (CC BY 4.0)', () => {
+  it('türler kategoriye girer, otomobil alınmaz; aynı yazım tek model; atıf metni saklanır', async () => {
+    const r = await staffCall(app, 'POST', '/staff/catalog/sources/vehiclesdb/check', {}, owner);
+    expect(r.body.durum).toBe('uygulandi');
+    expect(r.body.outcome.stats).toMatchObject({ items: 1104, outOfScope: 1 });
+    expect(
+      (await staffCall(app, 'POST', '/staff/catalog/sources/vehiclesdb/check', {}, owner)).body.durum,
+    ).toBe('yeni_dosya_yok');
+
+    const moto = (await get('/catalog/makes?kategori=motosiklet')).body;
+    const honda = moto.find((m: { name: string }) => m.name === 'Honda');
+    const models = (await get(`/catalog/makes/${honda.id}/models?kategori=motosiklet`)).body;
+    expect(models.map((m: { name: string }) => m.name)).toEqual(['CBR650R']); // "CBR 650R" aynı model
+    expect(moto.map((m: { name: string }) => m.name)).toContain('Piaggio');
+
+    const ticari = (await get('/catalog/makes?kategori=ticari')).body;
+    const mb = ticari.find((m: { name: string }) => m.name === 'Mercedes-Benz');
+    const series = (await get(`/catalog/makes/${mb.id}/series?kategori=ticari`)).body;
+    expect(series.map((s: { name: string }) => s.name)).toContain('Actros');
+    expect(
+      await db.catalogVariant.count({ where: { source: 'vehiclesdb', categories: { has: 'otomobil' } } }),
+    ).toBe(0);
+
+    const att = (await get('/catalog/attributions')).body;
+    const v = att.find((a: { key: string }) => a.key === 'vehiclesdb');
+    expect(v).toMatchObject({ license: 'CC BY 4.0', attribution: 'Vehicle data by VehiclesDB' });
+    expect(v.notice).toContain('Vehicle data by [VehiclesDB](https://vehiclesdb.com)');
+    // Kapalı kaynak atıf listesinde de görünmez
+    await staffCall(app, 'PATCH', '/staff/catalog/sources/vehiclesdb', { active: false }, owner);
+    expect((await get('/catalog/attributions')).body.map((a: { key: string }) => a.key)).not.toContain(
+      'vehiclesdb',
+    );
+    await staffCall(app, 'PATCH', '/staff/catalog/sources/vehiclesdb', { active: true }, owner);
   });
 });
 

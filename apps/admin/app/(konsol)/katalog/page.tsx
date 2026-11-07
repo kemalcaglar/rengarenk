@@ -54,6 +54,8 @@ const SOURCE_ROLE: Record<string, string> = {
   vmm: 'Açık veri · haftalık sürüm · 1985–2005 yılları',
   yerli: 'Türkiye’ye özgü eski modeller · kaynaklı liste (Vikipedi) · 1967–2002',
   wikidata: 'Nesil kodları (E46, Mk7) ve makyaj sırası · haftalık · yıllar Vikipedi bilgi kutusundan',
+  vehiclesdb:
+    'Motosiklet, moped, kamyon, otobüs, van · yıl bilgisi yok · atıf zorunlu (Veri kaynakları sayfası)',
 };
 
 interface SeriesDetail {

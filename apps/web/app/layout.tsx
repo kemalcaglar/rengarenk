@@ -56,6 +56,14 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             children
           )}
         </main>
+        <footer className="wrap" style={{ padding: '0 24px 32px', fontSize: 13 }}>
+          <p className="muted" style={{ margin: 0 }}>
+            <Link href="/veri-kaynaklari">Veri kaynakları</Link> ·{' '}
+            <a href="https://vehiclesdb.com" rel="noreferrer">
+              Vehicle data by VehiclesDB
+            </a>
+          </p>
+        </footer>
       </body>
     </html>
   );

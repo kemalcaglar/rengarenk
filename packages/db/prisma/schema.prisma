@@ -518,6 +518,8 @@ model CatalogSource {
   /// Kaynakta görülen son dosya adı (ör. 202610R2.xlsx); aynı dosya ikinci kez işlenmez
   lastFileName  String?   @map("last_file_name")
   lastError     String?   @map("last_error")
+  /// Kaynağın zorunlu atıf metni (ör. VehiclesDB ATTRIBUTION.md); sitenin "Veri kaynakları" sayfasında gösterilir
+  notice        String?
   updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   imports CatalogImport[]

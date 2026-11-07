@@ -53,6 +53,21 @@ export class CatalogController {
     };
   }
 
+  /**
+   * Veri kaynakları ve atıflar (Teknik tasarım §5; CC BY ve ODbL atıf koşulu): sitenin ve uygulamanın "Veri
+   * kaynakları" sayfası buradan okur. Yalnızca etkin kaynaklar; kaynağın zorunlu atıf metni olduğu gibi döner.
+   */
+  @Get('attributions')
+  async attributions() {
+    const rows = await this.db.catalogSource.findMany({
+      where: { active: true },
+      orderBy: { key: 'asc' },
+      select: { key: true, name: true, license: true, attribution: true, url: true, notice: true },
+    });
+    const order = ['tsb', 'vehiclesdb', 'wikidata', 'vmm', 'yerli'];
+    return rows.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key));
+  }
+
   @Get('makes')
   async makes(@Query('kategori', new ZodPipe(categorySchema)) kategori?: string) {
     return trOrder(

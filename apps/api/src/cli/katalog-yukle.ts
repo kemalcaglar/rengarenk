@@ -19,6 +19,7 @@ import { DatabaseModule } from '../database/database.module.js';
  *   pnpm --filter @rengarenk/api katalog:yukle --yerli    (Türkiye'ye özgü eski modeller, kaynaklı liste)
  *   pnpm --filter @rengarenk/api katalog:yukle --wikidata (nesil kodları ve yılları: Wikidata, Vikipedi)
  *   pnpm --filter @rengarenk/api katalog:yukle --oneri    (ad eşleme önerilerini yeniden üret)
+ *   pnpm --filter @rengarenk/api katalog:yukle --vehiclesdb (motosiklet, kamyon, otobüs, van: VehiclesDB)
  */
 @Module({ imports: [DatabaseModule, CatalogPipelineModule] })
 class CliModule {}
@@ -29,7 +30,8 @@ const vmm = arg === '--vmm';
 const yerli = arg === '--yerli';
 const wikidata = arg === '--wikidata';
 const oneri = arg === '--oneri';
-const file = archive || vmm || yerli || wikidata || oneri ? undefined : arg;
+const vehiclesdb = arg === '--vehiclesdb';
+const file = archive || vmm || yerli || wikidata || oneri || vehiclesdb ? undefined : arg;
 const app = await NestFactory.createApplicationContext(CliModule, { logger: ['error', 'warn'] });
 try {
   const pipeline = app.get(CatalogPipelineService);
@@ -49,18 +51,20 @@ try {
     await app.close();
     process.exit(0);
   }
-  const result = wikidata
-    ? (await pipeline.checkWikidata({ force: true })).outcome
-    : yerli
-      ? (await pipeline.checkYerli({ force: true })).outcome
-      : vmm
-        ? (await pipeline.checkVmm({ force: true })).outcome
-        : file
-          ? await pipeline.runTsbFile(new Uint8Array(readFileSync(file)), {
-              fileName: basename(file),
-              trigger: 'elle',
-            })
-          : (await pipeline.checkTsb({ force: true })).outcome;
+  const result = vehiclesdb
+    ? (await pipeline.checkVehiclesDb({ force: true })).outcome
+    : wikidata
+      ? (await pipeline.checkWikidata({ force: true })).outcome
+      : yerli
+        ? (await pipeline.checkYerli({ force: true })).outcome
+        : vmm
+          ? (await pipeline.checkVmm({ force: true })).outcome
+          : file
+            ? await pipeline.runTsbFile(new Uint8Array(readFileSync(file)), {
+                fileName: basename(file),
+                trigger: 'elle',
+              })
+            : (await pipeline.checkTsb({ force: true })).outcome;
   const sure = ((Date.now() - started) / 1000).toFixed(1);
   if (!result) {
     console.log(

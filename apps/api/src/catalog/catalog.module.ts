@@ -9,6 +9,7 @@ import { CatalogImportService } from './catalog-import.service.js';
 import { CATALOG_KEYS, loadCatalogKeys } from './catalog-keys.js';
 import { CatalogPipelineService } from './catalog-pipeline.service.js';
 import { createTsbClient, TSB_CLIENT } from './tsb-client.js';
+import { HttpVehiclesDbClient, VEHICLESDB_CLIENT } from './vehiclesdb-client.js';
 import { HttpVmmClient, VMM_CLIENT } from './vmm-client.js';
 import { HttpWikidataClient, WIKIDATA_CLIENT } from './wikidata-client.js';
 
@@ -22,6 +23,7 @@ const providers = [
   { provide: TSB_CLIENT, inject: [ENV], useFactory: (env: Env) => createTsbClient(env) },
   { provide: VMM_CLIENT, useFactory: () => new HttpVmmClient() },
   { provide: WIKIDATA_CLIENT, useFactory: () => new HttpWikidataClient() },
+  { provide: VEHICLESDB_CLIENT, useFactory: () => new HttpVehiclesDbClient() },
 ];
 
 /** Araç kataloğu: okuma uçları, konsoldan izleme ve katalog hattı (Aşama 2). */

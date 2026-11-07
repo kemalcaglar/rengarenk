@@ -113,7 +113,7 @@ export interface QualityIssue {
 }
 
 // Wikidata yalnızca nesil kodu ekler, hiçbir şey silmez; boş yanıt reddedilir.
-const MIN_ITEMS: Record<string, number> = { tsb: 1000, vmm: 1000, yerli: 10, wikidata: 1 };
+const MIN_ITEMS: Record<string, number> = { tsb: 1000, vmm: 1000, yerli: 10, wikidata: 1, vehiclesdb: 1000 };
 
 export interface QualityReport {
   /** false ise yayın durur (Teknik tasarım §5) */

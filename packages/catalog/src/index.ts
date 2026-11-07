@@ -4,6 +4,7 @@ export * from './snapshot.js';
 export * from './tsb/parse.js';
 export * from './tsb/read.js';
 export * from './tsb/series.js';
+export * from './vehiclesdb.js';
 export * from './vmm.js';
 export * from './wikidata.js';
 export * from './xlsx.js';

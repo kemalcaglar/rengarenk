@@ -2,12 +2,14 @@ import { createHash } from 'node:crypto';
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   buildTsbSnapshot,
+  buildVehiclesDbSnapshot,
   buildVmmSnapshot,
   buildWikidataSnapshot,
   buildYerliSnapshot,
   revisionFromFileName,
   signSnapshot,
   TSB_PARSER,
+  VEHICLESDB_PARSER,
   VMM_PARSER,
   WIKIDATA_PARSER,
   YERLI_KLASIKLER,
@@ -18,6 +20,7 @@ import { OutboxService } from '../outbox/outbox.service.js';
 import { CatalogImportService, type ImportMeta, type ImportOutcome } from './catalog-import.service.js';
 import { CATALOG_KEYS, type CatalogKeys } from './catalog-keys.js';
 import { TSB_CLIENT, type TsbClient } from './tsb-client.js';
+import { VEHICLESDB_CLIENT, type VehiclesDbClient } from './vehiclesdb-client.js';
 import { VMM_CLIENT, type VmmClient } from './vmm-client.js';
 import { WIKIDATA_CLIENT, type WikidataClient } from './wikidata-client.js';
 
@@ -41,6 +44,7 @@ export class CatalogPipelineService {
     @Inject(TSB_CLIENT) private readonly tsb: TsbClient,
     @Inject(VMM_CLIENT) private readonly vmm: VmmClient,
     @Inject(WIKIDATA_CLIENT) private readonly wikidata: WikidataClient,
+    @Inject(VEHICLESDB_CLIENT) private readonly vehiclesdb: VehiclesDbClient,
     private readonly importer: CatalogImportService,
     private readonly outbox: OutboxService,
   ) {}
@@ -173,12 +177,66 @@ export class CatalogPipelineService {
     }
   }
 
+  /**
+   * VehiclesDB: motosiklet, moped, kamyon, otobüs, van (CC BY 4.0). Yeni sürüm varsa indirip işler; sürümün atıf
+   * metni (ATTRIBUTION.md) kaynağa yazılır ve sitedeki "Veri kaynakları" sayfasında gösterilir.
+   */
+  async checkVehiclesDb(
+    opts: { force?: boolean; staffId?: string; ip?: string } = {},
+  ): Promise<{ durum: string; outcome?: ImportOutcome }> {
+    const source = await this.db.catalogSource.findUniqueOrThrow({ where: { key: 'vehiclesdb' } });
+    if (!source.autoFetch && !opts.force) return { durum: 'kapali' };
+    try {
+      const rel = await this.vehiclesdb.latest();
+      if (rel.tag === source.lastVersion && (await this.appliedWith('vehiclesdb', VEHICLESDB_PARSER))) {
+        await this.db.catalogSource.update({
+          where: { key: 'vehiclesdb' },
+          data: { lastCheckedAt: new Date(), lastError: null },
+        });
+        return { durum: 'yeni_dosya_yok' };
+      }
+      const file = await this.vehiclesdb.download(rel.csvUrl);
+      const meta = {
+        fileName: `${rel.tag}/vehicles.csv`,
+        fileSha256: createHash('sha256').update(file).digest('hex'),
+        trigger: opts.staffId ? ('elle' as const) : ('otomatik' as const),
+        staffId: opts.staffId,
+        ip: opts.ip,
+      };
+      let pkg: ReturnType<typeof signSnapshot>;
+      try {
+        pkg = signSnapshot(buildVehiclesDbSnapshot(file, { version: rel.tag }), this.keys.privatePem);
+      } catch (err) {
+        const outcome = await this.importer.recordReadFailure('vehiclesdb', meta, (err as Error).message);
+        return { durum: 'failed', outcome };
+      }
+      const outcome = await this.importer.apply(pkg, meta);
+      // Atıf metni lisans koşuludur: sürümle gelen metin olduğu gibi saklanır (en çok 200 KB).
+      if (outcome.status === 'APPLIED' && rel.attributionUrl) {
+        const notice = new TextDecoder().decode(
+          await this.vehiclesdb.download(rel.attributionUrl, 200 * 1024),
+        );
+        await this.db.catalogSource.update({ where: { key: 'vehiclesdb' }, data: { notice } });
+      }
+      return { durum: outcome.status === 'APPLIED' ? 'uygulandi' : outcome.status.toLowerCase(), outcome };
+    } catch (err) {
+      const message = (err as Error).message;
+      this.log.warn(`VehiclesDB kontrolü başarısız: ${message}`);
+      await this.db.catalogSource.update({
+        where: { key: 'vehiclesdb' },
+        data: { lastCheckedAt: new Date(), lastError: message },
+      });
+      return { durum: 'hata' };
+    }
+  }
+
   /** Konsoldaki "Şimdi kontrol et": kaynağa göre doğru hat. */
   checkSource(key: string, opts: { force?: boolean; staffId?: string; ip?: string }) {
     if (key === 'tsb') return this.checkTsb(opts);
     if (key === 'vmm') return this.checkVmm(opts);
     if (key === 'yerli') return this.checkYerli(opts);
     if (key === 'wikidata') return this.checkWikidata(opts);
+    if (key === 'vehiclesdb') return this.checkVehiclesDb(opts);
     throw new NotFoundException('Kaynak bulunamadı');
   }
 

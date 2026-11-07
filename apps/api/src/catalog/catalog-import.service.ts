@@ -170,80 +170,105 @@ export class CatalogImportService {
       arsiv: Boolean(meta.archive),
     };
     if (!quality.ok) {
-      const out = await this.record(snap.source, snap.version, 'REJECTED', meta, baseStats, quality);
-      await this.db.$transaction((tx) =>
-        this.outbox.add(tx, 'katalog.reddedildi', {
-          importId: out.id,
-          source: snap.source,
-          version: snap.version,
-        }),
-      );
-      return out;
+      return this.record(snap.source, snap.version, 'REJECTED', meta, baseStats, quality, undefined, true);
     }
 
     try {
-      const { unmatched, ...counts } = await this.db.$transaction(
-        (tx) => this.write(tx, snap, Boolean(meta.archive)),
-        { timeout: 180_000, maxWait: 10_000 },
-      );
-      // Ad eşleme önerileri (onaya düşer; kendiliğinden uygulanmaz). Öneri üretilemezse içe aktarma geçerlidir.
-      const aliasSuggested = await this.aliases.suggest(snap.source, unmatched).catch(() => 0);
-      const stats = { ...baseStats, ...counts, unmatchedSeries: unmatched.length, aliasSuggested };
+      // Tek veritabanı işlemi: kataloğa yazma, içe aktarma kaydı, işlem kaydı ve olay birlikte (kural 5). Aynı kaynağın
+      // içe aktarmaları kilitle sıraya girer; "aynı dosya" denetimi kilidin içinde yinelenir (eşzamanlı iki deneme
+      // aynı dosyayı iki kez uygulamaz).
       const id = uuidv7();
-      await this.db.$transaction(async (tx) => {
-        await tx.catalogImport.create({
-          data: {
-            id,
-            sourceKey: snap.source,
-            version: snap.version,
-            fileName: meta.fileName ?? null,
-            sha256: meta.fileSha256 ?? pkg.sha256,
-            trigger: meta.trigger,
-            status: 'APPLIED',
-            stats: stats as Prisma.InputJsonValue,
-            quality: quality as unknown as Prisma.InputJsonValue,
-            createdBy: meta.staffId ?? null,
-          },
-        });
-        // Arşiv yüklemesi kaynağın güncel sürümünü değiştirmez.
-        if (!meta.archive) {
-          await tx.catalogSource.update({
-            where: { key: snap.source },
+      const done = await this.db.$transaction(
+        async (tx) => {
+          await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`katalog:${snap.source}`}))`;
+          if (meta.fileSha256) {
+            const same = await tx.catalogImport.findFirst({
+              where: {
+                sourceKey: snap.source,
+                sha256: meta.fileSha256,
+                status: 'APPLIED',
+                stats: { path: ['parser'], equals: snap.parser },
+              },
+              select: { id: true },
+            });
+            if (same) return { skipped: same.id } as const;
+          }
+          const { unmatched, ...counts } = await this.write(tx, snap, Boolean(meta.archive));
+          const stats = { ...baseStats, ...counts, unmatchedSeries: unmatched.length };
+          await tx.catalogImport.create({
             data: {
-              lastSuccessAt: new Date(),
-              lastCheckedAt: new Date(),
-              lastVersion: snap.version,
-              ...(meta.fileName ? { lastFileName: meta.fileName } : {}),
-              lastError: null,
+              id,
+              sourceKey: snap.source,
+              version: snap.version,
+              fileName: meta.fileName ?? null,
+              sha256: meta.fileSha256 ?? pkg.sha256,
+              trigger: meta.trigger,
+              status: 'APPLIED',
+              stats: stats as Prisma.InputJsonValue,
+              quality: quality as unknown as Prisma.InputJsonValue,
+              createdBy: meta.staffId ?? null,
             },
           });
-        }
-        await this.audit.record(
-          {
-            actorType: meta.staffId ? 'STAFF' : 'SYSTEM',
-            actorId: meta.staffId ?? null,
-            action: meta.archive ? 'katalog_arsiv_ice_aktarildi' : 'katalog_ice_aktarildi',
-            entityType: 'catalog_import',
-            entityId: id,
-            after: {
-              kaynak: snap.source,
-              surum: snap.version,
-              eklenen: counts.added,
-              kaybolan: counts.missing,
+          // Arşiv yüklemesi kaynağın güncel sürümünü değiştirmez.
+          if (!meta.archive) {
+            await tx.catalogSource.update({
+              where: { key: snap.source },
+              data: {
+                lastSuccessAt: new Date(),
+                lastCheckedAt: new Date(),
+                lastVersion: snap.version,
+                ...(meta.fileName ? { lastFileName: meta.fileName } : {}),
+                lastError: null,
+              },
+            });
+          }
+          await this.audit.record(
+            {
+              actorType: meta.staffId ? 'STAFF' : 'SYSTEM',
+              actorId: meta.staffId ?? null,
+              action: meta.archive ? 'katalog_arsiv_ice_aktarildi' : 'katalog_ice_aktarildi',
+              entityType: 'catalog_import',
+              entityId: id,
+              after: {
+                kaynak: snap.source,
+                surum: snap.version,
+                eklenen: counts.added,
+                kaybolan: counts.missing,
+              },
+              ip: meta.ip,
             },
-            ip: meta.ip,
-          },
-          tx,
+            tx,
+          );
+          await this.outbox.add(tx, 'katalog.guncellendi', {
+            importId: id,
+            source: snap.source,
+            version: snap.version,
+            added: counts.added,
+            missing: counts.missing,
+          });
+          return { stats, unmatched } as const;
+        },
+        { timeout: 180_000, maxWait: 60_000 },
+      );
+      if ('skipped' in done) {
+        return this.record(
+          snap.source,
+          snap.version,
+          'SKIPPED',
+          meta,
+          { neden: 'ayni_dosya', onceki: done.skipped },
+          null,
         );
-        await this.outbox.add(tx, 'katalog.guncellendi', {
-          importId: id,
-          source: snap.source,
-          version: snap.version,
-          added: counts.added,
-          missing: counts.missing,
-        });
-      });
-      return { id, status: 'APPLIED', version: snap.version, stats, quality };
+      }
+      // Ad eşleme önerileri (onaya düşer; kendiliğinden uygulanmaz). Öneri üretilemezse içe aktarma geçerlidir.
+      const aliasSuggested = await this.aliases.suggest(snap.source, done.unmatched).catch(() => 0);
+      return {
+        id,
+        status: 'APPLIED',
+        version: snap.version,
+        stats: { ...done.stats, aliasSuggested },
+        quality,
+      };
     } catch (err) {
       return this.record(
         snap.source,
@@ -273,10 +298,37 @@ export class CatalogImportService {
     return new Map(rows.map((r) => [r.fromKey, r.toKey]));
   }
 
+  /**
+   * Seri katmanı olmayan türlerde (motosiklet, ATV) aynı model kaynaklarda farklı yazılır: TSB "CBR 650R",
+   * VehiclesDB "CBR650R". Harf ve rakamları aynı olan model, katalogda var olanın anahtarını kullanır.
+   */
+  private async reuseSeriesLessModels(
+    tx: Tx,
+    items: { k: { make: string; series: string | null; model: string } }[],
+  ) {
+    const loose = items.filter((i) => i.k.series === null);
+    if (!loose.length) return;
+    const makes = [...new Set(loose.map((i) => `${i.k.make}/-/%`))];
+    const rows = await tx.$queryRaw<{ key: string }[]>`
+      SELECT key FROM catalog_models WHERE series_id IS NULL AND key LIKE ANY(${makes}::text[])`;
+    const flat = (key: string) => {
+      const [make, , ...rest] = key.split('/');
+      return `${make}|${rest.join('/').replace(/[^a-z0-9]/g, '')}`;
+    };
+    const known = new Map<string, string>();
+    for (const r of rows) if (!known.has(flat(r.key))) known.set(flat(r.key), r.key);
+    for (const i of loose) {
+      const hit = known.get(flat(i.k.model));
+      if (hit) i.k.model = hit;
+      else known.set(flat(i.k.model), i.k.model);
+    }
+  }
+
   /** Paketin kataloğa yazılması: marka, seri, model, paket, kasa kuşakları ve tipler; toplu SQL ile. */
   private async write(tx: Tx, snap: CatalogSnapshot, archive = false) {
     const alias = await this.aliasMap(tx, snap.source);
     const items = snap.items.map((v) => ({ v, k: catalogKeys(v, alias) }));
+    await this.reuseSeriesLessModels(tx, items);
     // Tiplerden bağımsız kasa kuşakları (vehicle-makes-models bütün yıllar, Wikidata nesil kodları)
     const extra = (snap.generations ?? []).map((g) => ({
       g,
@@ -540,9 +592,14 @@ export class CatalogImportService {
     stats: Record<string, unknown>,
     quality: QualityReport | null,
     error?: string,
+    /** Reddedilen paket için olay da aynı işlemde yazılır (sahibe bildirim) */
+    rejectedEvent = false,
   ): Promise<ImportOutcome> {
     const id = uuidv7();
     await this.db.$transaction(async (tx) => {
+      if (rejectedEvent) {
+        await this.outbox.add(tx, 'katalog.reddedildi', { importId: id, source, version });
+      }
       await tx.catalogImport.create({
         data: {
           id,
