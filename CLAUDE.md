@@ -102,8 +102,13 @@ pnpm format        # Biome ile biçimlendir
   atanamaz (özel rol kullanılır); yönetim e-posta alanı `rengarenk.com.tr`.
 - **Sprint 4 (sunucusuz kısmı) bitti:** özellik anahtarları ve bakım modu (`apps/api/src/flags/`,
   `packages/shared/src/flags.ts`), canlı provası (`deploy/prova/`, el kitabı `deploy/README.md`). API'de 59 test.
-- **Sıradaki:** sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS; GCP test ortamı. Beklerken
-  Aşama 2 (katalog ve kategoriler, Sprint 5–7) başlayabilir. Liste:
+- **Sprint 5 (Aşama 2) bitti:** katalog veri modeli, hat (`packages/catalog`, API `apps/api/src/catalog/`), TSB
+  iki yoldan (konsoldan yükleme + otomatik çekme, sahip kararı), konsolda "Katalog kaynakları". Yerel veritabanında
+  Ekim 2026 TSB listesi yüklü (23.054 tip). API'de 68 test.
+- **TSB dosyası:** `https://www.tsb.org.tr/InsuranceData/GetLatestExcelFile` → dosya yolu. Kasko bedeli asla
+  saklanmaz ve gösterilmez (Karar 33). TSB dosyası depoya girmez.
+- **Sıradaki:** Sprint 6: Wikidata ile kasa kuşağı ve makyaj, ad eşleme, EEA, VehiclesDB, Commons fotoğrafları.
+  Sprint 7: 14 kategori şeması (Karar 45). Sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS. Liste:
   `docs/kapsam/03-gelistirme-plani.md` sonundaki sprint bölümleri. Bir sprint bitince oradaki kutuları
   işaretle ve README'deki "Şu an neler var" bölümünü güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, hesaplar (Apple, Google

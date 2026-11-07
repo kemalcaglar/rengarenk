@@ -105,3 +105,16 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] Radore sunucularına ilk dağıtım (sunucular hazır olunca)
 - [ ] Yedek (pgBackRest), izleme yığını (Prometheus, Grafana, Loki, GlitchTip) ve SOPS (sunucuyla birlikte)
 - [ ] GCP test ortamı (sentetik veri; GCP erişimi gelince)
+
+## Sprint 5 · katalog veri modeli ve TSB hattı (Aşama 2, 7 Kasım 2026'da başladı)
+
+- [x] Katalog veri modeli: marka, seri, model (motor sürümü), donanım paketi, kaynak tipi; her kayıt kaynağıyla, TSB ayrılabilir; düşen kayıt silinmez (Karar 33)
+- [x] Katalog hattı: okuma → normalize → önceki sürümle karşılaştırma → kalite kontrolü → Ed25519 imzalı paket → kataloğa yazma (Teknik tasarım §5)
+- [x] TSB okuyucu ve ayrıştırıcı: seri, model, kasa, motor, güç, yakıt, vites, çekiş, makyaj (LCI/FL), paket; marka birleştirme; kategori ataması. Ekim 2026 dosyası: 23.054 tip, 4,2 sn
+- [x] TSB iki yoldan: konsoldan yükleme ve otomatik çekme (sahip kararı); 48 saat güncellenmezse uyarı olayı
+- [x] Katalog okuma uçları ve konsolda "Katalog kaynakları" ekranı (izleme, geçmiş, gezgin)
+- [x] Demo: BMW 3 Serisi 320i'nin kasa ve paketleri katalogdan geliyor
+- [ ] Kasa kuşağı (nesil kodu) ve güvenilir makyaj yılları: Wikidata ve vehicle-makes-models (Sprint 6). TSB "LCI" işaretini tutarlı kullanmıyor
+- [ ] Ad eşleme (catalog_aliases): aynı serinin farklı yazımları (i3 / I3S, M / M Serisi) (Sprint 6)
+- [ ] Açık kaynaklar: EEA teknik değerleri, VehiclesDB (motosiklet, kamyon, otobüs), Commons fotoğrafları (Sprint 6)
+- [ ] 14 kategori şeması ve kategori yönetimi (Karar 45) (Sprint 7)

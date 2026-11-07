@@ -45,6 +45,14 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
     ],
   },
   {
+    grup: 'Katalog',
+    ogeler: [
+      { ad: 'Kategoriler ve alanlar', sonra: true },
+      { ad: 'Eşleştirme ayarı', sonra: true },
+      { href: '/katalog', ad: 'Katalog kaynakları', izin: 'kategori.ayarla' },
+    ],
+  },
+  {
     grup: 'Sistem',
     ogeler: [
       { ad: 'Entegrasyonlar', sonra: true },

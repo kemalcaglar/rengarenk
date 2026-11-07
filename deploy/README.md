@@ -6,15 +6,15 @@ bilgisayarda **canlı provasıyla** denenebilir (aşağıda).
 
 ## Uygulama sunucusunda neler çalışır
 
-| Servis | İmaj | Görev |
-| --- | --- | --- |
-| caddy | caddy:2.10 | 80/443, TLS sertifikasını kendisi alır ve yeniler; alan adlarını servislere yönlendirir |
-| api | rengarenk-api | NestJS API (:4000, dışarıya yalnızca Caddy üzerinden) |
-| worker | rengarenk-api | Outbox aktarıcısı, onay yürütme, süre dolumları (`node dist/worker.js`) |
-| web | rengarenk-web | Kullanıcı sitesi (rengarenk.com.tr) |
-| admin | rengarenk-admin | Yönetim konsolu (yonetim.rengarenk.com.tr) |
-| migrate | rengarenk-migrate | Tek seferlik: veritabanı göçleri (`prisma migrate deploy`) |
-| redis, opensearch, seaweedfs | resmî imajlar | Önbellek ve hız sınırı, arama, dosya deposu (S3) |
+| Servis                       | İmaj              | Görev                                                                                   |
+| ---------------------------- | ----------------- | --------------------------------------------------------------------------------------- |
+| caddy                        | caddy:2.10        | 80/443, TLS sertifikasını kendisi alır ve yeniler; alan adlarını servislere yönlendirir |
+| api                          | rengarenk-api     | NestJS API (:4000, dışarıya yalnızca Caddy üzerinden)                                   |
+| worker                       | rengarenk-api     | Outbox aktarıcısı, onay yürütme, süre dolumları (`node dist/worker.js`)                 |
+| web                          | rengarenk-web     | Kullanıcı sitesi (rengarenk.com.tr)                                                     |
+| admin                        | rengarenk-admin   | Yönetim konsolu (yonetim.rengarenk.com.tr)                                              |
+| migrate                      | rengarenk-migrate | Tek seferlik: veritabanı göçleri (`prisma migrate deploy`)                              |
+| redis, opensearch, seaweedfs | resmî imajlar     | Önbellek ve hız sınırı, arama, dosya deposu (S3)                                        |
 
 ## İlk kurulum (sunucular gelince)
 
@@ -39,13 +39,13 @@ bilgisayarda **canlı provasıyla** denenebilir (aşağıda).
 
 ## Günlük işler
 
-| İş | Komut (sunucuda, `/srv/rengarenk`) |
-| --- | --- |
-| Yeni sürüm | Depoda `v*` etiketi; iş akışı kendisi günceller |
-| Geri alma | `export TAG=<önceki etiket> && docker compose -f compose.prod.yml up -d` (göçler geriye uyumlu yazılır) |
-| Günlükler | `docker compose -f compose.prod.yml logs -f api worker` |
-| Durum | `docker compose -f compose.prod.yml ps` |
-| Bakım modu | Yönetim konsolu › Sistem › Özellik anahtarları ve bakım (kod ve dağıtım gerekmez) |
+| İş         | Komut (sunucuda, `/srv/rengarenk`)                                                                      |
+| ---------- | ------------------------------------------------------------------------------------------------------- |
+| Yeni sürüm | Depoda `v*` etiketi; iş akışı kendisi günceller                                                         |
+| Geri alma  | `export TAG=<önceki etiket> && docker compose -f compose.prod.yml up -d` (göçler geriye uyumlu yazılır) |
+| Günlükler  | `docker compose -f compose.prod.yml logs -f api worker`                                                 |
+| Durum      | `docker compose -f compose.prod.yml ps`                                                                 |
+| Bakım modu | Yönetim konsolu › Sistem › Özellik anahtarları ve bakım (kod ve dağıtım gerekmez)                       |
 
 ## Canlı provası (bu bilgisayarda)
 

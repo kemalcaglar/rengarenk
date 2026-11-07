@@ -15,15 +15,19 @@ async function handle(req: NextRequest, ctx: { params: Promise<{ yol: string[] }
   const token = req.cookies.get(SESSION_COOKIE)?.value;
   if (!token) return NextResponse.json({ message: 'Oturum kapalı' }, { status: 401 });
 
-  const body = req.method === 'GET' ? undefined : await req.text();
+  // Gövde olduğu gibi (ham bayt) iletilir: JSON da, konsoldan yüklenen Excel dosyası da bozulmadan gider.
+  const body = req.method === 'GET' ? undefined : await req.arrayBuffer();
+  const hasBody = body !== undefined && body.byteLength > 0;
+  const fileName = req.headers.get('x-dosya-adi');
   const res = await fetch(`${API}/staff/${yol.map(encodeURIComponent).join('/')}${req.nextUrl.search}`, {
     method: req.method,
     headers: {
       ...forwardHeaders(req.headers),
       authorization: `Bearer ${token}`,
-      ...(body ? { 'content-type': 'application/json' } : {}),
+      ...(hasBody ? { 'content-type': req.headers.get('content-type') ?? 'application/json' } : {}),
+      ...(fileName ? { 'x-dosya-adi': fileName } : {}),
     },
-    body: body || undefined,
+    body: hasBody ? body : undefined,
     cache: 'no-store',
   });
   const text = res.status === 204 ? null : await res.text();

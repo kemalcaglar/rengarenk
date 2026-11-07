@@ -126,6 +126,15 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - Bakım: tüm site (API kullanıcı uçları 503), ödemeler, mesajlaşma, talep. Bir modül yazma işleminden önce
   `assertAvailable('odeme')` çağırır. Web ve mobilde duyuru üst şeritte çıkar.
 
+## Araç kataloğu (Sprint 5)
+
+- `packages/catalog`: veritabanına dokunmayan hat (Excel okuyucu, TSB ayrıştırıcı, kalite kontrolü, imzalı paket).
+  GCP gelince Cloud Run'a taşınacak; şimdilik API ve işçide çalışır.
+- TSB dosyası: konsol › Katalog › Katalog kaynakları'ndan yükleme ya da otomatik çekme (6 saatte bir, konsoldan açılır).
+  Komut satırından: `pnpm --filter @rengarenk/api katalog:yukle <dosya.xlsx>` (dosya verilmezse TSB'den en son dosya).
+- Kasko bedelleri okunduğu anda atılır; hiçbir tabloda ve yanıtta yoktur. Kaynaktan düşen tipler silinmez.
+- Okuma uçları: `GET /catalog/makes?kategori=`, `/catalog/makes/:id/series`, `/catalog/series/:id?yil=`.
+
 ## Canlıya alma
 
 Ayrıntılı el kitabı ve bu bilgisayarda canlı provası: [deploy/README.md](deploy/README.md).

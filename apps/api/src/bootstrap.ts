@@ -5,6 +5,7 @@ import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fa
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module.js';
+import { registerXlsxBody } from './catalog/xlsx-body.js';
 import { loadEnv } from './config/env.js';
 import { initSentry, ReportingExceptionFilter } from './observability/sentry.js';
 
@@ -19,6 +20,7 @@ export async function createApp(): Promise<NestFastifyApplication> {
     },
   );
   app.useLogger(app.get(Logger));
+  registerXlsxBody(app);
   if (reporting) app.useGlobalFilters(new ReportingExceptionFilter(app.get(HttpAdapterHost).httpAdapter));
   await app.register(helmet);
   app.enableCors({ origin: [env.WEB_ORIGIN, env.ADMIN_ORIGIN], credentials: true });

@@ -22,7 +22,11 @@ export type EventType =
   | 'onay.reddedildi'
   | 'onay.suresi_doldu'
   // Ayarlar (T13): özellik anahtarı veya bakım modu değişti
-  | 'ayar.degisti';
+  | 'ayar.degisti'
+  // Katalog hattı (Teknik tasarım §5, Karar 33)
+  | 'katalog.guncellendi'
+  | 'katalog.reddedildi'
+  | 'katalog.kaynak_gecikti';
 
 @Injectable()
 export class OutboxService {

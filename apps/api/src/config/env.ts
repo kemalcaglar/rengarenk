@@ -43,6 +43,15 @@ const schema = z.object({
    * Google Workspace hesabı şartı (Google'ın `hd` bilgisi). Yalnızca geliştirmede, kişisel Google
    * hesabıyla gerçek giriş denemek için `false` yapılabilir; canlıda kapatılamaz.
    */
+  /**
+   * Katalog paketlerinin imza anahtarları (Ed25519, Teknik tasarım §5). Hat paketi imzalar, API doğrular.
+   * PEM ya da base64 DER. Geliştirmede verilmezse JWT_SECRET'ten sabit bir çift türetilir; canlıda zorunlu.
+   * Üretmek için: pnpm --filter @rengarenk/api katalog:anahtar
+   */
+  CATALOG_SIGNING_KEY: z.string().optional(),
+  CATALOG_VERIFY_KEY: z.string().optional(),
+  /** TSB sitesinin adresi (testte sahte sunucu) */
+  TSB_BASE_URL: z.string().default('https://www.tsb.org.tr'),
   STAFF_REQUIRE_WORKSPACE: z
     .enum(['true', 'false'])
     .default('true')
@@ -67,6 +76,9 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (e.STAFF_AUTH_PROVIDER !== 'google') throw new Error('Canlıda yönetim girişi Google Workspace olmalı');
     if (!e.STAFF_SECRET_KEY) throw new Error('Canlıda STAFF_SECRET_KEY gerekli');
     if (!e.STAFF_REQUIRE_WORKSPACE) throw new Error('Canlıda Google Workspace şartı kapatılamaz');
+    if (!e.CATALOG_SIGNING_KEY || !e.CATALOG_VERIFY_KEY) {
+      throw new Error('Canlıda CATALOG_SIGNING_KEY ve CATALOG_VERIFY_KEY gerekli');
+    }
   }
   if (e.STAFF_AUTH_PROVIDER === 'google' && !(e.GOOGLE_CLIENT_ID && e.GOOGLE_CLIENT_SECRET)) {
     throw new Error('Google Workspace girişi için GOOGLE_CLIENT_ID ve GOOGLE_CLIENT_SECRET gerekli');

@@ -69,6 +69,9 @@ importers:
       '@nestjs/swagger':
         specifier: 12.1.1
         version: 12.1.1(@fastify/static@10.1.10)(@nestjs/common@12.4.0(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@12.4.0(@nestjs/common@12.4.0(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(typescript@6.0.3)
+      '@rengarenk/catalog':
+        specifier: workspace:*
+        version: link:../../packages/catalog
       '@rengarenk/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -127,6 +130,9 @@ importers:
       '@types/qrcode':
         specifier: 1.5.6
         version: 1.5.6
+      fflate:
+        specifier: 0.8.3
+        version: 0.8.3
       pg:
         specifier: 8.23.1
         version: 8.23.1
@@ -216,6 +222,25 @@ importers:
       typescript:
         specifier: 6.0.3
         version: 6.0.3
+
+  packages/catalog:
+    dependencies:
+      '@rengarenk/shared':
+        specifier: workspace:*
+        version: link:../shared
+      fflate:
+        specifier: 0.8.3
+        version: 0.8.3
+    devDependencies:
+      '@types/node':
+        specifier: 22.19.17
+        version: 22.19.17
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
+      vitest:
+        specifier: 5.1.0
+        version: 5.1.0(@opentelemetry/api@1.10.0)(@types/node@22.19.17)(vite@8.3.6(@types/node@22.19.17)(jiti@2.7.0)(terser@5.51.2))
 
   packages/db:
     dependencies:
@@ -3204,6 +3229,9 @@ packages:
 
   fetch-nodeshim@0.4.10:
     resolution: {integrity: sha512-m6I8ALe4L4XpdETy7MJZWs6L1IVMbjs99bwbpIKphxX+0CTns4IKDWJY0LWfr4YsFjfg+z1TjzTMU8lKl8rG0w==}
+
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
 
   file-type@22.3.0:
     resolution: {integrity: sha512-PrPedgnnWl5bWz3JHgar0QSzRvzeyFh7dZ9JpYOgcPZu4KALS9zw4MMa6qXRYyjeBsAlpaWB2boLuG991+0HIQ==}
@@ -8085,6 +8113,8 @@ snapshots:
       picomatch: 4.0.7
 
   fetch-nodeshim@0.4.10: {}
+
+  fflate@0.8.3: {}
 
   file-type@22.3.0:
     dependencies:

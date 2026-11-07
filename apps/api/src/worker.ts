@@ -4,6 +4,8 @@ import { NestFactory } from '@nestjs/core';
 import { ApprovalService } from './approvals/approval.service.js';
 import { ApprovalExecutor } from './approvals/approval-executor.js';
 import { ApprovalsModule } from './approvals/approvals.module.js';
+import { CatalogPipelineModule } from './catalog/catalog.module.js';
+import { CatalogPipelineService } from './catalog/catalog-pipeline.service.js';
 import { DatabaseModule } from './database/database.module.js';
 import { type Db, PRISMA } from './database/prisma.js';
 import { OutboxService } from './outbox/outbox.service.js';
@@ -15,7 +17,10 @@ import { QueueService } from './queue/queue.service.js';
  * sonraki sprintlerde eklenir. İade yürütücü ayrı bir süreç olacak ve PayTR iade anahtarı yalnızca
  * orada bulunacak (kilit 2); bu işçi iade yürütmez.
  */
-@Module({ imports: [DatabaseModule, ApprovalsModule], providers: [OutboxService, QueueService] })
+@Module({
+  imports: [DatabaseModule, ApprovalsModule, CatalogPipelineModule],
+  providers: [OutboxService, QueueService],
+})
 class WorkerModule {}
 
 const log = new Logger('worker');
@@ -26,6 +31,7 @@ const queue = app.get(QueueService);
 const approvals = app.get(ApprovalService);
 const executor = app.get(ApprovalExecutor);
 const db = app.get<Db>(PRISMA);
+const catalog = app.get(CatalogPipelineService);
 await queue.start();
 
 await queue.consume<{ approvalId: string }>('onay.onaylandi', 'onay-yurut', async ({ approvalId }) => {
@@ -40,6 +46,9 @@ process.on('SIGTERM', () => {
 
 const HOUSEKEEPING_MS = 5 * 60_000;
 let lastHousekeeping = 0;
+/** TSB ayda birkaç kez (revizyonlarla) dosya yayımlar; 6 saatte bir bakılır. Otomatik çekme konsoldan açılır. */
+const CATALOG_CHECK_MS = 6 * 3600_000;
+let lastCatalogCheck = 0;
 
 log.log('outbox aktarıcısı çalışıyor');
 while (!stopping) {
@@ -56,6 +65,12 @@ while (!stopping) {
     } catch (err) {
       log.error(err);
     }
+  }
+  if (Date.now() - lastCatalogCheck > CATALOG_CHECK_MS) {
+    lastCatalogCheck = Date.now();
+    const r = await catalog.checkTsb().catch((err: Error) => ({ durum: `hata: ${err.message}` }));
+    if (r.durum !== 'kapali' && r.durum !== 'yeni_dosya_yok') log.log(`TSB kontrolü: ${r.durum}`);
+    await catalog.reportStaleSources().catch((err: Error) => log.error(err));
   }
   if (sent === 0) await new Promise((r) => setTimeout(r, 500));
 }

@@ -9,6 +9,7 @@ import {
 } from '@rengarenk/shared';
 import { type FormEvent, useCallback, useEffect, useState } from 'react';
 import { tarih, yonetim } from '../../../lib/istemci';
+import { Switch } from '../switch';
 
 interface Flag {
   key: string;
@@ -42,36 +43,6 @@ function scope(f: Flag) {
     f.audience !== 'ALL' ? FLAG_AUDIENCE_NAMES[f.audience] : null,
   ].filter(Boolean);
   return parts.join(' · ');
-}
-
-function Switch({
-  on,
-  label,
-  danger,
-  disabled,
-  onChange,
-}: {
-  on: boolean;
-  label: string;
-  danger?: boolean;
-  disabled?: boolean;
-  onChange: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={on}
-      aria-label={label}
-      className={`k-switch${danger ? ' k-danger' : ''}`}
-      disabled={disabled}
-      onClick={onChange}
-    >
-      <span className="k-track">
-        <span className="k-knob" />
-      </span>
-    </button>
-  );
 }
 
 /** Özellik anahtarları ve bakım (tasarım: YonetimSistem). Yetki: "Bakım modu ve özellik anahtarları". */

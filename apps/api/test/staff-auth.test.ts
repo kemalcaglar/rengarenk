@@ -269,6 +269,8 @@ describe('yönetim girişi ayarları', () => {
     GOOGLE_CLIENT_ID: 'id',
     GOOGLE_CLIENT_SECRET: 's',
     STAFF_SECRET_KEY: 'y'.repeat(32),
+    CATALOG_SIGNING_KEY: 'imza',
+    CATALOG_VERIFY_KEY: 'dogrulama',
   };
 
   it('canlıda sahte Google, eksik anahtar ve kapalı Workspace şartı reddedilir', () => {
@@ -276,6 +278,7 @@ describe('yönetim girişi ayarları', () => {
     expect(() => loadEnv({ ...prod, STAFF_AUTH_PROVIDER: 'fake' })).toThrow('Google Workspace');
     expect(() => loadEnv({ ...prod, STAFF_SECRET_KEY: '' })).toThrow('STAFF_SECRET_KEY');
     expect(() => loadEnv({ ...prod, STAFF_REQUIRE_WORKSPACE: 'false' })).toThrow('Workspace şartı');
+    expect(() => loadEnv({ ...prod, CATALOG_VERIFY_KEY: '' })).toThrow('CATALOG_');
   });
 
   it('geliştirmede birden çok alan ve kapalı Workspace şartı kabul edilir', () => {

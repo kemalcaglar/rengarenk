@@ -496,3 +496,169 @@ model FeatureTester {
 
   @@map("feature_testers")
 }
+
+// ── Araç kataloğu (Aşama 2; Teknik tasarım §4–5, Karar 32–34) ─────
+// Her kaydın doğal bir anahtarı vardır ("bmw", "bmw/3-serisi", "bmw/3-serisi/320i"); aylık içe aktarma bu
+// anahtarlarla günceller. Kaynaktan düşen hiçbir kayıt silinmez (Karar 33). Kasko bedeli hiçbir tabloda tutulmaz.
+
+/// Katalog veri kaynağı: TSB, açık veri setleri, Commons. Konsoldaki "Katalog kaynakları" ekranı bunu izler.
+model CatalogSource {
+  key           String    @id
+  name          String
+  license       String
+  attribution   String?
+  url           String?
+  /// Kaynak her ay kendiliğinden çekilsin mi (sahip kararı, 7 Kasım 2026: TSB için konsoldan yükleme ve otomatik çekme birlikte)
+  autoFetch     Boolean   @default(false) @map("auto_fetch")
+  lastCheckedAt DateTime? @map("last_checked_at") @db.Timestamptz(3)
+  lastSuccessAt DateTime? @map("last_success_at") @db.Timestamptz(3)
+  lastVersion   String?   @map("last_version")
+  /// Kaynakta görülen son dosya adı (ör. 202610R2.xlsx); aynı dosya ikinci kez işlenmez
+  lastFileName  String?   @map("last_file_name")
+  lastError     String?   @map("last_error")
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  imports CatalogImport[]
+
+  @@map("catalog_sources")
+}
+
+enum CatalogImportStatus {
+  APPLIED
+  REJECTED
+  FAILED
+  SKIPPED
+}
+
+/// Her içe aktarma denemesi: hangi dosya, kim, kalite raporu ve sonuç.
+model CatalogImport {
+  id        String              @id @db.Uuid
+  sourceKey String              @map("source_key")
+  version   String?
+  fileName  String?             @map("file_name")
+  /// İmzalı paketin özeti; aynı paket ikinci kez uygulanmaz
+  sha256    String?
+  /// elle | otomatik
+  trigger   String
+  status    CatalogImportStatus
+  stats     Json                @default("{}")
+  quality   Json                @default("{}")
+  error     String?
+  createdBy String?             @map("created_by") @db.Uuid
+  createdAt DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  source CatalogSource @relation(fields: [sourceKey], references: [key])
+
+  @@index([sourceKey, createdAt])
+  @@map("catalog_imports")
+}
+
+model CatalogMake {
+  id        String   @id @db.Uuid
+  key       String   @unique
+  name      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  series   CatalogSeries[]
+  models   CatalogModel[]
+  trims    CatalogTrim[]
+  variants CatalogVariant[]
+
+  @@map("catalog_makes")
+}
+
+/// Seri (BMW 3 Serisi, VW Golf). Motosiklet ve ATV'de seri katmanı yoktur.
+model CatalogSeries {
+  id         String   @id @db.Uuid
+  key        String   @unique
+  makeId     String   @map("make_id") @db.Uuid
+  name       String
+  /// Bu serinin tiplerinin girdiği kategoriler (Karar 19 sözlüğü)
+  categories String[]
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  make     CatalogMake      @relation(fields: [makeId], references: [id])
+  models   CatalogModel[]
+  trims    CatalogTrim[]
+  variants CatalogVariant[]
+
+  @@index([makeId])
+  @@map("catalog_series")
+}
+
+/// Model: motor sürümü (BMW 320i, VW 1.0 TSI, Mercedes C 200 d)
+model CatalogModel {
+  id        String   @id @db.Uuid
+  key       String   @unique
+  makeId    String   @map("make_id") @db.Uuid
+  seriesId  String?  @map("series_id") @db.Uuid
+  name      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  make     CatalogMake      @relation(fields: [makeId], references: [id])
+  series   CatalogSeries?   @relation(fields: [seriesId], references: [id])
+  variants CatalogVariant[]
+
+  @@index([seriesId])
+  @@index([makeId])
+  @@map("catalog_models")
+}
+
+/// Donanım paketi (Karar 32): BMW M Sport, VW Highline, Renault Joy. Seri düzeyinde tutulur.
+model CatalogTrim {
+  id        String   @id @db.Uuid
+  key       String   @unique
+  makeId    String   @map("make_id") @db.Uuid
+  seriesId  String?  @map("series_id") @db.Uuid
+  name      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  make     CatalogMake      @relation(fields: [makeId], references: [id])
+  series   CatalogSeries?   @relation(fields: [seriesId], references: [id])
+  variants CatalogVariant[]
+
+  @@index([seriesId])
+  @@map("catalog_trims")
+}
+
+/// Kaynaktaki bir araç tipi (TSB'de bir satır). Kaynağı ve kimliği saklanır; TSB kayıtları ayrılabilir (Karar 33).
+model CatalogVariant {
+  id           String   @id @db.Uuid
+  source       String
+  sourceKey    String   @map("source_key")
+  makeId       String   @map("make_id") @db.Uuid
+  seriesId     String?  @map("series_id") @db.Uuid
+  modelId      String   @map("model_id") @db.Uuid
+  trimId       String?  @map("trim_id") @db.Uuid
+  categories   String[]
+  body         String?
+  engineL      Float?   @map("engine_l")
+  powerHp      Int?     @map("power_hp")
+  powerKw      Int?     @map("power_kw")
+  fuel         String?
+  gearbox      String?
+  drive        String?
+  /// Makyajlı kasa (TSB tip adında BMW "LCI", Mercedes "FL")
+  facelift     Boolean  @default(false)
+  /// Tipin var olduğu model yılları
+  years        Int[]
+  /// Kaynaktaki yazımı, olduğu gibi
+  rawName      String   @map("raw_name")
+  confidence   String
+  /// Kaynağın son sürümünde var mı; düşenler silinmez, işaretlenir
+  inLatest     Boolean  @default(true) @map("in_latest")
+  firstVersion String   @map("first_version")
+  lastVersion  String   @map("last_version")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  make   CatalogMake    @relation(fields: [makeId], references: [id])
+  series CatalogSeries? @relation(fields: [seriesId], references: [id])
+  model  CatalogModel   @relation(fields: [modelId], references: [id])
+  trim   CatalogTrim?   @relation(fields: [trimId], references: [id])
+
+  @@unique([source, sourceKey])
+  @@index([seriesId])
+  @@index([modelId])
+  @@map("catalog_variants")
+}
