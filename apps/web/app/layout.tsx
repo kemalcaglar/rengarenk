@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import { getClientFlags } from '../lib/bakim';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -10,7 +11,8 @@ export const metadata: Metadata = {
 
 const BARS = ['var(--blue)', 'var(--pink)', 'var(--yellow)', 'var(--green)'];
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const durum = await getClientFlags();
   return (
     <html lang="tr">
       <head>
@@ -21,6 +23,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body>
+        {durum?.duyuru ? (
+          <div role="status" className="duyuru">
+            {durum.duyuru}
+          </div>
+        ) : null}
         <header className="bar">
           <div
             className="wrap"
@@ -40,7 +47,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           </div>
         </header>
         <main className="wrap" style={{ padding: '32px 24px 64px' }}>
-          {children}
+          {durum?.bakim.tum ? (
+            <div className="card" style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
+              <h1 style={{ marginTop: 0 }}>Kısa bir bakımdayız</h1>
+              <p className="muted">{durum.duyuru}</p>
+            </div>
+          ) : (
+            children
+          )}
         </main>
       </body>
     </html>

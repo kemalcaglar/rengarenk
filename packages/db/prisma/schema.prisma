@@ -65,9 +65,10 @@ model User {
   createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  memberships AccountMember[]
-  devices     Device[]
-  sessions    Session[]
+  memberships   AccountMember[]
+  devices       Device[]
+  sessions      Session[]
+  featureTester FeatureTester?
 
   @@map("users")
 }
@@ -458,4 +459,40 @@ model Refund {
 
   @@index([approvalId])
   @@map("refunds")
+}
+
+// ── Ayarlar: özellik anahtarları ve bakım (T13, Karar 47) ─────
+
+enum FlagAudience {
+  ALL
+  BUSINESS
+  TESTERS
+}
+
+/// Anahtar listesi kodda (`packages/shared/src/flags.ts`); satırı olmayan anahtar kapalıdır.
+/// Bakım alanları `bakim.tum`, `bakim.odeme` … anahtarlarıyla burada durur; `note` kullanıcıya gösterilen duyurudur.
+model FeatureFlag {
+  key       String           @id
+  enabled   Boolean          @default(false)
+  audience  FlagAudience     @default(ALL)
+  /// Kitlenin yüzde kaçına açık (kullanıcı kimliğinden hesaplanan sabit dilim)
+  percent   Int              @default(100)
+  /// Boş: tüm platformlar
+  platforms DevicePlatform[] @default([])
+  note      String?
+  updatedBy String?          @map("updated_by") @db.Uuid
+  updatedAt DateTime         @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("feature_flags")
+}
+
+/// Yeni özellikleri önce deneyen kullanıcılar (çalışanların kendi kullanıcı hesapları; Teknik tasarım §15).
+model FeatureTester {
+  userId    String   @id @map("user_id") @db.Uuid
+  addedBy   String   @map("added_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("feature_testers")
 }

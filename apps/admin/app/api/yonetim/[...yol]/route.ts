@@ -34,4 +34,4 @@ async function handle(req: NextRequest, ctx: { params: Promise<{ yol: string[] }
   return res.status === 401 ? clearCookie(out, SESSION_COOKIE) : out;
 }
 
-export { handle as DELETE, handle as GET, handle as PATCH, handle as POST };
+export { handle as DELETE, handle as GET, handle as PATCH, handle as POST, handle as PUT };

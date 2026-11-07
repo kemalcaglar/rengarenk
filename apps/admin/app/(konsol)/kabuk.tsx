@@ -44,6 +44,14 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
       { ad: 'Destek', sonra: true },
     ],
   },
+  {
+    grup: 'Sistem',
+    ogeler: [
+      { ad: 'Entegrasyonlar', sonra: true },
+      { href: '/sistem', ad: 'Özellik anahtarları ve bakım', izin: 'sistem.ayarla' },
+      { ad: 'Yapay zekâ ve bütçe', sonra: true },
+    ],
+  },
 ];
 
 /**

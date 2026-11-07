@@ -78,3 +78,13 @@ a {
 .muted {
   color: var(--muted);
 }
+/* Bakım duyurusu (tasarım: YonetimSistem › Bakım modu, "üst şeritte duyuru") */
+.duyuru {
+  background: #fff6df;
+  color: #7a5300;
+  border-bottom: 1px solid #f4dc9a;
+  padding: 10px 24px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+}

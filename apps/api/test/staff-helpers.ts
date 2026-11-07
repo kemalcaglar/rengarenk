@@ -10,7 +10,7 @@ export const nextIp = () => `10.0.${Math.floor(++ipSeq / 250)}.${ipSeq % 250}`;
 
 export async function staffCall(
   app: NestFastifyApplication,
-  method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
+  method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE',
   url: string,
   body?: object,
   token?: string,

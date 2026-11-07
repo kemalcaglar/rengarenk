@@ -1,7 +1,7 @@
 /** Tarayıcıdan konsol API köprüsüne (/api/yonetim) istek. Oturum kapanırsa giriş sayfasına döner. */
 export async function yonetim<T = unknown>(
   path: string,
-  init: { method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'; body?: unknown } = {},
+  init: { method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'; body?: unknown } = {},
 ): Promise<T> {
   const res = await fetch(`/api/yonetim/${path}`, {
     method: init.method ?? 'GET',

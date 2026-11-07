@@ -20,7 +20,9 @@ export type EventType =
   | 'onay.istendi'
   | 'onay.onaylandi'
   | 'onay.reddedildi'
-  | 'onay.suresi_doldu';
+  | 'onay.suresi_doldu'
+  // Ayarlar (T13): özellik anahtarı veya bakım modu değişti
+  | 'ayar.degisti';
 
 @Injectable()
 export class OutboxService {
