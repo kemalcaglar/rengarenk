@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Hesabım, ayarlar, favoriler ve yardım (mobil)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}
+button,input,textarea{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 1180px; box-sizing: border-box; position: relative; background: #F6F8FD; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333; overflow: hidden">
+
+<sc-if value="{{v.hesap}}" hint-placeholder-val="{{ true }}">
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF; padding: 18px 16px 16px; display: flex; align-items: center; gap: 12px">
+<span style="flex: none; width: 54px; height: 54px; border-radius: 50%; background: #FFEEF6; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800" aria-hidden="true">AY</span>
+<span style="flex: 1; min-width: 0"><h1 style="margin: 0; font-size: 19px; font-weight: 800">Ayşe Yılmaz</h1><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">+90 5XX XXX XX 67 · Bireysel</span></span>
+<button type="button" onClick="{{git.ayarlar}}" style="flex: none; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 12px; padding: 10px 12px; font-size: 13px; font-weight: 700; color: #1E2333; cursor: pointer">Düzenle</button>
+</header>
+<main style="padding: 14px 12px 110px">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{ozet}}" as="oz" hint-placeholder-count="3"><div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 14px; padding: 12px 10px; text-align: center"><span style="display: block; font-size: 20px; font-weight: 800">{{oz.d}}</span><span style="display: block; font-size: 11.5px; color: #5A6073; margin-top: 2px">{{oz.k}}</span></div></sc-for>
+</div>
+<sc-for list="{{menuler}}" as="mg" hint-placeholder-count="3">
+<h2 style="margin: 18px 6px 8px; font-size: 12.5px; font-weight: 800; color: #5A6073; text-transform: uppercase; letter-spacing: 0.5px">{{mg.ad}}</h2>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; overflow: hidden">
+<sc-for list="{{mg.ogeler}}" as="mo" hint-placeholder-count="3">
+<a href="{{mo.href}}" onClick="{{mo.pick}}" style="display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-bottom: 1px solid #EEF0F5; color: #1E2333">
+<span style="flex: none; width: 34px; height: 34px; border-radius: 10px; background: {{mo.tint}}; display: flex; align-items: center; justify-content: center; font-size: 15px" aria-hidden="true">{{mo.ikon}}</span>
+<span style="flex: 1; min-width: 0"><span style="display: block; font-size: 14.5px; font-weight: 700">{{mo.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 1px">{{mo.alt}}</span></span>
+<span style="font-size: 18px; color: #AEB5C4" aria-hidden="true">›</span>
+</a>
+</sc-for>
+</div>
+</sc-for>
+<p style="margin: 18px 0 0; text-align: center; font-size: 12px; color: #5A6073">Rengarenk 1.0.0 · Kullanım koşulları · Aydınlatma metni</p>
+</main>
+</sc-if>
+
+<sc-if value="{{altSayfa}}" hint-placeholder-val="{{ false }}">
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF; padding: 8px 8px 8px; display: flex; align-items: center; gap: 4px">
+<button type="button" onClick="{{git.hesap}}" aria-label="Geri" style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: #1E2333; cursor: pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<h1 style="margin: 0; font-size: 18px; font-weight: 800">{{baslik}}</h1>
+</header>
+</sc-if>
+
+<sc-if value="{{v.ayarlar}}" hint-placeholder-val="{{ false }}">
+<main style="padding: 12px 12px 110px">
+<h2 style="margin: 4px 6px 8px; font-size: 15px; font-weight: 800">Bildirimler</h2>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; overflow: hidden">
+<sc-for list="{{bildirimler}}" as="an" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 14px; border-bottom: 1px solid #EEF0F5"><span><span style="display: block; font-size: 14.5px; font-weight: 700">{{an.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px; line-height: 1.4">{{an.alt}}</span></span>
+<sc-if value="{{an.kilitli}}" hint-placeholder-val="{{ false }}"><span style="flex: none; font-size: 11.5px; font-weight: 800; color: #5A6073; background: #F3F5FA; padding: 5px 9px; border-radius: 999px">Kapatılamaz</span></sc-if>
+<sc-if value="{{an.acilir}}" hint-placeholder-val="{{ true }}"><button type="button" role="switch" aria-checked="{{an.p}}" aria-label="{{an.ad}}" onClick="{{an.pick}}" style="flex: none; width: 52px; height: 30px; border: 0; border-radius: 999px; background: {{an.track}}; position: relative; cursor: pointer"><span style="position: absolute; top: 3px; left: {{an.knob}}; width: 24px; height: 24px; border-radius: 50%; background: #FFFFFF"></span></button></sc-if>
+</div>
+</sc-for>
+</div>
+<p style="margin: 8px 6px 0; font-size: 12px; color: #5A6073; line-height: 1.5">Kampanya mesajları haftada en fazla 2 kez gelir. Onayın İleti Yönetim Sistemi’ne (İYS) kaydedilir; istediğin an buradan geri alabilirsin.</p>
+<h2 style="margin: 20px 6px 8px; font-size: 15px; font-weight: 800">Giriş ve güvenlik</h2>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; overflow: hidden">
+<div style="padding: 13px 14px; border-bottom: 1px solid #EEF0F5"><span style="display: block; font-size: 14.5px; font-weight: 700">Cep telefonu</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">+90 5XX XXX XX 67 · SMS ile doğrulandı</span></div>
+<div style="padding: 13px 14px; border-bottom: 1px solid #EEF0F5"><span style="display: block; font-size: 14.5px; font-weight: 700">E-posta</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">ayse.yilmaz@ornek.com · faturalar ve günlük özetler için</span></div>
+<div style="padding: 13px 14px"><span style="display: block; font-size: 14.5px; font-weight: 700">Açık oturumlar</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">Bu iPhone · Chrome, Windows (3 gün önce)</span></div>
+</div>
+<button type="button" onClick="{{git.veri}}" style="width: 100%; margin-top: 14px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #E3E6EF; background: #FFFFFF; border-radius: 16px; padding: 14px; cursor: pointer; text-align: left; color: #1E2333"><span><span style="display: block; font-size: 14.5px; font-weight: 800">Kişisel verilerim</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">Verilerimi indir, KVKK başvurusu, hesabı kapat</span></span><span style="font-size: 18px; color: #AEB5C4" aria-hidden="true">›</span></button>
+</main>
+</sc-if>
+
+<sc-if value="{{v.veri}}" hint-placeholder-val="{{ false }}">
+<main style="padding: 12px 12px 110px">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 16px">
+<h2 style="margin: 0; font-size: 16px; font-weight: 800">Verilerimi indir</h2>
+<p style="margin: 6px 0 12px; font-size: 13px; color: #3A4052; line-height: 1.5">Profilin, taleplerin, mesajların, puanların, ödeme kayıtların ve izin geçmişin tek bir ZIP dosyasında (JSON ve PDF özet).</p>
+<sc-if value="{{indir.bos}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{hazirla}}" style="width: 100%; border: 0; background: #5B8CFF; border-radius: 14px; padding: 14px; font-size: 15px; font-weight: 800; color: #1E2333; cursor: pointer">Dosyamı hazırla</button><p style="margin: 8px 0 0; font-size: 12px; color: #5A6073">Güvenliğin için önce SMS koduyla doğrulama isteriz.</p></sc-if>
+<sc-if value="{{indir.hazirlaniyor}}" hint-placeholder-val="{{ false }}"><div style="display: flex; gap: 12px; align-items: center; background: #FFF6DF; border-radius: 14px; padding: 12px 14px"><span style="font-size: 18px" aria-hidden="true">⏳</span><span style="font-size: 13px; color: #5A3D00; line-height: 1.45"><strong>Hazırlanıyor.</strong> Genellikle birkaç dakika sürer; hazır olunca bildirim göndeririz.</span></div><button type="button" onClick="{{hazirOl}}" style="margin-top: 8px; border: 0; background: transparent; padding: 6px 0; font-size: 12.5px; font-weight: 700; color: #2450C8; cursor: pointer">(Prototip: hazır durumunu göster)</button></sc-if>
+<sc-if value="{{indir.hazir}}" hint-placeholder-val="{{ false }}"><div style="display: flex; gap: 12px; align-items: center; border: 1px solid #E3E6EF; border-radius: 14px; padding: 12px 14px"><span style="flex: none; width: 40px; height: 40px; border-radius: 10px; background: #E7FAF0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #11683F">ZIP</span><span style="flex: 1; min-width: 0"><span style="display: block; font-size: 14px; font-weight: 800">rengarenk_verilerim.zip</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">2,4 MB · bağlantı 7 gün geçerli</span></span><a href="#" style="flex: none; font-size: 14px; font-weight: 800; padding: 8px 0">İndir</a></div></sc-if>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 16px; margin-top: 10px">
+<h2 style="margin: 0; font-size: 16px; font-weight: 800">KVKK başvurusu</h2>
+<p style="margin: 6px 0 10px; font-size: 13px; color: #3A4052; line-height: 1.5">Düzeltme, silme, itiraz veya bilgi talebin için. En geç 30 gün içinde yanıtlarız; yanıtı bir çalışanımız kontrol edip gönderir.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{kvkkTurleri}}" as="kt" hint-placeholder-count="4"><button type="button" aria-pressed="{{kt.p}}" onClick="{{kt.pick}}" style="border: {{kt.bd}}; background: {{kt.bg}}; border-radius: 999px; padding: 8px 12px; font-size: 13px; font-weight: 700; color: #1E2333; cursor: pointer">{{kt.ad}}</button></sc-for>
+</div>
+<label for="kvkk-metin" style="display: block; font-size: 13px; font-weight: 800; margin: 12px 0 6px">Açıklama</label>
+<textarea id="kvkk-metin" rows="3" style="width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 12px; font-size: 14.5px; line-height: 1.5; resize: none">Kapanan eski talebimdeki açıklama metninin silinmesini istiyorum.</textarea>
+<button type="button" style="width: 100%; margin-top: 10px; border: 1px solid #1E2333; background: #FFFFFF; border-radius: 14px; padding: 13px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer">Başvuruyu gönder</button>
+</div>
+<button type="button" style="width: 100%; margin-top: 10px; border: 1px solid #F3C5C5; background: #FFFFFF; border-radius: 16px; padding: 14px; text-align: left; cursor: pointer"><span style="display: block; font-size: 14.5px; font-weight: 800; color: #A11B1B">Hesabı kapat</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px; line-height: 1.45">Talepler kapanır, sohbetler “Kapatılmış hesap” görünür. Fatura kayıtları yasal süre boyunca saklanır.</span></button>
+</main>
+</sc-if>
+
+<sc-if value="{{v.favori}}" hint-placeholder-val="{{ false }}">
+<main style="padding: 12px 12px 110px">
+<div role="tablist" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: #E9ECF4; border-radius: 14px; padding: 4px">
+<sc-for list="{{favSekme}}" as="fs" hint-placeholder-count="2"><button type="button" role="tab" aria-selected="{{fs.p}}" onClick="{{fs.pick}}" style="border: 0; border-radius: 11px; padding: 10px 6px; background: {{fs.bg}}; font-size: 13.5px; font-weight: 800; color: #1E2333; cursor: pointer">{{fs.ad}}</button></sc-for>
+</div>
+<sc-if value="{{favTalep}}" hint-placeholder-val="{{ true }}">
+<sc-for list="{{favoriler}}" as="fv" hint-placeholder-count="3">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 12px 14px; margin-top: 8px; opacity: {{fv.op}}">
+<span style="display: flex; justify-content: space-between; gap: 8px"><span style="font-size: 14.5px; font-weight: 800; line-height: 1.35">{{fv.ad}}</span><span style="flex: none; color: #FF6FB5; font-size: 18px" aria-label="Favoride">♥</span></span>
+<span style="display: block; font-size: 12px; color: #5A6073; margin-top: 3px">{{fv.alt}}</span>
+<span style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px"><span style="font-size: 14px; font-weight: 800; color: #2450C8">{{fv.butce}}</span><span style="font-size: 12.5px; font-weight: 700; color: {{fv.durumRenk}}">{{fv.durum}}</span></span>
+</div>
+</sc-for>
+</sc-if>
+<sc-if value="{{favArama}}" hint-placeholder-val="{{ false }}">
+<sc-for list="{{aramalar}}" as="ar" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 12px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 12px 14px; margin-top: 8px"><span style="flex: 1; min-width: 0"><span style="display: block; font-size: 14.5px; font-weight: 800">{{ar.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">{{ar.alt}}</span></span><span style="flex: none; font-size: 11.5px; font-weight: 800; padding: 4px 9px; border-radius: 999px; background: #EEF3FF; color: #2450C8">{{ar.yeni}}</span></div>
+</sc-for>
+<p style="margin: 10px 6px 0; font-size: 12px; color: #5A6073; line-height: 1.5">Satmak istediğin araca uyan talepleri takip et. En fazla 10 kayıtlı arama; anlık bildirim telefonuna gelir.</p>
+</sc-if>
+</main>
+</sc-if>
+
+<sc-if value="{{v.yardim}}" hint-placeholder-val="{{ false }}">
+<main style="padding: 12px 12px 170px; display: flex; flex-direction: column; gap: 10px">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 12px 14px; display: flex; gap: 10px; align-items: center"><span style="flex: none; width: 36px; height: 36px; border-radius: 50%; background: #EEF3FF; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #2450C8" aria-hidden="true">R</span><span><span style="display: block; font-size: 14px; font-weight: 800">Rengarenk Destek</span><span style="display: block; font-size: 12px; color: #5A6073">Asistan anında yanıtlar · temsilci 1 iş günü içinde</span></span></div>
+<div style="display: flex; gap: 6px; overflow-x: auto">
+<sc-for list="{{konular}}" as="kn" hint-placeholder-count="4"><button type="button" style="flex: none; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 999px; padding: 8px 12px; font-size: 13px; font-weight: 700; color: #1E2333; cursor: pointer">{{kn.ad}}</button></sc-for>
+</div>
+<sc-for list="{{sohbet}}" as="so" hint-placeholder-count="4">
+<div style="align-self: {{so.hiza}}; max-width: 84%">
+<span style="display: block; font-size: 11px; font-weight: 700; color: #5A6073; margin: 0 4px 3px; text-align: {{so.yazHiza}}">{{so.kim}}</span>
+<div style="background: {{so.bg}}; border: {{so.bd}}; border-radius: {{so.r}}; padding: 11px 13px; font-size: 14px; line-height: 1.5">{{so.metin}}</div>
+</div>
+</sc-for>
+<sc-if value="{{aktarildi}}" hint-placeholder-val="{{ false }}"><div style="align-self: center; text-align: center; background: #E7FAF0; color: #11683F; border-radius: 14px; padding: 10px 14px; font-size: 13px; font-weight: 700; line-height: 1.45">Destek kaydın açıldı · No D-20931<br><span style="font-weight: 500">Yanıt buraya ve e-postana gelecek.</span></div></sc-if>
+<sc-if value="{{aktarilmadi}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{aktar}}" style="align-self: flex-start; border: 1px solid #1E2333; background: #FFFFFF; border-radius: 12px; padding: 10px 14px; font-size: 13.5px; font-weight: 800; color: #1E2333; cursor: pointer">Bir temsilciye aktar</button></sc-if>
+<p style="margin: 2px 4px 0; font-size: 11.5px; color: #5A6073; line-height: 1.5">İlk sürümde telefon desteği yok. Dolandırıcılık şüphesinde önce bankanı ara, sonra sohbeti “Şikayet et” ile bildir.</p>
+</main>
+<form style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 1px solid #E3E6EF; padding: 10px 12px 24px; display: flex; gap: 8px; align-items: flex-end">
+<label for="d-yaz" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Mesaj yaz</label>
+<textarea id="d-yaz" rows="1" placeholder="Sorunu yaz…" style="flex: 1; min-width: 0; border: 1px solid #D5DAE5; border-radius: 22px; padding: 12px 14px; font-size: 15px; resize: none"></textarea>
+<button type="button" aria-label="Gönder" style="width: 46px; height: 46px; border: 0; border-radius: 50%; background: #5B8CFF; color: #1E2333; display: flex; align-items: center; justify-content: center; cursor: pointer; flex: none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l16-8-6 16-2.5-6.5z"></path></svg></button>
+</form>
+</sc-if>
+
+<sc-if value="{{sekmeGoster}}" hint-placeholder-val="{{ true }}">
+<nav style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 1px solid #E3E6EF; padding: 6px 6px 20px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: end" aria-label="Ana menü">
+<sc-for list="{{sekmeler}}" as="tb" hint-placeholder-count="5">
+<sc-if value="{{tb.orta}}" hint-placeholder-val="{{ false }}"><a href="{{tb.href}}" aria-label="{{tb.ad}}" style="justify-self: center; display: flex; flex-direction: column; align-items: center; gap: 3px; color: #1E2333"><span style="width: 52px; height: 52px; margin-top: -18px; border-radius: 18px; background: #5B8CFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(91,140,255,0.35)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></span><span style="font-size: 11px; font-weight: 700">{{tb.ad}}</span></a></sc-if>
+<sc-if value="{{tb.normal}}" hint-placeholder-val="{{ true }}"><a href="{{tb.href}}" aria-current="{{tb.aria}}" style="display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; color: {{tb.renk}}"><span style="position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{tb.kalinlik}}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{tb.d}}"></path></svg><sc-if value="{{tb.rozetVar}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: -5px; right: -9px; min-width: 16px; height: 16px; border-radius: 999px; background: #FF6FB5; color: #1E2333; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; padding: 0 3px; box-sizing: border-box">{{tb.rozet}}</span></sc-if></span><span style="font-size: 11px; font-weight: {{tb.kalin}}">{{tb.ad}}</span></a></sc-if>
+</sc-for>
+</nav>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1180}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { view: 'hesap', b: { mesaj: true, talep: true, ozet: true, kampanya: false }, indir: 'bos', kvkk: 'silme', fav: 'talep', aktar: false }; }
+  renderVals() {
+    var self = this, st = this.state;
+    function go(k) { return function (e) { if (e && e.preventDefault) e.preventDefault(); self.setState({ view: k }); }; }
+    function anahtar(on) { return { p: on ? 'true' : 'false', track: on ? '#3DD68C' : '#C9CEDB', knob: on ? '25px' : '3px' }; }
+    var BASLIK = { ayarlar: 'Ayarlar', veri: 'Kişisel verilerim', favori: 'Favoriler ve aramalar', yardim: 'Yardım ve destek' };
+    var B = [
+      ['guvenlik', 'Güvenlik ve ödeme', 'Giriş, ödeme ve dolandırıcılık uyarıları', null],
+      ['mesaj', 'Mesajlar', 'Satıcı yazınca anında bildirim', 'mesaj'],
+      ['talep', 'Talep hatırlatmaları', 'Süre dolmadan 7, 3 ve 1 gün önce', 'talep'],
+      ['ozet', 'Günlük e-posta özeti', 'Yeni mesajların günde bir kez e-postana', 'ozet'],
+      ['kampanya', 'Kampanya ve fırsatlar', 'Ticari ileti: bildirim ve e-posta, haftada en fazla 2', 'kampanya']
+    ];
+    var TAB = [['Ana sayfa', 'AnasayfaMobil.dc.html'], ['Taleplerim', 'TaleplerimMobil.dc.html'], ['Talep oluştur', 'SihirbazMobilAkis.dc.html', false, true], ['Mesajlar', 'MesajlarMobil.dc.html', false, false, '3'], ['Hesabım', 'HesapMobil.dc.html', true]];
+    var ICON = { 'Ana sayfa': 'M4 11l8-7 8 7v9h-5v-6h-6v6H4z', 'Taleplerim': 'M8 4h8M6 8h12M5 12h14v8H5z', 'Mesajlar': 'M4 5h16v11H9l-5 4z', 'Hesabım': 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c1-4 4-6 8-6s7 2 8 6' };
+    var SOHBET = [
+      ['sen', 'Acil arıyorum etiketi aldım ama talebimde etiket görünmüyor.'],
+      ['asistan', 'Ödemen 14:02’de App Store’dan onaylandı. Etiket genellikle 5 dakika içinde görünür; şu an talebinde “işleniyor” durumunda.'],
+      ['asistan', 'Etiket 30 dakika içinde görünmezse bir temsilci kontrol etsin mi? İade gerekirse mağaza üzerinden yapılır.'],
+      ['sen', 'Evet, bir temsilci baksın lütfen.']
+    ];
+    return {
+      v: { hesap: st.view === 'hesap', ayarlar: st.view === 'ayarlar', veri: st.view === 'veri', favori: st.view === 'favori', yardim: st.view === 'yardim' },
+      altSayfa: st.view !== 'hesap', baslik: BASLIK[st.view] || '',
+      sekmeGoster: st.view !== 'yardim',
+      git: { hesap: go('hesap'), ayarlar: go('ayarlar'), veri: go('veri') },
+      ozet: [{ d: '2', k: 'Aktif talep' }, { d: '7', k: 'Sohbet' }, { d: '3', k: 'Favori' }],
+      menuler: [
+        { ad: 'Alıcı', ogeler: [['📝', '#EEF3FF', 'Taleplerim', '2 aktif · 1 süresi doldu', 'TaleplerimMobil.dc.html'], ['♥', '#FFEEF6', 'Favoriler ve aramalar', '3 favori · 2 kayıtlı arama', 'favori'], ['🎟️', '#FFF6DF', 'Haklarım ve ödemeler', '1 ücretsiz talep · faturalar', 'HaklarimMobil.dc.html']] },
+        { ad: 'Satıcı', ogeler: [['🏢', '#E7FAF0', 'Kurumsal hesap başvurusu', 'Galeriysen 30 gün ücretsiz dene', 'BasvuruMobil.dc.html']] },
+        { ad: 'Hesap', ogeler: [['⚙️', '#F3F5FA', 'Ayarlar', 'Bildirimler, giriş, iletişim tercihleri', 'ayarlar'], ['🔒', '#F3F5FA', 'Kişisel verilerim', 'Verilerimi indir, KVKK başvurusu', 'veri'], ['💬', '#F3F5FA', 'Yardım ve destek', 'Asistan ve destek kaydı', 'yardim']] }
+      ].map(function (g) { return { ad: g.ad, ogeler: g.ogeler.map(function (o) { var ic = o[4].indexOf('.html') < 0; return { ikon: o[0], tint: o[1], ad: o[2], alt: o[3], href: ic ? '#' : o[4], pick: ic ? go(o[4]) : null }; }) }; }),
+      bildirimler: B.map(function (b) { var kil = !b[3]; var on = kil || !!st.b[b[3]]; var a = anahtar(on); a.ad = b[1]; a.alt = b[2]; a.kilitli = kil; a.acilir = !kil; a.pick = function () { var n = Object.assign({}, self.state.b); n[b[3]] = !n[b[3]]; self.setState({ b: n }); }; return a; }),
+      indir: { bos: st.indir === 'bos', hazirlaniyor: st.indir === 'hazirlaniyor', hazir: st.indir === 'hazir' },
+      hazirla: function () { self.setState({ indir: 'hazirlaniyor' }); }, hazirOl: function () { self.setState({ indir: 'hazir' }); },
+      kvkkTurleri: [['bilgi', 'Bilgi talebi'], ['duzeltme', 'Düzeltme'], ['silme', 'Silme'], ['itiraz', 'İtiraz']].map(function (k) { var on = st.kvkk === k[0]; return { ad: k[1], p: on ? 'true' : 'false', bd: on ? '2px solid #5B8CFF' : '1px solid #D5DAE5', bg: on ? '#EEF3FF' : '#FFFFFF', pick: function () { self.setState({ kvkk: k[0] }); } }; }),
+      favSekme: [['talep', 'Favori talepler'], ['arama', 'Kayıtlı aramalar']].map(function (f) { var on = st.fav === f[0]; return { ad: f[1], p: on ? 'true' : 'false', bg: on ? '#FFFFFF' : 'transparent', pick: function () { self.setState({ fav: f[0] }); } }; }),
+      favTalep: st.fav === 'talep', favArama: st.fav === 'arama',
+      favoriler: [
+        ['Togg T10X V2 uzun menzil', '2024 ve sonrası · İstanbul · 14 satıcı yazdı', '1,8 – 2,1 milyon TL', 'Yayında · 21 gün', '#11683F', 1],
+        ['Toyota Corolla Hybrid, Flame', '2021 ve sonrası · İzmir', '1,35 – 1,6 milyon TL', 'Yayında · 6 gün', '#11683F', 1],
+        ['Honda PCX 125 arıyorum', '2022 ve sonrası · İstanbul', '95 – 120 bin TL', 'Talep sahibi aracını buldu', '#5A6073', 0.6]
+      ].map(function (f) { return { ad: f[0], alt: f[1], butce: f[2], durum: f[3], durumRenk: f[4], op: f[5] }; }),
+      aramalar: [{ ad: 'BMW 3 Serisi · İstanbul', alt: '2018 ve sonrası · bütçe 2 milyon TL üstü', yeni: '4 yeni' }, { ad: 'Elektrikli · tüm Türkiye', alt: 'Togg, Tesla, BYD', yeni: '12 yeni' }],
+      konular: ['Ödeme ve fatura', 'Talebim yayınlanmadı', 'Dolandırıcılık şüphesi', 'Hesabım engellendi'].map(function (k) { return { ad: k }; }),
+      sohbet: SOHBET.map(function (s) { var sen = s[0] === 'sen'; return { kim: sen ? 'Sen' : 'Asistan', metin: s[1], hiza: sen ? 'flex-end' : 'flex-start', yazHiza: sen ? 'right' : 'left', bg: sen ? '#5B8CFF' : '#FFFFFF', bd: sen ? '0' : '1px solid #E3E6EF', r: sen ? '16px 16px 4px 16px' : '16px 16px 16px 4px' }; }),
+      aktarildi: st.aktar, aktarilmadi: !st.aktar, aktar: function () { self.setState({ aktar: true }); },
+      sekmeler: TAB.map(function (t) { var on = !!t[2]; return { ad: t[0], href: t[1], orta: !!t[3], normal: !t[3], aria: on ? 'page' : 'false', renk: on ? '#1E2333' : '#5A6073', kalin: on ? 800 : 600, kalinlik: on ? '2.4' : '1.9', d: ICON[t[0]] || '', rozetVar: !!t[4], rozet: t[4] || '' }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

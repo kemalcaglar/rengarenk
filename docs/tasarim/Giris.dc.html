@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Giriş yap veya üye ol</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}a:hover{color:#1A3C99;text-decoration:underline}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="background: #F6F8FD; min-height: 100vh; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333; display: flex; flex-direction: column">
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF">
+<div style="max-width: 1360px; margin: 0 auto; padding: 16px 24px">
+<a href="Anasayfa.dc.html" style="display: inline-flex; align-items: center; gap: 8px; color: #1E2333; text-decoration: none" aria-label="Rengarenk ana sayfa">
+<span style="display: flex; gap: 3px" aria-hidden="true">
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #5B8CFF"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #FF6FB5"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #FFC84A"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #3DD68C"></span>
+</span>
+<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px">rengarenk</span>
+</a>
+</div>
+</header>
+
+<main style="flex: 1; max-width: 1100px; width: 100%; box-sizing: border-box; margin: 0 auto; padding: 40px 24px; display: flex; flex-wrap: wrap; align-items: stretch; gap: 24px">
+
+<section style="flex: 1 1 380px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 24px; padding: 32px; display: flex; flex-direction: column; gap: 18px" aria-labelledby="neden">
+<h2 id="neden" style="margin: 0; font-size: 28px; line-height: 1.2; font-weight: 800; letter-spacing: -0.5px">Tek telefon numarasıyla hem al hem sat.</h2>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 12px; align-items: center; background: #EEF3FF; border-radius: 16px; padding: 14px 16px"><span style="width: 12px; height: 12px; border-radius: 50%; background: #5B8CFF; flex: none" aria-hidden="true"></span><span style="font-size: 15px; font-weight: 600">İlk talebin ücretsiz</span></div>
+<div style="display: flex; gap: 12px; align-items: center; background: #FFEEF6; border-radius: 16px; padding: 14px 16px"><span style="width: 12px; height: 12px; border-radius: 50%; background: #FF6FB5; flex: none" aria-hidden="true"></span><span style="font-size: 15px; font-weight: 600">Her gün 5 farklı talebe ücretsiz yaz</span></div>
+<div style="display: flex; gap: 12px; align-items: center; background: #FFF6DF; border-radius: 16px; padding: 14px 16px"><span style="width: 12px; height: 12px; border-radius: 50%; background: #FFC84A; flex: none" aria-hidden="true"></span><span style="font-size: 15px; font-weight: 600">Numaran yalnızca izin verirsen görünür</span></div>
+<div style="display: flex; gap: 12px; align-items: center; background: #E7FAF0; border-radius: 16px; padding: 14px 16px"><span style="width: 12px; height: 12px; border-radius: 50%; background: #3DD68C; flex: none" aria-hidden="true"></span><span style="font-size: 15px; font-weight: 600">Şifre yok: SMS koduyla giriş</span></div>
+</div>
+<div style="margin-top: auto; border-top: 1px solid #EEF0F5; padding-top: 16px">
+<p style="margin: 0; font-size: 14.5px; font-weight: 700">Galeri, kiralama firması veya tekne galerisi misin?</p>
+<a href="Basvuru.dc.html" style="display: inline-block; margin-top: 6px; font-size: 14.5px; font-weight: 700">Kurumsal hesap başvurusu yap</a>
+</div>
+</section>
+
+<section style="flex: 1 1 420px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 24px; padding: 32px" aria-labelledby="form-baslik">
+<div style="display: flex; gap: 6px; margin-bottom: 22px" aria-hidden="true">
+<span style="flex: 1; height: 6px; border-radius: 3px; background: #5B8CFF"></span>
+<span style="flex: 1; height: 6px; border-radius: 3px; background: {{bar2}}"></span>
+<span style="flex: 1; height: 6px; border-radius: 3px; background: {{bar3}}"></span>
+</div>
+
+<sc-if value="{{s1}}" hint-placeholder-val="{{ true }}">
+<h1 id="form-baslik" style="margin: 0 0 6px; font-size: 26px; font-weight: 800">Giriş yap veya üye ol</h1>
+<p style="margin: 0 0 22px; font-size: 14.5px; color: #5A6073">Telefon numarana bir doğrulama kodu göndereceğiz.</p>
+<label for="tel" style="display: block; font-size: 13.5px; font-weight: 700; margin-bottom: 6px">Cep telefonu</label>
+<div style="display: flex; gap: 8px">
+<span style="display: flex; align-items: center; border: 1px solid #D5DAE5; border-radius: 12px; padding: 0 14px; font-size: 15px; font-weight: 700; background: #F3F5FA">+90</span>
+<input id="tel" type="tel" inputmode="numeric" value="5XX 123 45 67" style="flex: 1; min-width: 0; border: 1.5px solid #5B8CFF; border-radius: 12px; padding: 14px; font-size: 16px; letter-spacing: 0.5px">
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px; margin: 20px 0 22px">
+<sc-for list="{{onaylar}}" as="o" hint-placeholder-count="4">
+<button type="button" role="checkbox" aria-checked="{{o.aria}}" onClick="{{o.toggle}}" style="display: flex; align-items: flex-start; gap: 10px; border: 0; background: transparent; padding: 6px 0; text-align: left; cursor: pointer; font-size: 13.5px; line-height: 1.5; color: #3A4052">
+<span style="width: 20px; height: 20px; margin-top: 1px; border-radius: 6px; border: 1.5px solid {{o.border}}; background: {{o.fill}}; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #1E2333; flex: none; box-sizing: border-box" aria-hidden="true">{{o.mark}}</span>
+<span>{{o.text}}</span>
+</button>
+</sc-for>
+</div>
+<button type="button" onClick="{{kodGonder}}" style="width: 100%; border: 0; background: {{kodBtnBg}}; border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 800; color: #1E2333; cursor: pointer">Kod gönder</button>
+<p style="margin: 12px 0 0; font-size: 12.5px; color: #5A6073">Bir telefon numarasıyla yalnızca bir bireysel hesap açılabilir.</p>
+</sc-if>
+
+<sc-if value="{{s2}}" hint-placeholder-val="{{ false }}">
+<h1 style="margin: 0 0 6px; font-size: 26px; font-weight: 800">Kodu gir</h1>
+<p style="margin: 0 0 22px; font-size: 14.5px; color: #5A6073">+90 5XX 123 45 67 numarasına 6 haneli kod gönderdik. <button type="button" onClick="{{geri}}" style="border: 0; background: transparent; color: #2450C8; font-weight: 700; font-size: 14.5px; padding: 0; cursor: pointer">Numarayı değiştir</button></p>
+<label for="kod" style="display: block; font-size: 13.5px; font-weight: 700; margin-bottom: 6px">Doğrulama kodu</label>
+<input id="kod" inputmode="numeric" autocomplete="one-time-code" value="482915" style="width: 100%; box-sizing: border-box; border: 1.5px solid #5B8CFF; border-radius: 14px; padding: 16px; font-size: 26px; font-weight: 800; letter-spacing: 10px; text-align: center">
+<div style="display: flex; justify-content: space-between; align-items: center; margin: 12px 0 22px; font-size: 13.5px">
+<span style="color: #5A6073">Kod 01:42 içinde geçerli</span>
+<button type="button" style="border: 0; background: transparent; color: #5A6073; font-weight: 700; font-size: 13.5px; padding: 6px 0; cursor: pointer">Kodu tekrar gönder</button>
+</div>
+<button type="button" onClick="{{dogrula}}" style="width: 100%; border: 0; background: #5B8CFF; border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 800; color: #1E2333; cursor: pointer">Doğrula</button>
+<p style="margin: 12px 0 0; font-size: 12.5px; color: #5A6073">rengarenk sana kodu yalnızca "RENGARENK" gönderici adıyla SMS olarak iletir; kodu kimseyle paylaşma.</p>
+</sc-if>
+
+<sc-if value="{{s3}}" hint-placeholder-val="{{ false }}">
+<h1 style="margin: 0 0 6px; font-size: 26px; font-weight: 800">Son adım: adın</h1>
+<p style="margin: 0 0 22px; font-size: 14.5px; color: #5A6073">Adın ve soyadın taleplerinde ve mesajlarında görünür.</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<div><label for="ad" style="display: block; font-size: 13.5px; font-weight: 700; margin-bottom: 6px">Ad</label><input id="ad" value="Ayşe" style="width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 13px; font-size: 15px"></div>
+<div><label for="soyad" style="display: block; font-size: 13.5px; font-weight: 700; margin-bottom: 6px">Soyad</label><input id="soyad" value="Yılmaz" style="width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 13px; font-size: 15px"></div>
+</div>
+<div style="display: flex; gap: 12px; align-items: center; background: #E7FAF0; border-radius: 14px; padding: 14px 16px; margin: 20px 0 22px">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#11683F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>
+<span style="font-size: 14px; color: #11683F; font-weight: 600">Telefon numaran doğrulandı. 1 ücretsiz talep hakkın hazır.</span>
+</div>
+<a href="Sihirbaz.dc.html" style="display: block; text-align: center; background: #5B8CFF; border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 800; color: #1E2333; text-decoration: none">İlk talebimi oluştur</a>
+<a href="Anasayfa.dc.html" style="display: block; text-align: center; margin-top: 12px; font-size: 14.5px; font-weight: 700">Önce taleplere göz at</a>
+</sc-if>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { step: 1, onay: { kosul: true, kvkk: true, ileti: false, reklam: false } };
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    var ONAY = [
+      ['kosul', 'Kullanım koşullarını okudum ve kabul ediyorum.'],
+      ['kvkk', 'KVKK aydınlatma metnini okudum.'],
+      ['ileti', 'Kampanya ve duyurular için ticari elektronik ileti almak istiyorum (isteğe bağlı).'],
+      ['reklam', 'Reklamların ölçülmesi için telefon numaramın şifrelenmiş hâlinin Meta ve Google ile paylaşılmasına ve yurt dışına aktarılmasına açık rıza veriyorum (isteğe bağlı).']
+    ];
+    var zorunlu = st.onay.kosul && st.onay.kvkk;
+    return {
+      s1: st.step === 1, s2: st.step === 2, s3: st.step === 3,
+      bar2: st.step >= 2 ? '#5B8CFF' : '#E3E6EF', bar3: st.step >= 3 ? '#5B8CFF' : '#E3E6EF',
+      onaylar: ONAY.map(function (o) {
+        var on = !!st.onay[o[0]];
+        return { text: o[1], aria: on ? 'true' : 'false', mark: on ? '✓' : '', border: on ? '#5B8CFF' : '#AEB5C4', fill: on ? '#5B8CFF' : '#FFFFFF',
+          toggle: function () { var n = Object.assign({}, self.state.onay); n[o[0]] = !n[o[0]]; self.setState({ onay: n }); } };
+      }),
+      kodBtnBg: zorunlu ? '#5B8CFF' : '#C9CFDB',
+      kodGonder: function () { if (self.state.onay.kosul && self.state.onay.kvkk) { self.setState({ step: 2 }); } },
+      dogrula: function () { self.setState({ step: 3 }); },
+      geri: function () { self.setState({ step: 1 }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Taleplerim (mobil)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F6F8FD; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333; display: flex; flex-direction: column">
+<header style="background: #FFFFFF; padding: 16px 16px 0; border-bottom: 1px solid #E3E6EF">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<h1 style="margin: 0; font-size: 22px; font-weight: 800">Taleplerim</h1>
+<a href="Sihirbaz.dc.html" aria-label="Talep oluştur" style="width: 40px; height: 40px; border-radius: 12px; background: #5B8CFF; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E2333" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></a>
+</div>
+<div role="tablist" aria-label="Talep durumu" style="display: flex; gap: 4px; margin-top: 12px; overflow-x: auto">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="4">
+<sc-if value="{{t.on}}" hint-placeholder-val="{{ false }}"><button type="button" role="tab" aria-selected="true" onClick="{{t.pick}}" style="flex: none; border: 0; border-bottom: 3px solid #5B8CFF; background: transparent; padding: 10px 10px 9px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer">{{t.label}} {{t.n}}</button></sc-if>
+<sc-if value="{{t.off}}" hint-placeholder-val="{{ true }}"><button type="button" role="tab" aria-selected="false" onClick="{{t.pick}}" style="flex: none; border: 0; border-bottom: 3px solid transparent; background: transparent; padding: 10px 10px 9px; font-size: 14.5px; font-weight: 600; color: #5A6073; cursor: pointer">{{t.label}} {{t.n}}</button></sc-if>
+</sc-for>
+</div>
+</header>
+<div style="flex: 1; overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px">
+<sc-if value="{{yayinda}}" hint-placeholder-val="{{ true }}">
+<div style="background: #FFF6DF; border: 1px solid #F4DC9A; border-radius: 14px; padding: 12px 14px; font-size: 13.5px; line-height: 1.45"><strong>Honda PCX 125</strong> talebinin süresi doldu. <a href="#" style="font-weight: 700">Ücretsiz uzat</a></div>
+<sc-for list="{{kartlar}}" as="k" hint-placeholder-count="2">
+<article style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px">
+<div style="display: flex; gap: 12px">
+<div style="flex: 0 0 76px; height: 58px; border-radius: 12px; background: {{k.tint}}; display: flex; align-items: center; justify-content: center" aria-hidden="true"><svg width="60" height="25" viewBox="0 0 112 46" fill="none"><path d="M8 34c0-6 4-9 10-10l14-10c4-3 8-4 13-4h22c6 0 10 2 14 6l8 8c8 1 15 3 15 10v4H8z" fill="{{k.ink}}"></path><circle cx="30" cy="38" r="7" fill="#1E2333"></circle><circle cx="84" cy="38" r="7" fill="#1E2333"></circle></svg></div>
+<div style="min-width: 0">
+<span style="font-size: 11.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: #E7FAF0; color: #11683F">Yayında</span>
+<sc-if value="{{k.acil}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: #FFEEF6; color: #A3236A; margin-left: 4px">Acil</span></sc-if>
+<h2 style="margin: 5px 0 2px; font-size: 15.5px; font-weight: 800; line-height: 1.3">{{k.baslik}}</h2>
+<p style="margin: 0; font-size: 12.5px; color: #5A6073">{{k.sure}}</p>
+</div>
+</div>
+<div style="display: flex; justify-content: space-between; margin-top: 12px; padding: 10px 0; border-top: 1px solid #EEF0F5; border-bottom: 1px solid #EEF0F5; font-size: 12.5px; color: #5A6073; text-align: center">
+<span><strong style="display: block; font-size: 15px; color: #1E2333">{{k.goruntu}}</strong>görüntülenme</span><span><strong style="display: block; font-size: 15px; color: #1E2333">{{k.fav}}</strong>favori</span><span><strong style="display: block; font-size: 15px; color: #2450C8">{{k.mesaj}}</strong>mesaj</span><span><strong style="display: block; font-size: 15px; color: #1E2333">{{k.eslesen}}</strong>uyan araç</span>
+</div>
+<div style="display: flex; gap: 8px; margin-top: 10px">
+<button type="button" style="flex: 1; border: 0; background: #3DD68C; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer">Aracı buldum</button>
+<button type="button" style="flex: 1; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 700; color: #1E2333; cursor: pointer">Düzenle</button>
+<button type="button" aria-label="Diğer işlemler" style="flex: none; width: 44px; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; font-size: 18px; font-weight: 800; color: #1E2333; cursor: pointer">⋯</button>
+</div>
+</article>
+</sc-for>
+</sc-if>
+<sc-if value="{{diger}}" hint-placeholder-val="{{ false }}">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 16px; font-size: 14px; color: #3A4052">{{digerYazi}}</div>
+</sc-if>
+</div>
+<nav style="background: #FFFFFF; border-top: 1px solid #E3E6EF; display: flex; justify-content: space-around; padding: 8px 0 22px" aria-label="Uygulama">
+<a href="Anasayfa.dc.html" style="font-size: 11.5px; font-weight: 600; color: #5A6073; text-align: center; padding: 6px">Keşfet</a>
+<a href="Taleplerim.dc.html" aria-current="page" style="font-size: 11.5px; font-weight: 800; color: #2450C8; text-align: center; padding: 6px">Taleplerim</a>
+<a href="Mesajlar.dc.html" style="font-size: 11.5px; font-weight: 600; color: #5A6073; text-align: center; padding: 6px">Mesajlar</a>
+<a href="Favoriler.dc.html" style="font-size: 11.5px; font-weight: 600; color: #5A6073; text-align: center; padding: 6px">Favoriler</a>
+<a href="Ayarlar.dc.html" style="font-size: 11.5px; font-weight: 600; color: #5A6073; text-align: center; padding: 6px">Hesabım</a>
+</nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tab: 'yayinda' }; }
+  renderVals() {
+    var self = this, st = this.state;
+    var T = [['yayinda', 'Yayında', '2'], ['pasif', 'Pasif', '1'], ['taslak', 'Taslak', '1'], ['bitti', 'Tamamlanan', '1']];
+    var Y = { pasif: 'Honda PCX 125 · süresi 2 Kasım’da doldu. Ücretsiz uzatma hakkın var.', taslak: 'Gulet veya trawler · 6 adımın 3’ü tamam. Kaldığın yerden devam edebilirsin.', bitti: 'Toyota Corolla 1.8 Hybrid · 18 Eylül 2026’da Rengarenk’te bulundu.' };
+    return {
+      tabs: T.map(function (t) { return { label: t[1], n: t[2], on: st.tab === t[0], off: st.tab !== t[0], pick: function () { self.setState({ tab: t[0] }); } }; }),
+      yayinda: st.tab === 'yayinda', diger: st.tab !== 'yayinda', digerYazi: Y[st.tab] || '',
+      kartlar: [
+        { baslik: 'BMW 3 Serisi 320i · 2019 ve üzeri', sure: 'Otomobil · 27 gün kaldı', goruntu: '1.284', fav: '23', mesaj: '9', eslesen: '4', tint: '#EEF3FF', ink: '#5B8CFF', acil: false },
+        { baslik: 'Kiralık Fiat Egea veya benzeri · 7 gün', sure: 'Kiralık · 20 Kasım’da kapanır', goruntu: '316', fav: '4', mesaj: '6', eslesen: '11', tint: '#E7FAF0', ink: '#3DD68C', acil: true }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

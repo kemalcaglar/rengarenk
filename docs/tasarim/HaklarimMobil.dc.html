@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Haklarım (mobil)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F6F8FD; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333; display: flex; flex-direction: column; position: relative; overflow: hidden">
+<header style="background: #FFFFFF; padding: 16px; border-bottom: 1px solid #E3E6EF; display: flex; align-items: center; gap: 10px">
+<a href="Ayarlar.dc.html" aria-label="Geri" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E2333" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></a>
+<h1 style="margin: 0; font-size: 19px; font-weight: 800">Haklarım</h1>
+</header>
+<div style="flex: 1; overflow-y: auto; padding: 14px 16px 120px">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-top: 4px solid #5B8CFF; border-radius: 14px; padding: 12px"><div style="font-size: 12.5px; font-weight: 700; color: #5A6073">Talep hakkı</div><div style="font-size: 22px; font-weight: 800">0</div></div>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-top: 4px solid #FF6FB5; border-radius: 14px; padding: 12px"><div style="font-size: 12.5px; font-weight: 700; color: #5A6073">Bugünkü ilk mesaj</div><div style="font-size: 22px; font-weight: 800">2 / 5</div></div>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-top: 4px solid #FFC84A; border-radius: 14px; padding: 12px"><div style="font-size: 12.5px; font-weight: 700; color: #5A6073">Ek ilk mesaj</div><div style="font-size: 22px; font-weight: 800">4</div></div>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-top: 4px solid #3DD68C; border-radius: 14px; padding: 12px"><div style="font-size: 12.5px; font-weight: 700; color: #5A6073">Ücretsiz uzatma</div><div style="font-size: 22px; font-weight: 800">1</div></div>
+</div>
+<h2 style="margin: 20px 0 8px; font-size: 16px; font-weight: 800">Satın al</h2>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; overflow: hidden">
+<sc-for list="{{urunler}}" as="u" hint-placeholder-count="6">
+<button type="button" onClick="{{u.pick}}" aria-pressed="{{u.aria}}" style="width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; border: 0; border-bottom: 1px solid #EEF0F5; background: {{u.bg}}; padding: 13px 14px; cursor: pointer; color: #1E2333">
+<span style="flex: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid {{u.dot}}; box-shadow: inset 0 0 0 3px {{u.bg}}; background: {{u.fill}}"></span>
+<span style="flex: 1; min-width: 0"><span style="display: block; font-size: 14.5px; font-weight: 700">{{u.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">{{u.not}}</span></span>
+<span style="flex: none; font-size: 14.5px; font-weight: 800">{{u.fiyat}}</span>
+</button>
+</sc-for>
+</div>
+<a href="Haklarim.dc.html" style="display: block; margin-top: 14px; font-size: 14px; font-weight: 700">Ödeme geçmişi ve faturalar</a>
+</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 1px solid #E3E6EF; padding: 12px 16px 26px">
+<div style="display: flex; justify-content: space-between; font-size: 13px; color: #5A6073; margin-bottom: 8px"><span>{{secili}}</span><span>KDV dahil</span></div>
+<p style="margin: 0 0 10px; font-size: 11.5px; line-height: 1.45; color: #5A6073">Ödeme Apple hesabınla alınır. İade talepleri Apple üzerinden yapılır. Satın aldığın haklar web sitesinde de geçerlidir.</p>
+<button type="button" style="width: 100%; border: 0; background: #5B8CFF; border-radius: 14px; padding: 15px; font-size: 16px; font-weight: 800; color: #1E2333; cursor: pointer">{{buton}}</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { sec: 't1' }; }
+  renderVals() {
+    var self = this, st = this.state;
+    var U = [['t1', 'Ek talep hakkı', '1 talep, süresi dolmaz', '239,99'], ['t3', 'Talep paketi', '3 talep, süresi dolmaz', '599,99'], ['m10', 'Ek ilk mesaj', '10 mesaj, süresi dolmaz', '119,99'], ['m30', 'Ek ilk mesaj', '30 mesaj, süresi dolmaz', '299,99'], ['us7', 'Üst sıra', '7 gün · BMW 3 Serisi talebi', '179,99'], ['ac', 'Acil arıyorum', '7 gün · pembe etiket', '94,99']];
+    var s = U.filter(function (u) { return u[0] === st.sec; })[0];
+    return {
+      urunler: U.map(function (u) { var on = st.sec === u[0]; return { ad: u[1], not: u[2], fiyat: '₺' + u[3], aria: on ? 'true' : 'false', bg: on ? '#EEF3FF' : '#FFFFFF', dot: on ? '#5B8CFF' : '#AEB5C4', fill: on ? '#5B8CFF' : '#FFFFFF', pick: function () { self.setState({ sec: u[0] }); } }; }),
+      secili: s[1] + ' · ' + s[2],
+      buton: 'App Store ile satın al · ₺' + s[3]
+    };
+  }
+}
+</script>
+</body>
+</html>

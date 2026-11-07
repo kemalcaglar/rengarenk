@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Talep oluştur, 4. adım (mobil)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 2300px; box-sizing: border-box; position: relative; background: #F6F8FD; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333; overflow: hidden">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF; padding: 10px 12px 14px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<button type="button" aria-label="Geri" style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: #1E2333; cursor: pointer">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<span style="font-size: 15px; font-weight: 800">Talep oluştur</span>
+<button type="button" style="border: 0; background: transparent; color: #2450C8; font-weight: 700; font-size: 14px; padding: 12px 6px; cursor: pointer">Kaydet</button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; margin-top: 6px" aria-hidden="true">
+<span style="height: 5px; border-radius: 3px; background: #5B8CFF"></span>
+<span style="height: 5px; border-radius: 3px; background: #5B8CFF"></span>
+<span style="height: 5px; border-radius: 3px; background: #5B8CFF"></span>
+<span style="height: 5px; border-radius: 3px; background: #5B8CFF"></span>
+<span style="height: 5px; border-radius: 3px; background: #E3E6EF"></span>
+<span style="height: 5px; border-radius: 3px; background: #E3E6EF"></span>
+</div>
+</header>
+
+<main style="padding: 18px 16px 120px">
+<p style="margin: 0; font-size: 12.5px; font-weight: 700; color: #2450C8">Adım 4 / 6 · Alternatif 1</p>
+<h1 style="margin: 4px 0 6px; font-size: 22px; font-weight: 800; line-height: 1.25">Boya, değişen ve hasar tercihlerin</h1>
+<p style="margin: 0 0 14px; font-size: 13.5px; color: #5A6073">Her parça için neyi kabul ettiğini seç; şema seçimlerine göre renklenir.</p>
+
+<div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px">
+<button type="button" onClick="{{hepsiOrijinal}}" style="flex: none; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 999px; padding: 9px 13px; font-size: 13px; font-weight: 700; color: #1E2333; cursor: pointer">Tümü orijinal</button>
+<button type="button" onClick="{{hepsiLokal}}" style="flex: none; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 999px; padding: 9px 13px; font-size: 13px; font-weight: 700; color: #1E2333; cursor: pointer">Tümünde lokal boya</button>
+<button type="button" onClick="{{hepsiBoya}}" style="flex: none; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 999px; padding: 9px 13px; font-size: 13px; font-weight: 700; color: #1E2333; cursor: pointer">Tümünde boya</button>
+</div>
+
+<section style="margin-top: 14px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px" aria-label="Araç şeması">
+<svg width="190" height="380" viewBox="0 0 260 520" role="img" aria-label="Seçimlerine göre renklenen üstten araç şeması">
+<text x="130" y="11" text-anchor="middle" font-size="12" font-weight="700" fill="#5A6073">ÖN</text>
+<rect x="24" y="90" width="14" height="54" rx="6" fill="#4A5064"></rect>
+<rect x="222" y="90" width="14" height="54" rx="6" fill="#4A5064"></rect>
+<rect x="24" y="378" width="14" height="54" rx="6" fill="#4A5064"></rect>
+<rect x="222" y="378" width="14" height="54" rx="6" fill="#4A5064"></rect>
+<path d="M36 178L22 184V196L36 198Z" fill="#DDE2EC" stroke="#AEB5C4" stroke-width="1.2"></path>
+<path d="M224 178L238 184V196L224 198Z" fill="#DDE2EC" stroke="#AEB5C4" stroke-width="1.2"></path>
+<path d="M58 46C70 26 100 18 130 18C160 18 190 26 202 46L196 58C176 50 154 46 130 46C106 46 84 50 64 58Z" fill="{{bd.onTampon}}" stroke="#AEB5C4" stroke-width="1.5"></path>
+<path d="M64 62C86 54 108 50 130 50C152 50 174 54 196 62L190 160C172 154 152 152 130 152C108 152 88 154 70 160Z" fill="{{bd.motorKaputu}}" stroke="#AEB5C4" stroke-width="1.5"></path>
+<path d="M72 166C92 160 110 158 130 158C150 158 168 160 188 166L176 208C162 204 146 202 130 202C114 202 98 204 84 208Z" fill="#DCE6F5" stroke="#AEB5C4" stroke-width="1"></path>
+<path d="M86 214C100 210 114 208 130 208C146 208 160 210 174 214V318C160 322 146 324 130 324C114 324 100 322 86 318Z" fill="{{bd.tavan}}" stroke="#AEB5C4" stroke-width="1.5"></path>
+<path d="M86 324C100 328 114 330 130 330C146 330 160 328 174 324L186 362C168 368 150 370 130 370C110 370 92 368 74 362Z" fill="#DCE6F5" stroke="#AEB5C4" stroke-width="1"></path>
+<path d="M72 368C92 374 110 376 130 376C150 376 168 374 188 368L194 440C176 446 154 448 130 448C106 448 84 446 66 440Z" fill="{{bd.arkaKaput}}" stroke="#AEB5C4" stroke-width="1.5"></path>
+<path d="M64 454C84 460 106 462 130 462C154 462 176 460 196 454L202 468C190 490 162 500 130 500C98 500 70 490 58 468Z" fill="{{bd.arkaTampon}}" stroke="#AEB5C4" stroke-width="1.5"></path>
+<path d="M58 50L64 64L70 164H36V100C36 80 44 62 58 50Z" fill="{{bd.solOnCamurluk}}" stroke="#AEB5C4" stroke-width="1.5"></path>
+<path d="M36 170H76L86 212V268H36Z" fill="{{bd.solOnKapi}}" stroke="#AEB5C4" stroke-width="1.5"></path>
+<path d="M36 274H86V318L76 360H36Z" fill="{{bd.solArkaKapi}}" stroke="#AEB5C4" stroke-width="1.5"></path>
+<path d="M36 366H74L68 446L60 462C46 452 36 432 36 412Z" fill="{{bd.solArkaCamurluk}}" stroke="#AEB5C4" stroke-width="1.5"></path>
+<path d="M202 50L196 64L190 164H224V100C224 80 216 62 202 50Z" fill="{{bd.sagOnCamurluk}}" stroke="#AEB5C4" stroke-width="1.5"></path>
+<path d="M224 170H184L174 212V268H224Z" fill="{{bd.sagOnKapi}}" stroke="#AEB5C4" stroke-width="1.5"></path>
+<path d="M224 274H174V318L184 360H224Z" fill="{{bd.sagArkaKapi}}" stroke="#AEB5C4" stroke-width="1.5"></path>
+<path d="M224 366H186L192 446L200 462C214 452 224 432 224 412Z" fill="{{bd.sagArkaCamurluk}}" stroke="#AEB5C4" stroke-width="1.5"></path>
+<text x="130" y="516" text-anchor="middle" font-size="12" font-weight="700" fill="#5A6073">ARKA</text>
+</svg>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 12px; font-size: 12px; color: #3A4052">
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 11px; height: 11px; border-radius: 3px; background: #EEF0F5; border: 1px solid #AEB5C4" aria-hidden="true"></span>Orijinal</span>
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 11px; height: 11px; border-radius: 3px; background: #FFE08A; border: 1px solid #AEB5C4" aria-hidden="true"></span>Lokal boya</span>
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 11px; height: 11px; border-radius: 3px; background: #9EC1FF; border: 1px solid #AEB5C4" aria-hidden="true"></span>Boya</span>
+<span style="display: flex; align-items: center; gap: 5px"><span style="width: 11px; height: 11px; border-radius: 3px; background: #FF9C9C; border: 1px solid #AEB5C4" aria-hidden="true"></span>Değişen</span>
+</div>
+</section>
+
+<section style="margin-top: 12px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; overflow: hidden" aria-label="Parçalar">
+<sc-for list="{{parts}}" as="pt" hint-placeholder-count="13">
+<div style="padding: 10px 12px; border-bottom: 1px solid #EEF0F5">
+<div style="font-size: 14px; font-weight: 700; margin-bottom: 7px">{{pt.name}}</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px" role="group" aria-label="{{pt.name}}">
+<sc-for list="{{pt.opts}}" as="o" hint-placeholder-count="4">
+<sc-if value="{{o.on}}" hint-placeholder-val="{{ false }}"><button type="button" aria-pressed="true" onClick="{{o.pick}}" style="border: 1.5px solid #4A5064; background: {{o.color}}; border-radius: 8px; padding: 9px 2px; font-size: 12px; font-weight: 800; color: #1E2333; cursor: pointer">{{o.label}}</button></sc-if>
+<sc-if value="{{o.off}}" hint-placeholder-val="{{ true }}"><button type="button" aria-pressed="false" onClick="{{o.pick}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 8px; padding: 9.5px 2.5px; font-size: 12px; font-weight: 600; color: #5A6073; cursor: pointer">{{o.label}}</button></sc-if>
+</sc-for>
+</div>
+</div>
+</sc-for>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px; background: #F3F5FA">
+<span style="font-size: 13.5px; font-weight: 600">Toplamda en fazla parça</span>
+<span style="display: flex; align-items: center; gap: 6px">
+<button type="button" aria-label="Azalt" onClick="{{limitAzalt}}" style="width: 44px; height: 44px; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; font-size: 18px; font-weight: 700; cursor: pointer">−</button>
+<span style="min-width: 22px; text-align: center; font-size: 17px; font-weight: 800">{{limit}}</span>
+<button type="button" aria-label="Artır" onClick="{{limitArtir}}" style="width: 44px; height: 44px; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; font-size: 18px; font-weight: 700; cursor: pointer">+</button>
+</span>
+</div>
+</section>
+
+<h2 style="margin: 20px 0 10px; font-size: 17px; font-weight: 700">Hasar geçmişi</h2>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; overflow: hidden" aria-label="Hasar geçmişi">
+<sc-for list="{{hasar}}" as="h" hint-placeholder-count="4">
+<div style="padding: 12px; border-bottom: 1px solid #EEF0F5">
+<div style="font-size: 14px; font-weight: 700; margin-bottom: 7px">{{h.label}}</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px" role="group" aria-label="{{h.label}}">
+<sc-if value="{{h.kabul}}" hint-placeholder-val="{{ false }}">
+<button type="button" aria-pressed="true" onClick="{{h.setKabul}}" style="border: 1.5px solid #25A35A; background: #E7FAF0; border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 800; color: #11683F; cursor: pointer">Kabul</button>
+<button type="button" aria-pressed="false" onClick="{{h.setRet}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 8px; padding: 10.5px; font-size: 13px; font-weight: 600; color: #5A6073; cursor: pointer">Kabul etmiyorum</button>
+</sc-if>
+<sc-if value="{{h.ret}}" hint-placeholder-val="{{ true }}">
+<button type="button" aria-pressed="false" onClick="{{h.setKabul}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 8px; padding: 10.5px; font-size: 13px; font-weight: 600; color: #5A6073; cursor: pointer">Kabul</button>
+<button type="button" aria-pressed="true" onClick="{{h.setRet}}" style="border: 1.5px solid #A3271F; background: #FDECEC; border-radius: 8px; padding: 10px; font-size: 13px; font-weight: 800; color: #A3271F; cursor: pointer">Kabul etmiyorum</button>
+</sc-if>
+</div>
+</div>
+</sc-for>
+<div style="padding: 12px">
+<label for="m-tramer" style="display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px">En fazla tramer tutarı (TL)</label>
+<input id="m-tramer" value="25.000" style="width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 12px; font-size: 15px">
+</div>
+</section>
+</main>
+
+<div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 1px solid #E3E6EF; padding: 12px 16px 24px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<button type="button" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 14px; padding: 14px 8px; font-size: 15px; font-weight: 700; color: #1E2333; cursor: pointer">Geri</button>
+<button type="button" style="grid-column: span 2; border: 0; background: #5B8CFF; border-radius: 14px; padding: 15px 8px; font-size: 15.5px; font-weight: 800; color: #1E2333; cursor: pointer">Devam et</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2300}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      parts: { onTampon: 'boya', motorKaputu: 'orijinal', tavan: 'orijinal', arkaKaput: 'lokal', arkaTampon: 'boya', solOnCamurluk: 'lokal', solOnKapi: 'lokal', solArkaKapi: 'lokal', solArkaCamurluk: 'lokal', sagOnCamurluk: 'lokal', sagOnKapi: 'lokal', sagArkaKapi: 'lokal', sagArkaCamurluk: 'lokal' },
+      limit: 2,
+      hasar: { sasi: false, podye: false, airbag: false, agir: false }
+    };
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    var ST = { orijinal: ['Orijinal', '#EEF0F5'], lokal: ['Lokal', '#FFE08A'], boya: ['Boya', '#9EC1FF'], degisen: ['Değişen', '#FF9C9C'] };
+    var PARTS = [
+      ['onTampon', 'Ön tampon'], ['motorKaputu', 'Motor kaputu'], ['tavan', 'Tavan'], ['arkaKaput', 'Arka kaput'], ['arkaTampon', 'Arka tampon'],
+      ['solOnCamurluk', 'Sol ön çamurluk'], ['solOnKapi', 'Sol ön kapı'], ['solArkaKapi', 'Sol arka kapı'], ['solArkaCamurluk', 'Sol arka çamurluk'],
+      ['sagOnCamurluk', 'Sağ ön çamurluk'], ['sagOnKapi', 'Sağ ön kapı'], ['sagArkaKapi', 'Sağ arka kapı'], ['sagArkaCamurluk', 'Sağ arka çamurluk']
+    ];
+    var bd = {};
+    PARTS.forEach(function (p) { bd[p[0]] = ST[st.parts[p[0]]][1]; });
+    var parts = PARTS.map(function (p) {
+      return {
+        name: p[1],
+        opts: ['orijinal', 'lokal', 'boya', 'degisen'].map(function (k) {
+          var on = st.parts[p[0]] === k;
+          return { label: ST[k][0], color: ST[k][1], on: on, off: !on, pick: function () { var np = Object.assign({}, self.state.parts); np[p[0]] = k; self.setState({ parts: np }); } };
+        })
+      };
+    });
+    function setAll(k) { return function () { var np = {}; PARTS.forEach(function (p) { np[p[0]] = k; }); self.setState({ parts: np }); }; }
+    var HASAR = [['sasi', 'Şasi işlemi'], ['podye', 'Podye işlemi'], ['airbag', 'Airbag açılmış'], ['agir', 'Ağır hasar kaydı']];
+    var hasar = HASAR.map(function (h) {
+      var k = !!st.hasar[h[0]];
+      return {
+        label: h[1], kabul: k, ret: !k,
+        setKabul: function () { var nh = Object.assign({}, self.state.hasar); nh[h[0]] = true; self.setState({ hasar: nh }); },
+        setRet: function () { var nh = Object.assign({}, self.state.hasar); nh[h[0]] = false; self.setState({ hasar: nh }); }
+      };
+    });
+    return {
+      bd: bd, parts: parts, hasar: hasar, limit: st.limit,
+      hepsiOrijinal: setAll('orijinal'), hepsiLokal: setAll('lokal'), hepsiBoya: setAll('boya'),
+      limitAzalt: function () { self.setState({ limit: Math.max(0, self.state.limit - 1) }); },
+      limitArtir: function () { self.setState({ limit: Math.min(13, self.state.limit + 1) }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Yönetim konsolu · Kontrol paneli ve raporlar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}a:hover{color:#1A3C99;text-decoration:underline}
+button,input,select{font-family:inherit}
+</style>
+</helmet>
+<div style="background: #F6F8FD; min-height: 100vh; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF">
+<div style="max-width: 1400px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<span style="display: flex; align-items: center; gap: 8px">
+<span style="display: flex; gap: 3px" aria-hidden="true"><span style="width: 10px; height: 22px; border-radius: 5px; background: #5B8CFF"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #FF6FB5"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #FFC84A"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #3DD68C"></span></span>
+<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px">rengarenk</span>
+<span style="font-size: 12.5px; font-weight: 800; background: #F3EFFF; color: #4B2FA6; padding: 4px 10px; border-radius: 999px; margin-left: 4px">Yönetim</span>
+</span>
+<span style="display: flex; align-items: center; gap: 14px; font-size: 14px">
+<a href="YonetimEkip.dc.html" style="display: flex; align-items: center; gap: 8px; border: 1px solid #F4DC9A; background: #FFF6DF; border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 800; color: #7A5300">Onayını bekleyen 5</a>
+<span style="display: flex; align-items: center; gap: 10px"><span style="width: 34px; height: 34px; border-radius: 50%; background: #EEF3FF; color: #2450C8; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px" aria-hidden="true">KG</span><span><strong>Sen</strong> · Sahip</span></span>
+</span>
+</div>
+</header>
+
+<div style="max-width: 1400px; margin: 0 auto; padding: 24px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px">
+<nav style="flex: 1 1 230px; max-width: 260px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 12px" aria-label="Yönetim konsolu">
+<sc-for list="{{gruplar}}" as="g" hint-placeholder-count="7">
+<span style="display: block; padding: 12px 10px 6px; font-size: 11.5px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: #5A6073">{{g.ad}}</span>
+<sc-for list="{{g.ogeler}}" as="m" hint-placeholder-count="3">
+<sc-if value="{{m.on}}" hint-placeholder-val="{{ false }}"><button type="button" aria-current="page" onClick="{{m.pick}}" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; border: 0; background: #F3EFFF; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer; text-align: left">{{m.ad}}<span style="font-size: 11.5px; font-weight: 800; color: {{m.rozetRenk}}">{{m.rozet}}</span></button></sc-if>
+<sc-if value="{{m.aktif}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{m.pick}}" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; border: 0; background: transparent; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; color: #3A4052; cursor: pointer; text-align: left">{{m.ad}}<span style="font-size: 11.5px; font-weight: 800; color: {{m.rozetRenk}}">{{m.rozet}}</span></button></sc-if>
+<sc-if value="{{m.link}}" hint-placeholder-val="{{ false }}"><a href="{{m.href}}" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; color: #3A4052">{{m.ad}}<span style="font-size: 11.5px; font-weight: 800; color: {{m.rozetRenk}}">{{m.rozet}}</span></a></sc-if>
+<sc-if value="{{m.sonra}}" hint-placeholder-val="{{ false }}"><span style="display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; font-size: 14px; font-weight: 600; color: #8A91A3">{{m.ad}}<span style="font-size: 11px; font-weight: 700; background: #F3F5FA; color: #5A6073; padding: 2px 7px; border-radius: 999px">{{m.tur}}</span></span></sc-if>
+</sc-for>
+</sc-for>
+</nav>
+
+<main style="flex: 999 1 820px; min-width: 0">
+
+<sc-if value="{{v.panel}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 26px; font-weight: 800">Kontrol paneli</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">6 Kasım 2026 Cuma · veriler 5 dakika önce güncellendi</p></div>
+<div style="display: flex; gap: 6px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 999px; padding: 4px" role="group" aria-label="Dönem">
+<sc-for list="{{donemler}}" as="d" hint-placeholder-count="3">
+<sc-if value="{{d.on}}" hint-placeholder-val="{{ false }}"><button type="button" aria-pressed="true" onClick="{{d.pick}}" style="border: 0; background: #1E2333; border-radius: 999px; padding: 8px 14px; font-size: 13.5px; font-weight: 800; color: #FFFFFF; cursor: pointer">{{d.ad}}</button></sc-if>
+<sc-if value="{{d.off}}" hint-placeholder-val="{{ true }}"><button type="button" aria-pressed="false" onClick="{{d.pick}}" style="border: 0; background: transparent; border-radius: 999px; padding: 8px 14px; font-size: 13.5px; font-weight: 700; color: #1E2333; cursor: pointer">{{d.ad}}</button></sc-if>
+</sc-for>
+</div>
+</div>
+
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 18px 32px" aria-labelledby="ana">
+<div style="flex: 1 1 260px; min-width: 0">
+<h2 id="ana" style="margin: 0; font-size: 14px; font-weight: 700; color: #5A6073">Ana ölçü · ilk mesaj alan talep oranı</h2>
+<div style="display: flex; align-items: baseline; gap: 12px; margin-top: 4px"><span style="font-size: 44px; font-weight: 800; letter-spacing: -1px">%78</span><span style="font-size: 14px; font-weight: 800; color: #11683F">▲ 4 puan</span></div>
+<p style="margin: 2px 0 0; font-size: 13px; color: #5A6073">Son 30 gün · talebine 48 saat içinde en az bir satıcı yazan alıcılar · önceki 30 gün %74</p>
+</div>
+<div style="flex: 1 1 240px; min-width: 0">
+<div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 700"><span>Kasım hedefi %80</span><span style="color: #5A6073">2 puan kaldı</span></div>
+<div style="position: relative; height: 10px; border-radius: 999px; background: #EEF0F5; margin-top: 8px"><span style="position: absolute; left: 0; top: 0; bottom: 0; width: 97.5%; border-radius: 999px; background: #5B8CFF"></span></div>
+<p style="margin: 10px 0 0; font-size: 13px; line-height: 1.5; color: #3A4052"><strong>Ajan:</strong> artışın çoğu İzmir ve Bursa'dan; yeni katılan galeriler ilk haftalarında ortalamanın 2 katı ilk mesaj gönderiyor.</p>
+</div>
+<div style="flex: 0 1 220px; min-width: 0">
+<div style="display: flex; align-items: flex-end; gap: 2px; height: 64px" role="img" aria-label="Son 12 haftada ana ölçü %61'den %78'e yükseldi">
+<sc-for list="{{anaTrend}}" as="at" hint-placeholder-count="12"><span title="{{at.etiket}}" style="flex: 1; height: {{at.h}}%; background: {{at.renk}}; border-radius: 3px 3px 0 0"></span></sc-for>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #5A6073; margin-top: 4px"><span>12 hafta önce %61</span><span>bu hafta %78</span></div>
+</div>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 14px">
+<sc-for list="{{olcumler}}" as="o" hint-placeholder-count="6">
+<button type="button" onClick="{{o.pick}}" aria-pressed="{{o.aria}}" style="text-align: left; background: #FFFFFF; border: {{o.kenar}}; border-radius: 16px; padding: 14px; cursor: pointer; color: #1E2333; min-width: 0">
+<span style="display: block; font-size: 12.5px; font-weight: 700; color: #5A6073">{{o.ad}}</span>
+<span style="display: block; font-size: 22px; font-weight: 800; margin-top: 4px">{{o.deger}}</span>
+<span style="display: block; font-size: 12.5px; font-weight: 800; color: {{o.renk}}; margin-top: 4px">{{o.fark}}</span>
+<span style="display: block; font-size: 11.5px; color: #5A6073; margin-top: 2px">{{o.karsi}}</span>
+</button>
+</sc-for>
+</div>
+
+<sc-if value="{{detayVar}}" hint-placeholder-val="{{ true }}">
+<section style="margin-top: 12px; background: #FFFFFF; border: 1.5px solid #5B8CFF; border-radius: 18px; padding: 18px 20px" aria-labelledby="neden">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px">
+<h2 id="neden" style="margin: 0; font-size: 17px; font-weight: 800">Neden analizi · {{detay.baslik}}</h2>
+<button type="button" onClick="{{detayKapat}}" style="border: 0; background: transparent; padding: 0; font-size: 13.5px; font-weight: 700; color: #2450C8; cursor: pointer">Kapat</button>
+</div>
+<p style="margin: 8px 0 14px; font-size: 14px; line-height: 1.55; color: #2E3344; background: #F6F8FD; border-radius: 12px; padding: 12px 14px"><strong>Ajan:</strong> {{detay.ajan}}</p>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px">
+<sc-for list="{{detay.kirilim}}" as="k" hint-placeholder-count="4">
+<div style="min-width: 0">
+<h3 style="margin: 0 0 8px; font-size: 13px; font-weight: 800; color: #5A6073">{{k.ad}}</h3>
+<sc-for list="{{k.satir}}" as="ks" hint-placeholder-count="5">
+<div title="{{ks.ipucu}}" style="margin-bottom: 8px">
+<div style="display: flex; justify-content: space-between; gap: 6px; font-size: 12.5px"><span style="font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{ks.ad}}</span><span style="flex: none; color: #3A4052">{{ks.deger}} · <span style="font-weight: 800; color: {{ks.renk}}">{{ks.fark}}</span></span></div>
+<div style="height: 6px; border-radius: 0 4px 4px 0; background: #EEF0F5; margin-top: 4px"><div style="height: 6px; width: {{ks.w}}%; border-radius: 0 4px 4px 0; background: #5B8CFF"></div></div>
+</div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</section>
+</sc-if>
+
+<div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; align-items: stretch">
+<section style="flex: 3 1 520px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px 20px" aria-labelledby="gunluk">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 26px">
+<h2 id="gunluk" style="margin: 0; font-size: 17px; font-weight: 800">Günlük yeni talep · son 30 gün</h2>
+<button type="button" onClick="{{notEkle}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; padding: 7px 12px; font-size: 13px; font-weight: 700; color: #1E2333; cursor: pointer">{{notButon}}</button>
+</div>
+<div style="position: relative; height: 190px; border-bottom: 1px solid #D5DAE5">
+<div style="position: absolute; left: 0; right: 0; top: 0; border-top: 1px dashed #EEF0F5"></div>
+<div style="position: absolute; left: 0; right: 0; top: 50%; border-top: 1px dashed #EEF0F5"></div>
+<div style="position: absolute; inset: 0; display: flex; align-items: flex-end; gap: 3px">
+<sc-for list="{{gunler}}" as="gn" hint-placeholder-count="30"><span title="{{gn.ipucu}}" style="flex: 1; height: {{gn.h}}%; background: #5B8CFF; border-radius: 4px 4px 0 0"></span></sc-for>
+</div>
+<span style="position: absolute; left: 0; top: -18px; font-size: 11px; color: #5A6073; background: #FFFFFF; padding: 0 4px">160</span>
+<span style="position: absolute; left: 0; top: calc(50% - 16px); font-size: 11px; color: #5A6073; background: #FFFFFF; padding: 0 4px">80</span>
+
+<sc-for list="{{notlar}}" as="n" hint-placeholder-count="2">
+<div style="position: absolute; top: -20px; bottom: 0; left: {{n.x}}%; border-left: 2px dashed #4B2FA6">
+<sc-if value="{{n.sag}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; top: 0; left: 4px; white-space: nowrap; font-size: 11.5px; font-weight: 800; background: #F3EFFF; color: #4B2FA6; padding: 2px 7px; border-radius: 999px">{{n.metin}}</span></sc-if><sc-if value="{{n.sol}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: 22px; right: 4px; white-space: nowrap; font-size: 11.5px; font-weight: 800; background: #F3EFFF; color: #4B2FA6; padding: 2px 7px; border-radius: 999px">{{n.metin}}</span></sc-if>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #5A6073; margin-top: 6px"><span>7 Eki</span><span>21 Eki</span><span>5 Kas</span></div>
+<p style="margin: 10px 0 0; font-size: 12.5px; color: #5A6073">Mor çizgiler grafik notudur. Kampanya, fiyat ve kural değişiklikleri kendiliğinden not olarak eklenir.</p>
+</section>
+
+<section style="flex: 2 1 340px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="bugun">
+<h2 id="bugun" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Bugün bakman gerekenler</h2>
+<sc-for list="{{bakilacak}}" as="b" hint-placeholder-count="5">
+<div style="display: flex; gap: 12px; padding: 12px 18px; border-bottom: 1px solid #EEF0F5">
+<span style="flex: none; width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; background: {{b.nokta}}" aria-hidden="true"></span>
+<span style="flex: 1; min-width: 0"><span style="display: block; font-size: 14px; font-weight: 800">{{b.baslik}}</span><span style="display: block; font-size: 12.5px; color: #3A4052; margin-top: 2px">{{b.detay}}</span>
+<sc-if value="{{b.link}}" hint-placeholder-val="{{ true }}"><a href="{{b.href}}" style="display: inline-block; margin-top: 4px; font-size: 13px; font-weight: 700">{{b.eylem}}</a></sc-if>
+<sc-if value="{{b.buton}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{b.git}}" style="margin-top: 4px; border: 0; background: transparent; padding: 0; font-size: 13px; font-weight: 700; color: #2450C8; cursor: pointer">{{b.eylem}}</button></sc-if>
+<sc-if value="{{b.sonra}}" hint-placeholder-val="{{ false }}"><span style="display: inline-block; margin-top: 4px; font-size: 12px; font-weight: 700; color: #5A6073">{{b.eylem}}</span></sc-if>
+</span>
+</div>
+</sc-for>
+</section>
+</div>
+
+<section style="margin-top: 14px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px 20px" aria-labelledby="hedef">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px">
+<div><h2 id="hedef" style="margin: 0; font-size: 17px; font-weight: 800">Kasım hedefleri</h2><p style="margin: 3px 0 0; font-size: 13px; color: #5A6073">Ayın %20'si geçti. Dikey çizgi bugün olması gereken yeri gösterir.</p></div>
+<sc-if value="{{hedefOku}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{hedefDuzenle}}" style="border: 1px solid #5B8CFF; background: #FFFFFF; border-radius: 10px; padding: 8px 14px; font-size: 13.5px; font-weight: 800; color: #2450C8; cursor: pointer">Hedefleri düzenle</button></sc-if>
+<sc-if value="{{hedefYaz}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{hedefKaydet}}" style="border: 0; background: #5B8CFF; border-radius: 10px; padding: 9px 16px; font-size: 13.5px; font-weight: 800; color: #1E2333; cursor: pointer">Kaydet</button></sc-if>
+</div>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; margin-top: 16px">
+<sc-for list="{{hedefler}}" as="h" hint-placeholder-count="5">
+<div style="min-width: 0">
+<div style="font-size: 13px; font-weight: 700; color: #5A6073">{{h.ad}}</div>
+<div style="font-size: 19px; font-weight: 800; margin-top: 3px">{{h.mevcut}}</div>
+<sc-if value="{{hedefOku}}" hint-placeholder-val="{{ true }}"><div style="font-size: 12.5px; color: #3A4052">Hedef {{h.hedef}}</div></sc-if>
+<sc-if value="{{hedefYaz}}" hint-placeholder-val="{{ false }}"><label style="display: block; font-size: 12px; font-weight: 700; color: #3A4052">Hedef<input value="{{h.hedefHam}}" style="display: block; width: 100%; box-sizing: border-box; margin-top: 3px; border: 1px solid #D5DAE5; border-radius: 8px; padding: 6px 8px; font-size: 13.5px"></label></sc-if>
+<div style="position: relative; height: 8px; border-radius: 999px; background: #EEF0F5; margin-top: 8px"><span style="position: absolute; left: 0; top: 0; bottom: 0; width: {{h.w}}%; border-radius: 999px; background: #5B8CFF"></span><span style="position: absolute; top: -4px; bottom: -4px; left: {{h.beklenen}}%; width: 2px; background: #1E2333; opacity: {{h.cizgi}}"></span></div>
+<div style="display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: {{h.bg}}; color: {{h.fg}}">{{h.durum}}</div>
+<div style="font-size: 12px; color: #5A6073; margin-top: 4px">{{h.not}}</div>
+</div>
+</sc-for>
+</div>
+<p style="margin: 14px 0 0; font-size: 12.5px; color: #5A6073">Ajan, hedeften sapmayı pazartesi raporunda yazar; sapma %10'u geçerse hemen bildirir.</p>
+</section>
+</sc-if>
+
+<sc-if value="{{v.rapor}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px">
+<div><h1 style="margin: 0; font-size: 26px; font-weight: 800">Raporlar</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Her sayıya tıklayınca il, kategori, kanal ve platform kırılımı açılır.</p></div>
+<span style="display: flex; gap: 8px">
+<button type="button" onClick="{{panoyaKaydet}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 12px; padding: 10px 14px; font-size: 14px; font-weight: 700; color: #1E2333; cursor: pointer">Panoya kaydet</button>
+<button type="button" onClick="{{disaAktar}}" style="border: 0; background: #5B8CFF; border-radius: 12px; padding: 10px 16px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer">Excel'e aktar</button>
+</span>
+</div>
+<sc-if value="{{bildirimVar}}" hint-placeholder-val="{{ false }}"><div role="status" style="margin-bottom: 12px; background: #E7FAF0; border: 1px solid #B9EBD1; border-radius: 12px; padding: 11px 14px; font-size: 13.5px; font-weight: 700; color: #11683F">{{bildirim}}</div></sc-if>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px">
+<label style="font-size: 12px; font-weight: 700; color: #5A6073">Tarih<select style="display: block; margin-top: 4px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 8px 10px; font-size: 13.5px; background: #FFFFFF"><option>Son 30 gün</option><option>Son 7 gün</option><option>Bu ay</option><option>Geçen ay</option><option>Özel aralık</option></select></label>
+<label style="font-size: 12px; font-weight: 700; color: #5A6073">Karşılaştır<select style="display: block; margin-top: 4px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 8px 10px; font-size: 13.5px; background: #FFFFFF"><option>Önceki 30 gün</option><option>Geçen yılın aynı dönemi</option><option>Karşılaştırma yok</option></select></label>
+<label style="font-size: 12px; font-weight: 700; color: #5A6073">İl<select style="display: block; margin-top: 4px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 8px 10px; font-size: 13.5px; background: #FFFFFF"><option>Tüm Türkiye</option><option>İstanbul</option><option>Ankara</option><option>İzmir</option><option>Antalya</option></select></label>
+<label style="font-size: 12px; font-weight: 700; color: #5A6073">Kategori<select style="display: block; margin-top: 4px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 8px 10px; font-size: 13.5px; background: #FFFFFF"><option>Tüm kategoriler</option><option>Otomobil</option><option>Arazi, SUV &amp; Pickup</option><option>Kiralık Araçlar</option><option>Ticari Araçlar</option></select></label>
+<label style="font-size: 12px; font-weight: 700; color: #5A6073">Platform<select style="display: block; margin-top: 4px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 8px 10px; font-size: 13.5px; background: #FFFFFF"><option>Hepsi</option><option>Web</option><option>iOS</option><option>Android</option></select></label>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 1px solid #E3E6EF; margin-bottom: 16px" role="tablist" aria-label="Rapor türü">
+<sc-for list="{{sekmeler}}" as="s" hint-placeholder-count="7">
+<sc-if value="{{s.on}}" hint-placeholder-val="{{ false }}"><button type="button" role="tab" aria-selected="true" onClick="{{s.pick}}" style="border: 0; border-bottom: 3px solid #5B8CFF; background: transparent; padding: 10px 12px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer">{{s.ad}}</button></sc-if>
+<sc-if value="{{s.off}}" hint-placeholder-val="{{ true }}"><button type="button" role="tab" aria-selected="false" onClick="{{s.pick}}" style="border: 0; border-bottom: 3px solid transparent; background: transparent; padding: 10px 12px; font-size: 14px; font-weight: 600; color: #3A4052; cursor: pointer">{{s.ad}}</button></sc-if>
+</sc-for>
+</div>
+
+<sc-if value="{{t.huni}}" hint-placeholder-val="{{ true }}">
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px 20px" aria-labelledby="huni">
+<h2 id="huni" style="margin: 0; font-size: 17px; font-weight: 800">Huni · son 30 gün</h2>
+<p style="margin: 4px 0 16px; font-size: 13px; color: #5A6073">412.000 tekil ziyaretçi. Çubuk uzunluğu üyeliğe göre oran.</p>
+<sc-for list="{{huni}}" as="hn" hint-placeholder-count="5">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; margin-bottom: 12px" title="{{hn.ipucu}}">
+<span style="flex: 0 0 190px; font-size: 14px; font-weight: 700">{{hn.ad}}</span>
+<span style="flex: 1 1 300px; min-width: 0; height: 28px; background: #F3F5FA; border-radius: 0 6px 6px 0"><span style="display: block; height: 28px; width: {{hn.w}}%; background: #5B8CFF; border-radius: 0 6px 6px 0"></span></span>
+<span style="flex: 0 0 90px; font-size: 15px; font-weight: 800; text-align: right">{{hn.sayi}}</span>
+<span style="flex: 0 0 150px; font-size: 12.5px; color: #3A4052">{{hn.oran}}</span>
+</div>
+</sc-for>
+<p style="margin: 6px 0 0; font-size: 14px; line-height: 1.55; color: #2E3344; background: #F6F8FD; border-radius: 12px; padding: 12px 14px"><strong>Ajan:</strong> en büyük kayıp üyelikten talebe geçişte (%61). Sihirbazı yarıda bırakanların %44'ü bütçe adımında çıkıyor; bu adım için bir deney açtım (Deneyler sekmesi).</p>
+</section>
+</sc-if>
+
+<sc-if value="{{t.harita}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start">
+<section style="flex: 3 1 560px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px 20px" aria-labelledby="harita">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px">
+<h2 id="harita" style="margin: 0; font-size: 17px; font-weight: 800">İl ve kategoriye göre arz-talep</h2>
+<span style="display: flex; gap: 6px">
+<sc-for list="{{haritaOlcu}}" as="ho" hint-placeholder-count="2">
+<sc-if value="{{ho.on}}" hint-placeholder-val="{{ false }}"><button type="button" aria-pressed="true" onClick="{{ho.pick}}" style="border: 0; background: #1E2333; border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 800; color: #FFFFFF; cursor: pointer">{{ho.ad}}</button></sc-if>
+<sc-if value="{{ho.off}}" hint-placeholder-val="{{ true }}"><button type="button" aria-pressed="false" onClick="{{ho.pick}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 999px; padding: 6px 11px; font-size: 13px; font-weight: 700; color: #1E2333; cursor: pointer">{{ho.ad}}</button></sc-if>
+</sc-for>
+</span>
+</div>
+<div style="display: grid; grid-template-columns: 110px repeat(5, minmax(0, 1fr)); gap: 2px; font-size: 12.5px">
+<span></span>
+<sc-for list="{{haritaKat}}" as="hk" hint-placeholder-count="5"><span style="padding: 6px 4px; font-weight: 800; color: #5A6073; text-align: center">{{hk.ad}}</span></sc-for>
+<sc-for list="{{harita}}" as="hr" hint-placeholder-count="8">
+<span style="padding: 10px 6px; font-weight: 700">{{hr.il}}</span>
+<sc-for list="{{hr.hucre}}" as="hc" hint-placeholder-count="5"><span title="{{hc.ipucu}}" style="padding: 10px 4px; text-align: center; font-weight: 800; border-radius: 6px; background: {{hc.bg}}; color: {{hc.fg}}">{{hc.t}}</span></sc-for>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 12px; font-size: 12px; color: #3A4052">
+<span style="font-weight: 700">{{haritaAciklama}}</span>
+<sc-for list="{{haritaLejant}}" as="hl" hint-placeholder-count="5"><span style="display: flex; align-items: center; gap: 5px"><span style="width: 14px; height: 14px; border-radius: 4px; background: {{hl.bg}}; border: 1px solid #E3E6EF"></span>{{hl.ad}}</span></sc-for>
+</div>
+</section>
+<section style="flex: 2 1 300px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="acik">
+<h2 id="acik" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">En büyük arz açıkları</h2>
+<sc-for list="{{aciklar}}" as="ac" hint-placeholder-count="4">
+<div style="padding: 12px 18px; border-bottom: 1px solid #EEF0F5"><span style="display: flex; justify-content: space-between; gap: 8px; font-size: 14px; font-weight: 800"><span>{{ac.yer}}</span><span>{{ac.oran}}</span></span><span style="display: block; font-size: 12.5px; color: #3A4052; margin-top: 2px">{{ac.not}}</span></div>
+</sc-for>
+<p style="margin: 0; padding: 12px 18px; font-size: 13px; line-height: 1.5; color: #2E3344; background: #F6F8FD"><strong>Ajan:</strong> kiralık araç talebi her ilde arzdan hızlı büyüyor. Bu illerdeki kiralama firmalarına 30 günlük deneme duyurusu öneriyorum (kampanyalar, Tur 3).</p>
+</section>
+</div>
+</sc-if>
+
+<sc-if value="{{t.gelir}}" hint-placeholder-val="{{ false }}">
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px">
+<sc-for list="{{gelirSayilar}}" as="gs" hint-placeholder-count="5">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px"><div style="font-size: 12.5px; font-weight: 700; color: #5A6073">{{gs.ad}}</div><div style="font-size: 21px; font-weight: 800; margin-top: 4px">{{gs.deger}}</div><div style="font-size: 12px; color: #5A6073; margin-top: 3px">{{gs.not}}</div></div>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start">
+<section style="flex: 3 1 480px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px 20px" aria-labelledby="kalem">
+<h2 id="kalem" style="margin: 0 0 14px; font-size: 17px; font-weight: 800">Gelir kalemleri · son 30 gün</h2>
+<sc-for list="{{kalemler}}" as="kl" hint-placeholder-count="7">
+<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px" title="{{kl.ipucu}}">
+<span style="flex: 0 0 200px; font-size: 13.5px; font-weight: 700">{{kl.ad}}</span>
+<span style="flex: 1; min-width: 0; height: 18px"><span style="display: block; height: 18px; width: {{kl.w}}%; background: #5B8CFF; border-radius: 0 4px 4px 0"></span></span>
+<span style="flex: 0 0 96px; font-size: 13.5px; font-weight: 800; text-align: right">{{kl.tutar}}</span>
+</div>
+</sc-for>
+</section>
+<section style="flex: 2 1 320px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px 20px" aria-labelledby="mrr">
+<h2 id="mrr" style="margin: 0 0 4px; font-size: 17px; font-weight: 800">Aylık tekrarlayan gelir</h2>
+<p style="margin: 0 0 14px; font-size: 12.5px; color: #5A6073">Galeri abonelikleri · Kasım ay sonu tahmini</p>
+<div style="display: flex; align-items: flex-end; gap: 10px; height: 150px; border-bottom: 1px solid #D5DAE5">
+<sc-for list="{{mrr}}" as="mr" hint-placeholder-count="6"><span title="{{mr.ipucu}}" style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%"><span style="font-size: 11px; font-weight: 700; color: #3A4052; margin-bottom: 4px">{{mr.etiket}}</span><span style="width: 100%; height: {{mr.h}}%; background: {{mr.renk}}; border-radius: 4px 4px 0 0"></span></span></sc-for>
+</div>
+<div style="display: flex; gap: 10px; margin-top: 6px"><sc-for list="{{mrr}}" as="ma"><span style="flex: 1; text-align: center; font-size: 11.5px; color: #5A6073">{{ma.ay}}</span></sc-for></div>
+<p style="margin: 12px 0 0; font-size: 12.5px; color: #3A4052">Platform payı: web %71 · iOS %17 · Android %12. Mobil satışlarda mağaza komisyonu düşülmüş tutar gösterilir.</p>
+</section>
+</div>
+</sc-if>
+
+<sc-if value="{{t.reklam}}" hint-placeholder-val="{{ false }}">
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px">
+<sc-for list="{{reklamSayilar}}" as="rs" hint-placeholder-count="4">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px"><div style="font-size: 12.5px; font-weight: 700; color: #5A6073">{{rs.ad}}</div><div style="font-size: 21px; font-weight: 800; margin-top: 4px">{{rs.deger}}</div><div style="font-size: 12px; color: #5A6073; margin-top: 3px">{{rs.not}}</div></div>
+</sc-for>
+</div>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="kampanya">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 16px 18px; border-bottom: 1px solid #EEF0F5"><h2 id="kampanya" style="margin: 0; font-size: 17px; font-weight: 800">Kanal ve kampanya</h2><span style="font-size: 12.5px; color: #5A6073">Meta ve Google reklam hesaplarından her gece kendiliğinden çekilir · son çekim bugün 03:04</span></div>
+<div style="display: grid; grid-template-columns: minmax(0, 2.6fr) repeat(6, minmax(0, 1fr)); gap: 8px; padding: 10px 18px; background: #F3F5FA; font-size: 11.5px; font-weight: 800; color: #5A6073; text-transform: uppercase; letter-spacing: 0.3px"><span>Kampanya</span><span style="text-align: right">Harcama</span><span style="text-align: right">Üyelik</span><span style="text-align: right">Talep</span><span style="text-align: right">Yeni galeri</span><span style="text-align: right">Üye başı</span><span style="text-align: right">Getiri</span></div>
+<sc-for list="{{kampanyalar}}" as="kp" hint-placeholder-count="5">
+<div style="display: grid; grid-template-columns: minmax(0, 2.6fr) repeat(6, minmax(0, 1fr)); gap: 8px; align-items: center; padding: 12px 18px; border-top: 1px solid #EEF0F5; font-size: 13.5px">
+<span style="min-width: 0"><span style="display: block; font-weight: 800">{{kp.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073">{{kp.kanal}}</span></span>
+<span style="text-align: right; font-weight: 700">{{kp.harcama}}</span><span style="text-align: right">{{kp.uye}}</span><span style="text-align: right">{{kp.talep}}</span><span style="text-align: right">{{kp.galeri}}</span><span style="text-align: right">{{kp.uyeBasi}}</span><span style="text-align: right; font-weight: 800">{{kp.getiri}}</span>
+</div>
+</sc-for>
+<p style="margin: 0; padding: 12px 18px; font-size: 13px; line-height: 1.5; color: #2E3344; background: #F6F8FD"><strong>Ajan:</strong> "Araç arıyorum (geniş)" kampanyası ucuz üye getiriyor ama bu üyelerin yalnızca %38'i talep açıyor. Bütçenin %20'sini "Galeri ol · İstanbul"a kaydırmayı öneriyorum; harcama değişikliği senin onayınla yapılır.</p>
+</section>
+<p style="margin: 10px 0 0; font-size: 12.5px; color: #5A6073">Getiri: kampanyadan gelen kullanıcıların 30 günlük ödemesi ÷ harcama. Dönüşümler sunucu tarafından, ölçüme izin veren kullanıcılar için gönderilir (Karar 35).</p>
+</sc-if>
+
+<sc-if value="{{t.model}}" hint-placeholder-val="{{ false }}">
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="model">
+<div style="padding: 16px 18px; border-bottom: 1px solid #EEF0F5"><h2 id="model" style="margin: 0; font-size: 17px; font-weight: 800">En çok talep edilen ve aranan modeller · son 30 gün</h2><p style="margin: 3px 0 0; font-size: 13px; color: #5A6073">Uygun araç: talebe uyan, galeri portföylerinde yayında olan araç sayısı.</p></div>
+<div style="display: grid; grid-template-columns: 34px minmax(0, 2.4fr) repeat(3, minmax(0, 1fr)) minmax(0, 1.3fr); gap: 8px; padding: 10px 18px; background: #F3F5FA; font-size: 11.5px; font-weight: 800; color: #5A6073; text-transform: uppercase; letter-spacing: 0.3px"><span>#</span><span>Model ve paket</span><span style="text-align: right">Talep</span><span style="text-align: right">Arama</span><span style="text-align: right">Uygun araç</span><span>Durum</span></div>
+<sc-for list="{{modeller}}" as="md" hint-placeholder-count="8">
+<div style="display: grid; grid-template-columns: 34px minmax(0, 2.4fr) repeat(3, minmax(0, 1fr)) minmax(0, 1.3fr); gap: 8px; align-items: center; padding: 11px 18px; border-top: 1px solid #EEF0F5; font-size: 13.5px">
+<span style="font-weight: 800; color: #5A6073">{{md.sira}}</span>
+<span style="min-width: 0"><span style="display: block; font-weight: 800">{{md.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073">{{md.paket}}</span></span>
+<span style="text-align: right; font-weight: 700">{{md.talep}}</span><span style="text-align: right">{{md.arama}}</span><span style="text-align: right">{{md.arac}}</span>
+<span><span style="font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: {{md.bg}}; color: {{md.fg}}">{{md.durum}}</span></span>
+</div>
+</sc-for>
+<p style="margin: 0; padding: 12px 18px; font-size: 13px; line-height: 1.5; color: #2E3344; background: #F6F8FD"><strong>Ajan:</strong> Togg T10X ve Corolla Hybrid için uygun araç talebin çok altında. Bu modelleri geçmişte portföyüne koymuş 46 galeriye "talep var" bildirimi öneriyorum. Bu liste her ayın 3'ünde galerilere rapor olarak da gidebilir (Zamanlanmış raporlar).</p>
+</section>
+</sc-if>
+
+<sc-if value="{{t.birim}}" hint-placeholder-val="{{ false }}">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px">
+<sc-for list="{{birim}}" as="br" hint-placeholder-count="6">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px"><div style="font-size: 12.5px; font-weight: 700; color: #5A6073">{{br.ad}}</div><div style="font-size: 21px; font-weight: 800; margin-top: 4px">{{br.deger}}</div><div style="font-size: 12px; color: #5A6073; margin-top: 3px">{{br.not}}</div></div>
+</sc-for>
+</div>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px 20px" aria-labelledby="kohort">
+<h2 id="kohort" style="margin: 0 0 4px; font-size: 17px; font-weight: 800">Ücretli galeri tutma · kohort</h2>
+<p style="margin: 0 0 14px; font-size: 13px; color: #5A6073">Her satır o ay ücretliye geçen galeriler; hücreler sonraki aylarda hâlâ ödeyenlerin oranı.</p>
+<div style="display: grid; grid-template-columns: 130px repeat(5, minmax(0, 1fr)); gap: 2px; font-size: 13px">
+<span></span><sc-for list="{{kohortBaslik}}" as="kb"><span style="padding: 6px; text-align: center; font-weight: 800; color: #5A6073">{{kb.ad}}</span></sc-for>
+<sc-for list="{{kohort}}" as="kh" hint-placeholder-count="5">
+<span style="padding: 10px 6px; font-weight: 700">{{kh.ay}}</span>
+<sc-for list="{{kh.hucre}}" as="kc" hint-placeholder-count="5"><span title="{{kc.ipucu}}" style="padding: 10px 4px; text-align: center; font-weight: 800; border-radius: 6px; background: {{kc.bg}}; color: {{kc.fg}}">{{kc.t}}</span></sc-for>
+</sc-for>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{t.deney}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{deneyler}}" as="dn" hint-placeholder-count="3">
+<article style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 16px 18px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px"><span style="font-size: 15.5px; font-weight: 800">{{dn.ad}}</span><span style="font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: {{dn.bg}}; color: {{dn.fg}}">{{dn.durum}}</span></div>
+<p style="margin: 4px 0 12px; font-size: 13px; color: #5A6073">{{dn.olcu}}</p>
+<sc-for list="{{dn.kollar}}" as="dk" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px">
+<span style="flex: 0 0 260px; font-size: 13.5px; font-weight: 700">{{dk.ad}}</span>
+<span style="flex: 1; min-width: 0; height: 16px"><span style="display: block; height: 16px; width: {{dk.w}}%; background: {{dk.renk}}; border-radius: 0 4px 4px 0"></span></span>
+<span style="flex: 0 0 70px; font-size: 13.5px; font-weight: 800; text-align: right">{{dk.deger}}</span>
+</div>
+</sc-for>
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px"><span style="font-size: 13px; color: #3A4052">{{dn.sonuc}}</span>
+<sc-if value="{{dn.eylemVar}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{dn.eylem}}" style="border: 0; background: #3DD68C; border-radius: 10px; padding: 9px 14px; font-size: 13.5px; font-weight: 800; color: #1E2333; cursor: pointer">{{dn.eylemYazi}}</button></sc-if>
+<sc-if value="{{dn.bitti}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13.5px; font-weight: 800; color: #11683F">Herkese açıldı</span></sc-if>
+</div>
+</article>
+</sc-for>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{v.zaman}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 26px; font-weight: 800">Zamanlanmış raporlar ve uyarılar</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Raporlar e-postayla gelir; kritik uyarılar telefonuna bildirim olarak düşer.</p></div>
+<button type="button" onClick="{{formAc}}" style="border: 0; background: #5B8CFF; border-radius: 12px; padding: 12px 18px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer">Yeni zamanlanmış rapor</button>
+</div>
+<sc-if value="{{formVar}}" hint-placeholder-val="{{ false }}">
+<section style="background: #FFFFFF; border: 1.5px solid #5B8CFF; border-radius: 18px; padding: 18px; margin-bottom: 16px" aria-label="Yeni zamanlanmış rapor">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px">
+<label style="flex: 2 1 220px; font-size: 13px; font-weight: 700">Rapor<select style="display: block; width: 100%; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14px; background: #FFFFFF"><option>Reklam ve edinim</option><option>Huni</option><option>Gelir</option><option>Arz-talep haritası</option><option>Kayıtlı pano: Antalya kiralık takibi</option></select></label>
+<label style="flex: 1 1 150px; font-size: 13px; font-weight: 700">Sıklık<select style="display: block; width: 100%; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14px; background: #FFFFFF"><option>Her cuma</option><option>Her gün</option><option>Her pazartesi</option><option>Her ayın 1'i</option></select></label>
+<label style="flex: 0 1 100px; font-size: 13px; font-weight: 700">Saat<input value="17:00" style="display: block; width: 100%; box-sizing: border-box; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14px"></label>
+<label style="flex: 2 1 220px; font-size: 13px; font-weight: 700">Alıcılar<input value="Sen, Zeynep Tan" style="display: block; width: 100%; box-sizing: border-box; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14px"></label>
+<button type="button" onClick="{{formKaydet}}" style="border: 0; background: #5B8CFF; border-radius: 12px; padding: 11px 18px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer">Kaydet</button>
+</div>
+<p style="margin: 10px 0 0; font-size: 12.5px; color: #5A6073">Alıcılar yalnızca çalışanlar arasından seçilir; rapor, alıcının rolünün görebildiği verilerle hazırlanır.</p>
+</section>
+</sc-if>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="planli">
+<h2 id="planli" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Raporlar</h2>
+<sc-for list="{{zamanli}}" as="z" hint-placeholder-count="4">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 13px 18px; border-bottom: 1px solid #EEF0F5">
+<span style="flex: 999 1 300px; min-width: 0"><span style="display: block; font-size: 14.5px; font-weight: 800">{{z.ad}}</span><span style="display: block; font-size: 12.5px; color: #3A4052; margin-top: 2px">{{z.zaman}} · {{z.alici}}</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">{{z.bicim}}</span></span>
+<button type="button" role="switch" aria-checked="{{z.aria}}" onClick="{{z.degistir}}" style="flex: none; display: flex; align-items: center; gap: 8px; border: 0; background: transparent; padding: 0; cursor: pointer; font-size: 13px; font-weight: 700; color: #1E2333"><span style="width: 40px; height: 24px; border-radius: 999px; background: {{z.zemin}}; position: relative"><span style="position: absolute; top: 3px; left: {{z.sol}}px; width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 2px rgba(30,35,51,0.3)"></span></span>{{z.durum}}</button>
+</div>
+</sc-for>
+</section>
+<div style="display: flex; flex-wrap: wrap; gap: 14px; margin-top: 14px; align-items: flex-start">
+<section style="flex: 3 1 460px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="uyari">
+<h2 id="uyari" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Kritik uyarılar</h2>
+<sc-for list="{{uyarilar}}" as="u" hint-placeholder-count="4">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 14px; padding: 12px 18px; border-bottom: 1px solid #EEF0F5; font-size: 13.5px"><span style="flex: 999 1 280px; min-width: 0; font-weight: 700">{{u.kosul}}</span><span style="flex: none; color: #3A4052">{{u.kanal}}</span></div>
+</sc-for>
+</section>
+<section style="flex: 2 1 300px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="pano">
+<h2 id="pano" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Kayıtlı panolar</h2>
+<sc-for list="{{panolar}}" as="p" hint-placeholder-count="3">
+<div style="padding: 12px 18px; border-bottom: 1px solid #EEF0F5"><span style="display: block; font-size: 14px; font-weight: 800">{{p.ad}}</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">{{p.not}}</span></div>
+</sc-for>
+</section>
+</div>
+</sc-if>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1720}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { view: 'panel', donem: 2, detay: 'talep', not: false, hedefDuzen: false, sekme: 'huni', haritaOlcu: 'bos', bildirim: '', deneyBitti: false, form: false, yeniRapor: false, kapali: { galeri: true } };
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    function f(n) { return Math.round(n).toLocaleString('tr-TR'); }
+    function go(k) { return function () { self.setState({ view: k }); }; }
+    var MENU = [
+      ['Genel', [['ajan', 'Rengarenk Ajanı', 'YonetimEkip', 'Çalışıyor', '#11683F'], ['onay', 'Onay kuyruğu', 'YonetimEkip', '5', '#7A5300'], ['panel', 'Kontrol paneli', 'YonetimRapor']]],
+      ['Ekip', [['ekip', 'Çalışanlar', 'YonetimEkip'], ['roller', 'Roller ve yetkiler', 'YonetimEkip'], ['kayit', 'İşlem kaydı', 'YonetimEkip']]],
+      ['Pazar', [['kullanici', 'Kullanıcılar ve galeriler', 'YonetimPazar'], ['basvuru', 'Galeri başvuruları', 'YonetimPazar', '3', '#7A5300'], ['moderasyon', 'Moderasyon', 'YonetimPazar', '3 süre aştı', '#A3271F'], ['destek', 'Destek', 'YonetimPazar', '12', '#5A6073'], ['talep', 'Talepler ve portföy', 'YonetimPazar'], ['puan', 'Satıcı puanı ve rozetler', 'YonetimPazar']]],
+      ['Büyüme', [['rapor', 'Raporlar', 'YonetimRapor'], ['zaman', 'Zamanlanmış raporlar', 'YonetimRapor'], ['kampanya', 'Kampanyalar', 'YonetimKampanya'], ['akis', 'Otomatik akışlar', 'YonetimKampanya'], ['segment', 'Segmentler', 'YonetimKampanya'], ['sablon', 'Şablonlar', 'YonetimKampanya'], ['merkez', 'Bildirim merkezi', 'YonetimKampanya'], ['teslim', 'Teslim raporu', 'YonetimKampanya']]],
+      ['Katalog', [['kategori', 'Kategoriler ve alanlar', 'YonetimIcerik'], ['eslesme', 'Eşleştirme ayarı', 'YonetimIcerik']]],
+      ['Görünüm', [['anasayfa', 'Ana sayfa düzeni', 'YonetimIcerik'], ['banner', 'Banner ve vitrin', 'YonetimIcerik'], ['acilis', 'Açılış sayfaları', 'YonetimIcerik'], ['tasarim', 'Tasarım değerleri', 'YonetimIcerik'], ['metin', 'Yardım ve yasal metinler', 'YonetimIcerik']]],
+      ['Sistem', [['kural', 'Kurallar ve fiyatlar', 'YonetimSistem'], ['entegrasyon', 'Entegrasyonlar', 'YonetimSistem', '1 uyarı', '#7A5300'], ['ozellik', 'Özellik anahtarları ve bakım', 'YonetimSistem'], ['yz', 'Yapay zekâ ve bütçe', 'YonetimSistem'], ['saglik', 'Sistem sağlığı ve yedek', 'YonetimSistem']]],
+      ['Uyum ve KVKK', [['kvkk', 'KVKK başvuruları', 'YonetimSistem', '4', '#7A5300'], ['imha', 'Saklama, imha ve VERBİS', 'YonetimSistem'], ['riza', 'Rıza ve çerez kayıtları', 'YonetimSistem'], ['ihlal', 'İhlal ve resmi talepler', 'YonetimSistem']]]
+    ];
+    var BU = 'YonetimRapor';
+    var gruplar = MENU.map(function (g) {
+      return { ad: g[0], ogeler: g[1].map(function (m) {
+        var sonra = m[0] === '_', burada = m[2] === BU;
+        return { ad: m[1], rozet: (!sonra && m[3]) || '', rozetRenk: m[4] || '#5A6073', tur: sonra ? m[3] : '', href: m[2] + '.dc.html',
+          on: burada && st.view === m[0], aktif: burada && st.view !== m[0], link: !sonra && !burada, sonra: sonra, pick: go(m[0]) };
+      }) };
+    });
+
+    var DON = ['Bugün', 'Son 7 gün', 'Son 30 gün'], KARSI = ['düne göre', 'önceki 7 güne göre', 'önceki 30 güne göre'];
+    var d = st.donem;
+    var M = [
+      ['talep', 'Yeni talep', [142, 931, 3870], [12, 8, 21], '', 'Artışın yarısından fazlası Antalya, Bursa ve İzmir’den geliyor. Antalya’daki sıçrama 12 Ekim’de başlayan Meta kampanyasıyla aynı güne denk geliyor; kiralık araç talebi 2 haftada %64 arttı.'],
+      ['mesaj', 'İlk mesaj', [2480, 16120, 64300], [7, 5, 18], '', 'Galerilerin %71’i ekimde günlük ücretsiz kotasını doldurdu. Artışın çoğu ek ilk mesaj paketi alan 38 galeriden geliyor.'],
+      ['sohbet', 'Açılan sohbet', [610, 4090, 16450], [4, 6, 15], '', 'İlk mesajların %26’sı sohbete dönüşüyor. Fotoğraflı ilk mesajlarda bu oran %41; galerilere fotoğraf eklemeyi hatırlatan ipucu öneriyorum.'],
+      ['buldum', 'Aracı buldum', [38, 262, 1010], [-5, 9, 24], '', 'Bugünkü düşüş hafta içi normal dalgalanma içinde. 7 ve 30 günlük eğilim yukarı; artış en çok Otomobil ve SUV’de.'],
+      ['gelir', 'Gelir', [41380, 268900, 1084000], [15, 11, 19], '₺', 'Artışın %62’si galeri aboneliklerinden. Profesyonel pakete geçen 11 galeri aylık gelire 28.600 TL ekledi.'],
+      ['galeri', 'Yeni ücretli galeri', [3, 17, 64], [50, 31, 23], '', 'Yeni ücretli galerilerin 9’u “Galeri ol · İstanbul” Meta kampanyasından geldi; denemeden ücretliye geçiş %38.']
+    ];
+    var olcumler = M.map(function (m) {
+      var on = st.detay === m[0], fk = m[3][d];
+      return { ad: m[1], deger: m[4] + f(m[2][d]), fark: (fk >= 0 ? '▲ %' : '▼ %') + Math.abs(fk), renk: fk >= 0 ? '#11683F' : '#A3271F', karsi: KARSI[d],
+        aria: on ? 'true' : 'false', kenar: on ? '1.5px solid #5B8CFF' : '1px solid #E3E6EF',
+        pick: function () { self.setState({ detay: self.state.detay === m[0] ? '' : m[0] }); } };
+    });
+    var DIM = [
+      ['İl', [['İstanbul', 36, 9], ['İzmir', 14, 38], ['Ankara', 12, 12], ['Bursa', 8, 44], ['Antalya', 7, 64], ['Diğer iller', 23, 14]]],
+      ['Kategori', [['Otomobil', 52, 17], ['Arazi, SUV & Pickup', 19, 22], ['Ticari Araçlar', 9, 11], ['Kiralık Araçlar', 8, 71], ['Motosiklet', 6, 9], ['Diğer', 6, 18]]],
+      ['Kanal', [['Organik arama', 34, 12], ['Meta reklam', 22, 58], ['Google reklam', 17, 19], ['Doğrudan', 15, 6], ['Bildirim ve e-posta', 12, 24]]],
+      ['Platform', [['Web', 48, 14], ['iOS', 29, 27], ['Android', 23, 25]]]
+    ];
+    var dm = M.filter(function (m) { return m[0] === st.detay; })[0];
+    var detay = { baslik: '', ajan: '', kirilim: [] };
+    if (dm) {
+      detay = { baslik: dm[1] + ' · ' + DON[d].toLowerCase() + ' · ' + dm[4] + f(dm[2][d]), ajan: dm[5],
+        kirilim: DIM.map(function (k) {
+          var mx = Math.max.apply(null, k[1].map(function (r) { return r[1]; }));
+          return { ad: k[0], satir: k[1].map(function (r) {
+            var val = dm[2][d] * r[1] / 100;
+            return { ad: r[0], deger: dm[4] + f(val), fark: '▲ %' + r[2], renk: '#11683F', w: Math.round(r[1] / mx * 100), ipucu: r[0] + ': ' + dm[4] + f(val) + ' (payı %' + r[1] + ', önceki döneme göre +%' + r[2] + ')' };
+          }) };
+        }) };
+    }
+    var AT = [61, 63, 66, 65, 68, 70, 71, 73, 74, 75, 77, 78];
+    var GUN = [96, 101, 93, 88, 104, 110, 107, 118, 121, 115, 109, 124, 131, 127, 125, 129, 122, 117, 133, 138, 134, 130, 136, 128, 124, 139, 144, 141, 135, 126];
+    var AYG = ['Eki', 'Kas'];
+    var gunler = GUN.map(function (g, i) {
+      var gun = 7 + i, ay = gun > 31 ? 1 : 0; if (ay) gun -= 31;
+      return { h: (g / 160 * 100).toFixed(1), ipucu: gun + ' ' + AYG[ay] + ': ' + g + ' yeni talep' };
+    });
+    var notlar = [{ x: (5 / 30 * 100).toFixed(1), metin: 'Meta kampanyası başladı', sag: true, sol: false }, { x: (17 / 30 * 100).toFixed(1), metin: 'Galeri fiyatları güncellendi', sag: true, sol: false }];
+    if (st.not) notlar.push({ x: (28 / 30 * 100).toFixed(1), metin: 'Sen: Antalya duyurusu', sag: false, sol: true });
+    var BAK = [
+      ['#FFC84A', '5 işlem onayını bekliyor', '2 iade, 1 toplu SMS, 1 kupon, 1 kalıcı engelleme', 'Onay kuyruğuna git', 'link', 'YonetimEkip.dc.html'],
+      ['#E5484D', '2 galeri ödemesi başarısız', 'Yıldız Otomotiv ve Ege Oto · kart reddedildi, 3 gün içinde yeniden denenecek', 'Galeriler (Tur 4)', 'sonra'],
+      ['#E5484D', '3 şikâyet 24 saati aştı', 'İkisi kapora, biri sahte ilan şüphesi · Mert Aydın’a atanmış', 'Moderasyon (Tur 4)', 'sonra'],
+      ['#FFC84A', 'Antalya’da 41 talep 48 saattir mesaj almadı', 'Çoğu kiralık araç; bölgede yalnızca 3 kiralama firması var', 'Arz-talep haritasında gör', 'harita'],
+      ['#5B8CFF', '7 galerinin denemesi bu hafta bitiyor', 'Hiçbiri ilk mesaj göndermedi; ajan arama görevi önerdi', 'Ajanın önerileri', 'link', 'YonetimEkip.dc.html']
+    ];
+    var bakilacak = BAK.map(function (b) {
+      return { nokta: b[0], baslik: b[1], detay: b[2], eylem: b[3], link: b[4] === 'link', buton: b[4] === 'harita', sonra: b[4] === 'sonra', href: b[5] || '',
+        git: function () { self.setState({ view: 'rapor', sekme: 'harita' }); } };
+    });
+    var HED = [
+      ['Yeni talep', 870, 4500, '', 'Ay sonu tahmini 4.350'],
+      ['Aracı buldum', 168, 1200, '', 'Ajan, sohbeti 3 gündür süren alıcılara hatırlatma önerdi'],
+      ['Gelir', 241900, 1200000, '₺', 'Ay sonu tahmini ₺1.210.000'],
+      ['Ücretli galeri (toplam)', 251, 300, '', 'Ay başında 238; 49 kaldı'],
+      ['Ana ölçü', 78, 80, '%', 'Son 30 gün; 2 puan kaldı']
+    ];
+    var hedefler = HED.map(function (h, i) {
+      var p = h[1] / h[2] * 100, aylik = i < 3, beklenen = 20;
+      var durum, bg, fg;
+      if (i === 3) { p = (h[1] - 238) / (h[2] - 238) * 100; }
+      if (i === 4) { durum = '◆ Yakın'; bg = '#FFF6DF'; fg = '#7A5300'; }
+      else if (p >= beklenen * 0.9) { durum = '● Yolunda'; bg = '#E7FAF0'; fg = '#11683F'; }
+      else { durum = '▲ Geride'; bg = '#FFF6DF'; fg = '#7A5300'; }
+      var w = i === 4 ? h[1] / h[2] * 100 : (i === 3 ? h[1] / h[2] * 100 : p);
+      return { ad: h[0], mevcut: h[3] === '%' ? '%' + h[1] : h[3] + f(h[1]), hedef: h[3] === '%' ? '%' + h[2] : h[3] + f(h[2]), hedefHam: f(h[2]),
+        w: Math.min(100, w).toFixed(1), beklenen: beklenen, cizgi: aylik ? '1' : '0', durum: durum, bg: bg, fg: fg, not: h[4] };
+    });
+
+    var SEK = [['huni', 'Huni'], ['harita', 'Arz-talep haritası'], ['gelir', 'Gelir'], ['reklam', 'Reklam ve edinim'], ['model', 'En çok talep edilenler'], ['birim', 'Birim ekonomisi'], ['deney', 'Deneyler']];
+    var tsel = {}; SEK.forEach(function (s) { tsel[s[0]] = st.sekme === s[0]; });
+    var HUNI = [['Üyelik', 9840, ''], ['Talep oluşturan', 3870, '%39 · üyelikten'], ['İlk mesaj alan talep', 3020, '%78 · 48 saat içinde'], ['Sohbet açılan talep', 2410, '%80 · ilk mesaj alanlardan'], ['Aracı buldum', 1010, '%42 · sohbet açılanlardan']];
+    var huni = HUNI.map(function (h) { return { ad: h[0], sayi: f(h[1]), oran: h[2] || '%2,4 · ziyaretten', w: (h[1] / 9840 * 100).toFixed(1), ipucu: h[0] + ': ' + f(h[1]) }; });
+
+    var IL = ['İstanbul', 'Ankara', 'İzmir', 'Bursa', 'Antalya', 'Kocaeli', 'Konya', 'Adana'];
+    var KAT = ['Otomobil', 'SUV & Pickup', 'Ticari', 'Kiralık', 'Motosiklet'];
+    var BOS = [[8, 11, 14, 19, 12], [10, 13, 18, 27, 15], [9, 12, 16, 24, 13], [12, 17, 21, 33, 18], [15, 19, 26, 58, 22], [14, 18, 15, 36, 20], [18, 24, 22, 47, 31], [17, 22, 28, 44, 26]];
+    var SAY = [[720, 260, 130, 95, 80], [250, 95, 48, 30, 27], [270, 105, 52, 58, 35], [160, 62, 34, 25, 19], [130, 55, 22, 62, 21], [110, 44, 40, 12, 10], [95, 40, 28, 9, 12], [100, 38, 24, 14, 13]];
+    var RAMP = ['#EEF3FF', '#D3E0FF', '#A9C2FF', '#3D6BDB', '#1F44AD'];
+    var bosMod = st.haritaOlcu === 'bos';
+    var ESIK = bosMod ? [12, 18, 25, 40] : [30, 60, 120, 300];
+    function adim(v) { for (var i = 0; i < ESIK.length; i++) if (v < ESIK[i]) return i; return 4; }
+    var harita = IL.map(function (il, r) {
+      return { il: il, hucre: KAT.map(function (k, c) {
+        var v = bosMod ? BOS[r][c] : SAY[r][c], s = adim(v);
+        return { t: bosMod ? '%' + v : f(v), bg: RAMP[s], fg: s >= 3 ? '#FFFFFF' : '#1E2333', ipucu: il + ' · ' + k + ': ' + SAY[r][c] + ' talep, %' + BOS[r][c] + '’i 48 saatte mesaj almadı' };
+      }) };
+    });
+    var LEJ = bosMod ? ['%12 altı', '%12–17', '%18–24', '%25–39', '%40 ve üstü'] : ['30 altı', '30–59', '60–119', '120–299', '300 ve üstü'];
+
+    var KALEM = [['Galeri abonelikleri', 612000], ['Ek ilk mesaj · galeri', 168000], ['Öne çıkarma ve vitrin', 121000], ['Ek talep hakkı', 74000], ['Üst sıra', 52000], ['Acil arıyorum', 31000], ['Ek ilk mesaj · bireysel', 26000]];
+    var MRR = [['Haz', 310000], ['Tem', 362000], ['Ağu', 418000], ['Eyl', 487000], ['Eki', 556000], ['Kas', 612000]];
+    var KMP = [
+      ['Galeri ol · İstanbul', 'Meta · galeri hedefli', 48200, 310, '—', 14, 3.4],
+      ['Araç arıyorum (geniş)', 'Meta · alıcı hedefli', 36500, 2140, 820, '—', 1.1],
+      ['Marka ve model aramaları', 'Google Arama · alıcı', 29800, 1460, 640, 3, 2.2],
+      ['Galeri yazılımı aramaları', 'Google Arama · galeri', 14100, 120, '—', 6, 2.9],
+      ['Antalya kiralık firmaları', 'Meta · galeri hedefli', 6300, 95, '—', 2, 1.6]
+    ];
+    var MOD = [
+      ['Renault Clio', 'Touch, Joy · 2021 ve sonrası', 214, 18400, 1120, 'Dengeli'],
+      ['Fiat Egea Sedan', 'Urban, Lounge · makyajlı', 198, 16900, 940, 'Dengeli'],
+      ['Toyota Corolla Hybrid', 'Dream, Flame', 176, 14200, 310, 'Arz az'],
+      ['Volkswagen Passat', 'B8.5 · Business, Elegance', 148, 9800, 420, 'Dengeli'],
+      ['BMW 3 Serisi', 'G20 makyajlı · 320i M Sport', 131, 12600, 280, 'Arz az'],
+      ['Hyundai i20', 'Jump, Style', 122, 8100, 610, 'Dengeli'],
+      ['Togg T10X', 'V1, V2 · uzun menzil', 117, 15300, 64, 'Büyük açık'],
+      ['Honda Civic', 'FE · Eco, Executive', 104, 7400, 190, 'Arz az']
+    ];
+    var MD = { 'Dengeli': ['#E7FAF0', '#11683F'], 'Arz az': ['#FFF6DF', '#7A5300'], 'Büyük açık': ['#FDECEC', '#A3271F'] };
+    var KOH = [['Haziran 2026', [100, 91, 86, 83, 81]], ['Temmuz 2026', [100, 92, 88, 85]], ['Ağustos 2026', [100, 93, 89]], ['Eylül 2026', [100, 94]], ['Ekim 2026', [100]]];
+    function kAdim(v) { return v >= 100 ? 4 : v >= 92 ? 3 : v >= 88 ? 2 : v >= 84 ? 1 : 0; }
+    var deneyler = [
+      { ad: 'Sihirbaz bütçe adımı: kaydırıcı mı, iki kutu mu?', durum: st.deneyBitti ? 'Tamamlandı' : 'Sonuç hazır', bg: '#E7FAF0', fg: '#11683F', olcu: 'Ölçü: bütçe adımını geçen kullanıcı oranı · 14 gün · 6.120 kullanıcı',
+        kollar: [{ ad: 'A · kaydırıcı (şu anki)', deger: '%56,2', w: 56.2, renk: '#AEB5C4' }, { ad: 'B · en az / en çok iki kutu', deger: '%62,3', w: 62.3, renk: '#5B8CFF' }],
+        sonuc: 'B kolu 6,1 puan önde · güven %97', eylemVar: !st.deneyBitti, bitti: st.deneyBitti, eylemYazi: 'B’yi herkese aç', eylem: function () { self.setState({ deneyBitti: true }); } },
+      { ad: 'Ek ilk mesaj (10 adet) fiyatı: 99 TL mi, 119 TL mi?', durum: 'Sürüyor · 9 gün kaldı', bg: '#EEF3FF', fg: '#2450C8', olcu: 'Ölçü: bireysel kullanıcı başına gelir · yalnızca web · fiyat deneyi sahip onayıyla açıldı',
+        kollar: [{ ad: 'A · 99 TL', deger: '₺6,10', w: 61, renk: '#AEB5C4' }, { ad: 'B · 119 TL', deger: '₺6,40', w: 64, renk: '#5B8CFF' }],
+        sonuc: 'Fark henüz anlamlı değil · güven %71', eylemVar: false, bitti: false, eylemYazi: '', eylem: function () {} },
+      { ad: 'Ana sayfa bannerı: “30 gün ücretsiz” mi, “ilk ay %50” mi?', durum: 'Sürüyor · 4 gün kaldı', bg: '#EEF3FF', fg: '#2450C8', olcu: 'Ölçü: galeri başvurusu · yalnızca ziyaretçiler',
+        kollar: [{ ad: 'A · 30 gün ücretsiz', deger: '%3,1', w: 31, renk: '#AEB5C4' }, { ad: 'B · ilk ay %50 indirim', deger: '%4,4', w: 44, renk: '#5B8CFF' }],
+        sonuc: 'B önde · güven %88', eylemVar: false, bitti: false, eylemYazi: '', eylem: function () {} }
+    ];
+
+    var ZAM = [
+      ['gunluk', 'Ajanın günlük özeti', 'Her gün 09.00', 'Sen, Elif Kara', 'E-posta ve bildirim · dünün özeti, dikkat isteyenler, ajanın yaptıkları'],
+      ['haftalik', 'Haftalık rapor', 'Her pazartesi 09.30', 'Sen, Elif Kara, Zeynep Tan', 'E-posta (PDF) · huni, hedefler, reklam, deneyler'],
+      ['aylik', 'Aylık rapor', 'Her ayın 1’i 10.00', 'Sen, Burak Şen', 'E-posta (PDF ve Excel) · gelir, birim ekonomisi, kohortlar'],
+      ['galeri', 'Galerilere “aranan modeller” raporu', 'Her ayın 3’ü 10.00', 'Tüm ücretli galeriler (251)', 'E-posta · ajan önerisi; açılınca toplu gönderim kuralı geçerli, onay ister']
+    ];
+    if (st.yeniRapor) ZAM.push(['yeni', 'Reklam ve edinim', 'Her cuma 17.00', 'Sen, Zeynep Tan', 'E-posta (PDF) · yeni eklendi']);
+    var zamanli = ZAM.map(function (z) {
+      var acik = !st.kapali[z[0]];
+      return { ad: z[1], zaman: z[2], alici: z[3], bicim: z[4], aria: acik ? 'true' : 'false', zemin: acik ? '#3DD68C' : '#D5DAE5', sol: acik ? 19 : 3, durum: acik ? 'Açık' : 'Kapalı',
+        degistir: function () { var n = Object.assign({}, self.state.kapali); n[z[0]] = acik; self.setState({ kapali: n }); } };
+    });
+
+    return {
+      v: { panel: st.view === 'panel', rapor: st.view === 'rapor', zaman: st.view === 'zaman' },
+      gruplar: gruplar,
+      donemler: DON.map(function (ad, i) { return { ad: ad, on: d === i, off: d !== i, pick: function () { self.setState({ donem: i }); } }; }),
+      anaTrend: AT.map(function (v, i) { return { h: ((v - 50) / 30 * 100).toFixed(1), renk: i === AT.length - 1 ? '#2450C8' : '#A9C2FF', etiket: (12 - i) + ' hafta önce: %' + v }; }),
+      olcumler: olcumler, detayVar: !!dm, detay: detay, detayKapat: function () { self.setState({ detay: '' }); },
+      gunler: gunler, notlar: notlar, notButon: st.not ? 'Not eklendi' : 'Grafiğe not ekle', notEkle: function () { self.setState({ not: true }); },
+      bakilacak: bakilacak,
+      hedefler: hedefler, hedefOku: !st.hedefDuzen, hedefYaz: st.hedefDuzen,
+      hedefDuzenle: function () { self.setState({ hedefDuzen: true }); }, hedefKaydet: function () { self.setState({ hedefDuzen: false }); },
+      sekmeler: SEK.map(function (s) { return { ad: s[1], on: st.sekme === s[0], off: st.sekme !== s[0], pick: function () { self.setState({ sekme: s[0] }); } }; }),
+      t: tsel,
+      bildirimVar: !!st.bildirim, bildirim: st.bildirim,
+      panoyaKaydet: function () { self.setState({ bildirim: 'Panoya kaydedildi: “Rapor · son 30 gün · tüm Türkiye”. Kayıtlı panolarda bulabilirsin.' }); },
+      disaAktar: function () { self.setState({ bildirim: 'rengarenk-rapor-2026-11-06.xlsx hazırlandı. Kişisel veri içermez; dışa aktarma işlem kaydına yazıldı.' }); },
+      huni: huni,
+      haritaOlcu: [['bos', 'Mesaj almayan talep oranı'], ['sayi', 'Talep sayısı']].map(function (o) { return { ad: o[1], on: st.haritaOlcu === o[0], off: st.haritaOlcu !== o[0], pick: function () { self.setState({ haritaOlcu: o[0] }); } }; }),
+      haritaKat: KAT.map(function (k) { return { ad: k }; }), harita: harita,
+      haritaAciklama: bosMod ? 'Talebin 48 saatte mesaj almayan payı (koyu = arz açığı):' : 'Son 30 günde açılan talep:',
+      haritaLejant: LEJ.map(function (l, i) { return { ad: l, bg: RAMP[i] }; }),
+      aciklar: [
+        { yer: 'Antalya · Kiralık', oran: '%58', not: '62 talep · 3 kiralama firması' },
+        { yer: 'Konya · Kiralık', oran: '%47', not: '9 talep · bölgede kiralama firması yok' },
+        { yer: 'Adana · Kiralık', oran: '%44', not: '14 talep · 2 kiralama firması' },
+        { yer: 'Konya · Motosiklet', oran: '%31', not: '12 talep · 1 galeri motosiklet satıyor' }
+      ],
+      gelirSayilar: [
+        { ad: 'Toplam gelir', deger: '₺1.084.000', not: 'Son 30 gün · ▲ %19' },
+        { ad: 'Aylık tekrarlayan', deger: '₺612.000', not: 'Galeri abonelikleri' },
+        { ad: 'Galeri kayıp oranı', deger: '%3,1', not: 'Aylık · 8 galeri ayrıldı' },
+        { ad: 'Denemeden ücretliye', deger: '%38', not: 'Son 90 gün' },
+        { ad: 'İade oranı', deger: '%0,4', not: '6 iade · hepsi senin onayınla' }
+      ],
+      kalemler: KALEM.map(function (k) { return { ad: k[0], tutar: '₺' + f(k[1]), w: (k[1] / 612000 * 100).toFixed(1), ipucu: k[0] + ': ₺' + f(k[1]) + ' (%' + Math.round(k[1] / 1084000 * 100) + ')' }; }),
+      mrr: MRR.map(function (m, i) { return { ay: m[0], etiket: Math.round(m[1] / 1000) + ' bin', h: (m[1] / 650000 * 100).toFixed(1), renk: i === MRR.length - 1 ? '#2450C8' : '#5B8CFF', ipucu: m[0] + ': ₺' + f(m[1]) }; }),
+      reklamSayilar: [
+        { ad: 'Toplam harcama', deger: '₺134.900', not: 'Son 30 gün · Meta ve Google' },
+        { ad: 'Galeri başına edinme', deger: '₺3.120', not: 'Galeri hedefli kampanyalar' },
+        { ad: 'Üye başına maliyet', deger: '₺33', not: 'Tüm kampanyalar' },
+        { ad: 'Reklam getirisi', deger: '2,1×', not: '30 günlük ödeme ÷ harcama' }
+      ],
+      kampanyalar: KMP.map(function (k) { return { ad: k[0], kanal: k[1], harcama: '₺' + f(k[2]), uye: f(k[3]), talep: typeof k[4] === 'number' ? f(k[4]) : k[4], galeri: String(k[5]), uyeBasi: '₺' + f(k[2] / k[3]), getiri: k[6].toFixed(1).replace('.', ',') + '×' }; }),
+      modeller: MOD.map(function (m, i) { return { sira: String(i + 1), ad: m[0], paket: m[1], talep: f(m[2]), arama: f(m[3]), arac: f(m[4]), durum: m[5], bg: MD[m[5]][0], fg: MD[m[5]][1] }; }),
+      birim: [
+        { ad: 'Galeri başına ömür boyu gelir', deger: '₺41.600', not: 'Ort. 16 ay × ₺2.600' },
+        { ad: 'Galeri edinme maliyeti', deger: '₺3.120', not: 'Reklam ve deneme maliyeti dahil' },
+        { ad: 'Ömür boyu gelir ÷ edinme', deger: '13,3×', not: '3× üstü sağlıklı kabul edilir' },
+        { ad: 'Maliyetin geri dönüşü', deger: '1,2 ay', not: 'İlk ödemelerden' },
+        { ad: 'Ödeme yapan bireysel', deger: '%6,8', not: 'Aktif bireysel kullanıcıların' },
+        { ad: 'Ödeme yapan bireysel başına', deger: '₺186', not: 'Aylık ortalama' }
+      ],
+      kohortBaslik: ['Başlangıç', '1. ay', '2. ay', '3. ay', '4. ay'].map(function (a) { return { ad: a }; }),
+      kohort: KOH.map(function (k) { return { ay: k[0], hucre: [0, 1, 2, 3, 4].map(function (i) {
+        var v = k[1][i]; if (v === undefined) return { t: '', bg: 'transparent', fg: '#1E2333', ipucu: 'Henüz veri yok' };
+        var s = kAdim(v); return { t: '%' + v, bg: RAMP[s], fg: s >= 3 ? '#FFFFFF' : '#1E2333', ipucu: k[0] + ' kohortu, ' + i + '. ay: %' + v + ' hâlâ ücretli' };
+      }) }; }),
+      deneyler: deneyler,
+      formVar: st.form, formAc: function () { self.setState({ form: !self.state.form }); }, formKaydet: function () { self.setState({ form: false, yeniRapor: true }); },
+      zamanli: zamanli,
+      uyarilar: [
+        { kosul: 'Ana ölçü 24 saatte 5 puandan fazla düşerse', kanal: 'Bildirim · Sen, Elif' },
+        { kosul: 'Ödeme hatası oranı bir saatte %5’i aşarsa', kanal: 'Bildirim ve SMS · Sen, Burak' },
+        { kosul: 'Ajanın geri alınan işlem oranı haftalık %5’i aşarsa', kanal: 'Bildirim · Sen' },
+        { kosul: 'Bir hedef beklenenden %10’dan fazla geride kalırsa', kanal: 'E-posta · hedefin sahibi' }
+      ],
+      panolar: [
+        { ad: 'Antalya kiralık takibi', not: 'Zeynep Tan · arz-talep, Antalya, Kiralık Araçlar' },
+        { ad: 'Gelir · haftalık', not: 'Burak Şen · gelir kalemleri, son 7 gün' },
+        { ad: 'Reklam kanalları', not: 'Sen · reklam ve edinim, önceki 30 günle' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

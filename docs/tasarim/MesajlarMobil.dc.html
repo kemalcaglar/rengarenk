@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Mesajlar ve yıldız verme (mobil)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 1100px; box-sizing: border-box; position: relative; background: #F6F8FD; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333; overflow: hidden">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF; padding: 12px 16px 10px">
+<div style="display: flex; align-items: center; justify-content: space-between"><h1 style="margin: 0; font-size: 22px; font-weight: 800">Mesajlar</h1><span style="font-size: 12.5px; font-weight: 700; color: #5A6073">{{okunmamisMetin}}</span></div>
+<div style="display: flex; gap: 6px; overflow-x: auto; margin-top: 10px">
+<sc-for list="{{filtreler}}" as="f" hint-placeholder-count="4">
+<button type="button" aria-pressed="{{f.p}}" onClick="{{f.pick}}" style="flex: none; border: {{f.bd}}; background: {{f.bg}}; color: {{f.renk}}; border-radius: 999px; padding: 8px 13px; font-size: 13.5px; font-weight: 700; cursor: pointer">{{f.ad}}</button>
+</sc-for>
+</div>
+</header>
+
+<main style="padding: 10px 12px 110px">
+<sc-for list="{{gruplar}}" as="g" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; justify-content: space-between; margin: 10px 4px 8px"><h2 style="margin: 0; font-size: 13.5px; font-weight: 800">{{g.ad}}</h2><span style="font-size: 12px; color: #5A6073">{{g.ozet}}</span></div>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; overflow: hidden">
+<sc-for list="{{g.satirlar}}" as="m" hint-placeholder-count="3">
+<a href="{{m.href}}" style="display: flex; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #EEF0F5; color: #1E2333; background: {{m.bg}}">
+<span style="flex: none; width: 44px; height: 44px; border-radius: 50%; background: {{m.avBg}}; display: flex; align-items: center; justify-content: center; font-size: 13.5px; font-weight: 800" aria-hidden="true">{{m.bas}}</span>
+<span style="flex: 1; min-width: 0">
+<span style="display: flex; justify-content: space-between; gap: 8px"><span style="font-size: 14.5px; font-weight: {{m.kalin}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{m.ad}}</span><span style="flex: none; font-size: 11.5px; color: #5A6073">{{m.zaman}}</span></span>
+<span style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px"><sc-for list="{{m.rozetler}}" as="rz" hint-placeholder-count="1"><span style="font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 999px; background: {{rz.bg}}; color: {{rz.renk}}">{{rz.ad}}</span></sc-for></span>
+<span style="display: block; font-size: 13px; color: {{m.onizRenk}}; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-style: {{m.italik}}">{{m.oniz}}</span>
+</span>
+<sc-if value="{{m.yeni}}" hint-placeholder-val="{{ false }}"><span style="flex: none; align-self: center; min-width: 20px; height: 20px; border-radius: 999px; background: #5B8CFF; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center" aria-label="{{m.yeniEtiket}}">{{m.yeniSayi}}</span></sc-if>
+</a>
+</sc-for>
+</div>
+</sc-for>
+
+<div style="margin-top: 14px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px; display: flex; gap: 12px; align-items: center">
+<span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #FFF6DF; display: flex; align-items: center; justify-content: center; font-size: 18px" aria-hidden="true">★</span>
+<span style="flex: 1"><span style="display: block; font-size: 14px; font-weight: 800">Yıldız Otomotiv’e puan ver</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">Cumartesi aracı görmeye gittin. Görüşme nasıldı?</span></span>
+<button type="button" onClick="{{puanAc}}" style="flex: none; border: 0; background: #1E2333; color: #FFFFFF; border-radius: 12px; padding: 10px 14px; font-size: 13.5px; font-weight: 800; cursor: pointer">Puan ver</button>
+</div>
+<p style="margin: 14px 6px 0; font-size: 12px; color: #5A6073; line-height: 1.5">Satıcı numaranı yalnızca sen “numaramı paylaş” dersen görür. Kapora isteyen, ödeme bağlantısı gönderen satıcıyı şikayet et; mesaj hemen gizlenir.</p>
+</main>
+
+<nav style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 1px solid #E3E6EF; padding: 6px 6px 20px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: end" aria-label="Ana menü">
+<sc-for list="{{sekmeler}}" as="tb" hint-placeholder-count="5">
+<sc-if value="{{tb.orta}}" hint-placeholder-val="{{ false }}"><a href="{{tb.href}}" aria-label="{{tb.ad}}" style="justify-self: center; display: flex; flex-direction: column; align-items: center; gap: 3px; color: #1E2333"><span style="width: 52px; height: 52px; margin-top: -18px; border-radius: 18px; background: #5B8CFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(91,140,255,0.35)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></span><span style="font-size: 11px; font-weight: 700">{{tb.ad}}</span></a></sc-if>
+<sc-if value="{{tb.normal}}" hint-placeholder-val="{{ true }}"><a href="{{tb.href}}" aria-current="{{tb.aria}}" style="display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; color: {{tb.renk}}"><span style="position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{tb.kalinlik}}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{tb.d}}"></path></svg><sc-if value="{{tb.rozetVar}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: -5px; right: -9px; min-width: 16px; height: 16px; border-radius: 999px; background: #FF6FB5; color: #1E2333; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; padding: 0 3px; box-sizing: border-box">{{tb.rozet}}</span></sc-if></span><span style="font-size: 11px; font-weight: {{tb.kalin}}">{{tb.ad}}</span></a></sc-if>
+</sc-for>
+</nav>
+
+<sc-if value="{{puanAcik}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(30,35,51,0.45)"></div>
+<section role="dialog" aria-modal="true" aria-labelledby="puan-baslik" style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 24px 24px 0 0; padding: 10px 20px 28px">
+<span style="display: block; width: 40px; height: 5px; border-radius: 3px; background: #D5DAE5; margin: 0 auto 14px" aria-hidden="true"></span>
+<sc-if value="{{puanForm}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; align-items: center; gap: 12px"><span style="flex: none; width: 48px; height: 48px; border-radius: 50%; background: #FFF6DF; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800" aria-hidden="true">YO</span><span><h2 id="puan-baslik" style="margin: 0; font-size: 18px; font-weight: 800">Yıldız Otomotiv nasıldı?</h2><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">BMW 3 Serisi 320i talebin · Mert Kaya</span></span></div>
+<div role="radiogroup" aria-label="Puan, 5 üzerinden" style="display: flex; justify-content: center; gap: 8px; margin: 22px 0 6px">
+<sc-for list="{{yildizlar}}" as="y" hint-placeholder-count="5">
+<button type="button" role="radio" aria-checked="{{y.p}}" aria-label="{{y.etiket}}" onClick="{{y.pick}}" style="width: 54px; height: 54px; border: 0; border-radius: 14px; background: {{y.bg}}; cursor: pointer; display: flex; align-items: center; justify-content: center"><svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" fill="{{y.dolgu}}" stroke="{{y.cizgi}}" stroke-width="1.6" stroke-linejoin="round"></path></svg></button>
+</sc-for>
+</div>
+<p style="margin: 0; text-align: center; font-size: 14.5px; font-weight: 800; min-height: 20px">{{puanAd}}</p>
+<div style="margin-top: 16px; background: #F6F8FD; border-radius: 14px; padding: 12px 14px; font-size: 12.5px; color: #3A4052; line-height: 1.5">Yalnızca yıldız verilir, yorum yazılmaz. Puanın satıcıya isimsiz gider; profilinde tek tek puan değil, <strong>Güvenilir satıcı</strong> ve <strong>Hızlı yanıt</strong> gibi rozetler görünür.</div>
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 8px; margin-top: 16px">
+<button type="button" onClick="{{puanKapat}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 14px; padding: 14px 8px; font-size: 15px; font-weight: 700; color: #1E2333; cursor: pointer">Sonra</button>
+<button type="button" onClick="{{puanGonder}}" aria-disabled="{{gonderPasif}}" style="border: 0; background: {{gonderBg}}; border-radius: 14px; padding: 15px 8px; font-size: 15.5px; font-weight: 800; color: {{gonderRenk}}; cursor: pointer">Puanı gönder</button>
+</div>
+<a href="#" style="display: block; text-align: center; margin-top: 12px; font-size: 13px; font-weight: 700">Bir sorun mu yaşadın? Şikayet et</a>
+</sc-if>
+<sc-if value="{{puanTamam}}" hint-placeholder-val="{{ false }}">
+<div style="text-align: center; padding: 10px 0 4px">
+<span style="display: inline-flex; width: 56px; height: 56px; border-radius: 50%; background: #E7FAF0; align-items: center; justify-content: center" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#11683F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span>
+<h2 style="margin: 12px 0 4px; font-size: 18px; font-weight: 800">Teşekkürler</h2>
+<p style="margin: 0; font-size: 13.5px; color: #5A6073">Puanın kaydedildi. Aracı bulduysan talebini kapatabilirsin; satıcılar sana yazmayı bırakır.</p>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 18px">
+<button type="button" onClick="{{puanKapat}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 14px; padding: 14px 8px; font-size: 14.5px; font-weight: 700; color: #1E2333; cursor: pointer">Kapat</button>
+<a href="TaleplerimMobil.dc.html" style="display: block; text-align: center; border-radius: 14px; padding: 14px 8px; font-size: 14.5px; font-weight: 800; color: #1E2333; background: #3DD68C">Aracı buldum</a>
+</div>
+</div>
+</sc-if>
+</section>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { filtre: 'hepsi', puan: false, yildiz: 0, gonderildi: false }; }
+  renderVals() {
+    var self = this, st = this.state;
+    var AV = ['#FFF6DF', '#EEF3FF', '#FFEEF6', '#E7FAF0', '#F3EFFF'];
+    var R = {
+      ilk: { ad: 'İlk mesaj', bg: '#EEF3FF', renk: '#2450C8' },
+      eids: { ad: 'EİDS doğrulandı', bg: '#E7FAF0', renk: '#11683F' },
+      hizli: { ad: '⚡ Hızlı yanıt', bg: '#FFF6DF', renk: '#7A5200' },
+      guven: { ad: '★ Güvenilir satıcı', bg: '#FFF6DF', renk: '#7A5200' },
+      bireysel: { ad: 'Bireysel', bg: '#F3F5FA', renk: '#3A4052' },
+      numara: { ad: 'Numaran paylaşıldı', bg: '#E7FAF0', renk: '#11683F' },
+      gizli: { ad: 'Güvenlik nedeniyle gizlendi', bg: '#FFEEEE', renk: '#A11B1B' }
+    };
+    var M = [
+      ['bmw', 'Yıldız Otomotiv', 'YO', 'Cumartesi 11:00 uygun mu? Adresimiz profilde.', '09:32', 0, ['numara', 'guven'], 'MesajMobil.dc.html'],
+      ['bmw', 'Boğaziçi Motors', 'BM', '2021 320i M Sport, 41.000 km, boyasız. Fiyat 2.420.000 TL.', '08:10', 1, ['ilk', 'eids', 'hizli'], 'MesajMobil.dc.html'],
+      ['bmw', 'Anadolu Oto', 'AO', '2019 320i Luxury Line, tek parça lokal boya, 78.000 km.', '07:55', 1, ['ilk', 'eids'], 'MesajMobil.dc.html'],
+      ['bmw', 'Serkan T.', 'ST', '2020 320i, ilk sahibiyim, servis bakımlı. Fotoğraf atabilirim.', 'Dün', 0, ['bireysel'], 'MesajMobil.dc.html'],
+      ['bmw', 'Hızlı Galeri', 'HG', 'Bu mesaj güvenlik nedeniyle gizlendi: ödeme bağlantısı içeriyordu.', 'Dün', 0, ['gizli'], '#'],
+      ['clio', 'Ankara Oto Center', 'AC', '2022 Clio Touch, 34.000 km, hasarsız. Görmek ister misiniz?', 'Pzt', 1, ['ilk', 'eids'], 'MesajMobil.dc.html'],
+      ['clio', 'Başkent Motor', 'BK', 'Merhaba, 2021 Clio Joy var; Touch paketi değil ama fiyatı uygun.', 'Pzt', 0, ['ilk'], 'MesajMobil.dc.html']
+    ];
+    var F = [['hepsi', 'Tümü'], ['okunmamis', 'Okunmamış'], ['bmw', 'BMW 3 Serisi'], ['clio', 'Renault Clio'], ['arsiv', 'Arşiv']];
+    var liste = M.filter(function (m) { return st.filtre === 'hepsi' || (st.filtre === 'okunmamis' ? m[5] > 0 : m[0] === st.filtre); });
+    var TAL = [['bmw', 'BMW 3 Serisi 320i arıyorum'], ['clio', 'Renault Clio arıyorum, Touch']];
+    var gruplar = TAL.map(function (t) {
+      var s = liste.filter(function (m) { return m[0] === t[0]; });
+      var tumu = M.filter(function (m) { return m[0] === t[0]; }).length;
+      return { ad: t[1], ozet: tumu + ' satıcı yazdı', satirlar: s.map(function (m, i) {
+        var yeni = m[5] > 0, gizli = m[6].indexOf('gizli') >= 0;
+        return { ad: m[1], bas: m[2], oniz: m[3], zaman: m[4], href: m[7], yeni: yeni, yeniSayi: String(m[5]), yeniEtiket: m[5] + ' okunmamış mesaj', kalin: yeni ? 800 : 700, bg: yeni ? '#F8FAFF' : '#FFFFFF', avBg: gizli ? '#F3F5FA' : AV[i % 5], onizRenk: gizli ? '#5A6073' : '#3A4052', italik: gizli ? 'italic' : 'normal', rozetler: m[6].map(function (k) { return R[k]; }) };
+      }) };
+    }).filter(function (g) { return g.satirlar.length; });
+    var ADLAR = ['', 'Çok kötü', 'Kötü', 'İdare eder', 'İyi', 'Çok iyi'];
+    var TAB = [['Ana sayfa', 'AnasayfaMobil.dc.html'], ['Taleplerim', 'TaleplerimMobil.dc.html'], ['Talep oluştur', 'SihirbazMobilAkis.dc.html', false, true], ['Mesajlar', 'MesajlarMobil.dc.html', true, false, '3'], ['Hesabım', 'HesapMobil.dc.html']];
+    var ICON = { 'Ana sayfa': 'M4 11l8-7 8 7v9h-5v-6h-6v6H4z', 'Taleplerim': 'M8 4h8M6 8h12M5 12h14v8H5z', 'Mesajlar': 'M4 5h16v11H9l-5 4z', 'Hesabım': 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c1-4 4-6 8-6s7 2 8 6' };
+    var hazir = st.yildiz > 0;
+    return {
+      okunmamisMetin: '3 okunmamış',
+      filtreler: F.map(function (f) { var on = st.filtre === f[0]; return { ad: f[1], p: on ? 'true' : 'false', bd: on ? '1px solid #1E2333' : '1px solid #D5DAE5', bg: on ? '#1E2333' : '#FFFFFF', renk: on ? '#FFFFFF' : '#1E2333', pick: function () { self.setState({ filtre: f[0] }); } }; }),
+      gruplar: gruplar,
+      puanAcik: st.puan, puanForm: !st.gonderildi, puanTamam: st.gonderildi,
+      puanAc: function () { self.setState({ puan: true, gonderildi: false }); },
+      puanKapat: function () { self.setState({ puan: false }); },
+      puanGonder: function () { if (self.state.yildiz > 0) self.setState({ gonderildi: true }); },
+      yildizlar: [1, 2, 3, 4, 5].map(function (n) { var on = n <= st.yildiz; return { p: st.yildiz === n ? 'true' : 'false', etiket: n + ' yıldız, ' + ADLAR[n], dolgu: on ? '#FFC84A' : '#FFFFFF', cizgi: on ? '#B07A00' : '#AEB5C4', bg: on ? '#FFF6DF' : '#F6F8FD', pick: function () { self.setState({ yildiz: n }); } }; }),
+      puanAd: hazir ? ADLAR[st.yildiz] : 'Yıldıza dokun',
+      gonderPasif: hazir ? 'false' : 'true', gonderBg: hazir ? '#5B8CFF' : '#E3E6EF', gonderRenk: hazir ? '#1E2333' : '#5A6073',
+      sekmeler: TAB.map(function (t) { var on = !!t[2]; return { ad: t[0], href: t[1], orta: !!t[3], normal: !t[3], aria: on ? 'page' : 'false', renk: on ? '#1E2333' : '#5A6073', kalin: on ? 800 : 600, kalinlik: on ? '2.4' : '1.9', d: ICON[t[0]] || '', rozetVar: !!t[4], rozet: t[4] || '' }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

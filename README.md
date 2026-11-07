@@ -16,7 +16,10 @@ packages/
   db/       Prisma şeması, göçler (migration), başlangıç verisi
   shared/   Ortak tipler, doğrulama şemaları (zod), kategoriler, renkler
 deploy/     Canlı ortam: Docker Compose, Caddy, ortam değişkeni örneği
+docs/       Ürün kapsam dokümanının kopyası (kararlar, teknik tasarım, plan) ve ekran tasarımları
 ```
+
+IDE'de Claude ile çalışırken proje kuralları ve kaldığımız yer `CLAUDE.md` dosyasındadır.
 
 ## Gerekenler
 

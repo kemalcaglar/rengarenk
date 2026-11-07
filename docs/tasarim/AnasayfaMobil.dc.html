@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Ana sayfa ve bildirimler (mobil)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 2020px; box-sizing: border-box; position: relative; background: #F6F8FD; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333; overflow: hidden">
+
+<sc-if value="{{v.ana}}" hint-placeholder-val="{{ true }}">
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF; padding: 10px 12px 12px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<span style="display: flex; align-items: center; gap: 4px">
+<button type="button" onClick="{{menuAc}}" aria-label="Menü ve kategoriler" aria-expanded="{{menuAria}}" style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: #1E2333; cursor: pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></button>
+<span style="display: flex; gap: 2px" aria-hidden="true"><span style="width: 7px; height: 16px; border-radius: 4px; background: #5B8CFF"></span><span style="width: 7px; height: 16px; border-radius: 4px; background: #FF6FB5"></span><span style="width: 7px; height: 16px; border-radius: 4px; background: #FFC84A"></span><span style="width: 7px; height: 16px; border-radius: 4px; background: #3DD68C"></span></span>
+<span style="font-size: 18px; font-weight: 800; letter-spacing: -0.4px">rengarenk</span>
+</span>
+<button type="button" onClick="{{bildirimAc}}" aria-label="{{zilEtiket}}" style="position: relative; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: #F3F5FA; color: #1E2333; cursor: pointer">
+<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 1 1 12 0c0 6 2 7 2 7H4s2-1 2-7"></path><path d="M10 20a2 2 0 0 0 4 0"></path></svg>
+<sc-if value="{{okunmamisVar}}" hint-placeholder-val="{{ true }}"><span style="position: absolute; top: 6px; right: 6px; min-width: 18px; height: 18px; border-radius: 999px; background: #FF6FB5; color: #1E2333; font-size: 11px; font-weight: 800; display: flex; align-items: center; justify-content: center; padding: 0 4px; box-sizing: border-box">{{okunmamis}}</span></sc-if>
+</button>
+</div>
+<form role="search" style="margin-top: 10px; display: flex; align-items: center; gap: 8px; background: #F3F5FA; border: 1px solid #E3E6EF; border-radius: 12px; padding: 0 12px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5A6073" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<label for="a-ara" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Talep ara</label>
+<input id="a-ara" type="search" placeholder="Marka, model veya talep no ile ara" style="flex: 1; min-width: 0; border: 0; background: transparent; font-size: 15px; padding: 12px 0; color: #1E2333; outline: none">
+</form>
+</header>
+
+<main style="padding: 10px 0 110px">
+<section style="margin: 0 12px; background: #1E2333; border-radius: 16px; padding: 10px 10px 10px 14px; color: #FFFFFF; display: flex; align-items: center; gap: 10px" aria-labelledby="hero">
+<h1 id="hero" style="flex: 1; margin: 0; font-size: 14.5px; font-weight: 800; line-height: 1.3">Aradığın aracı yaz, satıcılar sana gelsin.</h1>
+<a href="SihirbazMobilAkis.dc.html" style="flex: none; text-align: center; background: #5B8CFF; border-radius: 12px; padding: 11px 12px; font-size: 13.5px; font-weight: 800; color: #1E2333; line-height: 1.2">Talep oluştur<span style="display: block; font-size: 10.5px; font-weight: 700">ilk talep ücretsiz</span></a>
+</section>
+
+
+<section aria-labelledby="vitrin-b" style="margin-top: 14px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; margin: 0 12px 8px"><h2 id="vitrin-b" style="margin: 0; font-size: 17px; font-weight: 800">Ana sayfa vitrini</h2><a href="ListeMobil.dc.html" style="font-size: 13.5px; font-weight: 700">Tümünü gör (126)</a></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; background: #E3E6EF; border-top: 1px solid #E3E6EF; border-bottom: 1px solid #E3E6EF">
+<sc-for list="{{vitrin}}" as="vt" hint-placeholder-count="18">
+<a href="Mobil.dc.html" style="display: block; background: #FFFFFF; padding: 6px 6px 8px; color: #1E2333; min-width: 0">
+<span style="display: block; position: relative; aspect-ratio: 4 / 3; border-radius: 6px; background: {{vt.foto}}">
+<sc-if value="{{vt.acil}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 4px; top: 4px; font-size: 9.5px; font-weight: 800; padding: 1px 5px; border-radius: 4px; background: #FFC84A; color: #1E2333">ACİL</span></sc-if>
+</span>
+<span style="display: block; font-size: 11.5px; font-weight: 700; line-height: 1.3; margin-top: 5px; height: 30px; overflow: hidden">{{vt.baslik}}</span>
+<span style="display: block; font-size: 11.5px; font-weight: 800; color: #2450C8; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{vt.butce}}</span>
+<span style="display: block; font-size: 10.5px; color: #5A6073; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{vt.yer}}</span>
+</a>
+</sc-for>
+<a href="TaleplerimMobil.dc.html" style="display: flex; flex-direction: column; justify-content: center; gap: 4px; background: #FFF6DF; padding: 8px; color: #1E2333; min-width: 0">
+<span style="font-size: 12px; font-weight: 800; line-height: 1.3">Talebin burada görünsün</span>
+<span style="font-size: 10.5px; color: #5A3D00; line-height: 1.35">7 gün ana sayfa vitrini</span>
+<span style="font-size: 12px; font-weight: 800; color: #7A5300; margin-top: 2px">359,99 TL ›</span>
+</a>
+</div>
+<p style="margin: 6px 12px 0; font-size: 11px; color: #5A6073">Fotoğraflar temsilîdir · Wikimedia Commons ve galeri portföyleri · sıra her açılışta karışır</p>
+</section>
+
+<div style="display: flex; align-items: baseline; justify-content: space-between; margin: 22px 12px 10px"><h2 style="margin: 0; font-size: 17px; font-weight: 800">Son talepler</h2><a href="ListeMobil.dc.html" style="font-size: 13.5px; font-weight: 700">Tümü</a></div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 0 12px">
+<sc-for list="{{sonTalepler}}" as="st" hint-placeholder-count="5">
+<a href="Mobil.dc.html" style="display: flex; gap: 12px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 12px; color: #1E2333">
+<span style="flex: none; width: 74px; height: 74px; border-radius: 12px; background: linear-gradient(135deg, #DCE3F0, #F3F5FA)" aria-hidden="true"></span>
+<span style="flex: 1; min-width: 0"><span style="display: block; font-size: 14px; font-weight: 800; line-height: 1.3">{{st.baslik}}</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 4px">{{st.alt}}</span><span style="display: block; font-size: 14px; font-weight: 800; color: #2450C8; margin-top: 5px">{{st.butce}}</span></span>
+</a>
+</sc-for>
+</div>
+
+<section style="margin: 22px 12px 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 16px" aria-labelledby="nasil">
+<h2 id="nasil" style="margin: 0 0 10px; font-size: 16px; font-weight: 800">Nasıl çalışır?</h2>
+<sc-for list="{{adimlar}}" as="ad" hint-placeholder-count="3">
+<div style="display: flex; gap: 12px; padding: 8px 0"><span style="flex: none; width: 28px; height: 28px; border-radius: 50%; background: {{ad.renk}}; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800">{{ad.no}}</span><span><span style="display: block; font-size: 14px; font-weight: 800">{{ad.baslik}}</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">{{ad.metin}}</span></span></div>
+</sc-for>
+</section>
+</main>
+</sc-if>
+
+<sc-if value="{{v.bildirim}}" hint-placeholder-val="{{ false }}">
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF; padding: 10px 12px; display: flex; align-items: center; gap: 8px">
+<button type="button" onClick="{{geri}}" aria-label="Geri" style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: #1E2333; cursor: pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<h1 style="flex: 1; margin: 0; font-size: 18px; font-weight: 800">Bildirimler</h1>
+<button type="button" onClick="{{hepsiOkundu}}" style="border: 0; background: transparent; padding: 10px 6px; font-size: 13.5px; font-weight: 700; color: #2450C8; cursor: pointer">Tümünü okundu say</button>
+</header>
+<div style="display: flex; gap: 6px; padding: 12px 12px 4px">
+<sc-for list="{{filtreler}}" as="f" hint-placeholder-count="3">
+<sc-if value="{{f.on}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{f.pick}}" style="border: 0; background: #1E2333; border-radius: 999px; padding: 9px 14px; font-size: 13.5px; font-weight: 800; color: #FFFFFF; cursor: pointer">{{f.ad}}</button></sc-if>
+<sc-if value="{{f.off}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{f.pick}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 999px; padding: 8px 13px; font-size: 13.5px; font-weight: 700; color: #1E2333; cursor: pointer">{{f.ad}}</button></sc-if>
+</sc-for>
+</div>
+<main style="padding: 8px 12px 110px">
+<sc-for list="{{gruplar}}" as="g" hint-placeholder-count="2">
+<h2 style="margin: 14px 4px 8px; font-size: 13px; font-weight: 800; color: #5A6073; text-transform: uppercase; letter-spacing: 0.5px">{{g.ad}}</h2>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; overflow: hidden">
+<sc-for list="{{g.ogeler}}" as="b" hint-placeholder-count="4">
+<a href="{{b.href}}" style="display: flex; gap: 12px; padding: 13px 14px; border-bottom: 1px solid #EEF0F5; background: {{b.bg}}; color: #1E2333">
+<span style="flex: none; width: 38px; height: 38px; border-radius: 12px; background: {{b.tint}}; display: flex; align-items: center; justify-content: center; font-size: 16px" aria-hidden="true">{{b.ikon}}</span>
+<span style="flex: 1; min-width: 0"><span style="display: flex; justify-content: space-between; gap: 8px"><span style="font-size: 14px; font-weight: {{b.kalin}}">{{b.baslik}}</span><span style="flex: none; font-size: 11.5px; color: #5A6073">{{b.zaman}}</span></span><span style="display: block; font-size: 12.5px; color: #3A4052; margin-top: 3px; line-height: 1.45">{{b.metin}}</span>
+<sc-if value="{{b.ticari}}" hint-placeholder-val="{{ false }}"><span style="display: inline-block; margin-top: 5px; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 999px; background: #F3F5FA; color: #5A6073">Kampanya · onay verdiğin için</span></sc-if>
+</span>
+<sc-if value="{{b.yeni}}" hint-placeholder-val="{{ false }}"><span style="flex: none; width: 9px; height: 9px; border-radius: 50%; background: #5B8CFF; margin-top: 6px" aria-label="Okunmadı"></span></sc-if>
+</a>
+</sc-for>
+</div>
+</sc-for>
+<a href="HesapMobil.dc.html" style="display: block; text-align: center; margin-top: 16px; font-size: 13.5px; font-weight: 700">Bildirim tercihlerini değiştir</a>
+</main>
+</sc-if>
+
+<nav style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 1px solid #E3E6EF; padding: 6px 6px 20px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: end" aria-label="Ana menü">
+<sc-for list="{{sekmeler}}" as="tb" hint-placeholder-count="5">
+<sc-if value="{{tb.orta}}" hint-placeholder-val="{{ false }}"><a href="{{tb.href}}" aria-label="{{tb.ad}}" style="justify-self: center; display: flex; flex-direction: column; align-items: center; gap: 3px; color: #1E2333"><span style="width: 52px; height: 52px; margin-top: -18px; border-radius: 18px; background: #5B8CFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(91,140,255,0.35)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></span><span style="font-size: 11px; font-weight: 700">{{tb.ad}}</span></a></sc-if>
+<sc-if value="{{tb.normal}}" hint-placeholder-val="{{ true }}"><a href="{{tb.href}}" aria-current="{{tb.aria}}" style="display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; color: {{tb.renk}}"><span style="position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{tb.kalinlik}}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{tb.d}}"></path></svg><sc-if value="{{tb.rozetVar}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: -5px; right: -9px; min-width: 16px; height: 16px; border-radius: 999px; background: #FF6FB5; color: #1E2333; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; padding: 0 3px; box-sizing: border-box">{{tb.rozet}}</span></sc-if></span><span style="font-size: 11px; font-weight: {{tb.kalin}}">{{tb.ad}}</span></a></sc-if>
+</sc-for>
+</nav>
+
+<sc-if value="{{menuAcik}}" hint-placeholder-val="{{ false }}">
+<div onClick="{{menuKapat}}" style="position: absolute; inset: 0; background: rgba(30,35,51,0.45)"></div>
+<nav aria-label="Menü ve kategoriler" style="position: absolute; left: 0; top: 0; bottom: 0; width: 324px; background: #FFFFFF; box-shadow: 8px 0 24px rgba(30,35,51,0.18); overflow: hidden; display: flex; flex-direction: column">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 8px 10px 16px; border-bottom: 1px solid #EEF0F5">
+<span style="display: flex; align-items: center; gap: 6px"><span style="display: flex; gap: 2px" aria-hidden="true"><span style="width: 7px; height: 16px; border-radius: 4px; background: #5B8CFF"></span><span style="width: 7px; height: 16px; border-radius: 4px; background: #FF6FB5"></span><span style="width: 7px; height: 16px; border-radius: 4px; background: #FFC84A"></span><span style="width: 7px; height: 16px; border-radius: 4px; background: #3DD68C"></span></span><span style="font-size: 18px; font-weight: 800; letter-spacing: -0.4px">rengarenk</span></span>
+<button type="button" onClick="{{menuKapat}}" aria-label="Menüyü kapat" style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: #1E2333; cursor: pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+</div>
+<a href="HesapMobil.dc.html" style="display: flex; align-items: center; gap: 10px; margin: 12px 12px 4px; padding: 10px 12px; background: #F6F8FD; border-radius: 14px; color: #1E2333"><span style="flex: none; width: 38px; height: 38px; border-radius: 50%; background: #FFEEF6; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800" aria-hidden="true">AY</span><span style="flex: 1"><span style="display: block; font-size: 14.5px; font-weight: 800">Ayşe Yılmaz</span><span style="display: block; font-size: 12px; color: #5A6073">2 aktif talep · 3 okunmamış mesaj</span></span><span style="font-size: 18px; color: #AEB5C4" aria-hidden="true">›</span></a>
+<div style="flex: 1; overflow-y: auto; padding: 6px 0 0">
+<button type="button" onClick="{{vasitaAcKapa}}" aria-expanded="{{vasitaAria}}" style="width: 100%; display: flex; align-items: center; justify-content: space-between; border: 0; background: transparent; padding: 10px 16px 6px; cursor: pointer; color: #1E2333"><span style="font-size: 12.5px; font-weight: 800; color: #5A6073; text-transform: uppercase; letter-spacing: 0.5px">Vasıta kategorileri</span><span style="font-size: 12.5px; font-weight: 700; color: #2450C8">{{vasitaEtiket}}</span></button>
+<sc-if value="{{vasitaAcik}}" hint-placeholder-val="{{ true }}">
+<a href="ListeMobil.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 11px 16px; color: #1E2333; font-size: 14.5px; font-weight: 800">Tüm vasıta talepleri<span style="margin-left: auto; font-size: 12.5px; font-weight: 600; color: #5A6073">4.873</span></a>
+<sc-for list="{{menuKategoriler}}" as="mk" hint-placeholder-count="14">
+<a href="ListeMobil.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px 16px; color: #1E2333">
+<span style="flex: none; width: 30px; height: 30px; border-radius: 9px; background: {{mk.tint}}; display: flex; align-items: center; justify-content: center" aria-hidden="true"><span style="width: 10px; height: 10px; border-radius: 50%; background: {{mk.dot}}"></span></span>
+<span style="flex: 1; font-size: 14.5px; font-weight: 600">{{mk.ad}}</span>
+<span style="font-size: 12.5px; color: #5A6073">{{mk.sayi}}</span>
+</a>
+</sc-for>
+</sc-if>
+<p style="margin: 10px 16px 4px; font-size: 12.5px; font-weight: 800; color: #5A6073; text-transform: uppercase; letter-spacing: 0.5px">Diğer</p>
+<sc-for list="{{yakinda}}" as="yk" hint-placeholder-count="2"><div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; font-size: 14.5px; font-weight: 600; color: #5A6073">{{yk.ad}}<span style="font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: #F3F5FA; color: #5A6073">Yakında</span></div></sc-for>
+</div>
+<div style="border-top: 1px solid #EEF0F5; padding: 8px 0 24px">
+<sc-for list="{{menuLinkler}}" as="ml" hint-placeholder-count="4"><a href="{{ml.href}}" style="display: block; padding: 9px 16px; font-size: 14px; font-weight: 700; color: #1E2333">{{ml.ad}}</a></sc-for>
+<p style="margin: 6px 16px 0; font-size: 11.5px; color: #5A6073">Kullanım koşulları · Aydınlatma metni · Çerezler</p>
+</div>
+</nav>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":2020}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { view: 'ana', okundu: false, filtre: 'hepsi', menu: false, vasita: true }; }
+  renderVals() {
+    var self = this, st = this.state;
+    var TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0', '#F3EFFF', '#FFF0EA'], DOTS = ['#5B8CFF', '#FF6FB5', '#FFC84A', '#3DD68C', '#A78BFA', '#FF8A5B'];
+    var MK = [['Otomobil', '2.140'], ['Arazi, SUV & Pickup', '790'], ['Elektrikli Araçlar', '310'], ['Motosiklet', '240'], ['Minivan & Panelvan', '410'], ['Ticari Araçlar', '350'], ['Kiralık Araçlar', '320'], ['Deniz Araçları', '64'], ['Hasarlı Araçlar', '120'], ['Karavan', '48'], ['Klasik Araçlar', '36'], ['Hava Araçları', '9'], ['ATV', '22'], ['UTV', '14']];
+    var KAT = [['Otomobil', '2.140'], ['Arazi, SUV & Pickup', '790'], ['Elektrikli', '310'], ['Motosiklet', '240'], ['Kiralık', '320'], ['Ticari', '350'], ['Deniz', '64'], ['Karavan', '48']];
+    var B = [
+      ['bugun', 'mesaj', '💬', '#FFEEF6', 'Yıldız Otomotiv talebine yazdı', 'BMW 3 Serisi 320i · “2021 M Sport, 48.000 km, ekspertiz raporu hazır.”', '12 dk', 'MesajMobil.dc.html', true, false],
+      ['bugun', 'mesaj', '💬', '#FFEEF6', '2 yeni ilk mesaj', 'Boğaziçi Motors ve Anadolu Oto · BMW 3 Serisi talebin', '1 sa', 'MesajlarMobil.dc.html', true, false],
+      ['bugun', 'talep', '⏳', '#FFF6DF', 'Talebin 3 gün sonra doluyor', 'BMW 3 Serisi 320i · 12 satıcı yazdı. Tek dokunuşla ücretsiz uzatabilirsin.', '3 sa', 'TaleplerimMobil.dc.html', true, false],
+      ['hafta', 'guvenlik', '🛡️', '#E7FAF0', 'Güvenlik uyarısı', 'Bir satıcı sana ödeme bağlantısı gönderdi; mesaj gizlendi ve satıcı askıya alındı. Aracı görmeden ödeme yapma.', 'Dün', 'MesajlarMobil.dc.html', false, false],
+      ['hafta', 'kampanya', '🏷️', '#EEF3FF', 'Hafta sonu: talebini öne çıkar', 'UST20 koduyla üst sıra %20 indirimli.', '2 gün', 'HaklarimMobil.dc.html', false, true],
+      ['hafta', 'talep', '✅', '#E7FAF0', 'Talebin yayında', 'BMW 3 Serisi 320i · uygun aracı olan 46 galeriye bildirildi.', '4 gün', 'TaleplerimMobil.dc.html', false, false]
+    ];
+    var F = [['hepsi', 'Tümü'], ['mesaj', 'Mesajlar'], ['talep', 'Taleplerim']];
+    var liste = B.filter(function (b) { return st.filtre === 'hepsi' || b[1] === st.filtre; });
+    var okunmamis = st.okundu ? 0 : B.filter(function (b) { return b[8]; }).length;
+    function grup(id, ad) { return { ad: ad, ogeler: liste.filter(function (b) { return b[0] === id; }).map(function (b) { var yeni = b[8] && !st.okundu; return { ikon: b[2], tint: b[3], baslik: b[4], metin: b[5], zaman: b[6], href: b[7], yeni: yeni, kalin: yeni ? 800 : 700, bg: yeni ? '#F8FAFF' : '#FFFFFF', ticari: b[9] }; }) }; }
+    var gruplar = [grup('bugun', 'Bugün'), grup('hafta', 'Bu hafta')].filter(function (g) { return g.ogeler.length; });
+    var ICON = { 'Ana sayfa': 'M4 11l8-7 8 7v9h-5v-6h-6v6H4z', 'Taleplerim': 'M8 4h8M6 8h12M5 12h14v8H5z', 'Mesajlar': 'M4 5h16v11H9l-5 4z', 'Hesabım': 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c1-4 4-6 8-6s7 2 8 6' };
+    var TAB = [['Ana sayfa', 'AnasayfaMobil.dc.html', true], ['Taleplerim', 'TaleplerimMobil.dc.html'], ['Talep oluştur', 'SihirbazMobilAkis.dc.html', false, true], ['Mesajlar', 'MesajlarMobil.dc.html', false, false, '3'], ['Hesabım', 'HesapMobil.dc.html']];
+    return {
+      v: { ana: st.view === 'ana', bildirim: st.view === 'bildirim' },
+      menuAcik: st.menu, menuAria: st.menu ? 'true' : 'false',
+      menuAc: function () { self.setState({ menu: true }); }, menuKapat: function () { self.setState({ menu: false }); },
+      vasitaAcik: st.vasita, vasitaAria: st.vasita ? 'true' : 'false', vasitaEtiket: st.vasita ? 'Gizle' : 'Göster',
+      vasitaAcKapa: function () { self.setState({ vasita: !self.state.vasita }); },
+      menuKategoriler: MK.map(function (k, i) { return { ad: k[0], sayi: k[1], tint: TINTS[i % 6], dot: DOTS[i % 6] }; }),
+      yakinda: [{ ad: 'Emlak' }, { ad: 'İkinci el alışveriş' }],
+      menuLinkler: [{ ad: 'Nasıl çalışır?', href: '#' }, { ad: 'Galeriler için · 30 gün ücretsiz', href: 'BasvuruMobil.dc.html' }, { ad: 'Yardım ve destek', href: 'HesapMobil.dc.html' }, { ad: 'Güvenli alışveriş rehberi', href: '#' }],
+      okunmamis: String(okunmamis), okunmamisVar: okunmamis > 0, zilEtiket: 'Bildirimler, ' + okunmamis + ' okunmamış',
+      bildirimAc: function () { self.setState({ view: 'bildirim' }); }, geri: function () { self.setState({ view: 'ana' }); },
+      hepsiOkundu: function () { self.setState({ okundu: true }); },
+      filtreler: F.map(function (f) { return { ad: f[1], on: st.filtre === f[0], off: st.filtre !== f[0], pick: function () { self.setState({ filtre: f[0] }); } }; }),
+      gruplar: gruplar,
+      kategoriler: KAT.map(function (k, i) { return { ad: k[0], sayi: k[1] + ' talep', tint: TINTS[i % 6], dot: DOTS[i % 6] }; }),
+      vitrin: [
+        { baslik: 'Toyota Corolla Hybrid Flame', butce: '1,35 – 1,6 mn TL', yer: 'İzmir', acil: false, foto: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)' },
+        { baslik: 'Togg T10X V2 uzun menzil', butce: '1,8 – 2,1 mn TL', yer: 'İstanbul', acil: true, foto: 'linear-gradient(135deg, #D7CFE6, #F1EEF7)' },
+        { baslik: 'BMW 520i Luxury Line', butce: '2,3 – 2,8 mn TL', yer: 'İzmir', acil: false, foto: 'linear-gradient(135deg, #CFE0D8, #EEF5F1)' },
+        { baslik: 'Renault Clio Touch 2021+', butce: '850 bin – 1 mn TL', yer: 'Ankara', acil: false, foto: 'linear-gradient(135deg, #E6DCC9, #F7F3EE)' },
+        { baslik: 'Fiat Egea Sedan Urban', butce: '700 – 850 bin TL', yer: 'Kocaeli', acil: true, foto: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)' },
+        { baslik: 'VW Passat 1.5 TSI Elegance', butce: '1,6 – 1,85 mn TL', yer: 'İstanbul', acil: false, foto: 'linear-gradient(135deg, #D7CFE6, #F1EEF7)' },
+        { baslik: 'Honda PCX 125, 2022+', butce: '95 – 120 bin TL', yer: 'İstanbul', acil: false, foto: 'linear-gradient(135deg, #CFE0D8, #EEF5F1)' },
+        { baslik: 'Ford Transit Custom panelvan', butce: '1,2 – 1,45 mn TL', yer: 'İzmir', acil: false, foto: 'linear-gradient(135deg, #E6DCC9, #F7F3EE)' },
+        { baslik: 'Dacia Duster 4×4', butce: '900 bin – 1,1 mn TL', yer: 'Erzurum', acil: true, foto: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)' },
+        { baslik: 'Hyundai Tucson hibrit', butce: '1,5 – 1,8 mn TL', yer: 'Bursa', acil: false, foto: 'linear-gradient(135deg, #D7CFE6, #F1EEF7)' },
+        { baslik: 'Mercedes C 200 AMG', butce: '2,4 – 2,9 mn TL', yer: 'Ankara', acil: false, foto: 'linear-gradient(135deg, #CFE0D8, #EEF5F1)' },
+        { baslik: 'Kiralık 7 kişilik, 10 gün', butce: 'Günlük ≤2.500 TL', yer: 'Antalya', acil: true, foto: 'linear-gradient(135deg, #E6DCC9, #F7F3EE)' },
+        { baslik: 'Peugeot 2008 GT', butce: '1,3 – 1,5 mn TL', yer: 'Adana', acil: false, foto: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)' },
+        { baslik: 'Yamaha MT-07', butce: '350 – 420 bin TL', yer: 'Muğla', acil: false, foto: 'linear-gradient(135deg, #D7CFE6, #F1EEF7)' },
+        { baslik: 'Tesla Model Y Long Range', butce: '2,0 – 2,3 mn TL', yer: 'İstanbul', acil: false, foto: 'linear-gradient(135deg, #CFE0D8, #EEF5F1)' },
+        { baslik: 'Skoda Octavia Prestige', butce: '1,2 – 1,4 mn TL', yer: 'Konya', acil: false, foto: 'linear-gradient(135deg, #E6DCC9, #F7F3EE)' },
+        { baslik: 'Opel Corsa Elegance', butce: '800 – 950 bin TL', yer: 'Eskişehir', acil: false, foto: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)' }
+      ],
+      sonTalepler: [
+        { baslik: 'Renault Clio arıyorum, Touch', alt: '2021 ve sonrası · ≤60.000 km · Ankara · 12 dk', butce: '850 bin – 1 milyon TL' },
+        { baslik: 'Fiat Egea Sedan, ilk araç', alt: '2019 – 2022 · Kocaeli · 40 dk', butce: '700 – 850 bin TL' },
+        { baslik: 'Kiralık 7 kişilik araç, 10 gün', alt: 'Antalya · 1 sa', butce: 'Günlük 2.500 TL’ye kadar' },
+        { baslik: 'Honda PCX 125 arıyorum', alt: '2022 ve sonrası · İstanbul · 2 sa', butce: '95 – 120 bin TL' }
+      ],
+      adimlar: [
+        { no: '1', renk: '#EEF3FF', baslik: 'Talebini yaz', metin: 'Marka, model, paket, bütçe ve konumunu seç. 3 dakika sürer.' },
+        { no: '2', renk: '#FFEEF6', baslik: 'Satıcılar sana yazsın', metin: 'Uygun aracı olan galeriler ve satıcılar ilk mesajı gönderir.' },
+        { no: '3', renk: '#E7FAF0', baslik: 'Sen seç', metin: 'Numaran sen izin verene kadar gizli kalır. Aracı görmeden ödeme yapma.' }
+      ],
+      sekmeler: TAB.map(function (t) { var on = !!t[2]; return { ad: t[0], href: t[1], orta: !!t[3], normal: !t[3], aria: on ? 'page' : 'false', renk: on ? '#1E2333' : '#5A6073', kalin: on ? 800 : 600, kalinlik: on ? '2.4' : '1.9', d: ICON[t[0]] || '', rozetVar: !!t[4], rozet: t[4] || '' }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Renk paleti seçenekleri</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+</style>
+</helmet>
+<div style="width: 880px; height: 640px; box-sizing: border-box; padding: 40px; background: #FFFFFF; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333; display: flex; flex-direction: column; gap: 24px">
+<div>
+<h1 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.4px">Üç açık palet seçeneği</h1>
+<p style="margin: 6px 0 0; font-size: 15px; color: #5A6073">Web ve mobil tasarımlarda Tweaks menüsündeki "palet" seçeneğiyle denenebilir. Metin ve butonlardaki yazılar okunurluk için koyu gri kalır.</p>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; flex: 1">
+<sc-for list="{{palets}}" as="p" hint-placeholder-count="3">
+<section style="border: 1px solid #E3E6EF; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 14px; background: {{p.ground}}">
+<div>
+<h2 style="margin: 0; font-size: 19px; font-weight: 800">{{p.name}}</h2>
+<p style="margin: 4px 0 0; font-size: 13.5px; color: #5A6073; line-height: 1.45">{{p.note}}</p>
+</div>
+<div style="height: 76px; border-radius: 14px; background: {{p.primary}}; display: flex; align-items: flex-end; padding: 10px 12px; box-sizing: border-box">
+<span style="font-size: 12.5px; font-weight: 700; color: #1E2333">Ana renk {{p.primary}}</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{p.dots}}" as="d" hint-placeholder-count="4">
+<div style="height: 44px; border-radius: 10px; background: {{d}}"></div>
+</sc-for>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; border-radius: 12px; background: {{p.soft}}; padding: 10px 12px">
+<span style="font-size: 13px; font-weight: 600; color: #3A4052">Vurgu yazısı</span>
+<span style="font-size: 16px; font-weight: 800; color: {{p.ink}}">2.100.000 TL</span>
+</div>
+<span style="display: inline-flex; align-self: flex-start; align-items: center; background: {{p.primary}}; color: #1E2333; font-weight: 800; font-size: 14.5px; padding: 11px 18px; border-radius: 12px">Mesaj at</span>
+</section>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":880,"height":640}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      palets: [
+        { name: 'Gökkuşağı', note: 'Mavi ana renk, pembe, sarı ve yeşil eşlik eder; adıyla en uyumlu seçenek.', primary: '#5B8CFF', ink: '#2450C8', soft: '#EEF3FF', ground: '#F6F8FD', dots: ['#5B8CFF', '#FF6FB5', '#FFC84A', '#3DD68C'] },
+        { name: 'Mercan', note: 'Sıcak mercan ana renk, turkuaz ve sarıyla; enerjik ve samimi.', primary: '#FF7A59', ink: '#B8401F', soft: '#FFF1EC', ground: '#FFFAF7', dots: ['#FF7A59', '#2EC4B6', '#FFD166', '#7BD389'] },
+        { name: 'Mint', note: 'Ferah nane yeşili, lavanta ve sarıyla; sakin ve güven veren.', primary: '#34D399', ink: '#0F7A55', soft: '#E9FBF3', ground: '#F6FBF9', dots: ['#34D399', '#A78BFA', '#FCD34D', '#60A5FA'] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

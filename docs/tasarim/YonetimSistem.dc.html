@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Yönetim konsolu · Ayarlar, uyum ve KVKK</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}a:hover{color:#1A3C99;text-decoration:underline}
+button,input,select,textarea{font-family:inherit}
+</style>
+</helmet>
+<div style="background: #F6F8FD; min-height: 100vh; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF">
+<div style="max-width: 1400px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<span style="display: flex; align-items: center; gap: 8px">
+<span style="display: flex; gap: 3px" aria-hidden="true"><span style="width: 10px; height: 22px; border-radius: 5px; background: #5B8CFF"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #FF6FB5"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #FFC84A"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #3DD68C"></span></span>
+<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px">rengarenk</span>
+<span style="font-size: 12.5px; font-weight: 800; background: #F3EFFF; color: #4B2FA6; padding: 4px 10px; border-radius: 999px; margin-left: 4px">Yönetim</span>
+</span>
+<span style="display: flex; align-items: center; gap: 14px; font-size: 14px">
+<a href="YonetimEkip.dc.html" style="display: flex; align-items: center; gap: 8px; border: 1px solid #F4DC9A; background: #FFF6DF; border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 800; color: #7A5300">Onayını bekleyen 5</a>
+<span style="display: flex; align-items: center; gap: 10px"><span style="width: 34px; height: 34px; border-radius: 50%; background: #EEF3FF; color: #2450C8; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px" aria-hidden="true">KG</span><span><strong>Sen</strong> · Sahip</span></span>
+</span>
+</div>
+</header>
+
+<div style="max-width: 1400px; margin: 0 auto; padding: 24px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px">
+<nav style="flex: 1 1 230px; max-width: 260px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 12px" aria-label="Yönetim konsolu">
+<sc-for list="{{gruplar}}" as="g" hint-placeholder-count="8">
+<span style="display: block; padding: 12px 10px 6px; font-size: 11.5px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: #5A6073">{{g.ad}}</span>
+<sc-for list="{{g.ogeler}}" as="m" hint-placeholder-count="3">
+<sc-if value="{{m.on}}" hint-placeholder-val="{{ false }}"><button type="button" aria-current="page" onClick="{{m.pick}}" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; border: 0; background: #F3EFFF; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer; text-align: left">{{m.ad}}<span style="font-size: 11.5px; font-weight: 800; color: {{m.rozetRenk}}">{{m.rozet}}</span></button></sc-if>
+<sc-if value="{{m.aktif}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{m.pick}}" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; border: 0; background: transparent; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; color: #3A4052; cursor: pointer; text-align: left">{{m.ad}}<span style="font-size: 11.5px; font-weight: 800; color: {{m.rozetRenk}}">{{m.rozet}}</span></button></sc-if>
+<sc-if value="{{m.link}}" hint-placeholder-val="{{ false }}"><a href="{{m.href}}" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; color: #3A4052">{{m.ad}}<span style="font-size: 11.5px; font-weight: 800; color: {{m.rozetRenk}}">{{m.rozet}}</span></a></sc-if>
+<sc-if value="{{m.sonra}}" hint-placeholder-val="{{ false }}"><span style="display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; font-size: 14px; font-weight: 600; color: #8A91A3">{{m.ad}}<span style="font-size: 11px; font-weight: 700; background: #F3F5FA; color: #5A6073; padding: 2px 7px; border-radius: 999px">{{m.tur}}</span></span></sc-if>
+</sc-for>
+</sc-for>
+</nav>
+
+<main style="flex: 999 1 820px; min-width: 0">
+<sc-if value="{{bildirimVar}}" hint-placeholder-val="{{ false }}"><div role="status" style="margin-bottom: 14px; background: #E7FAF0; border: 1px solid #B9EBD1; border-radius: 12px; padding: 11px 14px; font-size: 13.5px; font-weight: 700; color: #11683F">{{bildirim}}</div></sc-if>
+
+<sc-if value="{{v.kural}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 26px; font-weight: 800">Kurallar ve fiyatlar</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Fiyat ve paket değişikliği dört göz onayı ister ve ileri tarihe zamanlanır. Mevcut aboneler yenileme tarihine kadar eski fiyattan devam eder.</p></div>
+<sc-if value="{{fiyatOku}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{fiyatDuzenle}}" style="border: 1px solid #5B8CFF; background: #FFFFFF; border-radius: 12px; padding: 11px 16px; font-size: 14px; font-weight: 800; color: #2450C8; cursor: pointer">Düzenle</button></sc-if>
+<sc-if value="{{fiyatYaz}}" hint-placeholder-val="{{ false }}"><span style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px"><label style="font-size: 12.5px; font-weight: 700">Yürürlük<input value="1 Aralık 2026" style="display: block; margin-top: 3px; width: 140px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 8px; font-size: 13.5px"></label><button type="button" onClick="{{fiyatGonder}}" style="border: 0; background: #3DD68C; border-radius: 12px; padding: 11px 16px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer; align-self: flex-end">Onaya gönder</button></span></sc-if>
+</div>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="paket">
+<h2 id="paket" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Galeri paketleri</h2>
+<div style="display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); gap: 8px; padding: 10px 18px; background: #F3F5FA; font-size: 11.5px; font-weight: 800; color: #5A6073; text-transform: uppercase; letter-spacing: 0.3px"><span>Özellik</span><span>Başlangıç</span><span>Profesyonel</span><span>Kurumsal</span></div>
+<sc-for list="{{paketler}}" as="p" hint-placeholder-count="7">
+<div style="display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); gap: 8px; align-items: center; padding: 9px 18px; border-top: 1px solid #EEF0F5; font-size: 13.5px">
+<span style="font-weight: 700">{{p.ad}}</span>
+<sc-for list="{{p.hucre}}" as="ph" hint-placeholder-count="3">
+<sc-if value="{{ph.oku}}" hint-placeholder-val="{{ true }}"><span>{{ph.t}}</span></sc-if>
+<sc-if value="{{ph.yaz}}" hint-placeholder-val="{{ false }}"><input value="{{ph.t}}" aria-label="{{ph.etiket}}" style="width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 8px; padding: 6px 8px; font-size: 13.5px"></sc-if>
+</sc-for>
+</div>
+</sc-for>
+<p style="margin: 0; padding: 10px 18px; font-size: 12px; color: #5A6073; border-top: 1px solid #EEF0F5">Fiyatlar KDV hariç; yıllık ödemede 2 ay ücretsiz. Galeri abonelikleri yalnızca web’den alınır. Deneme: 30 gün, Profesyonel özellikleri, 15 araç, günde 10 ilk mesaj.</p>
+</section>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; align-items: flex-start">
+<section style="flex: 3 1 460px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="urun">
+<h2 id="urun" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Bireysel ürünler · KDV dahil</h2>
+<div style="display: grid; grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: 8px; padding: 10px 18px; background: #F3F5FA; font-size: 11.5px; font-weight: 800; color: #5A6073; text-transform: uppercase; letter-spacing: 0.3px"><span>Ürün</span><span style="text-align: right">Web</span><span style="text-align: right">Mobil (mağaza)</span></div>
+<sc-for list="{{urunler}}" as="u" hint-placeholder-count="9">
+<div style="display: grid; grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: center; padding: 9px 18px; border-top: 1px solid #EEF0F5; font-size: 13.5px"><span style="font-weight: 700">{{u.ad}}</span>
+<sc-if value="{{fiyatOku}}" hint-placeholder-val="{{ true }}"><span style="text-align: right; font-weight: 800">{{u.web}}</span></sc-if>
+<sc-if value="{{fiyatYaz}}" hint-placeholder-val="{{ false }}"><input value="{{u.web}}" aria-label="Web fiyatı" style="width: 100%; box-sizing: border-box; text-align: right; border: 1px solid #D5DAE5; border-radius: 8px; padding: 6px 8px; font-size: 13.5px"></sc-if>
+<span style="text-align: right; color: #5A6073">{{u.mobil}}</span></div>
+</sc-for>
+<p style="margin: 0; padding: 10px 18px; font-size: 12px; color: #5A6073; border-top: 1px solid #EEF0F5">Mobil fiyatlar App Store Connect ve Google Play Console’dan değişir; burada yalnızca gösterilir.</p>
+</section>
+<section style="flex: 2 1 340px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="kural">
+<h2 id="kural" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Kullanım kuralları</h2>
+<sc-for list="{{kurallar}}" as="k" hint-placeholder-count="6">
+<div style="display: flex; justify-content: space-between; gap: 10px; padding: 10px 18px; border-bottom: 1px solid #EEF0F5"><span style="min-width: 0"><span style="display: block; font-size: 13.5px; font-weight: 700">{{k.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073">{{k.not}}</span></span><span style="flex: none; font-size: 14px; font-weight: 800">{{k.deger}}</span></div>
+</sc-for>
+</section>
+</div>
+</sc-if>
+
+<sc-if value="{{v.entegrasyon}}" hint-placeholder-val="{{ false }}">
+<div style="margin-bottom: 16px"><h1 style="margin: 0; font-size: 26px; font-weight: 800">Entegrasyonlar</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Gizli anahtarlar hiçbir zaman gösterilmez; yalnızca yenilenir. Yenileme işlem kaydına girer.</p></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{entegrasyonlar}}" as="e" hint-placeholder-count="15">
+<div style="background: #FFFFFF; border: 1px solid {{e.kenar}}; border-radius: 16px; padding: 14px">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px"><span style="min-width: 0"><span style="display: block; font-size: 14px; font-weight: 800">{{e.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">{{e.amac}}</span></span><span style="flex: none; font-size: 11.5px; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: {{e.bg}}; color: {{e.fg}}">{{e.durum}}</span></div>
+<div style="font-size: 12px; color: #3A4052; margin-top: 8px">Son başarılı: {{e.son}}</div>
+<div style="font-size: 12px; color: {{e.anahtarRenk}}; margin-top: 2px; font-weight: 700">{{e.anahtar}}</div>
+<div style="display: flex; gap: 6px; margin-top: 10px"><button type="button" onClick="{{e.test}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 8px; padding: 6px 10px; font-size: 12.5px; font-weight: 700; color: #1E2333; cursor: pointer">Test et</button><button type="button" onClick="{{e.yenile}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 8px; padding: 6px 10px; font-size: 12.5px; font-weight: 700; color: #1E2333; cursor: pointer">Anahtarı yenile</button></div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{v.ozellik}}" hint-placeholder-val="{{ false }}">
+<div style="margin-bottom: 16px"><h1 style="margin: 0; font-size: 26px; font-weight: 800">Özellik anahtarları ve bakım</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Yeni özellik önce küçük bir gruba açılır; sorun çıkarsa kod değişmeden kapatılır (Karar 47).</p></div>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="oz">
+<h2 id="oz" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Özellik anahtarları</h2>
+<sc-for list="{{ozellikler}}" as="o" hint-placeholder-count="7">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 12px 18px; border-bottom: 1px solid #EEF0F5">
+<span style="flex: 999 1 280px; min-width: 0"><span style="display: block; font-size: 14px; font-weight: 800">{{o.ad}}</span><span style="display: block; font-size: 12.5px; color: #3A4052; margin-top: 2px">{{o.not}}</span></span>
+<span style="flex: 1 1 200px; min-width: 0; font-size: 12.5px; font-weight: 700; color: #3A4052">{{o.kapsam}}</span>
+<button type="button" role="switch" aria-checked="{{o.aria}}" aria-label="Aç veya kapat" onClick="{{o.degistir}}" style="flex: none; border: 0; background: transparent; padding: 0; cursor: pointer"><span style="display: block; width: 40px; height: 24px; border-radius: 999px; background: {{o.zemin}}; position: relative"><span style="position: absolute; top: 3px; left: {{o.sol}}px; width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 2px rgba(30,35,51,0.3)"></span></span></button>
+</div>
+</sc-for>
+</section>
+<section style="margin-top: 16px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="bakim">
+<div style="padding: 16px 18px; border-bottom: 1px solid #EEF0F5"><h2 id="bakim" style="margin: 0; font-size: 17px; font-weight: 800">Bakım modu</h2><p style="margin: 3px 0 0; font-size: 12.5px; color: #5A6073">Yalnız sahip ve yönetici. Açılınca kullanıcılara üst şeritte duyuru kendiliğinden çıkar.</p></div>
+<sc-for list="{{bakimlar}}" as="b" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-bottom: 1px solid #EEF0F5; background: {{b.satir}}">
+<span style="flex: 1; min-width: 0"><span style="display: block; font-size: 14px; font-weight: 800">{{b.ad}}</span><span style="display: block; font-size: 12.5px; color: {{b.notRenk}}; margin-top: 2px">{{b.not}}</span></span>
+<button type="button" role="switch" aria-checked="{{b.aria}}" aria-label="Bakıma al" onClick="{{b.degistir}}" style="flex: none; border: 0; background: transparent; padding: 0; cursor: pointer"><span style="display: block; width: 40px; height: 24px; border-radius: 999px; background: {{b.zemin}}; position: relative"><span style="position: absolute; top: 3px; left: {{b.sol}}px; width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 2px rgba(30,35,51,0.3)"></span></span></button>
+</div>
+</sc-for>
+</section>
+</sc-if>
+
+<sc-if value="{{v.yz}}" hint-placeholder-val="{{ false }}">
+<div style="margin-bottom: 16px"><h1 style="margin: 0; font-size: 26px; font-weight: 800">Yapay zekâ ve bütçe</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Aylık sınırı yalnızca sahip değiştirir; değişiklik anında geçerli olur ve işlem kaydına girer.</p></div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<section style="flex: 1 1 340px; max-width: 420px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px" aria-labelledby="butce">
+<h2 id="butce" style="margin: 0; font-size: 14px; font-weight: 700; color: #5A6073">Kasım harcaması</h2>
+<div style="display: flex; align-items: baseline; gap: 8px; margin-top: 4px"><span style="font-size: 38px; font-weight: 800">41 USD</span><span style="font-size: 15px; color: #5A6073">/ {{sinir}} USD</span></div>
+<div style="position: relative; height: 12px; border-radius: 999px; background: #EEF0F5; margin-top: 10px"><span style="position: absolute; left: 0; top: 0; bottom: 0; width: {{harcamaW}}%; border-radius: 999px; background: #5B8CFF"></span><span style="position: absolute; top: -4px; bottom: -4px; left: {{tahminW}}%; width: 2px; background: #1E2333"></span><span style="position: absolute; top: -4px; bottom: -4px; left: 80%; width: 2px; background: #FFC84A"></span></div>
+<div style="display: flex; justify-content: space-between; font-size: 12px; color: #5A6073; margin-top: 6px"><span>Ay sonu tahmini 118 USD (siyah çizgi)</span><span>%80 uyarı</span></div>
+<div style="margin-top: 18px; font-size: 13px; font-weight: 700">Aylık sınır</div>
+<div style="display: flex; align-items: center; gap: 8px; margin-top: 6px">
+<button type="button" onClick="{{azalt}}" aria-label="25 USD azalt" style="width: 40px; height: 40px; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; font-size: 18px; font-weight: 800; color: #1E2333; cursor: pointer">−</button>
+<span style="flex: 1; text-align: center; border: 1px solid #D5DAE5; border-radius: 10px; padding: 9px; font-size: 18px; font-weight: 800">{{sinir}} USD</span>
+<button type="button" onClick="{{arttir}}" aria-label="25 USD artır" style="width: 40px; height: 40px; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; font-size: 18px; font-weight: 800; color: #1E2333; cursor: pointer">+</button>
+</div>
+<p style="margin: 8px 0 0; font-size: 12.5px; color: {{sinirNotRenk}}; font-weight: 700">{{sinirNot}}</p>
+<button type="button" onClick="{{sinirKaydet}}" style="width: 100%; margin-top: 12px; border: 0; background: #5B8CFF; border-radius: 12px; padding: 11px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer">Sınırı kaydet</button>
+<p style="margin: 12px 0 0; font-size: 12px; line-height: 1.5; color: #5A6073">Sınıra ulaşınca yalnızca kritik görevler (dolandırıcılık ve güvenlik, ödeme hataları, kanal yedeğe geçişi) çalışır; diğerleri ay sonuna kadar ya da sınır artırılana kadar durur.</p>
+<h3 style="margin: 14px 0 6px; font-size: 13px; font-weight: 800">Değişiklik geçmişi</h3>
+<sc-for list="{{sinirGecmis}}" as="sg" hint-placeholder-count="2"><div style="display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-top: 1px solid #EEF0F5; font-size: 12.5px"><span>{{sg.ad}}</span><span style="color: #5A6073">{{sg.kim}}</span></div></sc-for>
+</section>
+<section style="flex: 999 1 420px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="gorev">
+<h2 id="gorev" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Görevlere göre harcama · Kasım</h2>
+<sc-for list="{{gorevler}}" as="gv" hint-placeholder-count="7">
+<div style="display: flex; align-items: center; gap: 12px; padding: 10px 18px; border-bottom: 1px solid #EEF0F5">
+<span style="flex: 0 0 210px; min-width: 0"><span style="display: block; font-size: 13.5px; font-weight: 800">{{gv.ad}}</span><span style="display: block; font-size: 11.5px; color: {{gv.notRenk}}; font-weight: 700">{{gv.not}}</span></span>
+<span style="flex: 1; min-width: 0; height: 12px"><span title="{{gv.ipucu}}" style="display: block; height: 12px; width: {{gv.w}}%; background: {{gv.renk}}; border-radius: 0 4px 4px 0"></span></span>
+<span style="flex: 0 0 64px; text-align: right; font-size: 13.5px; font-weight: 800">{{gv.tutar}}</span>
+<button type="button" role="switch" aria-checked="{{gv.aria}}" aria-label="Görevi aç veya kapat" onClick="{{gv.degistir}}" style="flex: none; border: 0; background: transparent; padding: 0; cursor: pointer"><span style="display: block; width: 36px; height: 22px; border-radius: 999px; background: {{gv.zemin}}; position: relative"><span style="position: absolute; top: 3px; left: {{gv.sol}}px; width: 16px; height: 16px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 2px rgba(30,35,51,0.3)"></span></span></button>
+</div>
+</sc-for>
+<h3 style="margin: 0; padding: 14px 18px 6px; font-size: 14px; font-weight: 800">Maskeleme kuralları</h3>
+<p style="margin: 0; padding: 0 18px 8px; font-size: 12.5px; color: #5A6073">Kişisel veri yapay zekâ sağlayıcısına maskelenmeden gitmez. Sağlayıcı: Google Vertex AI (Gemini), tüm görevlerde.</p>
+<sc-for list="{{maskeler}}" as="mk" hint-placeholder-count="5"><div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr); gap: 8px; padding: 8px 18px; border-top: 1px solid #EEF0F5; font-size: 12.5px"><span style="font-weight: 700">{{mk.ad}}</span><span style="color: #5A6073">{{mk.ornek}}</span><span style="font-weight: 800; color: #4B2FA6">{{mk.sonuc}}</span></div></sc-for>
+<div style="height: 8px"></div>
+</section>
+</div>
+</sc-if>
+
+<sc-if value="{{v.saglik}}" hint-placeholder-val="{{ false }}">
+<div style="margin-bottom: 16px"><h1 style="margin: 0; font-size: 26px; font-weight: 800">Sistem sağlığı ve yedek</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Radore · Türkiye · son 30 gün</p></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px">
+<sc-for list="{{saglikSayi}}" as="ss" hint-placeholder-count="4"><div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px"><div style="font-size: 12.5px; font-weight: 700; color: #5A6073">{{ss.ad}}</div><div style="font-size: 21px; font-weight: 800; margin-top: 4px">{{ss.deger}}</div><div style="font-size: 12px; color: #5A6073; margin-top: 3px">{{ss.not}}</div></div></sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<section style="flex: 1 1 380px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="servis">
+<h2 id="servis" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Servisler</h2>
+<sc-for list="{{servisler}}" as="sv" hint-placeholder-count="7"><div style="display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-bottom: 1px solid #EEF0F5; font-size: 13.5px"><span style="flex: none; width: 10px; height: 10px; border-radius: 50%; background: {{sv.nokta}}" aria-hidden="true"></span><span style="flex: 1; min-width: 0; font-weight: 700">{{sv.ad}}</span><span style="flex: none; color: #3A4052">{{sv.not}}</span></div></sc-for>
+</section>
+<section style="flex: 1 1 380px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="yedek">
+<h2 id="yedek" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Yedek ve geri yükleme</h2>
+<sc-for list="{{yedekler}}" as="yd" hint-placeholder-count="5"><div style="display: flex; justify-content: space-between; gap: 10px; padding: 10px 18px; border-bottom: 1px solid #EEF0F5; font-size: 13.5px"><span style="color: #3A4052">{{yd.ad}}</span><strong style="text-align: right">{{yd.deger}}</strong></div></sc-for>
+<div style="padding: 14px 18px"><button type="button" onClick="{{testBaslat}}" style="border: 1px solid #5B8CFF; background: #FFFFFF; border-radius: 10px; padding: 9px 14px; font-size: 13.5px; font-weight: 800; color: #2450C8; cursor: pointer">{{testYazi}}</button><p style="margin: 8px 0 0; font-size: 12px; color: #5A6073">Test, yedeği ayrı bir ortama geri yükler; canlı sistemi etkilemez. Ayda bir kendiliğinden çalışır.</p></div>
+</section>
+</div>
+</sc-if>
+
+<sc-if value="{{v.kvkk}}" hint-placeholder-val="{{ false }}">
+<div style="margin-bottom: 14px"><h1 style="margin: 0; font-size: 26px; font-weight: 800">KVKK başvuruları</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">En geç 30 gün içinde yanıtlanır (KVKK m.13). Ajan taslak hazırlar; yanıtı her zaman bir çalışan gönderir.</p></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px">
+<sc-for list="{{kvkkSayi}}" as="ks" hint-placeholder-count="4"><div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px"><div style="font-size: 12.5px; font-weight: 700; color: #5A6073">{{ks.ad}}</div><div style="font-size: 21px; font-weight: 800; margin-top: 4px">{{ks.deger}}</div><div style="font-size: 12px; color: #5A6073; margin-top: 3px">{{ks.not}}</div></div></sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<section style="flex: 1 1 300px; max-width: 360px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 8px" aria-label="Başvurular">
+<sc-for list="{{basvurular}}" as="bv" hint-placeholder-count="4">
+<button type="button" onClick="{{bv.pick}}" aria-current="{{bv.aria}}" style="width: 100%; display: block; text-align: left; border: 0; background: {{bv.bg}}; border-radius: 12px; padding: 10px 12px; cursor: pointer; color: #1E2333">
+<span style="display: flex; justify-content: space-between; gap: 8px; font-size: 11.5px; font-weight: 800"><span style="color: #4B2FA6">{{bv.tur}}</span><span style="color: {{bv.sureRenk}}">{{bv.sure}}</span></span>
+<span style="display: block; font-size: 14px; font-weight: 800; margin-top: 4px">{{bv.kim}}</span>
+<span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">{{bv.alt}}</span>
+</button>
+</sc-for>
+</section>
+<section style="flex: 999 1 480px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="bvd">
+<div style="padding: 16px 18px; border-bottom: 1px solid #EEF0F5"><h2 id="bvd" style="margin: 0; font-size: 18px; font-weight: 800">{{bsec.baslik}}</h2><div style="font-size: 13px; color: #3A4052; margin-top: 3px">{{bsec.alt}}</div></div>
+<div style="padding: 14px 18px; background: #F6F8FD; border-bottom: 1px solid #EEF0F5; font-size: 13.5px; line-height: 1.55"><span style="display: block; font-size: 12px; font-weight: 800; color: #5A6073">Başvuru metni</span>{{bsec.metin}}</div>
+<div style="padding: 12px 18px; border-bottom: 1px solid #EEF0F5"><div style="font-size: 12.5px; font-weight: 800; color: #5A6073; margin-bottom: 6px">Ajanın topladığı veriler</div><div style="display: flex; flex-wrap: wrap; gap: 6px"><sc-for list="{{bsec.veriler}}" as="bvv" hint-placeholder-count="5"><span style="font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 999px; background: #EEF3FF; color: #2450C8">{{bvv.ad}}</span></sc-for></div></div>
+<sc-if value="{{bAcik}}" hint-placeholder-val="{{ true }}">
+<div style="padding: 14px 18px">
+<div style="display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; font-weight: 800"><span style="color: #4B2FA6">Ajanın yanıt taslağı</span><span style="color: #5A6073">Gönderimi yalnızca çalışan yapar</span></div>
+<div style="margin-top: 6px; border: 1.5px solid #C9B8FF; background: #FAF7FF; border-radius: 12px; padding: 10px 12px; font-size: 13.5px; line-height: 1.55">{{bsec.taslak}}</div>
+<label style="display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 13px; font-weight: 700"><input type="checkbox" checked style="width: 17px; height: 17px">Taslağı ve eklenecek verileri okudum</label>
+<div style="display: flex; gap: 8px; margin-top: 12px"><button type="button" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; padding: 9px 14px; font-size: 13.5px; font-weight: 700; color: #1E2333; cursor: pointer">Düzenle</button><button type="button" onClick="{{bGonder}}" style="border: 0; background: #5B8CFF; border-radius: 10px; padding: 10px 16px; font-size: 13.5px; font-weight: 800; color: #1E2333; cursor: pointer">{{bsec.buton}}</button></div>
+</div>
+</sc-if>
+<sc-if value="{{bKapali}}" hint-placeholder-val="{{ false }}"><div style="padding: 14px 18px; font-size: 14px; font-weight: 800; color: #11683F">{{bsec.sonuc}}</div></sc-if>
+</section>
+</div>
+</sc-if>
+
+<sc-if value="{{v.imha}}" hint-placeholder-val="{{ false }}">
+<div style="margin-bottom: 16px"><h1 style="margin: 0; font-size: 26px; font-weight: 800">Saklama, imha ve VERBİS</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Periyodik imha 6 ayda bir. Ajan süresi dolan kayıtları listeler; imha sahip onayıyla yapılır ve tutanağı saklanır.</p></div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<section style="flex: 3 1 480px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="sure">
+<h2 id="sure" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Saklama süreleri</h2>
+<div style="display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.4fr); gap: 8px; padding: 10px 18px; background: #F3F5FA; font-size: 11.5px; font-weight: 800; color: #5A6073; text-transform: uppercase; letter-spacing: 0.3px"><span>Veri</span><span>Süre</span><span>Süre dolunca</span></div>
+<sc-for list="{{saklama}}" as="sk" hint-placeholder-count="8"><div style="display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.4fr); gap: 8px; padding: 10px 18px; border-top: 1px solid #EEF0F5; font-size: 13px"><span style="font-weight: 700">{{sk.ad}}<span style="display: block; font-size: 11.5px; font-weight: 600; color: #5A6073">{{sk.dayanak}}</span></span><span>{{sk.sure}}</span><span style="color: #3A4052">{{sk.sonra}}</span></div></sc-for>
+</section>
+<div style="flex: 2 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<section style="background: #FFFFFF; border: 1.5px solid {{imhaKenar}}; border-radius: 18px; padding: 16px 18px" aria-labelledby="donem">
+<h2 id="donem" style="margin: 0; font-size: 17px; font-weight: 800">Sıradaki periyodik imha · 1 Ocak 2027</h2>
+<p style="margin: 4px 0 10px; font-size: 12.5px; color: #5A6073">Önceki: 1 Temmuz 2026 · tutanak İ-2026-01</p>
+<sc-for list="{{imhaListe}}" as="il" hint-placeholder-count="4"><div style="display: flex; justify-content: space-between; gap: 8px; padding: 7px 0; border-top: 1px solid #EEF0F5; font-size: 13px"><span>{{il.ad}}</span><strong>{{il.sayi}}</strong></div></sc-for>
+<sc-if value="{{imhaBekliyor}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{imhaOnayla}}" style="margin-top: 12px; width: 100%; border: 0; background: #5B8CFF; border-radius: 12px; padding: 11px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer">Listeyi onayla · 1 Ocak’ta imha et</button></sc-if>
+<sc-if value="{{imhaOnaylandi}}" hint-placeholder-val="{{ false }}"><p style="margin: 12px 0 0; font-size: 13.5px; font-weight: 800; color: #11683F">Onaylandı · 1 Ocak 03.00’te çalışacak · tutanak İ-2027-01 hazırlanacak</p></sc-if>
+</section>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 16px 18px" aria-labelledby="verbis">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><h2 id="verbis" style="margin: 0; font-size: 17px; font-weight: 800">VERBİS</h2><span style="font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: #E7FAF0; color: #11683F">Kayıt şimdilik zorunlu değil</span></div>
+<sc-for list="{{verbis}}" as="vb" hint-placeholder-count="3"><div style="margin-top: 10px"><div style="display: flex; justify-content: space-between; font-size: 13px"><span>{{vb.ad}}</span><strong>{{vb.deger}}</strong></div><div style="height: 8px; border-radius: 999px; background: #EEF0F5; margin-top: 5px"><div style="height: 8px; width: {{vb.w}}%; border-radius: 999px; background: #5B8CFF"></div></div></div></sc-for>
+<p style="margin: 10px 0 0; font-size: 12px; line-height: 1.5; color: #5A6073">Muafiyet: 50’den az çalışan ve 100 milyon TL’den az yıllık bilanço, ana faaliyet özel nitelikli veri işleme değil. Eşiklerden biri aşılırsa ajan hatırlatır. Kişisel veri envanteri yine tutulur · son güncelleme 2 Kas. Avukat teyidi gerekir.</p>
+</section>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{v.riza}}" hint-placeholder-val="{{ false }}">
+<div style="margin-bottom: 16px"><h1 style="margin: 0; font-size: 26px; font-weight: 800">Rıza ve çerez kayıtları</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Her rıza tarih, metin sürümü ve kanalıyla saklanır. İYS her gece eşitlenir.</p></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px">
+<sc-for list="{{rizaSayi}}" as="rs" hint-placeholder-count="4"><div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px"><div style="font-size: 12.5px; font-weight: 700; color: #5A6073">{{rs.ad}}</div><div style="font-size: 21px; font-weight: 800; margin-top: 4px">{{rs.deger}}</div><div style="font-size: 12px; color: #5A6073; margin-top: 3px">{{rs.not}}</div></div></sc-for>
+</div>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="rizag">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 18px; border-bottom: 1px solid #EEF0F5"><h2 id="rizag" style="margin: 0; font-size: 17px; font-weight: 800">Ayşe Yılmaz · rıza geçmişi</h2><input type="search" aria-label="Kullanıcı ara" value="Ayşe Yılmaz" style="flex: 0 1 260px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 8px 12px; font-size: 13.5px"></div>
+<div style="display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr); gap: 8px; padding: 10px 18px; background: #F3F5FA; font-size: 11.5px; font-weight: 800; color: #5A6073; text-transform: uppercase; letter-spacing: 0.3px"><span>Rıza</span><span>Durum</span><span>Metin sürümü</span><span>Tarih ve kanal</span></div>
+<sc-for list="{{rizaGecmis}}" as="rg" hint-placeholder-count="6"><div style="display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr); gap: 8px; align-items: center; padding: 10px 18px; border-top: 1px solid #EEF0F5; font-size: 13px"><span style="font-weight: 700">{{rg.ad}}</span><span><span style="font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: {{rg.bg}}; color: {{rg.fg}}">{{rg.durum}}</span></span><span>{{rg.surum}}</span><span style="color: #3A4052">{{rg.tarih}}</span></div></sc-for>
+</section>
+</sc-if>
+
+<sc-if value="{{v.ihlal}}" hint-placeholder-val="{{ false }}">
+<div style="margin-bottom: 16px"><h1 style="margin: 0; font-size: 26px; font-weight: 800">İhlal ve resmi talepler</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Yalnız sahip ve yönetici görür. Her adım işlem kaydına girer.</p></div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<section style="flex: 1 1 380px; min-width: 0; background: #FFFFFF; border: 1.5px solid {{ihlalKenar}}; border-radius: 18px; padding: 16px 18px" aria-labelledby="ihl">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><h2 id="ihl" style="margin: 0; font-size: 17px; font-weight: 800">Veri ihlali prosedürü</h2><span style="font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: {{ihlalBg}}; color: {{ihlalFg}}">{{ihlalDurum}}</span></div>
+<sc-if value="{{ihlalAktif}}" hint-placeholder-val="{{ false }}"><div style="margin-top: 12px; background: #FDECEC; border-radius: 12px; padding: 12px 14px"><div style="font-size: 12.5px; font-weight: 800; color: #A3271F">Kurul’a bildirim için kalan süre</div><div style="font-size: 30px; font-weight: 800; color: #A3271F">71 sa 58 dk</div><div style="font-size: 12px; color: #5C1A15">Tatbikat · öğrenilme: bugün 23:05</div></div></sc-if>
+<sc-for list="{{ihlalAdim}}" as="ia" hint-placeholder-count="6"><div style="display: flex; gap: 10px; padding: 9px 0; border-top: 1px solid #EEF0F5; margin-top: 8px; font-size: 13px"><span style="flex: none; width: 22px; height: 22px; border-radius: 50%; background: #F3EFFF; color: #4B2FA6; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center">{{ia.no}}</span><span style="min-width: 0"><span style="display: block; font-weight: 800">{{ia.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 1px">{{ia.not}}</span></span></div></sc-for>
+<sc-if value="{{ihlalPasif}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{tatbikat}}" style="margin-top: 12px; border: 1.5px solid #E5A6A1; background: #FFFFFF; border-radius: 12px; padding: 10px 14px; font-size: 13.5px; font-weight: 800; color: #A3271F; cursor: pointer">Tatbikat başlat</button></sc-if>
+<p style="margin: 10px 0 0; font-size: 12px; color: #5A6073">Sorumlu: Sen · yedek: Elif Kara · son tatbikat 15 Eki 2026</p>
+</section>
+<section style="flex: 1 1 380px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="resmi">
+<h2 id="resmi" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Resmi makam talepleri</h2>
+<sc-for list="{{resmi}}" as="rm" hint-placeholder-count="3"><div style="padding: 12px 18px; border-bottom: 1px solid #EEF0F5"><div style="display: flex; justify-content: space-between; gap: 8px"><span style="font-size: 14px; font-weight: 800">{{rm.ad}}</span><span style="flex: none; font-size: 11.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: {{rm.bg}}; color: {{rm.fg}}">{{rm.durum}}</span></div><div style="font-size: 12.5px; color: #3A4052; margin-top: 3px">{{rm.detay}}</div></div></sc-for>
+<p style="margin: 0; padding: 12px 18px; font-size: 12px; color: #5A6073">Talep yazısı yüklenir, verilen her veri kaydedilir. Kullanıcıya bildirim, talep yazısı aksini söylemiyorsa yapılır.</p>
+</section>
+</div>
+</sc-if>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { view: 'kural', duzen: false, ozKapali: { emlak: true }, bakim: {}, sinir: 150, kayitli: 150, gecmis: [], gorevKapali: {}, test: false, bv: 'k1', bGonder: {}, imha: false, ihlal: false, bildirim: '' };
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    function go(k) { return function () { self.setState({ view: k, bildirim: '' }); }; }
+    function bil(t) { self.setState({ bildirim: t }); }
+    function sw(on) { return { aria: on ? 'true' : 'false', zemin: on ? '#3DD68C' : '#D5DAE5', sol: on ? 19 : 3 }; }
+    var MENU = [
+      ['Genel', [['ajan', 'Rengarenk Ajanı', 'YonetimEkip', 'Çalışıyor', '#11683F'], ['onay', 'Onay kuyruğu', 'YonetimEkip', '5', '#7A5300'], ['panel', 'Kontrol paneli', 'YonetimRapor']]],
+      ['Ekip', [['ekip', 'Çalışanlar', 'YonetimEkip'], ['roller', 'Roller ve yetkiler', 'YonetimEkip'], ['kayit', 'İşlem kaydı', 'YonetimEkip']]],
+      ['Pazar', [['kullanici', 'Kullanıcılar ve galeriler', 'YonetimPazar'], ['basvuru', 'Galeri başvuruları', 'YonetimPazar', '3', '#7A5300'], ['moderasyon', 'Moderasyon', 'YonetimPazar', '3 süre aştı', '#A3271F'], ['destek', 'Destek', 'YonetimPazar', '12', '#5A6073'], ['talep', 'Talepler ve portföy', 'YonetimPazar'], ['puan', 'Satıcı puanı ve rozetler', 'YonetimPazar']]],
+      ['Büyüme', [['rapor', 'Raporlar', 'YonetimRapor'], ['zaman', 'Zamanlanmış raporlar', 'YonetimRapor'], ['kampanya', 'Kampanyalar', 'YonetimKampanya'], ['akis', 'Otomatik akışlar', 'YonetimKampanya'], ['segment', 'Segmentler', 'YonetimKampanya'], ['sablon', 'Şablonlar', 'YonetimKampanya'], ['merkez', 'Bildirim merkezi', 'YonetimKampanya'], ['teslim', 'Teslim raporu', 'YonetimKampanya']]],
+      ['Katalog', [['kategori', 'Kategoriler ve alanlar', 'YonetimIcerik'], ['eslesme', 'Eşleştirme ayarı', 'YonetimIcerik']]],
+      ['Görünüm', [['anasayfa', 'Ana sayfa düzeni', 'YonetimIcerik'], ['banner', 'Banner ve vitrin', 'YonetimIcerik'], ['acilis', 'Açılış sayfaları', 'YonetimIcerik'], ['tasarim', 'Tasarım değerleri', 'YonetimIcerik'], ['metin', 'Yardım ve yasal metinler', 'YonetimIcerik']]],
+      ['Sistem', [['kural', 'Kurallar ve fiyatlar', 'YonetimSistem'], ['entegrasyon', 'Entegrasyonlar', 'YonetimSistem', '1 uyarı', '#7A5300'], ['ozellik', 'Özellik anahtarları ve bakım', 'YonetimSistem'], ['yz', 'Yapay zekâ ve bütçe', 'YonetimSistem'], ['saglik', 'Sistem sağlığı ve yedek', 'YonetimSistem']]],
+      ['Uyum ve KVKK', [['kvkk', 'KVKK başvuruları', 'YonetimSistem', '4', '#7A5300'], ['imha', 'Saklama, imha ve VERBİS', 'YonetimSistem'], ['riza', 'Rıza ve çerez kayıtları', 'YonetimSistem'], ['ihlal', 'İhlal ve resmi talepler', 'YonetimSistem']]]
+    ];
+    var BU = 'YonetimSistem';
+    var gruplar = MENU.map(function (g) {
+      return { ad: g[0], ogeler: g[1].map(function (m) {
+        var sonra = m[0] === '_', burada = m[2] === BU;
+        return { ad: m[1], rozet: (!sonra && m[3]) || '', rozetRenk: m[4] || '#5A6073', tur: sonra ? m[3] : '', href: m[2] + '.dc.html',
+          on: burada && st.view === m[0], aktif: burada && st.view !== m[0], link: !sonra && !burada, sonra: sonra, pick: go(m[0]) };
+      }) };
+    });
+
+    var PK = [['Aylık fiyat', '1.490 TL', '3.490 TL', '7.490 TL'], ['Yıllık fiyat', '14.900 TL', '34.900 TL', '74.900 TL'], ['Portföy araç sınırı', '25', '100', 'Sınırsız'], ['Günlük ilk mesaj hakkı', '20', '50', '150'], ['Aylık talep açma hakkı', '2', '5', '15'], ['Aylık öne çıkarma (7 gün)', 'Yok', '2', '5'], ['Çalışan kullanıcı', '2', '5', '15']];
+    var PN = ['Başlangıç', 'Profesyonel', 'Kurumsal'];
+    var UR = [['Ek talep hakkı · 1 adet', '199 TL', '239,99 TL'], ['Talep paketi · 3 adet', '499 TL', '599,99 TL'], ['Talep uzatma · 30 gün', '99 TL', '119,99 TL'], ['Ek ilk mesaj · 10 adet', '99 TL', '119,99 TL'], ['Ek ilk mesaj · 30 adet', '249 TL', '299,99 TL'], ['Üst sıra · 7 gün', '149 TL', '179,99 TL'], ['Üst sıra · 30 gün', '449 TL', '539,99 TL'], ['Acil arıyorum · 7 gün', '79 TL', '94,99 TL'], ['Ana sayfa vitrini · 7 gün', '299 TL', '359,99 TL']];
+
+    var ENT = [
+      ['PayTR', 'Web ödemeleri ve abonelikler', 'Sağlıklı', 'bugün 22:58', 'Anahtar yenileme: 14 Mar 2027'],
+      ['App Store ve Google Play', 'Mobil satın alma · RevenueCat üzerinden', 'Sağlıklı', 'bugün 22:41', 'Anahtar yenileme: 2 Şub 2027'],
+      ['e-Arşiv fatura entegratörü', 'Fatura kesme', 'Sağlıklı', 'bugün 22:58', 'Anahtar yenileme: 1 Nis 2027'],
+      ['SMS · ana sağlayıcı', 'Doğrulama kodu ve kritik bildirim', 'Sağlıklı', 'bugün 23:02', 'Anahtar yenileme: 10 Oca 2027'],
+      ['SMS · yedek sağlayıcı', 'Ana sağlayıcı yanıt vermezse', 'Beklemede', 'bugün 13:26', 'Anahtar yenileme: 10 Oca 2027'],
+      ['İYS', 'Ticari ileti onaylarının eşitlenmesi', 'Sağlıklı', 'bugün 03:10', 'Anahtar yenileme: 20 Ara 2026'],
+      ['Firebase Cloud Messaging', 'Mobil ve web push', 'Sağlıklı', 'bugün 23:04', 'Anahtar yenileme: 5 May 2027'],
+      ['Kendi e-posta sunucumuz', 'İşlemsel ve ticari e-posta', 'Sağlıklı', 'bugün 23:04', 'DKIM anahtarı yenileme: 1 Eyl 2027'],
+      ['Meta (Pixel ve dönüşüm API’si)', 'Reklam ölçümü · rızası olanlar', 'Uyarı', 'bugün 22:30', 'Erişim anahtarı 12 gün sonra doluyor'],
+      ['Google Ads ve Analytics', 'Reklam ölçümü ve harcama çekme', 'Sağlıklı', 'bugün 03:04', 'Anahtar yenileme: 18 Şub 2027'],
+      ['TSB kasko değer listesi', 'Katalog · ana kaynak · aylık dosya', 'Sağlıklı', '2 Kas 04:00', 'Yazılı izin henüz istenmedi'],
+      ['Açık veri setleri', 'VehiclesDB, AB Çevre Ajansı, Wikidata, vehicle-makes-models', 'Sağlıklı', 'bugün 02:15', 'Anahtar yok · atıf zorunlu'],
+      ['motodb', 'Motosiklet kataloğu · haftalık', 'Sağlıklı', '2 Kas 02:40', 'Anahtar yok · açık veri'],
+      ['Wikimedia Commons', 'Gerçek araç fotoğrafları · açık lisans, atıfla', 'Sağlıklı', 'bugün 21:48', 'Anahtar yok · açık API'],
+      ['Google Vertex AI (Gemini)', 'Ajan ve kullanıcı tarafı yapay zekâ özellikleri', 'Sağlıklı', 'bugün 23:05', 'Hizmet hesabı anahtarı yenileme: 7 Şub 2027']
+    ];
+    var ED = { 'Sağlıklı': ['#E7FAF0', '#11683F'], 'Beklemede': ['#EEF3FF', '#2450C8'], 'Uyarı': ['#FFF6DF', '#7A5300'] };
+
+    var OZ = [
+      ['asistan', 'Talep asistanı', 'Serbest metinden talep taslağı (Karar 42)', 'Web %100 · mobil %50'],
+      ['mesajGuvenlik', 'Mesaj güvenliği', 'Kapora, IBAN ve şüpheli bağlantı uyarısı', 'Herkes'],
+      ['topluYukleme', 'Yapay zekâyla toplu portföy yükleme', 'Excel ve fotoğraftan araç kartı', 'Kurumsal galeriler'],
+      ['butceB', 'Sihirbaz bütçe adımı · B kolu', 'İki kutulu bütçe girişi (deney)', '%50 · yalnızca web'],
+      ['kiralik', 'Kiralık Araçlar kategorisi', 'Kiralama firmaları için talep türü', 'Herkes'],
+      ['webPush', 'Web push bildirimleri', 'Tarayıcı bildirimi izni isteme', 'Web %100'],
+      ['emlak', 'Emlak dikeyi', 'Karar 23 · taslak', 'Yalnızca çalışanlar']
+    ];
+    var BK = [['tum', 'Tüm site', 'Herkese bakım sayfası gösterilir'], ['odeme', 'Ödemeler', 'Satın alma düğmeleri kapanır, haklar kullanılmaya devam eder'], ['mesaj', 'Mesajlaşma', 'Yeni mesaj gönderilemez, mevcut sohbetler okunur'], ['talep', 'Talep oluşturma', 'Yeni talep açılamaz, mevcut talepler yayında kalır']];
+
+    var GOREV = [['Moderasyon ve dolandırıcılık', 14.2, true], ['Destek taslakları ve yanıtlar', 9.8, false], ['Talep asistanı', 8.4, false], ['Mesaj güvenliği', 4.1, true], ['Raporlar ve neden analizi', 2.6, false], ['Kampanya ve şablon metinleri', 1.3, false], ['Toplu portföy yükleme', 0.6, false]];
+    var sinir = st.sinir;
+    var degisti = sinir !== st.kayitli;
+
+    var BV = [
+      ['k1', 'Bilgi alma', 'Mehmet A.', 'Hesaptan · doğrulama koduyla', 'Kalan 23 gün', '#5A6073', 'Hakkımda hangi verileri tuttuğunuzu, kimlerle paylaştığınızı ve ne kadar saklayacağınızı öğrenmek istiyorum.', ['Profil', '2 talep', '14 sohbet', '3 ödeme', 'Rıza geçmişi', 'Paylaşılan taraflar'], 'Merhaba Mehmet Bey, başvurunuz için teşekkür ederiz. Hesabınızda profil, talep, mesaj, ödeme ve rıza kayıtlarınızı işliyoruz. Verileriniz yalnızca hizmeti sunmak için ödeme kuruluşu, SMS sağlayıcısı ve fatura entegratörüyle paylaşılır; reklam ölçümüne izin vermediğiniz için reklam platformlarıyla paylaşılmamaktadır. Saklama süreleri ve verilerinizin tam kopyası ekteki dosyadadır.', 'Yanıtı ve veri kopyasını gönder'],
+      ['k2', 'Silme', 'Mehmet A.', 'Hesaptan · destek talebi D-20948 ile birlikte', 'Kalan 29 gün', '#5A6073', 'Hesabımı ve tüm verilerimi silin.', ['Profil', '2 talep', '14 sohbet', '3 ödeme · 10 yıl saklanır', '1 kullanılmamış hak · iade hesaplanacak'], 'Merhaba Mehmet Bey, hesabınız kapatılacak ve kişisel verileriniz anonimleştirilecektir. Fatura ve ödeme kayıtları vergi mevzuatı gereği 10 yıl saklanır. Kullanılmamış 1 talep hakkınızın iadesi sahip onayından sonra kartınıza yapılır.', 'Yanıtı gönder ve silmeyi başlat'],
+      ['k3', 'Düzeltme', 'Selin K.', 'E-posta · kimlik doğrulandı', 'Kalan 12 gün', '#5A6073', 'Faturalarımda soyadım yanlış yazılmış, düzeltilmesini istiyorum.', ['Profil', '2 fatura'], 'Merhaba Selin Hanım, soyadınız profilinizde düzeltildi. Kesilmiş e-arşiv faturalar değiştirilemediği için düzeltme faturası düzenlendi ve ektedir.', 'Yanıtı gönder'],
+      ['k4', 'İtiraz', 'Okan Bulut', 'Hesaptan', 'Kalan 6 gün', '#7A5300', 'Hesabımın otomatik bir sistemle askıya alınmasına itiraz ediyorum.', ['Ajan kararı ve gerekçesi', 'Moderasyon itirazı'], 'Merhaba Okan Bey, hesabınızla ilgili karar otomatik olarak verilmiş, ardından itirazınız üzerine bir çalışanımız tarafından yeniden incelenmektedir. İnceleme sonucu en geç 6 gün içinde size bildirilecektir.', 'Yanıtı gönder']
+    ];
+    var bRow = BV.filter(function (b) { return b[0] === st.bv; })[0];
+    var bTamam = !!st.bGonder[bRow[0]];
+
+    return {
+      v: { kural: st.view === 'kural', entegrasyon: st.view === 'entegrasyon', ozellik: st.view === 'ozellik', yz: st.view === 'yz', saglik: st.view === 'saglik', kvkk: st.view === 'kvkk', imha: st.view === 'imha', riza: st.view === 'riza', ihlal: st.view === 'ihlal' },
+      gruplar: gruplar, bildirimVar: !!st.bildirim, bildirim: st.bildirim,
+      fiyatOku: !st.duzen, fiyatYaz: st.duzen,
+      fiyatDuzenle: function () { self.setState({ duzen: true }); },
+      fiyatGonder: function () { self.setState({ duzen: false, bildirim: 'Fiyat değişikliği onaya gönderildi. Onaylanınca 1 Aralık’ta yürürlüğe girer; abonelere 30 gün önceden e-posta gider ve grafiklere not düşer.' }); },
+      paketler: PK.map(function (p) { return { ad: p[0], hucre: [1, 2, 3].map(function (i) { return { t: p[i], oku: !st.duzen, yaz: st.duzen, etiket: PN[i - 1] + ' · ' + p[0] }; }) }; }),
+      urunler: UR.map(function (u) { return { ad: u[0], web: u[1], mobil: u[2] }; }),
+      kurallar: [
+        { ad: 'Bireysel günlük ücretsiz ilk mesaj', not: 'Her gece 00.00’da yenilenir', deger: '5' },
+        { ad: 'Talep yayın süresi', not: 'Kategori kuralıyla değişebilir', deger: '30 gün' },
+        { ad: 'Ücretsiz uzatma', not: 'Talep başına', deger: '1' },
+        { ad: 'Galeri deneme süresi', not: '15 araç, günde 10 ilk mesaj', deger: '30 gün' },
+        { ad: 'Kupon en yüksek indirim', not: 'Üstü sahip onayı ister', deger: '%50' },
+        { ad: 'Kullanılmamış hak iadesi', not: 'Satın almadan itibaren · sahip onayıyla', deger: '14 gün' }
+      ],
+      entegrasyonlar: ENT.map(function (e) { var d = ED[e[2]]; return { ad: e[0], amac: e[1], durum: e[2], bg: d[0], fg: d[1], son: e[3], anahtar: e[4], anahtarRenk: e[2] === 'Uyarı' ? '#7A5300' : '#5A6073', kenar: e[2] === 'Uyarı' ? '#F4DC9A' : '#E3E6EF',
+        test: function () { bil(e[0] + ' test çağrısı başarılı · 184 ms'); }, yenile: function () { bil(e[0] + ' için yeni anahtar oluşturuldu ve kaydedildi. Eski anahtar 24 saat sonra geçersiz olacak. Anahtar ekranda gösterilmez.'); } }; }),
+      ozellikler: OZ.map(function (o) { var on = !st.ozKapali[o[0]], s = sw(on); return { ad: o[1], not: o[2], kapsam: on ? o[3] : 'Kapalı', aria: s.aria, zemin: s.zemin, sol: s.sol, degistir: function () { var n = Object.assign({}, self.state.ozKapali); n[o[0]] = !n[o[0]]; self.setState({ ozKapali: n }); } }; }),
+      bakimlar: BK.map(function (b) { var on = !!st.bakim[b[0]], s = sw(on); return { ad: b[1], not: on ? 'Bakımda · kullanıcılara duyuru şeridi gösteriliyor' : b[2], notRenk: on ? '#A3271F' : '#5A6073', satir: on ? '#FFF7F6' : '#FFFFFF', aria: s.aria, zemin: on ? '#E5484D' : '#D5DAE5', sol: s.sol, degistir: function () { var n = Object.assign({}, self.state.bakim); n[b[0]] = !n[b[0]]; self.setState({ bakim: n }); } }; }),
+      sinir: String(sinir), harcamaW: Math.min(100, 41 / sinir * 100).toFixed(1), tahminW: Math.min(100, 118 / sinir * 100).toFixed(1),
+      azalt: function () { self.setState({ sinir: Math.max(25, self.state.sinir - 25) }); }, arttir: function () { self.setState({ sinir: self.state.sinir + 25 }); },
+      sinirNot: sinir < 118 ? 'Bu sınırla ay sonundan önce sınıra ulaşılır; kritik olmayan görevler durur.' : (degisti ? 'Kaydedilmedi · önceki sınır ' + st.kayitli + ' USD' : 'Ay sonu tahmini sınırın altında'),
+      sinirNotRenk: sinir < 118 ? '#A3271F' : (degisti ? '#7A5300' : '#11683F'),
+      sinirKaydet: function () { var s = self.state.sinir; self.setState({ kayitli: s, gecmis: [{ ad: self.state.kayitli + ' → ' + s + ' USD', kim: 'Sen · şimdi' }].concat(self.state.gecmis), bildirim: 'Aylık yapay zekâ sınırı ' + s + ' USD olarak kaydedildi; hemen geçerli.' }); },
+      sinirGecmis: st.gecmis.concat([{ ad: 'Başlangıç sınırı 150 USD', kim: 'Sen · 1 Kas' }]),
+      gorevler: GOREV.map(function (g, i) { var on = !st.gorevKapali[i], s = sw(on); return { ad: g[0], not: g[2] ? 'Kritik · sınırda da çalışır' : 'Sınırda durur', notRenk: g[2] ? '#11683F' : '#5A6073', tutar: g[1].toFixed(1).replace('.', ',') + ' $', w: (g[1] / 14.2 * 100).toFixed(1), renk: on ? '#5B8CFF' : '#D5DAE5', ipucu: g[0] + ': ' + g[1] + ' USD', aria: s.aria, zemin: s.zemin, sol: on ? 17 : 3, degistir: function () { var n = Object.assign({}, self.state.gorevKapali); n[i] = !n[i]; self.setState({ gorevKapali: n }); } }; }),
+      maskeler: [
+        { ad: 'Telefon', ornek: '0532 418 22 41', sonuc: '[TELEFON_1]' }, { ad: 'E-posta', ornek: 'ayse@ornek.com', sonuc: '[EPOSTA_1]' }, { ad: 'IBAN', ornek: 'TR12 0006 …', sonuc: '[IBAN_1]' },
+        { ad: 'T.C. kimlik no', ornek: '11 haneli sayı', sonuc: '[TCKN]' }, { ad: 'Plaka', ornek: '34 ABC 123', sonuc: '[PLAKA_1]' }, { ad: 'Ad soyad', ornek: 'Ayşe Yılmaz', sonuc: '[KİŞİ_1]' }
+      ],
+      saglikSayi: [{ ad: 'Çalışma süresi', deger: '%99,96', not: '17 dk kesinti · 21 Eki' }, { ad: 'Hata oranı', deger: '%0,08', not: 'Son 24 saat' }, { ad: 'Yanıt süresi (p95)', deger: '240 ms', not: 'API' }, { ad: 'Kuyruk', deger: '1.694', not: 'Çoğu ticari e-posta · ısınma limiti' }],
+      servisler: [
+        { ad: 'Web sitesi', not: 'Sağlıklı · 3 kopya', nokta: '#3DD68C' }, { ad: 'API', not: 'Sağlıklı · 4 kopya', nokta: '#3DD68C' }, { ad: 'Veritabanı (PostgreSQL)', not: 'Ana + 1 eş · gecikme 0,2 sn', nokta: '#3DD68C' },
+        { ad: 'Arama (OpenSearch)', not: 'Sağlıklı · indeks 3 dk önce', nokta: '#3DD68C' }, { ad: 'Kuyruk (RabbitMQ)', not: 'Ticari e-posta birikmesi beklenen', nokta: '#FFC84A' }, { ad: 'Önbellek (Redis)', not: 'Sağlıklı', nokta: '#3DD68C' }, { ad: 'E-posta sunucusu', not: 'Sağlıklı · ayrı sunucu', nokta: '#3DD68C' }
+      ],
+      yedekler: [{ ad: 'Son tam yedek', deger: 'Bugün 03:00 · 28 GB' }, { ad: 'Sürekli artımlı yedek', deger: '4 dk önce' }, { ad: 'Yedeklerin yeri', deger: 'İkinci veri merkezi · Türkiye' }, { ad: 'Saklama', deger: 'Günlük 30 gün · aylık 12 ay' }, { ad: 'Son geri yükleme testi', deger: st.test ? 'Şimdi çalışıyor…' : '1 Kas · başarılı · 41 dk' }],
+      testBaslat: function () { self.setState({ test: true }); }, testYazi: st.test ? 'Test çalışıyor' : 'Geri yükleme testini şimdi başlat',
+      kvkkSayi: [{ ad: 'Açık başvuru', deger: '4', not: 'En yakın süre 6 gün' }, { ad: 'Ortalama yanıt', deger: '6 gün', not: 'Yasal üst sınır 30 gün' }, { ad: 'Kendi verisini indiren', deger: '42', not: 'Son 30 gün · başvuruya gerek kalmadan' }, { ad: 'Hesap kapatma', deger: '118', not: 'Son 30 gün · anonimleştirildi' }],
+      basvurular: BV.map(function (b) { var on = st.bv === b[0], t = !!st.bGonder[b[0]]; return { tur: b[1], kim: b[2], alt: b[3], sure: t ? 'Yanıtlandı' : b[4], sureRenk: t ? '#11683F' : b[5], bg: on ? '#F3EFFF' : 'transparent', aria: on ? 'true' : 'false', pick: function () { self.setState({ bv: b[0] }); } }; }),
+      bsec: { baslik: bRow[1] + ' başvurusu · ' + bRow[2], alt: bRow[3] + ' · ' + bRow[4], metin: bRow[6], veriler: bRow[7].map(function (v) { return { ad: v }; }), taslak: bRow[8], buton: bRow[9], sonuc: 'Yanıt gönderildi · Sen · başvuru kapatıldı ve kaydı 3 yıl saklanacak' },
+      bAcik: !bTamam, bKapali: bTamam,
+      bGonder: function () { var n = Object.assign({}, self.state.bGonder); n[bRow[0]] = true; self.setState({ bGonder: n }); },
+      saklama: [
+        { ad: 'Hesap ve profil', dayanak: 'Sözleşmenin ifası', sure: 'Hesap açık olduğu sürece', sonra: 'Kapatılınca anonimleştirilir' },
+        { ad: 'Talepler ve mesajlar', dayanak: 'Sözleşmenin ifası', sure: 'Kapanıştan 1 yıl', sonra: 'Silinir; şikâyet veya resmi talep varsa bekletilir' },
+        { ad: 'Fatura ve ödeme kayıtları', dayanak: 'Vergi ve ticaret mevzuatı', sure: '10 yıl', sonra: 'Silinir' },
+        { ad: 'Erişim ve trafik kayıtları', dayanak: '5651 sayılı Kanun', sure: '2 yıl', sonra: 'Silinir' },
+        { ad: 'Kimlik ve telefon doğrulama kayıtları', dayanak: 'Motorlu Kara Taşıtları Ticareti Yön. m.22', sure: '5 yıl', sonra: 'Silinir' },
+        { ad: 'Çalışan işlem kaydı', dayanak: 'Meşru menfaat · Karar 40', sure: '2 yıl', sonra: 'Silinir' },
+        { ad: 'Rıza ve İYS kayıtları', dayanak: 'İspat yükümlülüğü', sure: 'Rıza geri alındıktan 3 yıl', sonra: 'Silinir' },
+        { ad: 'KVKK başvuruları', dayanak: 'İspat yükümlülüğü', sure: '3 yıl', sonra: 'Silinir' }
+      ],
+      imhaListe: [{ ad: 'Süresi dolan sohbetler', sayi: '1.240' }, { ad: 'Anonimleştirilecek hesap artığı', sayi: '380' }, { ad: '2 yılı dolan erişim kaydı', sayi: '12,4 milyon satır' }, { ad: 'Süresi dolan destek talebi', sayi: '96' }],
+      imhaKenar: st.imha ? '#B9EBD1' : '#5B8CFF', imhaBekliyor: !st.imha, imhaOnaylandi: st.imha, imhaOnayla: function () { self.setState({ imha: true }); },
+      verbis: [{ ad: 'Çalışan sayısı', deger: '9 / 50', w: 18 }, { ad: 'Yıllık bilanço tahmini', deger: '14 / 100 milyon TL', w: 14 }],
+      rizaSayi: [{ ad: 'Reklam ölçümü rızası', deger: '%65', not: '31.400 rıza · 16.800 ret' }, { ad: 'Analitik çerez', deger: '%58', not: 'Web ziyaretçileri' }, { ad: 'İYS e-posta onayı', deger: '%49', not: 'Dün +120 · −34' }, { ad: 'Son İYS eşitlemesi', deger: '03:10', not: 'Bugün · hata yok' }],
+      rizaGecmis: [
+        { ad: 'Üyelik sözleşmesi', durum: 'Onaylı', bg: '#E7FAF0', fg: '#11683F', surum: 's.3', tarih: '14 Eyl 2026 · web' },
+        { ad: 'KVKK aydınlatma metni', durum: 'Okundu', bg: '#EEF3FF', fg: '#2450C8', surum: 's.2', tarih: '14 Eyl 2026 · web' },
+        { ad: 'Reklam ölçümü açık rıza', durum: 'Onaylı', bg: '#E7FAF0', fg: '#11683F', surum: 's.1', tarih: '14 Eyl 2026 · web' },
+        { ad: 'Ticari ileti · e-posta', durum: 'Onaylı · İYS', bg: '#E7FAF0', fg: '#11683F', surum: '—', tarih: '14 Eyl 2026 · web' },
+        { ad: 'Ticari ileti · SMS', durum: 'Geri alındı', bg: '#FDECEC', fg: '#A3271F', surum: '—', tarih: '2 Kas 2026 · İYS üzerinden' },
+        { ad: 'Mesafeli satış sözleşmesi', durum: 'Onaylı', bg: '#E7FAF0', fg: '#11683F', surum: 's.2', tarih: '3 Kas 2026 · iOS · ödeme' }
+      ],
+      ihlalAktif: st.ihlal, ihlalPasif: !st.ihlal, ihlalDurum: st.ihlal ? 'Tatbikat sürüyor' : 'Aktif ihlal yok', ihlalBg: st.ihlal ? '#FDECEC' : '#E7FAF0', ihlalFg: st.ihlal ? '#A3271F' : '#11683F', ihlalKenar: st.ihlal ? '#F2B8B3' : '#E3E6EF',
+      tatbikat: function () { self.setState({ ihlal: true }); },
+      ihlalAdim: [
+        { no: '1', ad: 'Durdur ve kayıt altına al', not: 'Etkilenen sistemi ayır, erişim anahtarlarını yenile, kayıtları dondur' },
+        { no: '2', ad: 'Kapsamı belirle', not: 'Hangi veriler, kaç kişi, hangi tarih aralığı; ajan etkilenen kayıtları listeler' },
+        { no: '3', ad: 'Kurul’a bildir · 72 saat', not: 'Hazır bildirim formu; bilgiler eksikse ilk bildirim yapılıp sonra tamamlanır' },
+        { no: '4', ad: 'Etkilenen kişilere bildir', not: 'Hazır e-posta ve uygulama içi şablon; ne olduğu ve ne yapmaları gerektiği' },
+        { no: '5', ad: 'Kapat ve rapor yaz', not: 'Neden, alınan önlemler, tekrarını önleme; tutanak saklanır' }
+      ],
+      resmi: [
+        { ad: 'İstanbul Cumhuriyet Başsavcılığı', durum: 'Yanıtlandı', bg: '#E7FAF0', fg: '#11683F', detay: 'Kaya Motors hesabına ait kayıt ve mesaj bilgisi · 3 Kas · yanıtlayan Sen · 2 dosya verildi' },
+        { ad: 'Ankara Emniyet Müdürlüğü', durum: 'Belge bekleniyor', bg: '#FFF6DF', fg: '#7A5300', detay: 'Kullanıcı bilgisi talebi · resmi yazı henüz yüklenmedi · e-posta ile gelen talep tek başına yeterli değil' },
+        { ad: 'Tüketici Hakem Heyeti', durum: 'Yanıtlandı', bg: '#E7FAF0', fg: '#11683F', detay: 'İade uyuşmazlığı · ödeme ve iade kayıtları verildi · 21 Eki' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

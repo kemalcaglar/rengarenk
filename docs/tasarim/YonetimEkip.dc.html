@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Yönetim konsolu · Ekip ve ajan</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}a:hover{color:#1A3C99;text-decoration:underline}
+button,input,select{font-family:inherit}
+</style>
+</helmet>
+<div style="background: #F6F8FD; min-height: 100vh; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF">
+<div style="max-width: 1400px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<span style="display: flex; align-items: center; gap: 8px">
+<span style="display: flex; gap: 3px" aria-hidden="true"><span style="width: 10px; height: 22px; border-radius: 5px; background: #5B8CFF"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #FF6FB5"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #FFC84A"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #3DD68C"></span></span>
+<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px">rengarenk</span>
+<span style="font-size: 12.5px; font-weight: 800; background: #F3EFFF; color: #4B2FA6; padding: 4px 10px; border-radius: 999px; margin-left: 4px">Yönetim</span>
+</span>
+<span style="display: flex; align-items: center; gap: 14px; font-size: 14px">
+<button type="button" onClick="{{goOnay}}" style="display: flex; align-items: center; gap: 8px; border: 1px solid #F4DC9A; background: #FFF6DF; border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 800; color: #7A5300; cursor: pointer">Onayını bekleyen {{bekleyenSayi}}</button>
+<span style="display: flex; align-items: center; gap: 10px"><span style="width: 34px; height: 34px; border-radius: 50%; background: #EEF3FF; color: #2450C8; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px" aria-hidden="true">KG</span><span><strong>Sen</strong> · Sahip</span></span>
+</span>
+</div>
+</header>
+
+<div style="max-width: 1400px; margin: 0 auto; padding: 24px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px">
+<nav style="flex: 1 1 230px; max-width: 260px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 12px" aria-label="Yönetim konsolu">
+<sc-for list="{{gruplar}}" as="g" hint-placeholder-count="5">
+<span style="display: block; padding: 12px 10px 6px; font-size: 11.5px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: #5A6073">{{g.ad}}</span>
+<sc-for list="{{g.ogeler}}" as="m" hint-placeholder-count="3">
+<sc-if value="{{m.on}}" hint-placeholder-val="{{ false }}"><button type="button" aria-current="page" onClick="{{m.pick}}" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; border: 0; background: #F3EFFF; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer; text-align: left">{{m.ad}}<span style="font-size: 11.5px; font-weight: 800; color: {{m.rozetRenk}}">{{m.rozet}}</span></button></sc-if>
+<sc-if value="{{m.aktif}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{m.pick}}" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; border: 0; background: transparent; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; color: #3A4052; cursor: pointer; text-align: left">{{m.ad}}<span style="font-size: 11.5px; font-weight: 800; color: {{m.rozetRenk}}">{{m.rozet}}</span></button></sc-if>
+<sc-if value="{{m.link}}" hint-placeholder-val="{{ false }}"><a href="{{m.href}}" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; color: #3A4052">{{m.ad}}<span style="font-size: 11.5px; font-weight: 800; color: {{m.rozetRenk}}">{{m.rozet}}</span></a></sc-if>
+<sc-if value="{{m.sonra}}" hint-placeholder-val="{{ false }}"><span style="display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; font-size: 14px; font-weight: 600; color: #8A91A3">{{m.ad}}<span style="font-size: 11px; font-weight: 700; background: #F3F5FA; color: #5A6073; padding: 2px 7px; border-radius: 999px">{{m.tur}}</span></span></sc-if>
+</sc-for>
+</sc-for>
+</nav>
+
+<main style="flex: 999 1 820px; min-width: 0">
+
+<sc-if value="{{v.ajan}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 26px; font-weight: 800">Rengarenk Ajanı</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Kural içindeki işleri kendisi yapar, gerisini sana önerir. Her işlemi geri alabilirsin.</p></div>
+<sc-if value="{{ajanCalisiyor}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ajanDurdur}}" style="border: 1.5px solid #E5A6A1; background: #FFFFFF; border-radius: 12px; padding: 11px 16px; font-size: 14px; font-weight: 800; color: #A3271F; cursor: pointer">Ajanı tamamen durdur</button></sc-if>
+<sc-if value="{{ajanDurdu}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ajanBaslat}}" style="border: 0; background: #3DD68C; border-radius: 12px; padding: 12px 18px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer">Ajanı yeniden başlat</button></sc-if>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; border-radius: 16px; padding: 14px 18px; margin-bottom: 16px; background: {{durum.bg}}; border: 1px solid {{durum.kenar}}">
+<span style="width: 12px; height: 12px; border-radius: 50%; background: {{durum.nokta}}" aria-hidden="true"></span>
+<span style="font-size: 15px; font-weight: 800">{{durum.baslik}}</span>
+<span style="font-size: 13.5px; color: #3A4052">{{durum.not}}</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{ajanSayilar}}" as="s" hint-placeholder-count="4">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 16px"><div style="font-size: 13px; color: #5A6073; font-weight: 600">{{s.ad}}</div><div style="font-size: 24px; font-weight: 800; margin-top: 4px">{{s.deger}}</div><div style="font-size: 12.5px; color: #5A6073; margin-top: 4px">{{s.not}}</div></div>
+</sc-for>
+</div>
+
+<section style="margin-top: 16px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="oneri">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 16px 18px; border-bottom: 1px solid #EEF0F5"><h2 id="oneri" style="margin: 0; font-size: 17px; font-weight: 800">Ajanın önerileri</h2><button type="button" onClick="{{goOnay}}" style="border: 0; background: transparent; padding: 0; font-size: 13.5px; font-weight: 700; color: #2450C8; cursor: pointer">Onay kuyruğuna git</button></div>
+<sc-for list="{{oneriler}}" as="o" hint-placeholder-count="3">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 13px 18px; border-bottom: 1px solid #EEF0F5">
+<span style="flex: none; font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: {{o.bg}}; color: {{o.fg}}">{{o.tur}}</span>
+<span style="flex: 999 1 300px; min-width: 0"><span style="display: block; font-size: 14.5px; font-weight: 800">{{o.baslik}}</span><span style="display: block; font-size: 13px; color: #3A4052; margin-top: 2px">{{o.gerekce}}</span></span>
+</div>
+</sc-for>
+</section>
+
+<section style="margin-top: 16px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="akis">
+<h2 id="akis" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Bugün yaptıkları</h2>
+<sc-for list="{{akis}}" as="a" hint-placeholder-count="6">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 12px 18px; border-bottom: 1px solid #EEF0F5; opacity: {{a.opak}}">
+<span style="flex: 0 0 48px; font-size: 13px; font-weight: 700; color: #5A6073">{{a.saat}}</span>
+<span style="flex: 999 1 320px; min-width: 0"><span style="display: block; font-size: 14.5px; font-weight: 700">{{a.islem}}</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">{{a.neden}}</span></span>
+<span style="flex: none; font-size: 12.5px; font-weight: 700; color: #3A4052">{{a.guven}}</span>
+<sc-if value="{{a.gerialinabilir}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{a.gerial}}" style="flex: none; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; padding: 7px 12px; font-size: 13px; font-weight: 700; color: #1E2333; cursor: pointer">Geri al</button></sc-if>
+<sc-if value="{{a.gerialindi}}" hint-placeholder-val="{{ false }}"><span style="flex: none; font-size: 13px; font-weight: 700; color: #7A5300">Geri alındı</span></sc-if>
+</div>
+</sc-for>
+</section>
+
+<section style="margin-top: 16px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px" aria-labelledby="sor">
+<h2 id="sor" style="margin: 0 0 10px; font-size: 17px; font-weight: 800">Ajana sor</h2>
+<div style="display: flex; gap: 8px"><label for="soru" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Soru</label><input id="soru" value="Geçen ay İzmir'de kaç galeri ilk mesaj gönderdi?" style="flex: 1; min-width: 0; border: 1px solid #D5DAE5; border-radius: 12px; padding: 12px 14px; font-size: 14.5px"><button type="button" onClick="{{sor}}" style="border: 0; background: #5B8CFF; border-radius: 12px; padding: 12px 18px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer">Sor</button></div>
+<sc-if value="{{cevapVar}}" hint-placeholder-val="{{ false }}">
+<div style="margin-top: 12px; background: #F6F8FD; border-radius: 14px; padding: 14px 16px; font-size: 14px; line-height: 1.6; color: #2E3344">Ekim 2026'da İzmir'deki 31 galeriden 24'ü en az bir ilk mesaj gönderdi; toplam 1.146 ilk mesaj. Bu, eylüle göre %18 fazla. En aktif üç galeri Karşıyaka ve Bornova'da. 7 galeri ay boyunca hiç yazmadı; bunlardan 4'ünün deneme süresi bu ay bitiyor.<span style="display: block; margin-top: 8px; font-size: 12.5px; color: #5A6073">Kaynak: mesaj ve galeri tabloları · kişisel veri kullanılmadı</span></div>
+</sc-if>
+</section>
+</sc-if>
+
+<sc-if value="{{v.onay}}" hint-placeholder-val="{{ false }}">
+<h1 style="margin: 0 0 4px; font-size: 26px; font-weight: 800">Onay kuyruğu</h1>
+<p style="margin: 0 0 16px; font-size: 14px; color: #5A6073">Dört göz kuralına bağlı işlemler. İadeleri yalnızca sen onaylayabilirsin.</p>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{onaylar}}" as="o" hint-placeholder-count="5">
+<article style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 16px 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px">
+<span style="flex: 999 1 360px; min-width: 0">
+<span style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px"><span style="font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: {{o.bg}}; color: {{o.fg}}">{{o.tur}}</span><span style="font-size: 12.5px; color: #5A6073">{{o.kim}} · {{o.zaman}}</span></span>
+<span style="display: block; font-size: 15.5px; font-weight: 800; margin-top: 6px">{{o.baslik}}</span>
+<span style="display: block; font-size: 13.5px; color: #3A4052; margin-top: 3px">{{o.detay}}</span>
+<span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 4px">{{o.kural}}</span>
+</span>
+<sc-if value="{{o.acik}}" hint-placeholder-val="{{ true }}"><span style="flex: none; display: flex; gap: 8px"><button type="button" onClick="{{o.reddet}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; padding: 10px 14px; font-size: 14px; font-weight: 700; color: #1E2333; cursor: pointer">Reddet</button><button type="button" onClick="{{o.onayla}}" style="border: 0; background: #3DD68C; border-radius: 10px; padding: 10px 16px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer">{{o.onayYazi}}</button></span></sc-if>
+<sc-if value="{{o.kapali}}" hint-placeholder-val="{{ false }}"><span style="flex: none; font-size: 14px; font-weight: 800; color: {{o.sonucRenk}}">{{o.sonuc}}</span></sc-if>
+</article>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{v.ekip}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 26px; font-weight: 800">Çalışanlar</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Herkes şirket e-postasıyla ve iki adımlı girişle bağlanır.</p></div>
+<button type="button" onClick="{{davetAc}}" style="border: 0; background: #5B8CFF; border-radius: 12px; padding: 12px 18px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer">Çalışan davet et</button>
+</div>
+<sc-if value="{{davet}}" hint-placeholder-val="{{ false }}">
+<section style="background: #FFFFFF; border: 1.5px solid #5B8CFF; border-radius: 18px; padding: 18px; margin-bottom: 16px" aria-label="Davet">
+<div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px">
+<label style="flex: 2 1 260px; font-size: 13px; font-weight: 700">Şirket e-postası<input value="ayse.demir@kgteknoloji.com.tr" style="display: block; width: 100%; box-sizing: border-box; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 11px; font-size: 14.5px"></label>
+<label style="flex: 1 1 180px; font-size: 13px; font-weight: 700">Rol<select style="display: block; width: 100%; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 11px; font-size: 14.5px; background: #FFFFFF"><option>Destek</option><option>Moderatör</option><option>Operasyon</option><option>Pazarlama</option><option>Finans</option><option>İzleyici</option><option>Yönetici</option></select></label>
+<button type="button" onClick="{{davetGonder}}" style="border: 0; background: #5B8CFF; border-radius: 12px; padding: 12px 18px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer">Daveti gönder</button>
+</div>
+<p style="margin: 10px 0 0; font-size: 12.5px; color: #5A6073">Davet 48 saat geçerlidir. İlk girişte doğrulama uygulaması kurulmadan konsol açılmaz.</p>
+</section>
+</sc-if>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden">
+<div style="display: flex; gap: 14px; padding: 12px 18px; background: #F3F5FA; font-size: 12px; font-weight: 700; color: #5A6073; text-transform: uppercase; letter-spacing: 0.4px"><span style="flex: 999 1 220px">Çalışan</span><span style="flex: 1 1 110px">Rol</span><span style="flex: 1 1 120px">Son giriş</span><span style="flex: 1 1 180px">Bu hafta</span><span style="flex: 1 1 140px">Durum</span></div>
+<sc-for list="{{ekip}}" as="e" hint-placeholder-count="7">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 13px 18px; border-top: 1px solid #EEF0F5; font-size: 14px">
+<span style="flex: 999 1 220px; min-width: 0; display: flex; align-items: center; gap: 10px"><span style="flex: none; width: 34px; height: 34px; border-radius: 50%; background: {{e.renk}}; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: 800" aria-hidden="true">{{e.bas}}</span><span style="min-width: 0"><span style="display: block; font-weight: 800">{{e.ad}}</span><span style="display: block; font-size: 12.5px; color: #5A6073">{{e.eposta}}</span></span></span>
+<span style="flex: 1 1 110px; font-weight: 700">{{e.rol}}</span>
+<span style="flex: 1 1 120px; font-size: 13px; color: #3A4052">{{e.giris}}</span>
+<span style="flex: 1 1 180px; font-size: 13px; color: #3A4052">{{e.performans}}</span>
+<span style="flex: 1 1 140px; display: flex; align-items: center; gap: 8px"><span style="font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: {{e.durumBg}}; color: {{e.durumFg}}">{{e.durum}}</span><sc-if value="{{e.kapatilabilir}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{e.kapat}}" style="border: 0; background: transparent; padding: 0; font-size: 12.5px; font-weight: 700; color: #A3271F; cursor: pointer">Kapat</button></sc-if></span>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{v.roller}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 26px; font-weight: 800">Roller ve yetkiler</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Hazır roller değiştirilemez; ihtiyacına göre özel rol oluşturabilirsin.</p></div>
+<button type="button" style="border: 1px solid #5B8CFF; background: #FFFFFF; border-radius: 12px; padding: 11px 16px; font-size: 14.5px; font-weight: 800; color: #2450C8; cursor: pointer">Özel rol oluştur</button>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden">
+<div style="display: grid; grid-template-columns: minmax(0, 2.4fr) repeat(9, minmax(0, 1fr)); gap: 0; background: #F3F5FA; font-size: 11.5px; font-weight: 800; color: #5A6073">
+<span style="padding: 12px 14px">Yetki</span>
+<sc-for list="{{rolAdlari}}" as="r" hint-placeholder-count="9"><span style="padding: 12px 4px; text-align: center">{{r.ad}}</span></sc-for>
+</div>
+<sc-for list="{{matris}}" as="y" hint-placeholder-count="14">
+<div style="display: grid; grid-template-columns: minmax(0, 2.4fr) repeat(9, minmax(0, 1fr)); border-top: 1px solid #EEF0F5; align-items: center">
+<span style="padding: 10px 14px; font-size: 13.5px; font-weight: 600">{{y.ad}}</span>
+<sc-for list="{{y.hucre}}" as="h" hint-placeholder-count="9"><span style="padding: 8px 4px; text-align: center"><span style="display: inline-block; min-width: 26px; font-size: 12px; font-weight: 800; padding: 3px 6px; border-radius: 8px; background: {{h.bg}}; color: {{h.fg}}">{{h.t}}</span></span></sc-for>
+</div>
+</sc-for>
+<div style="display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 12px 14px; border-top: 1px solid #EEF0F5; font-size: 12.5px; color: #3A4052">
+<span><strong style="color: #11683F">✓</strong> tam yetki</span><span><strong style="color: #7A5300">Ö</strong> öneri hazırlar, onay gerekir</span><span><strong style="color: #2450C8">M</strong> kişisel veri maskeli</span><span><strong style="color: #4B2FA6">O</strong> başkasının işlemini onaylar</span><span><strong style="color: #8A91A3">–</strong> yetkisi yok</span>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{v.kayit}}" hint-placeholder-val="{{ false }}">
+<h1 style="margin: 0 0 4px; font-size: 26px; font-weight: 800">İşlem kaydı</h1>
+<p style="margin: 0 0 16px; font-size: 14px; color: #5A6073">Kayıtlar silinemez ve 2 yıl saklanır.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px">
+<sc-for list="{{kayitFiltre}}" as="f" hint-placeholder-count="5">
+<sc-if value="{{f.on}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{f.pick}}" style="border: 0; background: #1E2333; border-radius: 999px; padding: 8px 14px; font-size: 13.5px; font-weight: 800; color: #FFFFFF; cursor: pointer">{{f.ad}}</button></sc-if>
+<sc-if value="{{f.off}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{f.pick}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 999px; padding: 7px 13px; font-size: 13.5px; font-weight: 700; color: #1E2333; cursor: pointer">{{f.ad}}</button></sc-if>
+</sc-for>
+<label style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)" for="kara">Kayıtlarda ara</label><input id="kara" type="search" placeholder="Kişi, kullanıcı veya işlem ara" style="flex: 1 1 240px; min-width: 0; border: 1px solid #D5DAE5; border-radius: 999px; padding: 8px 14px; font-size: 13.5px">
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden">
+<sc-for list="{{kayitlar}}" as="k" hint-placeholder-count="8">
+<div style="display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 12px 18px; border-bottom: 1px solid #EEF0F5; font-size: 13.5px">
+<span style="flex: 0 0 96px; color: #5A6073; font-weight: 600">{{k.zaman}}</span>
+<span style="flex: 0 0 150px; font-weight: 800">{{k.kim}}</span>
+<span style="flex: 999 1 300px; min-width: 0"><span style="display: block; font-weight: 700">{{k.islem}}</span><span style="display: block; font-size: 12.5px; color: #3A4052; margin-top: 2px">{{k.degisim}}</span></span>
+<span style="flex: 0 0 150px; font-size: 12.5px; color: #5A6073">{{k.cihaz}}</span>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { view: 'ajan', ajan: true, geri: {}, karar: {}, davet: false, davetEdildi: false, kapanan: {}, cevap: false, filtre: 'hepsi' };
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    function go(k) { return function () { self.setState({ view: k }); }; }
+    var ONAY = [
+      ['o1', 'İade önerisi', 'Ajan · destek talebi D-20944', '10 dk önce', 'Can T. · Ek ilk mesaj, 10 adet · 99 TL', '3 gün önce alındı, hiç kullanılmadı; kullanıcı yanlış paketi aldığını yazdı. Cayma süresi içinde.', 'İadeleri yalnızca sahip onaylar (Karar 40).', 'İadeyi onayla', '#FDECEC', '#A3271F'],
+      ['o2', 'İade önerisi', 'Selin D. (Destek) · hesap kapatma', '1 saat önce', 'Ayşe Yılmaz · kullanılmamış 4 ek ilk mesaj · 39,60 TL', 'Kullanıcı hesabını kapattı; web’den alınmış haklar ödenen tutar üzerinden iade edilir (Karar 39).', 'İadeleri yalnızca sahip onaylar (Karar 40).', 'İadeyi onayla', '#FDECEC', '#A3271F'],
+      ['o3', 'Toplu gönderim', 'Zeynep T. (Pazarlama)', '2 saat önce', 'SMS · 4.820 kişi · "Talebin 3 gün sonra doluyor" hatırlatması', 'Yalnızca İYS onaylı ve SMS tercihini açık tutan kullanıcılar. Tahmini maliyet 1.205 TL.', '1.000 kişiden büyük gönderim sahip veya yönetici onayı ister.', 'Gönderimi onayla', '#EEF3FF', '#2450C8'],
+      ['o4', 'Kupon', 'Zeynep T. (Pazarlama)', 'Dün', 'GALERI30 · ilk ay Başlangıç paketinde %30 indirim', 'En fazla 100 galeri, 31 Aralık 2026’ya kadar geçerli.', 'Kupon oluşturma onay ister.', 'Kuponu onayla', '#F3EFFF', '#4B2FA6'],
+      ['o5', 'Kalıcı engelleme', 'Ajan', 'Dün', 'Kaya Motors · hesabın kalıcı olarak kapatılması', '7 günde 3. kapora ihlali; 4 farklı alıcı şikâyet etti. Hesap şu an 24 saat askıda.', 'Kalıcı engelleme ajan önerisiyle, insan onayıyla yapılır.', 'Engellemeyi onayla', '#FFF6DF', '#7A5300']
+    ];
+    var onaylar = ONAY.map(function (o) {
+      var k = st.karar[o[0]];
+      function set(v) { return function () { var n = Object.assign({}, self.state.karar); n[o[0]] = v; self.setState({ karar: n }); }; }
+      return { tur: o[1], kim: o[2], zaman: o[3], baslik: o[4], detay: o[5], kural: o[6], onayYazi: o[7], bg: o[8], fg: o[9], acik: !k, kapali: !!k,
+        sonuc: k === 'ok' ? 'Onaylandı' : 'Reddedildi', sonucRenk: k === 'ok' ? '#11683F' : '#A3271F', onayla: set('ok'), reddet: set('red') };
+    });
+    var bekleyen = ONAY.filter(function (o) { return !st.karar[o[0]]; }).length;
+    var MENU = [
+      ['Genel', [['ajan', 'Rengarenk Ajanı', 'YonetimEkip', st.ajan ? 'Çalışıyor' : 'Durdu', st.ajan ? '#11683F' : '#A3271F'], ['onay', 'Onay kuyruğu', 'YonetimEkip', String(bekleyen), '#7A5300'], ['panel', 'Kontrol paneli', 'YonetimRapor']]],
+      ['Ekip', [['ekip', 'Çalışanlar', 'YonetimEkip'], ['roller', 'Roller ve yetkiler', 'YonetimEkip'], ['kayit', 'İşlem kaydı', 'YonetimEkip']]],
+      ['Pazar', [['kullanici', 'Kullanıcılar ve galeriler', 'YonetimPazar'], ['basvuru', 'Galeri başvuruları', 'YonetimPazar', '3', '#7A5300'], ['moderasyon', 'Moderasyon', 'YonetimPazar', '3 süre aştı', '#A3271F'], ['destek', 'Destek', 'YonetimPazar', '12', '#5A6073'], ['talep', 'Talepler ve portföy', 'YonetimPazar'], ['puan', 'Satıcı puanı ve rozetler', 'YonetimPazar']]],
+      ['Büyüme', [['rapor', 'Raporlar', 'YonetimRapor'], ['zaman', 'Zamanlanmış raporlar', 'YonetimRapor'], ['kampanya', 'Kampanyalar', 'YonetimKampanya'], ['akis', 'Otomatik akışlar', 'YonetimKampanya'], ['segment', 'Segmentler', 'YonetimKampanya'], ['sablon', 'Şablonlar', 'YonetimKampanya'], ['merkez', 'Bildirim merkezi', 'YonetimKampanya'], ['teslim', 'Teslim raporu', 'YonetimKampanya']]],
+      ['Katalog', [['kategori', 'Kategoriler ve alanlar', 'YonetimIcerik'], ['eslesme', 'Eşleştirme ayarı', 'YonetimIcerik']]],
+      ['Görünüm', [['anasayfa', 'Ana sayfa düzeni', 'YonetimIcerik'], ['banner', 'Banner ve vitrin', 'YonetimIcerik'], ['acilis', 'Açılış sayfaları', 'YonetimIcerik'], ['tasarim', 'Tasarım değerleri', 'YonetimIcerik'], ['metin', 'Yardım ve yasal metinler', 'YonetimIcerik']]],
+      ['Sistem', [['kural', 'Kurallar ve fiyatlar', 'YonetimSistem'], ['entegrasyon', 'Entegrasyonlar', 'YonetimSistem', '1 uyarı', '#7A5300'], ['ozellik', 'Özellik anahtarları ve bakım', 'YonetimSistem'], ['yz', 'Yapay zekâ ve bütçe', 'YonetimSistem'], ['saglik', 'Sistem sağlığı ve yedek', 'YonetimSistem']]],
+      ['Uyum ve KVKK', [['kvkk', 'KVKK başvuruları', 'YonetimSistem', '4', '#7A5300'], ['imha', 'Saklama, imha ve VERBİS', 'YonetimSistem'], ['riza', 'Rıza ve çerez kayıtları', 'YonetimSistem'], ['ihlal', 'İhlal ve resmi talepler', 'YonetimSistem']]]
+    ];
+    var BU = 'YonetimEkip';
+    var gruplar = MENU.map(function (g) {
+      return { ad: g[0], ogeler: g[1].map(function (m) {
+        var sonra = m[0] === '_', burada = m[2] === BU;
+        return { ad: m[1], rozet: (!sonra && m[3]) || '', rozetRenk: m[4] || '#5A6073', tur: sonra ? m[3] : '', href: m[2] + '.dc.html',
+          on: burada && st.view === m[0], aktif: burada && st.view !== m[0], link: !sonra && !burada, sonra: sonra, pick: go(m[0]) };
+      }) };
+    });
+    var AKIS = [
+      ['a1', '14:32', 'Galeri onaylandı: Mavi Marin Yatçılık', 'Yetki belgesi, vergi numarası ve MERSİS kontrollerinin hepsi geçti · sana bildirildi', 'Kontroller tam'],
+      ['a2', '14:10', 'Mesaj gizlendi, hesap 24 saat askıya alındı: Okan B.', 'Kısaltılmış bağlantı bilinmeyen bir ödeme sayfasına gidiyor; alıcı Ayşe Y.', 'Güven %97'],
+      ['a3', '13:55', 'Destek talebi yanıtlandı: D-20931', 'Acil etiketinin görünmeme sorunu; etiket önbelleği yenilendi, kullanıcıya bilgi verildi', 'Güven %92'],
+      ['a4', '13:20', 'SMS sağlayıcısı yedeğe geçirildi', 'Ana sağlayıcıda 6 dakikadır teslim oranı %40’ın altında; doğrulama kodları yedekten gidiyor', 'Kural'],
+      ['a5', '12:05', 'Talep açıklaması için düzeltme istendi: No 1052210', 'Açıklamada telefon numarası var; talep düzeltilene kadar yayında ama numara gizli', 'Güven %99'],
+      ['a6', '09:00', 'Günlük özet yazıldı ve sana gönderildi', 'Dün 126 yeni talep, 2.310 ilk mesaj; kapora şikâyetleri geçen haftaya göre %22 arttı', 'Rapor']
+    ];
+    var akis = AKIS.map(function (a) {
+      var g = !!st.geri[a[0]], gerialir = ['a1', 'a2', 'a5'].indexOf(a[0]) !== -1;
+      return { saat: a[1], islem: a[2], neden: a[3], guven: a[4], opak: g ? '0.6' : '1', gerialinabilir: gerialir && !g, gerialindi: g,
+        gerial: function () { var n = Object.assign({}, self.state.geri); n[a[0]] = true; self.setState({ geri: n }); } };
+    });
+    var EKIP = [
+      ['sen', 'Sen', 'devops@kgteknoloji.com.tr', 'Sahip', 'Şimdi · bu cihaz', '7 onay verdin', '#EEF3FF', 'KG'],
+      ['ek', 'Elif Kara', 'elif.kara@kgteknoloji.com.tr', 'Yönetici', 'Bugün 11:42', '12 onay, 3 kural değişikliği', '#FFEEF6', 'EK'],
+      ['ma', 'Mert Aydın', 'mert.aydin@kgteknoloji.com.tr', 'Moderatör', 'Bugün 14:05', '48 şikâyet · ort. 12 dk', '#FFF6DF', 'MA'],
+      ['sd', 'Selin Demir', 'selin.demir@kgteknoloji.com.tr', 'Destek', 'Bugün 13:58', '61 talep · ort. 18 dk', '#E7FAF0', 'SD'],
+      ['zt', 'Zeynep Tan', 'zeynep.tan@kgteknoloji.com.tr', 'Pazarlama', 'Dün 18:20', '2 kampanya, 1 kupon', '#F3EFFF', 'ZT'],
+      ['bs', 'Burak Şen', 'burak.sen@kgteknoloji.com.tr', 'Finans', '3 gün önce', '4 iade önerisi', '#FFF0EA', 'BŞ'],
+      ['aj', 'Rengarenk Ajanı', 'Ajan rolü', 'Ajan', 'Sürekli', '412 işlem · %1,9 geri alındı', '#E7FAF0', 'AJ']
+    ];
+    var ekip = EKIP.map(function (e) {
+      var kapali = !!st.kapanan[e[0]];
+      return { ad: e[1], eposta: e[2], rol: e[3], giris: e[4], performans: e[5], renk: e[6], bas: e[7],
+        durum: kapali ? 'Kapatıldı' : (e[0] === 'aj' ? (st.ajan ? 'Çalışıyor' : 'Durduruldu') : 'Aktif · 2 adımlı'),
+        durumBg: kapali ? '#F3F5FA' : '#E7FAF0', durumFg: kapali ? '#5A6073' : '#11683F',
+        kapatilabilir: !kapali && ['sen', 'aj'].indexOf(e[0]) === -1,
+        kapat: function () { var n = Object.assign({}, self.state.kapanan); n[e[0]] = true; self.setState({ kapanan: n }); } };
+    });
+    if (st.davetEdildi) ekip.splice(6, 0, { ad: 'ayse.demir@kgteknoloji.com.tr', eposta: 'Davet gönderildi · 48 saat geçerli', rol: 'Destek', giris: '—', performans: '—', renk: '#F3F5FA', bas: '?', durum: 'Davet bekliyor', durumBg: '#FFF6DF', durumFg: '#7A5300', kapatilabilir: false, kapat: function () {} });
+    var ROLLER = ['Sahip', 'Yönetici', 'Moderatör', 'Operasyon', 'Destek', 'Pazarlama', 'Finans', 'İzleyici', 'Ajan'];
+    var C = { '✓': ['#E7FAF0', '#11683F'], 'Ö': ['#FFF6DF', '#7A5300'], 'M': ['#EEF3FF', '#2450C8'], 'O': ['#F3EFFF', '#4B2FA6'], '–': ['transparent', '#AEB5C4'] };
+    var MAT = [
+      ['Raporları görme', '✓✓MMM✓✓✓✓'],
+      ['Kişisel veriyi açık görme', '✓✓MMM––––'],
+      ['Şikâyetleri çözme, uyarma', '✓✓✓–––––✓'],
+      ['Askıya alma (24 saat)', '✓✓✓–––––✓'],
+      ['Kalıcı engelleme', '✓✓✓–––––Ö'],
+      ['Galeri başvurusu onaylama', '✓✓–✓––––✓'],
+      ['Destek taleplerini yanıtlama', '✓✓–✓✓–––✓'],
+      ['Hak tanımlama (küçük limit)', '✓✓––✓––––'],
+      ['İade', '✓Ö––Ö–Ö–Ö'],
+      ['Kampanya ve kupon hazırlama', '✓✓–––✓––Ö'],
+      ['Toplu gönderim (1.000+ kişi)', '✓O–––Ö–––'],
+      ['Fiyat ve paket değişikliği', '✓Ö––––Ö–Ö'],
+      ['Rapor dışa aktarma (Excel, CSV)', '✓✓––––✓––'],
+      ['Kategori, alan ve eşleştirme ayarı', '✓✓–––––––'],
+      ['Görünüm, banner ve açılış sayfası', '✓✓–––✓––Ö'],
+      ['Tasarım değerleri ve yasal metin', '✓Ö–––Ö–––'],
+      ['KVKK başvurusu yanıtlama', '✓✓––Ö–––Ö'],
+      ['Yapay zekâ bütçesi', '✓––––––––'],
+      ['Bakım modu ve özellik anahtarları', '✓✓–––––––'],
+      ['Çalışan ve rol yönetimi', '✓––––––––'],
+      ['İşlem kaydını görme', '✓✓–––––✓–']
+    ];
+    var matris = MAT.map(function (m) {
+      return { ad: m[0], hucre: Array.from(m[1]).map(function (ch) { var c = C[ch]; return { t: ch, bg: c[0], fg: c[1] }; }) };
+    });
+    var KF = [['hepsi', 'Hepsi'], ['ajan', 'Ajan'], ['veri', 'Kişisel veri görüntüleme'], ['para', 'Ödeme ve iade'], ['yetki', 'Yetki ve ayar']];
+    var KAY = [
+      ['para', '14:48', 'Sen', 'İade onaylandı', 'Can T. · 99 TL · öneren: Ajan', 'Chrome · İstanbul'],
+      ['ajan', '14:32', 'Rengarenk Ajanı', 'Galeri hesabı onaylandı', 'Mavi Marin Yatçılık · durum: başvuru → aktif (deneme)', 'Sistem'],
+      ['veri', '14:20', 'Selin Demir', 'Telefon numarası gösterildi', 'Kullanıcı: Ayşe Yılmaz · gerekçe: "Destek talebi D-20931, geri arama"', 'Chrome · Ankara'],
+      ['ajan', '14:10', 'Rengarenk Ajanı', 'Hesap 24 saat askıya alındı', 'Okan B. · neden: kısaltılmış ödeme linki · güven %97', 'Sistem'],
+      ['yetki', '13:02', 'Elif Kara', 'Kural değiştirildi', 'Bireysel günlük ücretsiz ilk mesaj: 5 → 5 (değişiklik yok, kayıt testi)', 'Safari · İstanbul'],
+      ['yetki', '11:40', 'Sen', 'Çalışan davet edildi', 'zeynep.tan@kgteknoloji.com.tr · rol: Pazarlama', 'Chrome · İstanbul'],
+      ['para', '10:15', 'Burak Şen', 'İade önerisi oluşturuldu', 'Yıldız Otomotiv · çift çekim 4.188 TL · onay bekliyor (sahip)', 'Edge · İzmir'],
+      ['veri', '09:30', 'Mert Aydın', 'E-posta adresi gösterildi', 'Kullanıcı: Emre K. · gerekçe: "Şikâyet incelemesi, 4 Kasım"', 'Chrome · İstanbul']
+    ];
+    var kayitlar = KAY.filter(function (k) { return st.filtre === 'hepsi' || k[0] === st.filtre; }).map(function (k) { return { zaman: 'Bugün ' + k[1], kim: k[2], islem: k[3], degisim: k[4], cihaz: k[5] }; });
+    var ajanOn = st.ajan;
+    return {
+      v: { ajan: st.view === 'ajan', onay: st.view === 'onay', ekip: st.view === 'ekip', roller: st.view === 'roller', kayit: st.view === 'kayit' },
+      gruplar: gruplar, bekleyenSayi: String(bekleyen), goOnay: go('onay'),
+      ajanCalisiyor: ajanOn, ajanDurdu: !ajanOn,
+      ajanDurdur: function () { self.setState({ ajan: false }); }, ajanBaslat: function () { self.setState({ ajan: true }); },
+      durum: ajanOn ? { bg: '#E7FAF0', kenar: '#B9EBD1', nokta: '#3DD68C', baslik: 'Ajan çalışıyor', not: 'Günlük limitler: askıya alma 7 / 50 · otomatik yanıt 64 / 500 · bu ayki yapay zekâ maliyeti 41 / 150 USD' } : { bg: '#FDECEC', kenar: '#F2B8B3', nokta: '#E5484D', baslik: 'Ajan durduruldu', not: 'Hiçbir otomatik işlem yapılmıyor; şikâyetler ve destek talepleri insan kuyruğunda bekliyor.' },
+      ajanSayilar: [
+        { ad: 'Bugünkü işlem', deger: '37', not: '3’ü insana bırakıldı' },
+        { ad: 'Geri alınan (7 gün)', deger: '%1,9', not: '412 işlemden 8’i' },
+        { ad: 'Ort. tepki süresi', deger: '40 sn', not: 'Şikâyet gelişinden işleme' },
+        { ad: 'Onayını bekleyen', deger: String(bekleyen), not: 'İade, gönderim, kupon, engelleme' }
+      ],
+      oneriler: [
+        { tur: 'Kampanya fikri', baslik: 'Antalya’da kiralık araç talebi 2 haftada %64 arttı', gerekce: 'Bölgede yalnızca 3 kiralama firması var. Antalya’daki kiralama firmalarına 30 günlük deneme duyurusu öneriyorum.', bg: '#F3EFFF', fg: '#4B2FA6' },
+        { tur: 'Kural önerisi', baslik: 'Kısaltılmış bağlantılar mesajlarda tamamen engellensin', gerekce: 'Son 30 günde 19 dolandırıcılık vakasının 14’ünde kısaltılmış bağlantı vardı; meşru kullanım görmedim.', bg: '#EEF3FF', fg: '#2450C8' },
+        { tur: 'Gelir', baslik: '7 galerinin denemesi bu hafta bitiyor, hiçbiri mesaj atmadı', gerekce: 'Galerilerin sorumlu çalışanlarına arama görevi açılsın mı? Deneme uzatma ayrıca onay ister.', bg: '#FFF6DF', fg: '#7A5300' }
+      ],
+      akis: akis,
+      sor: function () { self.setState({ cevap: true }); }, cevapVar: st.cevap,
+      onaylar: onaylar,
+      davet: st.davet, davetAc: function () { self.setState({ davet: !self.state.davet }); },
+      davetGonder: function () { self.setState({ davet: false, davetEdildi: true }); },
+      ekip: ekip,
+      rolAdlari: ROLLER.map(function (r) { return { ad: r }; }), matris: matris,
+      kayitFiltre: KF.map(function (f) { return { ad: f[1], on: st.filtre === f[0], off: st.filtre !== f[0], pick: function () { self.setState({ filtre: f[0] }); } }; }),
+      kayitlar: kayitlar
+    };
+  }
+}
+</script>
+</body>
+</html>

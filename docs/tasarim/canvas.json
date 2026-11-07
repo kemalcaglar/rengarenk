@@ -1,0 +1,483 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-05T21:40:00Z"
+ },
+ "title": "Rengarenk – Talep detay sayfası",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 2800,
+   "title": "Talep detayı · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Mobil.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 390,
+   "h": 3180,
+   "title": "Talep detayı · mobil",
+   "is_interactive": true
+  },
+  "Paletler.dc.html": {
+   "x": 1990,
+   "y": 0,
+   "w": 880,
+   "h": 640,
+   "title": "Renk paleti seçenekleri"
+  },
+  "Sihirbaz.dc.html": {
+   "x": 0,
+   "y": 3560,
+   "w": 1440,
+   "h": 1400,
+   "title": "Talep oluşturma sihirbazı · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "SihirbazMobil.dc.html": {
+   "x": 1520,
+   "y": 3560,
+   "w": 390,
+   "h": 2300,
+   "title": "Sihirbaz 4. adım · mobil",
+   "is_interactive": true
+  },
+  "Anasayfa.dc.html": {
+   "x": 0,
+   "y": 6220,
+   "w": 1440,
+   "h": 1800,
+   "title": "Ana sayfa · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Liste.dc.html": {
+   "x": 1520,
+   "y": 6220,
+   "w": 1440,
+   "h": 1500,
+   "title": "Talep listesi · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "ListeMobil.dc.html": {
+   "x": 3040,
+   "y": 6220,
+   "w": 390,
+   "h": 1800,
+   "title": "Talep listesi · mobil",
+   "is_interactive": true
+  },
+  "Mesajlar.dc.html": {
+   "x": 0,
+   "y": 8380,
+   "w": 1440,
+   "h": 1000,
+   "title": "Mesajlarım · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "MesajMobil.dc.html": {
+   "x": 1520,
+   "y": 8380,
+   "w": 390,
+   "h": 844,
+   "title": "Sohbet · mobil"
+  },
+  "GaleriPanel.dc.html": {
+   "x": 0,
+   "y": 9740,
+   "w": 1440,
+   "h": 1300,
+   "title": "Galeri paneli · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Giris.dc.html": {
+   "x": 0,
+   "y": 11400,
+   "w": 1440,
+   "h": 900,
+   "title": "Giriş ve üyelik · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "GirisMobil.dc.html": {
+   "x": 1520,
+   "y": 11400,
+   "w": 390,
+   "h": 844,
+   "title": "Giriş · mobil"
+  },
+  "Basvuru.dc.html": {
+   "x": 1990,
+   "y": 11400,
+   "w": 1440,
+   "h": 1100,
+   "title": "Kurumsal hesap başvurusu · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Yonetim.dc.html": {
+   "x": 0,
+   "y": 12860,
+   "w": 1440,
+   "h": 1300,
+   "title": "Yönetim paneli · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Taleplerim.dc.html": {
+   "x": 0,
+   "y": 14760,
+   "w": 1440,
+   "h": 1300,
+   "title": "Taleplerim · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "TaleplerimMobil.dc.html": {
+   "x": 1520,
+   "y": 14760,
+   "w": 390,
+   "h": 844,
+   "title": "Taleplerim · mobil",
+   "is_interactive": true
+  },
+  "Haklarim.dc.html": {
+   "x": 1990,
+   "y": 14760,
+   "w": 1440,
+   "h": 1500,
+   "title": "Haklarım ve ödeme · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "HaklarimMobil.dc.html": {
+   "x": 3510,
+   "y": 14760,
+   "w": 390,
+   "h": 844,
+   "title": "Haklarım · mobil",
+   "is_interactive": true
+  },
+  "Favoriler.dc.html": {
+   "x": 0,
+   "y": 16560,
+   "w": 1440,
+   "h": 1100,
+   "title": "Favoriler ve kayıtlı aramalar · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Ayarlar.dc.html": {
+   "x": 1520,
+   "y": 16560,
+   "w": 1440,
+   "h": 1100,
+   "title": "Ayarlar · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "GaleriProfil.dc.html": {
+   "x": 0,
+   "y": 18260,
+   "w": 1440,
+   "h": 1500,
+   "title": "Galeri profili · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "PortfoyArac.dc.html": {
+   "x": 1520,
+   "y": 18260,
+   "w": 1440,
+   "h": 1800,
+   "title": "Portföy aracı detayı · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Yardim.dc.html": {
+   "x": 0,
+   "y": 20660,
+   "w": 1440,
+   "h": 1400,
+   "title": "Yardım merkezi · web",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "YonetimEkip.dc.html": {
+   "x": 0,
+   "y": 22660,
+   "w": 1440,
+   "h": 1850,
+   "title": "Yönetim konsolu · ajan, onaylar, ekip, yetkiler, işlem kaydı",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "YonetimRapor.dc.html": {
+   "x": 0,
+   "y": 24960,
+   "w": 1440,
+   "h": 1800,
+   "title": "Yönetim konsolu · kontrol paneli, raporlar, zamanlanmış raporlar",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "YonetimIcerik.dc.html": {
+   "x": 1520,
+   "y": 24960,
+   "w": 1440,
+   "h": 1800,
+   "title": "Yönetim konsolu · kategoriler, eşleştirme, ana sayfa, banner, açılış sayfası, tasarım, yasal metin",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "YonetimKampanya.dc.html": {
+   "x": 0,
+   "y": 27280,
+   "w": 1440,
+   "h": 1800,
+   "title": "Yönetim konsolu · kampanyalar, otomatik akışlar, segmentler, şablonlar, bildirim merkezi, teslim raporu",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "YonetimPazar.dc.html": {
+   "x": 0,
+   "y": 29600,
+   "w": 1440,
+   "h": 1800,
+   "title": "Yönetim konsolu · kullanıcılar, başvurular, moderasyon, destek, talepler, satıcı puanı",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "YonetimSistem.dc.html": {
+   "x": 0,
+   "y": 32000,
+   "w": 1440,
+   "h": 1800,
+   "title": "Yönetim konsolu · kurallar ve fiyatlar, entegrasyonlar, yapay zekâ bütçesi, sistem sağlığı, KVKK ve uyum",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "AnasayfaMobil.dc.html": {
+   "x": 0,
+   "y": 34200,
+   "w": 390,
+   "h": 2020,
+   "title": "Ana sayfa ve bildirimler · mobil",
+   "is_interactive": true
+  },
+  "SihirbazMobilAkis.dc.html": {
+   "x": 470,
+   "y": 34200,
+   "w": 390,
+   "h": 1200,
+   "title": "Talep oluştur, 6 adım · mobil",
+   "is_interactive": true
+  },
+  "MesajlarMobil.dc.html": {
+   "x": 940,
+   "y": 34200,
+   "w": 390,
+   "h": 1100,
+   "title": "Mesajlar ve yıldız verme · mobil",
+   "is_interactive": true
+  },
+  "GaleriMobil.dc.html": {
+   "x": 1410,
+   "y": 34200,
+   "w": 390,
+   "h": 1240,
+   "title": "Galeri paneli · mobil",
+   "is_interactive": true
+  },
+  "HesapMobil.dc.html": {
+   "x": 1880,
+   "y": 34200,
+   "w": 390,
+   "h": 1180,
+   "title": "Hesabım, ayarlar, KVKK, yardım · mobil",
+   "is_interactive": true
+  },
+  "GaleriProfilMobil.dc.html": {
+   "x": 2350,
+   "y": 34200,
+   "w": 390,
+   "h": 1500,
+   "title": "Galeri profili ve portföy aracı · mobil",
+   "is_interactive": true
+  },
+  "BasvuruMobil.dc.html": {
+   "x": 2820,
+   "y": 34200,
+   "w": 390,
+   "h": 1100,
+   "title": "Kurumsal başvuru · mobil",
+   "is_interactive": true
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "Mobil.dc.html",
+  "Paletler.dc.html",
+  "Sihirbaz.dc.html",
+  "SihirbazMobil.dc.html",
+  "Anasayfa.dc.html",
+  "Liste.dc.html",
+  "ListeMobil.dc.html",
+  "Mesajlar.dc.html",
+  "MesajMobil.dc.html",
+  "GaleriPanel.dc.html",
+  "Giris.dc.html",
+  "GirisMobil.dc.html",
+  "Basvuru.dc.html",
+  "Yonetim.dc.html",
+  "Taleplerim.dc.html",
+  "TaleplerimMobil.dc.html",
+  "Haklarim.dc.html",
+  "HaklarimMobil.dc.html",
+  "Favoriler.dc.html",
+  "Ayarlar.dc.html",
+  "GaleriProfil.dc.html",
+  "PortfoyArac.dc.html",
+  "Yardim.dc.html",
+  "YonetimEkip.dc.html",
+  "YonetimRapor.dc.html",
+  "YonetimIcerik.dc.html",
+  "YonetimKampanya.dc.html",
+  "YonetimPazar.dc.html",
+  "YonetimSistem.dc.html",
+  "AnasayfaMobil.dc.html",
+  "SihirbazMobilAkis.dc.html",
+  "MesajlarMobil.dc.html",
+  "GaleriMobil.dc.html",
+  "HesapMobil.dc.html",
+  "GaleriProfilMobil.dc.html",
+  "BasvuruMobil.dc.html"
+ ],
+ "notes": {
+  "baslik1": {
+   "x": 0,
+   "y": -300,
+   "text": "Talep detay sayfası",
+   "kind": "title1",
+   "maxW": 2870
+  },
+  "baslik2": {
+   "x": 0,
+   "y": 3260,
+   "text": "Talep oluşturma sihirbazı",
+   "kind": "title1",
+   "maxW": 1910
+  },
+  "baslik3": {
+   "x": 0,
+   "y": 5920,
+   "text": "Ana sayfa ve talep listesi",
+   "kind": "title1",
+   "maxW": 3430
+  },
+  "baslik4": {
+   "x": 0,
+   "y": 8080,
+   "text": "Mesajlaşma",
+   "kind": "title1",
+   "maxW": 1910
+  },
+  "baslik5": {
+   "x": 0,
+   "y": 9440,
+   "text": "Galeri paneli",
+   "kind": "title1",
+   "maxW": 1440
+  },
+  "baslik6": {
+   "x": 0,
+   "y": 11100,
+   "text": "Giriş, üyelik ve kurumsal başvuru",
+   "kind": "title1",
+   "maxW": 3430
+  },
+  "baslik7": {
+   "x": 0,
+   "y": 12560,
+   "text": "Yönetim paneli",
+   "kind": "title1",
+   "maxW": 1440
+  },
+  "baslik8": {
+   "x": 0,
+   "y": 14460,
+   "text": "Hesabım: talepler, haklar, favoriler, ayarlar",
+   "kind": "title1",
+   "maxW": 3900
+  },
+  "baslik9": {
+   "x": 0,
+   "y": 17960,
+   "text": "Galeri profili ve portföy aracı",
+   "kind": "title1",
+   "maxW": 2960
+  },
+  "baslik10": {
+   "x": 0,
+   "y": 20360,
+   "text": "Yardım merkezi",
+   "kind": "title1",
+   "maxW": 1440
+  },
+  "baslik11": {
+   "x": 0,
+   "y": 22360,
+   "text": "Yönetim konsolu · Tur 1: ekip, yetkiler ve Rengarenk Ajanı",
+   "kind": "title1",
+   "maxW": 1440
+  },
+  "baslik12": {
+   "x": 0,
+   "y": 24660,
+   "text": "Yönetim konsolu · Tur 2: kontrol paneli, raporlar, katalog ve görünüm yönetimi",
+   "kind": "title1",
+   "maxW": 2960
+  },
+  "baslik13": {
+   "x": 0,
+   "y": 26980,
+   "text": "Yönetim konsolu · Tur 3: kampanyalar ve bildirimler (push, kendi e-posta sunucumuz, SMS)",
+   "kind": "title1",
+   "maxW": 1440
+  },
+  "baslik14": {
+   "x": 0,
+   "y": 29300,
+   "text": "Yönetim konsolu · Tur 4: kullanıcılar, moderasyon, destek ve satıcı rozetleri",
+   "kind": "title1",
+   "maxW": 1440
+  },
+  "baslik15": {
+   "x": 0,
+   "y": 31700,
+   "text": "Yönetim konsolu · Tur 5: ayarlar, uyum ve KVKK",
+   "kind": "title1",
+   "maxW": 1440
+  },
+  "baslik16": {
+   "x": 0,
+   "y": 33900,
+   "text": "Mobil uygulama · alt sekme çubuğu ve kalan ekranlar",
+   "kind": "title1",
+   "maxW": 3210
+  }
+ },
+ "designSystems": []
+}

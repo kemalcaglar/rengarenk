@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Haklarım ve ödemeler</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}a:hover{color:#1A3C99;text-decoration:underline}
+button,input,select{font-family:inherit}
+</style>
+</helmet>
+<div style="background: #F6F8FD; min-height: 100vh; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF">
+<div style="max-width: 1360px; margin: 0 auto; padding: 16px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px">
+<a href="Anasayfa.dc.html" style="display: flex; align-items: center; gap: 8px; color: #1E2333; text-decoration: none" aria-label="Rengarenk ana sayfa">
+<span style="display: flex; gap: 3px" aria-hidden="true"><span style="width: 10px; height: 22px; border-radius: 5px; background: #5B8CFF"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #FF6FB5"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #FFC84A"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #3DD68C"></span></span>
+<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px">rengarenk</span>
+</a>
+<form style="flex: 999 1 320px; min-width: 0; display: flex; align-items: center; gap: 8px; background: #F3F5FA; border: 1px solid #E3E6EF; border-radius: 12px; padding: 0 8px 0 14px" role="search">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5A6073" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<label for="ara" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Talep ara</label>
+<input id="ara" type="search" placeholder="Marka, model veya talep no ile ara" style="flex: 1; min-width: 0; border: 0; background: transparent; font-size: 15px; padding: 12px 0; color: #1E2333; outline: none">
+<button type="submit" style="border: 0; border-radius: 9px; background: #5B8CFF; color: #1E2333; font-weight: 700; font-size: 14px; padding: 9px 16px; cursor: pointer">Ara</button>
+</form>
+<nav style="display: flex; align-items: center; gap: 10px" aria-label="Hesap">
+<a href="#" style="display: flex; align-items: center; gap: 8px; color: #1E2333; font-weight: 600; font-size: 14.5px; padding: 8px 6px; text-decoration: none"><span style="width: 34px; height: 34px; border-radius: 50%; background: #FFEEF6; color: #A3236A; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px" aria-hidden="true">AY</span>Ayşe Yılmaz</a>
+<a href="Sihirbaz.dc.html" style="display: flex; align-items: center; gap: 8px; background: #5B8CFF; color: #1E2333; font-weight: 700; font-size: 15px; padding: 11px 18px; border-radius: 12px; text-decoration: none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Talep oluştur</a>
+</nav>
+</div>
+</header>
+
+<div style="max-width: 1360px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px">
+<nav style="flex: 1 1 220px; max-width: 250px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 12px" aria-label="Hesabım">
+<span style="display: block; padding: 8px 10px 10px; font-size: 13px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: #5A6073">Hesabım</span>
+<a href="Taleplerim.dc.html" style="display: block; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052">Taleplerim</a>
+<a href="Mesajlar.dc.html" style="display: block; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052">Mesajlarım</a>
+<a href="Favoriler.dc.html" style="display: block; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052">Favoriler ve aramalar</a>
+<a href="Haklarim.dc.html" aria-current="page" style="display: block; background: #EEF3FF; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 800; color: #1E2333">Haklarım ve ödemeler</a>
+<a href="Ayarlar.dc.html" style="display: block; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052">Ayarlar</a>
+<a href="Yardim.dc.html" style="display: block; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052">Yardım</a>
+</nav>
+
+<main style="flex: 999 1 760px; min-width: 0">
+
+<sc-if value="{{adim.magaza}}" hint-placeholder-val="{{ true }}">
+<h1 style="margin: 0 0 16px; font-size: 28px; font-weight: 800; letter-spacing: -0.4px">Haklarım ve ödemeler</h1>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{haklar}}" as="h" hint-placeholder-count="4">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 16px; border-top: 4px solid {{h.renk}}">
+<div style="font-size: 13px; font-weight: 700; color: #5A6073">{{h.ad}}</div>
+<div style="font-size: 26px; font-weight: 800; margin-top: 4px">{{h.deger}}</div>
+<div style="font-size: 12.5px; color: #5A6073; margin-top: 4px; line-height: 1.4">{{h.not}}</div>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px 18px; margin-top: 12px">
+<span style="font-size: 14px; font-weight: 800">Aktif öne çıkarma</span>
+<span style="font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: #FFEEF6; color: #A3236A">Acil arıyorum</span>
+<span style="font-size: 14px; color: #3A4052">Kiralık Fiat Egea veya benzeri · 4 gün kaldı</span>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px; margin-top: 22px">
+<section style="flex: 999 1 460px; min-width: 0" aria-labelledby="mg">
+<h2 id="mg" style="margin: 0 0 10px; font-size: 19px; font-weight: 800">Hak ve öne çıkarma satın al</h2>
+<sc-for list="{{gruplar}}" as="g" hint-placeholder-count="3">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden; margin-bottom: 12px">
+<h3 style="margin: 0; padding: 13px 16px; font-size: 14.5px; font-weight: 800; background: #F3F5FA">{{g.ad}}</h3>
+<sc-for list="{{g.urunler}}" as="u" hint-placeholder-count="3">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 12px 16px; border-top: 1px solid #EEF0F5">
+<span style="flex: 999 1 220px; min-width: 0"><span style="display: block; font-size: 14.5px; font-weight: 700">{{u.ad}}</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">{{u.not}}</span></span>
+<span style="flex: none; font-size: 15px; font-weight: 800">{{u.fiyat}}</span>
+<sc-if value="{{u.sepette}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{u.toggle}}" aria-pressed="true" style="flex: none; width: 104px; border: 0; background: #E7FAF0; border-radius: 10px; padding: 9px 0; font-size: 13.5px; font-weight: 800; color: #11683F; cursor: pointer">✓ Sepette</button></sc-if>
+<sc-if value="{{u.disarda}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{u.toggle}}" aria-pressed="false" style="flex: none; width: 104px; border: 1px solid #5B8CFF; background: #FFFFFF; border-radius: 10px; padding: 8px 0; font-size: 13.5px; font-weight: 800; color: #2450C8; cursor: pointer">Sepete ekle</button></sc-if>
+</div>
+</sc-for>
+</div>
+</sc-for>
+</section>
+
+<aside style="flex: 1 1 280px; max-width: 340px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px; position: sticky; top: 16px" aria-labelledby="sp">
+<h2 id="sp" style="margin: 0 0 12px; font-size: 17px; font-weight: 800">Sepet</h2>
+<sc-if value="{{sepetBos}}" hint-placeholder-val="{{ false }}"><p style="margin: 0; font-size: 14px; color: #5A6073">Sepetin boş. Soldan bir hak veya öne çıkarma seç.</p></sc-if>
+<sc-for list="{{sepet}}" as="s" hint-placeholder-count="2">
+<div style="display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid #EEF0F5; font-size: 14px"><span>{{s.ad}}</span><strong style="flex: none">{{s.fiyat}}</strong></div>
+</sc-for>
+<sc-if value="{{sepetDolu}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 16px; font-weight: 800"><span>Toplam</span><span>{{toplam}}</span></div>
+<p style="margin: 4px 0 14px; font-size: 12.5px; color: #5A6073">KDV dahil · e-arşiv fatura e-postana gönderilir</p>
+<button type="button" onClick="{{odemeye}}" style="width: 100%; border: 0; background: #5B8CFF; border-radius: 12px; padding: 13px; font-size: 15px; font-weight: 800; color: #1E2333; cursor: pointer">Ödemeye geç</button>
+</sc-if>
+</aside>
+</div>
+
+<section style="margin-top: 22px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="fg">
+<h2 id="fg" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Ödeme geçmişi</h2>
+<sc-for list="{{gecmis}}" as="o" hint-placeholder-count="3">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; padding: 12px 18px; border-bottom: 1px solid #EEF0F5; font-size: 14px">
+<span style="flex: 1 1 120px; color: #5A6073">{{o.tarih}}</span><span style="flex: 999 1 240px; font-weight: 700">{{o.kalem}}</span><span style="flex: 1 1 90px; font-weight: 800">{{o.tutar}}</span><a href="#" style="flex: 1 1 110px; font-weight: 700">Faturayı indir</a>
+</div>
+</sc-for>
+</section>
+</sc-if>
+
+<sc-if value="{{adim.odeme}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{geri}}" style="border: 0; background: transparent; padding: 0; font-size: 14px; font-weight: 700; color: #2450C8; cursor: pointer">← Sepete dön</button>
+<h1 style="margin: 8px 0 16px; font-size: 28px; font-weight: 800; letter-spacing: -0.4px">Ödeme</h1>
+<div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px">
+<div style="flex: 999 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 20px" aria-labelledby="fb">
+<h2 id="fb" style="margin: 0 0 12px; font-size: 17px; font-weight: 800">Fatura bilgileri</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<label style="font-size: 13px; font-weight: 700">Ad soyad<input value="Ayşe Yılmaz" style="display: block; width: 100%; box-sizing: border-box; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 11px; font-size: 14.5px"></label>
+<label style="font-size: 13px; font-weight: 700">Fatura e-postası<input value="ayse.yilmaz@ornek.com" style="display: block; width: 100%; box-sizing: border-box; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 11px; font-size: 14.5px"></label>
+<label style="font-size: 13px; font-weight: 700">İl<input value="İstanbul" style="display: block; width: 100%; box-sizing: border-box; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 11px; font-size: 14.5px"></label>
+<label style="font-size: 13px; font-weight: 700">İlçe<input value="Kadıköy" style="display: block; width: 100%; box-sizing: border-box; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 11px; font-size: 14.5px"></label>
+</div>
+<button type="button" style="margin-top: 12px; border: 0; background: transparent; padding: 0; font-size: 13.5px; font-weight: 700; color: #2450C8; cursor: pointer">Kurumsal fatura istiyorum (vergi no ile)</button>
+</section>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 20px" aria-labelledby="kb">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px"><h2 id="kb" style="margin: 0; font-size: 17px; font-weight: 800">Kart bilgileri</h2><span style="font-size: 12.5px; font-weight: 800; color: #11683F; background: #E7FAF0; padding: 4px 10px; border-radius: 999px">PayTR güvenli ödeme · 3D Secure</span></div>
+<div style="border: 1px dashed #AEB5C4; border-radius: 14px; padding: 16px; background: #FBFCFE">
+<div style="font-size: 12px; font-weight: 700; color: #5A6073; margin-bottom: 10px">Bu alan PayTR’nin ödeme çerçevesidir</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<span style="grid-column: 1 / -1; border: 1px solid #D5DAE5; border-radius: 10px; padding: 11px; font-size: 14.5px; color: #6B7183; background: #FFFFFF">Kart üzerindeki isim</span>
+<span style="grid-column: 1 / -1; border: 1px solid #D5DAE5; border-radius: 10px; padding: 11px; font-size: 14.5px; color: #6B7183; background: #FFFFFF">Kart numarası</span>
+<span style="border: 1px solid #D5DAE5; border-radius: 10px; padding: 11px; font-size: 14.5px; color: #6B7183; background: #FFFFFF">AA / YY</span>
+<span style="border: 1px solid #D5DAE5; border-radius: 10px; padding: 11px; font-size: 14.5px; color: #6B7183; background: #FFFFFF">CVC</span>
+</div>
+</div>
+<p style="margin: 10px 0 0; font-size: 12.5px; color: #5A6073">Kart bilgilerin Rengarenk sunucularına gelmez ve saklanmaz. Tek çekim; bu tutarlarda taksit yok.</p>
+</section>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 10px" aria-label="Sözleşmeler">
+<sc-for list="{{onaylar}}" as="c" hint-placeholder-count="1">
+<button type="button" role="checkbox" aria-checked="{{c.aria}}" onClick="{{c.toggle}}" style="display: flex; align-items: flex-start; gap: 10px; text-align: left; border: 0; background: transparent; padding: 0; font-size: 14px; line-height: 1.45; color: #1E2333; cursor: pointer"><span style="flex: none; width: 20px; height: 20px; border-radius: 6px; border: 2px solid {{c.kenar}}; background: {{c.dolgu}}; color: #FFFFFF; font-size: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-top: 1px">{{c.isaret}}</span><span>{{c.yazi}}</span></button>
+</sc-for>
+</section>
+</div>
+<aside style="flex: 1 1 280px; max-width: 340px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px" aria-labelledby="oz">
+<h2 id="oz" style="margin: 0 0 12px; font-size: 17px; font-weight: 800">Sipariş özeti</h2>
+<sc-for list="{{sepet}}" as="s" hint-placeholder-count="2">
+<div style="display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid #EEF0F5; font-size: 14px"><span>{{s.ad}}</span><strong style="flex: none">{{s.fiyat}}</strong></div>
+</sc-for>
+<div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 13.5px; color: #5A6073"><span>KDV (%20, dahil)</span><span>{{kdv}}</span></div>
+<div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 17px; font-weight: 800"><span>Toplam</span><span>{{toplam}}</span></div>
+<p style="margin: 12px 0 0; font-size: 12.5px; line-height: 1.5; color: #3A4052">{{caymaBilgi}}</p>
+<sc-if value="{{odeHazir}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ode}}" style="width: 100%; margin-top: 14px; border: 0; background: #3DD68C; border-radius: 12px; padding: 13px; font-size: 15px; font-weight: 800; color: #1E2333; cursor: pointer">Siparişi onayla ve öde · {{toplam}}</button></sc-if>
+<sc-if value="{{odeKapali}}" hint-placeholder-val="{{ true }}"><button type="button" disabled style="width: 100%; margin-top: 14px; border: 0; background: #E3E6EF; border-radius: 12px; padding: 13px; font-size: 15px; font-weight: 800; color: #6B7183">Siparişi onayla ve öde · {{toplam}}</button><p style="margin: 8px 0 0; font-size: 12.5px; color: #5A6073">{{onayNotu}}</p></sc-if>
+</aside>
+</div>
+</sc-if>
+
+<sc-if value="{{adim.tamam}}" hint-placeholder-val="{{ false }}">
+<section style="max-width: 560px; margin: 40px auto; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 22px; padding: 32px; text-align: center" aria-labelledby="ok">
+<span style="display: inline-flex; width: 64px; height: 64px; border-radius: 50%; background: #E7FAF0; align-items: center; justify-content: center" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#11683F" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+<h1 id="ok" style="margin: 14px 0 6px; font-size: 24px; font-weight: 800">Ödeme alındı</h1>
+<p style="margin: 0; font-size: 15px; color: #3A4052">{{toplam}} tutarındaki ödemen tamamlandı. Haklar hesabına tanımlandı, faturan e-postana gönderildi.</p>
+<div style="display: flex; justify-content: center; gap: 10px; margin-top: 22px">
+<a href="Taleplerim.dc.html" style="background: #5B8CFF; border-radius: 12px; padding: 12px 18px; font-size: 14.5px; font-weight: 800; color: #1E2333">Taleplerime git</a>
+<button type="button" onClick="{{basa}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 12px; padding: 12px 18px; font-size: 14.5px; font-weight: 700; color: #1E2333; cursor: pointer">Haklarıma dön</button>
+</div>
+</section>
+</sc-if>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { adim: 'magaza', sepet: { t1: true }, sozlesme: false, cayma: false };
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    var U = {
+      t1: ['Ek talep hakkı · 1 adet', 'Yeni talep açmak veya taslağını yayınlamak için', 199],
+      t3: ['Talep paketi · 3 adet', 'Tanesi 166 TL’ye gelir', 499],
+      uz: ['Talep uzatma · 30 gün', 'Ücretsiz uzatma hakkını kullandıktan sonra', 99],
+      m10: ['Ek ilk mesaj · 10 adet', 'Günlük 5 ücretsiz hakkın bitince kullanılır, süresi dolmaz', 99],
+      m30: ['Ek ilk mesaj · 30 adet', 'Tanesi 8,30 TL’ye gelir', 249],
+      us7: ['Üst sıra · 7 gün', 'Listelerde ve eşleşmelerde en üstte', 149],
+      us30: ['Üst sıra · 30 gün', 'Talebin yayın süresi boyunca', 449],
+      ac: ['Acil arıyorum etiketi · 7 gün', 'Talebinin üstünde pembe etiket', 79],
+      vt: ['Ana sayfa vitrini · 7 gün', 'Ana sayfadaki vitrin alanında', 299]
+    };
+    function tl(n) { return n.toLocaleString('tr-TR', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 }) + ' TL'; }
+    function urun(id) { var u = U[id], on = !!st.sepet[id]; return { ad: u[0], not: u[1], fiyat: tl(u[2]), sepette: on, disarda: !on, toggle: function () { var n = Object.assign({}, self.state.sepet); if (n[id]) delete n[id]; else n[id] = true; self.setState({ sepet: n }); } }; }
+    var ids = Object.keys(U).filter(function (k) { return st.sepet[k]; });
+    var toplam = ids.reduce(function (a, k) { return a + U[k][2]; }, 0);
+    var kdv = Math.round(toplam / 6 * 100) / 100;
+    var anlik = ids.some(function (k) { return ['uz', 'us7', 'us30', 'ac', 'vt'].indexOf(k) !== -1; });
+    function cb(key, yazi) { var on = !!st[key]; return { yazi: yazi, aria: on ? 'true' : 'false', kenar: on ? '#5B8CFF' : '#AEB5C4', dolgu: on ? '#5B8CFF' : '#FFFFFF', isaret: on ? '✓' : '', toggle: function () { var o = {}; o[key] = !self.state[key]; self.setState(o); } }; }
+    return {
+      adim: { magaza: st.adim === 'magaza', odeme: st.adim === 'odeme', tamam: st.adim === 'tamam' },
+      haklar: [
+        { ad: 'Talep hakkı', deger: '0', not: '4 hakkın 4’ü kullanıldı (1 ücretsiz + 3’lü paket)', renk: '#5B8CFF' },
+        { ad: 'Bugünkü ücretsiz ilk mesaj', deger: '2 / 5', not: 'Gece 00.00’da yenilenir', renk: '#FF6FB5' },
+        { ad: 'Ek ilk mesaj', deger: '4', not: '10’lu paketten kaldı, süresi dolmaz', renk: '#FFC84A' },
+        { ad: 'Ücretsiz uzatma', deger: '1', not: 'Süresi dolan bir talebi 30 gün uzatır', renk: '#3DD68C' }
+      ],
+      gruplar: [
+        { ad: 'Talep hakları', urunler: [urun('t1'), urun('t3'), urun('uz')] },
+        { ad: 'Mesaj hakları (satıcı olarak yazarken)', urunler: [urun('m10'), urun('m30')] },
+        { ad: 'Öne çıkarma · BMW 3 Serisi 320i talebi için', urunler: [urun('us7'), urun('us30'), urun('ac'), urun('vt')] }
+      ],
+      sepet: ids.map(function (k) { return { ad: U[k][0], fiyat: tl(U[k][2]) }; }),
+      sepetBos: ids.length === 0, sepetDolu: ids.length > 0,
+      toplam: tl(toplam), kdv: tl(kdv),
+      odemeye: function () { self.setState({ adim: 'odeme' }); },
+      geri: function () { self.setState({ adim: 'magaza' }); },
+      onaylar: [cb('sozlesme', 'Ön Bilgilendirme Formu’nu ve Mesafeli Hizmet Sözleşmesi’ni okudum, onaylıyorum.')].concat(anlik ? [cb('cayma', 'Öne çıkarma ve uzatma hizmetlerinin cayma süresi içinde hemen başlatılmasını talep ediyorum; hizmet başladığında bu kalemlerde cayma hakkımı kaybedeceğimi kabul ediyorum.')] : []),
+      odeHazir: st.sozlesme && (!anlik || st.cayma), odeKapali: !(st.sozlesme && (!anlik || st.cayma)),
+      onayNotu: anlik ? 'Devam etmek için iki onayı da işaretle.' : 'Devam etmek için sözleşme onayını işaretle.',
+      caymaBilgi: anlik ? 'Ek talep ve mesaj hakları kullanılmadıysa 14 gün içinde iade edilebilir. Öne çıkarma ve uzatma satın alındığı anda başlar.' : 'Ek talep ve mesaj hakları kullanılmadıysa 14 gün içinde iade edilebilir; hakların süresi dolmaz.',
+      ode: function () { self.setState({ adim: 'tamam' }); },
+      basa: function () { self.setState({ adim: 'magaza', sepet: {}, sozlesme: false, cayma: false }); },
+      gecmis: [
+        { tarih: '3 Kasım 2026', kalem: 'Acil arıyorum etiketi · 7 gün · Kiralık Fiat Egea', tutar: '79 TL' },
+        { tarih: '28 Ekim 2026', kalem: 'Ek ilk mesaj · 10 adet', tutar: '99 TL' },
+        { tarih: '12 Ekim 2026', kalem: 'Talep paketi · 3 adet', tutar: '499 TL' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

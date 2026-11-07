@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Kurumsal hesap başvurusu</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}a:hover{color:#1A3C99;text-decoration:underline}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="background: #F6F8FD; min-height: 100vh; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333">
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF">
+<div style="max-width: 1360px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px">
+<a href="Anasayfa.dc.html" style="display: inline-flex; align-items: center; gap: 8px; color: #1E2333; text-decoration: none" aria-label="Rengarenk ana sayfa">
+<span style="display: flex; gap: 3px" aria-hidden="true">
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #5B8CFF"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #FF6FB5"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #FFC84A"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #3DD68C"></span>
+</span>
+<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px">rengarenk</span>
+<span style="font-size: 12.5px; font-weight: 800; background: #FFF6DF; color: #7A5300; padding: 4px 10px; border-radius: 999px; margin-left: 4px">Kurumsal</span>
+</a>
+<span style="font-size: 13.5px; color: #11683F; font-weight: 600">Taslak kaydedildi</span>
+</div>
+</header>
+
+<main style="max-width: 1100px; margin: 0 auto; padding: 32px 24px 64px">
+<h1 style="margin: 0 0 4px; font-size: 28px; font-weight: 800">Kurumsal hesap başvurusu</h1>
+<p style="margin: 0 0 22px; font-size: 15px; color: #5A6073">Başvurun onaylanınca 30 günlük ücretsiz deneme başlar; kart bilgisi istenmez.</p>
+
+<ol style="list-style: none; margin: 0 0 22px; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px" aria-label="Adımlar">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="5">
+<li><button type="button" onClick="{{s.go}}" aria-current="{{s.cur}}" style="width: 100%; border: 0; background: transparent; padding: 0; text-align: left; cursor: pointer"><span style="display: block; height: 6px; border-radius: 3px; background: {{s.bar}}"></span><span style="display: block; margin-top: 8px; font-size: 13.5px; font-weight: {{s.w}}; color: {{s.col}}">{{s.n}}. {{s.label}}</span></button></li>
+</sc-for>
+</ol>
+
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 22px; padding: 28px">
+
+<sc-if value="{{s1}}" hint-placeholder-val="{{ true }}">
+<h2 style="margin: 0 0 6px; font-size: 21px; font-weight: 800">İşletme türün nedir?</h2>
+<p style="margin: 0 0 18px; font-size: 14.5px; color: #5A6073">İstenen belgeler işletme türüne göre değişir.</p>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{turler}}" as="t" hint-placeholder-count="4">
+<sc-if value="{{t.on}}" hint-placeholder-val="{{ false }}">
+<button type="button" aria-pressed="true" onClick="{{t.pick}}" style="text-align: left; border: 2px solid #5B8CFF; background: #EEF3FF; border-radius: 16px; padding: 16px; cursor: pointer"><span style="display: block; width: 34px; height: 34px; border-radius: 10px; background: {{t.dot}}" aria-hidden="true"></span><span style="display: block; font-size: 15.5px; font-weight: 800; color: #1E2333; margin-top: 12px">{{t.ad}}</span><span style="display: block; font-size: 13px; color: #3A4052; margin-top: 4px; line-height: 1.45">{{t.alt}}</span></button>
+</sc-if>
+<sc-if value="{{t.off}}" hint-placeholder-val="{{ true }}">
+<button type="button" aria-pressed="false" onClick="{{t.pick}}" style="text-align: left; border: 1px solid #E3E6EF; background: #FFFFFF; border-radius: 16px; padding: 17px; cursor: pointer"><span style="display: block; width: 34px; height: 34px; border-radius: 10px; background: {{t.tint}}" aria-hidden="true"></span><span style="display: block; font-size: 15.5px; font-weight: 700; color: #1E2333; margin-top: 12px">{{t.ad}}</span><span style="display: block; font-size: 13px; color: #5A6073; margin-top: 4px; line-height: 1.45">{{t.alt}}</span></button>
+</sc-if>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{s2}}" hint-placeholder-val="{{ false }}">
+<h2 style="margin: 0 0 18px; font-size: 21px; font-weight: 800">İşletme bilgileri</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+<sc-for list="{{isletmeAlan}}" as="a" hint-placeholder-count="6">
+<div><label for="{{a.id}}" style="display: block; font-size: 13.5px; font-weight: 700; margin-bottom: 6px">{{a.label}}</label><input id="{{a.id}}" value="{{a.value}}" style="width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 12px; font-size: 15px"></div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{s3}}" hint-placeholder-val="{{ false }}">
+<h2 style="margin: 0 0 6px; font-size: 21px; font-weight: 800">Yetki ve belgeler</h2>
+<p style="margin: 0 0 18px; font-size: 14.5px; color: #5A6073">{{tur.belgeNotu}}</p>
+<sc-if value="{{tur.yetkiVar}}" hint-placeholder-val="{{ true }}">
+<div style="border: 1px solid #E3E6EF; border-radius: 16px; padding: 18px; margin-bottom: 14px">
+<label for="yetki" style="display: block; font-size: 14px; font-weight: 800; margin-bottom: 6px">{{tur.yetkiAd}}</label>
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<input id="yetki" value="[YETKİ BELGESİ NO]" style="flex: 1 1 240px; min-width: 0; border: 1px solid #D5DAE5; border-radius: 12px; padding: 12px; font-size: 15px">
+<button type="button" onClick="{{dogrula}}" style="border: 0; background: #5B8CFF; border-radius: 12px; padding: 12px 18px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer">Bakanlık sisteminden doğrula</button>
+</div>
+<sc-if value="{{dogrulandi}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; gap: 10px; align-items: center; margin-top: 12px; background: #E7FAF0; border-radius: 12px; padding: 11px 14px; font-size: 14px; color: #11683F; font-weight: 600">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>Doğrulandı: Yıldız Otomotiv Ltd. Şti., İstanbul. Bu numara profilinde ve portföy araçlarında görünecek.</div>
+</sc-if>
+</div>
+</sc-if>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{tur.belgeler}}" as="b" hint-placeholder-count="3">
+<button type="button" style="text-align: left; border: 2px dashed #AEB5C4; background: #F6F8FD; border-radius: 16px; padding: 18px; cursor: pointer"><span style="display: block; font-size: 14.5px; font-weight: 800; color: #1E2333">{{b.ad}}</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 4px">{{b.not}}</span><span style="display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 700; color: #2450C8">Dosya yükle</span></button>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{s4}}" hint-placeholder-val="{{ false }}">
+<h2 style="margin: 0 0 6px; font-size: 21px; font-weight: 800">Hesabın sahibi</h2>
+<p style="margin: 0 0 18px; font-size: 14.5px; color: #5A6073">Bu kişi hesabın sahibi olur; paketleri, ödemeleri ve ekibi yönetir. Diğer çalışanları onaydan sonra davet edebilirsin.</p>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+<div><label for="sad" style="display: block; font-size: 13.5px; font-weight: 700; margin-bottom: 6px">Ad soyad</label><input id="sad" value="Selin Yıldız" style="width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 12px; font-size: 15px"></div>
+<div><label for="sgorev" style="display: block; font-size: 13.5px; font-weight: 700; margin-bottom: 6px">Görevi</label><input id="sgorev" value="İşletme sahibi" style="width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 12px; font-size: 15px"></div>
+<div><label for="stel" style="display: block; font-size: 13.5px; font-weight: 700; margin-bottom: 6px">Cep telefonu</label><input id="stel" value="+90 5XX 765 43 21" style="width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 12px; font-size: 15px"></div>
+<div style="display: flex; align-items: flex-end"><span style="display: flex; gap: 8px; align-items: center; width: 100%; box-sizing: border-box; background: #E7FAF0; border-radius: 12px; padding: 12px 14px; font-size: 14px; color: #11683F; font-weight: 600">SMS koduyla doğrulandı</span></div>
+<div style="grid-column: span 2"><label for="seposta" style="display: block; font-size: 13.5px; font-weight: 700; margin-bottom: 6px">Fatura e-postası</label><input id="seposta" value="[FATURA E-POSTASI]" style="width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 12px; font-size: 15px"></div>
+</div>
+</sc-if>
+
+<sc-if value="{{s5}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{gonderilmedi}}" hint-placeholder-val="{{ true }}">
+<h2 style="margin: 0 0 6px; font-size: 21px; font-weight: 800">Kontrol et ve gönder</h2>
+<p style="margin: 0 0 18px; font-size: 14.5px; color: #5A6073">Başvurunu yönetici ekibimiz inceler; sonucu SMS ve e-postayla bildiririz.</p>
+<dl style="margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid #E3E6EF; border-radius: 16px; overflow: hidden">
+<div style="padding: 13px 16px; border-bottom: 1px solid #EEF0F5"><dt style="font-size: 12.5px; color: #5A6073">İşletme türü</dt><dd style="margin: 2px 0 0; font-size: 14.5px; font-weight: 700">{{tur.ad}}</dd></div>
+<div style="padding: 13px 16px; border-bottom: 1px solid #EEF0F5"><dt style="font-size: 12.5px; color: #5A6073">Unvan</dt><dd style="margin: 2px 0 0; font-size: 14.5px; font-weight: 700">Yıldız Otomotiv Ltd. Şti.</dd></div>
+<div style="padding: 13px 16px"><dt style="font-size: 12.5px; color: #5A6073">Belgeler</dt><dd style="margin: 2px 0 0; font-size: 14.5px; font-weight: 700">{{belgeOzet}}</dd></div>
+<div style="padding: 13px 16px"><dt style="font-size: 12.5px; color: #5A6073">Hesap sahibi</dt><dd style="margin: 2px 0 0; font-size: 14.5px; font-weight: 700">Selin Yıldız</dd></div>
+</dl>
+</sc-if>
+<sc-if value="{{gonderildi}}" hint-placeholder-val="{{ false }}">
+<h2 style="margin: 0 0 6px; font-size: 21px; font-weight: 800">Başvurun alındı</h2>
+<p style="margin: 0 0 20px; font-size: 14.5px; color: #5A6073">Durumu bu sayfadan takip edebilirsin.</p>
+<ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0">
+<sc-for list="{{durum}}" as="d" hint-placeholder-count="4">
+<li style="display: flex; gap: 14px; padding-bottom: 18px">
+<span style="width: 30px; height: 30px; border-radius: 50%; background: {{d.bg}}; border: 2px solid {{d.border}}; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex: none" aria-hidden="true">{{d.mark}}</span>
+<span><span style="display: block; font-size: 15px; font-weight: 800">{{d.ad}}</span><span style="display: block; font-size: 13.5px; color: #5A6073; margin-top: 2px">{{d.not}}</span></span>
+</li>
+</sc-for>
+</ol>
+</sc-if>
+</sc-if>
+
+<div style="display: flex; justify-content: space-between; gap: 12px; margin-top: 26px; padding-top: 20px; border-top: 1px solid #EEF0F5">
+<sc-if value="{{hasPrev}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{prev}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 14px; padding: 13px 22px; font-size: 15px; font-weight: 700; color: #1E2333; cursor: pointer">Geri</button></sc-if>
+<sc-if value="{{noPrev}}" hint-placeholder-val="{{ true }}"><span></span></sc-if>
+<sc-if value="{{showNext}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{next}}" style="border: 0; background: #5B8CFF; border-radius: 14px; padding: 14px 26px; font-size: 15.5px; font-weight: 800; color: #1E2333; cursor: pointer">{{nextLabel}}</button></sc-if>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { step: 1, tur: 'vasita', dogrulandi: false, gonderildi: false };
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    var TURLER = {
+      vasita: { ad: 'Vasıta galerisi', alt: 'İkinci el ve sıfır kara taşıtı satan işletmeler', dot: '#5B8CFF', tint: '#EEF3FF', yetkiVar: true,
+        yetkiAd: 'İkinci el motorlu kara taşıtı ticareti yetki belgesi no',
+        belgeNotu: 'Yetki belgen, üyelikten önce Ticaret Bakanlığı sisteminden kontrol edilir.',
+        belgeler: [{ ad: 'Vergi levhası', not: 'PDF veya fotoğraf' }, { ad: 'Ticaret sicil gazetesi', not: 'Kuruluş veya son değişiklik' }, { ad: 'Oda kayıt belgesi', not: 'Son 6 ay içinde alınmış' }] },
+      kiralama: { ad: 'Kiralama firması', alt: 'Kısa ve uzun dönem araç kiralayan işletmeler', dot: '#FF6FB5', tint: '#FFEEF6', yetkiVar: true,
+        yetkiAd: 'Araç kiralama yetki belgesi no',
+        belgeNotu: 'Kiralama yönetmeliği gereği yetki belgesi Bakanlık Bilgi Sistemi’nden doğrulanır; mevcut firmalar için belge 1 Temmuz 2027’ye kadar zorunlu hale gelir.',
+        belgeler: [{ ad: 'Vergi levhası', not: 'PDF veya fotoğraf' }, { ad: 'Oda kayıt belgesi', not: 'Son 6 ay içinde alınmış' }, { ad: 'Şube adresleri', not: 'Teslim noktaları dahil' }] },
+      tekne: { ad: 'Tekne ve yat galerisi', alt: 'Tekne, yat ve deniz motoru satan işletmeler', dot: '#3DD68C', tint: '#E7FAF0', yetkiVar: false,
+        yetkiAd: '', belgeNotu: 'Deniz araçları için ayrı bir yetki belgesi yoktur; ticari belgelerin incelenir. Kiralık tekne sunacaksan turizm işletmesi belgesi de gerekir.',
+        belgeler: [{ ad: 'Vergi levhası', not: 'PDF veya fotoğraf' }, { ad: 'Ticaret sicil gazetesi', not: 'Kuruluş veya son değişiklik' }, { ad: 'Turizm işletmesi belgesi', not: 'Yalnızca kiralık tekne için' }] },
+      hava: { ad: 'Hava aracı satıcısı', alt: 'Uçak, helikopter ve İHA satan işletmeler', dot: '#FFC84A', tint: '#FFF6DF', yetkiVar: false,
+        yetkiAd: '', belgeNotu: 'Hava araçları için ayrı bir yetki belgesi yoktur; ticari belgelerin incelenir.',
+        belgeler: [{ ad: 'Vergi levhası', not: 'PDF veya fotoğraf' }, { ad: 'Ticaret sicil gazetesi', not: 'Kuruluş veya son değişiklik' }, { ad: 'Oda kayıt belgesi', not: 'Son 6 ay içinde alınmış' }] }
+    };
+    var LABELS = ['İşletme türü', 'İşletme bilgileri', 'Yetki ve belgeler', 'Hesap sahibi', 'Gönder'];
+    var tur = TURLER[st.tur];
+    return {
+      steps: LABELS.map(function (l, i) {
+        var n = i + 1, on = n <= st.step;
+        return { n: n, label: l, bar: on ? '#5B8CFF' : '#E3E6EF', w: n === st.step ? 800 : 600, col: on ? '#1E2333' : '#5A6073', cur: n === st.step ? 'step' : 'false', go: function () { self.setState({ step: n }); } };
+      }),
+      s1: st.step === 1, s2: st.step === 2, s3: st.step === 3, s4: st.step === 4, s5: st.step === 5,
+      turler: Object.keys(TURLER).map(function (k) {
+        var t = TURLER[k];
+        return { ad: t.ad, alt: t.alt, dot: t.dot, tint: t.tint, on: st.tur === k, off: st.tur !== k, pick: function () { self.setState({ tur: k, dogrulandi: false }); } };
+      }),
+      tur: tur,
+      isletmeAlan: [
+        { id: 'unvan', label: 'Ticari unvan', value: 'Yıldız Otomotiv Ltd. Şti.' },
+        { id: 'marka', label: 'Platformda görünecek ad', value: 'Yıldız Otomotiv' },
+        { id: 'vno', label: 'Vergi numarası', value: '[VERGİ NO]' },
+        { id: 'vd', label: 'Vergi dairesi', value: 'Kadıköy' },
+        { id: 'mersis', label: 'MERSİS numarası', value: '[MERSİS NO]' },
+        { id: 'adres', label: 'İşletme adresi', value: 'İstanbul, Kadıköy' }
+      ],
+      dogrulandi: st.dogrulandi,
+      dogrula: function () { self.setState({ dogrulandi: true }); },
+      belgeOzet: tur.belgeler.length + ' belge' + (tur.yetkiVar ? ' + yetki belgesi' : ''),
+      gonderildi: st.gonderildi, gonderilmedi: !st.gonderildi,
+      durum: [
+        { ad: 'Başvuru alındı', not: 'Bugün 01:52', mark: '✓', bg: '#5B8CFF', border: '#5B8CFF' },
+        { ad: tur.yetkiVar ? 'Yetki belgesi doğrulandı' : 'Belgeler alındı', not: tur.yetkiVar ? 'Bakanlık sisteminden otomatik kontrol' : 'Yönetici incelemesine hazır', mark: '✓', bg: '#5B8CFF', border: '#5B8CFF' },
+        { ad: 'Yönetici incelemesi', not: 'Belgeler ve adres bilgisi kontrol ediliyor', mark: '3', bg: '#FFFFFF', border: '#5B8CFF' },
+        { ad: 'Hesap açılır, 30 günlük deneme başlar', not: 'Onaydan sonra çalışanlarını davet edebilirsin', mark: '4', bg: '#F3F5FA', border: '#E3E6EF' }
+      ],
+      hasPrev: st.step > 1 && !st.gonderildi, noPrev: st.step === 1 || st.gonderildi,
+      showNext: !st.gonderildi,
+      prev: function () { self.setState({ step: Math.max(1, self.state.step - 1) }); },
+      next: function () { if (self.state.step === 5) { self.setState({ gonderildi: true }); } else { self.setState({ step: self.state.step + 1 }); } },
+      nextLabel: st.step === 5 ? 'Başvuruyu gönder' : 'Devam et'
+    };
+  }
+}
+</script>
+</body>
+</html>

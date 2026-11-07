@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Kurumsal hesap başvurusu (mobil)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 1100px; box-sizing: border-box; position: relative; background: #F6F8FD; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333; overflow: hidden">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF; padding: 10px 12px 14px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<button type="button" onClick="{{prev}}" aria-label="Geri" style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: #1E2333; cursor: pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<span style="font-size: 15px; font-weight: 800">Kurumsal başvuru</span>
+<span style="font-size: 12px; font-weight: 700; color: #11683F; padding: 0 6px">✓ Kaydedildi</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; margin-top: 6px" aria-hidden="true">
+<sc-for list="{{bars}}" as="br" hint-placeholder-count="5"><span style="height: 5px; border-radius: 3px; background: {{br.bg}}"></span></sc-for>
+</div>
+</header>
+
+<main style="padding: 18px 16px 120px">
+<sc-if value="{{formda}}" hint-placeholder-val="{{ true }}">
+<p style="margin: 0; font-size: 12.5px; font-weight: 700; color: #2450C8">{{adimEtiket}}</p>
+<h1 style="margin: 4px 0 6px; font-size: 22px; font-weight: 800; line-height: 1.25">{{baslik}}</h1>
+<p style="margin: 0 0 16px; font-size: 13.5px; color: #5A6073">{{alt}}</p>
+</sc-if>
+
+<sc-if value="{{s1}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{turler}}" as="t" hint-placeholder-count="4">
+<button type="button" role="radio" aria-checked="{{t.p}}" onClick="{{t.pick}}" style="display: flex; gap: 12px; align-items: center; text-align: left; border: {{t.bd}}; background: {{t.bg}}; border-radius: 16px; padding: 14px; cursor: pointer; color: #1E2333">
+<span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: {{t.tint}}; display: flex; align-items: center; justify-content: center" aria-hidden="true"><span style="width: 13px; height: 13px; border-radius: 50%; background: {{t.dot}}"></span></span>
+<span><span style="display: block; font-size: 15px; font-weight: 800">{{t.ad}}</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">{{t.alt}}</span></span>
+</button>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{s2}}" hint-placeholder-val="{{ false }}">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{isletme}}" as="f" hint-placeholder-count="5"><label style="font-size: 13px; font-weight: 800">{{f.ad}}<input value="{{f.v}}" inputmode="{{f.mod}}" style="display: block; margin-top: 6px; width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 12px; font-size: 15px; font-weight: 500; color: #1E2333"></label></sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{s3}}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{yetkiVar}}" hint-placeholder-val="{{ true }}">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px">
+<label for="b-yetki" style="display: block; font-size: 13px; font-weight: 800; margin-bottom: 6px">{{yetkiAd}}</label>
+<input id="b-yetki" value="34-2023-118842" style="width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 12px; font-size: 15px">
+<sc-if value="{{dogrulanmadi}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{dogrula}}" style="width: 100%; margin-top: 10px; border: 1px solid #1E2333; background: #FFFFFF; border-radius: 12px; padding: 12px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer">Bakanlık sisteminden doğrula</button></sc-if>
+<sc-if value="{{dogrulandi}}" hint-placeholder-val="{{ false }}"><p style="margin: 10px 0 0; background: #E7FAF0; color: #11683F; border-radius: 12px; padding: 10px 12px; font-size: 13px; font-weight: 700">✓ Yetki belgesi doğrulandı · Yıldız Otomotiv Ltd. Şti.</p></sc-if>
+</div>
+</sc-if>
+<p style="margin: 10px 4px; font-size: 12.5px; color: #5A6073; line-height: 1.5">{{belgeNotu}}</p>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; overflow: hidden">
+<sc-for list="{{belgeler}}" as="bl" hint-placeholder-count="3">
+<div style="display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-bottom: 1px solid #EEF0F5">
+<span style="flex: 1"><span style="display: block; font-size: 14.5px; font-weight: 700">{{bl.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">{{bl.not}}</span></span>
+<button type="button" onClick="{{bl.pick}}" style="flex: none; border: {{bl.bd}}; background: {{bl.bg}}; border-radius: 10px; padding: 9px 12px; font-size: 13px; font-weight: 800; color: {{bl.renk}}; cursor: pointer">{{bl.durum}}</button>
+</div>
+</sc-for>
+</div>
+<p style="margin: 8px 4px 0; font-size: 12px; color: #5A6073">Kamerayla çekebilir veya dosyalardan seçebilirsin · PDF, JPG, PNG</p>
+</sc-if>
+
+<sc-if value="{{s4}}" hint-placeholder-val="{{ false }}">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+<label style="font-size: 13px; font-weight: 800">Ad soyad<input value="Selin Yıldız" style="display: block; margin-top: 6px; width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 12px; font-size: 15px; font-weight: 500; color: #1E2333"></label>
+<div><span style="display: block; font-size: 13px; font-weight: 800">Cep telefonu</span><span style="display: flex; justify-content: space-between; margin-top: 6px; border: 1px solid #E3E6EF; background: #F6F8FD; border-radius: 12px; padding: 12px; font-size: 15px">+90 5XX XXX XX 21<span style="font-size: 12px; font-weight: 800; color: #11683F">SMS ile doğrulandı</span></span></div>
+<label style="font-size: 13px; font-weight: 800">Fatura e-postası<input value="muhasebe@yildizotomotiv.com.tr" inputmode="email" style="display: block; margin-top: 6px; width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 12px; font-size: 15px; font-weight: 500; color: #1E2333"></label>
+</div>
+<label style="display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; font-size: 13px; color: #3A4052; line-height: 1.45"><input type="checkbox" checked style="width: 20px; height: 20px; margin: 0; flex: none">Galeri hizmet sözleşmesini ve aydınlatma metnini okudum.</label>
+<label style="display: flex; gap: 10px; align-items: flex-start; margin-top: 10px; font-size: 13px; color: #3A4052; line-height: 1.45"><input type="checkbox" style="width: 20px; height: 20px; margin: 0; flex: none">Kampanya ve duyuru iletileri almak istiyorum (isteğe bağlı, İYS’ye kaydedilir).</label>
+</sc-if>
+
+<sc-if value="{{s5}}" hint-placeholder-val="{{ false }}">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; overflow: hidden">
+<sc-for list="{{ozet}}" as="oz" hint-placeholder-count="5"><div style="display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; border-bottom: 1px solid #EEF0F5"><span style="font-size: 13px; color: #5A6073">{{oz.k}}</span><span style="font-size: 13.5px; font-weight: 700; text-align: right">{{oz.v}}</span></div></sc-for>
+</div>
+<sc-if value="{{eksikVar}}" hint-placeholder-val="{{ false }}"><div style="margin-top: 12px; background: #FFF6DF; border-radius: 14px; padding: 12px 14px; font-size: 13px; color: #5A3D00; line-height: 1.5"><strong>{{eksikMetin}}</strong> Şimdi gönderebilirsin; eksikler yüklenene kadar inceleme bekler. <button type="button" onClick="{{belgeyeDon}}" style="border: 0; background: transparent; padding: 0; font-size: 13px; font-weight: 800; color: #7A5300; text-decoration: underline; cursor: pointer">Belgelere dön</button></div></sc-if>
+<div style="margin-top: 12px; background: #EEF3FF; border-radius: 14px; padding: 12px 14px; font-size: 13px; color: #1E3A8A; line-height: 1.5">Onaylanınca <strong>30 günlük ücretsiz deneme</strong> başlar: 15 araç, günde 10 ilk mesaj. Kart bilgisi istenmez. Paketler aylık 1.490 TL’den başlar (KDV hariç).</div>
+</sc-if>
+
+<sc-if value="{{gonderildi}}" hint-placeholder-val="{{ false }}">
+<div style="text-align: center; padding-top: 30px">
+<span style="display: inline-flex; width: 64px; height: 64px; border-radius: 50%; background: #E7FAF0; align-items: center; justify-content: center" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#11683F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span>
+<h1 style="margin: 14px 0 6px; font-size: 22px; font-weight: 800">Başvurun alındı</h1>
+<p style="margin: 0 0 18px; font-size: 13.5px; color: #5A6073; line-height: 1.5">Yönetici ekibimiz inceler; sonucu SMS ve e-postayla bildiririz. Genellikle 1 iş günü sürer.</p>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 6px 14px">
+<sc-for list="{{durumlar}}" as="d" hint-placeholder-count="3"><div style="display: flex; gap: 12px; padding: 10px 0"><span style="flex: none; width: 24px; height: 24px; border-radius: 50%; background: {{d.bg}}; border: 2px solid {{d.kenar}}; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800">{{d.isaret}}</span><span><span style="display: block; font-size: 14px; font-weight: 800">{{d.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">{{d.not}}</span></span></div></sc-for>
+</div>
+</sc-if>
+</main>
+
+<div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 1px solid #E3E6EF; padding: 12px 16px 24px; display: grid; grid-template-columns: 1fr 2fr; gap: 8px">
+<sc-if value="{{formda}}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{prev}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 14px; padding: 14px 8px; font-size: 15px; font-weight: 700; color: #1E2333; cursor: pointer">Geri</button>
+<button type="button" onClick="{{next}}" style="border: 0; background: #5B8CFF; border-radius: 14px; padding: 15px 8px; font-size: 15.5px; font-weight: 800; color: #1E2333; cursor: pointer">{{ileri}}</button>
+</sc-if>
+<sc-if value="{{gonderildi}}" hint-placeholder-val="{{ false }}"><a href="HesapMobil.dc.html" style="grid-column: span 2; display: block; text-align: center; background: #1E2333; border-radius: 14px; padding: 15px 8px; font-size: 15px; font-weight: 800; color: #FFFFFF">Hesabıma dön</a></sc-if>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { step: 1, tur: 'vasita', dogrulandi: false, yuklenen: { 0: 1 } }; }
+  renderVals() {
+    var self = this, st = this.state, step = st.step;
+    var TURLER = {
+      vasita: { ad: 'Vasıta galerisi', alt: 'İkinci el ve sıfır kara taşıtı satan işletmeler', dot: '#5B8CFF', tint: '#EEF3FF', yetkiVar: true, yetkiAd: 'İkinci el motorlu kara taşıtı ticareti yetki belgesi no', belgeNotu: 'Yetki belgen, üyelikten önce Ticaret Bakanlığı sisteminden kontrol edilir.', belgeler: [['Vergi levhası', 'PDF veya fotoğraf'], ['Ticaret sicil gazetesi', 'Kuruluş veya son değişiklik'], ['Oda kayıt belgesi', 'Son 6 ay içinde alınmış']] },
+      kiralama: { ad: 'Kiralama firması', alt: 'Kısa ve uzun dönem araç kiralayan işletmeler', dot: '#FF6FB5', tint: '#FFEEF6', yetkiVar: true, yetkiAd: 'Araç kiralama yetki belgesi no', belgeNotu: 'Yetki belgesi Bakanlık Bilgi Sistemi’nden doğrulanır; mevcut firmalar için 1 Temmuz 2027’ye kadar zorunlu hale gelir.', belgeler: [['Vergi levhası', 'PDF veya fotoğraf'], ['Oda kayıt belgesi', 'Son 6 ay içinde alınmış'], ['Şube adresleri', 'Teslim noktaları dahil']] },
+      tekne: { ad: 'Tekne ve yat galerisi', alt: 'Tekne, yat ve deniz motoru satan işletmeler', dot: '#3DD68C', tint: '#E7FAF0', yetkiVar: false, yetkiAd: '', belgeNotu: 'Deniz araçları için ayrı bir yetki belgesi yoktur; ticari belgelerin incelenir.', belgeler: [['Vergi levhası', 'PDF veya fotoğraf'], ['Ticaret sicil gazetesi', 'Kuruluş veya son değişiklik'], ['Turizm işletmesi belgesi', 'Yalnızca kiralık tekne için']] },
+      hava: { ad: 'Hava aracı satıcısı', alt: 'Uçak, helikopter ve İHA satan işletmeler', dot: '#FFC84A', tint: '#FFF6DF', yetkiVar: false, yetkiAd: '', belgeNotu: 'Hava araçları için ayrı bir yetki belgesi yoktur; ticari belgelerin incelenir.', belgeler: [['Vergi levhası', 'PDF veya fotoğraf'], ['Ticaret sicil gazetesi', 'Kuruluş veya son değişiklik'], ['Oda kayıt belgesi', 'Son 6 ay içinde alınmış']] }
+    };
+    var tur = TURLER[st.tur];
+    var LABELS = ['İşletme türü', 'İşletme bilgileri', 'Yetki ve belgeler', 'Hesap sahibi', 'Kontrol et'];
+    var TITLES = ['İşletme türün nedir?', 'İşletme bilgileri', 'Yetki ve belgeler', 'Hesabın sahibi', 'Kontrol et ve gönder'];
+    var SUBS = ['İstenen belgeler işletme türüne göre değişir.', 'Fatura ve galeri profilinde kullanılır.', 'Belgelerini telefonundan çekip yükleyebilirsin.', 'Hesabı yönetecek kişi; ekibini sonra davet edersin.', 'Başvurunu yönetici ekibimiz inceler.'];
+    var bitti = step === 6;
+    var yuk = Object.keys(st.yuklenen).length;
+    return {
+      bars: [1, 2, 3, 4, 5].map(function (i) { return { bg: i <= step ? '#5B8CFF' : '#E3E6EF' }; }),
+      formda: !bitti, gonderildi: bitti,
+      adimEtiket: 'Adım ' + Math.min(step, 5) + ' / 5 · ' + LABELS[Math.min(step, 5) - 1], baslik: TITLES[Math.min(step, 5) - 1], alt: SUBS[Math.min(step, 5) - 1],
+      s1: step === 1, s2: step === 2, s3: step === 3, s4: step === 4, s5: step === 5,
+      turler: Object.keys(TURLER).map(function (k) { var t = TURLER[k], on = st.tur === k; return { ad: t.ad, alt: t.alt, dot: t.dot, tint: t.tint, p: on ? 'true' : 'false', bd: on ? '2px solid #5B8CFF' : '1px solid #E3E6EF', bg: on ? '#F5F8FF' : '#FFFFFF', pick: function () { self.setState({ tur: k }); } }; }),
+      isletme: [['Ticari unvan', 'Yıldız Otomotiv Ltd. Şti.', 'text'], ['Galeri adı (profilde görünür)', 'Yıldız Otomotiv', 'text'], ['Vergi dairesi / no', 'Kadıköy · 9870012345', 'numeric'], ['MERSİS no', '0987001234500017', 'numeric'], ['Adres', 'Fikirtepe Mah. Oto Galericiler Sitesi No 14, Kadıköy / İstanbul', 'text']].map(function (f) { return { ad: f[0], v: f[1], mod: f[2] }; }),
+      yetkiVar: tur.yetkiVar, yetkiAd: tur.yetkiAd, belgeNotu: tur.belgeNotu,
+      dogrulandi: st.dogrulandi, dogrulanmadi: !st.dogrulandi, dogrula: function () { self.setState({ dogrulandi: true }); },
+      belgeler: tur.belgeler.map(function (b, i) { var ok = !!st.yuklenen[i]; return { ad: b[0], not: ok ? b[0].toLowerCase().replace(/ /g, '_') + '.pdf · yüklendi' : b[1], durum: ok ? '✓ Yüklendi' : 'Yükle', bd: ok ? '0' : '1px solid #1E2333', bg: ok ? '#E7FAF0' : '#FFFFFF', renk: ok ? '#11683F' : '#1E2333', pick: function () { var n = Object.assign({}, self.state.yuklenen); n[i] = 1; self.setState({ yuklenen: n }); } }; }),
+      ozet: [['İşletme türü', tur.ad], ['Ticari unvan', 'Yıldız Otomotiv Ltd. Şti.'], ['Yetki', tur.yetkiVar ? (st.dogrulandi ? 'Doğrulandı' : 'Doğrulanmadı') : 'Gerekmiyor'], ['Belgeler', yuk + ' / ' + tur.belgeler.length + ' yüklendi'], ['Hesap sahibi', 'Selin Yıldız']].map(function (o) { return { k: o[0], v: o[1] }; }),
+      durumlar: [['Başvuru alındı', 'Bugün 14:20', '✓', '#3DD68C', '#3DD68C'], ['Belgeler inceleniyor', 'Yönetici ekibi · genellikle 1 iş günü', '2', '#FFFFFF', '#5B8CFF'], ['Deneme başlar', '30 gün ücretsiz · 15 araç, günde 10 ilk mesaj', '3', '#FFFFFF', '#D5DAE5']].map(function (d) { return { ad: d[0], not: d[1], isaret: d[2], bg: d[3], kenar: d[4] }; }),
+      eksikVar: yuk < tur.belgeler.length, eksikMetin: (tur.belgeler.length - yuk) + ' belge eksik.', belgeyeDon: function () { self.setState({ step: 3 }); },
+      ileri: step === 5 ? 'Başvuruyu gönder' : 'Devam et',
+      prev: function () { if (self.state.step > 1 && self.state.step < 6) self.setState({ step: self.state.step - 1 }); },
+      next: function () { if (self.state.step < 6) self.setState({ step: self.state.step + 1 }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

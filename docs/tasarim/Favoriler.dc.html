@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Favoriler ve kayıtlı aramalar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}a:hover{color:#1A3C99;text-decoration:underline}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="background: #F6F8FD; min-height: 100vh; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF">
+<div style="max-width: 1360px; margin: 0 auto; padding: 16px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px">
+<a href="Anasayfa.dc.html" style="display: flex; align-items: center; gap: 8px; color: #1E2333; text-decoration: none" aria-label="Rengarenk ana sayfa">
+<span style="display: flex; gap: 3px" aria-hidden="true"><span style="width: 10px; height: 22px; border-radius: 5px; background: #5B8CFF"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #FF6FB5"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #FFC84A"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #3DD68C"></span></span>
+<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px">rengarenk</span>
+</a>
+<form style="flex: 999 1 320px; min-width: 0; display: flex; align-items: center; gap: 8px; background: #F3F5FA; border: 1px solid #E3E6EF; border-radius: 12px; padding: 0 8px 0 14px" role="search">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5A6073" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<label for="ara" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Talep ara</label>
+<input id="ara" type="search" placeholder="Marka, model veya talep no ile ara" style="flex: 1; min-width: 0; border: 0; background: transparent; font-size: 15px; padding: 12px 0; color: #1E2333; outline: none">
+<button type="submit" style="border: 0; border-radius: 9px; background: #5B8CFF; color: #1E2333; font-weight: 700; font-size: 14px; padding: 9px 16px; cursor: pointer">Ara</button>
+</form>
+<nav style="display: flex; align-items: center; gap: 10px" aria-label="Hesap">
+<a href="#" style="display: flex; align-items: center; gap: 8px; color: #1E2333; font-weight: 600; font-size: 14.5px; padding: 8px 6px; text-decoration: none"><span style="width: 34px; height: 34px; border-radius: 50%; background: #FFEEF6; color: #A3236A; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px" aria-hidden="true">AY</span>Ayşe Yılmaz</a>
+<a href="Sihirbaz.dc.html" style="display: flex; align-items: center; gap: 8px; background: #5B8CFF; color: #1E2333; font-weight: 700; font-size: 15px; padding: 11px 18px; border-radius: 12px; text-decoration: none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Talep oluştur</a>
+</nav>
+</div>
+</header>
+
+<div style="max-width: 1360px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px">
+<nav style="flex: 1 1 220px; max-width: 250px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 12px" aria-label="Hesabım">
+<span style="display: block; padding: 8px 10px 10px; font-size: 13px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: #5A6073">Hesabım</span>
+<a href="Taleplerim.dc.html" style="display: block; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052">Taleplerim</a>
+<a href="Mesajlar.dc.html" style="display: block; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052">Mesajlarım</a>
+<a href="Favoriler.dc.html" aria-current="page" style="display: block; background: #EEF3FF; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 800; color: #1E2333">Favoriler ve aramalar</a>
+<a href="Haklarim.dc.html" style="display: block; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052">Haklarım ve ödemeler</a>
+<a href="Ayarlar.dc.html" style="display: block; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052">Ayarlar</a>
+<a href="Yardim.dc.html" style="display: block; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052">Yardım</a>
+</nav>
+
+<main style="flex: 999 1 760px; min-width: 0">
+<h1 style="margin: 0 0 4px; font-size: 28px; font-weight: 800; letter-spacing: -0.4px">Favoriler ve kayıtlı aramalar</h1>
+<p style="margin: 0 0 16px; font-size: 14.5px; color: #5A6073">Satmak istediğin araca uyan talepleri takip et; yeni talep gelince haber verelim.</p>
+
+<div role="tablist" aria-label="Görünüm" style="display: flex; gap: 6px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 14px; padding: 6px; margin-bottom: 16px; max-width: 520px">
+<sc-for list="{{tabs}}" as="t" hint-placeholder-count="2">
+<sc-if value="{{t.on}}" hint-placeholder-val="{{ true }}"><button type="button" role="tab" aria-selected="true" onClick="{{t.pick}}" style="flex: 1; border: 0; background: #EEF3FF; border-radius: 10px; padding: 11px 12px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer">{{t.label}} <span style="color: #2450C8">{{t.n}}</span></button></sc-if>
+<sc-if value="{{t.off}}" hint-placeholder-val="{{ false }}"><button type="button" role="tab" aria-selected="false" onClick="{{t.pick}}" style="flex: 1; border: 0; background: transparent; border-radius: 10px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052; cursor: pointer">{{t.label}} <span style="color: #5A6073">{{t.n}}</span></button></sc-if>
+</sc-for>
+</div>
+
+<sc-if value="{{gor.fav}}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{favoriler}}" as="f" hint-placeholder-count="4">
+<article style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 16px; display: flex; flex-direction: column; gap: 8px; opacity: {{f.opak}}">
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px">
+<span style="font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: {{f.durumBg}}; color: {{f.durumFg}}">{{f.durum}}</span>
+<button type="button" onClick="{{f.kaldir}}" aria-label="Favorilerden çıkar" style="flex: none; border: 0; background: transparent; padding: 2px; cursor: pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="#FF6FB5" stroke="#E0479A" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-9-9.1C1.7 7.6 3.9 4.5 7.1 4.5c2 0 3.4 1.1 4.9 2.9 1.5-1.8 2.9-2.9 4.9-2.9 3.2 0 5.4 3.1 4.1 6.4C19 15.6 12 20 12 20z"></path></svg></button>
+</div>
+<a href="Main.dc.html" style="font-size: 16.5px; font-weight: 800; color: #1E2333">{{f.baslik}}</a>
+<p style="margin: 0; font-size: 13.5px; color: #3A4052">{{f.ozet}}</p>
+<p style="margin: 0; font-size: 12.5px; color: #5A6073">{{f.kim}} · {{f.yer}} · {{f.zaman}}</p>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px">
+<sc-if value="{{f.yazabilir}}" hint-placeholder-val="{{ true }}"><a href="Main.dc.html" style="background: #5B8CFF; border-radius: 10px; padding: 9px 14px; font-size: 13.5px; font-weight: 800; color: #1E2333">Mesaj gönder</a></sc-if>
+<sc-if value="{{f.yazildi}}" hint-placeholder-val="{{ false }}"><a href="Mesajlar.dc.html" style="border: 1px solid #D5DAE5; border-radius: 10px; padding: 8px 14px; font-size: 13.5px; font-weight: 700; color: #1E2333">Sohbete git</a></sc-if>
+<sc-if value="{{f.kapali}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #5A6073; padding: 8px 0">Talep sahibi aracını buldu; yeni mesaj gönderilemez.</span></sc-if>
+</div>
+</article>
+</sc-for>
+</div>
+<sc-if value="{{favBos}}" hint-placeholder-val="{{ false }}"><div style="background: #FFFFFF; border: 1px dashed #C9CFDB; border-radius: 18px; padding: 36px 20px; text-align: center; font-size: 15px; color: #5A6073">Favori talebin kalmadı. Talep sayfalarındaki kalp simgesiyle ekleyebilirsin.</div></sc-if>
+</sc-if>
+
+<sc-if value="{{gor.ara}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{aramalar}}" as="a" hint-placeholder-count="3">
+<article style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px; display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: center">
+<div style="flex: 999 1 360px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px"><h2 style="margin: 0; font-size: 17px; font-weight: 800">{{a.ad}}</h2><sc-if value="{{a.yeniVar}}" hint-placeholder-val="{{ true }}"><a href="Liste.dc.html" style="font-size: 12.5px; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: #FFEEF6; color: #A3236A">{{a.yeni}} yeni talep</a></sc-if></div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px">
+<sc-for list="{{a.kriter}}" as="c" hint-placeholder-count="4"><span style="background: #F3F5FA; border-radius: 999px; padding: 5px 11px; font-size: 12.5px; font-weight: 600; color: #3A4052">{{c.t}}</span></sc-for>
+</div>
+<p style="margin: 8px 0 0; font-size: 12.5px; color: #5A6073">Şu an {{a.toplam}} aktif talep uyuyor · Kaydedildi {{a.tarih}}</p>
+</div>
+<div style="flex: 1 1 260px; min-width: 0">
+<span style="display: block; font-size: 12.5px; font-weight: 700; color: #5A6073; margin-bottom: 6px">Bildirim</span>
+<div role="radiogroup" aria-label="{{a.ad}} bildirimi" style="display: flex; gap: 4px; background: #F3F5FA; border-radius: 12px; padding: 4px">
+<sc-for list="{{a.bildirim}}" as="b" hint-placeholder-count="3">
+<button type="button" role="radio" aria-checked="{{b.aria}}" onClick="{{b.pick}}" style="flex: 1; border: 0; background: {{b.bg}}; border-radius: 9px; padding: 8px 6px; font-size: 13px; font-weight: {{b.w}}; color: #1E2333; cursor: pointer">{{b.ad}}</button>
+</sc-for>
+</div>
+<div style="display: flex; gap: 14px; margin-top: 10px; font-size: 13.5px"><a href="Liste.dc.html" style="font-weight: 700">Talepleri gör</a><a href="#" style="font-weight: 700">Düzenle</a><button type="button" onClick="{{a.sil}}" style="border: 0; background: transparent; padding: 0; font-size: 13.5px; font-weight: 700; color: #A3271F; cursor: pointer">Sil</button></div>
+</div>
+</article>
+</sc-for>
+<p style="margin: 4px 0 0; font-size: 13px; color: #5A6073">En fazla 10 kayıtlı arama tutabilirsin. Anlık bildirim telefonuna, günlük özet e-postana gelir.</p>
+</div>
+</sc-if>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 'fav', silinenFav: {}, silinenAra: {}, bildirim: { a1: 'anlik', a2: 'gunluk', a3: 'kapali' } };
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    var D = { y: ['Yayında', '#E7FAF0', '#11683F'], s: ['Son 2 gün', '#FFF6DF', '#7A5300'], b: ['Aracını buldu', '#F3F5FA', '#3A4052'] };
+    var F = [
+      ['f1', 'Renault Clio 1.0 TCe · 2020 ve üzeri', 'En fazla 60.000 km · Otomatik · Boyasız', 'Mert K.', 'İstanbul, Ataşehir', '2 gün önce', 'y', 'yaz'],
+      ['f2', 'Renault Clio veya Peugeot 208 · dizel', 'Ana araç Clio 1.5 dCi · Alternatif 208 1.5 BlueHDi', 'Zeynep A.', 'Kocaeli, İzmit', '5 gün önce', 's', 'yazildi'],
+      ['f3', 'Dacia Sandero Stepway · 2021 ve üzeri', 'Lokal boya kabul · Tramer 20.000 TL altı', 'Hakan D.', 'İstanbul, Pendik', '1 hafta önce', 'y', 'yaz'],
+      ['f4', 'Renault Clio 1.3 TCe Icon', 'En fazla 40.000 km · Hasar kaydı yok', 'Elif S.', 'İstanbul, Kadıköy', '3 hafta önce', 'b', 'kapali']
+    ];
+    var favoriler = F.filter(function (f) { return !st.silinenFav[f[0]]; }).map(function (f) {
+      var d = D[f[6]];
+      return { baslik: f[1], ozet: f[2], kim: f[3], yer: f[4], zaman: f[5], durum: d[0], durumBg: d[1], durumFg: d[2], opak: f[6] === 'b' ? '0.75' : '1',
+        yazabilir: f[7] === 'yaz', yazildi: f[7] === 'yazildi', kapali: f[7] === 'kapali',
+        kaldir: function () { var n = Object.assign({}, self.state.silinenFav); n[f[0]] = true; self.setState({ silinenFav: n }); } };
+    });
+    var A = [
+      ['a1', 'Benim Clio’ma uyan talepler', ['Otomobil', 'Renault Clio', '2019 aracı kabul eden', '80.000 km ve üstü', 'İstanbul ve Kocaeli'], '3', '14', '2 Ekim 2026'],
+      ['a2', 'Kiralık araç arayanlar · İzmir', ['Kiralık araç', 'İzmir', 'Günlük veya haftalık', 'Ekonomik sınıf'], '0', '22', '20 Ekim 2026'],
+      ['a3', 'Elektrikli scooter talepleri', ['Motosiklet', 'Elektrikli', '50 cc ve altı', 'Tüm Türkiye'], '1', '5', '28 Ekim 2026']
+    ];
+    var B = [['anlik', 'Anlık'], ['gunluk', 'Günlük özet'], ['kapali', 'Kapalı']];
+    var aramalar = A.filter(function (a) { return !st.silinenAra[a[0]]; }).map(function (a) {
+      return { ad: a[1], kriter: a[2].map(function (t) { return { t: t }; }), yeni: a[3], yeniVar: a[3] !== '0', toplam: a[4], tarih: a[5],
+        bildirim: B.map(function (b) { var on = st.bildirim[a[0]] === b[0]; return { ad: b[1], aria: on ? 'true' : 'false', bg: on ? '#FFFFFF' : 'transparent', w: on ? '800' : '600', pick: function () { var n = Object.assign({}, self.state.bildirim); n[a[0]] = b[0]; self.setState({ bildirim: n }); } }; }),
+        sil: function () { var n = Object.assign({}, self.state.silinenAra); n[a[0]] = true; self.setState({ silinenAra: n }); } };
+    });
+    return {
+      tabs: [['fav', 'Favori talepler', favoriler.length], ['ara', 'Kayıtlı aramalar', aramalar.length]].map(function (t) { return { label: t[1], n: String(t[2]), on: st.tab === t[0], off: st.tab !== t[0], pick: function () { self.setState({ tab: t[0] }); } }; }),
+      gor: { fav: st.tab === 'fav', ara: st.tab === 'ara' },
+      favoriler: favoriler, favBos: favoriler.length === 0,
+      aramalar: aramalar
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Galeri paneli</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}a:hover{color:#1A3C99;text-decoration:underline}
+button,input,select{font-family:inherit}
+</style>
+</helmet>
+<div style="background: #F6F8FD; min-height: 100vh; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF">
+<div style="max-width: 1360px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<a href="Anasayfa.dc.html" style="display: flex; align-items: center; gap: 8px; color: #1E2333; text-decoration: none" aria-label="Rengarenk ana sayfa">
+<span style="display: flex; gap: 3px" aria-hidden="true">
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #5B8CFF"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #FF6FB5"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #FFC84A"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #3DD68C"></span>
+</span>
+<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px">rengarenk</span>
+<span style="font-size: 12.5px; font-weight: 800; background: #FFF6DF; color: #7A5300; padding: 4px 10px; border-radius: 999px; margin-left: 4px">Galeri paneli</span>
+</a>
+<div style="display: flex; align-items: center; gap: 10px">
+<span style="width: 36px; height: 36px; border-radius: 50%; background: #FFF6DF; color: #7A5300; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px" aria-hidden="true">SY</span>
+<span><span style="display: block; font-size: 14.5px; font-weight: 700">Yıldız Otomotiv</span><span style="display: block; font-size: 12.5px; color: #5A6073">Selin Yıldız · Sahip</span></span>
+</div>
+</div>
+</header>
+
+<div style="max-width: 1360px; margin: 0 auto; padding: 24px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px">
+
+<nav style="flex: 1 1 220px; max-width: 250px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 12px" aria-label="Galeri paneli">
+<ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px">
+<sc-for list="{{menu}}" as="mi" hint-placeholder-count="7">
+<li>
+<sc-if value="{{mi.on}}" hint-placeholder-val="{{ false }}">
+<button type="button" aria-current="page" onClick="{{mi.pick}}" style="width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 0; background: #EEF3FF; border-radius: 12px; padding: 12px 12px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer; text-align: left"><span style="display: flex; align-items: center; gap: 10px"><span style="width: 9px; height: 9px; border-radius: 50%; background: {{mi.dot}}" aria-hidden="true"></span>{{mi.label}}</span><span style="font-size: 12px; font-weight: 800; color: #5A6073">{{mi.badge}}</span></button>
+</sc-if>
+<sc-if value="{{mi.off}}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{mi.pick}}" style="width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 0; background: transparent; border-radius: 12px; padding: 12px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052; cursor: pointer; text-align: left"><span style="display: flex; align-items: center; gap: 10px"><span style="width: 9px; height: 9px; border-radius: 50%; background: {{mi.dot}}" aria-hidden="true"></span>{{mi.label}}</span><span style="font-size: 12px; font-weight: 800; color: #5A6073">{{mi.badge}}</span></button>
+</sc-if>
+</li>
+</sc-for>
+</ul>
+</nav>
+
+<main style="flex: 999 1 760px; min-width: 0">
+
+<sc-if value="{{v.ozet}}" hint-placeholder-val="{{ true }}">
+<h1 style="margin: 0 0 4px; font-size: 26px; font-weight: 800">Özet</h1>
+<p style="margin: 0 0 20px; font-size: 14.5px; color: #5A6073">Profesyonel paket · Yenileme 1 Aralık 2026</p>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{kotalar}}" as="k" hint-placeholder-count="4">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 16px">
+<div style="font-size: 13px; color: #5A6073; font-weight: 600">{{k.label}}</div>
+<div style="font-size: 24px; font-weight: 800; margin-top: 4px">{{k.value}} <span style="font-size: 14px; color: #5A6073; font-weight: 600">/ {{k.max}}</span></div>
+<div style="height: 8px; border-radius: 4px; background: #EEF0F5; margin-top: 10px; overflow: hidden"><div style="height: 8px; border-radius: 4px; background: {{k.color}}; width: {{k.pct}}"></div></div>
+<div style="font-size: 12.5px; color: #5A6073; margin-top: 8px">{{k.not}}</div>
+</div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 16px">
+<button type="button" onClick="{{gitEslesme}}" style="text-align: left; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 18px; cursor: pointer"><span style="display: block; font-size: 30px; font-weight: 800; color: #11683F">5</span><span style="display: block; font-size: 15px; font-weight: 700; color: #1E2333; margin-top: 2px">Yeni eşleşme</span><span style="display: block; font-size: 13px; color: #5A6073; margin-top: 4px">Portföyündeki araçlara uyan talepler</span></button>
+<button type="button" onClick="{{gitPortfoy}}" style="text-align: left; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 18px; cursor: pointer"><span style="display: block; font-size: 30px; font-weight: 800; color: #7A5300">2</span><span style="display: block; font-size: 15px; font-weight: 700; color: #1E2333; margin-top: 2px">EİDS doğrulaması bekleyen</span><span style="display: block; font-size: 13px; color: #5A6073; margin-top: 4px">Doğrulanana kadar alıcılara görünmez</span></button>
+<a href="Mesajlar.dc.html" style="display: block; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 18px; color: #1E2333; text-decoration: none"><span style="display: block; font-size: 30px; font-weight: 800; color: #9B1C5B">3</span><span style="display: block; font-size: 15px; font-weight: 700; margin-top: 2px">Okunmamış mesaj</span><span style="display: block; font-size: 13px; color: #5A6073; margin-top: 4px">Ekip üyelerine gelen sohbetler dahil</span></a>
+</div>
+</sc-if>
+
+<sc-if value="{{v.portfoy}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 26px; font-weight: 800">Portföy</h1><p style="margin: 3px 0 0; font-size: 14.5px; color: #5A6073">42 / 100 araç · Alıcılara yalnızca EİDS doğrulanmış araçlar görünür</p></div>
+<div style="display: flex; gap: 8px">
+<button type="button" onClick="{{gitToplu}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 12px; padding: 11px 16px; font-size: 14.5px; font-weight: 700; color: #1E2333; cursor: pointer">Toplu yükle</button>
+<button type="button" onClick="{{gitEkle}}" style="border: 0; background: #5B8CFF; border-radius: 12px; padding: 12px 18px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer">+ Araç ekle</button>
+</div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden">
+<div style="display: flex; gap: 14px; padding: 12px 18px; background: #F3F5FA; font-size: 12.5px; font-weight: 700; color: #5A6073; text-transform: uppercase; letter-spacing: 0.4px">
+<span style="flex: 999 1 260px">Araç</span><span style="flex: 1 1 110px">Fiyat</span><span style="flex: 1 1 130px">EİDS</span><span style="flex: 1 1 90px">Eşleşme</span><span style="flex: 1 1 90px">Durum</span><span style="flex: 0 0 70px"></span>
+</div>
+<sc-for list="{{portfoy}}" as="p" hint-placeholder-count="6">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 12px 18px; border-top: 1px solid #EEF0F5">
+<span style="flex: 999 1 260px; min-width: 0; display: flex; align-items: center; gap: 12px">
+<span style="width: 72px; height: 48px; border-radius: 10px; background: {{p.tint}}; display: flex; align-items: center; justify-content: center; flex: none"><span aria-hidden="true" style="display: flex; align-items: center; justify-content: center; flex: none; width: 60px; max-width: 100%; aspect-ratio: 60 / 22; border-radius: 10px; background: linear-gradient(135deg, #C9D3E6, #EEF1F7)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8C95AA" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3v12H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg></span></span>
+<span style="min-width: 0"><span style="display: block; font-size: 14.5px; font-weight: 800">{{p.ad}}</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">{{p.detay}}</span></span>
+</span>
+<span style="flex: 1 1 110px; font-size: 14.5px; font-weight: 800">{{p.fiyat}}</span>
+<span style="flex: 1 1 130px"><span style="font-size: 12.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: {{p.eidsBg}}; color: {{p.eidsFg}}">{{p.eids}}</span></span>
+<span style="flex: 1 1 90px; font-size: 14px; font-weight: 700">{{p.eslesme}}</span>
+<span style="flex: 1 1 90px; font-size: 13.5px; color: #3A4052">{{p.durum}}</span>
+<span style="flex: 0 0 70px; text-align: right"><a href="#" style="font-size: 13.5px; font-weight: 700">Düzenle</a></span>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{v.ekle}}" hint-placeholder-val="{{ false }}">
+<h1 style="margin: 0 0 4px; font-size: 26px; font-weight: 800">Araç ekle</h1>
+<p style="margin: 0 0 18px; font-size: 14.5px; color: #5A6073">Araç, kaydedildikten sonra EİDS doğrulamasına gönderilir; doğrulanınca alıcılara görünür ve eşleşmeye girer.</p>
+<div style="display: flex; flex-direction: column; gap: 16px">
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 20px" aria-labelledby="e1">
+<h2 id="e1" style="margin: 0 0 14px; font-size: 17px; font-weight: 800">Katalog bilgileri</h2>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{katalogAlan}}" as="a" hint-placeholder-count="8">
+<div><label for="{{a.id}}" style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px">{{a.label}}</label><input id="{{a.id}}" value="{{a.value}}" style="width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 11px 12px; font-size: 14.5px"></div>
+</sc-for>
+</div>
+<p style="margin: 10px 0 0; font-size: 13px; color: #2450C8; font-weight: 600">Model yılından kasa ve makyaj otomatik bulunur; paket listesi bu kasa için katalogdan gelir. Temsilî fotoğraf, açık lisanslı kaynaktan (Wikimedia Commons) atfıyla otomatik eklenir.</p>
+</section>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 20px" aria-labelledby="e2">
+<h2 id="e2" style="margin: 0 0 14px; font-size: 17px; font-weight: 800">Araç ve yasal bilgiler</h2>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{yasalAlan}}" as="a" hint-placeholder-count="8">
+<div><label for="{{a.id}}" style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px">{{a.label}}</label><input id="{{a.id}}" value="{{a.value}}" style="width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 11px 12px; font-size: 14.5px"></div>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px">
+<span style="display: inline-flex; align-items: center; gap: 6px; background: #E7FAF0; color: #11683F; font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 999px">6 ay / 6.000 km kontrolü geçti</span>
+<span style="display: inline-flex; align-items: center; gap: 6px; background: #E7FAF0; color: #11683F; font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 999px">Fiyat, üretici tavsiye fiyatının altında</span>
+</div>
+</section>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 20px" aria-labelledby="e3">
+<h2 id="e3" style="margin: 0 0 6px; font-size: 17px; font-weight: 800">Boya, değişen ve hasar</h2>
+<p style="margin: 0 0 14px; font-size: 13.5px; color: #5A6073">Parça durumu, talep sayfasındaki şemanın aynısıyla parça parça girilir; alıcı kriterleriyle eşleştirme bu bilgiye göre yapılır.</p>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{hasarDurum}}" as="h" hint-placeholder-count="5">
+<div style="border: 1px solid #EEF0F5; border-radius: 12px; padding: 12px"><div style="font-size: 13px; color: #5A6073">{{h.label}}</div><div style="font-size: 15px; font-weight: 800; margin-top: 3px">{{h.value}}</div></div>
+</sc-for>
+</div>
+</section>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 20px" aria-labelledby="e4">
+<h2 id="e4" style="margin: 0 0 14px; font-size: 17px; font-weight: 800">Fotoğraflar ve ekspertiz</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+<button type="button" style="border: 2px dashed #AEB5C4; background: #F6F8FD; border-radius: 16px; padding: 26px; cursor: pointer; font-size: 14.5px; font-weight: 700; color: #1E2333">Fotoğraf yükle<span style="display: block; font-size: 12.5px; font-weight: 500; color: #5A6073; margin-top: 4px">En az 6, en fazla 30 fotoğraf · JPG veya PNG</span></button>
+<button type="button" style="border: 2px dashed #AEB5C4; background: #F6F8FD; border-radius: 16px; padding: 26px; cursor: pointer; font-size: 14.5px; font-weight: 700; color: #1E2333">Ekspertiz raporu yükle<span style="display: block; font-size: 12.5px; font-weight: 500; color: #5A6073; margin-top: 4px">PDF · Son 10 gün içinde alınmış olmalı</span></button>
+</div>
+</section>
+<div style="display: flex; justify-content: flex-end; gap: 10px">
+<button type="button" onClick="{{gitPortfoy}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 14px; padding: 13px 20px; font-size: 15px; font-weight: 700; color: #1E2333; cursor: pointer">Vazgeç</button>
+<button type="button" onClick="{{gitPortfoy}}" style="border: 0; background: #5B8CFF; border-radius: 14px; padding: 14px 24px; font-size: 15px; font-weight: 800; color: #1E2333; cursor: pointer">Kaydet ve EİDS'e gönder</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{v.toplu}}" hint-placeholder-val="{{ false }}">
+<h1 style="margin: 0 0 4px; font-size: 26px; font-weight: 800">Toplu yükleme</h1>
+<p style="margin: 0 0 18px; font-size: 14.5px; color: #5A6073">Excel veya CSV dosyanla stokunu tek seferde aktar.</p>
+<ol style="list-style: none; margin: 0 0 16px; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+<li style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 16px"><span style="font-size: 12.5px; font-weight: 800; color: #11683F">1 · Tamamlandı</span><span style="display: block; font-size: 15px; font-weight: 800; margin-top: 4px">Şablonu indir</span><a href="#" style="display: block; font-size: 13.5px; font-weight: 700; margin-top: 6px">rengarenk_portfoy_sablonu.xlsx</a></li>
+<li style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 16px"><span style="font-size: 12.5px; font-weight: 800; color: #11683F">2 · Tamamlandı</span><span style="display: block; font-size: 15px; font-weight: 800; margin-top: 4px">Dosyayı yükle</span><span style="display: block; font-size: 13.5px; color: #3A4052; margin-top: 6px">stok_kasim.xlsx · 48 satır</span></li>
+<li style="background: #EEF3FF; border: 2px solid #5B8CFF; border-radius: 16px; padding: 15px"><span style="font-size: 12.5px; font-weight: 800; color: #2450C8">3 · Şimdi</span><span style="display: block; font-size: 15px; font-weight: 800; margin-top: 4px">Önizle ve onayla</span><span style="display: block; font-size: 13.5px; color: #3A4052; margin-top: 6px">44 satır hazır, 4 satırda düzeltme gerekiyor</span></li>
+</ol>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden">
+<div style="padding: 14px 18px; border-bottom: 1px solid #EEF0F5; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; align-items: center">
+<h2 style="margin: 0; font-size: 16px; font-weight: 800">Düzeltme gereken satırlar</h2>
+<a href="#" style="font-size: 13.5px; font-weight: 700">Hata raporunu indir</a>
+</div>
+<sc-for list="{{hatalar}}" as="h" hint-placeholder-count="4">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 12px 18px; border-bottom: 1px solid #EEF0F5">
+<span style="flex: 0 0 72px; font-size: 13.5px; font-weight: 800; color: #5A6073">Satır {{h.satir}}</span>
+<span style="flex: 1 1 200px; font-size: 14px; font-weight: 700">{{h.arac}}</span>
+<span style="flex: 2 1 260px; font-size: 13.5px; color: #A3271F; font-weight: 600">{{h.hata}}</span>
+<button type="button" style="flex: none; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 700; color: #1E2333; cursor: pointer">{{h.aksiyon}}</button>
+</div>
+</sc-for>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 18px; background: #F6F8FD">
+<span style="font-size: 14px; color: #3A4052">Hatalı satırlar düzeltilmeden de hazır olanlar aktarılabilir.</span>
+<button type="button" onClick="{{gitPortfoy}}" style="border: 0; background: #5B8CFF; border-radius: 12px; padding: 13px 20px; font-size: 15px; font-weight: 800; color: #1E2333; cursor: pointer">44 aracı içe aktar</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{v.eslesme}}" hint-placeholder-val="{{ false }}">
+<h1 style="margin: 0 0 4px; font-size: 26px; font-weight: 800">Eşleşmeler</h1>
+<p style="margin: 0 0 18px; font-size: 14.5px; color: #5A6073">Portföyündeki araçlara uyan alıcı talepleri. Bugün kalan ilk mesaj hakkın: <strong style="color: #1E2333">32 / 50</strong></p>
+<div style="display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{eslesmeler}}" as="e" hint-placeholder-count="3">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 16px 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px">
+<div style="flex: 1 1 220px; min-width: 0; background: #FFF6DF; border-radius: 14px; padding: 12px 14px"><span style="display: block; font-size: 12px; font-weight: 700; color: #7A5300">Portföyündeki araç</span><span style="display: block; font-size: 14.5px; font-weight: 800; margin-top: 2px">{{e.arac}}</span></div>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5A6073" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+<div style="flex: 2 1 300px; min-width: 0"><a href="Main.dc.html" style="display: block; font-size: 15px; font-weight: 800; color: #1E2333">{{e.talep}}</a><span style="display: block; font-size: 13px; color: #5A6073; margin-top: 3px">{{e.meta}}</span><span style="display: inline-block; margin-top: 6px; background: #E7FAF0; color: #11683F; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px">{{e.uyum}}</span></div>
+<sc-if value="{{e.gonderildi}}" hint-placeholder-val="{{ false }}"><span style="flex: none; font-size: 14px; font-weight: 700; color: #11683F">İlk mesaj gönderildi</span></sc-if>
+<sc-if value="{{e.gonderilmedi}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{e.gonder}}" style="flex: none; border: 0; background: #5B8CFF; border-radius: 12px; padding: 12px 16px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer">Araç kartıyla mesaj at</button></sc-if>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{v.ekip}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 26px; font-weight: 800">Ekip</h1><p style="margin: 3px 0 0; font-size: 14.5px; color: #5A6073">3 / 5 kullanıcı · Mesaj ve talep hakları ekip genelinde ortaktır</p></div>
+<button type="button" style="border: 0; background: #5B8CFF; border-radius: 12px; padding: 12px 18px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer">+ Çalışan davet et</button>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden">
+<sc-for list="{{ekip}}" as="u" hint-placeholder-count="3">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; padding: 14px 18px; border-bottom: 1px solid #EEF0F5">
+<span style="width: 40px; height: 40px; border-radius: 50%; background: {{u.tint}}; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex: none" aria-hidden="true">{{u.ini}}</span>
+<span style="flex: 999 1 200px; min-width: 0"><span style="display: block; font-size: 15px; font-weight: 800">{{u.ad}}</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">{{u.tel}}</span></span>
+<span style="flex: 1 1 150px; font-size: 14px; font-weight: 700">{{u.rol}}</span>
+<span style="flex: 1 1 180px; font-size: 13.5px; color: #3A4052">{{u.sinir}}</span>
+<a href="#" style="flex: none; font-size: 13.5px; font-weight: 700">Düzenle</a>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{v.paket}}" hint-placeholder-val="{{ false }}">
+<h1 style="margin: 0 0 18px; font-size: 26px; font-weight: 800">Paket ve faturalar</h1>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<section style="flex: 2 1 380px; min-width: 0; background: #FFFFFF; border: 2px solid #5B8CFF; border-radius: 18px; padding: 22px" aria-labelledby="pk">
+<span style="font-size: 12.5px; font-weight: 800; color: #2450C8">Mevcut paket</span>
+<h2 id="pk" style="margin: 4px 0 2px; font-size: 24px; font-weight: 800">Profesyonel</h2>
+<p style="margin: 0; font-size: 15px; font-weight: 700">3.490 TL / ay <span style="font-size: 13px; color: #5A6073; font-weight: 500">KDV hariç · Yenileme 1 Aralık 2026 · PayTR ile otomatik</span></p>
+<ul style="margin: 14px 0 0; padding-left: 18px; font-size: 14px; line-height: 1.7; color: #3A4052"><li>100 araçlık portföy, günde 50 ilk mesaj, ayda 5 talep</li><li>Excel/CSV toplu yükleme ve otomatik eşleşme</li><li>Ayda 2 öne çıkarma hakkı</li></ul>
+<div style="display: flex; gap: 8px; margin-top: 16px"><button type="button" style="border: 0; background: #5B8CFF; border-radius: 12px; padding: 12px 18px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer">Kurumsal pakete geç</button><button type="button" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 12px; padding: 12px 16px; font-size: 14.5px; font-weight: 700; color: #1E2333; cursor: pointer">Yıllık ödemeye geç (2 ay ücretsiz)</button></div>
+</section>
+<section style="flex: 1 1 260px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 22px" aria-labelledby="ek">
+<h2 id="ek" style="margin: 0 0 10px; font-size: 17px; font-weight: 800">Ek paket al</h2>
+<p style="margin: 0 0 14px; font-size: 13.5px; color: #5A6073">Limit dolduğunda ay sonunu beklemeden ek hak alabilirsin.</p>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid #EEF0F5; font-size: 14px"><span>30 ilk mesaj</span><strong>249 TL</strong></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid #EEF0F5; font-size: 14px"><span>3 talep hakkı</span><strong>499 TL</strong></div>
+<div style="display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid #EEF0F5; font-size: 14px"><span>Üst sıra, 7 gün</span><strong>149 TL</strong></div>
+</section>
+</div>
+<section style="margin-top: 16px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="ft">
+<h2 id="ft" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Faturalar</h2>
+<sc-for list="{{faturalar}}" as="f" hint-placeholder-count="3">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 18px; border-bottom: 1px solid #EEF0F5; font-size: 14px"><span style="font-weight: 700">{{f.ad}}</span><span style="color: #5A6073">{{f.tarih}}</span><span style="font-weight: 800">{{f.tutar}}</span><a href="#" style="font-weight: 700">E-arşiv faturayı indir</a></div>
+</sc-for>
+</section>
+</sc-if>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { view: 'ozet', gonderilen: {} };
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    var DOTS = ['#5B8CFF', '#FF6FB5', '#FFC84A', '#3DD68C', '#A78BFA', '#FF8A5B', '#2EC4B6'];
+    var TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0', '#F3EFFF', '#FFF0EA'];
+    var MENU = [['ozet', 'Özet', ''], ['portfoy', 'Portföy', '42'], ['ekle', 'Araç ekle', ''], ['toplu', 'Toplu yükleme', ''], ['eslesme', 'Eşleşmeler', '5'], ['ekip', 'Ekip', '3'], ['paket', 'Paket ve faturalar', '']];
+    function go(k) { return function () { self.setState({ view: k }); }; }
+    var v = {};
+    MENU.forEach(function (m) { v[m[0]] = st.view === m[0]; });
+    var eidsStil = { 'Doğrulandı': ['#E7FAF0', '#11683F'], 'Bekliyor': ['#FFF6DF', '#7A5300'], 'Reddedildi': ['#FDECEC', '#A3271F'] };
+    var portfoy = [
+      ['2020 BMW 320i M Sport', '62.000 km · Benzin · Otomatik', '2.390.000 TL', 'Doğrulandı', '3 talep', 'Yayında'],
+      ['2019 VW Passat 1.5 TSI Elegance', '78.000 km · Benzin · Otomatik', '1.720.000 TL', 'Doğrulandı', '1 talep', 'Yayında'],
+      ['2021 Fiat Egea 1.4 Fire Urban', '41.000 km · Benzin · Manuel', '845.000 TL', 'Doğrulandı', '1 talep', 'Yayında'],
+      ['2022 Toyota Corolla 1.8 Hybrid', '35.000 km · Hibrit · Otomatik', '1.480.000 TL', 'Bekliyor', '—', 'Doğrulama bekliyor'],
+      ['2018 Renault Megane 1.5 dCi', '112.000 km · Dizel · Otomatik', '965.000 TL', 'Bekliyor', '—', 'Doğrulama bekliyor'],
+      ['2017 Ford Focus 1.5 TDCi', '138.000 km · Dizel · Manuel', '780.000 TL', 'Doğrulandı', '0 talep', 'Pasif']
+    ].map(function (r, i) { return { ad: r[0], detay: r[1], fiyat: r[2], eids: r[3], eslesme: r[4], durum: r[5], tint: TINTS[i % 6], eidsBg: eidsStil[r[3]][0], eidsFg: eidsStil[r[3]][1] }; });
+    var esl = [
+      ['e1', '2020 BMW 320i M Sport', 'BMW 3 Serisi 320i arıyorum: 2019 sonrası, otomatik', 'Ayşe Y. · İstanbul, Kadıköy · Bugün', 'Yıl, km, renk ve hasar kriterlerine uyuyor'],
+      ['e2', '2020 BMW 320i M Sport', 'BMW 3 Serisi 320i arıyorum, hatasız', 'Can T. · İstanbul, Maltepe · Dün', 'Tüm kriterlere uyuyor'],
+      ['e3', '2019 VW Passat 1.5 TSI Elegance', 'Volkswagen Passat 1.5 TSI arıyorum', 'Deniz A. · İstanbul, Ataşehir · Dün', 'Bütçe ve km kriterlerine uyuyor']
+    ];
+    var eslesmeler = esl.map(function (e) {
+      var g = !!st.gonderilen[e[0]];
+      return { arac: e[1], talep: e[2], meta: e[3], uyum: e[4], gonderildi: g, gonderilmedi: !g, gonder: function () { var n = Object.assign({}, self.state.gonderilen); n[e[0]] = true; self.setState({ gonderilen: n }); } };
+    });
+    return {
+      v: v,
+      menu: MENU.map(function (m, i) { return { label: m[1], badge: m[2], dot: DOTS[i], on: st.view === m[0], off: st.view !== m[0], pick: go(m[0]) }; }),
+      gitPortfoy: go('portfoy'), gitEkle: go('ekle'), gitToplu: go('toplu'), gitEslesme: go('eslesme'),
+      kotalar: [
+        { label: 'Portföy', value: '42', max: '100 araç', pct: '42%', color: DOTS[0], not: '58 araç daha ekleyebilirsin' },
+        { label: 'Bugünkü ilk mesaj', value: '18', max: '50', pct: '36%', color: DOTS[1], not: 'Her gece 00:00\'da yenilenir' },
+        { label: 'Bu ay açılan talep', value: '1', max: '5', pct: '20%', color: DOTS[2], not: 'Galerinin kendi araç arayışları için' },
+        { label: 'Öne çıkarma', value: '1', max: '2', pct: '50%', color: DOTS[3], not: 'Bu ay 1 hakkın kaldı' }
+      ],
+      portfoy: portfoy,
+      katalogAlan: [
+        { id: 'k1', label: 'Kategori', value: 'Otomobil' }, { id: 'k2', label: 'Marka', value: 'BMW' },
+        { id: 'k3', label: 'Seri ve model', value: '3 Serisi 320i' }, { id: 'k4', label: 'Model yılı', value: '2020' },
+        { id: 'k5', label: 'Kasa ve makyaj', value: 'G20 · makyajsız' }, { id: 'k6', label: 'Donanım paketi', value: 'M Sport' },
+        { id: 'k7', label: 'Motor', value: '1.6 turbo · 170 hp' }, { id: 'k8', label: 'Şanzıman', value: '8 ileri otomatik' }
+      ],
+      yasalAlan: [
+        { id: 'y1', label: 'Kilometre', value: '62.000' }, { id: 'y2', label: 'Renk', value: 'Mineral beyaz' },
+        { id: 'y3', label: 'Satış fiyatı (TL)', value: '2.390.000' }, { id: 'y4', label: 'Plaka', value: '34 ABC 123' },
+        { id: 'y5', label: 'Şasi no (son 6 hane)', value: '[ŞASİ]' }, { id: 'y6', label: 'Rehin / haciz şerhi', value: 'Yok' },
+        { id: 'y7', label: 'Kalan garanti', value: 'Yok' }, { id: 'y8', label: 'Takas', value: 'Kabul ediyor' }
+      ],
+      hasarDurum: [
+        { label: 'Boyalı / değişen', value: '1 lokal boya, değişen yok' }, { label: 'Tramer', value: '12.000 TL' },
+        { label: 'Şasi işlemi', value: 'Yok' }, { label: 'Podye işlemi', value: 'Yok' },
+        { label: 'Airbag', value: 'Açılmamış' }, { label: 'Ağır hasar kaydı', value: 'Yok' }
+      ],
+      hatalar: [
+        { satir: '12', arac: 'Peugeot 3008 1.5 BlueHDi', hata: 'Paket yazılmamış; katalogda bu kasa için 3 paket var (Active, Allure, GT)', aksiyon: 'Paket seç' },
+        { satir: '19', arac: 'Hyundai i20 1.4 MPI', hata: 'Kilometre alanı boş', aksiyon: 'Düzelt' },
+        { satir: '27', arac: 'Skoda Octavia 1.5 TSI', hata: 'Şasi numarası 6 haneden kısa', aksiyon: 'Düzelt' },
+        { satir: '33', arac: '2026 Renault Clio 1.0 TCe', hata: 'Fiyat üretici tavsiye fiyatının üzerinde; ilan yayınlanamaz', aksiyon: 'Fiyatı düzelt' }
+      ],
+      eslesmeler: eslesmeler,
+      ekip: [
+        { ad: 'Selin Yıldız', ini: 'SY', tel: 'Telefon doğrulandı', rol: 'Sahip', sinir: 'Sınır yok', tint: TINTS[2] },
+        { ad: 'Ece Demir', ini: 'ED', tel: 'Telefon doğrulandı', rol: 'Yönetici', sinir: 'Sınır yok', tint: TINTS[0] },
+        { ad: 'Mert Kaya', ini: 'MK', tel: 'Telefon doğrulandı', rol: 'Satış temsilcisi', sinir: 'Günde en fazla 20 ilk mesaj', tint: TINTS[3] }
+      ],
+      faturalar: [
+        { ad: 'Profesyonel paket · Kasım 2026', tarih: '1 Kasım 2026', tutar: '4.188 TL' },
+        { ad: 'Ek mesaj paketi · 30 mesaj', tarih: '18 Ekim 2026', tutar: '298,80 TL' },
+        { ad: 'Profesyonel paket · Ekim 2026', tarih: '1 Ekim 2026', tutar: '4.188 TL' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Galeri profili ve portföy aracı (mobil)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 1500px; box-sizing: border-box; position: relative; background: #F6F8FD; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333; overflow: hidden">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF; padding: 8px; display: flex; align-items: center; gap: 4px">
+<button type="button" onClick="{{geri}}" aria-label="Geri" style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: #1E2333; cursor: pointer"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+<span style="flex: 1; font-size: 16px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{baslik}}</span>
+<button type="button" aria-label="Paylaş" style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: #1E2333; cursor: pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"></path></svg></button>
+</header>
+
+<sc-if value="{{v.profil}}" hint-placeholder-val="{{ true }}">
+<main style="padding-bottom: 40px">
+<section style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF; padding: 16px">
+<div style="display: flex; gap: 12px; align-items: center">
+<span style="flex: none; width: 64px; height: 64px; border-radius: 18px; background: #FFF6DF; color: #7A5300; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800" aria-hidden="true">YO</span>
+<span><h1 style="margin: 0; font-size: 21px; font-weight: 800">Yıldız Otomotiv</h1><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 3px">Eylül 2026’dan beri Rengarenk’te</span></span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px">
+<span style="font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: #E7FAF0; color: #11683F">✓ Onaylı galeri</span>
+<span style="font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: #FFF6DF; color: #7A5200">⚡ Hızlı yanıt</span>
+<span style="font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: #FFF6DF; color: #7A5200">★ Güvenilir satıcı</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 14px">
+<sc-for list="{{sayilar}}" as="sy" hint-placeholder-count="3"><div style="background: #F6F8FD; border-radius: 12px; padding: 10px; text-align: center"><span style="display: block; font-size: 17px; font-weight: 800">{{sy.d}}</span><span style="display: block; font-size: 11px; color: #5A6073; margin-top: 2px">{{sy.k}}</span></div></sc-for>
+</div>
+<p style="margin: 12px 0 0; font-size: 12.5px; color: #3A4052; line-height: 1.5">İstanbul, Kadıköy · Fikirtepe Mah. Oto Galericiler Sitesi No 14<br>Hafta içi 09.00–19.00 · Cumartesi 10.00–17.00</p>
+<a href="#" style="display: inline-block; margin-top: 8px; font-size: 13px; font-weight: 700">Haritada aç</a>
+</section>
+<div style="display: flex; align-items: center; justify-content: space-between; margin: 16px 16px 8px"><h2 style="margin: 0; font-size: 16px; font-weight: 800">Portföy · 42 araç</h2></div>
+<div style="display: flex; gap: 6px; overflow-x: auto; padding: 0 12px 4px">
+<sc-for list="{{filtreler}}" as="f" hint-placeholder-count="3"><button type="button" aria-pressed="{{f.p}}" onClick="{{f.pick}}" style="flex: none; border: {{f.bd}}; background: {{f.bg}}; color: {{f.renk}}; border-radius: 999px; padding: 8px 12px; font-size: 13px; font-weight: 700; cursor: pointer">{{f.ad}}</button></sc-for>
+</div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px 12px 0">
+<sc-for list="{{araclar}}" as="a" hint-placeholder-count="6">
+<button type="button" onClick="{{a.ac}}" style="text-align: left; border: 1px solid {{a.kenar}}; background: #FFFFFF; border-radius: 16px; overflow: hidden; padding: 0; cursor: pointer; color: #1E2333">
+<span style="display: block; position: relative; height: 96px; background: linear-gradient(135deg, #C9D3E6, #EEF1F7)"><sc-if value="{{a.uyar}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 6px; top: 6px; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 999px; background: #E7FAF0; color: #11683F">Talebine uyuyor</span></sc-if></span>
+<span style="display: block; padding: 8px 10px 10px"><span style="display: block; font-size: 13px; font-weight: 800; line-height: 1.3">{{a.ad}}</span><span style="display: block; font-size: 11.5px; color: #5A6073; margin-top: 3px">{{a.alt}}</span><span style="display: block; font-size: 13.5px; font-weight: 800; color: #2450C8; margin-top: 5px">{{a.fiyat}}</span></span>
+</button>
+</sc-for>
+</div>
+<section style="margin: 16px 12px 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px">
+<h2 style="margin: 0 0 6px; font-size: 15px; font-weight: 800">Hakkında</h2>
+<p style="margin: 0; font-size: 13px; color: #3A4052; line-height: 1.55">2009’dan beri Kadıköy’de ikinci el binek araç satışı. Tüm araçlarımız ekspertiz raporlu; takas kabul ediyoruz.</p>
+<p style="margin: 10px 0 0; font-size: 12px; color: #5A6073">Yetki belgesi: İkinci el motorlu kara taşıtı ticareti · Bakanlık sisteminden doğrulandı</p>
+</section>
+</main>
+</sc-if>
+
+<sc-if value="{{v.arac}}" hint-placeholder-val="{{ false }}">
+<main style="padding-bottom: 110px">
+<div style="position: relative; height: 250px; background: linear-gradient(135deg, #C9D3E6, #EEF1F7)">
+<span style="position: absolute; right: 12px; top: 12px; font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 999px; background: rgba(30,35,51,0.72); color: #FFFFFF">1 / 14</span>
+<span style="position: absolute; left: 12px; bottom: 10px; font-size: 11.5px; color: #3A4052">Galerinin yüklediği fotoğraf</span>
+</div>
+<section style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF; padding: 14px 16px">
+<h1 style="margin: 0; font-size: 19px; font-weight: 800; line-height: 1.3">2020 BMW 320i M Sport</h1>
+<p style="margin: 4px 0 0; font-size: 13px; color: #5A6073">G20 makyajsız · 62.000 km · Mineral beyaz · Portföy no 77120458</p>
+<p style="margin: 10px 0 0; font-size: 22px; font-weight: 800; color: #2450C8">2.390.000 TL</p>
+<div style="margin-top: 12px; display: flex; gap: 10px; align-items: center; background: #E7FAF0; border-radius: 14px; padding: 11px 13px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#11683F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M5 12l5 5 9-10"></path></svg><span style="font-size: 13px; color: #11683F; line-height: 1.45"><strong>BMW 3 Serisi 320i talebine uyuyor.</strong> 6 kriterin 6’sı tutuyor.</span></div>
+</section>
+<section style="margin: 12px 12px 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; overflow: hidden">
+<h2 style="margin: 0; padding: 14px 14px 6px; font-size: 15px; font-weight: 800">Araç bilgileri</h2>
+<dl style="margin: 0; display: grid; grid-template-columns: 1fr 1fr">
+<sc-for list="{{bilgiler}}" as="b" hint-placeholder-count="8"><div style="padding: 9px 14px; border-top: 1px solid #EEF0F5"><dt style="font-size: 11.5px; color: #5A6073">{{b.k}}</dt><dd style="margin: 2px 0 0; font-size: 13.5px; font-weight: 700">{{b.v}}</dd></div></sc-for>
+</dl>
+</section>
+<section style="margin: 10px 12px 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px">
+<h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 800">Boya, değişen ve hasar</h2>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px">
+<sc-for list="{{hasar}}" as="h" hint-placeholder-count="4"><span style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 700"><span style="width: 12px; height: 12px; border-radius: 4px; background: {{h.renk}}" aria-hidden="true"></span>{{h.ad}}</span></sc-for>
+</div>
+<p style="margin: 10px 0 0; font-size: 12.5px; color: #3A4052">Sol arka çamurluk lokal boyalı · tramer 12.000 TL</p>
+<a href="#" style="display: flex; justify-content: space-between; margin-top: 10px; padding: 11px 12px; border: 1px solid #E3E6EF; border-radius: 12px; font-size: 13px; font-weight: 700"><span style="color: #1E2333">Ekspertiz raporu · 28 Ekim 2026</span><span>PDF’i aç</span></a>
+<p style="margin: 8px 0 0; font-size: 11.5px; color: #5A6073; line-height: 1.45">Bilgiler galerinin beyanıdır; ekspertiz raporuyla karşılaştır.</p>
+</section>
+<section style="margin: 10px 12px 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px">
+<h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 800">Doğrulamalar</h2>
+<sc-for list="{{dogrulamalar}}" as="d" hint-placeholder-count="3"><p style="margin: 0 0 6px; font-size: 12.5px; color: #11683F; line-height: 1.45">✓ {{d.t}}</p></sc-for>
+<p style="margin: 10px 0 0; padding-top: 10px; border-top: 1px solid #EEF0F5; font-size: 12px; color: #5A6073; line-height: 1.45">Aracı görmeden kapora veya ön ödeme gönderme. Ödemeyi noterde satış sırasında yap.</p>
+</section>
+<a href="#" style="display: block; text-align: center; margin-top: 12px; font-size: 13px; font-weight: 700; color: #A11B1B">Bu aracı şikayet et</a>
+</main>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 1px solid #E3E6EF; padding: 12px 16px 24px; display: grid; grid-template-columns: 1fr 2fr; gap: 8px">
+<a href="#" style="display: block; text-align: center; border: 1px solid #D5DAE5; border-radius: 14px; padding: 14px 8px; font-size: 14.5px; font-weight: 700; color: #1E2333">WhatsApp</a>
+<a href="MesajMobil.dc.html" style="display: block; text-align: center; background: #5B8CFF; border-radius: 14px; padding: 15px 8px; font-size: 15px; font-weight: 800; color: #1E2333">Bu araç için mesaj gönder</a>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { view: 'profil', filtre: 'uyan' }; }
+  renderVals() {
+    var self = this, st = this.state;
+    var A = [
+      ['2020 BMW 320i M Sport', '62.000 km · Otomatik', '2.390.000 TL', true, 'otomobil'],
+      ['2021 BMW 320i Sport Line', '48.000 km · Otomatik', '2.520.000 TL', true, 'otomobil'],
+      ['2019 VW Passat 1.5 TSI', '78.000 km · Otomatik', '1.720.000 TL', false, 'otomobil'],
+      ['2022 Toyota Corolla Hybrid', '35.000 km · Otomatik', '1.480.000 TL', false, 'otomobil'],
+      ['2021 Fiat Egea 1.4 Urban', '41.000 km · Manuel', '845.000 TL', false, 'otomobil'],
+      ['2020 Dacia Duster 1.3 TCe', '66.000 km · Otomatik', '1.190.000 TL', false, 'suv']
+    ];
+    var F = [['uyan', 'Talebime uyanlar'], ['otomobil', 'Otomobil (38)'], ['suv', 'SUV (4)']];
+    var liste = A.filter(function (a) { return st.filtre === 'uyan' ? true : a[4] === st.filtre; });
+    if (st.filtre === 'uyan') liste = liste.slice().sort(function (x, y) { return (y[3] ? 1 : 0) - (x[3] ? 1 : 0); });
+    return {
+      v: { profil: st.view === 'profil', arac: st.view === 'arac' },
+      baslik: st.view === 'arac' ? 'Yıldız Otomotiv' : 'Galeri profili',
+      geri: function () { if (self.state.view === 'arac') self.setState({ view: 'profil' }); },
+      sayilar: [{ d: '42', k: 'yayında araç' }, { d: '18 dk', k: 'ortalama yanıt' }, { d: '5', k: 'satış temsilcisi' }],
+      filtreler: F.map(function (f) { var on = st.filtre === f[0]; return { ad: f[1], p: on ? 'true' : 'false', bd: on ? '1px solid #1E2333' : '1px solid #D5DAE5', bg: on ? '#1E2333' : '#FFFFFF', renk: on ? '#FFFFFF' : '#1E2333', pick: function () { self.setState({ filtre: f[0] }); } }; }),
+      araclar: liste.map(function (a) { return { ad: a[0], alt: a[1], fiyat: a[2], uyar: a[3], kenar: a[3] ? '#9FDDBD' : '#E3E6EF', ac: function () { self.setState({ view: 'arac' }); } }; }),
+      bilgiler: [['Model yılı', '2020'], ['Kilometre', '62.000'], ['Yakıt', 'Benzin'], ['Vites', 'Otomatik (8)'], ['Motor', '1.6 · 170 hp'], ['Kasa', 'Sedan · G20'], ['Paket', 'M Sport'], ['Renk', 'Mineral beyaz']].map(function (b) { return { k: b[0], v: b[1] }; }),
+      hasar: [['Orijinal · 12', '#E3E6EF'], ['Lokal boya · 1', '#FFE08A'], ['Boyalı · yok', '#9EC1FF'], ['Değişen · yok', '#FF9C9C']].map(function (h) { return { ad: h[0], renk: h[1] }; }),
+      dogrulamalar: ['İlan, ruhsat sahibinin EİDS onayıyla yayında.', 'Galerinin yetki belgesi Bakanlık sisteminden doğrulandı.', 'Kilometre ve hasar kaydı ekspertiz raporunda var.'].map(function (t) { return { t: t }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

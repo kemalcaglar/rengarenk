@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · BMW talepleri (mobil)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 1800px; box-sizing: border-box; position: relative; background: #F6F8FD; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333; overflow: hidden">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF; padding: 10px 12px 12px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<button type="button" aria-label="Kategoriler menüsü" style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: #1E2333; cursor: pointer">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></button>
+<span style="display: flex; align-items: center; gap: 6px">
+<span style="display: flex; gap: 2px" aria-hidden="true">
+<span style="width: 7px; height: 16px; border-radius: 4px; background: #5B8CFF"></span>
+<span style="width: 7px; height: 16px; border-radius: 4px; background: #FF6FB5"></span>
+<span style="width: 7px; height: 16px; border-radius: 4px; background: #FFC84A"></span>
+<span style="width: 7px; height: 16px; border-radius: 4px; background: #3DD68C"></span>
+</span>
+<span style="font-size: 18px; font-weight: 800; letter-spacing: -0.4px">rengarenk</span>
+</span>
+<a href="Sihirbaz.dc.html" aria-label="Talep oluştur" style="display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; background: #5B8CFF; color: #1E2333">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></a>
+</div>
+<form role="search" style="margin-top: 10px; display: flex; align-items: center; gap: 8px; background: #F3F5FA; border: 1px solid #E3E6EF; border-radius: 12px; padding: 0 12px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5A6073" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<label for="m-ara" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Talep ara</label>
+<input id="m-ara" type="search" value="BMW" style="flex: 1; min-width: 0; border: 0; background: transparent; font-size: 15px; padding: 12px 0; color: #1E2333; outline: none">
+</form>
+</header>
+
+<div style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF; padding: 10px 12px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<button type="button" style="display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 12px; padding: 11px 6px; font-size: 14px; font-weight: 700; color: #1E2333; cursor: pointer">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"></path></svg>Filtrele</button>
+<button type="button" style="display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 12px; padding: 11px 6px; font-size: 14px; font-weight: 700; color: #1E2333; cursor: pointer">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"></path></svg>Sırala</button>
+<sc-if value="{{kaydedildi}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{toggleKaydet}}" style="border: 1.5px solid #25A35A; background: #E7FAF0; border-radius: 12px; padding: 10.5px 6px; font-size: 13.5px; font-weight: 700; color: #11683F; cursor: pointer">Kaydedildi</button>
+</sc-if>
+<sc-if value="{{kaydedilmedi}}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{toggleKaydet}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 12px; padding: 11px 6px; font-size: 13.5px; font-weight: 700; color: #1E2333; cursor: pointer">Aramayı kaydet</button>
+</sc-if>
+</div>
+
+<main style="padding: 14px 12px 32px">
+<p style="margin: 0 0 4px; font-size: 12.5px; color: #5A6073">Vasıta › Otomobil › BMW</p>
+<h1 style="margin: 0 0 12px; font-size: 20px; font-weight: 800">BMW talepleri <span style="font-size: 14px; font-weight: 600; color: #5A6073">· 8 talep</span></h1>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<sc-for list="{{talepler}}" as="t" hint-placeholder-count="8">
+<a href="Mobil.dc.html" style="display: flex; gap: 12px; background: {{t.bg}}; border: 1px solid #E3E6EF; border-radius: 16px; padding: 12px; color: #1E2333; text-decoration: none">
+<span style="flex: none; width: 86px; height: 86px; border-radius: 12px; background: {{t.tint}}; display: flex; align-items: center; justify-content: center">
+<span aria-hidden="true" style="display: flex; align-items: center; justify-content: center; flex: none; width: 74px; max-width: 100%; aspect-ratio: 74 / 27; border-radius: 10px; background: linear-gradient(135deg, #C9D3E6, #EEF1F7)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8C95AA" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3v12H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg></span>
+</span>
+<span style="flex: 1; min-width: 0">
+<span style="display: block; font-size: 14.5px; font-weight: 800; line-height: 1.3">{{t.title}}</span>
+<span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 4px">{{t.yil}} · {{t.km}} · {{t.yer}}</span>
+<span style="display: block; font-size: 14.5px; font-weight: 800; color: #2450C8; margin-top: 6px">{{t.butce}}</span>
+<span style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px">
+<sc-if value="{{t.uyum}}" hint-placeholder-val="{{ false }}"><span style="background: #E7FAF0; color: #11683F; font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px">Portföyünüze uyuyor</span></sc-if>
+<sc-if value="{{t.acil}}" hint-placeholder-val="{{ false }}"><span style="background: #FFF6DF; color: #7A5300; font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px">Acil</span></sc-if>
+<sc-if value="{{t.ust}}" hint-placeholder-val="{{ false }}"><span style="background: #FFEEF6; color: #9B1C5B; font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px">Öne çıkan</span></sc-if>
+<span style="font-size: 11.5px; color: #5A6073; padding: 3px 0">{{t.zaman}}</span>
+</span>
+</span>
+</a>
+</sc-for>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { kayit: false };
+  }
+  renderVals() {
+    var self = this;
+    var TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0', '#F3EFFF', '#FFF0EA'];
+    var all = [
+      { title: 'BMW 5 Serisi 520i arıyorum, Luxury Line tercihim', yil: '2017–2020', km: '≤100.000 km', butce: '2.300.000 – 2.800.000 TL', yer: 'İzmir', zaman: '2 gün önce', uyum: false, acil: false, ust: true },
+      { title: 'BMW 3 Serisi 320i arıyorum: 2019 sonrası, otomatik', yil: '2019 ve sonrası', km: '≤80.000 km', butce: '2.100.000 – 2.450.000 TL', yer: 'İstanbul', zaman: 'Bugün', uyum: true, acil: true, ust: false },
+      { title: 'BMW 3 Serisi 320d arıyorum, dizel otomatik', yil: '2018–2021', km: '≤120.000 km', butce: '1.800.000 – 2.200.000 TL', yer: 'Ankara', zaman: 'Dün', uyum: false, acil: false, ust: false },
+      { title: 'BMW 1 Serisi 116d arıyorum, ilk araç', yil: '2016–2019', km: '≤140.000 km', butce: '1.050.000 – 1.300.000 TL', yer: 'Bursa', zaman: 'Dün', uyum: false, acil: false, ust: false },
+      { title: 'BMW X1 sDrive18i arıyorum', yil: '2020–2023', km: '≤70.000 km', butce: '2.000.000 – 2.400.000 TL', yer: 'İstanbul', zaman: '3 gün önce', uyum: true, acil: false, ust: false },
+      { title: 'BMW 3 Serisi 318i arıyorum, hatasız', yil: '2015–2018', km: '≤150.000 km', butce: '1.250.000 – 1.500.000 TL', yer: 'Kocaeli', zaman: '4 gün önce', uyum: false, acil: true, ust: false },
+      { title: 'BMW 4 Serisi 420i Gran Coupé arıyorum', yil: '2019–2022', km: '≤90.000 km', butce: '2.400.000 – 2.900.000 TL', yer: 'Antalya', zaman: '5 gün önce', uyum: false, acil: false, ust: false },
+      { title: 'BMW 2 Serisi 218i Gran Coupé arıyorum', yil: '2020–2023', km: '≤60.000 km', butce: '1.700.000 – 2.000.000 TL', yer: 'İstanbul', zaman: '6 gün önce', uyum: false, acil: false, ust: false }
+    ];
+    return {
+      talepler: all.map(function (t, i) { return Object.assign({}, t, { tint: TINTS[i % 6], bg: t.ust ? '#FFF9FC' : '#FFFFFF' }); }),
+      kaydedildi: this.state.kayit, kaydedilmedi: !this.state.kayit,
+      toggleKaydet: function () { self.setState({ kayit: !self.state.kayit }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

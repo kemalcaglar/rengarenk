@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Yönetim konsolu · Kampanyalar ve bildirimler</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}a:hover{color:#1A3C99;text-decoration:underline}
+button,input,select,textarea{font-family:inherit}
+</style>
+</helmet>
+<div style="background: #F6F8FD; min-height: 100vh; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF">
+<div style="max-width: 1400px; margin: 0 auto; padding: 14px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<span style="display: flex; align-items: center; gap: 8px">
+<span style="display: flex; gap: 3px" aria-hidden="true"><span style="width: 10px; height: 22px; border-radius: 5px; background: #5B8CFF"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #FF6FB5"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #FFC84A"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #3DD68C"></span></span>
+<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px">rengarenk</span>
+<span style="font-size: 12.5px; font-weight: 800; background: #F3EFFF; color: #4B2FA6; padding: 4px 10px; border-radius: 999px; margin-left: 4px">Yönetim</span>
+</span>
+<span style="display: flex; align-items: center; gap: 14px; font-size: 14px">
+<a href="YonetimEkip.dc.html" style="display: flex; align-items: center; gap: 8px; border: 1px solid #F4DC9A; background: #FFF6DF; border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 800; color: #7A5300">Onayını bekleyen 5</a>
+<span style="display: flex; align-items: center; gap: 10px"><span style="width: 34px; height: 34px; border-radius: 50%; background: #EEF3FF; color: #2450C8; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px" aria-hidden="true">KG</span><span><strong>Sen</strong> · Sahip</span></span>
+</span>
+</div>
+</header>
+
+<div style="max-width: 1400px; margin: 0 auto; padding: 24px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px">
+<nav style="flex: 1 1 230px; max-width: 260px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 12px" aria-label="Yönetim konsolu">
+<sc-for list="{{gruplar}}" as="g" hint-placeholder-count="7">
+<span style="display: block; padding: 12px 10px 6px; font-size: 11.5px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: #5A6073">{{g.ad}}</span>
+<sc-for list="{{g.ogeler}}" as="m" hint-placeholder-count="3">
+<sc-if value="{{m.on}}" hint-placeholder-val="{{ false }}"><button type="button" aria-current="page" onClick="{{m.pick}}" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; border: 0; background: #F3EFFF; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer; text-align: left">{{m.ad}}<span style="font-size: 11.5px; font-weight: 800; color: {{m.rozetRenk}}">{{m.rozet}}</span></button></sc-if>
+<sc-if value="{{m.aktif}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{m.pick}}" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; border: 0; background: transparent; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; color: #3A4052; cursor: pointer; text-align: left">{{m.ad}}<span style="font-size: 11.5px; font-weight: 800; color: {{m.rozetRenk}}">{{m.rozet}}</span></button></sc-if>
+<sc-if value="{{m.link}}" hint-placeholder-val="{{ false }}"><a href="{{m.href}}" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; border-radius: 10px; padding: 10px 12px; font-size: 14px; font-weight: 600; color: #3A4052">{{m.ad}}<span style="font-size: 11.5px; font-weight: 800; color: {{m.rozetRenk}}">{{m.rozet}}</span></a></sc-if>
+<sc-if value="{{m.sonra}}" hint-placeholder-val="{{ false }}"><span style="display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; font-size: 14px; font-weight: 600; color: #8A91A3">{{m.ad}}<span style="font-size: 11px; font-weight: 700; background: #F3F5FA; color: #5A6073; padding: 2px 7px; border-radius: 999px">{{m.tur}}</span></span></sc-if>
+</sc-for>
+</sc-for>
+</nav>
+
+<main style="flex: 999 1 820px; min-width: 0">
+<sc-if value="{{bildirimVar}}" hint-placeholder-val="{{ false }}"><div role="status" style="margin-bottom: 14px; background: #E7FAF0; border: 1px solid #B9EBD1; border-radius: 12px; padding: 11px 14px; font-size: 13.5px; font-weight: 700; color: #11683F">{{bildirim}}</div></sc-if>
+
+<sc-if value="{{v.kampanya}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 26px; font-weight: 800">Kampanyalar</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Ticari iletiler yalnızca İYS onayı olanlara gider · kişi başı haftada en fazla 2 · 21.00–09.00 arası gönderilmez</p></div>
+</div>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="liste">
+<h2 id="liste" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Son kampanyalar</h2>
+<sc-for list="{{kampanyalar}}" as="k" hint-placeholder-count="5">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 12px 18px; border-bottom: 1px solid #EEF0F5">
+<span style="flex: 999 1 280px; min-width: 0"><span style="display: block; font-size: 14.5px; font-weight: 800">{{k.ad}}</span><span style="display: block; font-size: 12.5px; color: #3A4052; margin-top: 2px">{{k.kanal}} · {{k.kitle}}</span></span>
+<span style="flex: 1 1 240px; min-width: 0; font-size: 12.5px; color: #3A4052">{{k.sonuc}}</span>
+<span style="flex: none; font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: {{k.bg}}; color: {{k.fg}}">{{k.durum}}</span>
+</div>
+</sc-for>
+</section>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; margin-top: 16px">
+<section style="flex: 999 1 480px; min-width: 0; background: #FFFFFF; border: 1.5px solid #5B8CFF; border-radius: 18px; padding: 18px" aria-labelledby="yeni">
+<h2 id="yeni" style="margin: 0 0 14px; font-size: 17px; font-weight: 800">Yeni kampanya</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<label style="flex: 2 1 260px; font-size: 13px; font-weight: 700">Kampanya adı<input value="Hafta sonu: talebini öne çıkar" style="display: block; width: 100%; box-sizing: border-box; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14px"></label>
+<label style="flex: 1 1 180px; font-size: 13px; font-weight: 700">Hedef<select style="display: block; width: 100%; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14px; background: #FFFFFF"><option>Üst sıra satın alma</option><option>Talep oluşturma</option><option>Galeri başvurusu</option><option>Geri kazanma</option></select></label>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px">
+<label style="flex: 2 1 260px; font-size: 13px; font-weight: 700">Segment<select style="display: block; width: 100%; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14px; background: #FFFFFF"><option>Aktif talebi olan bireyseller · son 14 gün</option><option>Denemesi bu ay biten galeriler</option><option>Antalya kiralama firmaları</option></select></label>
+<label style="flex: 2 1 220px; font-size: 13px; font-weight: 700">Şablon<select style="display: block; width: 100%; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14px; background: #FFFFFF"><option>Kampanya: talebini öne çıkar</option></select></label>
+</div>
+<div style="margin-top: 14px; font-size: 13px; font-weight: 700">Kanallar</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px">
+<sc-for list="{{kanallar}}" as="kn" hint-placeholder-count="4">
+<sc-if value="{{kn.acik}}" hint-placeholder-val="{{ true }}"><button type="button" role="checkbox" aria-checked="{{kn.aria}}" onClick="{{kn.degistir}}" style="display: flex; align-items: center; gap: 8px; border: 1.5px solid {{kn.kenar}}; background: {{kn.bg}}; border-radius: 12px; padding: 9px 12px; font-size: 13.5px; font-weight: 700; color: #1E2333; cursor: pointer"><span style="width: 16px; height: 16px; border-radius: 4px; border: 2px solid {{kn.kenar}}; background: {{kn.kutu}}; color: #FFFFFF; font-size: 11px; line-height: 14px; text-align: center">{{kn.tik}}</span>{{kn.ad}}</button></sc-if>
+<sc-if value="{{kn.kapali}}" hint-placeholder-val="{{ false }}"><span style="display: flex; align-items: center; gap: 8px; border: 1.5px dashed #D5DAE5; border-radius: 12px; padding: 9px 12px; font-size: 13.5px; font-weight: 700; color: #8A91A3">{{kn.ad}} · kapalı (Karar 49)</span></sc-if>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px">
+<label style="flex: 1 1 200px; font-size: 13px; font-weight: 700">Gönderim zamanı<input value="Cumartesi 7 Kas · 10.00" style="display: block; width: 100%; box-sizing: border-box; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14px"></label>
+<label style="flex: 1 1 200px; font-size: 13px; font-weight: 700">Kupon<select style="display: block; width: 100%; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14px; background: #FFFFFF"><option>UST20 · üst sıra %20 (onaylı)</option><option>Kupon yok</option></select></label>
+<label style="flex: none; display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 700; padding-top: 22px"><input type="checkbox" checked style="width: 18px; height: 18px">A/B testi · iki başlık</label>
+</div>
+</section>
+
+<section style="flex: 1 1 300px; max-width: 380px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="ozet">
+<h2 id="ozet" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Gönderim özeti</h2>
+<div style="padding: 14px 18px; border-bottom: 1px solid #EEF0F5"><div style="font-size: 12.5px; font-weight: 700; color: #5A6073">Segmentteki kişi</div><div style="font-size: 26px; font-weight: 800">8.920</div></div>
+<sc-for list="{{ozet}}" as="oz" hint-placeholder-count="6">
+<div style="display: flex; justify-content: space-between; gap: 10px; padding: 10px 18px; border-bottom: 1px solid #EEF0F5; font-size: 13.5px"><span style="min-width: 0"><span style="display: block; font-weight: 700">{{oz.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073">{{oz.not}}</span></span><span style="flex: none; font-weight: 800; color: {{oz.renk}}">{{oz.deger}}</span></div>
+</sc-for>
+<div style="padding: 14px 18px">
+<sc-if value="{{onayGerek}}" hint-placeholder-val="{{ true }}"><p style="margin: 0 0 10px; font-size: 12.5px; color: #7A5300; font-weight: 700">1.000 kişiyi aştığı için sahip veya yönetici onayı gerekir.</p></sc-if>
+<sc-if value="{{gonderildi}}" hint-placeholder-val="{{ false }}"><p style="margin: 0; font-size: 14px; font-weight: 800; color: #4B2FA6">Onay kuyruğuna gönderildi</p></sc-if>
+<sc-if value="{{gonderilmedi}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{onayaGonder}}" style="width: 100%; border: 0; background: #5B8CFF; border-radius: 12px; padding: 12px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer">{{gonderYazi}}</button></sc-if>
+</div>
+</section>
+</div>
+<p style="margin: 12px 0 0; font-size: 13px; line-height: 1.5; color: #2E3344; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 14px; padding: 12px 14px"><strong>Ajan:</strong> bu segmentte geçen hafta sonu gönderilen benzer kampanyada push e-postadan 2,4 kat fazla tıklandı. Cumartesi 10.00 iyi bir saat. 640 kişi bu hafta zaten 2 ticari ileti aldığı için bu kampanyayı almayacak.</p>
+</sc-if>
+
+<sc-if value="{{v.akis}}" hint-placeholder-val="{{ false }}">
+<div style="margin-bottom: 16px"><h1 style="margin: 0; font-size: 26px; font-weight: 800">Otomatik akışlar</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Tetikleyici, bekleme, koşul ve ileti adımlarıyla kurulur. Kişi hedefe ulaşınca akıştan çıkar.</p></div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<section style="flex: 1 1 340px; max-width: 420px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 8px" aria-label="Akışlar">
+<sc-for list="{{akislar}}" as="a" hint-placeholder-count="7">
+<div style="display: flex; align-items: center; gap: 10px; border-radius: 12px; padding: 10px; background: {{a.bg}}">
+<button type="button" onClick="{{a.pick}}" aria-current="{{a.aria}}" style="flex: 1; min-width: 0; text-align: left; border: 0; background: transparent; padding: 0; cursor: pointer; color: #1E2333"><span style="display: block; font-size: 14px; font-weight: 800">{{a.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">{{a.tur}} · {{a.sonuc}}</span></button>
+<button type="button" role="switch" aria-checked="{{a.sAria}}" aria-label="Akışı aç veya kapat" onClick="{{a.degistir}}" style="flex: none; border: 0; background: transparent; padding: 0; cursor: pointer"><span style="display: block; width: 40px; height: 24px; border-radius: 999px; background: {{a.zemin}}; position: relative"><span style="position: absolute; top: 3px; left: {{a.sol}}px; width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 1px 2px rgba(30,35,51,0.3)"></span></span></button>
+</div>
+</sc-for>
+</section>
+<section style="flex: 999 1 420px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px" aria-labelledby="akisad">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px"><h2 id="akisad" style="margin: 0; font-size: 18px; font-weight: 800">{{akis.ad}}</h2><span style="font-size: 12.5px; color: #5A6073">{{akis.istatistik}}</span></div>
+<div style="margin-top: 16px">
+<sc-for list="{{akis.adimlar}}" as="ad" hint-placeholder-count="5">
+<div style="display: flex; gap: 12px">
+<span style="flex: none; display: flex; flex-direction: column; align-items: center"><span style="width: 30px; height: 30px; border-radius: 50%; background: {{ad.renk}}; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800">{{ad.no}}</span><span style="flex: 1; width: 2px; background: #E3E6EF; min-height: 14px; opacity: {{ad.cizgi}}"></span></span>
+<div style="flex: 1; min-width: 0; padding-bottom: 14px"><div style="font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: #5A6073">{{ad.tip}}</div><div style="font-size: 14.5px; font-weight: 800; margin-top: 2px">{{ad.baslik}}</div><div style="font-size: 12.5px; color: #3A4052; margin-top: 2px">{{ad.detay}}</div>
+<sc-if value="{{ad.dalVar}}" hint-placeholder-val="{{ false }}"><div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px"><sc-for list="{{ad.dallar}}" as="dl" hint-placeholder-count="2"><div style="flex: 1 1 200px; min-width: 0; border: 1px solid #E3E6EF; border-radius: 12px; padding: 10px 12px; background: #F6F8FD"><div style="font-size: 12px; font-weight: 800; color: #4B2FA6">{{dl.kosul}}</div><div style="font-size: 13px; font-weight: 700; margin-top: 2px">{{dl.ileti}}</div><div style="font-size: 12px; color: #5A6073; margin-top: 2px">{{dl.oran}}</div></div></sc-for></div></sc-if>
+</div>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; border-top: 1px solid #EEF0F5; padding-top: 14px"><button type="button" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; padding: 9px 14px; font-size: 13.5px; font-weight: 700; color: #1E2333; cursor: pointer">Adım ekle</button><button type="button" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; padding: 9px 14px; font-size: 13.5px; font-weight: 700; color: #1E2333; cursor: pointer">Test kişisine gönder</button></div>
+</section>
+</div>
+</sc-if>
+
+<sc-if value="{{v.segment}}" hint-placeholder-val="{{ false }}">
+<div style="margin-bottom: 16px"><h1 style="margin: 0; font-size: 26px; font-weight: 800">Segmentler</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Kurallar “ve” ile birleşir. Kişi sayısı anında hesaplanır; kayıtlı segmentler her gönderimde yeniden hesaplanır.</p></div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<section style="flex: 999 1 480px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px" aria-labelledby="kural">
+<label style="display: block; font-size: 13px; font-weight: 700">Segment adı<input value="Aktif talebi olan bireyseller · son 14 gün" style="display: block; width: 100%; box-sizing: border-box; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14.5px; font-weight: 700"></label>
+<h2 id="kural" style="margin: 16px 0 8px; font-size: 15px; font-weight: 800">Kurallar</h2>
+<sc-for list="{{kurallar}}" as="kr" hint-placeholder-count="5">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border: 1px solid #E3E6EF; border-radius: 12px; padding: 9px 12px; margin-bottom: 8px; background: {{kr.bg}}">
+<span style="flex: 0 0 190px; font-size: 13.5px; font-weight: 800">{{kr.alan}}</span>
+<span style="flex: 0 0 auto; font-size: 13px; color: #5A6073">{{kr.op}}</span>
+<span style="flex: 1 1 160px; min-width: 0; font-size: 13.5px; font-weight: 700">{{kr.deger}}</span>
+<span style="flex: none; font-size: 12px; color: #5A6073">{{kr.etki}}</span>
+<sc-if value="{{kr.silinir}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{kr.sil}}" aria-label="Kuralı kaldır" style="flex: none; border: 0; background: transparent; padding: 0 4px; font-size: 13px; font-weight: 700; color: #A3271F; cursor: pointer">Kaldır</button></sc-if>
+<sc-if value="{{kr.kilit}}" hint-placeholder-val="{{ false }}"><span style="flex: none; font-size: 11.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: #F3F5FA; color: #5A6073">Otomatik</span></sc-if>
+</div>
+</sc-for>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px"><sc-for list="{{kuralEkle}}" as="ke" hint-placeholder-count="5"><button type="button" onClick="{{ke.ekle}}" style="border: 1px dashed #AEB5C4; background: #FFFFFF; border-radius: 999px; padding: 6px 11px; font-size: 12.5px; font-weight: 700; color: #1E2333; cursor: pointer">+ {{ke.ad}}</button></sc-for></div>
+</section>
+<section style="flex: 1 1 280px; max-width: 360px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="sayi">
+<div style="padding: 16px 18px; border-bottom: 1px solid #EEF0F5"><h2 id="sayi" style="margin: 0; font-size: 13px; font-weight: 700; color: #5A6073">Segmentteki kişi</h2><div style="font-size: 30px; font-weight: 800">{{segSayi}}</div></div>
+<sc-for list="{{ulasim}}" as="ul" hint-placeholder-count="4">
+<div style="padding: 10px 18px; border-bottom: 1px solid #EEF0F5"><div style="display: flex; justify-content: space-between; font-size: 13px"><span style="font-weight: 700">{{ul.ad}}</span><span style="font-weight: 800">{{ul.sayi}}</span></div><div style="height: 6px; background: #EEF0F5; border-radius: 0 4px 4px 0; margin-top: 5px"><div style="height: 6px; width: {{ul.w}}%; background: #5B8CFF; border-radius: 0 4px 4px 0"></div></div><div style="font-size: 11.5px; color: #5A6073; margin-top: 3px">{{ul.not}}</div></div>
+</sc-for>
+<div style="padding: 14px 18px"><button type="button" onClick="{{segKaydet}}" style="width: 100%; border: 0; background: #5B8CFF; border-radius: 12px; padding: 11px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer">Segmenti kaydet</button></div>
+</section>
+</div>
+<section style="margin-top: 16px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="kayitli">
+<h2 id="kayitli" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Kayıtlı segmentler</h2>
+<sc-for list="{{segmentler}}" as="sg" hint-placeholder-count="5">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; padding: 12px 18px; border-bottom: 1px solid #EEF0F5; font-size: 13.5px"><span style="flex: 999 1 280px; min-width: 0"><span style="display: block; font-weight: 800">{{sg.ad}}</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">{{sg.kural}}</span></span><span style="flex: 0 0 110px; font-weight: 800; text-align: right">{{sg.sayi}}</span><span style="flex: 0 0 170px; color: #5A6073">{{sg.kim}}</span></div>
+</sc-for>
+</section>
+</sc-if>
+
+<sc-if value="{{v.sablon}}" hint-placeholder-val="{{ false }}">
+<div style="margin-bottom: 16px"><h1 style="margin: 0; font-size: 26px; font-weight: 800">Şablonlar</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Tek şablondan e-posta, push, SMS ve uygulama içi metin. Değişkenler süslü parantezle yazılır.</p></div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<section style="flex: 1 1 280px; max-width: 340px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 8px" aria-label="Şablon listesi">
+<sc-for list="{{sablonlar}}" as="sb" hint-placeholder-count="7">
+<button type="button" onClick="{{sb.pick}}" aria-current="{{sb.aria}}" style="width: 100%; display: block; text-align: left; border: 0; background: {{sb.bg}}; border-radius: 12px; padding: 10px 12px; cursor: pointer; color: #1E2333"><span style="display: flex; justify-content: space-between; gap: 8px"><span style="font-size: 13.5px; font-weight: 800">{{sb.ad}}</span><span style="flex: none; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 999px; background: {{sb.tBg}}; color: {{sb.tFg}}">{{sb.tur}}</span></span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">{{sb.kanal}} · {{sb.surum}}</span></button>
+</sc-for>
+</section>
+<section style="flex: 999 1 480px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="sbad">
+<div style="padding: 16px 18px; border-bottom: 1px solid #EEF0F5; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px"><h2 id="sbad" style="margin: 0; font-size: 18px; font-weight: 800">{{sablon.ad}}</h2><span style="display: flex; gap: 8px"><button type="button" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 700; color: #1E2333; cursor: pointer">Kendime test gönder</button><button type="button" onClick="{{sablonKaydet}}" style="border: 0; background: #3DD68C; border-radius: 10px; padding: 9px 14px; font-size: 13px; font-weight: 800; color: #1E2333; cursor: pointer">Yeni sürüm olarak kaydet</button></span></div>
+<div style="display: flex; gap: 4px; padding: 0 12px; border-bottom: 1px solid #EEF0F5" role="tablist" aria-label="Kanal">
+<sc-for list="{{sablonKanal}}" as="sk" hint-placeholder-count="4">
+<sc-if value="{{sk.on}}" hint-placeholder-val="{{ false }}"><button type="button" role="tab" aria-selected="true" onClick="{{sk.pick}}" style="border: 0; border-bottom: 3px solid #5B8CFF; background: transparent; padding: 11px 10px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer">{{sk.ad}}</button></sc-if>
+<sc-if value="{{sk.off}}" hint-placeholder-val="{{ true }}"><button type="button" role="tab" aria-selected="false" onClick="{{sk.pick}}" style="border: 0; border-bottom: 3px solid transparent; background: transparent; padding: 11px 10px; font-size: 14px; font-weight: 600; color: {{sk.renk}}; cursor: pointer">{{sk.ad}}</button></sc-if>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; padding: 16px 18px">
+<div style="flex: 1 1 260px; min-width: 0">
+<sc-for list="{{sablonAlan}}" as="sf" hint-placeholder-count="3">
+<label style="display: block; font-size: 12.5px; font-weight: 700; margin-bottom: 10px">{{sf.ad}}<span style="display: block; margin-top: 4px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 9px 10px; font-size: 13.5px; font-weight: 500; line-height: 1.5; color: #1E2333; min-height: {{sf.yukseklik}}px; background: #FFFFFF">{{sf.deger}}</span></label>
+</sc-for>
+<div style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px">Değişkenler</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px"><sc-for list="{{degiskenler}}" as="dg" hint-placeholder-count="5"><span style="font-size: 12px; font-weight: 700; padding: 4px 9px; border-radius: 999px; background: #F3EFFF; color: #4B2FA6">{{dg.ad}}</span></sc-for></div>
+<p style="margin: 10px 0 0; font-size: 12px; color: #5A6073">{{sablon.kural}}</p>
+</div>
+<div style="flex: 1 1 280px; min-width: 0">
+<div style="font-size: 12.5px; font-weight: 700; margin-bottom: 6px">Önizleme · Ayşe için</div>
+<sc-if value="{{onz.eposta}}" hint-placeholder-val="{{ true }}">
+<div style="border: 1px solid #E3E6EF; border-radius: 14px; overflow: hidden; background: #F6F8FD">
+<div style="background: #FFFFFF; padding: 10px 14px; border-bottom: 1px solid #E3E6EF; font-size: 12px; color: #3A4052"><strong>{{onz.kimden}}</strong><br>Konu: {{onz.konu}}</div>
+<div style="padding: 14px"><div style="background: #FFFFFF; border-radius: 12px; padding: 16px; border-top: 4px solid #5B8CFF">
+<div style="display: flex; gap: 3px; margin-bottom: 10px"><span style="width: 6px; height: 14px; border-radius: 3px; background: #5B8CFF"></span><span style="width: 6px; height: 14px; border-radius: 3px; background: #FF6FB5"></span><span style="width: 6px; height: 14px; border-radius: 3px; background: #FFC84A"></span><span style="width: 6px; height: 14px; border-radius: 3px; background: #3DD68C"></span></div>
+<div style="font-size: 16px; font-weight: 800">{{onz.baslik}}</div><div style="font-size: 13px; line-height: 1.55; color: #3A4052; margin-top: 6px">{{onz.govde}}</div>
+<div style="display: inline-block; margin-top: 12px; background: #5B8CFF; border-radius: 10px; padding: 9px 14px; font-size: 13px; font-weight: 800">{{onz.buton}}</div>
+</div>
+<div style="font-size: 11px; color: #5A6073; margin-top: 10px; line-height: 1.5">{{onz.alt}}</div></div>
+</div>
+</sc-if>
+<sc-if value="{{onz.push}}" hint-placeholder-val="{{ false }}">
+<div style="max-width: 320px; background: linear-gradient(160deg, #2E3A6B, #1E2333); border-radius: 26px; padding: 22px 14px 60px">
+<div style="text-align: center; color: #FFFFFF; font-size: 34px; font-weight: 300; margin-bottom: 14px">10:00</div>
+<div style="background: rgba(255,255,255,0.92); border-radius: 16px; padding: 10px 12px"><div style="display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #5A6073"><span style="width: 16px; height: 16px; border-radius: 4px; background: #5B8CFF"></span>RENGARENK · şimdi</div><div style="font-size: 13.5px; font-weight: 800; margin-top: 4px">{{onz.baslik}}</div><div style="font-size: 13px; color: #2E3344; margin-top: 2px">{{onz.pushGovde}}</div></div>
+</div>
+</sc-if>
+<sc-if value="{{onz.sms}}" hint-placeholder-val="{{ false }}">
+<div style="max-width: 320px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 20px; padding: 16px">
+<div style="font-size: 12px; font-weight: 800; color: #5A6073; text-align: center; margin-bottom: 10px">RENGARENK</div>
+<div style="background: #EEF0F5; border-radius: 16px 16px 16px 4px; padding: 10px 12px; font-size: 13.5px; line-height: 1.5">{{onz.smsGovde}}</div>
+<div style="font-size: 11.5px; color: #5A6073; margin-top: 8px">{{onz.smsBilgi}}</div>
+</div>
+</sc-if>
+<sc-if value="{{onz.uygulama}}" hint-placeholder-val="{{ false }}">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 14px; overflow: hidden"><div style="padding: 10px 14px; border-bottom: 1px solid #EEF0F5; font-size: 13px; font-weight: 800">Bildirimler</div><div style="display: flex; gap: 10px; padding: 12px 14px; background: #EEF3FF"><span style="flex: none; width: 10px; height: 10px; border-radius: 50%; background: #5B8CFF; margin-top: 5px"></span><span><span style="display: block; font-size: 13.5px; font-weight: 800">{{onz.baslik}}</span><span style="display: block; font-size: 12.5px; color: #3A4052; margin-top: 2px">{{onz.pushGovde}}</span><span style="display: block; font-size: 11.5px; color: #5A6073; margin-top: 4px">Şimdi</span></span></div></div>
+</sc-if>
+</div>
+</div>
+</section>
+</div>
+</sc-if>
+
+<sc-if value="{{v.merkez}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px">
+<div><h1 style="margin: 0; font-size: 26px; font-weight: 800">Bildirim merkezi</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Kanalların sağlığı, kendi e-posta sunucumuz ve gönderim kuralları.</p></div>
+<sc-if value="{{ticariAcik}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ticariDurdur}}" style="border: 1.5px solid #E5A6A1; background: #FFFFFF; border-radius: 12px; padding: 11px 16px; font-size: 14px; font-weight: 800; color: #A3271F; cursor: pointer">Ticari gönderimi durdur</button></sc-if>
+<sc-if value="{{ticariKapali}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ticariBaslat}}" style="border: 0; background: #3DD68C; border-radius: 12px; padding: 12px 18px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer">Ticari gönderimi yeniden başlat</button></sc-if>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{saglik}}" as="sh" hint-placeholder-count="6">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px 16px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><span style="font-size: 14px; font-weight: 800">{{sh.ad}}</span><span style="font-size: 11.5px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: {{sh.bg}}; color: {{sh.fg}}">{{sh.durum}}</span></div>
+<div style="font-size: 12.5px; color: #5A6073; margin-top: 2px">{{sh.saglayici}}</div>
+<div style="display: flex; gap: 16px; margin-top: 10px"><span><span style="display: block; font-size: 11.5px; color: #5A6073">Bugün</span><span style="font-size: 17px; font-weight: 800">{{sh.bugun}}</span></span><span><span style="display: block; font-size: 11.5px; color: #5A6073">Teslim</span><span style="font-size: 17px; font-weight: 800">{{sh.teslim}}</span></span><span><span style="display: block; font-size: 11.5px; color: #5A6073">Kuyruk</span><span style="font-size: 17px; font-weight: 800">{{sh.kuyruk}}</span></span></div>
+</div>
+</sc-for>
+</div>
+
+<section style="margin-top: 16px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="smtp">
+<div style="padding: 16px 18px; border-bottom: 1px solid #EEF0F5"><h2 id="smtp" style="margin: 0; font-size: 17px; font-weight: 800">Kendi e-posta sunucumuz</h2><p style="margin: 3px 0 0; font-size: 12.5px; color: #5A6073">Radore · posta sunucusu ayrı sanal sunucuda · alıcı adresleri Türkiye dışına çıkmaz</p></div>
+<div style="display: flex; flex-wrap: wrap">
+<div style="flex: 1 1 320px; min-width: 0; padding: 14px 18px; border-right: 1px solid #EEF0F5">
+<h3 style="margin: 0 0 8px; font-size: 13px; font-weight: 800; color: #5A6073">Gönderen kimlikleri</h3>
+<sc-for list="{{kimlikler}}" as="kk" hint-placeholder-count="2">
+<div style="border: 1px solid #E3E6EF; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px">
+<div style="display: flex; justify-content: space-between; gap: 8px"><span style="font-size: 13.5px; font-weight: 800">{{kk.ad}}</span><span style="font-size: 12px; font-weight: 800; color: {{kk.itibarRenk}}">İtibar: {{kk.itibar}}</span></div>
+<div style="font-size: 12px; color: #3A4052; margin-top: 2px">{{kk.adres}} · IP {{kk.ip}}</div>
+<div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px"><sc-for list="{{kk.kontrol}}" as="kc" hint-placeholder-count="6"><span style="font-size: 11.5px; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: {{kc.bg}}; color: {{kc.fg}}">{{kc.t}}</span></sc-for></div>
+</div>
+</sc-for>
+<p style="margin: 4px 0 0; font-size: 12px; color: #5A6073">Kara liste kontrolü: 2 IP · 64 liste · son kontrol 15:40 · <strong style="color: #11683F">hiçbirinde yok</strong></p>
+</div>
+<div style="flex: 1 1 320px; min-width: 0; padding: 14px 18px">
+<h3 style="margin: 0 0 8px; font-size: 13px; font-weight: 800; color: #5A6073">Isınma planı · ticari IP</h3>
+<div style="display: flex; align-items: flex-end; gap: 6px; height: 120px; border-bottom: 1px solid #D5DAE5">
+<sc-for list="{{isinma}}" as="is" hint-placeholder-count="6"><span title="{{is.ipucu}}" style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; height: 100%"><span style="font-size: 10.5px; font-weight: 700; color: #3A4052; margin-bottom: 3px">{{is.etiket}}</span><span style="width: 100%; height: {{is.h}}%; background: {{is.renk}}; border-radius: 4px 4px 0 0; border: {{is.kenar}}; box-sizing: border-box"></span></span></sc-for>
+</div>
+<div style="display: flex; gap: 6px; margin-top: 4px"><sc-for list="{{isinma}}" as="ih"><span style="flex: 1; text-align: center; font-size: 11px; color: #5A6073">{{ih.hafta}}</span></sc-for></div>
+<p style="margin: 10px 0 0; font-size: 12.5px; line-height: 1.5; color: #3A4052">3. haftadayız · bugünkü ticari limit <strong>4.000</strong>, gönderilen 2.310. Limiti aşan kişiler ertesi sabaha kalır. Isınma en etkileşimli kullanıcılardan başlar.</p>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px 22px; padding: 12px 18px; border-top: 1px solid #EEF0F5; background: #F6F8FD; font-size: 12.5px; color: #3A4052"><span>Geri dönme (7 gün) <strong>%0,9</strong> · sınır %2</span><span>Spam şikâyeti <strong>%0,03</strong> · sınır %0,1</span><span>Gmail itibarı <strong>Yüksek</strong> · Postmaster Tools</span><span>Outlook <strong>Yeşil</strong> · SNDS</span></div>
+<p style="margin: 0; padding: 12px 18px; font-size: 13px; line-height: 1.5; color: #2E3344; border-top: 1px solid #EEF0F5"><strong>Ajan:</strong> sınırlardan biri aşılırsa ticari e-postayı kendiliğinden durdurur ve sana bildirir; doğrulama kodu ve ödeme e-postaları kendi IP’sinden gitmeye devam eder.</p>
+</section>
+
+<section style="margin-top: 16px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="kurallar">
+<h2 id="kurallar" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Gönderim kuralları</h2>
+<sc-for list="{{gonderimKural}}" as="gk" hint-placeholder-count="6">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; padding: 11px 18px; border-bottom: 1px solid #EEF0F5"><span style="flex: 999 1 280px; min-width: 0"><span style="display: block; font-size: 13.5px; font-weight: 800">{{gk.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">{{gk.not}}</span></span><span style="flex: 1 1 200px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 8px 12px; font-size: 13.5px; font-weight: 600">{{gk.deger}}</span></div>
+</sc-for>
+</section>
+</sc-if>
+
+<sc-if value="{{v.teslim}}" hint-placeholder-val="{{ false }}">
+<div style="margin-bottom: 16px"><h1 style="margin: 0; font-size: 26px; font-weight: 800">Teslim raporu · son 30 gün</h1><p style="margin: 4px 0 0; font-size: 14px; color: #5A6073">Kanal ve kampanya bazında gönderim, teslim, etkileşim ve maliyet.</p></div>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="kanal">
+<h2 id="kanal" style="margin: 0; padding: 16px 18px; font-size: 17px; font-weight: 800; border-bottom: 1px solid #EEF0F5">Kanallar</h2>
+<div style="display: grid; grid-template-columns: minmax(0, 2fr) repeat(7, minmax(0, 1fr)); gap: 8px; padding: 10px 18px; background: #F3F5FA; font-size: 11.5px; font-weight: 800; color: #5A6073; text-transform: uppercase; letter-spacing: 0.3px"><span>Kanal</span><span style="text-align: right">Gönderilen</span><span style="text-align: right">Teslim</span><span style="text-align: right">Açılma</span><span style="text-align: right">Tıklama</span><span style="text-align: right">Ayrılma</span><span style="text-align: right">Şikâyet</span><span style="text-align: right">Maliyet</span></div>
+<sc-for list="{{teslimKanal}}" as="tk" hint-placeholder-count="5">
+<div style="display: grid; grid-template-columns: minmax(0, 2fr) repeat(7, minmax(0, 1fr)); gap: 8px; align-items: center; padding: 12px 18px; border-top: 1px solid #EEF0F5; font-size: 13.5px"><span style="min-width: 0"><span style="display: block; font-weight: 800">{{tk.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073">{{tk.not}}</span></span><span style="text-align: right; font-weight: 700">{{tk.gonderilen}}</span><span style="text-align: right">{{tk.teslim}}</span><span style="text-align: right">{{tk.acilma}}</span><span style="text-align: right">{{tk.tiklama}}</span><span style="text-align: right">{{tk.ayrilma}}</span><span style="text-align: right">{{tk.sikayet}}</span><span style="text-align: right; font-weight: 800">{{tk.maliyet}}</span></div>
+</sc-for>
+</section>
+<section style="margin-top: 16px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px 20px" aria-labelledby="kmp">
+<h2 id="kmp" style="margin: 0 0 4px; font-size: 17px; font-weight: 800">Kampanya ve akışlara göre tıklama oranı</h2>
+<p style="margin: 0 0 14px; font-size: 12.5px; color: #5A6073">Teslim edilen iletilerden tıklanan pay</p>
+<sc-for list="{{teslimKampanya}}" as="tc" hint-placeholder-count="6">
+<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px" title="{{tc.ipucu}}"><span style="flex: 0 0 280px; min-width: 0"><span style="display: block; font-size: 13.5px; font-weight: 700">{{tc.ad}}</span><span style="display: block; font-size: 11.5px; color: #5A6073">{{tc.not}}</span></span><span style="flex: 1; min-width: 0; height: 16px"><span style="display: block; height: 16px; width: {{tc.w}}%; background: #5B8CFF; border-radius: 0 4px 4px 0"></span></span><span style="flex: 0 0 56px; font-size: 13.5px; font-weight: 800; text-align: right">{{tc.oran}}</span></div>
+</sc-for>
+</section>
+</sc-if>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1720}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { view: 'kampanya', kanal: { push: true, eposta: true }, gonderildi: false, akis: 'doluyor', akisKapali: { okumadin: true }, silinen: {}, eklenen: [], sablon: 'oneCikar', sKanal: 'eposta', ticari: true, bildirim: '' };
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    function f(n) { return Math.round(n).toLocaleString('tr-TR'); }
+    function go(k) { return function () { self.setState({ view: k, bildirim: '' }); }; }
+    function sw(on) { return { aria: on ? 'true' : 'false', zemin: on ? '#3DD68C' : '#D5DAE5', sol: on ? 19 : 3 }; }
+    var MENU = [
+      ['Genel', [['ajan', 'Rengarenk Ajanı', 'YonetimEkip', 'Çalışıyor', '#11683F'], ['onay', 'Onay kuyruğu', 'YonetimEkip', '5', '#7A5300'], ['panel', 'Kontrol paneli', 'YonetimRapor']]],
+      ['Ekip', [['ekip', 'Çalışanlar', 'YonetimEkip'], ['roller', 'Roller ve yetkiler', 'YonetimEkip'], ['kayit', 'İşlem kaydı', 'YonetimEkip']]],
+      ['Pazar', [['kullanici', 'Kullanıcılar ve galeriler', 'YonetimPazar'], ['basvuru', 'Galeri başvuruları', 'YonetimPazar', '3', '#7A5300'], ['moderasyon', 'Moderasyon', 'YonetimPazar', '3 süre aştı', '#A3271F'], ['destek', 'Destek', 'YonetimPazar', '12', '#5A6073'], ['talep', 'Talepler ve portföy', 'YonetimPazar'], ['puan', 'Satıcı puanı ve rozetler', 'YonetimPazar']]],
+      ['Büyüme', [['rapor', 'Raporlar', 'YonetimRapor'], ['zaman', 'Zamanlanmış raporlar', 'YonetimRapor'], ['kampanya', 'Kampanyalar', 'YonetimKampanya'], ['akis', 'Otomatik akışlar', 'YonetimKampanya'], ['segment', 'Segmentler', 'YonetimKampanya'], ['sablon', 'Şablonlar', 'YonetimKampanya'], ['merkez', 'Bildirim merkezi', 'YonetimKampanya'], ['teslim', 'Teslim raporu', 'YonetimKampanya']]],
+      ['Katalog', [['kategori', 'Kategoriler ve alanlar', 'YonetimIcerik'], ['eslesme', 'Eşleştirme ayarı', 'YonetimIcerik']]],
+      ['Görünüm', [['anasayfa', 'Ana sayfa düzeni', 'YonetimIcerik'], ['banner', 'Banner ve vitrin', 'YonetimIcerik'], ['acilis', 'Açılış sayfaları', 'YonetimIcerik'], ['tasarim', 'Tasarım değerleri', 'YonetimIcerik'], ['metin', 'Yardım ve yasal metinler', 'YonetimIcerik']]],
+      ['Sistem', [['kural', 'Kurallar ve fiyatlar', 'YonetimSistem'], ['entegrasyon', 'Entegrasyonlar', 'YonetimSistem', '1 uyarı', '#7A5300'], ['ozellik', 'Özellik anahtarları ve bakım', 'YonetimSistem'], ['yz', 'Yapay zekâ ve bütçe', 'YonetimSistem'], ['saglik', 'Sistem sağlığı ve yedek', 'YonetimSistem']]],
+      ['Uyum ve KVKK', [['kvkk', 'KVKK başvuruları', 'YonetimSistem', '4', '#7A5300'], ['imha', 'Saklama, imha ve VERBİS', 'YonetimSistem'], ['riza', 'Rıza ve çerez kayıtları', 'YonetimSistem'], ['ihlal', 'İhlal ve resmi talepler', 'YonetimSistem']]]
+    ];
+    var BU = 'YonetimKampanya';
+    var gruplar = MENU.map(function (g) {
+      return { ad: g[0], ogeler: g[1].map(function (m) {
+        var sonra = m[0] === '_', burada = m[2] === BU;
+        var rz = m[3] || '', rr = m[4];
+        if (burada && m[0] === 'merkez' && !st.ticari) { rz = 'Ticari durdu'; rr = '#A3271F'; }
+        return { ad: m[1], rozet: (!sonra && rz) || '', rozetRenk: rr || '#5A6073', tur: sonra ? m[3] : '', href: m[2] + '.dc.html',
+          on: burada && st.view === m[0], aktif: burada && st.view !== m[0], link: !sonra && !burada, sonra: sonra, pick: go(m[0]) };
+      }) };
+    });
+
+    // Kampanyalar
+    var KMP = [
+      ['Deneme bitenlere ilk ay %30 · GALERI30', 'E-posta', '112 galeri', 'Kupon onayını bekliyor (Zeynep Tan hazırladı)', 'Onay bekliyor', '#FFF6DF', '#7A5300'],
+      ['Kasım: üst sırada %20 · UST20', 'Push ve e-posta', '6.240 bireysel', '10 Kas 10.00 · onaylayan Elif Kara', 'Zamanlandı', '#EEF3FF', '#2450C8'],
+      ['Antalya kiralama firmalarına 30 gün deneme', 'E-posta', '38 kiralama firması', 'Ajan önerisi · arz açığı raporundan', 'Taslak', '#F3F5FA', '#5A6073'],
+      ['Togg T10X için talep var', 'Push ve e-posta', '46 galeri', '4 Kas · açılma %58 · tıklama %21 · 9 yeni ilk mesaj', 'Gönderildi', '#E7FAF0', '#11683F'],
+      ['Ekim bülteni', 'E-posta', '21.400 kişi', '1 Kas · açılma %31 · tıklama %4,2 · şikâyet %0,03', 'Gönderildi', '#E7FAF0', '#11683F']
+    ];
+    var KAN = [['push', 'Mobil ve web push', true], ['eposta', 'E-posta (ticari)', true], ['uyg', 'Uygulama içi', true], ['sms', 'SMS', false]];
+    var kanallar = KAN.map(function (k) {
+      var on = !!st.kanal[k[0]];
+      return { ad: k[1], acik: k[2], kapali: !k[2], aria: on ? 'true' : 'false', kenar: on ? '#5B8CFF' : '#D5DAE5', bg: on ? '#EEF3FF' : '#FFFFFF', kutu: on ? '#5B8CFF' : '#FFFFFF', tik: on ? '✓' : '',
+        degistir: function () { var n = Object.assign({}, self.state.kanal); n[k[0]] = !n[k[0]]; self.setState({ kanal: n, gonderildi: false }); } };
+    });
+    var kn = st.kanal;
+    var ozet = [];
+    var toplam = 0;
+    if (kn.push) { ozet.push({ ad: 'Push', not: 'Bildirim izni ve ticari ileti onayı olan', deger: '6.110', renk: '#1E2333' }); toplam = Math.max(toplam, 6110); }
+    if (kn.eposta) { ozet.push({ ad: 'E-posta', not: 'İYS e-posta onayı olan', deger: '4.380', renk: '#1E2333' }); toplam = Math.max(toplam, 4380); }
+    if (kn.uyg) { ozet.push({ ad: 'Uygulama içi', not: 'Sıklık sınırına sayılmaz', deger: '8.920', renk: '#1E2333' }); toplam = Math.max(toplam, 8920); }
+    ozet.push({ ad: 'Sıklık sınırına takılan', not: 'Bu hafta 2 ticari ileti almış', deger: '−640', renk: '#7A5300' });
+    if (kn.eposta) ozet.push({ ad: 'Isınma limiti nedeniyle ertesi gün', not: 'Ticari e-posta günlük limiti 4.000', deger: '380', renk: '#7A5300' });
+    ozet.push({ ad: 'Tahmini maliyet', not: 'Push ve e-posta kendi altyapımızdan', deger: '₺0', renk: '#11683F' });
+    var secili = KAN.filter(function (k) { return k[2] && kn[k[0]]; }).length;
+
+    // Akışlar
+    var AK = [
+      ['hosgeldin', 'Hoş geldin', 'İşlemsel', '30 günde 9.840 kişi · %41 ilk talebini açtı'],
+      ['ilkTalep', 'İlk talebini oluştur', 'Ticari', '3.120 kişi · %18 talep açtı'],
+      ['doluyor', 'Talebin 3 gün sonra doluyor', 'İşlemsel', '2.140 kişi · %41 uzattı'],
+      ['okumadin', 'İlk mesajı okumadın', 'İşlemsel', 'Kapalı · taslak'],
+      ['galeri7', 'Galeri 7 gündür mesaj göndermedi', 'İşlemsel', '86 galeri · %47 yeniden yazdı'],
+      ['deneme', 'Deneme bitiyor', 'İşlemsel', '64 galeri · %38 ücretliye geçti'],
+      ['odeme', 'Ödeme başarısız', 'İşlemsel', '23 kişi · %74 ödemeyi tamamladı']
+    ];
+    var akislar = AK.map(function (a) {
+      var on = st.akis === a[0], acik = !st.akisKapali[a[0]], s = sw(acik);
+      return { ad: a[1], tur: a[2], sonuc: acik ? a[3] : 'Kapalı', bg: on ? '#F3EFFF' : 'transparent', aria: on ? 'true' : 'false', sAria: s.aria, zemin: s.zemin, sol: s.sol,
+        pick: function () { self.setState({ akis: a[0] }); },
+        degistir: function () { var n = Object.assign({}, self.state.akisKapali); n[a[0]] = !n[a[0]]; self.setState({ akisKapali: n }); } };
+    });
+    var ADIM = {
+      doluyor: [['Tetikleyici', 'Talebin bitmesine 3 gün kaldı', 'Her gün 09.30’da kontrol edilir', '#FFC84A'],
+        ['Koşul', 'Ücretsiz uzatma hakkı var mı?', '', '#F3EFFF', [{ kosul: 'Evet · %64', ileti: 'Push: “Talebini ücretsiz uzatabilirsin”', oran: 'Tıklama %22' }, { kosul: 'Hayır · %36', ileti: 'Push: “Talebin 3 gün sonra doluyor”', oran: 'Tıklama %15 · ek hak satın alma %6' }]],
+        ['Bekle', '24 saat', 'Kişi bu sürede talebi uzatırsa akıştan çıkar', '#EEF0F5'],
+        ['Koşul ve ileti', 'Push açılmadıysa e-posta gönder', 'İşlemsel e-posta · bildirim.rengarenk.com.tr', '#EEF3FF'],
+        ['Hedef', 'Talep uzatıldı', 'Akıştan çıkış · son 30 günde %41', '#E7FAF0']],
+      galeri7: [['Tetikleyici', 'Ücretli galeri 7 gündür ilk mesaj göndermedi', 'Portföyüne uyan en az 3 talep varsa', '#FFC84A'],
+        ['İleti', 'Push ve e-posta: “Bölgende sana uygun 12 talep var”', 'Talep listesi kişiye özel', '#EEF3FF'],
+        ['Bekle', '3 gün', '', '#EEF0F5'],
+        ['Koşul', 'Hâlâ mesaj göndermediyse', '', '#F3EFFF', [{ kosul: 'Evet', ileti: 'Görev: sorumlu çalışan arasın', oran: 'Destek kuyruğuna düşer' }, { kosul: 'Hayır', ileti: 'Akıştan çık', oran: '%47' }]],
+        ['Hedef', 'Galeri ilk mesaj gönderdi', '', '#E7FAF0']]
+    };
+    var adimlar = (ADIM[st.akis] || [['Tetikleyici', AK.filter(function (a) { return a[0] === st.akis; })[0][1], 'Adımlar bu akış seçildiğinde düzenlenir', '#FFC84A'], ['İleti', 'Push ve e-posta', '', '#EEF3FF'], ['Hedef', 'Kişi istenen işlemi yaptı', '', '#E7FAF0']]);
+    var akisSec = AK.filter(function (a) { return a[0] === st.akis; })[0];
+    var akis = { ad: akisSec[1], istatistik: akisSec[2] + ' · ' + (st.akisKapali[akisSec[0]] ? 'kapalı' : akisSec[3]),
+      adimlar: adimlar.map(function (d, i) { return { no: String(i + 1), tip: d[0], baslik: d[1], detay: d[2], renk: d[3], cizgi: i === adimlar.length - 1 ? '0' : '1', dalVar: !!d[4], dallar: d[4] || [] }; }) };
+
+    // Segment
+    var KUR = [
+      ['rol', 'Rol', 'eşittir', 'Bireysel', 0.0, '52.300 bireysel'],
+      ['talep', 'Aktif talebi var', 'eşittir', 'Evet', 0.42, ''],
+      ['giris', 'Son giriş', 'son', '14 gün içinde', 0.61, ''],
+      ['il', 'İl', 'şunlardan biri', 'İstanbul, Ankara, İzmir, Bursa, Antalya', 0.6657, '']
+    ];
+    var EKLE = [['kat', 'Talep kategorisi', 'şunlardan biri', 'Otomobil, Arazi SUV & Pickup', 0.72], ['ust', 'Üst sıra almadı', 'son', '30 gün', 0.83], ['paket', 'Ödeme yaptı', 'hiç', '—', 0.9], ['platform', 'Platform', 'eşittir', 'iOS veya Android', 0.64], ['sohbet', 'Açık sohbeti var', 'eşittir', 'Hayır', 0.55]];
+    var aktifKur = KUR.filter(function (k) { return !st.silinen[k[0]]; }).concat(EKLE.filter(function (e) { return st.eklenen.indexOf(e[0]) !== -1; }).map(function (e) { return [e[0], e[1], e[2], e[3], e[4], '']; }));
+    var sayi = 52300;
+    var kurallar = aktifKur.map(function (k) {
+      if (k[4]) sayi = sayi * k[4];
+      return { alan: k[1], op: k[2], deger: k[3], etki: k[4] ? '→ ' + f(sayi) + ' kişi' : k[5], bg: '#FFFFFF', silinir: k[0] !== 'rol', kilit: false,
+        sil: function () { var n = Object.assign({}, self.state.silinen); n[k[0]] = true; self.setState({ silinen: n, eklenen: self.state.eklenen.filter(function (x) { return x !== k[0]; }) }); } };
+    });
+    kurallar.push({ alan: 'Ticari ileti onayı', op: 'kanala göre', deger: 'İYS’de onaylı', etki: 'gönderimde uygulanır', bg: '#F6F8FD', silinir: false, kilit: true, sil: function () {} });
+    var kuralEkle = EKLE.filter(function (e) { return st.eklenen.indexOf(e[0]) === -1; }).map(function (e) { return { ad: e[1], ekle: function () { self.setState({ eklenen: self.state.eklenen.concat([e[0]]) }); } }; });
+    var oranlar = [['Push', 0.685, 'Bildirim izni açık ve ticari onayı olan'], ['E-posta', 0.491, 'İYS e-posta onayı olan, adresi geçerli'], ['SMS', 0.38, 'İYS SMS onayı olan · kampanya SMS’i kapalı'], ['Uygulama içi', 1, 'Herkes']];
+
+    // Şablonlar
+    var SB = [
+      ['kod', 'Doğrulama kodu', 'İşlemsel', 'SMS ve e-posta', 's.4'],
+      ['ilkMesaj', 'İlk mesajın geldi', 'İşlemsel', 'Push, e-posta, uygulama içi', 's.6'],
+      ['doluyor', 'Talebin 3 gün sonra doluyor', 'İşlemsel', 'Push ve e-posta', 's.3'],
+      ['odeme', 'Ödeme alındı ve fatura', 'İşlemsel', 'E-posta', 's.2'],
+      ['deneme', 'Galeri: deneme bitiyor', 'İşlemsel', 'Push ve e-posta', 's.3'],
+      ['oneCikar', 'Kampanya: talebini öne çıkar', 'Ticari', 'Push, e-posta, uygulama içi', 's.1'],
+      ['bulten', 'Aylık bülten', 'Ticari', 'E-posta', 's.5']
+    ];
+    var SD = {
+      kod: { konu: 'Rengarenk doğrulama kodun', baslik: 'Doğrulama kodun: {kod}', govde: 'Merhaba {ad}, giriş için kodun {kod}. Kod 3 dakika geçerli. Bu kodu kimseyle paylaşma; Rengarenk çalışanları kodunu hiçbir zaman sormaz.', buton: 'Giriş ekranına dön', push: 'Kodun {kod}', sms: 'Rengarenk dogrulama kodun: {kod}. Kimseyle paylasma.', kanallar: ['eposta', 'sms'] },
+      ilkMesaj: { konu: '{galeri} talebine yazdı', baslik: '{galeri} talebine yazdı', govde: 'Merhaba {ad}, {talep} talebine {galeri} ilk mesajı gönderdi. Mesajı okuyup yanıt verebilirsin; telefon numaran sen paylaşana kadar gizli kalır.', buton: 'Mesajı oku', push: '{talep} talebine {galeri} yazdı. Mesajı oku.', sms: '', kanallar: ['eposta', 'push', 'uyg'] },
+      doluyor: { konu: 'Talebin 3 gün sonra doluyor', baslik: 'Talebin 3 gün sonra doluyor', govde: 'Merhaba {ad}, {talep} talebinin yayın süresi {bitis} tarihinde doluyor. Şimdiye kadar {mesaj_sayisi} satıcı yazdı. Talebini tek tıkla uzatabilirsin.', buton: 'Talebimi uzat', push: '{talep} talebin 3 gün sonra doluyor. Tek tıkla uzat.', sms: '', kanallar: ['eposta', 'push'] },
+      odeme: { konu: 'Ödemen alındı · {tutar}', baslik: 'Ödemen alındı', govde: 'Merhaba {ad}, {urun} için {tutar} ödemen alındı. Faturan ekte. Kullanılmamış haklarını 14 gün içinde iade isteyebilirsin.', buton: 'Haklarım', push: '', sms: '', kanallar: ['eposta'] },
+      deneme: { konu: 'Deneme süren {gun} gün sonra bitiyor', baslik: 'Deneme süren bitiyor', govde: 'Merhaba {ad}, {galeri} için deneme süren {bitis} tarihinde bitiyor. Bu sürede bölgende {talep_sayisi} uygun talep açıldı.', buton: 'Paketleri gör', push: 'Deneme süren {gun} gün sonra bitiyor.', sms: '', kanallar: ['eposta', 'push'] },
+      oneCikar: { konu: 'Hafta sonu talebini öne çıkar · %20 indirim', baslik: 'Talebin daha çok satıcıya ulaşsın', govde: 'Merhaba {ad}, {talep} talebini hafta sonu üst sıraya taşı; UST20 koduyla %20 indirimli. Üst sıradaki talepler ortalama 2 kat daha fazla ilk mesaj alıyor.', buton: 'Üst sıraya taşı', push: '{talep} talebini %20 indirimle üst sıraya taşı.', sms: '', kanallar: ['eposta', 'push', 'uyg'] },
+      bulten: { konu: 'Kasım’da Rengarenk', baslik: 'Kasım’da neler oldu?', govde: 'Merhaba {ad}, bu ay en çok aranan modeller, yeni kategoriler ve güvenli alışveriş ipuçları.', buton: 'Bülteni oku', push: '', sms: '', kanallar: ['eposta'] }
+    };
+    var sbSec = SB.filter(function (s) { return s[0] === st.sablon; })[0];
+    var sd = SD[st.sablon];
+    var ticari = sbSec[2] === 'Ticari';
+    var aktifKanal = sd.kanallar.indexOf(st.sKanal) !== -1 ? st.sKanal : sd.kanallar[0];
+    function dol(t) { return t.replace('{ad}', 'Ayşe').replace('{kod}', '482913').replace('{galeri}', 'Yıldız Otomotiv').replace('{galeri}', 'Yıldız Otomotiv').replace('{talep}', 'BMW 3 Serisi 320i').replace('{bitis}', '9 Kasım').replace('{mesaj_sayisi}', '12').replace('{tutar}', '₺119,99').replace('{urun}', 'Ek ilk mesaj (10 adet)').replace('{gun}', '3').replace('{talep_sayisi}', '84'); }
+    var KANAD = [['eposta', 'E-posta'], ['push', 'Push'], ['sms', 'SMS'], ['uyg', 'Uygulama içi']];
+    var alanlar = aktifKanal === 'eposta' ? [{ ad: 'Konu', deger: sd.konu, yukseklik: 20 }, { ad: 'Başlık', deger: sd.baslik, yukseklik: 20 }, { ad: 'Metin', deger: sd.govde, yukseklik: 90 }, { ad: 'Buton', deger: sd.buton, yukseklik: 20 }]
+      : aktifKanal === 'sms' ? [{ ad: 'SMS metni', deger: sd.sms, yukseklik: 60 }]
+      : [{ ad: 'Başlık', deger: sd.baslik, yukseklik: 20 }, { ad: 'Metin', deger: sd.push, yukseklik: 50 }];
+    var smsDolu = dol(sd.sms || '');
+
+    // Teslim
+    var TK = [
+      ['Mobil ve web push', 'Firebase Cloud Messaging', '182.400', '%96,1', '%18,2', '%9,4', '%0,8', '—', '₺0'],
+      ['E-posta · işlemsel', 'bildirim.rengarenk.com.tr', '96.200', '%98,7', '%52,0', '%21,3', '—', '%0,01', '₺0'],
+      ['E-posta · ticari', 'bulten.rengarenk.com.tr', '38.600', '%97,2', '%29,4', '%3,8', '%0,6', '%0,03', '₺0'],
+      ['SMS · doğrulama ve kritik', 'Ana sağlayıcı + yedek', '14.900', '%99,1', '—', '—', '—', '—', '₺3.725'],
+      ['Uygulama içi', 'Kendi altyapımız', '240.100', '—', '%61,0 görüldü', '%12,6', '—', '—', '₺0']
+    ];
+    var TC = [['Togg T10X için talep var', 'Kampanya · 46 galeri', 21], ['İlk mesajın geldi', 'İşlemsel · 64.300 ileti', 38], ['Talebin 3 gün sonra doluyor', 'Akış · 2.140 kişi', 19], ['Galeri 7 gündür mesaj göndermedi', 'Akış · 86 galeri', 26], ['Kasım: üst sırada %20', 'Kampanya · önceki benzeri', 7], ['Ekim bülteni', 'Kampanya · 21.400 kişi', 4.2]];
+
+    var tk = st.ticari;
+    return {
+      v: { kampanya: st.view === 'kampanya', akis: st.view === 'akis', segment: st.view === 'segment', sablon: st.view === 'sablon', merkez: st.view === 'merkez', teslim: st.view === 'teslim' },
+      gruplar: gruplar, bildirimVar: !!st.bildirim, bildirim: st.bildirim,
+      kampanyalar: KMP.map(function (k) { return { ad: k[0], kanal: k[1], kitle: k[2], sonuc: k[3], durum: k[4], bg: k[5], fg: k[6] }; }),
+      kanallar: kanallar, ozet: ozet, onayGerek: toplam >= 1000 && !st.gonderildi, gonderildi: st.gonderildi, gonderilmedi: !st.gonderildi,
+      gonderYazi: secili ? 'Onaya gönder' : 'En az bir kanal seç',
+      onayaGonder: function () { if (!secili) return; self.setState({ gonderildi: true, bildirim: 'Kampanya onay kuyruğuna gönderildi. Onaylanınca Cumartesi 10.00’da gider; sonucu raporlara ve grafik notlarına kendiliğinden düşer.' }); },
+      akislar: akislar, akis: akis,
+      kurallar: kurallar, kuralEkle: kuralEkle, segSayi: f(sayi),
+      ulasim: oranlar.map(function (o) { return { ad: o[0], sayi: f(sayi * o[1]), w: (o[1] * 100).toFixed(0), not: o[2] }; }),
+      segKaydet: function () { self.setState({ bildirim: 'Segment kaydedildi. Kampanya ve akışlarda seçilebilir; her gönderimde yeniden hesaplanır.' }); },
+      segmentler: [
+        { ad: 'Aktif talebi olan bireyseller · son 14 gün', kural: 'Bireysel · aktif talep · 14 gün · 5 il', sayi: '8.920 kişi', kim: 'Zeynep Tan · bugün' },
+        { ad: 'Denemesi bu ay biten galeriler', kural: 'Galeri · deneme bitişi Kasım', sayi: '112 galeri', kim: 'Ajan · 3 Kas' },
+        { ad: 'Antalya kiralama firmaları', kural: 'Galeri · alt tür kiralama · Antalya', sayi: '38 firma', kim: 'Ajan · 2 Kas' },
+        { ad: '30 gündür giriş yapmayan bireyseller', kural: 'Bireysel · son giriş 30+ gün', sayi: '14.600 kişi', kim: 'Sen · 28 Eki' },
+        { ad: 'Togg arayan alıcılar', kural: 'Talep · marka Togg · aktif', sayi: '117 kişi', kim: 'Zeynep Tan · 25 Eki' }
+      ],
+      sablonlar: SB.map(function (s) { var on = s[0] === st.sablon, t = s[2] === 'Ticari'; return { ad: s[1], tur: s[2], kanal: s[3], surum: s[4], bg: on ? '#F3EFFF' : 'transparent', aria: on ? 'true' : 'false', tBg: t ? '#FFEEF6' : '#EEF3FF', tFg: t ? '#A0256A' : '#2450C8', pick: function () { self.setState({ sablon: s[0] }); } }; }),
+      sablon: { ad: sbSec[1], kural: ticari ? 'Ticari şablon: yalnızca İYS onayı olanlara gider, altına tek tıkla ayrılma bağlantısı ve İYS bilgisi kendiliğinden eklenir.' : 'İşlemsel şablon: izin gerektirmez ve sessiz saatte de gönderilir. Reklam içeriği eklenemez.' },
+      sablonKaydet: function () { self.setState({ bildirim: sbSec[1] + ' yeni sürüm olarak kaydedildi. Bekleyen gönderimler yeni sürümü kullanır; eski sürüme dönülebilir.' }); },
+      sablonKanal: KANAD.map(function (k) { var var_ = sd.kanallar.indexOf(k[0]) !== -1; return { ad: k[1] + (var_ ? '' : ' · yok'), on: aktifKanal === k[0], off: aktifKanal !== k[0], renk: var_ ? '#3A4052' : '#AEB5C4', pick: function () { if (var_) self.setState({ sKanal: k[0] }); } }; }),
+      sablonAlan: alanlar,
+      degiskenler: ['{ad}', '{talep}', '{galeri}', '{bitis}', '{tutar}', '{kod}'].map(function (d) { return { ad: d }; }),
+      onz: { eposta: aktifKanal === 'eposta', push: aktifKanal === 'push', sms: aktifKanal === 'sms', uygulama: aktifKanal === 'uyg',
+        kimden: ticari ? 'Rengarenk <merhaba@bulten.rengarenk.com.tr>' : 'Rengarenk <bildirim@bildirim.rengarenk.com.tr>',
+        konu: dol(sd.konu), baslik: dol(sd.baslik), govde: dol(sd.govde), buton: sd.buton, pushGovde: dol(sd.push || ''),
+        alt: ticari ? 'Bu e-postayı ticari ileti onayın olduğu için aldın. Tek tıkla ayrıl · Bildirim tercihleri · İYS üzerinden de onayını geri alabilirsin. KG Teknoloji · İstanbul' : 'Bu e-posta hesabınla ilgili bir işlem olduğu için gönderildi. Bildirim tercihleri · KG Teknoloji · İstanbul',
+        smsGovde: smsDolu, smsBilgi: smsDolu.length + ' karakter · 1 SMS · Türkçe karakter kullanılmaz (tek SMS’e sığması için)' },
+      ticariAcik: tk, ticariKapali: !tk,
+      ticariDurdur: function () { self.setState({ ticari: false, bildirim: 'Ticari gönderim durduruldu. Kampanyalar ve ticari akışlar bekletiliyor; işlemsel iletiler gitmeye devam ediyor.' }); },
+      ticariBaslat: function () { self.setState({ ticari: true, bildirim: 'Ticari gönderim yeniden başladı. Bekleyen iletiler ısınma limiti içinde sırayla gidecek.' }); },
+      saglik: [
+        { ad: 'Mobil ve web push', saglayici: 'Firebase Cloud Messaging', durum: 'Sağlıklı', bg: '#E7FAF0', fg: '#11683F', bugun: '6.840', teslim: '%96', kuyruk: '0' },
+        { ad: 'E-posta · işlemsel', saglayici: 'Kendi sunucumuz · bildirim.rengarenk.com.tr', durum: 'Sağlıklı', bg: '#E7FAF0', fg: '#11683F', bugun: '3.420', teslim: '%98,8', kuyruk: '4' },
+        { ad: 'E-posta · ticari', saglayici: 'Kendi sunucumuz · bulten.rengarenk.com.tr', durum: tk ? 'Isınıyor · 3/6' : 'Durduruldu', bg: tk ? '#FFF6DF' : '#FDECEC', fg: tk ? '#7A5300' : '#A3271F', bugun: '2.310', teslim: '%97,1', kuyruk: tk ? '1.690' : '5.120' },
+        { ad: 'SMS · ana', saglayici: 'İYS entegrasyonlu yerli sağlayıcı', durum: 'Sağlıklı', bg: '#E7FAF0', fg: '#11683F', bugun: '512', teslim: '%99,2', kuyruk: '0' },
+        { ad: 'SMS · yedek', saglayici: 'İkinci sağlayıcı · bugün 13:20–13:26 kullanıldı', durum: 'Beklemede', bg: '#EEF3FF', fg: '#2450C8', bugun: '38', teslim: '%98,9', kuyruk: '0' },
+        { ad: 'Uygulama içi', saglayici: 'Kendi altyapımız', durum: 'Sağlıklı', bg: '#E7FAF0', fg: '#11683F', bugun: '8.110', teslim: '—', kuyruk: '0' }
+      ],
+      kimlikler: [
+        { ad: 'İşlemsel', adres: 'bildirim.rengarenk.com.tr', ip: '185.x.x.21', itibar: 'Yüksek', itibarRenk: '#11683F', kontrol: ['SPF', 'DKIM', 'DMARC · karantina', 'Ters DNS', 'TLS', 'MTA-STS'].map(function (t) { return { t: '✓ ' + t, bg: '#E7FAF0', fg: '#11683F' }; }) },
+        { ad: 'Ticari', adres: 'bulten.rengarenk.com.tr', ip: '185.x.x.22', itibar: 'Orta · ısınıyor', itibarRenk: '#7A5300', kontrol: ['SPF', 'DKIM', 'DMARC · izleme', 'Ters DNS', 'TLS', 'Tek tıkla ayrılma'].map(function (t) { var iz = /izleme/.test(t); return { t: (iz ? '◆ ' : '✓ ') + t, bg: iz ? '#FFF6DF' : '#E7FAF0', fg: iz ? '#7A5300' : '#11683F' }; }) }
+      ],
+      isinma: [['1. hf', 500], ['2. hf', 1500], ['3. hf', 4000], ['4. hf', 10000], ['5. hf', 20000], ['6. hf', 40000]].map(function (w, i) { return { hafta: w[0], etiket: w[1] >= 1000 ? (w[1] / 1000) + ' bin' : String(w[1]), h: (Math.sqrt(w[1] / 40000) * 100).toFixed(1), renk: i < 2 ? '#5B8CFF' : (i === 2 ? '#2450C8' : '#FFFFFF'), kenar: i > 2 ? '1.5px dashed #A9C2FF' : '0', ipucu: w[0] + ': günlük ticari limit ' + f(w[1]) }; }),
+      gonderimKural: [
+        { ad: 'Ticari ileti sıklığı', not: 'Kişi başına, tüm kanallar toplamı (Karar 49)', deger: 'Haftada en fazla 2' },
+        { ad: 'Sessiz saat', not: 'Ticari iletiler sabaha ertelenir; işlemsel iletiler gider', deger: '21.00 – 09.00' },
+        { ad: 'Kanal sırası', not: 'Ucuz kanal önce; okunmazsa sıradaki denenir', deger: 'Uygulama içi → push → e-posta → SMS' },
+        { ad: 'SMS kullanımı', not: 'Kampanya SMS’ini yalnızca sahip açabilir', deger: 'Yalnız doğrulama kodu ve kritik durum' },
+        { ad: 'Toplu gönderim onayı', not: 'Dört göz kuralı (Karar 40)', deger: '1.000 kişi ve üstü' },
+        { ad: 'Otomatik durdurma', not: 'Ajan ticari e-postayı durdurur, sana bildirir', deger: 'Şikâyet %0,1 · geri dönme %2' }
+      ],
+      teslimKanal: TK.map(function (t) { return { ad: t[0], not: t[1], gonderilen: t[2], teslim: t[3], acilma: t[4], tiklama: t[5], ayrilma: t[6], sikayet: t[7], maliyet: t[8] }; }),
+      teslimKampanya: TC.map(function (t) { return { ad: t[0], not: t[1], oran: '%' + String(t[2]).replace('.', ','), w: (t[2] / 40 * 100).toFixed(1), ipucu: t[0] + ': tıklama %' + t[2] }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

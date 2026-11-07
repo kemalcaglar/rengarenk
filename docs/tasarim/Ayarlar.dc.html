@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Ayarlar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}a:hover{color:#1A3C99;text-decoration:underline}
+button,input,select{font-family:inherit}
+</style>
+</helmet>
+<div style="background: #F6F8FD; min-height: 100vh; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF">
+<div style="max-width: 1360px; margin: 0 auto; padding: 16px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px">
+<a href="Anasayfa.dc.html" style="display: flex; align-items: center; gap: 8px; color: #1E2333; text-decoration: none" aria-label="Rengarenk ana sayfa">
+<span style="display: flex; gap: 3px" aria-hidden="true"><span style="width: 10px; height: 22px; border-radius: 5px; background: #5B8CFF"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #FF6FB5"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #FFC84A"></span><span style="width: 10px; height: 22px; border-radius: 5px; background: #3DD68C"></span></span>
+<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px">rengarenk</span>
+</a>
+<form style="flex: 999 1 320px; min-width: 0; display: flex; align-items: center; gap: 8px; background: #F3F5FA; border: 1px solid #E3E6EF; border-radius: 12px; padding: 0 8px 0 14px" role="search">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5A6073" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<label for="ara" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Talep ara</label>
+<input id="ara" type="search" placeholder="Marka, model veya talep no ile ara" style="flex: 1; min-width: 0; border: 0; background: transparent; font-size: 15px; padding: 12px 0; color: #1E2333; outline: none">
+<button type="submit" style="border: 0; border-radius: 9px; background: #5B8CFF; color: #1E2333; font-weight: 700; font-size: 14px; padding: 9px 16px; cursor: pointer">Ara</button>
+</form>
+<nav style="display: flex; align-items: center; gap: 10px" aria-label="Hesap">
+<a href="#" style="display: flex; align-items: center; gap: 8px; color: #1E2333; font-weight: 600; font-size: 14.5px; padding: 8px 6px; text-decoration: none"><span style="width: 34px; height: 34px; border-radius: 50%; background: #FFEEF6; color: #A3236A; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px" aria-hidden="true">AY</span>Ayşe Yılmaz</a>
+<a href="Sihirbaz.dc.html" style="display: flex; align-items: center; gap: 8px; background: #5B8CFF; color: #1E2333; font-weight: 700; font-size: 15px; padding: 11px 18px; border-radius: 12px; text-decoration: none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Talep oluştur</a>
+</nav>
+</div>
+</header>
+
+<div style="max-width: 1360px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px">
+<nav style="flex: 1 1 220px; max-width: 250px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 12px" aria-label="Hesabım">
+<span style="display: block; padding: 8px 10px 10px; font-size: 13px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: #5A6073">Hesabım</span>
+<a href="Taleplerim.dc.html" style="display: block; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052">Taleplerim</a>
+<a href="Mesajlar.dc.html" style="display: block; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052">Mesajlarım</a>
+<a href="Favoriler.dc.html" style="display: block; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052">Favoriler ve aramalar</a>
+<a href="Haklarim.dc.html" style="display: block; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052">Haklarım ve ödemeler</a>
+<a href="Ayarlar.dc.html" aria-current="page" style="display: block; background: #EEF3FF; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 800; color: #1E2333">Ayarlar</a>
+<a href="Yardim.dc.html" style="display: block; border-radius: 12px; padding: 11px 12px; font-size: 14.5px; font-weight: 600; color: #3A4052">Yardım</a>
+</nav>
+
+<main style="flex: 999 1 760px; min-width: 0">
+<h1 style="margin: 0 0 16px; font-size: 28px; font-weight: 800; letter-spacing: -0.4px">Ayarlar</h1>
+<div role="tablist" aria-label="Ayar bölümleri" style="display: flex; flex-wrap: wrap; gap: 6px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 14px; padding: 6px; margin-bottom: 16px">
+<sc-for list="{{bolumler}}" as="b" hint-placeholder-count="5">
+<sc-if value="{{b.on}}" hint-placeholder-val="{{ false }}"><button type="button" role="tab" aria-selected="true" onClick="{{b.pick}}" style="flex: 1 1 130px; border: 0; background: #EEF3FF; border-radius: 10px; padding: 11px 10px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer">{{b.ad}}</button></sc-if>
+<sc-if value="{{b.off}}" hint-placeholder-val="{{ true }}"><button type="button" role="tab" aria-selected="false" onClick="{{b.pick}}" style="flex: 1 1 130px; border: 0; background: transparent; border-radius: 10px; padding: 11px 10px; font-size: 14.5px; font-weight: 600; color: #3A4052; cursor: pointer">{{b.ad}}</button></sc-if>
+</sc-for>
+</div>
+
+<sc-if value="{{g.profil}}" hint-placeholder-val="{{ true }}">
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 22px" aria-labelledby="pr">
+<h2 id="pr" style="margin: 0 0 14px; font-size: 18px; font-weight: 800">Profil bilgileri</h2>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
+<label style="font-size: 13px; font-weight: 700">Ad<input value="Ayşe" style="display: block; width: 100%; box-sizing: border-box; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 11px; font-size: 14.5px"></label>
+<label style="font-size: 13px; font-weight: 700">Soyad<input value="Yılmaz" style="display: block; width: 100%; box-sizing: border-box; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 11px; font-size: 14.5px"></label>
+<label style="font-size: 13px; font-weight: 700">İl<input value="İstanbul" style="display: block; width: 100%; box-sizing: border-box; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 11px; font-size: 14.5px"></label>
+<label style="font-size: 13px; font-weight: 700">İlçe<input value="Kadıköy" style="display: block; width: 100%; box-sizing: border-box; margin-top: 5px; border: 1px solid #D5DAE5; border-radius: 10px; padding: 11px; font-size: 14.5px"></label>
+</div>
+<span style="display: block; font-size: 13px; font-weight: 700; margin: 18px 0 8px">Talep sayfalarında adın nasıl görünsün?</span>
+<div role="radiogroup" aria-label="Görünen ad" style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{adSecenek}}" as="o" hint-placeholder-count="2">
+<button type="button" role="radio" aria-checked="{{o.aria}}" onClick="{{o.pick}}" style="flex: 1 1 220px; text-align: left; border: {{o.border}}; background: {{o.bg}}; border-radius: 12px; padding: 12px 14px; cursor: pointer; color: #1E2333"><span style="display: block; font-size: 15px; font-weight: 800">{{o.ad}}</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">{{o.not}}</span></button>
+</sc-for>
+</div>
+<h3 style="margin: 22px 0 10px; font-size: 15px; font-weight: 800">Giriş bilgileri</h3>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; border: 1px solid #EEF0F5; border-radius: 12px; padding: 12px 14px"><span><span style="display: block; font-size: 14.5px; font-weight: 700">Cep telefonu · +90 5XX XXX XX 67</span><span style="display: block; font-size: 12.5px; color: #11683F; font-weight: 700; margin-top: 2px">SMS ile doğrulandı</span></span><button type="button" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; padding: 8px 12px; font-size: 13.5px; font-weight: 700; color: #1E2333; cursor: pointer">Numarayı değiştir</button></div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; border: 1px solid #EEF0F5; border-radius: 12px; padding: 12px 14px"><span><span style="display: block; font-size: 14.5px; font-weight: 700">E-posta · ayse.yilmaz@ornek.com</span><span style="display: block; font-size: 12.5px; color: #7A5300; font-weight: 700; margin-top: 2px">Doğrulanmadı · faturalar ve günlük özetler için gerekli</span></span><button type="button" style="border: 0; background: #FFC84A; border-radius: 10px; padding: 9px 12px; font-size: 13.5px; font-weight: 800; color: #1E2333; cursor: pointer">Doğrulama bağlantısı gönder</button></div>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{g.iletisim}}" hint-placeholder-val="{{ false }}">
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 22px" aria-labelledby="il">
+<h2 id="il" style="margin: 0 0 4px; font-size: 18px; font-weight: 800">İletişim tercihleri</h2>
+<p style="margin: 0 0 12px; font-size: 13.5px; color: #5A6073">Yeni talepler bu ayarlarla açılır. Her talepte ayrıca değiştirebilirsin.</p>
+<sc-for list="{{iletisim}}" as="s" hint-placeholder-count="3">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 0; border-top: 1px solid #EEF0F5">
+<span><span style="display: block; font-size: 15px; font-weight: 700">{{s.ad}}</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">{{s.not}}</span></span>
+<sc-if value="{{s.sabit}}" hint-placeholder-val="{{ false }}"><span style="flex: none; font-size: 13px; font-weight: 700; color: #5A6073">Her zaman açık</span></sc-if>
+<sc-if value="{{s.degisir}}" hint-placeholder-val="{{ true }}"><button type="button" role="switch" aria-checked="{{s.aria}}" aria-label="{{s.ad}}" onClick="{{s.toggle}}" style="flex: none; width: 52px; height: 30px; border: 0; border-radius: 999px; background: {{s.track}}; position: relative; cursor: pointer"><span style="position: absolute; top: 3px; left: {{s.knob}}; width: 24px; height: 24px; border-radius: 50%; background: #FFFFFF"></span></button></sc-if>
+</div>
+</sc-for>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px 0 0; border-top: 1px solid #EEF0F5">
+<span style="flex: 999 1 220px"><span style="display: block; font-size: 15px; font-weight: 700">Aranabileceğim saatler</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">Bu saatlerin dışında numaran talep sayfasında gizlenir</span></span>
+<select aria-label="Başlangıç saati" style="border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14.5px; background: #FFFFFF"><option>09.00</option><option>10.00</option></select>
+<span aria-hidden="true">–</span>
+<select aria-label="Bitiş saati" style="border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14.5px; background: #FFFFFF"><option>21.00</option><option>22.00</option></select>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{g.bildirim}}" hint-placeholder-val="{{ false }}">
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden" aria-labelledby="bl">
+<h2 id="bl" style="margin: 0; padding: 18px 20px 6px; font-size: 18px; font-weight: 800">Bildirimler</h2>
+<p style="margin: 0; padding: 0 20px 14px; font-size: 13.5px; color: #5A6073">Güvenlik ve ödeme bildirimleri kapatılamaz.</p>
+<div style="display: flex; gap: 10px; padding: 10px 20px; background: #F3F5FA; font-size: 12.5px; font-weight: 700; color: #5A6073"><span style="flex: 1">Bildirim</span><span style="width: 72px; text-align: center">Uygulama</span><span style="width: 72px; text-align: center">E-posta</span><span style="width: 72px; text-align: center">SMS</span></div>
+<sc-for list="{{bildirimler}}" as="r" hint-placeholder-count="5">
+<div style="display: flex; align-items: center; gap: 10px; padding: 12px 20px; border-top: 1px solid #EEF0F5">
+<span style="flex: 1; min-width: 0"><span style="display: block; font-size: 14.5px; font-weight: 700">{{r.ad}}</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">{{r.not}}</span></span>
+<sc-for list="{{r.kanallar}}" as="k" hint-placeholder-count="3">
+<span style="width: 72px; display: flex; justify-content: center"><button type="button" role="checkbox" aria-checked="{{k.aria}}" aria-label="{{k.etiket}}" onClick="{{k.toggle}}" style="width: 24px; height: 24px; border-radius: 7px; border: 2px solid {{k.kenar}}; background: {{k.dolgu}}; color: #FFFFFF; font-size: 14px; font-weight: 800; cursor: pointer; padding: 0; opacity: {{k.opak}}">{{k.isaret}}</button></span>
+</sc-for>
+</div>
+</sc-for>
+<p style="margin: 0; padding: 12px 20px 18px; font-size: 12.5px; color: #5A6073; border-top: 1px solid #EEF0F5">Kampanya e-posta ve SMS’leri ticari elektronik ileti onayınla gönderilir ve İYS’ye kaydedilir. Onayını istediğin zaman geri alabilirsin.</p>
+</section>
+</sc-if>
+
+<sc-if value="{{g.gizlilik}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 16px">
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 20px" aria-labelledby="ot">
+<h2 id="ot" style="margin: 0 0 10px; font-size: 18px; font-weight: 800">Açık oturumlar</h2>
+<sc-for list="{{oturumlar}}" as="o" hint-placeholder-count="2">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 0; border-top: 1px solid #EEF0F5">
+<span><span style="display: block; font-size: 14.5px; font-weight: 700">{{o.cihaz}}</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">{{o.yer}}</span></span>
+<sc-if value="{{o.bu}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; font-weight: 700; color: #11683F">Bu cihaz</span></sc-if>
+<sc-if value="{{o.diger}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{o.kapat}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; padding: 8px 12px; font-size: 13.5px; font-weight: 700; color: #1E2333; cursor: pointer">Oturumu kapat</button></sc-if>
+</div>
+</sc-for>
+</section>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 20px" aria-labelledby="en">
+<h2 id="en" style="margin: 0 0 4px; font-size: 18px; font-weight: 800">Engellediklerin</h2>
+<p style="margin: 0 0 10px; font-size: 13.5px; color: #5A6073">Engellediğin kişiler sana mesaj gönderemez ve taleplerini göremez.</p>
+<sc-for list="{{engelli}}" as="e" hint-placeholder-count="2">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 0; border-top: 1px solid #EEF0F5">
+<span><span style="display: block; font-size: 14.5px; font-weight: 700">{{e.ad}}</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">{{e.not}}</span></span>
+<button type="button" onClick="{{e.kaldir}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; padding: 8px 12px; font-size: 13.5px; font-weight: 700; color: #1E2333; cursor: pointer">Engeli kaldır</button>
+</div>
+</sc-for>
+<sc-if value="{{engelBos}}" hint-placeholder-val="{{ false }}"><p style="margin: 0; padding-top: 10px; border-top: 1px solid #EEF0F5; font-size: 14px; color: #5A6073">Engellediğin kimse yok.</p></sc-if>
+</section>
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 20px" aria-labelledby="kv">
+<h2 id="kv" style="margin: 0 0 10px; font-size: 18px; font-weight: 800">Kişisel verilerim</h2>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 0; border-top: 1px solid #EEF0F5"><span><span style="display: block; font-size: 14.5px; font-weight: 700">Verilerimi indir</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">Profil, talepler, mesajlar, ödemeler ve rızaların. Doğrulama kodundan sonra 24 saat içinde hazırlanır; bağlantı 7 gün geçerli.</span></span><button type="button" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 10px; padding: 8px 12px; font-size: 13.5px; font-weight: 700; color: #1E2333; cursor: pointer">Hazırla</button></div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 0; border-top: 1px solid #EEF0F5"><span><span style="display: block; font-size: 14.5px; font-weight: 700">Aydınlatma metni ve çerez tercihleri</span><span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 2px">Son güncelleme 1 Kasım 2026</span></span><a href="#" style="font-size: 13.5px; font-weight: 700">Görüntüle</a></div>
+</section>
+</div>
+</sc-if>
+
+<sc-if value="{{g.hesap}}" hint-placeholder-val="{{ false }}">
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 22px" aria-labelledby="hk">
+<h2 id="hk" style="margin: 0 0 10px; font-size: 18px; font-weight: 800">Hesabı kapat</h2>
+<ul style="margin: 0 0 16px; padding-left: 20px; font-size: 14.5px; line-height: 1.6; color: #3A4052">
+<li>Yayındaki taleplerin kapanır, satıcılar artık sana yazamaz.</li>
+<li>Sohbetlerin karşı tarafta "Kapatılmış hesap" olarak görünür.</li>
+<li>Web’den aldığın ve kullanmadığın haklar ödediğin tutar üzerinden kartına iade edilir: <strong>4 ek ilk mesaj · 39,60 TL</strong>. Başlamış öne çıkarmalar iade edilmez.</li>
+<li>App Store veya Google Play’den aldığın hakların iadesi mağaza üzerinden yapılır.</li>
+<li>Fatura ve ödeme kayıtları yasal saklama süresi boyunca tutulur; diğer verilerin silinir.</li>
+</ul>
+<sc-if value="{{kapatAdim}}" hint-placeholder-val="{{ false }}">
+<div style="background: #FDECEC; border-radius: 14px; padding: 16px; margin-bottom: 14px">
+<label for="neden" style="display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px">Neden ayrılıyorsun? (isteğe bağlı)</label>
+<select id="neden" style="width: 100%; border: 1px solid #E5A6A1; border-radius: 10px; padding: 11px; font-size: 14.5px; background: #FFFFFF"><option>Aradığım aracı buldum</option><option>Çok fazla mesaj aldım</option><option>Başka bir platform kullanıyorum</option><option>Diğer</option></select>
+<p style="margin: 10px 0 0; font-size: 13px; color: #A3271F">Onaylamak için telefonuna bir SMS kodu göndereceğiz.</p>
+</div>
+</sc-if>
+<button type="button" onClick="{{kapat}}" style="border: 1px solid #E5A6A1; background: #FFFFFF; border-radius: 12px; padding: 12px 18px; font-size: 14.5px; font-weight: 800; color: #A3271F; cursor: pointer">{{kapatYazi}}</button>
+</section>
+</sc-if>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { bolum: 'profil', adGorunum: 'tam', tel: true, wa: true, bil: { mesaj: [1, 1, 0], arama: [1, 1, 0], sure: [1, 1, 1], odeme: [1, 1, 0], kampanya: [0, 0, 0] }, kapanan: {}, engelKalkan: {}, kapatAdim: false };
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    var BOL = [['profil', 'Profil'], ['iletisim', 'İletişim'], ['bildirim', 'Bildirimler'], ['gizlilik', 'Gizlilik ve güvenlik'], ['hesap', 'Hesap']];
+    var g = {}; BOL.forEach(function (b) { g[b[0]] = st.bolum === b[0]; });
+    function sw(key, ad, not) { var on = !!st[key]; return { ad: ad, not: not, sabit: false, degisir: true, aria: on ? 'true' : 'false', track: on ? '#5B8CFF' : '#C9CFDB', knob: on ? '25px' : '3px', toggle: function () { var o = {}; o[key] = !self.state[key]; self.setState(o); } }; }
+    var R = [['mesaj', 'Yeni mesaj', 'Biri talebine veya sohbetine yazdığında', false], ['arama', 'Kayıtlı aramana uyan yeni talep', 'Her aramada ayrıca anlık veya günlük seçebilirsin', false], ['sure', 'Talep süresi hatırlatması', 'Süre dolmadan 7, 3 ve 1 gün önce', false], ['odeme', 'Ödeme ve fatura', 'Kapatılamaz', true], ['kampanya', 'Kampanya ve duyurular', 'Ticari ileti onayı gerekir', false]];
+    var KAN = ['Uygulama', 'E-posta', 'SMS'];
+    var bildirimler = R.map(function (r) {
+      return { ad: r[1], not: r[2], kanallar: KAN.map(function (k, i) {
+        var on = !!st.bil[r[0]][i], kilit = r[3] && i < 2;
+        return { etiket: r[1] + ' · ' + k, aria: on ? 'true' : 'false', kenar: on ? '#5B8CFF' : '#AEB5C4', dolgu: on ? '#5B8CFF' : '#FFFFFF', isaret: on ? '✓' : '', opak: kilit ? '0.5' : '1',
+          toggle: function () { if (kilit) return; var b = JSON.parse(JSON.stringify(self.state.bil)); b[r[0]][i] = b[r[0]][i] ? 0 : 1; self.setState({ bil: b }); } };
+      }) };
+    });
+    var OT = [['o1', 'iPhone 15 · Rengarenk uygulaması', 'İstanbul · şu an etkin', true], ['o2', 'Chrome · Windows', 'İstanbul · 2 gün önce', false], ['o3', 'Safari · iPad', 'Muğla · 3 hafta önce', false]];
+    var EN = [['e1', 'Emre K.', 'Bireysel satıcı · 4 Kasım’da engelledin'], ['e2', 'Kaya Motors', 'Galeri · 5 Kasım’da engelledin']];
+    var engelli = EN.filter(function (e) { return !st.engelKalkan[e[0]]; }).map(function (e) { return { ad: e[1], not: e[2], kaldir: function () { var n = Object.assign({}, self.state.engelKalkan); n[e[0]] = true; self.setState({ engelKalkan: n }); } }; });
+    return {
+      bolumler: BOL.map(function (b) { return { ad: b[1], on: st.bolum === b[0], off: st.bolum !== b[0], pick: function () { self.setState({ bolum: b[0] }); } }; }),
+      g: g,
+      adSecenek: [['tam', 'Ayşe Yılmaz', 'Adın ve soyadın tam görünür'], ['kisa', 'Ayşe Y.', 'Soyadının yalnızca baş harfi görünür']].map(function (o) { var on = st.adGorunum === o[0]; return { ad: o[1], not: o[2], aria: on ? 'true' : 'false', border: on ? '1.5px solid #5B8CFF' : '1px solid #D5DAE5', bg: on ? '#EEF3FF' : '#FFFFFF', pick: function () { self.setState({ adGorunum: o[0] }); } }; }),
+      iletisim: [
+        { ad: 'Rengarenk mesajları', not: 'Satıcılar sana her zaman uygulama içinden yazabilir', sabit: true, degisir: false, aria: 'true', track: '#5B8CFF', knob: '25px', toggle: function () {} },
+        sw('tel', 'Telefon numaramı göster', 'Talep sayfasının sağındaki iletişim kutusunda görünür'),
+        sw('wa', 'WhatsApp ile yazılabilsin', 'Telefon numaran açıkken WhatsApp düğmesi de görünür')
+      ],
+      bildirimler: bildirimler,
+      oturumlar: OT.filter(function (o) { return !st.kapanan[o[0]]; }).map(function (o) { return { cihaz: o[1], yer: o[2], bu: o[3], diger: !o[3], kapat: function () { var n = Object.assign({}, self.state.kapanan); n[o[0]] = true; self.setState({ kapanan: n }); } }; }),
+      engelli: engelli, engelBos: engelli.length === 0,
+      kapatAdim: st.kapatAdim,
+      kapatYazi: st.kapatAdim ? 'SMS kodu gönder ve hesabı kapat' : 'Hesabımı kapatmak istiyorum',
+      kapat: function () { self.setState({ kapatAdim: true }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Ana sayfa</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}a:hover{color:#1A3C99;text-decoration:underline}
+button,input{font-family:inherit}
+</style>
+</helmet>
+<div style="background: #F6F8FD; min-height: 100vh; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF">
+<div style="max-width: 1360px; margin: 0 auto; padding: 16px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px">
+<a href="#" style="display: flex; align-items: center; gap: 8px; color: #1E2333; text-decoration: none" aria-label="Rengarenk ana sayfa">
+<span style="display: flex; gap: 3px" aria-hidden="true">
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #5B8CFF"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #FF6FB5"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #FFC84A"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #3DD68C"></span>
+</span>
+<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px">rengarenk</span>
+</a>
+<form style="flex: 999 1 320px; min-width: 0; display: flex; align-items: center; gap: 8px; background: #F3F5FA; border: 1px solid #E3E6EF; border-radius: 12px; padding: 0 8px 0 14px" role="search">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5A6073" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<label for="ara" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Talep ara</label>
+<input id="ara" type="search" placeholder="Marka, model veya talep no ile ara" style="flex: 1; min-width: 0; border: 0; background: transparent; font-size: 15px; padding: 12px 0; color: #1E2333; outline: none">
+<button type="submit" style="border: 0; border-radius: 9px; background: #5B8CFF; color: #1E2333; font-weight: 700; font-size: 14px; padding: 9px 16px; cursor: pointer">Ara</button>
+</form>
+<nav style="display: flex; align-items: center; gap: 10px" aria-label="Hesap">
+<sc-if value="{{galeri}}" hint-placeholder-val="{{ true }}">
+<a href="#" style="display: flex; align-items: center; gap: 8px; color: #1E2333; font-weight: 600; font-size: 14.5px; padding: 8px 6px; text-decoration: none">
+<span style="width: 34px; height: 34px; border-radius: 50%; background: #FFF6DF; color: #7A5300; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px" aria-hidden="true">YO</span>Yıldız Otomotiv</a>
+</sc-if>
+<sc-if value="{{ziyaretci}}" hint-placeholder-val="{{ false }}">
+<a href="#" style="color: #1E2333; font-weight: 600; font-size: 15px; padding: 10px 6px">Giriş yap</a>
+</sc-if>
+<a href="#" style="display: flex; align-items: center; gap: 8px; background: #5B8CFF; color: #1E2333; font-weight: 700; font-size: 15px; padding: 11px 18px; border-radius: 12px; text-decoration: none">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Talep oluştur</a>
+</nav>
+</div>
+</header>
+
+<main style="max-width: 1360px; margin: 0 auto; padding: 24px 24px 64px; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px">
+
+<aside style="flex: 1 1 220px; max-width: 250px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px 12px" aria-label="Kategoriler">
+<h2 style="margin: 0 8px 12px; font-size: 13px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: #5A6073">Kategoriler</h2>
+<span style="display: block; padding: 10px 8px; font-size: 15.5px; font-weight: 800">Vasıta</span>
+<ul style="list-style: none; margin: 0 0 8px; padding: 0">
+<sc-for list="{{cats}}" as="cat" hint-placeholder-count="14">
+<li><a href="Liste.dc.html" style="display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 10px; font-size: 14px; font-weight: 500; color: #3A4052; text-decoration: none">
+<span style="width: 9px; height: 9px; border-radius: 50%; background: {{cat.dot}}; flex: none" aria-hidden="true"></span>{{cat.name}}</a></li>
+</sc-for>
+</ul>
+<div style="border-top: 1px solid #EEF0F5; padding-top: 8px">
+<span style="display: flex; align-items: center; justify-content: space-between; padding: 10px 8px; font-size: 15.5px; font-weight: 700; color: #6B7183">Emlak<span style="font-size: 11.5px; font-weight: 700; color: #5A6073; background: #F3F5FA; padding: 3px 8px; border-radius: 999px">Yakında</span></span>
+<span style="display: flex; align-items: center; justify-content: space-between; padding: 10px 8px; font-size: 15.5px; font-weight: 700; color: #6B7183">İkinci el alışveriş<span style="font-size: 11.5px; font-weight: 700; color: #5A6073; background: #F3F5FA; padding: 3px 8px; border-radius: 999px">Yakında</span></span>
+</div>
+</aside>
+
+<div style="flex: 999 1 760px; min-width: 0; display: flex; flex-direction: column; gap: 22px">
+
+<sc-if value="{{ziyaretci}}" hint-placeholder-val="{{ false }}">
+<section style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 22px; padding: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 28px" aria-labelledby="hero">
+<div style="flex: 999 1 380px; min-width: 0">
+<h1 id="hero" style="margin: 0; font-size: 36px; line-height: 1.15; font-weight: 800; letter-spacing: -0.8px">Aradığın aracı söyle, satıcılar seni bulsun.</h1>
+<p style="margin: 12px 0 22px; font-size: 16px; line-height: 1.55; color: #3A4052">İlan ilan gezmek yerine talebini bir kez yayınla. Uygun aracı olan galeriler ve satıcılar sana yazsın.</p>
+<a href="Sihirbaz.dc.html" style="display: inline-flex; align-items: center; gap: 8px; background: #5B8CFF; color: #1E2333; font-weight: 800; font-size: 16px; padding: 15px 24px; border-radius: 14px; text-decoration: none">Ücretsiz talep oluştur</a>
+</div>
+<ol style="flex: 1 1 280px; min-width: 0; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px">
+<li style="display: flex; gap: 12px; align-items: center; background: #EEF3FF; border-radius: 14px; padding: 12px 14px"><span style="width: 30px; height: 30px; border-radius: 50%; background: #5B8CFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex: none">1</span><span style="font-size: 14.5px; font-weight: 600">Aradığın aracı ve kriterlerini gir</span></li>
+<li style="display: flex; gap: 12px; align-items: center; background: #FFEEF6; border-radius: 14px; padding: 12px 14px"><span style="width: 30px; height: 30px; border-radius: 50%; background: #FF6FB5; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex: none">2</span><span style="font-size: 14.5px; font-weight: 600">Uygun aracı olanlar sana mesaj atsın</span></li>
+<li style="display: flex; gap: 12px; align-items: center; background: #E7FAF0; border-radius: 14px; padding: 12px 14px"><span style="width: 30px; height: 30px; border-radius: 50%; background: #3DD68C; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex: none">3</span><span style="font-size: 14.5px; font-weight: 600">Görüş, incele, kendi aranızda anlaşın</span></li>
+</ol>
+</section>
+</sc-if>
+
+<sc-if value="{{galeri}}" hint-placeholder-val="{{ true }}">
+<section style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 20px; padding: 20px 24px" aria-labelledby="merhaba">
+<div>
+<h1 id="merhaba" style="margin: 0; font-size: 24px; font-weight: 800">Merhaba, Yıldız Otomotiv</h1>
+<p style="margin: 4px 0 0; font-size: 14.5px; color: #5A6073">Profesyonel paket · Bugün kalan ilk mesaj hakkın <strong style="color: #1E2333">32 / 50</strong></p>
+</div>
+<div style="display: flex; gap: 10px">
+<a href="#" style="font-size: 14.5px; font-weight: 700; color: #1E2333; border: 1px solid #E3E6EF; border-radius: 12px; padding: 11px 16px; text-decoration: none; background: #FFFFFF">Portföyüm (42 araç)</a>
+<a href="#" style="font-size: 14.5px; font-weight: 700; color: #1E2333; border: 1px solid #E3E6EF; border-radius: 12px; padding: 11px 16px; text-decoration: none; background: #FFFFFF">Mesajlar <span style="background: #FF6FB5; border-radius: 999px; padding: 2px 8px; margin-left: 4px; font-size: 12.5px">3</span></a>
+</div>
+</section>
+
+<section aria-labelledby="eslesmeler">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px">
+<h2 id="eslesmeler" style="margin: 0; font-size: 19px; font-weight: 800">Portföyünüze uyan talepler</h2>
+<a href="Liste.dc.html" style="font-size: 14px; font-weight: 700">Tümünü gör</a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{eslesmeler}}" as="e" hint-placeholder-count="3">
+<a href="Main.dc.html" style="display: block; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 16px; color: #1E2333; text-decoration: none">
+<span style="display: inline-flex; align-items: center; gap: 6px; background: #E7FAF0; color: #11683F; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px">Portföyünüzdeki {{e.arac}} uyuyor</span>
+<span style="display: block; font-size: 15.5px; font-weight: 800; line-height: 1.35; margin-top: 10px">{{e.title}}</span>
+<span style="display: block; font-size: 13px; color: #5A6073; margin-top: 6px">{{e.meta}}</span>
+<span style="display: block; font-size: 15px; font-weight: 800; color: #2450C8; margin-top: 10px">{{e.butce}}</span>
+</a>
+</sc-for>
+</div>
+</section>
+
+<section aria-labelledby="kayitli">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px">
+<h2 id="kayitli" style="margin: 0; font-size: 19px; font-weight: 800">Kayıtlı aramalarınız</h2>
+<a href="#" style="font-size: 14px; font-weight: 700">Aramaları yönet</a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px">
+<sc-for list="{{kayitli}}" as="k" hint-placeholder-count="3">
+<a href="Liste.dc.html" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 16px; color: #1E2333; text-decoration: none">
+<span><span style="display: block; font-size: 15px; font-weight: 700">{{k.name}}</span><span style="display: block; font-size: 13px; color: #5A6073; margin-top: 3px">{{k.meta}}</span></span>
+<span style="flex: none; background: {{k.tint}}; font-size: 12.5px; font-weight: 800; padding: 6px 10px; border-radius: 999px">{{k.yeni}}</span>
+</a>
+</sc-for>
+</div>
+</section>
+</sc-if>
+
+<section aria-labelledby="vitrin">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px">
+<h2 id="vitrin" style="margin: 0; font-size: 19px; font-weight: 800">Ana sayfa vitrini</h2>
+<a href="Liste.dc.html" style="font-size: 13.5px; font-weight: 700; color: #2450C8; text-decoration: none">Tüm vitrin talepleri (126)</a>
+</div>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1px; background: #E3E6EF; border: 1px solid #E3E6EF; border-radius: 14px; overflow: hidden">
+<sc-for list="{{vitrin}}" as="v" hint-placeholder-count="17">
+<a href="Main.dc.html" style="display: block; background: #FFFFFF; padding: 8px 8px 10px; color: #1E2333; text-decoration: none; min-width: 0">
+<span style="display: block; position: relative; aspect-ratio: 4 / 3; border-radius: 8px; background: {{v.foto}}">
+<sc-if value="{{v.acil}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; left: 5px; top: 5px; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; background: #FFC84A; color: #1E2333">ACİL</span></sc-if>
+</span>
+<span style="display: block; font-size: 12.5px; font-weight: 700; line-height: 1.3; margin-top: 6px; height: 33px; overflow: hidden">{{v.title}}</span>
+<span style="display: block; font-size: 12.5px; font-weight: 800; color: #2450C8; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{v.butce}}</span>
+<span style="display: block; font-size: 11.5px; color: #5A6073; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{v.meta}}</span>
+</a>
+</sc-for>
+<a href="Haklarim.dc.html" style="display: flex; flex-direction: column; justify-content: center; gap: 5px; background: #FFF6DF; padding: 12px; color: #1E2333; text-decoration: none; min-width: 0">
+<span style="font-size: 13.5px; font-weight: 800; line-height: 1.3">Talebin burada görünsün</span>
+<span style="font-size: 12px; color: #5A3D00; line-height: 1.4">7 gün ana sayfa vitrini, web ve uygulamada</span>
+<span style="font-size: 13.5px; font-weight: 800; color: #7A5300; margin-top: 2px">299 TL ›</span>
+</a>
+</div>
+<p style="margin: 6px 2px 0; font-size: 11.5px; color: #5A6073">Fotoğraflar temsilîdir · Wikimedia Commons ve galeri portföyleri · sıra her açılışta karışır</p>
+</section>
+
+<section aria-labelledby="son">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px">
+<h2 id="son" style="margin: 0; font-size: 19px; font-weight: 800">Son talepler</h2>
+<a href="Liste.dc.html" style="font-size: 14px; font-weight: 700">Tüm talepler</a>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; overflow: hidden">
+<sc-for list="{{son}}" as="s" hint-placeholder-count="6">
+<a href="Main.dc.html" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; padding: 14px 18px; border-bottom: 1px solid #EEF0F5; color: #1E2333; text-decoration: none">
+<span style="width: 10px; height: 10px; border-radius: 50%; background: {{s.dot}}; flex: none" aria-hidden="true"></span>
+<span style="flex: 999 1 300px; min-width: 0; font-size: 15px; font-weight: 700">{{s.title}}</span>
+<span style="flex: 1 1 140px; font-size: 13.5px; color: #5A6073">{{s.yer}}</span>
+<span style="flex: 1 1 180px; font-size: 14px; font-weight: 800; color: #2450C8">{{s.butce}}</span>
+<span style="flex: 0 0 80px; font-size: 13px; color: #5A6073; text-align: right">{{s.zaman}}</span>
+</a>
+</sc-for>
+</div>
+</section>
+</div>
+</main>
+
+<footer style="border-top: 1px solid #E3E6EF; background: #FFFFFF">
+<div style="max-width: 1360px; margin: 0 auto; padding: 24px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 13.5px; color: #5A6073">
+<span>rengarenk · Aradığın aracı söyle, satıcı seni bulsun.</span>
+<span style="display: flex; gap: 18px"><a href="#">Yardım ve destek</a><a href="#">Kullanım koşulları</a><a href="#">KVKK</a></span>
+</div>
+</footer>
+<sc-if value="{{cerez.goster}}" hint-placeholder-val="{{ false }}">
+<div role="region" aria-label="Çerez tercihleri" style="position: fixed; left: 16px; right: 16px; bottom: 16px; max-width: 980px; margin: 0 auto; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px 20px; box-shadow: 0 12px 32px rgba(30,35,51,0.14); display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; z-index: 20">
+<div style="flex: 999 1 420px; min-width: 0">
+<div style="font-size: 15px; font-weight: 800">Çerez tercihlerin</div>
+<p style="margin: 4px 0 0; font-size: 13.5px; line-height: 1.5; color: #3A4052">Zorunlu çerezler sitenin çalışması için her zaman açıktır. Reklamlarımızın ölçülmesi için Meta ve Google çerezlerini yalnızca izin verirsen kullanırız. <a href="#">Çerez aydınlatma metni</a></p>
+<sc-if value="{{cerez.detay}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 10px; font-size: 13.5px">
+<span style="display: inline-flex; align-items: center; gap: 6px; color: #5A6073"><span style="width: 18px; height: 18px; border-radius: 5px; background: #AEB5C4; color: #FFFFFF; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center">✓</span>Zorunlu (kapatılamaz)</span>
+<button type="button" role="checkbox" aria-checked="{{cerez.analizAria}}" onClick="{{cerez.analizToggle}}" style="display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; padding: 0; font-size: 13.5px; color: #1E2333; cursor: pointer"><span style="width: 18px; height: 18px; border-radius: 5px; border: 2px solid {{cerez.analizKenar}}; background: {{cerez.analizDolgu}}; color: #FFFFFF; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-sizing: border-box">{{cerez.analizIsaret}}</span>Analiz</button>
+<button type="button" role="checkbox" aria-checked="{{cerez.reklamAria}}" onClick="{{cerez.reklamToggle}}" style="display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; padding: 0; font-size: 13.5px; color: #1E2333; cursor: pointer"><span style="width: 18px; height: 18px; border-radius: 5px; border: 2px solid {{cerez.reklamKenar}}; background: {{cerez.reklamDolgu}}; color: #FFFFFF; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-sizing: border-box">{{cerez.reklamIsaret}}</span>Reklam ölçümü (Meta, Google)</button>
+</div>
+</sc-if>
+</div>
+<div style="flex: 1 1 420px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; align-items: center">
+<button type="button" onClick="{{cerez.detayAc}}" style="border: 0; background: transparent; padding: 10px 6px; font-size: 14px; font-weight: 700; color: #2450C8; cursor: pointer">{{cerez.detayYazi}}</button>
+<button type="button" onClick="{{cerez.reddet}}" style="border: 1.5px solid #1E2333; background: #FFFFFF; border-radius: 12px; padding: 10px 18px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer">Reddet</button>
+<button type="button" onClick="{{cerez.kabul}}" style="border: 1.5px solid #1E2333; background: #FFFFFF; border-radius: 12px; padding: 10px 18px; font-size: 14px; font-weight: 800; color: #1E2333; cursor: pointer">{{cerez.kabulYazi}}</button>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"gorunum":{"editor":"enum","options":["Galeri","Ziyaretçi"],"default":"Galeri"},"$preview":{"width":1440,"height":1800}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { cerez: null, detay: false, analiz: false, reklam: false }; }
+  renderVals() {
+    var self = this, st = this.state;
+    function kutu(k) { var on = !!st[k]; return { aria: on ? 'true' : 'false', kenar: on ? '#5B8CFF' : '#AEB5C4', dolgu: on ? '#5B8CFF' : '#FFFFFF', isaret: on ? '✓' : '', toggle: function () { var o = {}; o[k] = !self.state[k]; self.setState(o); } }; }
+    var ka = kutu('analiz'), kr = kutu('reklam');
+    var DOTS = ['#5B8CFF', '#FF6FB5', '#FFC84A', '#3DD68C', '#A78BFA', '#FF8A5B'];
+    var TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0'];
+    var galeri = (this.props.gorunum || 'Galeri') === 'Galeri';
+    var catNames = ['Otomobil', 'Arazi, SUV & Pickup', 'Elektrikli Araçlar', 'Motosiklet', 'Minivan & Panelvan', 'Ticari Araçlar', 'Kiralık Araçlar', 'Deniz Araçları', 'Hasarlı Araçlar', 'Karavan', 'Klasik Araçlar', 'Hava Araçları', 'ATV', 'UTV'];
+    return {
+      galeri: galeri,
+      ziyaretci: !galeri,
+      cerez: { goster: !galeri && !st.cerez, detay: st.detay, detayYazi: st.detay ? 'Tercihleri gizle' : 'Tercihleri yönet', kabulYazi: st.detay ? 'Seçimleri kaydet' : 'Tümünü kabul et',
+        detayAc: function () { self.setState({ detay: !self.state.detay }); }, reddet: function () { self.setState({ cerez: 'red' }); }, kabul: function () { if (!self.state.detay) self.setState({ analiz: true, reklam: true }); self.setState({ cerez: 'kaydedildi' }); },
+        analizAria: ka.aria, analizKenar: ka.kenar, analizDolgu: ka.dolgu, analizIsaret: ka.isaret, analizToggle: ka.toggle, reklamAria: kr.aria, reklamKenar: kr.kenar, reklamDolgu: kr.dolgu, reklamIsaret: kr.isaret, reklamToggle: kr.toggle },
+      cats: catNames.map(function (n, i) { return { name: n, dot: DOTS[i % 6] }; }),
+      eslesmeler: [
+        { arac: '2020 BMW 320i', title: 'BMW 3 Serisi 320i arıyorum: 2019 sonrası, otomatik', meta: 'İstanbul, Kadıköy · Bugün', butce: '2.100.000 – 2.450.000 TL' },
+        { arac: '2019 Passat 1.5 TSI', title: 'Volkswagen Passat 1.5 TSI arıyorum', meta: 'İstanbul, Ataşehir · Dün', butce: '1.600.000 – 1.850.000 TL' },
+        { arac: '2021 Egea 1.4 Fire', title: 'Fiat Egea Sedan arıyorum, ilk araç', meta: 'Kocaeli, İzmit · 2 gün önce', butce: '750.000 – 900.000 TL' }
+      ],
+      kayitli: [
+        { name: 'BMW 3 Serisi · 2018 ve sonrası', meta: 'İstanbul · Otomatik', yeni: '3 yeni', tint: TINTS[0] },
+        { name: 'Elektrikli SUV', meta: 'Marmara bölgesi', yeni: '1 yeni', tint: TINTS[3] },
+        { name: 'Ticari · Ford Transit', meta: 'Türkiye geneli', yeni: '5 yeni', tint: TINTS[2] }
+      ],
+      vitrin: [
+        { title: 'Toyota Corolla Hybrid Flame', butce: '1,35 – 1,6 mn TL', meta: 'İzmir', acil: false, foto: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)' },
+        { title: 'Togg T10X V2 uzun menzil', butce: '1,8 – 2,1 mn TL', meta: 'İstanbul', acil: true, foto: 'linear-gradient(135deg, #D7CFE6, #F1EEF7)' },
+        { title: 'BMW 520i Luxury Line', butce: '2,3 – 2,8 mn TL', meta: 'İzmir', acil: false, foto: 'linear-gradient(135deg, #CFE0D8, #EEF5F1)' },
+        { title: 'Renault Clio Touch 2021+', butce: '850 bin – 1 mn TL', meta: 'Ankara', acil: false, foto: 'linear-gradient(135deg, #E6DCC9, #F7F3EE)' },
+        { title: 'Fiat Egea Sedan Urban', butce: '700 – 850 bin TL', meta: 'Kocaeli', acil: true, foto: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)' },
+        { title: 'VW Passat 1.5 TSI Elegance', butce: '1,6 – 1,85 mn TL', meta: 'İstanbul', acil: false, foto: 'linear-gradient(135deg, #D7CFE6, #F1EEF7)' },
+        { title: 'Honda PCX 125, 2022+', butce: '95 – 120 bin TL', meta: 'İstanbul', acil: false, foto: 'linear-gradient(135deg, #CFE0D8, #EEF5F1)' },
+        { title: 'Ford Transit Custom panelvan', butce: '1,2 – 1,45 mn TL', meta: 'İzmir', acil: false, foto: 'linear-gradient(135deg, #E6DCC9, #F7F3EE)' },
+        { title: 'Dacia Duster 4×4', butce: '900 bin – 1,1 mn TL', meta: 'Erzurum', acil: true, foto: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)' },
+        { title: 'Hyundai Tucson hibrit', butce: '1,5 – 1,8 mn TL', meta: 'Bursa', acil: false, foto: 'linear-gradient(135deg, #D7CFE6, #F1EEF7)' },
+        { title: 'Mercedes C 200 AMG', butce: '2,4 – 2,9 mn TL', meta: 'Ankara', acil: false, foto: 'linear-gradient(135deg, #CFE0D8, #EEF5F1)' },
+        { title: 'Kiralık 7 kişilik, 10 gün', butce: 'Günlük ≤2.500 TL', meta: 'Antalya', acil: true, foto: 'linear-gradient(135deg, #E6DCC9, #F7F3EE)' },
+        { title: 'Peugeot 2008 GT', butce: '1,3 – 1,5 mn TL', meta: 'Adana', acil: false, foto: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)' },
+        { title: 'Yamaha MT-07', butce: '350 – 420 bin TL', meta: 'Muğla', acil: false, foto: 'linear-gradient(135deg, #D7CFE6, #F1EEF7)' },
+        { title: 'Tesla Model Y Long Range', butce: '2,0 – 2,3 mn TL', meta: 'İstanbul', acil: false, foto: 'linear-gradient(135deg, #CFE0D8, #EEF5F1)' },
+        { title: 'Skoda Octavia Prestige', butce: '1,2 – 1,4 mn TL', meta: 'Konya', acil: false, foto: 'linear-gradient(135deg, #E6DCC9, #F7F3EE)' },
+        { title: 'Opel Corsa Elegance', butce: '800 – 950 bin TL', meta: 'Eskişehir', acil: false, foto: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)' }
+      ],
+      son: [
+        { title: 'BMW 3 Serisi 320i arıyorum: 2019 sonrası, otomatik', yer: 'İstanbul, Kadıköy', butce: '2.100.000 – 2.450.000 TL', zaman: 'Bugün', dot: DOTS[0] },
+        { title: 'Dacia Duster 4x4 arıyorum', yer: 'Erzurum, Yakutiye', butce: '900.000 – 1.100.000 TL', zaman: 'Bugün', dot: DOTS[1] },
+        { title: 'Togg T10X V2 RWD Uzun Menzil arıyorum', yer: 'Ankara, Çankaya', butce: '1.700.000 – 1.950.000 TL', zaman: 'Bugün', dot: DOTS[2] },
+        { title: 'Ford Transit Custom panelvan arıyorum', yer: 'İzmir, Bornova', butce: '1.200.000 – 1.450.000 TL', zaman: 'Dün', dot: DOTS[3] },
+        { title: 'Yamaha MT-07 arıyorum', yer: 'Muğla, Bodrum', butce: '350.000 – 420.000 TL', zaman: 'Dün', dot: DOTS[4] },
+        { title: 'Kiralık: Antalya Havalimanı, 7 gün, otomatik SUV', yer: 'Antalya, Muratpaşa', butce: '3–9 Aralık · 7 gün', zaman: 'Dün', dot: DOTS[5] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

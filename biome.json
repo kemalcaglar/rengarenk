@@ -16,7 +16,8 @@
       "!**/.turbo",
       "!**/dist-check",
       "!**/coverage",
-      "!**/*.gen.ts"
+      "!**/*.gen.ts",
+      "!docs"
     ]
   },
   "formatter": {

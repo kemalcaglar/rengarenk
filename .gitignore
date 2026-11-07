@@ -17,3 +17,6 @@ expo-env.d.ts
 next-env.d.ts
 dist-check
 *.tsbuildinfo
+
+# Redis yerel döküm dosyası
+dump.rdb

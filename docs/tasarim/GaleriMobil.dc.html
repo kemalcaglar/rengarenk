@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Galeri paneli (mobil)</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}
+button,input,textarea{font-family:inherit}
+</style>
+</helmet>
+<div style="width: 390px; height: 1240px; box-sizing: border-box; position: relative; background: #F6F8FD; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333; overflow: hidden">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF; padding: 10px 12px 12px; display: flex; align-items: center; gap: 10px">
+<span style="flex: none; width: 40px; height: 40px; border-radius: 12px; background: #FFF6DF; color: #7A5300; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px" aria-hidden="true">YO</span>
+<span style="flex: 1; min-width: 0"><span style="display: block; font-size: 16px; font-weight: 800">{{baslik}}</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 1px">Yıldız Otomotiv · Profesyonel paket</span></span>
+<a href="AnasayfaMobil.dc.html" aria-label="Alıcı görünümüne geç" style="flex: none; font-size: 12.5px; font-weight: 700; border: 1px solid #D5DAE5; border-radius: 10px; padding: 9px 10px; color: #1E2333">Alıcı modu</a>
+</header>
+
+<main style="padding: 14px 12px 120px">
+
+<sc-if value="{{v.panel}}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+<sc-for list="{{haklar}}" as="h" hint-placeholder-count="4">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 12px">
+<span style="display: block; font-size: 12px; font-weight: 700; color: #5A6073">{{h.ad}}</span>
+<span style="display: block; margin-top: 4px"><span style="font-size: 22px; font-weight: 800">{{h.deger}}</span><span style="font-size: 13px; color: #5A6073; font-weight: 700"> / {{h.max}}</span></span>
+<span style="display: block; height: 6px; border-radius: 3px; background: #EEF0F5; margin-top: 8px; overflow: hidden" role="img" aria-label="{{h.aria}}"><span style="display: block; height: 6px; border-radius: 3px; width: {{h.pct}}; background: {{h.renk}}"></span></span>
+<span style="display: block; font-size: 11.5px; color: #5A6073; margin-top: 6px">{{h.not}}</span>
+</div>
+</sc-for>
+</div>
+<div style="margin-top: 10px; display: flex; gap: 10px; align-items: center; background: #FFF6DF; border-radius: 14px; padding: 12px 14px">
+<span style="flex: none; font-size: 18px" aria-hidden="true">⏳</span>
+<span style="flex: 1; font-size: 13px; color: #5A3D00; line-height: 1.45"><strong>2 araç EİDS doğrulaması bekliyor.</strong> Doğrulanana kadar alıcılara görünmez.</span>
+<button type="button" onClick="{{git.portfoy}}" style="flex: none; border: 0; background: transparent; font-size: 13px; font-weight: 800; color: #7A5300; padding: 8px 0; cursor: pointer">Gör</button>
+</div>
+<div style="display: flex; align-items: baseline; justify-content: space-between; margin: 20px 4px 8px"><h2 style="margin: 0; font-size: 16px; font-weight: 800">Yeni eşleşmeler</h2><button type="button" onClick="{{git.eslesme}}" style="border: 0; background: transparent; font-size: 13.5px; font-weight: 700; color: #2450C8; cursor: pointer; padding: 6px 0">Tümü (12)</button></div>
+<sc-for list="{{eslesmelerKisa}}" as="e" hint-placeholder-count="2">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 12px 14px; margin-bottom: 8px">
+<span style="display: block; font-size: 14px; font-weight: 800; line-height: 1.35">{{e.talep}}</span>
+<span style="display: block; font-size: 12px; color: #5A6073; margin-top: 3px">{{e.meta}}</span>
+<span style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px"><span style="font-size: 12px; font-weight: 700; color: #11683F; background: #E7FAF0; padding: 3px 8px; border-radius: 999px">{{e.puan}}</span><span style="font-size: 12px; color: #3A4052">↔ {{e.arac}}</span></span>
+</div>
+</sc-for>
+<h2 style="margin: 20px 4px 8px; font-size: 16px; font-weight: 800">Rozetlerin</h2>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px">
+<div style="display: flex; flex-wrap: wrap; gap: 6px"><span style="font-size: 12.5px; font-weight: 800; padding: 5px 10px; border-radius: 999px; background: #FFF6DF; color: #7A5200">⚡ Hızlı yanıt</span><span style="font-size: 12.5px; font-weight: 800; padding: 5px 10px; border-radius: 999px; background: #FFF6DF; color: #7A5200">★ Güvenilir satıcı</span><span style="font-size: 12.5px; font-weight: 800; padding: 5px 10px; border-radius: 999px; background: #E7FAF0; color: #11683F">Kurumsal doğrulandı</span></div>
+<p style="margin: 10px 0 0; font-size: 12.5px; color: #5A6073; line-height: 1.5">Rozetler alıcı yıldızları, yanıt süren ve şikayet oranınla her gece güncellenir. Alıcılar tek tek puan görmez.</p>
+</div>
+</sc-if>
+
+<sc-if value="{{v.eslesme}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; justify-content: space-between; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 14px; padding: 12px 14px">
+<span style="font-size: 13px; color: #3A4052">Bugün kalan ilk mesaj</span><span style="font-size: 15px; font-weight: 800">{{kalan}} / 50</span>
+</div>
+<div style="display: flex; gap: 6px; overflow-x: auto; margin: 10px 0 4px">
+<sc-for list="{{aracFiltre}}" as="af" hint-placeholder-count="3"><button type="button" aria-pressed="{{af.p}}" onClick="{{af.pick}}" style="flex: none; border: {{af.bd}}; background: {{af.bg}}; color: {{af.renk}}; border-radius: 999px; padding: 8px 12px; font-size: 13px; font-weight: 700; cursor: pointer">{{af.ad}}</button></sc-for>
+</div>
+<sc-for list="{{eslesmeler}}" as="e" hint-placeholder-count="3">
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px; margin-top: 8px">
+<span style="display: flex; justify-content: space-between; gap: 8px"><span style="font-size: 12px; font-weight: 700; color: #11683F; background: #E7FAF0; padding: 3px 8px; border-radius: 999px">{{e.puan}}</span><span style="font-size: 11.5px; color: #5A6073">{{e.zaman}}</span></span>
+<a href="Mobil.dc.html" style="display: block; font-size: 15px; font-weight: 800; color: #1E2333; margin-top: 8px; line-height: 1.35">{{e.talep}}</a>
+<span style="display: block; font-size: 12.5px; color: #5A6073; margin-top: 3px">{{e.meta}}</span>
+<span style="display: block; font-size: 12.5px; color: #3A4052; margin-top: 6px">{{e.uyum}}</span>
+<span style="display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #EEF0F5"><span style="flex: none; width: 46px; height: 34px; border-radius: 8px; background: linear-gradient(135deg, #C9D3E6, #EEF1F7)" aria-hidden="true"></span><span style="flex: 1; min-width: 0; font-size: 12.5px; font-weight: 700">{{e.arac}}</span>
+<sc-if value="{{e.gonderilmedi}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{e.yaz}}" style="flex: none; border: 0; background: #5B8CFF; border-radius: 12px; padding: 10px 12px; font-size: 13.5px; font-weight: 800; color: #1E2333; cursor: pointer">İlk mesaj at</button></sc-if>
+<sc-if value="{{e.gonderildi}}" hint-placeholder-val="{{ false }}"><span style="flex: none; font-size: 12.5px; font-weight: 800; color: #11683F; padding: 10px 0">✓ Gönderildi</span></sc-if>
+</span>
+</div>
+</sc-for>
+</sc-if>
+
+<sc-if value="{{v.portfoy}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; align-items: center; justify-content: space-between; margin: 0 4px 10px"><span style="font-size: 13px; color: #3A4052"><strong style="color: #1E2333">42 / 100</strong> araç · yalnızca doğrulanmış araçlar görünür</span></div>
+<sc-for list="{{portfoy}}" as="p" hint-placeholder-count="5">
+<a href="GaleriProfilMobil.dc.html" style="display: flex; gap: 12px; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 10px; margin-bottom: 8px; color: #1E2333">
+<span style="flex: none; width: 88px; height: 66px; border-radius: 10px; background: linear-gradient(135deg, #C9D3E6, #EEF1F7)" aria-hidden="true"></span>
+<span style="flex: 1; min-width: 0"><span style="display: block; font-size: 14px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{p.ad}}</span><span style="display: block; font-size: 12px; color: #5A6073; margin-top: 2px">{{p.detay}}</span>
+<span style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 6px"><span style="font-size: 14px; font-weight: 800; color: #2450C8">{{p.fiyat}}</span><span style="font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 999px; background: {{p.eidsBg}}; color: {{p.eidsFg}}">{{p.durum}}</span></span></span>
+</a>
+</sc-for>
+<button type="button" style="width: 100%; border: 1px dashed #A9B6D6; background: transparent; border-radius: 14px; padding: 13px; font-size: 14px; font-weight: 700; color: #2450C8; cursor: pointer">Excel/CSV ile toplu yükleme web panelde</button>
+</sc-if>
+
+<sc-if value="{{v.ekle}}" hint-placeholder-val="{{ false }}">
+<p style="margin: 0 4px 10px; font-size: 13px; color: #5A6073">Katalogdan seç, plakayı gir, fotoğrafları çek. 3 dakika sürer.</p>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px">
+<p style="margin: 0 0 8px; font-size: 14px; font-weight: 800">1 · Araç</p>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+<sc-for list="{{katalog}}" as="ka" hint-placeholder-count="4"><label style="font-size: 12px; font-weight: 700; color: #5A6073">{{ka.ad}}<input value="{{ka.deger}}" style="display: block; margin-top: 4px; width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 11px; font-size: 14.5px; color: #1E2333"></label></sc-for>
+</div>
+<p style="margin: 8px 0 0; font-size: 11.5px; color: #5A6073">Katalog: TSB ve açık veri setleri. Kasa ve paket bilgisi alıcı kriterleriyle eşleşir.</p>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px; margin-top: 10px">
+<p style="margin: 0 0 8px; font-size: 14px; font-weight: 800">2 · Plaka, km ve fiyat</p>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+<label style="font-size: 12px; font-weight: 700; color: #5A6073">Plaka<input value="34 ABC 123" style="display: block; margin-top: 4px; width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 11px; font-size: 14.5px; color: #1E2333"></label>
+<label style="font-size: 12px; font-weight: 700; color: #5A6073">Kilometre<input value="62.000" inputmode="numeric" style="display: block; margin-top: 4px; width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 11px; font-size: 14.5px; color: #1E2333"></label>
+<label style="grid-column: span 2; font-size: 12px; font-weight: 700; color: #5A6073">Fiyat (TL)<input value="2.390.000" inputmode="numeric" style="display: block; margin-top: 4px; width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 12px; padding: 11px; font-size: 14.5px; color: #1E2333"></label>
+</div>
+<p style="margin: 8px 0 0; font-size: 11.5px; color: #5A6073">Plaka EİDS ilan yetkilendirmesi için kullanılır; alıcılara gösterilmez.</p>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 16px; padding: 14px; margin-top: 10px">
+<p style="margin: 0 0 8px; font-size: 14px; font-weight: 800">3 · Fotoğraf ve ekspertiz</p>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{fotolar}}" as="fo" hint-placeholder-count="4"><span style="aspect-ratio: 1; border-radius: 10px; background: {{fo.bg}}; border: {{fo.bd}}; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #5A6073">{{fo.ad}}</span></sc-for>
+</div>
+<button type="button" style="width: 100%; margin-top: 10px; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 12px; padding: 12px; font-size: 14px; font-weight: 700; color: #1E2333; cursor: pointer">Ekspertiz raporu ekle (PDF)</button>
+<label style="display: flex; gap: 10px; align-items: flex-start; margin-top: 12px; font-size: 12.5px; color: #3A4052; line-height: 1.45"><input type="checkbox" checked style="width: 20px; height: 20px; margin: 0; flex: none">Fotoğraflarım katalogda bu kasa ve paket için temsilî görsel olarak kullanılabilir (galeri adıyla gösterilir).</label>
+</div>
+</sc-if>
+</main>
+
+<sc-if value="{{v.ekle}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 1px solid #E3E6EF; padding: 12px 16px 24px; display: grid; grid-template-columns: 1fr 2fr; gap: 8px">
+<button type="button" onClick="{{git.portfoy}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 14px; padding: 14px 8px; font-size: 15px; font-weight: 700; color: #1E2333; cursor: pointer">Vazgeç</button>
+<button type="button" onClick="{{git.portfoy}}" style="border: 0; background: #5B8CFF; border-radius: 14px; padding: 15px 8px; font-size: 15px; font-weight: 800; color: #1E2333; cursor: pointer">Kaydet ve EİDS’e gönder</button>
+</div>
+</sc-if>
+
+<sc-if value="{{sekmeGoster}}" hint-placeholder-val="{{ true }}">
+<nav style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-top: 1px solid #E3E6EF; padding: 6px 6px 20px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: end" aria-label="Galeri menüsü">
+<sc-for list="{{sekmeler}}" as="tb" hint-placeholder-count="5">
+<sc-if value="{{tb.orta}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{tb.pick}}" aria-label="{{tb.ad}}" style="justify-self: center; border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; gap: 3px; color: #1E2333; cursor: pointer; padding: 0"><span style="width: 52px; height: 52px; margin-top: -18px; border-radius: 18px; background: #3DD68C; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(61,214,140,0.35)"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></span><span style="font-size: 11px; font-weight: 700">{{tb.ad}}</span></button></sc-if>
+<sc-if value="{{tb.normal}}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{tb.pick}}" aria-current="{{tb.aria}}" style="border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; color: {{tb.renk}}; cursor: pointer"><span style="position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="{{tb.kalinlik}}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{tb.d}}"></path></svg><sc-if value="{{tb.rozetVar}}" hint-placeholder-val="{{ false }}"><span style="position: absolute; top: -5px; right: -11px; min-width: 16px; height: 16px; border-radius: 999px; background: #FF6FB5; color: #1E2333; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; padding: 0 3px; box-sizing: border-box">{{tb.rozet}}</span></sc-if></span><span style="font-size: 11px; font-weight: {{tb.kalin}}">{{tb.ad}}</span></button></sc-if>
+</sc-for>
+</nav>
+</sc-if>
+
+<sc-if value="{{yaziyor}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(30,35,51,0.45)"></div>
+<section role="dialog" aria-modal="true" aria-labelledby="ilk-baslik" style="position: absolute; left: 0; right: 0; bottom: 0; background: #FFFFFF; border-radius: 24px 24px 0 0; padding: 10px 16px 26px">
+<span style="display: block; width: 40px; height: 5px; border-radius: 3px; background: #D5DAE5; margin: 0 auto 12px" aria-hidden="true"></span>
+<h2 id="ilk-baslik" style="margin: 0; font-size: 18px; font-weight: 800">İlk mesaj</h2>
+<p style="margin: 3px 0 12px; font-size: 12.5px; color: #5A6073">{{yazTalep}} · Ayşe Y.</p>
+<div style="display: flex; gap: 10px; align-items: center; border: 1px solid #E3E6EF; border-radius: 14px; padding: 8px"><span style="flex: none; width: 64px; height: 46px; border-radius: 8px; background: linear-gradient(135deg, #C9D3E6, #EEF1F7)" aria-hidden="true"></span><span style="flex: 1; min-width: 0"><span style="display: block; font-size: 13.5px; font-weight: 800">{{yazArac}}</span><span style="display: block; font-size: 12px; color: #5A6073">Araç kartı mesaja eklenir · EİDS doğrulandı</span></span></div>
+<label for="ilk-metin" style="display: block; font-size: 13px; font-weight: 800; margin: 12px 0 6px">Mesajın</label>
+<textarea id="ilk-metin" rows="5" style="width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 14px; padding: 12px; font-size: 14.5px; line-height: 1.5; resize: none">Merhaba Ayşe Hanım, aradığınız kriterlere uyan 2020 BMW 320i M Sport portföyümüzde: 62.000 km, tek parça lokal boya, tramer 12.000 TL. Ekspertiz raporu hazır.</textarea>
+<div style="display: flex; justify-content: space-between; gap: 8px; margin-top: 6px"><button type="button" style="border: 0; background: transparent; padding: 6px 0; font-size: 13px; font-weight: 700; color: #2450C8; cursor: pointer">✦ Taslağı yeniden yaz</button><span style="font-size: 12px; color: #5A6073; padding: 6px 0">168 / 600</span></div>
+<p style="margin: 6px 0 0; font-size: 12px; color: #5A6073; line-height: 1.45">Yalnızca metin. Telefon, IBAN, bağlantı yazma ve kapora isteme. Alıcı cevap verene kadar ikinci mesaj atılamaz.</p>
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 8px; margin-top: 14px">
+<button type="button" onClick="{{yazKapat}}" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 14px; padding: 14px 8px; font-size: 15px; font-weight: 700; color: #1E2333; cursor: pointer">Vazgeç</button>
+<button type="button" onClick="{{yazGonder}}" style="border: 0; background: #5B8CFF; border-radius: 14px; padding: 15px 8px; font-size: 15px; font-weight: 800; color: #1E2333; cursor: pointer">Gönder · 1 hak kullanılır</button>
+</div>
+</section>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1240}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { view: 'panel', gonderilen: {}, yaz: '', arac: 'hepsi' }; }
+  renderVals() {
+    var self = this, st = this.state;
+    var DOTS = ['#5B8CFF', '#FF6FB5', '#FFC84A', '#3DD68C'];
+    function go(k) { return function () { self.setState({ view: k, yaz: '' }); }; }
+    var ESL = [
+      ['e1', 'bmw', '2020 BMW 320i M Sport', 'BMW 3 Serisi 320i arıyorum: 2019 sonrası, otomatik', 'Ayşe Y. · İstanbul, Kadıköy · 2,1 – 2,45 milyon TL', 'Yıl, km, renk ve hasar kriterlerine uyuyor', '%94 uyum', '12 dk'],
+      ['e2', 'bmw', '2020 BMW 320i M Sport', 'BMW 3 Serisi 320i arıyorum, hatasız', 'Can T. · İstanbul, Maltepe · 2,2 – 2,5 milyon TL', 'Tüm kriterlere uyuyor', '%98 uyum', '1 sa'],
+      ['e3', 'passat', '2019 VW Passat 1.5 TSI Elegance', 'Volkswagen Passat 1.5 TSI arıyorum', 'Deniz A. · İstanbul, Ataşehir · 1,6 – 1,8 milyon TL', 'Bütçe ve km kriterlerine uyuyor; renk farklı', '%86 uyum', 'Dün'],
+      ['e4', 'egea', '2021 Fiat Egea 1.4 Fire Urban', 'Fiat Egea Sedan, ilk araç', 'Ece K. · Kocaeli, İzmit · 700 – 850 bin TL', 'Tüm kriterlere uyuyor', '%91 uyum', 'Dün']
+    ];
+    var gonderSayi = Object.keys(st.gonderilen).length;
+    function eslMap(e) { var g = !!st.gonderilen[e[0]]; return { arac: e[2], talep: e[3], meta: e[4], uyum: e[5], puan: e[6], zaman: e[7], gonderildi: g, gonderilmedi: !g, yaz: function () { self.setState({ yaz: e[0] }); } }; }
+    var eidsStil = { 'Yayında': ['#E7FAF0', '#11683F'], 'EİDS bekliyor': ['#FFF6DF', '#7A5300'], 'Pasif': ['#F3F5FA', '#3A4052'] };
+    var P = [
+      ['2020 BMW 320i M Sport', '62.000 km · Benzin · Otomatik · 3 talep', '2.390.000 TL', 'Yayında'],
+      ['2019 VW Passat 1.5 TSI Elegance', '78.000 km · Benzin · Otomatik · 1 talep', '1.720.000 TL', 'Yayında'],
+      ['2021 Fiat Egea 1.4 Fire Urban', '41.000 km · Benzin · Manuel · 1 talep', '845.000 TL', 'Yayında'],
+      ['2022 Toyota Corolla 1.8 Hybrid', '35.000 km · Hibrit · Otomatik', '1.480.000 TL', 'EİDS bekliyor'],
+      ['2018 Renault Megane 1.5 dCi', '112.000 km · Dizel · Otomatik', '965.000 TL', 'EİDS bekliyor'],
+      ['2017 Ford Focus 1.5 TDCi', '138.000 km · Dizel · Manuel', '780.000 TL', 'Pasif']
+    ];
+    var yazE = ESL.filter(function (e) { return e[0] === st.yaz; })[0];
+    var BAS = { panel: 'Galeri paneli', eslesme: 'Eşleşmeler', portfoy: 'Portföy', ekle: 'Araç ekle' };
+    var TAB = [['Panel', 'panel', 'M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 4v3h6V4z'], ['Eşleşmeler', 'eslesme', 'M7 7h10l-3-3M17 17H7l3 3', '12'], ['Araç ekle', 'ekle', '', '', true], ['Portföy', 'portfoy', 'M3 13l2-6h14l2 6v5H3zM7 18v2M17 18v2M6 13h12'], ['Mesajlar', 'mesaj', 'M4 5h16v11H9l-5 4z', '5']];
+    var AF = [['hepsi', 'Tüm araçlar'], ['bmw', 'BMW 320i (2)'], ['passat', 'Passat (1)'], ['egea', 'Egea (1)']];
+    return {
+      baslik: BAS[st.view] || 'Galeri paneli',
+      v: { panel: st.view === 'panel', eslesme: st.view === 'eslesme', portfoy: st.view === 'portfoy', ekle: st.view === 'ekle' },
+      sekmeGoster: st.view !== 'ekle',
+      git: { panel: go('panel'), eslesme: go('eslesme'), portfoy: go('portfoy'), ekle: go('ekle') },
+      haklar: [
+        ['Bugünkü ilk mesaj', 18 + gonderSayi, 50, DOTS[0], 'Her gece 00:00’da yenilenir'],
+        ['Portföy', 42, 100, DOTS[1], '58 araç daha ekleyebilirsin'],
+        ['Bu ay talep', 1, 5, DOTS[2], 'Galerinin kendi arayışları'],
+        ['Öne çıkarma', 1, 2, DOTS[3], 'Bu ay 1 hakkın kaldı']
+      ].map(function (h) { return { ad: h[0], deger: String(h[1]), max: String(h[2]), renk: h[3], not: h[4], pct: Math.round(h[1] / h[2] * 100) + '%', aria: h[0] + ': ' + h[1] + ' / ' + h[2] }; }),
+      kalan: String(50 - 18 - gonderSayi),
+      eslesmelerKisa: ESL.slice(0, 2).map(eslMap),
+      eslesmeler: ESL.filter(function (e) { return st.arac === 'hepsi' || e[1] === st.arac; }).map(eslMap),
+      aracFiltre: AF.map(function (a) { var on = st.arac === a[0]; return { ad: a[1], p: on ? 'true' : 'false', bd: on ? '1px solid #1E2333' : '1px solid #D5DAE5', bg: on ? '#1E2333' : '#FFFFFF', renk: on ? '#FFFFFF' : '#1E2333', pick: function () { self.setState({ arac: a[0] }); } }; }),
+      portfoy: P.map(function (p) { return { ad: p[0], detay: p[1], fiyat: p[2], durum: p[3], eidsBg: eidsStil[p[3]][0], eidsFg: eidsStil[p[3]][1] }; }),
+      katalog: [['Marka', 'BMW'], ['Model', '320i'], ['Kasa', 'G20 · makyajsız'], ['Paket', 'M Sport']].map(function (k) { return { ad: k[0], deger: k[1] }; }),
+      fotolar: ['Ön', 'Arka', 'Sol', '+ Çek'].map(function (f, i) { return { ad: i < 3 ? '' : f, bg: i < 3 ? 'linear-gradient(135deg, #C9D3E6, #EEF1F7)' : '#F6F8FD', bd: i < 3 ? '0' : '1px dashed #A9B6D6' }; }),
+      yaziyor: !!yazE, yazTalep: yazE ? yazE[3] : '', yazArac: yazE ? yazE[2] : '',
+      yazKapat: function () { self.setState({ yaz: '' }); },
+      yazGonder: function () { var n = Object.assign({}, self.state.gonderilen); n[self.state.yaz] = true; self.setState({ gonderilen: n, yaz: '' }); },
+      sekmeler: TAB.map(function (t) { var on = st.view === t[1]; return { ad: t[0], orta: !!t[4], normal: !t[4], aria: on ? 'page' : 'false', renk: on ? '#1E2333' : '#5A6073', kalin: on ? 800 : 600, kalinlik: on ? '2.4' : '1.9', d: t[2], rozetVar: !!t[3], rozet: t[3] || '', pick: t[1] === 'mesaj' ? function () { try { window.location.href = 'MesajlarMobil.dc.html'; } catch (e) {} } : go(t[1]) }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

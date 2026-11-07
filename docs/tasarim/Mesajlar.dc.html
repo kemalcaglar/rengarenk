@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · Mesajlarım</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}a:hover{color:#1A3C99;text-decoration:underline}
+button,input,textarea{font-family:inherit}
+</style>
+</helmet>
+<div style="background: #F6F8FD; min-height: 100vh; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF">
+<div style="max-width: 1360px; margin: 0 auto; padding: 16px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+<a href="Anasayfa.dc.html" style="display: flex; align-items: center; gap: 8px; color: #1E2333; text-decoration: none" aria-label="Rengarenk ana sayfa">
+<span style="display: flex; gap: 3px" aria-hidden="true">
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #5B8CFF"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #FF6FB5"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #FFC84A"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #3DD68C"></span>
+</span>
+<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px">rengarenk</span>
+</a>
+<nav style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px" aria-label="Hesabım">
+<a href="#" style="font-size: 14.5px; font-weight: 600; color: #3A4052; padding: 10px 12px">Taleplerim</a>
+<a href="#" aria-current="page" style="font-size: 14.5px; font-weight: 800; color: #1E2333; padding: 10px 12px; background: #EEF3FF; border-radius: 10px">Mesajlarım</a>
+<a href="#" style="font-size: 14.5px; font-weight: 600; color: #3A4052; padding: 10px 12px">Favorilerim</a>
+<a href="#" style="display: flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 600; color: #1E2333; padding: 6px 8px">
+<span style="width: 34px; height: 34px; border-radius: 50%; background: #EEF3FF; color: #2450C8; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px" aria-hidden="true">AY</span>Ayşe Yılmaz</a>
+</nav>
+</div>
+</header>
+
+<main style="max-width: 1360px; margin: 0 auto; padding: 24px">
+<div style="display: flex; flex-wrap: wrap; align-items: stretch; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 20px; overflow: hidden; min-height: 760px">
+
+<section style="flex: 1 1 340px; max-width: 400px; min-width: 0; border-right: 1px solid #E3E6EF; display: flex; flex-direction: column" aria-label="Sohbetler">
+<div style="padding: 18px 18px 12px">
+<h1 style="margin: 0 0 12px; font-size: 22px; font-weight: 800">Mesajlarım</h1>
+<div style="display: flex; gap: 6px" role="tablist">
+<sc-for list="{{filtreler}}" as="fl" hint-placeholder-count="3">
+<sc-if value="{{fl.on}}" hint-placeholder-val="{{ false }}"><button type="button" role="tab" aria-selected="true" onClick="{{fl.pick}}" style="border: 0; background: #EEF3FF; border-radius: 999px; padding: 8px 13px; font-size: 13.5px; font-weight: 800; color: #1E2333; cursor: pointer">{{fl.label}}</button></sc-if>
+<sc-if value="{{fl.off}}" hint-placeholder-val="{{ true }}"><button type="button" role="tab" aria-selected="false" onClick="{{fl.pick}}" style="border: 0; background: transparent; border-radius: 999px; padding: 8px 13px; font-size: 13.5px; font-weight: 600; color: #5A6073; cursor: pointer">{{fl.label}}</button></sc-if>
+</sc-for>
+</div>
+</div>
+<ul style="list-style: none; margin: 0; padding: 0">
+<sc-for list="{{sohbetler}}" as="s" hint-placeholder-count="4">
+<li>
+<button type="button" onClick="{{s.pick}}" aria-current="{{s.aria}}" style="width: 100%; text-align: left; border: 0; border-top: 1px solid #EEF0F5; background: {{s.bg}}; padding: 14px 18px; display: flex; gap: 12px; cursor: pointer">
+<span style="width: 44px; height: 44px; border-radius: 50%; background: {{s.avBg}}; color: #1E2333; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex: none" aria-hidden="true">{{s.initials}}</span>
+<span style="flex: 1; min-width: 0">
+<span style="display: flex; justify-content: space-between; gap: 8px">
+<span style="font-size: 14.5px; font-weight: 800; color: #1E2333">{{s.name}}</span>
+<span style="font-size: 12px; color: #5A6073; flex: none">{{s.time}}</span>
+</span>
+<span style="display: block; font-size: 12.5px; color: #2450C8; font-weight: 600; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{s.talep}}</span>
+<span style="display: block; font-size: 13.5px; color: #3A4052; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{s.last}}</span>
+<span style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px">
+<sc-if value="{{s.bekliyor}}" hint-placeholder-val="{{ false }}"><span style="background: #FFF6DF; color: #7A5300; font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px">Yanıt bekliyor</span></sc-if>
+<sc-if value="{{s.uyari}}" hint-placeholder-val="{{ false }}"><span style="background: #FDECEC; color: #A3271F; font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px">Güvenlik uyarısı</span></sc-if>
+<sc-if value="{{s.unread}}" hint-placeholder-val="{{ false }}"><span style="background: #FF6FB5; color: #1E2333; font-size: 11.5px; font-weight: 800; padding: 3px 8px; border-radius: 999px">Yeni</span></sc-if>
+</span>
+</span>
+</button>
+</li>
+</sc-for>
+</ul>
+</section>
+
+<section style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column" aria-label="Sohbet">
+<div style="padding: 16px 22px; border-bottom: 1px solid #E3E6EF; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<div style="display: flex; align-items: center; gap: 12px; min-width: 0">
+<span style="width: 46px; height: 46px; border-radius: 50%; background: {{c.avBg}}; display: flex; align-items: center; justify-content: center; font-weight: 800; flex: none" aria-hidden="true">{{c.initials}}</span>
+<div style="min-width: 0">
+<h2 style="margin: 0; font-size: 17px; font-weight: 800">{{c.name}}</h2>
+<p style="margin: 2px 0 0; font-size: 13px; color: #5A6073">{{c.sub}}</p>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-if value="{{c.galeri}}" hint-placeholder-val="{{ true }}"><a href="#" style="border: 1px solid #D5DAE5; border-radius: 12px; padding: 9px 13px; font-size: 13.5px; font-weight: 700; color: #1E2333; text-decoration: none">Galeri profili</a></sc-if>
+<button type="button" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 12px; padding: 9px 13px; font-size: 13.5px; font-weight: 700; color: #1E2333; cursor: pointer">Engelle</button>
+<button type="button" style="border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 12px; padding: 9px 13px; font-size: 13.5px; font-weight: 700; color: #A3271F; cursor: pointer">Şikayet et</button>
+</div>
+</div>
+
+<a href="Main.dc.html" style="margin: 14px 22px 0; display: flex; align-items: center; gap: 12px; background: #F6F8FD; border: 1px solid #E3E6EF; border-radius: 14px; padding: 10px 14px; color: #1E2333; text-decoration: none">
+<span style="width: 64px; height: 40px; border-radius: 8px; background: #EEF3FF; display: flex; align-items: center; justify-content: center; flex: none">
+<span aria-hidden="true" style="display: flex; align-items: center; justify-content: center; flex: none; width: 54px; max-width: 100%; aspect-ratio: 54 / 20; border-radius: 10px; background: linear-gradient(135deg, #C9D3E6, #EEF1F7)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8C95AA" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3v12H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg></span>
+</span>
+<span style="min-width: 0"><span style="display: block; font-size: 12px; color: #5A6073">Talebin</span><span style="display: block; font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">BMW 3 Serisi 320i arıyorum: 2019 sonrası, otomatik</span></span>
+</a>
+
+<div style="flex: 1; padding: 18px 22px; display: flex; flex-direction: column; gap: 12px">
+<sc-for list="{{c.mesajlar}}" as="m" hint-placeholder-count="4">
+<sc-if value="{{m.gun}}" hint-placeholder-val="{{ false }}">
+<span style="align-self: center; font-size: 12px; font-weight: 700; color: #5A6073; background: #F3F5FA; padding: 4px 12px; border-radius: 999px">{{m.text}}</span>
+</sc-if>
+<sc-if value="{{m.gelen}}" hint-placeholder-val="{{ true }}">
+<div style="align-self: flex-start; max-width: 72%">
+<div style="background: #F3F5FA; border-radius: 16px 16px 16px 4px; padding: 12px 14px; font-size: 14.5px; line-height: 1.55">{{m.text}}</div>
+<span style="display: block; font-size: 11.5px; color: #5A6073; margin-top: 4px">{{m.time}}</span>
+</div>
+</sc-if>
+<sc-if value="{{m.giden}}" hint-placeholder-val="{{ false }}">
+<div style="align-self: flex-end; max-width: 72%; text-align: right">
+<div style="background: #5B8CFF; border-radius: 16px 16px 4px 16px; padding: 12px 14px; font-size: 14.5px; line-height: 1.55; text-align: left">{{m.text}}</div>
+<span style="display: block; font-size: 11.5px; color: #5A6073; margin-top: 4px">{{m.time}}</span>
+</div>
+</sc-if>
+<sc-if value="{{m.uyari}}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="display: flex; gap: 12px; align-items: flex-start; background: #FDECEC; border-radius: 14px; padding: 12px 14px">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A3271F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 16H3z"></path><path d="M12 10v4M12 17h.01"></path></svg>
+<div style="font-size: 13.5px; line-height: 1.5; color: #6E1A15"><strong>{{m.baslik}}</strong> {{m.text}}</div>
+</div>
+</sc-if>
+<sc-if value="{{m.kart}}" hint-placeholder-val="{{ false }}">
+<div style="align-self: flex-start; width: 340px; max-width: 72%; border: 1px solid #E3E6EF; border-radius: 16px; overflow: hidden; background: #FFFFFF">
+<div style="background: #FFF6DF; padding: 14px; display: flex; justify-content: center">
+<span aria-hidden="true" style="display: flex; align-items: center; justify-content: center; flex: none; width: 200px; max-width: 100%; aspect-ratio: 200 / 73; border-radius: 10px; background: linear-gradient(135deg, #C9D3E6, #EEF1F7)"><svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="#8C95AA" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3v12H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg></span>
+</div>
+<div style="padding: 12px 14px">
+<span style="display: inline-flex; align-items: center; gap: 5px; background: #E7FAF0; color: #11683F; font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px">EİDS doğrulandı</span>
+<div style="font-size: 15px; font-weight: 800; margin-top: 8px">{{m.baslik}}</div>
+<div style="font-size: 13px; color: #5A6073; margin-top: 3px">{{m.text}}</div>
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px">
+<span style="font-size: 16px; font-weight: 800; color: #2450C8">{{m.fiyat}}</span>
+<a href="#" style="font-size: 13.5px; font-weight: 700">Portföyde gör</a>
+</div>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{m.sistem}}" hint-placeholder-val="{{ false }}">
+<div style="align-self: center; max-width: 80%; text-align: center; font-size: 13px; color: #3A4052; background: #EEF3FF; border-radius: 12px; padding: 10px 14px">{{m.text}}</div>
+</sc-if>
+</sc-for>
+</div>
+
+<sc-if value="{{c.ilkMesaj}}" hint-placeholder-val="{{ false }}">
+<div style="margin: 0 22px 18px; background: #FFF6DF; border-radius: 16px; padding: 16px 18px">
+<p style="margin: 0; font-size: 14px; line-height: 1.55; color: #4A3500"><strong>Bu satıcı sana ilk mesajını gönderdi.</strong> Yanıtlarsan sohbet açılır. Yanıtlamazsan bu satıcı aynı talebine tekrar yazamaz.</p>
+<div style="display: flex; gap: 8px; margin-top: 12px">
+<button type="button" onClick="{{yanitla}}" style="border: 0; background: #5B8CFF; border-radius: 12px; padding: 11px 18px; font-size: 14.5px; font-weight: 800; color: #1E2333; cursor: pointer">Yanıtla</button>
+<button type="button" style="border: 1px solid #D9C48A; background: #FFFFFF; border-radius: 12px; padding: 11px 16px; font-size: 14px; font-weight: 700; color: #4A3500; cursor: pointer">İlgilenmiyorum</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{c.acik}}" hint-placeholder-val="{{ true }}">
+<form style="border-top: 1px solid #E3E6EF; padding: 14px 22px 18px">
+<div style="display: flex; align-items: flex-end; gap: 10px">
+<label for="yaz" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Mesaj yaz</label>
+<textarea id="yaz" rows="2" placeholder="Mesajını yaz…" style="flex: 1; min-width: 0; border: 1px solid #D5DAE5; border-radius: 14px; padding: 12px 14px; font-size: 15px; resize: none"></textarea>
+<button type="submit" style="border: 0; background: #5B8CFF; border-radius: 14px; padding: 14px 20px; font-size: 15px; font-weight: 800; color: #1E2333; cursor: pointer">Gönder</button>
+</div>
+<p style="margin: 8px 0 0; font-size: 12.5px; color: #5A6073">Yalnızca metin gönderilebilir. Kapora istemeyin ve vermeyin; ödemeyi noterde Güvenli Ödeme Sistemi ile yapın.</p>
+</form>
+</sc-if>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { aktif: 'yildiz', filtre: 'tumu', yanitlandi: false };
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    var S = {
+      yildiz: {
+        name: 'Yıldız Otomotiv', initials: 'YO', avBg: '#FFF6DF', galeri: true,
+        sub: 'Galeri · Mert Kaya, satış temsilcisi · Yetki belgesi no: [YETKİ BELGESİ NO]',
+        talep: 'BMW 3 Serisi 320i arıyorum', time: '09:40', last: 'Cumartesi 11:00 olur, görüşmek üzere.', bekliyor: false, uyari: false, unread: false,
+        mesajlar: [
+          { tip: 'gun', text: 'Dün' },
+          { tip: 'gelen', text: 'Merhaba Ayşe Hanım, aradığınız kriterlere uyan 2020 model bir BMW 320i portföyümüzde var: 62.000 km, tek parça lokal boyalı, tramer kaydı 12.000 TL. Ekspertiz raporu hazır. İsterseniz aracı Kadıköy’deki galerimizde görebilirsiniz.', time: '18:42' },
+          { tip: 'kart', baslik: '2020 BMW 320i M Sport', text: 'G20 makyajsız · 62.000 km · Benzin · Otomatik · Mineral beyaz', fiyat: '2.390.000 TL' },
+          { tip: 'gun', text: 'Bugün' },
+          { tip: 'giden', text: 'Merhaba, araç ilgimi çekti. Bu hafta sonu görmeye gelebilir miyim?', time: '09:15' },
+          { tip: 'gelen', text: 'Tabii, cumartesi 11:00 uygun mu? Adresimiz galeri profilimizde yazıyor.', time: '09:32' },
+          { tip: 'giden', text: 'Cumartesi 11:00 olur, görüşmek üzere.', time: '09:40' }
+        ]
+      },
+      mehmet: {
+        name: 'Mehmet D.', initials: 'MD', avBg: '#E7FAF0', galeri: false,
+        sub: 'Bireysel satıcı · Telefon numarası doğrulandı',
+        talep: 'BMW 3 Serisi 320i arıyorum', time: '08:05', last: 'Merhaba, elimde 2019 model 320i var…', bekliyor: true, uyari: false, unread: true,
+        mesajlar: [
+          { tip: 'gun', text: 'Bugün' },
+          { tip: 'gelen', text: 'Merhaba, elimde 2019 model 320i var, 74.000 km, otomatik. Talebinizdeki kriterlere uyuyor. Görmek isterseniz yazın.', time: '08:05' }
+        ]
+      },
+      kaya: {
+        name: 'Kaya Motors', initials: 'KM', avBg: '#FFEEF6', galeri: true,
+        sub: 'Galeri · Yetki belgesi no: [YETKİ BELGESİ NO]',
+        talep: 'BMW 3 Serisi 320i arıyorum', time: 'Dün', last: 'Aracı başkasına vermemek için kapora…', bekliyor: false, uyari: true, unread: false,
+        mesajlar: [
+          { tip: 'gun', text: 'Dün' },
+          { tip: 'gelen', text: 'Merhaba, 2021 model 320i elimizde, fiyatı piyasanın altında.', time: '14:10' },
+          { tip: 'giden', text: 'Merhaba, aracı ne zaman görebilirim?', time: '14:25' },
+          { tip: 'gelen', text: 'Aracı başkasına vermemek için kapora göndermeniz gerekiyor, sonra görüşmeye gelirsiniz.', time: '14:31' },
+          { tip: 'uyari', baslik: 'Dikkat: bu mesajda kapora isteği var.', text: 'Aracı görmeden ve noterde Güvenli Ödeme Sistemi dışında ödeme yapmayın. Şüpheleniyorsan satıcıyı şikayet et.' }
+        ]
+      }
+    };
+    if (st.yanitlandi) {
+      S.mehmet = Object.assign({}, S.mehmet, { bekliyor: false, unread: false, mesajlar: S.mehmet.mesajlar.concat([{ tip: 'sistem', text: 'Sohbet açıldı. Artık iki taraf da serbestçe yazışabilir.' }]) });
+    }
+    var order = ['mehmet', 'yildiz', 'kaya'];
+    var filtreFn = { tumu: function () { return true; }, bekleyen: function (k) { return S[k].bekliyor; }, uyari: function (k) { return S[k].uyari; } };
+    var gorunen = order.filter(filtreFn[st.filtre]);
+    var sohbetler = gorunen.map(function (k) {
+      var s = S[k], on = st.aktif === k;
+      return Object.assign({}, s, { bg: on ? '#EEF3FF' : '#FFFFFF', aria: on ? 'true' : 'false', pick: function () { self.setState({ aktif: k }); } });
+    });
+    var c = S[st.aktif];
+    var mesajlar = c.mesajlar.map(function (m) {
+      return Object.assign({}, m, { gun: m.tip === 'gun', gelen: m.tip === 'gelen', giden: m.tip === 'giden', uyari: m.tip === 'uyari', sistem: m.tip === 'sistem', kart: m.tip === 'kart' });
+    });
+    var FL = [['tumu', 'Tümü'], ['bekleyen', 'Yanıt bekleyen'], ['uyari', 'Uyarılı']];
+    return {
+      filtreler: FL.map(function (f) { return { label: f[1], on: st.filtre === f[0], off: st.filtre !== f[0], pick: function () { self.setState({ filtre: f[0] }); } }; }),
+      sohbetler: sohbetler,
+      c: Object.assign({}, c, { mesajlar: mesajlar, ilkMesaj: c.bekliyor, acik: !c.bekliyor }),
+      yanitla: function () { self.setState({ yanitlandi: true }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

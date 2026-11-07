@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Rengarenk · BMW talepleri</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#1E2333}
+a{color:#2450C8;text-decoration:none}a:hover{color:#1A3C99;text-decoration:underline}
+button,input,select{font-family:inherit}
+</style>
+</helmet>
+<div style="background: #F6F8FD; min-height: 100vh; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: #1E2333">
+
+<header style="background: #FFFFFF; border-bottom: 1px solid #E3E6EF">
+<div style="max-width: 1360px; margin: 0 auto; padding: 16px 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px">
+<a href="Anasayfa.dc.html" style="display: flex; align-items: center; gap: 8px; color: #1E2333; text-decoration: none" aria-label="Rengarenk ana sayfa">
+<span style="display: flex; gap: 3px" aria-hidden="true">
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #5B8CFF"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #FF6FB5"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #FFC84A"></span>
+<span style="width: 10px; height: 22px; border-radius: 5px; background: #3DD68C"></span>
+</span>
+<span style="font-size: 24px; font-weight: 800; letter-spacing: -0.5px">rengarenk</span>
+</a>
+<form style="flex: 999 1 320px; min-width: 0; display: flex; align-items: center; gap: 8px; background: #F3F5FA; border: 1px solid #E3E6EF; border-radius: 12px; padding: 0 8px 0 14px" role="search">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5A6073" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+<label for="ara" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Talep ara</label>
+<input id="ara" type="search" value="BMW" style="flex: 1; min-width: 0; border: 0; background: transparent; font-size: 15px; padding: 12px 0; color: #1E2333; outline: none">
+<button type="submit" style="border: 0; border-radius: 9px; background: #5B8CFF; color: #1E2333; font-weight: 700; font-size: 14px; padding: 9px 16px; cursor: pointer">Ara</button>
+</form>
+<nav style="display: flex; align-items: center; gap: 10px" aria-label="Hesap">
+<a href="#" style="display: flex; align-items: center; gap: 8px; color: #1E2333; font-weight: 600; font-size: 14.5px; padding: 8px 6px; text-decoration: none">
+<span style="width: 34px; height: 34px; border-radius: 50%; background: #FFF6DF; color: #7A5300; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px" aria-hidden="true">YO</span>Yıldız Otomotiv</a>
+<a href="Sihirbaz.dc.html" style="display: flex; align-items: center; gap: 8px; background: #5B8CFF; color: #1E2333; font-weight: 700; font-size: 15px; padding: 11px 18px; border-radius: 12px; text-decoration: none">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Talep oluştur</a>
+</nav>
+</div>
+</header>
+
+<main style="max-width: 1360px; margin: 0 auto; padding: 20px 24px 64px">
+<nav aria-label="Konum" style="font-size: 13.5px; color: #5A6073; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px">
+<a href="Anasayfa.dc.html">Vasıta</a><span aria-hidden="true">›</span><a href="#">Otomobil</a><span aria-hidden="true">›</span><span>BMW</span>
+</nav>
+<div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px">
+
+<aside style="flex: 1 1 260px; max-width: 290px; min-width: 0; background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; padding: 18px" aria-label="Filtreler">
+<h2 style="margin: 0 0 4px; font-size: 13px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: #5A6073">Kategori</h2>
+<ul style="list-style: none; margin: 0 0 16px; padding: 0; font-size: 14px">
+<li style="padding: 6px 0"><a href="Anasayfa.dc.html" style="color: #3A4052">Vasıta</a></li>
+<li style="padding: 6px 0 6px 12px"><a href="#" style="color: #3A4052">Otomobil</a></li>
+<li style="padding: 6px 0 6px 24px; font-weight: 800">BMW</li>
+</ul>
+
+<h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 800">Seri</h2>
+<div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px">
+<sc-for list="{{seriler}}" as="s" hint-placeholder-count="6">
+<button type="button" role="checkbox" aria-checked="{{s.aria}}" onClick="{{s.toggle}}" style="display: flex; align-items: center; gap: 10px; border: 0; background: transparent; padding: 7px 2px; font-size: 14px; color: #1E2333; cursor: pointer; text-align: left">
+<span style="width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid {{s.border}}; background: {{s.fill}}; display: flex; align-items: center; justify-content: center; color: #1E2333; font-size: 13px; font-weight: 800; box-sizing: border-box" aria-hidden="true">{{s.mark}}</span>{{s.name}}</button>
+</sc-for>
+</div>
+
+<h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 800">Kasa ve makyaj</h2>
+<div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px">
+<sc-for list="{{makyajlar}}" as="s" hint-placeholder-count="2">
+<button type="button" role="checkbox" aria-checked="{{s.aria}}" onClick="{{s.toggle}}" style="display: flex; align-items: center; gap: 10px; border: 0; background: transparent; padding: 7px 2px; font-size: 14px; color: #1E2333; cursor: pointer; text-align: left">
+<span style="width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid {{s.border}}; background: {{s.fill}}; display: flex; align-items: center; justify-content: center; color: #1E2333; font-size: 13px; font-weight: 800; box-sizing: border-box" aria-hidden="true">{{s.mark}}</span>{{s.name}}</button>
+</sc-for>
+</div>
+
+<h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 800">Donanım paketi</h2>
+<div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px">
+<sc-for list="{{paketler}}" as="s" hint-placeholder-count="4">
+<button type="button" role="checkbox" aria-checked="{{s.aria}}" onClick="{{s.toggle}}" style="display: flex; align-items: center; gap: 10px; border: 0; background: transparent; padding: 7px 2px; font-size: 14px; color: #1E2333; cursor: pointer; text-align: left">
+<span style="width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid {{s.border}}; background: {{s.fill}}; display: flex; align-items: center; justify-content: center; color: #1E2333; font-size: 13px; font-weight: 800; box-sizing: border-box" aria-hidden="true">{{s.mark}}</span>{{s.name}}</button>
+</sc-for>
+</div>
+
+<h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 800">Model yılı</h2>
+<div style="display: flex; gap: 8px; margin-bottom: 16px">
+<label for="y1" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">En az model yılı</label>
+<input id="y1" placeholder="En az" style="flex: 1; min-width: 0; border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14px">
+<label for="y2" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">En çok model yılı</label>
+<input id="y2" placeholder="En çok" style="flex: 1; min-width: 0; border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14px">
+</div>
+
+<h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 800">Bütçe (TL)</h2>
+<div style="display: flex; gap: 8px; margin-bottom: 16px">
+<label for="bt1" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">En az bütçe</label>
+<input id="bt1" placeholder="En az" style="flex: 1; min-width: 0; border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14px">
+<label for="bt2" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">En çok bütçe</label>
+<input id="bt2" placeholder="En çok" style="flex: 1; min-width: 0; border: 1px solid #D5DAE5; border-radius: 10px; padding: 10px; font-size: 14px">
+</div>
+
+<label for="il" style="display: block; margin: 0 0 8px; font-size: 15px; font-weight: 800">İl</label>
+<select id="il" style="width: 100%; box-sizing: border-box; border: 1px solid #D5DAE5; border-radius: 10px; padding: 11px 10px; font-size: 14px; background: #FFFFFF; color: #1E2333; margin-bottom: 16px"><option>Tüm iller</option><option>İstanbul</option><option>Ankara</option><option>İzmir</option></select>
+
+<h2 style="margin: 0 0 8px; font-size: 15px; font-weight: 800">Diğer</h2>
+<div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 18px">
+<sc-for list="{{digerleri}}" as="s" hint-placeholder-count="3">
+<button type="button" role="checkbox" aria-checked="{{s.aria}}" onClick="{{s.toggle}}" style="display: flex; align-items: center; gap: 10px; border: 0; background: transparent; padding: 7px 2px; font-size: 14px; color: #1E2333; cursor: pointer; text-align: left">
+<span style="width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid {{s.border}}; background: {{s.fill}}; display: flex; align-items: center; justify-content: center; color: #1E2333; font-size: 13px; font-weight: 800; box-sizing: border-box" aria-hidden="true">{{s.mark}}</span>{{s.name}}</button>
+</sc-for>
+</div>
+<button type="button" style="width: 100%; border: 0; background: #5B8CFF; border-radius: 12px; padding: 13px; font-size: 15px; font-weight: 800; color: #1E2333; cursor: pointer">Filtrele</button>
+</aside>
+
+<div style="flex: 999 1 720px; min-width: 0">
+<div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px">
+<div>
+<h1 style="margin: 0; font-size: 24px; font-weight: 800">BMW talepleri</h1>
+<p style="margin: 3px 0 0; font-size: 14px; color: #5A6073">{{sonucMetni}}</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<sc-if value="{{kaydedildi}}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{toggleKaydet}}" style="display: flex; align-items: center; gap: 7px; border: 1.5px solid #25A35A; background: #E7FAF0; border-radius: 12px; padding: 10px 14px; font-size: 14px; font-weight: 700; color: #11683F; cursor: pointer">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>Arama kaydedildi</button>
+</sc-if>
+<sc-if value="{{kaydedilmedi}}" hint-placeholder-val="{{ true }}">
+<button type="button" onClick="{{toggleKaydet}}" style="display: flex; align-items: center; gap: 7px; border: 1px solid #D5DAE5; background: #FFFFFF; border-radius: 12px; padding: 10.5px 14.5px; font-size: 14px; font-weight: 700; color: #1E2333; cursor: pointer">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"></path></svg>Aramayı kaydet</button>
+</sc-if>
+<label for="sirala" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Sıralama</label>
+<select id="sirala" style="border: 1px solid #D5DAE5; border-radius: 12px; padding: 11px 12px; font-size: 14px; background: #FFFFFF; color: #1E2333"><option>Önerilen sıralama</option><option>En yeni</option><option>Bütçe: yüksekten düşüğe</option><option>Bütçe: düşükten yükseğe</option></select>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px">
+<sc-for list="{{aktifFiltreler}}" as="af" hint-placeholder-count="2">
+<span style="display: inline-flex; align-items: center; gap: 6px; background: #EEF3FF; border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 700">{{af}}</span>
+</sc-for>
+</div>
+
+<div style="background: #FFFFFF; border: 1px solid #E3E6EF; border-radius: 18px; overflow: hidden">
+<div style="display: flex; gap: 16px; padding: 12px 18px; background: #F3F5FA; font-size: 12.5px; font-weight: 700; color: #5A6073; text-transform: uppercase; letter-spacing: 0.4px">
+<span style="flex: 0 0 96px"></span>
+<span style="flex: 999 1 240px">Talep</span>
+<span style="flex: 1 1 100px">Model yılı</span>
+<span style="flex: 1 1 100px">En fazla km</span>
+<span style="flex: 1 1 170px">Bütçe</span>
+<span style="flex: 1 1 120px">Konum</span>
+</div>
+<sc-for list="{{talepler}}" as="t" hint-placeholder-count="8">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 18px; border-top: 1px solid #EEF0F5; background: {{t.bg}}">
+<a href="Main.dc.html" style="flex: 0 0 96px; height: 64px; border-radius: 12px; background: {{t.tint}}; display: flex; align-items: center; justify-content: center" aria-label="{{t.title}}">
+<span aria-hidden="true" style="display: flex; align-items: center; justify-content: center; flex: none; width: 84px; max-width: 100%; aspect-ratio: 84 / 31; border-radius: 10px; background: linear-gradient(135deg, #C9D3E6, #EEF1F7)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8C95AA" stroke-width="1.6" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3v12H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg></span>
+</a>
+<div style="flex: 999 1 240px; min-width: 0">
+<a href="Main.dc.html" style="display: block; font-size: 15px; font-weight: 800; color: #1E2333; line-height: 1.35">{{t.title}}</a>
+<span style="display: block; font-size: 13px; color: #3A4052; margin-top: 3px">{{t.arac}}</span>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px">
+<sc-if value="{{t.uyum}}" hint-placeholder-val="{{ false }}"><span style="background: #E7FAF0; color: #11683F; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px">Portföyünüze uyuyor</span></sc-if>
+<sc-if value="{{t.acil}}" hint-placeholder-val="{{ false }}"><span style="background: #FFF6DF; color: #7A5300; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px">Acil arıyorum</span></sc-if>
+<sc-if value="{{t.ust}}" hint-placeholder-val="{{ false }}"><span style="background: #FFEEF6; color: #9B1C5B; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px">Öne çıkan</span></sc-if>
+<span style="font-size: 12.5px; color: #5A6073; padding: 3px 0">{{t.zaman}}</span>
+</div>
+</div>
+<span style="flex: 1 1 100px; font-size: 14px; font-weight: 600">{{t.yil}}</span>
+<span style="flex: 1 1 100px; font-size: 14px; font-weight: 600">{{t.km}}</span>
+<span style="flex: 1 1 170px; font-size: 14.5px; font-weight: 800; color: #2450C8">{{t.butce}}</span>
+<span style="flex: 1 1 120px; font-size: 13.5px; color: #3A4052">{{t.yer}}</span>
+</div>
+</sc-for>
+</div>
+<nav aria-label="Sayfalar" style="display: flex; justify-content: center; gap: 6px; margin-top: 18px">
+<span style="min-width: 40px; height: 40px; border-radius: 10px; background: #5B8CFF; display: flex; align-items: center; justify-content: center; font-weight: 800">1</span>
+<a href="#" style="min-width: 40px; height: 40px; border-radius: 10px; background: #FFFFFF; border: 1px solid #E3E6EF; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #1E2333">2</a>
+<a href="#" style="min-width: 40px; height: 40px; border-radius: 10px; background: #FFFFFF; border: 1px solid #E3E6EF; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #1E2333">3</a>
+<a href="#" style="padding: 0 14px; height: 40px; border-radius: 10px; background: #FFFFFF; border: 1px solid #E3E6EF; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #1E2333">Sonraki</a>
+</nav>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { seri: {}, makyaj: {}, paket: {}, diger: { 'Portföyüme uyanlar': false }, kayit: false };
+  }
+  renderVals() {
+    var self = this, st = this.state;
+    var TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0', '#F3EFFF', '#FFF0EA'];
+    function box(group, name) {
+      var on = !!st[group][name];
+      return {
+        name: name, aria: on ? 'true' : 'false', mark: on ? '✓' : '',
+        border: on ? '#5B8CFF' : '#AEB5C4', fill: on ? '#5B8CFF' : '#FFFFFF',
+        toggle: function () { var g = Object.assign({}, self.state[group]); g[name] = !g[name]; var o = {}; o[group] = g; self.setState(o); }
+      };
+    }
+    var all = [
+      { seri: '3 Serisi', arac: 'G20 makyajsız veya makyajlı · M Sport', makyaj: 'Makyajsız|Makyajlı', paketler: 'M Sport', title: 'BMW 3 Serisi 320i arıyorum: 2019 sonrası, otomatik, az kilometreli', yil: '2019 ve sonrası', km: '80.000 km', butce: '2.100.000 – 2.450.000 TL', yer: 'İstanbul, Kadıköy', zaman: 'Bugün', uyum: true, acil: true, ust: false },
+      { seri: '5 Serisi', arac: 'G30 makyajlı (LCI) · Luxury Line', makyaj: 'Makyajlı', paketler: 'Luxury Line', title: 'BMW 5 Serisi 520i arıyorum, Luxury Line tercihim', yil: '2017 – 2020', km: '100.000 km', butce: '2.300.000 – 2.800.000 TL', yer: 'İzmir, Karşıyaka', zaman: '2 gün önce', uyum: false, acil: false, ust: true },
+      { seri: '3 Serisi', arac: 'G20 makyajsız · paket fark etmez', makyaj: 'Makyajsız', paketler: 'Standart|Sport Line|Luxury Line|M Sport', title: 'BMW 3 Serisi 320d arıyorum, dizel otomatik', yil: '2018 – 2021', km: '120.000 km', butce: '1.800.000 – 2.200.000 TL', yer: 'Ankara, Çankaya', zaman: 'Dün', uyum: false, acil: false, ust: false },
+      { seri: '1 Serisi', arac: 'F20 makyajlı (LCI) · Standart', makyaj: 'Makyajlı', paketler: 'Standart', title: 'BMW 1 Serisi 116d arıyorum, ilk araç', yil: '2016 – 2019', km: '140.000 km', butce: '1.050.000 – 1.300.000 TL', yer: 'Bursa, Nilüfer', zaman: 'Dün', uyum: false, acil: false, ust: false },
+      { seri: 'X1', arac: 'F48 makyajlı (LCI) · Sport Line', makyaj: 'Makyajlı', paketler: 'Sport Line', title: 'BMW X1 sDrive18i arıyorum', yil: '2020 – 2023', km: '70.000 km', butce: '2.000.000 – 2.400.000 TL', yer: 'İstanbul, Beşiktaş', zaman: '3 gün önce', uyum: true, acil: false, ust: false },
+      { seri: '3 Serisi', arac: 'F30 makyajlı (LCI) · Standart veya Sport Line', makyaj: 'Makyajlı', paketler: 'Standart|Sport Line', title: 'BMW 3 Serisi 318i arıyorum, hatasız', yil: '2015 – 2018', km: '150.000 km', butce: '1.250.000 – 1.500.000 TL', yer: 'Kocaeli, İzmit', zaman: '4 gün önce', uyum: false, acil: true, ust: false },
+      { seri: '4 Serisi', arac: 'F36 makyajlı (LCI) · M Sport', makyaj: 'Makyajlı', paketler: 'M Sport', title: 'BMW 4 Serisi 420i Gran Coupé arıyorum', yil: '2019 – 2022', km: '90.000 km', butce: '2.400.000 – 2.900.000 TL', yer: 'Antalya, Konyaaltı', zaman: '5 gün önce', uyum: false, acil: false, ust: false },
+      { seri: '2 Serisi', arac: 'F44 makyajsız · Sport Line', makyaj: 'Makyajsız', paketler: 'Sport Line', title: 'BMW 2 Serisi 218i Gran Coupé arıyorum', yil: '2020 – 2023', km: '60.000 km', butce: '1.700.000 – 2.000.000 TL', yer: 'İstanbul, Ataşehir', zaman: '6 gün önce', uyum: false, acil: false, ust: false }
+    ];
+    var seciliSeri = Object.keys(st.seri).filter(function (k) { return st.seri[k]; });
+    var seciliMk = Object.keys(st.makyaj).filter(function (k) { return st.makyaj[k]; });
+    var seciliPk = Object.keys(st.paket).filter(function (k) { return st.paket[k]; });
+    function kesisir(sec, deger) { return sec.length === 0 || deger.split('|').some(function (d) { return sec.indexOf(d) !== -1; }); }
+    var sadeceUyum = !!st.diger['Portföyüme uyanlar'];
+    var list = all.filter(function (t) {
+      return (seciliSeri.length === 0 || seciliSeri.indexOf(t.seri) !== -1) && kesisir(seciliMk, t.makyaj) && kesisir(seciliPk, t.paketler) && (!sadeceUyum || t.uyum);
+    }).sort(function (a, b) { return (b.ust ? 1 : 0) - (a.ust ? 1 : 0); }).map(function (t, i) {
+      return Object.assign({}, t, { tint: TINTS[i % 6], bg: t.ust ? '#FFF9FC' : '#FFFFFF' });
+    });
+    var aktif = seciliSeri.concat(seciliMk, seciliPk);
+    if (sadeceUyum) { aktif.push('Portföyüme uyanlar'); }
+    if (aktif.length === 0) { aktif.push('Tüm BMW talepleri'); }
+    return {
+      seriler: ['1 Serisi', '2 Serisi', '3 Serisi', '4 Serisi', '5 Serisi', 'X1'].map(function (n) { return box('seri', n); }),
+      makyajlar: ['Makyajsız', 'Makyajlı'].map(function (n) { return box('makyaj', n); }),
+      paketler: ['Standart', 'Sport Line', 'Luxury Line', 'M Sport'].map(function (n) { return box('paket', n); }),
+      digerleri: ['Portföyüme uyanlar', 'Acil arıyorum', 'Telefonla ulaşılabilir'].map(function (n) { return box('diger', n); }),
+      talepler: list,
+      aktifFiltreler: aktif,
+      sonucMetni: list.length + ' talep · öne çıkanlar üstte',
+      kaydedildi: st.kayit, kaydedilmedi: !st.kayit,
+      toggleKaydet: function () { self.setState({ kayit: !self.state.kayit }); }
+    };
+  }
+}
+</script>
+</body>
+</html>
