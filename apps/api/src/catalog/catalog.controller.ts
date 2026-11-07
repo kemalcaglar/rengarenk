@@ -223,6 +223,7 @@ export class StaffCatalogController {
     @Req() req: StaffRequest & { body: unknown },
     @Headers('content-type') contentType?: string,
     @Headers('x-dosya-adi') fileName?: string,
+    @Query('arsiv') arsiv?: string,
   ) {
     if (!contentType?.startsWith(XLSX_MIME) || !Buffer.isBuffer(req.body) || req.body.length === 0) {
       throw new BadRequestException('Bir Excel (.xlsx) dosyası yükle');
@@ -235,9 +236,18 @@ export class StaffCatalogController {
     return this.pipeline.runTsbFile(new Uint8Array(req.body), {
       fileName: name,
       trigger: 'elle',
+      archive: arsiv === '1',
       staffId: req.staff.staff.id,
       ip: req.ip,
     });
+  }
+
+  /** TSB arşivinden eski model yıllarını tamamla (2020'den bugüne her yılın ilk dosyası). */
+  @Post('tsb/archive')
+  @HttpCode(200)
+  @RequirePermission('kategori.ayarla')
+  archive(@Req() req: StaffRequest) {
+    return this.pipeline.backfillTsbArchive({ staffId: req.staff.staff.id, ip: req.ip });
   }
 
   /** "Şimdi kontrol et": TSB'de yeni dosya varsa indirip işler (otomatik çekme kapalı olsa da). */

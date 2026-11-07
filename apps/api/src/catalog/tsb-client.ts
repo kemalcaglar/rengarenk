@@ -14,13 +14,16 @@ export interface TsbLatest {
 
 export interface TsbClient {
   latest(): Promise<TsbLatest>;
+  /** Geçmiş bir ayın dosyası (sitedeki "Kasko Değer Listesi Arşivi"); yoksa null. TSB arşivi Nisan 2020'den başlar. */
+  archive(year: number, month: number): Promise<TsbLatest | null>;
   download(url: string): Promise<Uint8Array>;
 }
 
 export const TSB_CLIENT = Symbol('TSB_CLIENT');
 
 const MAX_BYTES = 30 * 1024 * 1024;
-const HEADERS = { 'user-agent': 'Rengarenk katalog hattı', 'x-requested-with': 'XMLHttpRequest' };
+// HTTP başlıkları yalnızca ASCII kabul eder (Türkçe harf hatası olmaz).
+const HEADERS = { 'user-agent': 'Rengarenk-katalog/1.0', 'x-requested-with': 'XMLHttpRequest' };
 
 export class HttpTsbClient implements TsbClient {
   constructor(
@@ -36,12 +39,29 @@ export class HttpTsbClient implements TsbClient {
     if (!r.ok) throw new Error(`TSB son dosya bilgisi alınamadı (${r.status})`);
     const body = (await r.json()) as { HasError?: boolean; Message?: string; Result?: string | null };
     if (body.HasError || !body.Result) throw new Error('TSB son dosya bilgisi boş döndü');
-    const url = new URL(body.Result, this.baseUrl).toString();
+    return this.fileInfo(body.Result, body.Message ?? '');
+  }
+
+  async archive(year: number, month: number): Promise<TsbLatest | null> {
+    // Sitedeki ay kimlikleri Ocak = 2 … Aralık = 13 (GetMonthList).
+    const q = new URLSearchParams({ Year: String(year), MonthId: String(month + 1) });
+    const r = await this.fetchFn(`${this.baseUrl}/InsuranceData/GetInsuranceDataArchiveFile?${q}`, {
+      headers: { ...HEADERS, accept: 'application/json' },
+      signal: AbortSignal.timeout(20_000),
+    });
+    if (!r.ok) throw new Error(`TSB arşiv bilgisi alınamadı (${r.status})`);
+    const path = (await r.json()) as string | null;
+    if (!path) return null;
+    return this.fileInfo(path, `${year}-${String(month).padStart(2, '0')}`);
+  }
+
+  private fileInfo(path: string, monthLabel: string): TsbLatest {
+    const url = new URL(path, this.baseUrl).toString();
     if (new URL(url).origin !== new URL(this.baseUrl).origin)
       throw new Error('TSB dosya adresi beklenmeyen bir sitede');
     const fileName = decodeURIComponent(url.split('/').pop() ?? '');
     if (!/\.xlsx$/i.test(fileName)) throw new Error(`TSB dosyası xlsx değil: ${fileName}`);
-    return { fileName, url, monthLabel: body.Message ?? '' };
+    return { fileName, url, monthLabel };
   }
 
   async download(url: string): Promise<Uint8Array> {

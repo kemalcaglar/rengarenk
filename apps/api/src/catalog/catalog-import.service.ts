@@ -45,6 +45,12 @@ export interface ImportMeta {
   /** Kaynak dosyanın SHA-256 özeti: aynı dosya ikinci kez uygulanmaz */
   fileSha256?: string;
   trigger: 'elle' | 'otomatik';
+  /**
+   * Arşiv dosyası (geçmiş bir ayın listesi): yalnızca eksik model yıllarını ve listeden çoktan düşmüş tipleri
+   * ekler; güncel listeden gelen alanları ve "son sürümde" işaretini değiştirmez. TSB'nin güncel dosyası son
+   * 15 model yılını taşır; eski aylar daha eski yılları getirir (Karar 33).
+   */
+  archive?: boolean;
   staffId?: string;
   ip?: string;
 }
@@ -117,9 +123,15 @@ export class CatalogImportService {
         );
     }
 
-    const quality = qualityCheck(snap, await this.previousSummary(snap.source));
+    // Arşiv dosyasında yeni modellerin olmaması doğaldır: kaybolan tip denetimi yapılmaz.
+    const quality = qualityCheck(snap, meta.archive ? undefined : await this.previousSummary(snap.source));
     const lowRatio = snap.stats.confidence.dusuk / Math.max(snap.items.length, 1);
-    const baseStats = { ...snap.stats, lowRatio, periodLabel: snap.periodLabel };
+    const baseStats = {
+      ...snap.stats,
+      lowRatio,
+      periodLabel: snap.periodLabel,
+      arsiv: Boolean(meta.archive),
+    };
     if (!quality.ok) {
       const out = await this.record(snap.source, snap.version, 'REJECTED', meta, baseStats, quality);
       await this.db.$transaction((tx) =>
@@ -133,7 +145,7 @@ export class CatalogImportService {
     }
 
     try {
-      const counts = await this.db.$transaction((tx) => this.write(tx, snap), {
+      const counts = await this.db.$transaction((tx) => this.write(tx, snap, Boolean(meta.archive)), {
         timeout: 180_000,
         maxWait: 10_000,
       });
@@ -154,21 +166,24 @@ export class CatalogImportService {
             createdBy: meta.staffId ?? null,
           },
         });
-        await tx.catalogSource.update({
-          where: { key: snap.source },
-          data: {
-            lastSuccessAt: new Date(),
-            lastCheckedAt: new Date(),
-            lastVersion: snap.version,
-            ...(meta.fileName ? { lastFileName: meta.fileName } : {}),
-            lastError: null,
-          },
-        });
+        // Arşiv yüklemesi kaynağın güncel sürümünü değiştirmez.
+        if (!meta.archive) {
+          await tx.catalogSource.update({
+            where: { key: snap.source },
+            data: {
+              lastSuccessAt: new Date(),
+              lastCheckedAt: new Date(),
+              lastVersion: snap.version,
+              ...(meta.fileName ? { lastFileName: meta.fileName } : {}),
+              lastError: null,
+            },
+          });
+        }
         await this.audit.record(
           {
             actorType: meta.staffId ? 'STAFF' : 'SYSTEM',
             actorId: meta.staffId ?? null,
-            action: 'katalog_ice_aktarildi',
+            action: meta.archive ? 'katalog_arsiv_ice_aktarildi' : 'katalog_ice_aktarildi',
             entityType: 'catalog_import',
             entityId: id,
             after: {
@@ -209,7 +224,7 @@ export class CatalogImportService {
   }
 
   /** Paketin kataloğa yazılması: marka, seri, model, paket ve tipler; toplu SQL ile. */
-  private async write(tx: Tx, snap: CatalogSnapshot) {
+  private async write(tx: Tx, snap: CatalogSnapshot, archive = false) {
     const items = snap.items.map((v) => ({ v, k: catalogKeys(v) }));
 
     const makes = new Map<string, string>();
@@ -282,6 +297,19 @@ export class CatalogImportService {
     const modelIds = await upsertNamed('catalog_models', models);
     const trimIds = await upsertNamed('catalog_trims', trims);
 
+    // Güncel liste tipin bütün alanlarını yeniler; arşiv dosyası yalnızca model yıllarını birleştirir.
+    const currentUpdate = Prisma.sql`
+          make_id = EXCLUDED.make_id, series_id = EXCLUDED.series_id, model_id = EXCLUDED.model_id,
+          trim_id = EXCLUDED.trim_id, categories = EXCLUDED.categories, body = EXCLUDED.body,
+          engine_l = EXCLUDED.engine_l, power_hp = EXCLUDED.power_hp, power_kw = EXCLUDED.power_kw,
+          fuel = EXCLUDED.fuel, gearbox = EXCLUDED.gearbox, drive = EXCLUDED.drive, facelift = EXCLUDED.facelift,
+          years = ARRAY(SELECT DISTINCT unnest(catalog_variants.years || EXCLUDED.years) ORDER BY 1),
+          raw_name = EXCLUDED.raw_name, confidence = EXCLUDED.confidence, in_latest = true,
+          last_version = EXCLUDED.last_version, updated_at = now()`;
+    const archiveUpdate = Prisma.sql`
+          years = ARRAY(SELECT DISTINCT unnest(catalog_variants.years || EXCLUDED.years) ORDER BY 1),
+          first_version = LEAST(catalog_variants.first_version, EXCLUDED.first_version), updated_at = now()`;
+
     let added = 0;
     let updated = 0;
     for (const part of chunks(items)) {
@@ -298,23 +326,18 @@ export class CatalogImportService {
               ${k.series ? seriesIds.get(k.series) : null}::uuid, ${modelIds.get(k.model)}::uuid,
               ${k.trim ? trimIds.get(k.trim) : null}::uuid, ${v.categories}::text[], ${v.body}, ${v.engineL}::float8,
               ${v.powerHp}::int, ${v.powerKw}::int, ${v.fuel}, ${v.gearbox}, ${v.drive}, ${v.facelift},
-              ${v.years}::int[], ${v.raw}, ${v.confidence}, true, ${snap.version}, ${snap.version}, now())`,
+              ${v.years}::int[], ${v.raw}, ${v.confidence}, ${!archive}, ${snap.version}, ${snap.version}, now())`,
           ),
         )}
-        ON CONFLICT (source, source_key) DO UPDATE SET
-          make_id = EXCLUDED.make_id, series_id = EXCLUDED.series_id, model_id = EXCLUDED.model_id,
-          trim_id = EXCLUDED.trim_id, categories = EXCLUDED.categories, body = EXCLUDED.body,
-          engine_l = EXCLUDED.engine_l, power_hp = EXCLUDED.power_hp, power_kw = EXCLUDED.power_kw,
-          fuel = EXCLUDED.fuel, gearbox = EXCLUDED.gearbox, drive = EXCLUDED.drive, facelift = EXCLUDED.facelift,
-          years = ARRAY(SELECT DISTINCT unnest(catalog_variants.years || EXCLUDED.years) ORDER BY 1),
-          raw_name = EXCLUDED.raw_name, confidence = EXCLUDED.confidence, in_latest = true,
-          last_version = EXCLUDED.last_version, updated_at = now()
+        ON CONFLICT (source, source_key) DO UPDATE SET ${archive ? archiveUpdate : currentUpdate}
         RETURNING (xmax = 0) AS inserted`;
       for (const r of rows) r.inserted ? added++ : updated++;
     }
 
-    // Bu sürümde görünmeyen tipler silinmez; "son sürümde yok" olarak işaretlenir (Karar 33).
-    const missing = await tx.$executeRaw`
+    // Bu sürümde görünmeyen tipler silinmez; "son sürümde yok" olarak işaretlenir (Karar 33). Arşivde yapılmaz.
+    const missing = archive
+      ? 0
+      : await tx.$executeRaw`
       UPDATE catalog_variants SET in_latest = false, updated_at = now()
       WHERE source = ${snap.source} AND in_latest AND last_version <> ${snap.version}`;
 

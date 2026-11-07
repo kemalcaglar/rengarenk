@@ -14,13 +14,13 @@ const YEARS = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019];
 type Row = [string, string, string, string, number[]];
 
 /** TSB biçiminde xlsx (x: ön ekli satır içi metin, dönem satırı, başlık, model yılı sütunları) */
-function tsbXlsx(rows: Row[], period = 'Ekim 2026') {
+function tsbXlsx(rows: Row[], period = 'Ekim 2026', years = YEARS) {
   const col = (i: number) => String.fromCharCode(65 + i);
   const cell = (ref: string, v: string | number) =>
     typeof v === 'number'
       ? `<x:c r="${ref}"><x:v>${v}</x:v></x:c>`
       : `<x:c r="${ref}" t="inlineStr"><x:is><x:t>${v}</x:t></x:is></x:c>`;
-  const header = ['Marka Kodu', 'Tip Kodu', 'Marka Adı', 'Tip Adı', ...YEARS.map(String)];
+  const header = ['Marka Kodu', 'Tip Kodu', 'Marka Adı', 'Tip Adı', ...years.map(String)];
   const xml = [
     `<x:row r="1">${cell('A1', period)}</x:row>`,
     `<x:row r="2">${header.map((h, i) => cell(`${col(i)}2`, h)).join('')}</x:row>`,
@@ -78,10 +78,30 @@ const fakeTsb: TsbClient = {
     if (tsb.fail) throw new Error('TSB yanıt vermedi');
     return { fileName: tsb.fileName, url: `https://tsb.test/content/${tsb.fileName}`, monthLabel: 'Ekim' };
   },
-  download: async () => {
+  archive: async (year: number) =>
+    archives[year]
+      ? { fileName: archives[year].name, url: `https://tsb.test/arsiv/${year}`, monthLabel: `${year}-01` }
+      : null,
+  download: async (url: string) => {
     tsb.downloads++;
-    return new Uint8Array(tsb.file);
+    const y = /arsiv\/(\d{4})/.exec(url)?.[1];
+    return new Uint8Array(y ? (archives[Number(y)]?.file as Buffer) : tsb.file);
   },
+};
+
+/** Arşiv dosyaları: 2006–2013 model yılları. Tip 21-1832 güncel listede de var; 21-0700 çoktan listeden düşmüş. */
+const OLD_YEARS = [2013, 2012, 2011, 2010, 2009, 2008, 2007, 2006];
+const oldYrs = (from: number, to: number) => OLD_YEARS.map((y) => (y >= from && y <= to ? 500_000 + y : 0));
+const archiveRows = (): Row[] => [
+  ['21', '1832', 'BMW', '320i SEDAN 1.6 170 SPORT LINE', oldYrs(2012, 2013)],
+  ['21', '0700', 'BMW', '320i SEDAN 2.0 (150) ELEGANCE', oldYrs(2006, 2011)],
+  ...Array.from(
+    { length: 1100 },
+    (_, i): Row => ['500', `${9000 + i}`, 'DOLGU', `SERI${i % 40} 1.6 TDI 110 PAKET${i}`, oldYrs(2008, 2013)],
+  ),
+];
+const archives: Record<number, { name: string; file: Buffer }> = {
+  2020: { name: '202004R1.xlsx', file: tsbXlsx(archiveRows(), 'Nisan 2020', OLD_YEARS) },
 };
 
 beforeAll(async () => {
@@ -220,6 +240,55 @@ describe('otomatik çekme', () => {
   });
 });
 
+describe('TSB arşivi: eski model yılları (Karar 33)', () => {
+  it('arşiv yalnızca eksik yılları ve düşmüş tipleri ekler; güncel listenin alanlarını değiştirmez', async () => {
+    const before = await db.catalogVariant.findUniqueOrThrow({
+      where: { source_sourceKey: { source: 'tsb', sourceKey: '21-1832' } },
+    });
+    const srcBefore = await db.catalogSource.findUniqueOrThrow({ where: { key: 'tsb' } });
+
+    const r = await staffCall(app, 'POST', '/staff/catalog/tsb/archive', {}, owner);
+    expect(r.status).toBe(200);
+    expect(r.body.dosyalar).toEqual([{ dosya: '202004R1.xlsx', durum: 'applied', yeniTip: 1 }]);
+
+    const after = await db.catalogVariant.findUniqueOrThrow({
+      where: { source_sourceKey: { source: 'tsb', sourceKey: '21-1832' } },
+    });
+    expect(after.years).toEqual([2012, 2013, ...before.years]);
+    expect({ ...after, years: null, updatedAt: null, firstVersion: null }).toEqual({
+      ...before,
+      years: null,
+      updatedAt: null,
+      firstVersion: null,
+    });
+    expect(after.firstVersion).toBe('2020-04-R1');
+
+    const old = await db.catalogVariant.findUniqueOrThrow({
+      where: { source_sourceKey: { source: 'tsb', sourceKey: '21-0700' } },
+    });
+    expect(old).toMatchObject({ inLatest: false, years: [2006, 2007, 2008, 2009, 2010, 2011] });
+
+    const srcAfter = await db.catalogSource.findUniqueOrThrow({ where: { key: 'tsb' } });
+    expect(srcAfter.lastVersion).toBe(srcBefore.lastVersion);
+    expect(await db.auditLog.count({ where: { action: 'katalog_arsiv_ice_aktarildi' } })).toBe(1);
+
+    const downloads = tsb.downloads;
+    const again = await staffCall(app, 'POST', '/staff/catalog/tsb/archive', {}, owner);
+    expect(again.body.dosyalar).toEqual([{ dosya: '202004R1.xlsx', durum: 'daha_once_yuklendi' }]);
+    expect(tsb.downloads).toBe(downloads);
+  });
+
+  it('eski yıllar seri seçeneklerinde görünür', async () => {
+    const bmw = (await get('/catalog/makes')).body.find((m: { name: string }) => m.name === 'BMW');
+    const s3 = (await get(`/catalog/makes/${bmw.id}/series`)).body.find(
+      (s: { name: string }) => s.name === '3 Serisi',
+    );
+    const d = await get(`/catalog/series/${s3.id}?yil=2007`);
+    expect(d.body.models.map((m: { name: string }) => m.name)).toEqual(['320i']);
+    expect(d.body.trims.map((t: { name: string }) => t.name)).toEqual(['Elegance']);
+  });
+});
+
 describe('katalog okuma uçları', () => {
   it('marka → seri → seçenekler: modeller, kasalar, makyaj yılları ve paketler', async () => {
     const makes = await get('/catalog/makes?kategori=otomobil');
@@ -235,11 +304,15 @@ describe('katalog okuma uçları', () => {
     expect(detail.body.make.name).toBe('BMW');
     expect(detail.body.models.map((m: { name: string }) => m.name)).toEqual(['320d', '320i']);
     expect(detail.body.bodies.map((b: { name: string }) => b.name)).toEqual(['Sedan', 'Station wagon']);
+    // Arşivden gelen 2006–2013 yılları da makyajsız kasada görünür (önceki test).
     expect(detail.body.makyaj).toEqual({
-      makyajsiz: [2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026],
+      makyajsiz: [
+        2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026,
+      ],
       makyajli: [2022, 2023, 2024, 2025, 2026],
     });
     expect(detail.body.trims.map((t: { name: string }) => t.name)).toEqual([
+      'Elegance',
       'Luxury Line',
       'M Sport',
       'Sport Line',

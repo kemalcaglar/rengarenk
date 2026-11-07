@@ -78,6 +78,53 @@ export class CatalogPipelineService {
     }
   }
 
+  /**
+   * TSB arşivinden eski model yıllarını tamamlar (Karar 33: eski araçlar TSB arşivleriyle korunur). Her dosya
+   * kendi döneminin 15 model yılını taşır; arşivin her yılından ilk ay alınır (2020 dosyası 2006–2020'yi getirir).
+   * Daha önce yüklenen dosya yeniden indirilmez. Arşiv, güncel listenin alanlarını değiştirmez.
+   */
+  async backfillTsbArchive(
+    opts: { fromYear?: number; toYear?: number; staffId?: string; ip?: string } = {},
+  ): Promise<{ dosyalar: { dosya: string; durum: string; yeniTip?: number }[] }> {
+    const now = new Date();
+    const to = opts.toYear ?? now.getFullYear();
+    const from = opts.fromYear ?? 2020;
+    const done = new Set(
+      (
+        await this.db.catalogImport.findMany({
+          where: { sourceKey: 'tsb', status: { in: ['APPLIED', 'SKIPPED'] }, fileName: { not: null } },
+          select: { fileName: true },
+        })
+      ).map((i) => i.fileName as string),
+    );
+    const dosyalar: { dosya: string; durum: string; yeniTip?: number }[] = [];
+    for (let year = from; year <= to; year++) {
+      let info = null;
+      for (let month = 1; month <= 12 && !info; month++) {
+        if (year === now.getFullYear() && month > now.getMonth() + 1) break;
+        info = await this.tsb.archive(year, month);
+      }
+      if (!info) continue;
+      if (done.has(info.fileName)) {
+        dosyalar.push({ dosya: info.fileName, durum: 'daha_once_yuklendi' });
+        continue;
+      }
+      const out = await this.runTsbFile(await this.tsb.download(info.url), {
+        fileName: info.fileName,
+        trigger: 'elle',
+        archive: true,
+        staffId: opts.staffId,
+        ip: opts.ip,
+      });
+      dosyalar.push({
+        dosya: info.fileName,
+        durum: out.status.toLowerCase(),
+        yeniTip: out.stats.added as number | undefined,
+      });
+    }
+    return { dosyalar };
+  }
+
   /** Otomatik kaynaklardan 48 saattir başarıyla güncellenemeyen var mı (işçi günde bir sorar, olay yazar). */
   async reportStaleSources(now = new Date()): Promise<string[]> {
     const limit = new Date(now.getTime() - STALE_HOURS * 3600_000);

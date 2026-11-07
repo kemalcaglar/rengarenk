@@ -13,15 +13,26 @@ import { DatabaseModule } from '../database/database.module.js';
  *
  *   pnpm --filter @rengarenk/api katalog:yukle C:\yol\202610R2.xlsx
  *   pnpm --filter @rengarenk/api katalog:yukle            (TSB'den en son dosya)
+ *   pnpm --filter @rengarenk/api katalog:yukle --arsiv    (TSB arşivi: eski model yılları, 2020'den beri)
  */
 @Module({ imports: [DatabaseModule, CatalogPipelineModule] })
 class CliModule {}
 
-const file = process.argv[2];
+const arg = process.argv[2];
+const archive = arg === '--arsiv';
+const file = archive ? undefined : arg;
 const app = await NestFactory.createApplicationContext(CliModule, { logger: ['error', 'warn'] });
 try {
   const pipeline = app.get(CatalogPipelineService);
   const started = Date.now();
+  if (archive) {
+    const r = await pipeline.backfillTsbArchive();
+    for (const d of r.dosyalar)
+      console.log(`${d.dosya}: ${d.durum}${d.yeniTip !== undefined ? ` · ${d.yeniTip} yeni tip` : ''}`);
+    console.log(`Arşiv tamam · ${((Date.now() - started) / 1000).toFixed(1)} sn`);
+    await app.close();
+    process.exit(0);
+  }
   const result = file
     ? await pipeline.runTsbFile(new Uint8Array(readFileSync(file)), {
         fileName: basename(file),
