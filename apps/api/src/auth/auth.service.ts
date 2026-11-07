@@ -5,8 +5,10 @@ import type { TokenPair } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
+import { Metrics } from '../observability/metrics.js';
 import { OutboxService } from '../outbox/outbox.service.js';
-import { SMS_SENDER, type SmsSender } from './sms.js';
+import { RateLimiter } from '../ratelimit/rate-limiter.js';
+import { SMS_SENDER, type SmsSender } from '../sms/sms.js';
 import {
   ACCESS_TTL_SECONDS,
   hashOtp,
@@ -35,10 +37,14 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly audit: AuditService,
     private readonly outbox: OutboxService,
+    private readonly limiter: RateLimiter,
+    private readonly metrics: Metrics,
   ) {}
 
   /** SMS kodu gönderir. Aynı numaraya 60 saniyede bir, saatte en fazla 5 kod. */
   async requestOtp(phone: string, ip?: string): Promise<{ challengeId: string; expiresIn: number }> {
+    // Aynı IP'den saatte en fazla 20 kod: numara değiştirerek SMS bombardımanını engeller.
+    if (ip) await this.limiter.hit(`otp:ip:${ip}`, 20, 3600);
     const hourAgo = new Date(Date.now() - 3600_000);
     const recent = await this.db.otpChallenge.findMany({
       where: { phone, createdAt: { gt: hourAgo } },
@@ -67,7 +73,15 @@ export class AuthService {
         ip: ip ?? null,
       },
     });
-    await this.sms.send(phone, `Rengarenk giriş kodun: ${code}. Kodu kimseyle paylaşma.`);
+    try {
+      const r = await this.sms.send(phone, `Rengarenk giriş kodun: ${code}. Kodu kimseyle paylaşma.`);
+      this.metrics.smsSent.inc({ provider: r.provider, result: 'ok' });
+    } catch (err) {
+      this.metrics.smsSent.inc({ provider: this.sms.name, result: 'error' });
+      throw new HttpException('Kod gönderilemedi, biraz sonra tekrar dene', HttpStatus.SERVICE_UNAVAILABLE, {
+        cause: err,
+      });
+    }
     return { challengeId: id, expiresIn: OTP_TTL_SECONDS };
   }
 
@@ -78,6 +92,7 @@ export class AuthService {
     platform: 'IOS' | 'ANDROID' | 'WEB',
     ip?: string,
   ): Promise<TokenPair & { isNewUser: boolean }> {
+    if (ip) await this.limiter.hit(`verify:ip:${ip}`, 60, 3600);
     const ch = await this.db.otpChallenge.findUnique({ where: { id: challengeId } });
     const invalid = new UnauthorizedException('Kod hatalı ya da süresi dolmuş');
     if (!ch || ch.consumedAt || ch.expiresAt < new Date() || ch.attempts >= OTP_MAX_ATTEMPTS) throw invalid;

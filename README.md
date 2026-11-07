@@ -77,7 +77,17 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - Web: ana sayfa iskeleti ve giriş; yönetim: giriş ekranı yer tutucusu; mobil: alt sekmeler ve giriş
 - CI (GitHub Actions) ve etiketli sürümle canlıya dağıtım iş akışı
 
-## Kurallar
+## SMS, günlük ve izleme (Sprint 2)
+
+- **SMS:** `SMS_PROVIDER` ana sağlayıcı, `SMS_FALLBACK_PROVIDER` yedek. Ana sağlayıcı geçici hata verirse
+  aynı mesaj yedekle gider; art arda 3 hatada ana sağlayıcı 5 dakika devre dışı kalır. Geçersiz numara
+  gibi kalıcı hatalarda yedeğe geçilmez. Şu an `iletimerkezi` bağdaştırıcısı var; ikinci sağlayıcı
+  seçildiğinde `apps/api/src/sms/` altına eklenir. Canlıda `console` kullanılamaz.
+- **Hız sınırı:** aynı IP'den saatte en fazla 20 kod isteği ve 60 doğrulama (Redis).
+- **Günlük:** JSON (pino); telefon, kod, jeton, çerez ve yetki başlığı maskelenir. Geliştirmede okunur biçimde.
+- **Ölçümler:** `GET /metrics` (Prometheus). Canlıda `METRICS_TOKEN` zorunlu.
+- **Hata izleme:** `SENTRY_DSN` verilirse 5xx hataları GlitchTip'e gider.
+- **Web oturumu:** yenileme jetonu `rr_yenileme` adlı httpOnly çerezde; erişim jetonu yalnızca bellekte.
 
 - Ana dal her zaman dağıtılabilir; yarım özellikler özellik anahtarının arkasında kalır.
 - Kişisel veri içeren her alan şemada `/// @pii` ile etiketlenir.

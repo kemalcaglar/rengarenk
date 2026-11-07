@@ -15,7 +15,7 @@ async function post<T>(path: string, body: object): Promise<T> {
   return data as T;
 }
 
-/** Telefon ve SMS koduyla giriş (Karar 18, T09). Jetonlar şimdilik bellekte; Sprint 2'de güvenli çerez. */
+/** Telefon ve SMS koduyla giriş (Karar 18, T09). Yenileme jetonu httpOnly çerezde (lib/oturum.ts). */
 export default function Giris() {
   const [phone, setPhone] = useState('');
   const [challengeId, setChallengeId] = useState<string | null>(null);
@@ -33,7 +33,14 @@ export default function Giris() {
         const r = await post<{ challengeId: string }>('/auth/otp/request', { phone });
         setChallengeId(r.challengeId);
       } else {
-        await post('/auth/otp/verify', { challengeId, code, platform: 'WEB' });
+        // Doğrulama web sunucusu üzerinden: yenileme jetonu httpOnly çereze yazılır.
+        const r = await fetch('/api/oturum/dogrula', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ challengeId, code }),
+        });
+        const data = (await r.json().catch(() => ({}))) as { message?: string };
+        if (!r.ok) throw new Error(data.message ?? 'Kod doğrulanamadı');
         setDone(true);
       }
     } catch (err) {

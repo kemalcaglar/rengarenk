@@ -6,7 +6,6 @@ import { OutboxService } from '../outbox/outbox.service.js';
 import { AuthController } from './auth.controller.js';
 import { AuthGuard } from './auth.guard.js';
 import { AuthService } from './auth.service.js';
-import { ConsoleSmsSender, MemorySmsSender, SMS_SENDER } from './sms.js';
 
 @Module({
   imports: [
@@ -16,18 +15,7 @@ import { ConsoleSmsSender, MemorySmsSender, SMS_SENDER } from './sms.js';
     }),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    AuthGuard,
-    AuditService,
-    OutboxService,
-    {
-      provide: SMS_SENDER,
-      inject: [ENV],
-      useFactory: (env: Env) =>
-        env.SMS_PROVIDER === 'test' ? new MemorySmsSender() : new ConsoleSmsSender(),
-    },
-  ],
+  providers: [AuthService, AuthGuard, AuditService, OutboxService],
   exports: [AuthService, AuthGuard],
 })
 export class AuthModule {}

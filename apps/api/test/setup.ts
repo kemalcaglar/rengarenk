@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { Redis } from 'ioredis';
 import pg from 'pg';
 import { beforeAll } from 'vitest';
 
@@ -12,6 +13,7 @@ Object.assign(process.env, {
   DATABASE_URL: url,
   JWT_SECRET: 'test-icin-en-az-otuz-iki-karakterlik-gizli-anahtar',
   SMS_PROVIDER: 'test',
+  REDIS_URL: process.env.TEST_REDIS_URL ?? 'redis://localhost:6379/15',
 });
 
 const migrations = join(dirname(fileURLToPath(import.meta.url)), '../../../packages/db/prisma/migrations');
@@ -28,4 +30,7 @@ beforeAll(async () => {
     await c.query(readFileSync(join(migrations, dir, 'migration.sql'), 'utf8'));
   }
   await c.end();
+  const r = new Redis(process.env.REDIS_URL as string);
+  await r.flushdb();
+  r.disconnect();
 });

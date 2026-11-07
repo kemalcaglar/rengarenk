@@ -1,20 +1,25 @@
 import helmet from '@fastify/helmet';
 import type { INestApplication } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module.js';
 import { loadEnv } from './config/env.js';
+import { initSentry, ReportingExceptionFilter } from './observability/sentry.js';
 
 export async function createApp(): Promise<NestFastifyApplication> {
   const env = loadEnv();
+  const reporting = initSentry(env.SENTRY_DSN, env.NODE_ENV);
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({ trustProxy: true }),
     {
-      logger: env.NODE_ENV === 'test' ? ['error'] : undefined,
+      bufferLogs: true,
     },
   );
+  app.useLogger(app.get(Logger));
+  if (reporting) app.useGlobalFilters(new ReportingExceptionFilter(app.get(HttpAdapterHost).httpAdapter));
   await app.register(helmet);
   app.enableCors({ origin: [env.WEB_ORIGIN, env.ADMIN_ORIGIN], credentials: true });
   app.enableShutdownHooks();

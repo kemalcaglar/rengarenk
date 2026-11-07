@@ -1,7 +1,7 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import type { MemorySmsSender } from '../src/auth/sms.js';
 import type { Db } from '../src/database/prisma.js';
+import type { MemorySmsSender } from '../src/sms/console.sender.js';
 import { call, createTestApp } from './helpers.js';
 
 let app: NestFastifyApplication;
