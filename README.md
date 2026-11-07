@@ -92,6 +92,27 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Hata izleme:** `SENTRY_DSN` verilirse 5xx hataları GlitchTip'e gider.
 - **Web oturumu:** yenileme jetonu `rr_yenileme` adlı httpOnly çerezde; erişim jetonu yalnızca bellekte.
 
+## Yönetim konsolu: giriş, roller, onay kuyruğu (Sprint 3)
+
+- **Giriş (T10, Karar 40):** şirket Google hesabı (`STAFF_EMAIL_DOMAINS`, şimdilik `rengarenk.com.tr`),
+  ardından doğrulama uygulaması kodu zorunlu. İlk girişte karekodla kurulur ve 10 tek kullanımlık
+  kurtarma kodu verilir. 30 dakika işlem yapılmazsa, en geç 12 saatte oturum kapanır. Yeni cihazdan
+  giriş `calisan.yeni_cihaz` olayını yazar (bildirim katmanı gelince sahibe iletilecek).
+- **Google hesabı açılana kadar:** `STAFF_AUTH_PROVIDER=fake`. "Google ile giriş" düğmesi konsoldaki
+  `/gelistirme/google` sayfasına gider; e-postayı yazıp devam edersin. Canlıda `google` zorunludur.
+- **Yerelde ilk giriş:** `pnpm db:migrate`, `pnpm db:seed`, sonra http://localhost:3001 ve
+  `sahip@rengarenk.com.tr`. Canlıda ilk sahip bir kez komutla açılır:
+  `node dist/cli/sahip.js <e-posta> "<ad soyad>"` (yerelde `pnpm --filter @rengarenk/api sahip ...`).
+- **Roller ve yetkiler:** 8 hazır rol + Ajan; matris `packages/shared/src/staff.ts` içinde ve onaylı
+  tasarımla aynı. Sahip özel rol oluşturur; çalışan yönetimi ve iadede tam yetki özel role verilemez.
+  Her `/staff` uç noktası bir izin ister; işaretsiz uç nokta kapalıdır ve bir test hepsini tarar.
+- **Dört göz onay motoru:** iade, fiyat/paket, toplu gönderim, kupon, kalıcı engelleme, hesap silme.
+  İsteyen kendi isteğini onaylayamaz (Sahip hariç). İadeyi yalnızca Sahip onaylar; motor iade kaydı
+  açmaz ve iade yürütmez, veritabanı iade kilidi aynen geçerlidir. Bekleyen istek 7 günde düşer.
+  Onaylanan işlem işçide `onay.onaylandi` kuyruğundan, ilgili modülün kaydettiği işlevle yürütülür.
+- **Konsol ekranları:** Onay kuyruğu, Çalışanlar (davet, rol, 2FA sıfırlama, hesap kapatma), Roller ve
+  yetkiler, İşlem kaydı (IP adresi kişisel veri yetkisi olmayana maskeli).
+
 - Ana dal her zaman dağıtılabilir; yarım özellikler özellik anahtarının arkasında kalır.
 - Kişisel veri içeren her alan şemada `/// @pii` ile etiketlenir.
 - İşlem kaydı ve olay (outbox), değişiklikle aynı veritabanı işleminde yazılır.

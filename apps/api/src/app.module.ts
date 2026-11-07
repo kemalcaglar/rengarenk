@@ -11,6 +11,7 @@ import { MetricsController } from './observability/metrics.controller.js';
 import { MetricsModule } from './observability/metrics.js';
 import { RateLimitModule } from './ratelimit/ratelimit.module.js';
 import { SmsModule } from './sms/sms.module.js';
+import { StaffModule } from './staff/staff.module.js';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { SmsModule } from './sms/sms.module.js';
     AuthModule,
     MeModule,
     EntitlementsModule,
+    StaffModule,
   ],
   controllers: [HealthController, MetricsController],
   providers: [{ provide: APP_INTERCEPTOR, useClass: HttpMetricsInterceptor }],

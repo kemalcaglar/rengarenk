@@ -79,7 +79,7 @@ pnpm format        # Biome ile biçimlendir
 - Depo kökündeki `rengarenk.bundle`, `rengarenk-depo.tar.gz`, PDF ve `*.patch` dosyaları
   `.git/info/exclude` ile dışarıda tutulur; bundle ve tar.gz artık gerekmiyor.
 
-## Nerede kaldık (7 Kasım 2026)
+## Nerede kaldık (7 Kasım 2026, Sprint 3 sonu)
 
 - **Sprint 1 bitti:** monorepo, yerel ortam, telefon + SMS koduyla giriş (15 dk erişim, 90 gün
   yenileme jetonu, döndürme, çalınan jeton kullanılırsa tüm oturumları kapatma), işlem kaydı,
@@ -88,10 +88,17 @@ pnpm format        # Biome ile biçimlendir
   yönetimi"): ana/yedek SMS yönlendirici ve İleti Merkezi bağdaştırıcısı, Redis IP hız sınırı,
   pino günlük maskeleri, `/metrics`, GlitchTip bildirimi, `/me` profil ve oturum uçları, web'de
   httpOnly yenileme çerezi (`rr_yenileme`). API'de 25 test geçiyor.
-- **Sıradaki:** Sprint 3 yönetim konsoluna Google Workspace girişi + zorunlu 2FA (T10, Karar 40),
-  ardından çalışan rolleri/izin matrisi ve dört göz onay motoru; Sprint 4 Radore'ye ilk dağıtım ve
-  GCP test ortamı. Liste: `docs/kapsam/03-gelistirme-plani.md` sonundaki sprint bölümleri. Bir
-  sprint bitince oradaki kutuları işaretle ve README'deki "Şu an neler var" bölümünü güncelle.
+- **Sprint 3 bitti:** yönetim girişi (Google Workspace + zorunlu TOTP 2FA, 30 dk hareketsizlik,
+  kurtarma kodları, yeni cihaz olayı), izin matrisi (`packages/shared/src/staff.ts`, tasarımla aynı),
+  her `/staff` ucunda `RequirePermission`/`StaffOnly`/`StaffPublic` (işaretsiz uç kapalı, test tarar),
+  dört göz onay motoru (`apps/api/src/approvals/`), konsolda Onay kuyruğu, Çalışanlar, Roller, İşlem
+  kaydı. API'de 49 test. Google hesabı açılana kadar `STAFF_AUTH_PROVIDER=fake`.
+- **Sahip kararları (7 Kasım 2026):** Sahip kendi isteğini onaylayabilir, diğerlerinde isteyen ≠
+  onaylayan; iade isteklerini yalnızca Sahip onaylar ve onay motoru iade yürütmez; CATALOG rolü
+  atanamaz (özel rol kullanılır); yönetim e-posta alanı `rengarenk.com.tr`.
+- **Sıradaki:** Sprint 4 Radore'ye ilk dağıtım ve GCP test ortamı. Liste:
+  `docs/kapsam/03-gelistirme-plani.md` sonundaki sprint bölümleri. Bir sprint bitince oradaki kutuları
+  işaretle ve README'deki "Şu an neler var" bölümünü güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu
   gerçek anahtarla deneme; test/sahte sağlayıcı kullan.

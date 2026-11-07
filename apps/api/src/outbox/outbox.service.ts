@@ -9,7 +9,18 @@ export type EventType =
   | 'talep.yayinlandi'
   | 'talep.suresi_doluyor'
   | 'odeme.alindi'
-  | 'iade.onaylandi';
+  | 'iade.onaylandi'
+  // Yönetim (Karar 40): bildirim katmanı bunları sahibe iletir.
+  | 'calisan.giris'
+  | 'calisan.yeni_cihaz'
+  | 'calisan.kurtarma_kodu_kullandi'
+  | 'calisan.davet_edildi'
+  | 'calisan.kapatildi'
+  // Dört göz onay motoru (Teknik tasarım §11)
+  | 'onay.istendi'
+  | 'onay.onaylandi'
+  | 'onay.reddedildi'
+  | 'onay.suresi_doldu';
 
 @Injectable()
 export class OutboxService {

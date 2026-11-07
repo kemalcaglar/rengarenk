@@ -88,11 +88,16 @@ Sprint 1 işleri 7 Kasım 2026'da bitti; CI yeşil. Bilgisayarda Docker Desktop 
 - [x] Web oturumu: yenileme jetonu httpOnly çerezde (`rr_yenileme`), erişim jetonu yalnızca bellekte
 - [ ] Yedek SMS sağlayıcısı bağdaştırıcısı (sağlayıcı seçilince; aday Netgsm)
 
-## Sıradaki (Sprint 3–4)
+## Sprint 3 · yönetim girişi, roller, dört göz (öne çekildi, 7 Kasım 2026'da yapıldı)
 
-- [ ] Yönetim konsoluna Google Workspace ile giriş ve zorunlu 2FA, 30 dk hareketsizlikte oturum kapanır (T10, Karar 40)
-- [ ] Çalışan rolleri ve izin matrisi; her API uç noktası için izin denetimi (Karar 40)
-- [ ] Dört göz onay motoru: istek, onaylayıcı, süre, sonuç (Teknik tasarım 11)
+- [x] Yönetim konsoluna Google Workspace ile giriş ve zorunlu 2FA, 30 dk hareketsizlikte oturum kapanır (T10, Karar 40)
+- [x] Çalışan rolleri ve izin matrisi; her API uç noktası için izin denetimi (Karar 40)
+- [x] Dört göz onay motoru: istek, onaylayıcı, süre, sonuç (Teknik tasarım 11)
+- [ ] Gerçek Google Workspace istemcisiyle deneme (hesap açılınca; şimdilik sahte sağlayıcı)
+
+Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, diğer herkes için isteyen ve onaylayan farklı kişidir. Onay motoru iade isteklerini taşır, yalnızca Sahip onaylar; iade kaydı ve yürütme ödeme aşamasında, iade kilidi tetikleyicilerine dokunulmadan yazılır. Eski "Katalog" rolü hazır rollerden çıkarıldı; gerekirse özel rol olarak açılır. Yönetim girişinin e-posta alanı rengarenk.com.tr.
+
+## Sıradaki (Sprint 4)
+
 - [ ] Radore sunucularına ilk dağıtım (sunucular hazır olunca)
 - [ ] GCP test ortamı (sentetik veri)
-

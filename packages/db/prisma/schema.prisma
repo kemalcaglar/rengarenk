@@ -3,10 +3,10 @@
 // veri kopyası, anonimleştirme ve imha bu etiketlerden çalışır.
 
 generator client {
-  provider               = "prisma-client"
-  output                 = "../src/generated"
-  moduleFormat           = "esm"
-  importFileExtension    = "js"
+  provider            = "prisma-client"
+  output              = "../src/generated"
+  moduleFormat        = "esm"
+  importFileExtension = "js"
 }
 
 datasource db {
@@ -151,8 +151,10 @@ model OtpChallenge {
   @@map("otp_challenges")
 }
 
-// ── Yönetim ekibi ve yetkiler ─────────────────────────────────
+// ── Yönetim ekibi ve yetkiler (Karar 40, T10) ────────────────
 
+/// Hazır roller `packages/shared/src/staff.ts` içindeki matristen yetki alır.
+/// CATALOG eski değerdir, atanamaz (kontrol kısıtı). CUSTOM: yetkileri `staff_roles` tablosundan gelir.
 enum StaffRole {
   OWNER
   ADMIN
@@ -161,11 +163,16 @@ enum StaffRole {
   CATALOG
   FINANCE
   AGENT
+  OPERATIONS
+  MARKETING
+  VIEWER
+  CUSTOM
 }
 
 enum StaffStatus {
   ACTIVE
   DISABLED
+  INVITED
 }
 
 model StaffMember {
@@ -175,14 +182,118 @@ model StaffMember {
   /// @pii
   name             String
   role             StaffRole
+  customRoleId     String?     @map("custom_role_id") @db.Uuid
   status           StaffStatus @default(ACTIVE)
+  /// Doğrulama uygulaması kurulup ilk kodla onaylandıysa true
   twoFactorEnabled Boolean     @default(false) @map("two_factor_enabled")
+  /// Doğrulama uygulaması sırrı, AES-256-GCM ile şifreli (anahtar STAFF_SECRET_KEY)
+  totpSecretEnc    String?     @map("totp_secret_enc")
+  /// Son kabul edilen kodun zaman adımı; aynı kod ikinci kez kullanılamaz
+  totpLastStep     BigInt?     @map("totp_last_step")
+  /// Google hesabının değişmez kimliği; ilk girişte bağlanır
+  googleSub        String?     @unique @map("google_sub")
+  invitedBy        String?     @map("invited_by") @db.Uuid
+  inviteExpiresAt  DateTime?   @map("invite_expires_at") @db.Timestamptz(3)
+  lastLoginAt      DateTime?   @map("last_login_at") @db.Timestamptz(3)
+  disabledAt       DateTime?   @map("disabled_at") @db.Timestamptz(3)
   createdAt        DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  requestedApprovals Approval[] @relation("ApprovalRequester")
-  decidedApprovals   Approval[] @relation("ApprovalDecider")
+  customRole         StaffCustomRole?    @relation(fields: [customRoleId], references: [id])
+  requestedApprovals Approval[]          @relation("ApprovalRequester")
+  decidedApprovals   Approval[]          @relation("ApprovalDecider")
+  sessions           StaffSession[]
+  devices            StaffDevice[]
+  recoveryCodes      StaffRecoveryCode[]
 
   @@map("staff_members")
+}
+
+/// Sahibin yetkileri tek tek işaretleyerek oluşturduğu rol. permissions: { "rapor.gor": "tam", ... }
+model StaffCustomRole {
+  id          String   @id @db.Uuid
+  name        String   @unique
+  permissions Json
+  createdBy   String   @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  members StaffMember[]
+
+  @@map("staff_roles")
+}
+
+/// Yönetim girişinin ara adımı: Google yönlendirmesi (state, nonce, PKCE), ardından iki adımlı doğrulama.
+/// `ticketHash` yalnızca Google adımı geçince dolar; iki adımlı doğrulama bu biletle yapılır.
+model StaffLoginChallenge {
+  id             String    @id @db.Uuid
+  stateHash      String    @unique @map("state_hash")
+  nonce          String
+  codeVerifier   String    @map("code_verifier")
+  staffId        String?   @map("staff_id") @db.Uuid
+  googleSub      String?   @map("google_sub")
+  ticketHash     String?   @unique @map("ticket_hash")
+  /// Kurulum sırasında üretilen, henüz onaylanmamış sır (şifreli)
+  pendingTotpEnc String?   @map("pending_totp_enc")
+  attempts       Int       @default(0)
+  expiresAt      DateTime  @map("expires_at") @db.Timestamptz(3)
+  googleAt       DateTime? @map("google_at") @db.Timestamptz(3)
+  consumedAt     DateTime? @map("consumed_at") @db.Timestamptz(3)
+  /// @pii
+  ip             String?
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([expiresAt])
+  @@map("staff_login_challenges")
+}
+
+/// Yönetim oturumu: jetonun SHA-256 özeti saklanır. 30 dk hareketsizlikte ve en geç 12 saatte kapanır.
+model StaffSession {
+  id           String    @id @db.Uuid
+  staffId      String    @map("staff_id") @db.Uuid
+  deviceId     String?   @map("device_id") @db.Uuid
+  tokenHash    String    @unique @map("token_hash")
+  lastActiveAt DateTime  @default(now()) @map("last_active_at") @db.Timestamptz(3)
+  expiresAt    DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt    DateTime? @map("revoked_at") @db.Timestamptz(3)
+  /// @pii
+  ip           String?
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  staff  StaffMember  @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  device StaffDevice? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+
+  @@index([staffId])
+  @@map("staff_sessions")
+}
+
+/// Çalışanın giriş yaptığı tarayıcılar. Yeni cihazdan girişte sahibe bildirim gider (Karar 40).
+model StaffDevice {
+  id          String   @id @db.Uuid
+  staffId     String   @map("staff_id") @db.Uuid
+  deviceHash  String   @map("device_hash")
+  /// @pii
+  userAgent   String?  @map("user_agent")
+  firstSeenAt DateTime @default(now()) @map("first_seen_at") @db.Timestamptz(3)
+  lastSeenAt  DateTime @default(now()) @map("last_seen_at") @db.Timestamptz(3)
+
+  staff    StaffMember    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  sessions StaffSession[]
+
+  @@unique([staffId, deviceHash])
+  @@map("staff_devices")
+}
+
+/// Doğrulama uygulamasına erişilemezse kullanılan tek kullanımlık kurtarma kodları (özetleri).
+model StaffRecoveryCode {
+  id       String    @id @db.Uuid
+  staffId  String    @map("staff_id") @db.Uuid
+  codeHash String    @map("code_hash")
+  usedAt   DateTime? @map("used_at") @db.Timestamptz(3)
+
+  staff StaffMember @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@index([staffId])
+  @@map("staff_recovery_codes")
 }
 
 enum ActorType {
@@ -253,40 +364,76 @@ model EntitlementLedger {
   @@map("entitlement_ledger")
 }
 
-// ── Onaylar ve iade kilidi ────────────────────────────────────
+// ── Onaylar (dört göz) ve iade kilidi ─────────────────────────
 
+/// Onay motoru türleri; kurallar `packages/shared/src/staff.ts` (APPROVAL_POLICIES). STAFF_ROLE kullanılmıyor.
 enum ApprovalKind {
   REFUND
   PRICE_CHANGE
   STAFF_ROLE
+  BULK_SEND
+  COUPON
+  PERMANENT_BAN
+  ACCOUNT_DELETE
 }
 
 enum ApprovalStatus {
   PENDING
   APPROVED
   REJECTED
+  EXPIRED
+  CANCELLED
 }
 
+/// Karara bağlanan onay değiştirilemez (rr_approval_immutable). Yürütme sonucu `approval_results` tablosundadır.
 model Approval {
-  id          String         @id @db.Uuid
-  kind        ApprovalKind
-  status      ApprovalStatus @default(PENDING)
-  subjectType String         @map("subject_type")
-  subjectId   String         @map("subject_id")
+  id           String         @id @db.Uuid
+  kind         ApprovalKind
+  status       ApprovalStatus @default(PENDING)
+  subjectType  String         @map("subject_type")
+  subjectId    String         @map("subject_id")
   /// Kuruş cinsinden tutar (iadelerde zorunlu)
-  amountKurus BigInt?        @map("amount_kurus")
-  payload     Json           @default("{}")
-  requestedBy String         @map("requested_by") @db.Uuid
-  decidedBy   String?        @map("decided_by") @db.Uuid
-  decidedAt   DateTime?      @map("decided_at") @db.Timestamptz(3)
-  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  amountKurus  BigInt?        @map("amount_kurus")
+  payload      Json           @default("{}")
+  /// Kuyrukta görünen kısa başlık
+  title        String         @default("")
+  /// İsteyenin gerekçesi
+  reason       String?
+  requestedBy  String         @map("requested_by") @db.Uuid
+  decidedBy    String?        @map("decided_by") @db.Uuid
+  decidedAt    DateTime?      @map("decided_at") @db.Timestamptz(3)
+  decisionNote String?        @map("decision_note")
+  /// Bu tarihe kadar karar verilmezse istek düşer
+  expiresAt    DateTime?      @map("expires_at") @db.Timestamptz(3)
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  requester StaffMember  @relation("ApprovalRequester", fields: [requestedBy], references: [id])
-  decider   StaffMember? @relation("ApprovalDecider", fields: [decidedBy], references: [id])
+  requester StaffMember      @relation("ApprovalRequester", fields: [requestedBy], references: [id])
+  decider   StaffMember?     @relation("ApprovalDecider", fields: [decidedBy], references: [id])
   refunds   Refund[]
+  results   ApprovalResult[]
 
   @@index([kind, status])
+  @@index([status, expiresAt])
   @@map("approvals")
+}
+
+enum ApprovalOutcome {
+  SUCCEEDED
+  FAILED
+}
+
+/// Onaylanan işlemin yürütme denemeleri. Yalnızca ekleme; son satır güncel sonuçtur.
+model ApprovalResult {
+  id         BigInt          @id @default(autoincrement())
+  approvalId String          @map("approval_id") @db.Uuid
+  outcome    ApprovalOutcome
+  detail     Json            @default("{}")
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  approval Approval @relation(fields: [approvalId], references: [id])
+
+  @@index([approvalId])
+  @@map("approval_results")
 }
 
 enum RefundStatus {

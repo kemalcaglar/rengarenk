@@ -26,6 +26,16 @@ export class QueueService implements OnModuleDestroy {
     await boss.publish(event, { data });
   }
 
+  /** Bir olayı dinleyen kuyruğu kurar ve işlerini `handler` ile işler. Hata fırlatan iş yeniden denenir. */
+  async consume<T>(event: string, queue: string, handler: (payload: T) => Promise<unknown>): Promise<void> {
+    const boss = await this.start();
+    await boss.createQueue(queue, { retryLimit: 5, retryDelay: 30, retryBackoff: true });
+    await boss.subscribe(event, queue);
+    await boss.work<{ data: T }>(queue, async (jobs) => {
+      for (const job of jobs) await handler(job.data.data);
+    });
+  }
+
   async onModuleDestroy() {
     await this.boss?.stop({ graceful: true });
   }

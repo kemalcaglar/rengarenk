@@ -5,15 +5,21 @@ if (process.env.NODE_ENV === 'production') throw new Error('seed canlıda çalı
 
 const prisma = createPrismaClient();
 
-const owner = await prisma.staffMember.upsert({
+// Sprint 3 öncesi seed'in yerel sahibi şirket alanına taşınır (yönetim girişi yalnızca şirket e-postası kabul eder).
+await prisma.staffMember.updateMany({
   where: { email: 'sahip@rengarenk.local' },
+  data: { email: 'sahip@rengarenk.com.tr' },
+});
+
+// Yerel sahip: konsola sahte Google girişiyle bu e-postayla girilir; ilk girişte doğrulama uygulaması kurulur.
+const owner = await prisma.staffMember.upsert({
+  where: { email: 'sahip@rengarenk.com.tr' },
   update: {},
   create: {
     id: uuidv7(),
-    email: 'sahip@rengarenk.local',
+    email: 'sahip@rengarenk.com.tr',
     name: 'Sahip (yerel)',
     role: 'OWNER',
-    twoFactorEnabled: true,
   },
 });
 
@@ -46,5 +52,5 @@ if (!existing) {
   });
 }
 
-console.log('seed tamam: sahip@rengarenk.local, +905550000001');
+console.log('seed tamam: sahip@rengarenk.com.tr, +905550000001');
 await prisma.$disconnect();
