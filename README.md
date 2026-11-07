@@ -138,6 +138,18 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - Kasko bedelleri okunduğu anda atılır; hiçbir tabloda ve yanıtta yoktur. Kaynaktan düşen tipler silinmez.
 - Okuma uçları: `GET /catalog/makes?kategori=`, `/catalog/makes/:id/series`, `/catalog/series/:id?yil=`.
 
+## Kasa kuşağı ve ad eşleme (Sprint 6)
+
+- **Kasa kuşağı:** vehicle-makes-models kuşakları (kasa ve makyaj dönemine göre) bütün yıllar için saklanır. Wikidata
+  nesil kodlarını (E46, Mk7, W205) ve Commons kategorisini verir; yıl yoksa İngilizce Vikipedi bilgi kutusundan
+  okunur. Kuşak koda bağlanınca makyaj sırası çıkar: 0 makyajsız, 1 ilk makyaj. Seri ayrıntısı (`?yil=`) o yılın
+  kuşaklarını, kodlarını ve makyaj seçeneklerini döndürür; kodsuz yıllarda TSB'nin "LCI/FL" işareti kullanılır.
+  Wikidata haftada bir çekilir: `katalog:yukle --wikidata`.
+- **Ad eşleme:** aynı serinin farklı yazımları (TSB "Touraeg", vehicle-makes-models "Focus CC") kurala göre önerilir;
+  konsol › Katalog › Ad eşleme'den onaylanınca tipler hedef seriye taşınır. Önerileri yeniden üretmek için
+  `katalog:yukle --oneri`. Kayıtlar silinmez.
+- TSB ayrıştırıcısının sürümü var (`TSB_PARSER`); kurallar değişince sürümü artır, aynı dosya yeniden işlenir.
+
 ## Canlıya alma
 
 Ayrıntılı el kitabı ve bu bilgisayarda canlı provası: [deploy/README.md](deploy/README.md).

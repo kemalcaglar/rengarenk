@@ -26,7 +26,8 @@ export type EventType =
   // Katalog hattı (Teknik tasarım §5, Karar 33)
   | 'katalog.guncellendi'
   | 'katalog.reddedildi'
-  | 'katalog.kaynak_gecikti';
+  | 'katalog.kaynak_gecikti'
+  | 'katalog.ad_esleme';
 
 @Injectable()
 export class OutboxService {

@@ -113,7 +113,13 @@ pnpm format        # Biome ile biçimlendir
 - Catalog listeleri Türkçe alfabeyle sıralanır (veritabanı Ş'yi S'nin önüne koyar).
 - **TSB dosyası:** `https://www.tsb.org.tr/InsuranceData/GetLatestExcelFile` → dosya yolu. Kasko bedeli asla
   saklanmaz ve gösterilmez (Karar 33). TSB dosyası depoya girmez.
-- **Sıradaki:** Sprint 6: Wikidata ile kasa kuşağı ve makyaj, ad eşleme, EEA, VehiclesDB, Commons fotoğrafları.
+- **Sprint 6 (8 Kasım 2026) ilk bölüm bitti:** TSB seri yazımları (`packages/catalog/src/tsb/series.ts`), ayrıştırıcı
+  sürümü (`TSB_PARSER`, `VMM_PARSER`, `WIKIDATA_PARSER`: kural değişince artır, aynı dosya yeniden işlenir), kasa
+  kuşakları bütün yıllar, Wikidata nesil kodu + Vikipedi üretim yılı, kod ↔ kuşak eşleşmesi ve makyaj sırası
+  (`packages/catalog/src/generations.ts`, `apps/api/src/catalog/catalog-generations.ts`), ad eşleme
+  (`catalog_aliases`, `catalog-alias.service.ts`, konsolda Katalog › Ad eşleme). API'de 77, katalogda 33 test.
+  Kapsam: TSB otomobil serilerinin %83'ünde kasa kuşağı, %22'sinde nesil kodu (tip ağırlıklı).
+- **Sıradaki:** Sprint 6 kalanı: EEA teknik değerleri, VehiclesDB (motosiklet, kamyon, otobüs), Commons fotoğrafları.
   Sprint 7: 14 kategori şeması (Karar 45). Sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS. Liste:
   `docs/kapsam/03-gelistirme-plani.md` sonundaki sprint bölümleri. Bir sprint bitince oradaki kutuları
   işaretle ve README'deki "Şu an neler var" bölümünü güncelle.

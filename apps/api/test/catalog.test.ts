@@ -7,6 +7,7 @@ import { CatalogImportService } from '../src/catalog/catalog-import.service.js';
 import { CatalogPipelineService } from '../src/catalog/catalog-pipeline.service.js';
 import { TSB_CLIENT, type TsbClient } from '../src/catalog/tsb-client.js';
 import { VMM_CLIENT, type VmmClient } from '../src/catalog/vmm-client.js';
+import { WIKIDATA_CLIENT, type WikidataClient } from '../src/catalog/wikidata-client.js';
 import { registerXlsxBody, XLSX_MIME } from '../src/catalog/xlsx-body.js';
 import { type Db, PRISMA } from '../src/database/prisma.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
@@ -111,6 +112,11 @@ const VMM_CSV = [
   'bmw,BMW,3 Series,3 Series Sedan (1991),1991,1998,,318i 5MT RWD (115 HP),Gasoline,4,1796,115,168,5-speed manual,Rear Wheel Drive',
   'bmw,BMW,3 Series,3 Series Sedan (1991),1991,1998,,325i 5MT RWD (192 HP),Gasoline,6,2494,192,245,5-speed manual,Rear Wheel Drive',
   'lada,Lada,Samara,Samara (1990),1990,2004,,1.3L 4MT FWD (64 HP),Gasoline,4,1288,64,,4-speed manual,Front Wheel Drive',
+  // 2006 ve sonrası: tip kaydı alınmaz, yalnızca kasa kuşağı (makyaj sorusu için)
+  'bmw,BMW,3 Series,3 Series Sedan (2018),2018,2022,,320i 8AT RWD (184 HP),Gasoline,4,1998,184,300,8-speed automatic,Rear Wheel Drive',
+  'bmw,BMW,3 Series,3 Series Sedan (2022),2022,,,320i 8AT RWD (184 HP),Gasoline,4,1998,184,300,8-speed automatic,Rear Wheel Drive',
+  // TSB'de "SERI1" olan seri bu kaynakta ekli yazılır: ad eşleme önerisi
+  'dolgu,Dolgu,SERI1 Sport,SERI1 Sport (1999),1999,2003,,1.6L 5MT FWD (100 HP),Gasoline,4,1600,100,,5-speed manual,Front Wheel Drive',
   ...Array.from(
     { length: 1100 },
     (_, i) =>
@@ -126,12 +132,39 @@ const fakeVmm: VmmClient = {
   }),
   download: async () => {
     vmm.downloads++;
-    return new TextEncoder().encode(VMM_CSV);
+    // Sonraki sürümde dosya değişir (bir satır eklenir); aynı dosya ikinci kez uygulanmaz.
+    const extra =
+      'dolgu,Eskidolgu,M1,M1 (2001) yeni,2001,2004,,1.4L 5MT FWD (75 HP),Gasoline,4,1400,75,,5-speed manual,Front Wheel Drive';
+    return new TextEncoder().encode(vmm.tag === 'v1.0.2' ? VMM_CSV : `${VMM_CSV}\n${extra}`);
   },
+};
+
+/** Wikidata: BMW 3 Serisi E36 (yıl Wikidata'da) ve G20 (yıl Vikipedi bilgi kutusundan); tanınmayan bir alt model */
+const wd = (gen: string, label: string, extra: Record<string, string> = {}) => ({
+  seriesId: 'Q1',
+  seriesLabel: 'BMW 3 Series',
+  genId: gen,
+  genLabel: label,
+  ...extra,
+});
+const fakeWikidata: WikidataClient = {
+  generations: async () => [
+    wd('Q10', 'BMW 3 Series (E36)', {
+      start: '1990-01-01T00:00:00Z',
+      end: '2000-01-01T00:00:00Z',
+      commons: 'BMW E36',
+    }),
+    wd('Q11', 'BMW 3 Series (G20)', { enTitle: 'BMW 3 Series (G20)', commons: 'BMW G20' }),
+    wd('Q12', 'BMW 3 Series Gran Turismo'),
+    { ...wd('Q13', 'Lancia Delta III'), seriesLabel: 'Lancia Delta' },
+  ],
+  productions: async () => ({ 'BMW 3 Series (G20)': { revision: 7, production: 'October 2018 – present' } }),
 };
 
 beforeAll(async () => {
   const mod = await Test.createTestingModule({ imports: [AppModule] })
+    .overrideProvider(WIKIDATA_CLIENT)
+    .useValue(fakeWikidata)
     .overrideProvider(TSB_CLIENT)
     .useValue(fakeTsb)
     .overrideProvider(VMM_CLIENT)
@@ -336,7 +369,7 @@ describe('eski yıllar: vehicle-makes-models (1990–2005)', () => {
     expect(d.body.models.map((m: { name: string }) => m.name)).toEqual(['318i', '325i']);
     expect(d.body.bodies.map((b: { name: string }) => b.name)).toEqual(['Sedan']);
     expect(d.body.generations).toMatchObject([
-      { name: '3 Series Sedan (1991)', startYear: 1991, endYear: 1998, years: [1995], bodies: ['Sedan'] },
+      { name: '3 Series Sedan (1991)', startYear: 1991, endYear: 1998, years: [1995], body: 'Sedan' },
     ]);
     expect(d.body.trims).toEqual([]);
   });
@@ -352,7 +385,7 @@ describe('eski yıllar: vehicle-makes-models (1990–2005)', () => {
       (s: { name: string }) => s.name === '3 Serisi',
     );
     expect((await get(`/catalog/series/${s3.id}?yil=1995`)).body.models).toEqual([]);
-    expect(await db.catalogVariant.count({ where: { source: 'vmm' } })).toBe(1103);
+    expect(await db.catalogVariant.count({ where: { source: 'vmm' } })).toBe(1104);
 
     await staffCall(app, 'PATCH', '/staff/catalog/sources/vmm', { active: true }, owner);
     expect(await names()).toContain('Lada');
@@ -394,6 +427,101 @@ describe('yerli klasikler: kaynaklı liste', () => {
   });
 });
 
+describe('kasa kuşağı ve nesil kodu: Wikidata (Sprint 6)', () => {
+  it('kod kasa kuşaklarına yazılır; makyaj sırası yıllara göre; Commons kategorisi taşınır', async () => {
+    const r = await staffCall(app, 'POST', '/staff/catalog/sources/wikidata/check', {}, owner);
+    expect(r.body.durum).toBe('uygulandi');
+    expect(r.body.outcome.stats).toMatchObject({
+      generationsTotal: 2,
+      generationsCoded: 3,
+      unmatchedSeries: 0,
+    });
+
+    const bmw = (await get('/catalog/makes')).body.find((m: { name: string }) => m.name === 'BMW');
+    const s3 = (await get(`/catalog/makes/${bmw.id}/series`)).body.find(
+      (s: { name: string }) => s.name === '3 Serisi',
+    );
+    const d = await get(`/catalog/series/${s3.id}?yil=2022`);
+    expect(
+      d.body.generations.map((g: { name: string; code: string; facelift: number }) => [
+        g.name,
+        g.code,
+        g.facelift,
+      ]),
+    ).toEqual([
+      ['3 Series Sedan (2018)', 'G20', 0],
+      ['3 Series Sedan (2022)', 'G20', 1],
+    ]);
+    expect(d.body.codes).toMatchObject([
+      { code: 'G20', startYear: 2018, endYear: null, commonsCategory: 'BMW G20' },
+    ]);
+    expect(d.body.generations[0].commonsCategory).toBe('BMW G20');
+    // 2023: TSB'de "LCI" yazmayan tip olsa da kuşak bilgisi makyajlı der.
+    expect((await get(`/catalog/series/${s3.id}?yil=2023`)).body.makyaj).toEqual({
+      makyajsiz: [],
+      makyajli: [2023],
+    });
+    expect((await get(`/catalog/series/${s3.id}?yil=1995`)).body.generations[0]).toMatchObject({
+      code: 'E36',
+      facelift: 0,
+    });
+    const source = (await staffCall(app, 'GET', '/staff/catalog/sources', undefined, owner)).body.find(
+      (x: { key: string }) => x.key === 'wikidata',
+    );
+    expect(source).toMatchObject({ generations: 2, generationsCoded: 2 });
+  });
+});
+
+describe('ad eşleme (catalog_aliases)', () => {
+  it('kural önerir; onaylanınca tipler hedef seriye taşınır ve sonraki içe aktarma eşlemeyi uygular', async () => {
+    const list = await staffCall(app, 'GET', '/staff/catalog/aliases?durum=onerildi', undefined, owner);
+    const s = list.body.find((a: { fromKey: string }) => a.fromKey === 'dolgu/seri1-sport');
+    expect(s).toMatchObject({
+      source: 'vmm',
+      toKey: 'dolgu/seri1',
+      reason: 'ek',
+      method: 'kural',
+      variants: 1,
+    });
+    expect(s.to.name).toBe('SERI1');
+
+    const support = (await loginAs(app, await createStaff(db, 'SUPPORT'))).token;
+    expect((await staffCall(app, 'POST', `/staff/catalog/aliases/${s.id}/approve`, {}, support)).status).toBe(
+      403,
+    );
+
+    const ok = await staffCall(app, 'POST', `/staff/catalog/aliases/${s.id}/approve`, {}, owner);
+    expect(ok.body).toMatchObject({ status: 'onaylandi', tasinan: 1 });
+    const v = await db.catalogVariant.findFirstOrThrow({
+      where: { source: 'vmm', rawName: { startsWith: 'SERI1 Sport' } },
+      include: { series: true, model: true },
+    });
+    expect(v.series?.key).toBe('dolgu/seri1');
+    expect(v.model.key.startsWith('dolgu/seri1/')).toBe(true);
+    expect(await db.auditLog.count({ where: { action: 'katalog_ad_esleme_onaylandi' } })).toBe(1);
+
+    // Yeni sürümde aynı kayıt yine hedef seriye girer.
+    vmm.tag = 'v1.0.3';
+    expect((await staffCall(app, 'POST', '/staff/catalog/sources/vmm/check', {}, owner)).body.durum).toBe(
+      'uygulandi',
+    );
+    const again = await db.catalogVariant.findFirstOrThrow({
+      where: { source: 'vmm', rawName: { startsWith: 'SERI1 Sport' } },
+      include: { series: true },
+    });
+    expect(again.series?.key).toBe('dolgu/seri1');
+    const dolgu = (await get('/catalog/makes')).body.find((m: { name: string }) => m.name === 'Dolgu');
+    const names = (await get(`/catalog/makes/${dolgu.id}/series`)).body.map((x: { name: string }) => x.name);
+    expect(names).not.toContain('SERI1 Sport');
+
+    // Onaylanmış eşleme ikinci kez onaylanmaz; eşleme kaydı silinmez.
+    expect((await staffCall(app, 'POST', `/staff/catalog/aliases/${s.id}/approve`, {}, owner)).status).toBe(
+      409,
+    );
+    await expect(db.catalogAlias.delete({ where: { id: s.id } })).rejects.toThrow();
+  });
+});
+
 describe('katalog okuma uçları', () => {
   it('marka → seri → seçenekler: modeller, kasalar, makyaj yılları ve paketler', async () => {
     const makes = await get('/catalog/makes?kategori=otomobil');
@@ -410,11 +538,11 @@ describe('katalog okuma uçları', () => {
     // 318i ve 325i 1990'lardan (vehicle-makes-models, önceki test)
     expect(detail.body.models.map((m: { name: string }) => m.name)).toEqual(['318i', '320d', '320i', '325i']);
     expect(detail.body.bodies.map((b: { name: string }) => b.name)).toEqual(['Sedan', 'Station wagon']);
-    // Arşivden (2006–2013) ve vehicle-makes-models'tan (1991–1998) gelen yıllar da makyajsız kasada görünür.
+    // Kodlu kuşak yılları (E36 1991–1998, G20 2018–) kuşaktan; diğerleri (arşiv 2006–2013) TSB işaretinden.
     expect(detail.body.makyaj).toEqual({
       makyajsiz: [
-        1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2019,
-        2020, 2021, 2022, 2023, 2024, 2025, 2026,
+        1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2018,
+        2019, 2020, 2021, 2022,
       ],
       makyajli: [2022, 2023, 2024, 2025, 2026],
     });

@@ -164,6 +164,33 @@ describe('TSB tip adı ayrıştırma', () => {
     });
   });
 
+  it('seri yazımları tek biçim: marka tekrarı, Jeep, Range Rover, MINI, DS, Transit, AMG (Sprint 6)', () => {
+    const s = (brand: string, type: string) => {
+      const v = parse(brand, type);
+      return `${v.make} / ${v.series} / ${v.model}`;
+    };
+    expect(s('CHRYSLER', 'JEEP COMPASS 1.4 170 LIMITED AWD')).toBe('Jeep / Compass / 1.4');
+    expect(s('CHRYSLER', 'JEEPGRANDCHEROKEE 3.0 CRD')).toBe('Jeep / Grand Cherokee / 3.0');
+    expect(parse('CHRYSLER', 'JEEP COMPASS 1.4 170 LIMITED AWD').categories).toEqual(['arazi-suv-pickup']);
+    expect(s('RANGE ROVER', '3.0 D300 HSE')).toBe('Land Rover / Range Rover / 3.0');
+    expect(s('RANGE ROVER', 'SPORT 3.0 D300 HSE')).toBe('Land Rover / Range Rover Sport / 3.0');
+    expect(s('MINI', 'MINI COOPER S 2.0 COUNTRYMAN')).toBe('MINI / Countryman / Cooper S');
+    expect(s('MINI', 'MINI ONE 1.6')).toBe('MINI / Cooper / One');
+    expect(s('DS', 'DS 7 CROSSBACK 1.5 BLUEHDI 130')).toBe('DS / DS 7 / 1.5 BlueHDi');
+    expect(s('DS', 'DS7CROSSBACK 1.6 PURETECH 225')).toBe('DS / DS 7 / 1.6 PureTech');
+    expect(s('LEXUS', 'LEXUS ES 250')).toBe('Lexus / ES / ES');
+    expect(s('FORD', 'TRAN.ICA3 350MF VAN 10M3 2.0 130 ORTA TREND')).toBe('Ford / Transit / 2.0');
+    expect(s('FORD', 'TR.MCAI 410L VAN 2.0 170')).toBe('Ford / Transit / 2.0');
+    expect(s('FORD', 'T. CONNECT KOMBI K210S 1.8 TDCi')).toBe('Ford / Transit Connect / 1.8 TDCi');
+    expect(s('FORD', 'TOURNEO CUSTOM 2.0 ECOBLUE 170 TITANIUM')).toBe('Ford / Tourneo Custom / 2.0 EcoBlue');
+    expect(s('FIAT', 'GRANDE PUNTO 1.4 ACTIVE')).toBe('Fiat / Grande Punto / 1.4');
+    expect(s('FIAT', 'G. PUNTO 1.3 M.JET')).toBe('Fiat / Grande Punto / 1.3 Multijet');
+    expect(s('VOLKSWAGEN', 'THE BEETLE 1.2 TSI')).toBe('Volkswagen / Beetle / 1.2 TSI');
+    expect(s('MERCEDES-BENZ', 'MERCEDES-AMG C 63 S')).toBe('Mercedes-Benz / C Serisi / AMG C 63');
+    expect(s('MERCEDES-BENZ', 'C180K 1.8')).toBe('Mercedes-Benz / C Serisi / C 180');
+    expect(s('MERCEDES-BENZ', 'MCLAREN 650S SPIDER')).toBe('McLaren / 650S / 650S');
+  });
+
   it('kapsam dışı gruplar (traktör, iş makinesi) atlanır', () => {
     expect(parseTsbRow(row('ZIRAI TRAKTOR', 'NEW HOLLAND TD 75'))).toEqual({
       ok: false,

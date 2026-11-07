@@ -117,7 +117,20 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Eski model yılları (sahip isteği: en az 1990'lar): TSB arşivi (Nisan 2020'den beri; 2006–2011 yılları, 5.160 düşmüş tip) ve vehicle-makes-models (1985–2005, 11.052 tip, 2.259 kasa kuşağı). Katalog şimdi 1985–2026'yı kapsıyor
 - [x] Kaynak açma/kapama: kapatılan kaynağın kayıtları silinmez, katalogda görünmez (vehicle-makes-models için avukat görüşüne hazırlık)
 - [x] Türkiye'ye özgü eski modeller (sahip kararı: kaynaklı liste): Tofaş Şahin, Doğan, Kartal, Serçe, Murat 124 ve 131; Renault 12 ve Toros; Anadol A1, A2, STC-16, SV-1600, Böcek, A8-16, Kamyonet. Wikidata'da yılları yoktu; değerler Türkçe Vikipedi maddelerinden, her kayıt kaynağıyla. Katalog 1967–2026
-- [ ] Kasa kuşağı (nesil kodu) ve güvenilir makyaj yılları: Wikidata (Sprint 6). TSB "LCI" işaretini tutarlı kullanmıyor; vehicle-makes-models kuşağı kasa başına ayrı verir
-- [ ] Ad eşleme (catalog_aliases): aynı serinin farklı yazımları (i3 / I3S, M / M Serisi) (Sprint 6)
+- [x] Kasa kuşağı ve makyaj yılları → Sprint 6
+- [x] Ad eşleme → Sprint 6
 - [ ] Açık kaynaklar: EEA teknik değerleri, VehiclesDB (motosiklet, kamyon, otobüs), Commons fotoğrafları (Sprint 6)
 - [ ] 14 kategori şeması ve kategori yönetimi (Karar 45) (Sprint 7)
+
+## Sprint 6 · kasa kuşağı, nesil kodu, ad eşleme (8 Kasım 2026'da başladı)
+
+- [x] TSB seri yazımları tek biçim: marka tekrarı (LEXUS ES), Jeep (TSB'de Chrysler altında), Range Rover (TSB seri adı yazmıyor), MINI ve DS, Transit'in 20 ayrı yazımı, Mercedes-AMG ve McLaren, iki kelimelik seriler (Grande Punto, Grand Vitara …). Seri sayısı 1.720'den 1.635'e indi. Ayrıştırıcı sürümü: kurallar değişince aynı dosya yeniden işlenir
+- [x] vehicle-makes-models: marka önekleri ("SKODA Octavia", "CITROEN C4") ve kasa ekleri ("Focus CC") ayıklanır; kasa kuşakları bütün yıllar için (tipler yine yalnızca 1985–2005). 6.762 kasa kuşağı
+- [x] Wikidata nesil kodları (E46, W205, Mk7, B8) ve Commons kategorisi; yıl Wikidata'da yoksa İngilizce Vikipedi bilgi kutusundan (madde ve sürüm numarasıyla). Haftada bir, konsoldan "Şimdi kontrol et"
+- [x] Kod ↔ kasa kuşağı eşleşmesi ve makyaj sırası (0 makyajsız, 1. makyaj …). Kodu eksik nesil önceki kodun makyajı sayılmaz (kuşak çakışması ve bitiş yılı denetimi)
+- [x] Seri ayrıntısında yıl başına kasa kuşağı, kod ve makyaj; kodsuz yıllarda TSB işareti (LCI, FL)
+- [x] Ad eşleme (catalog_aliases): kural önerir (ek, bitişik yazım, noktalama farkı, yazım hatası, elektrikli sürüm), katalog sorumlusu onaylar; onayda tipler hedef seriye taşınır, sonraki dosyalarda da uygulanır; kayıt silinmez. Konsolda Katalog › Ad eşleme. İlk çalıştırmada 177 öneri
+- Kapsam ölçümü (Ekim 2026 TSB otomobil serileri): 966 serinin 571'inde kasa kuşağı (tiplerin %83'ü), 33'ünde nesil kodu (tiplerin %22'si). Wikidata'da nesil kodu ve yılı yaygın Avrupa modellerinde iyi, diğerlerinde eksik
+- [ ] EEA teknik değerleri (resmî güç, hacim, ağırlık; kaynaklar çelişirse EEA kazanır)
+- [ ] VehiclesDB: motosiklet, kamyon, otobüs
+- [ ] Commons fotoğrafları (Karar 34): kasa kuşağının Commons kategorisinden aday, katalog sorumlusu onaylar, kopya SeaweedFS'e

@@ -3,9 +3,13 @@ import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
   buildTsbSnapshot,
   buildVmmSnapshot,
+  buildWikidataSnapshot,
   buildYerliSnapshot,
   revisionFromFileName,
   signSnapshot,
+  TSB_PARSER,
+  VMM_PARSER,
+  WIKIDATA_PARSER,
   YERLI_KLASIKLER,
   YERLI_SURUM,
 } from '@rengarenk/catalog';
@@ -15,6 +19,10 @@ import { CatalogImportService, type ImportMeta, type ImportOutcome } from './cat
 import { CATALOG_KEYS, type CatalogKeys } from './catalog-keys.js';
 import { TSB_CLIENT, type TsbClient } from './tsb-client.js';
 import { VMM_CLIENT, type VmmClient } from './vmm-client.js';
+import { WIKIDATA_CLIENT, type WikidataClient } from './wikidata-client.js';
+
+/** Wikidata haftada bir çekilir (Teknik tasarım §5); işçi 6 saatte bir sorar. */
+export const WIKIDATA_EVERY_HOURS = 24 * 7;
 
 /** Otomatik kaynak bu kadar süre başarıyla güncellenmezse uyarı gider (Karar 33). */
 export const STALE_HOURS = 48;
@@ -32,6 +40,7 @@ export class CatalogPipelineService {
     @Inject(CATALOG_KEYS) private readonly keys: CatalogKeys,
     @Inject(TSB_CLIENT) private readonly tsb: TsbClient,
     @Inject(VMM_CLIENT) private readonly vmm: VmmClient,
+    @Inject(WIKIDATA_CLIENT) private readonly wikidata: WikidataClient,
     private readonly importer: CatalogImportService,
     private readonly outbox: OutboxService,
   ) {}
@@ -71,7 +80,7 @@ export class CatalogPipelineService {
     if (!source.autoFetch && !opts.force) return { durum: 'kapali' };
     try {
       const rel = await this.vmm.latest();
-      if (rel.tag === source.lastVersion) {
+      if (rel.tag === source.lastVersion && (await this.appliedWith('vmm', VMM_PARSER))) {
         await this.db.catalogSource.update({
           where: { key: 'vmm' },
           data: { lastCheckedAt: new Date(), lastError: null },
@@ -119,11 +128,57 @@ export class CatalogPipelineService {
     return { durum: outcome.status === 'APPLIED' ? 'uygulandi' : outcome.status.toLowerCase(), outcome };
   }
 
+  /**
+   * Wikidata nesil kodları: haftada bir (elle her zaman). Yalnızca katalogda var olan serilere kod ekler;
+   * eşleşmeyen seriler ad eşleme önerisine düşer. Kodlar kasa kuşaklarına yazılır (makyaj sırası).
+   */
+  async checkWikidata(
+    opts: { force?: boolean; staffId?: string; ip?: string; now?: Date } = {},
+  ): Promise<{ durum: string; outcome?: ImportOutcome }> {
+    const source = await this.db.catalogSource.findUniqueOrThrow({ where: { key: 'wikidata' } });
+    if (!source.autoFetch && !opts.force) return { durum: 'kapali' };
+    const now = opts.now ?? new Date();
+    if (
+      !opts.force &&
+      source.lastSuccessAt &&
+      now.getTime() - source.lastSuccessAt.getTime() < WIKIDATA_EVERY_HOURS * 3600_000 &&
+      (await this.appliedWith('wikidata', WIKIDATA_PARSER))
+    ) {
+      return { durum: 'yeni_dosya_yok' };
+    }
+    try {
+      const rows = await this.wikidata.generations();
+      const titles = rows.map((r) => r.enTitle).filter((t): t is string => Boolean(t));
+      const enwiki = await this.wikidata.productions(titles);
+      const makes = (await this.db.catalogMake.findMany({ select: { name: true } })).map((m) => m.name);
+      const version = now.toISOString().slice(0, 10);
+      const snap = buildWikidataSnapshot(rows, enwiki, { makes, version, now });
+      const payload = JSON.stringify(snap.generations);
+      const outcome = await this.importer.apply(signSnapshot(snap, this.keys.privatePem), {
+        fileName: `wikidata-${version}`,
+        fileSha256: createHash('sha256').update(payload).digest('hex'),
+        trigger: opts.staffId ? 'elle' : 'otomatik',
+        staffId: opts.staffId,
+        ip: opts.ip,
+      });
+      return { durum: outcome.status === 'APPLIED' ? 'uygulandi' : outcome.status.toLowerCase(), outcome };
+    } catch (err) {
+      const message = (err as Error).message;
+      this.log.warn(`Wikidata kontrolü başarısız: ${message}`);
+      await this.db.catalogSource.update({
+        where: { key: 'wikidata' },
+        data: { lastCheckedAt: new Date(), lastError: message },
+      });
+      return { durum: 'hata' };
+    }
+  }
+
   /** Konsoldaki "Şimdi kontrol et": kaynağa göre doğru hat. */
   checkSource(key: string, opts: { force?: boolean; staffId?: string; ip?: string }) {
     if (key === 'tsb') return this.checkTsb(opts);
     if (key === 'vmm') return this.checkVmm(opts);
     if (key === 'yerli') return this.checkYerli(opts);
+    if (key === 'wikidata') return this.checkWikidata(opts);
     throw new NotFoundException('Kaynak bulunamadı');
   }
 
@@ -138,7 +193,10 @@ export class CatalogPipelineService {
     if (!source.autoFetch && !opts.force) return { durum: 'kapali' };
     try {
       const latest = await this.tsb.latest();
-      if (latest.fileName === source.lastFileName) {
+      if (
+        latest.fileName === source.lastFileName &&
+        (await this.appliedWith('tsb', TSB_PARSER, latest.fileName))
+      ) {
         await this.db.catalogSource.update({
           where: { key: 'tsb' },
           data: { lastCheckedAt: new Date(), lastError: null },
@@ -178,7 +236,12 @@ export class CatalogPipelineService {
     const done = new Set(
       (
         await this.db.catalogImport.findMany({
-          where: { sourceKey: 'tsb', status: { in: ['APPLIED', 'SKIPPED'] }, fileName: { not: null } },
+          where: {
+            sourceKey: 'tsb',
+            status: 'APPLIED',
+            fileName: { not: null },
+            stats: { path: ['parser'], equals: TSB_PARSER },
+          },
           select: { fileName: true },
         })
       ).map((i) => i.fileName as string),
@@ -228,6 +291,20 @@ export class CatalogPipelineService {
       });
     }
     return stale.map((s) => s.key);
+  }
+
+  /** Kaynağın son dosyası bu ayrıştırıcı sürümüyle uygulanmış mı (kurallar değiştiyse yeniden işlenir) */
+  private async appliedWith(source: string, parser: string, fileName?: string) {
+    const hit = await this.db.catalogImport.findFirst({
+      where: {
+        sourceKey: source,
+        status: 'APPLIED',
+        ...(fileName ? { fileName } : {}),
+        stats: { path: ['parser'], equals: parser },
+      },
+      select: { id: true },
+    });
+    return hit !== null;
   }
 
   private failRead(meta: ImportMeta, fileSha256: string, message: string) {

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import type { VehicleCategorySlug } from '@rengarenk/shared';
 import { strFromU8, unzipSync } from 'fflate';
 import { parseCsv } from './csv.js';
-import type { CatalogSnapshot } from './snapshot.js';
+import type { CatalogSnapshot, SnapshotGeneration } from './snapshot.js';
 import { SUV_SERIES } from './tsb/brands.js';
 import { DRIVE, type Drive, ENGINE_TECH, type Fuel, type Gearbox, type ParsedVariant } from './tsb/parse.js';
 
@@ -15,6 +15,8 @@ import { DRIVE, type Drive, ENGINE_TECH, type Fuel, type Gearbox, type ParsedVar
  */
 export const VMM_MAX_YEAR = 2005;
 export const VMM_MIN_YEAR = 1985;
+/** Ayrıştırıcı sürümü: kurallar değişince artırılır, aynı sürüm dosyası yeniden işlenir. */
+export const VMM_PARSER = '2026-11-08';
 
 const FUEL: Record<string, Fuel> = {
   gasoline: 'benzin',
@@ -68,18 +70,37 @@ const MERCEDES_CLASSES = new Set([
   'ML',
 ]);
 
-/** Model adındaki kasa ekleri seri adından ayrılır: "Marea Weekend" → Marea */
+/** Model adındaki kasa ve sürüm ekleri seri adından ayrılır: "Marea Weekend" → Marea, "Focus CC" → Focus */
 const SERIES_SUFFIX =
-  /\s+(weekend|wagon|sedan|hatchback|cabrio|cabriolet|coupe|estate|variant|avant|touring|sw|break)$/i;
+  /\s+(weekend|wagon|sedan|hatchback|cabrio|cabriolet|coupe|estate|variant|avant|touring|sw|break|combi|kombi|grandtour|grand tour|sports tourer|sportback|limousine|liftback|cc|gtc|3 doors|5 doors)$/i;
+
+/** Kaynak bazı markalarda model adını marka önekiyle yazar: "SKODA Octavia", "CITROEN C4", "AUTOMOBILES DS 4" */
+const MAKE_PREFIX_WORDS = new Set(['AUTOMOBILES', 'MOTORS', 'MOTOR', 'BENZ']);
+const ascii = (s: string) => s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toUpperCase();
+
+export function stripMakePrefix(make: string, model: string): string {
+  const makeWords = new Set(ascii(make).split(/[\s-]+/));
+  const words = model.split(/\s+/).filter(Boolean);
+  while (words.length > 1) {
+    const w = words[0] as string;
+    if (w !== w.toUpperCase()) break;
+    if (make === 'DS' && w === 'DS') break; // "DS 4" seri adıdır
+    const a = ascii(w);
+    if (!a.split('-').every((p) => makeWords.has(p) || MAKE_PREFIX_WORDS.has(p))) break;
+    words.shift();
+  }
+  return words.join(' ');
+}
 
 export function vmmSeries(make: string, model: string): string {
-  const base = (model.split(' / ')[0] ?? model).replace(/\s+/g, ' ').trim();
+  const base = stripMakePrefix(make, (model.split(' / ')[0] ?? model).replace(/\s+/g, ' ').trim());
   if (make === 'BMW') {
-    const n = /^(\d) Series$/i.exec(base);
+    // "3 Series", "3 Series Compact", "3 Series Gran Turismo" → 3 Serisi (gövde ayrıca okunur)
+    const n = /^(\d) Series\b/i.exec(base);
     if (n) return `${n[1]} Serisi`;
     if (/^M\d$/i.test(base)) return 'M Serisi';
   }
-  if (make === 'Mercedes-Benz') {
+  if (make === 'Mercedes-Benz' || make === 'Mercedes-AMG') {
     // Kaynak Almanca ve marka önekiyle yazar: "MERCEDES BENZ C-Klasse T-Modell AMG" → C Serisi
     const m = base.replace(/^MERCEDES[ -]BENZ\s+/i, '');
     const c = /^([A-Z]{1,3})(?:-(?:Klasse|Class))?(?:\s|$)/i.exec(m);
@@ -163,6 +184,7 @@ export function buildVmmSnapshot(
   }
 
   const items: ParsedVariant[] = [];
+  const generations = new Map<string, SnapshotGeneration>();
   const seen = new Set<string>();
   let outOfScope = 0;
   for (const r of rows) {
@@ -172,20 +194,32 @@ export function buildVmmSnapshot(
       outOfScope++;
       continue;
     }
+    // Mercedes-AMG ayrı marka değildir; modeller Mercedes-Benz serilerine "AMG" önekiyle girer.
+    const amg = r.make.trim() === 'Mercedes-AMG';
+    const make = amg ? 'Mercedes-Benz' : r.make.trim();
+    const series = vmmSeries(make, r.model);
+    const body = bodyOf(r.generation ?? '', r.model, r.body_type ?? '');
+    const genName = (r.generation ?? '').replace(/\s+/g, ' ').trim();
+
+    // Kasa kuşağı bütün yıllar için tutulur: tip kaydı olmayan yıllarda da (2006 ve sonrası TSB'dendir)
+    // kasa kuşağı ve makyaj sorusunu besler. Teknik değerler yalnızca eski yıllar için alınır.
+    const gk = [make, series, genName, start].join('|');
+    if (genName && !generations.has(gk)) {
+      generations.set(gk, { make, series, name: genName, startYear: start, endYear: end, body });
+    }
+
     const from = Math.max(start, minYear);
     const to = Math.min(end ?? maxYear, maxYear);
     if (from > to) {
       outOfScope++;
       continue;
     }
-    const make = r.make.trim();
-    const series = vmmSeries(make, r.model);
     const cc = num(r.displacement_cc);
     const engineL = cc ? Math.round(cc / 100) / 10 : null;
     const fuel = FUEL[(r.fuel_type ?? '').toLowerCase()] ?? null;
     const label = (r.engine_label ?? '').trim();
-    const model = vmmModel(make, label, engineL, fuel);
-    const body = bodyOf(r.generation ?? '', r.model, r.body_type ?? '');
+    const baseModel = vmmModel(make, label, engineL, fuel);
+    const model = amg && !baseModel.startsWith('AMG') ? `AMG ${baseModel}` : baseModel;
     const sourceKey = createHash('sha1')
       .update([make, r.model, r.generation, r.gen_year_start, label].join('|'))
       .digest('hex')
@@ -220,7 +254,7 @@ export function buildVmmSnapshot(
       years: Array.from({ length: to - from + 1 }, (_, i) => from + i),
       raw: `${r.generation} · ${label}`,
       confidence: engineL !== null ? 'yuksek' : 'orta',
-      generation: { name: (r.generation ?? '').replace(/\s+/g, ' ').trim(), startYear: start, endYear: end },
+      generation: { name: genName, startYear: start, endYear: end },
     });
   }
   const confidence = { yuksek: 0, orta: 0, dusuk: 0 };
@@ -229,9 +263,11 @@ export function buildVmmSnapshot(
     format: 1,
     source: 'vmm',
     version: opts.version,
+    parser: VMM_PARSER,
     periodLabel: `vehicle-makes-models ${opts.version}`,
     generatedAt: (opts.now ?? new Date()).toISOString(),
     items,
+    generations: [...generations.values()],
     stats: {
       rows: rows.length,
       items: items.length,

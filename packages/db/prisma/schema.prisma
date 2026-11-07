@@ -632,16 +632,58 @@ model CatalogGeneration {
   source    String
   name      String
   /// Nesil kodu (ör. E46, G20); açık kaynaklardan (Wikidata) gelince dolar
-  code      String?
-  startYear Int      @map("start_year")
-  endYear   Int?     @map("end_year")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  code            String?
+  startYear       Int      @map("start_year")
+  endYear         Int?     @map("end_year")
+  /// Kasa tipi (Sedan, Station wagon …); vehicle-makes-models kuşağı kasa başına ayrı verir. Kod satırında boş.
+  body            String?
+  /// 0: makyajsız, 1: ilk makyaj, 2: ikinci makyaj; bilinmiyorsa boş (Wikidata kodu eşleşince dolar)
+  facelift        Int?
+  /// Kod satırının Wikidata kimliği (Q…); kuşak satırına eşleşince kopyalanır
+  wikidataId      String?  @map("wikidata_id")
+  /// Wikimedia Commons kategorisi (Karar 34: fotoğraf adayları buradan aranır)
+  commonsCategory String?  @map("commons_category")
+  /// Yılların alındığı yer (ör. İngilizce Vikipedi maddesi ve sürüm numarası)
+  yearsSource     String?  @map("years_source")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   series   CatalogSeries    @relation(fields: [seriesId], references: [id])
   variants CatalogVariant[]
 
   @@index([seriesId])
   @@map("catalog_generations")
+}
+
+/// Ad eşleme (Teknik tasarım §5, Karar 33): bir kaynaktaki seri yazımı katalogdaki seriye bağlanır
+/// (vehicle-makes-models "Focus CC" → Ford Focus, TSB "Touraeg" → Touareg). Kural önerir, katalog sorumlusu onaylar.
+/// Onaylanan eşleme içe aktarmada uygulanır ve var olan tipler hedef seriye taşınır. Kayıtlar silinmez.
+model CatalogAlias {
+  id         String    @id @db.Uuid
+  /// Kaynak anahtarı (tsb, vmm, wikidata); "*" bütün kaynaklar
+  source     String
+  /// Kaynaktaki seri anahtarı (ör. ford/focus-cc)
+  fromKey    String    @map("from_key")
+  /// Kaynaktaki yazım, olduğu gibi
+  fromName   String    @map("from_name")
+  /// Hedef seri anahtarı (ör. ford/focus)
+  toKey      String    @map("to_key")
+  /// onerildi | onaylandi | reddedildi
+  status     String    @default("onerildi")
+  /// kural (sistem önerdi) | elle (çalışan ekledi) | ajan
+  method     String
+  /// Önerinin gerekçesi: "önek", "yazım farkı", "bitişik yazım" …
+  reason     String?
+  /// Kaynak seride kaç tip var (önceliklendirme için)
+  variants   Int       @default(0)
+  createdBy  String?   @map("created_by") @db.Uuid
+  decidedBy  String?   @map("decided_by") @db.Uuid
+  decidedAt  DateTime? @map("decided_at") @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@unique([source, fromKey])
+  @@index([status])
+  @@map("catalog_aliases")
 }
 
 /// Kaynaktaki bir araç tipi (TSB'de bir satır). Kaynağı ve kimliği saklanır; TSB kayıtları ayrılabilir (Karar 33).

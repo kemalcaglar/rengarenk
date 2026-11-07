@@ -23,6 +23,7 @@ import { ZodPipe } from '../common/zod.pipe.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { RequirePermission } from '../staff/permissions.js';
 import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
+import { CatalogAliasService } from './catalog-alias.service.js';
 import { CatalogPipelineService, STALE_HOURS } from './catalog-pipeline.service.js';
 import { XLSX_MIME } from './xlsx-body.js';
 
@@ -114,7 +115,6 @@ export class CatalogController {
       where: { seriesId: id, ...(await this.visible()), ...(yil ? { years: { has: yil } } : {}) },
       select: {
         years: true,
-        generation: { select: { id: true, name: true, code: true, startYear: true, endYear: true } },
         body: true,
         facelift: true,
         fuel: true,
@@ -152,17 +152,63 @@ export class CatalogController {
       years: yearsOf(vs),
       modelIds: [...new Set(vs.map((v) => v.model.id))],
     }));
-    const generations = [...group((v) => v.generation?.id ?? null)]
-      .map(([gid, vs]) => ({
-        id: gid,
-        name: vs[0]?.generation?.name,
-        code: vs[0]?.generation?.code ?? null,
-        startYear: vs[0]?.generation?.startYear ?? null,
-        endYear: vs[0]?.generation?.endYear ?? null,
-        years: yearsOf(vs),
-        bodies: [...new Set(vs.map((v) => v.body).filter(Boolean))],
-      }))
-      .sort((a, b) => (a.startYear ?? 0) - (b.startYear ?? 0));
+    // Kasa kuşakları tablodan gelir (tip kaydı olmayan yıllar dahil); kapalı kaynağınkiler görünmez.
+    const activeSources = (await this.visible()).source as { in: string[] };
+    const thisYear = new Date().getFullYear();
+    const genRows = await this.db.catalogGeneration.findMany({
+      where: {
+        seriesId: id,
+        source: activeSources,
+        ...(yil ? { startYear: { lte: yil }, OR: [{ endYear: null }, { endYear: { gte: yil } }] } : {}),
+      },
+      select: {
+        id: true,
+        source: true,
+        name: true,
+        code: true,
+        body: true,
+        startYear: true,
+        endYear: true,
+        facelift: true,
+        wikidataId: true,
+        commonsCategory: true,
+      },
+      orderBy: [{ startYear: 'asc' }, { name: 'asc' }],
+    });
+    const span = (g: { startYear: number; endYear: number | null }) =>
+      Array.from(
+        { length: Math.max((g.endYear ?? thisYear) - g.startYear + 1, 0) },
+        (_, i) => g.startYear + i,
+      ).filter((y) => !yil || y === yil);
+    const phases = genRows.filter((g) => g.source !== 'wikidata');
+    const generations = phases.map((g) => ({ ...g, years: span(g) }));
+    const codes = genRows
+      .filter((g) => g.source === 'wikidata')
+      .map(({ id: cid, code, name, startYear, endYear, wikidataId, commonsCategory }) => ({
+        id: cid,
+        code,
+        name,
+        startYear,
+        endYear,
+        wikidataId,
+        commonsCategory,
+      }));
+
+    // Makyaj: nesil kodu eşleşen kuşaklarda sıradan (0 makyajsız, 1+ makyajlı); kodlanmamış yıllarda TSB'nin
+    // tip adındaki işaretinden (LCI, FL).
+    const coded = phases.filter((g) => g.facelift !== null);
+    const codedYears = new Set(coded.flatMap(span));
+    const tsbYears = (vs: typeof variants) => yearsOf(vs).filter((y) => !codedYears.has(y));
+    const makyaj = {
+      makyajsiz: uniqSorted([
+        ...coded.filter((g) => g.facelift === 0).flatMap(span),
+        ...tsbYears(variants.filter((v) => !v.facelift)),
+      ]),
+      makyajli: uniqSorted([
+        ...coded.filter((g) => (g.facelift ?? 0) > 0).flatMap(span),
+        ...tsbYears(variants.filter((v) => v.facelift)),
+      ]),
+    };
     const byName = (a: { name?: string | null }, b: { name?: string | null }) =>
       (a.name ?? '').localeCompare(b.name ?? '', 'tr');
     return {
@@ -170,12 +216,11 @@ export class CatalogController {
       years: yearsOf(variants),
       models: models.sort(byName),
       bodies: bodies.sort(byName),
-      /** Kasa kuşakları (nesiller); TSB'de yoktur, açık kaynaklardan gelir */
+      /** Kasa kuşakları (kasa başına, makyaj sırasıyla); TSB'de yoktur, açık kaynaklardan gelir */
       generations,
-      makyaj: {
-        makyajsiz: yearsOf(variants.filter((v) => !v.facelift)),
-        makyajli: yearsOf(variants.filter((v) => v.facelift)),
-      },
+      /** Nesil kodları (E46, Mk7 …) ve Commons kategorisi; Wikidata */
+      codes,
+      makyaj,
       trims: trims.sort(byName),
     };
   }
@@ -186,6 +231,14 @@ const sourcePatchSchema = z
   .strict()
   .refine((v) => v.autoFetch !== undefined || v.active !== undefined, { message: 'Değişiklik yok' });
 
+const aliasStatusSchema = z.enum(['onerildi', 'onaylandi', 'reddedildi']).optional();
+const aliasCreateSchema = z.object({ fromSeriesId: z.uuid(), toSeriesId: z.uuid() }).strict();
+const aliasApproveSchema = z
+  .object({ toKey: z.string().min(3).max(200).optional() })
+  .strict()
+  .optional()
+  .transform((v) => v ?? {});
+
 /** Yönetim: katalog kaynaklarını izleme (Karar 33: konsoldaki katalog bölümü yalnızca izleme içindir). */
 @Controller('staff/catalog')
 @UseGuards(StaffGuard)
@@ -194,6 +247,7 @@ export class StaffCatalogController {
     @Inject(PRISMA) private readonly db: Db,
     private readonly pipeline: CatalogPipelineService,
     private readonly audit: AuditService,
+    private readonly aliases: CatalogAliasService,
   ) {}
 
   @Get('sources')
@@ -203,12 +257,18 @@ export class StaffCatalogController {
     const limit = Date.now() - STALE_HOURS * 3600_000;
     const counts = await this.db.$queryRaw<{ source: string; total: bigint; latest: bigint }[]>`
       SELECT source, count(*) AS total, count(*) FILTER (WHERE in_latest) AS latest FROM catalog_variants GROUP BY source`;
+    const gens = await this.db.$queryRaw<{ source: string; total: bigint; coded: bigint }[]>`
+      SELECT source, count(*) AS total, count(*) FILTER (WHERE code IS NOT NULL) AS coded
+      FROM catalog_generations GROUP BY source`;
     return rows.map((s) => {
       const c = counts.find((x) => x.source === s.key);
+      const g = gens.find((x) => x.source === s.key);
       return {
         ...s,
         variants: Number(c?.total ?? 0),
         variantsInLatest: Number(c?.latest ?? 0),
+        generations: Number(g?.total ?? 0),
+        generationsCoded: Number(g?.coded ?? 0),
         stale: s.autoFetch && Boolean(s.lastError) && (!s.lastSuccessAt || s.lastSuccessAt.getTime() < limit),
       };
     });
@@ -301,5 +361,60 @@ export class StaffCatalogController {
   @RequirePermission('kategori.ayarla')
   check(@Req() req: StaffRequest) {
     return this.pipeline.checkTsb({ force: true, staffId: req.staff.staff.id, ip: req.ip });
+  }
+
+  // ── Ad eşleme (Teknik tasarım §5, Karar 33) ──────────────────────
+
+  /** Öneriler ve kararlar; seri adları ve tip sayılarıyla. */
+  @Get('aliases')
+  @RequirePermission('kategori.ayarla')
+  async aliasList(@Query('durum', new ZodPipe(aliasStatusSchema)) durum?: string) {
+    const rows = await this.aliases.list(durum);
+    const keys = [...new Set(rows.flatMap((r) => [r.fromKey, r.toKey]))];
+    const series = await this.db.catalogSeries.findMany({
+      where: { key: { in: keys } },
+      select: { id: true, key: true, name: true, make: { select: { name: true } } },
+    });
+    const byKey = new Map(series.map((s) => [s.key, { id: s.id, name: s.name, make: s.make.name }]));
+    return rows.map((r) => ({ ...r, from: byKey.get(r.fromKey) ?? null, to: byKey.get(r.toKey) ?? null }));
+  }
+
+  /** Bütün kaynaklar için öneri üretir (içe aktarma sonrası kendiliğinden de çalışır). */
+  @Post('aliases/suggest')
+  @HttpCode(200)
+  @RequirePermission('kategori.ayarla')
+  async aliasSuggest() {
+    let added = 0;
+    for (const source of ['tsb', 'vmm', 'yerli']) added += await this.aliases.suggest(source);
+    return { eklenen: added };
+  }
+
+  /** Elle eşleme: kaynak seri hedef seriye bağlanır ve tipler hemen taşınır. */
+  @Post('aliases')
+  @HttpCode(200)
+  @RequirePermission('kategori.ayarla')
+  aliasCreate(
+    @Req() req: StaffRequest,
+    @Body(new ZodPipe(aliasCreateSchema)) body: z.output<typeof aliasCreateSchema>,
+  ) {
+    return this.aliases.create(body, req.staff.staff.id, req.ip);
+  }
+
+  @Post('aliases/:id/approve')
+  @HttpCode(200)
+  @RequirePermission('kategori.ayarla')
+  aliasApprove(
+    @Req() req: StaffRequest,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodPipe(aliasApproveSchema)) body: z.output<typeof aliasApproveSchema>,
+  ) {
+    return this.aliases.approve(id, req.staff.staff.id, req.ip, body.toKey);
+  }
+
+  @Post('aliases/:id/reject')
+  @HttpCode(200)
+  @RequirePermission('kategori.ayarla')
+  aliasReject(@Req() req: StaffRequest, @Param('id', new ParseUUIDPipe()) id: string) {
+    return this.aliases.reject(id, req.staff.staff.id, req.ip);
   }
 }

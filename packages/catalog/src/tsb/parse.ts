@@ -9,6 +9,13 @@ import {
   SUV_SERIES,
 } from './brands.js';
 import type { TsbRow } from './read.js';
+import { normalizeHead } from './series.js';
+
+/**
+ * Ayrıştırıcı sürümü: kurallar değişince artırılır. Aynı TSB dosyası yeni sürümle yeniden işlenebilir
+ * (içe aktarma, aynı dosyayı yalnızca aynı ayrıştırıcı sürümüyle bir kez uygular).
+ */
+export const TSB_PARSER = '2026-11-08';
 
 export type Fuel = 'benzin' | 'dizel' | 'hibrit' | 'elektrik' | 'lpg';
 export type Gearbox = 'manuel' | 'otomatik' | 'yari_otomatik';
@@ -16,7 +23,7 @@ export type Drive = 'onden' | 'arkadan' | '4x4';
 export type Confidence = 'yuksek' | 'orta' | 'dusuk';
 
 /** TSB tip adından çıkarılan, katalog için normalize edilmiş araç tipi. */
-export type CatalogSourceKey = 'tsb' | 'vmm' | 'yerli';
+export type CatalogSourceKey = 'tsb' | 'vmm' | 'yerli' | 'wikidata';
 
 /** Kasa kuşağı (nesil): ör. "3 Series Sedan (1998)", 1998–2002 */
 export interface ParsedGeneration {
@@ -252,7 +259,10 @@ const MERCEDES_CLASSES = new Set([
   'G',
   'V',
   'X',
+  'CL',
   'CLA',
+  'CLC',
+  'CLE',
   'CLS',
   'CLK',
   'SL',
@@ -442,7 +452,6 @@ export function parseTsbRow(row: TsbRow): ParseResult {
   };
   if (brandKey === 'MOTORSIKLET') return { ok: true, variant: { ...base, ...parseMoto(row.typeName) } };
 
-  const make = BRAND_NAMES[brandKey] ?? brandTitle(row.brandName);
   let tokens = splitGlued(row.typeName.split(' ').filter(Boolean));
   let series: string | null = null;
   let model: string | null = null;
@@ -454,10 +463,19 @@ export function parseTsbRow(row: TsbRow): ParseResult {
     tokens = tokens.slice(1);
   }
 
+  // Seri yazımlarını tek biçime getir (series.ts): marka tekrarı, Jeep, Range Rover, MINI, DS, Transit ...
+  const head = normalizeHead(BRAND_NAMES[brandKey] ?? brandTitle(row.brandName), brandKey, tokens);
+  const make = head.make;
+  tokens = splitGlued(head.tokens);
+  series = head.series ?? null;
+  if (head.model) model = head.model;
+
   // Seri ve model: markaya özgü kurallar, yoksa ilk kelime seridir.
   const t0 = tokens[0] ?? '';
   const t1 = tokens[1] ?? '';
-  if (make === 'BMW') {
+  if (series) {
+    // normalizeHead seriyi belirledi
+  } else if (make === 'BMW') {
     const num = /^(\d)(\d{2})([a-zA-Z]{0,2})$/.exec(t0);
     const mNum = /^M(\d)(\d{2})([a-zA-Z]{0,2})$/i.exec(t0);
     if (num) {
@@ -497,6 +515,10 @@ export function parseTsbRow(row: TsbRow): ParseResult {
     model = `${key(t0)} ${t1}${suffix ? ` ${suffix}` : ''}`;
     fuel = suffix === 'd' ? 'dizel' : suffix === 'e' ? 'hibrit' : 'benzin';
     tokens = tokens.slice(suffix ? 3 : 2);
+  } else if (make === 'Mercedes-Benz' && MERCEDES_CLASSES.has(key(t0)) && key(t0) !== 'AMG') {
+    // Sınıf adı tek başına: "C SEDAN 1.6", "CLA SHOOTING BRAKE"
+    series = `${key(t0)} Serisi`;
+    tokens = tokens.slice(1);
   }
   if (!series && key(t0) === 'MODEL' && /^[A-Z0-9]$/i.test(t1)) {
     series = `Model ${t1.toUpperCase()}`; // Tesla Model 3, Model Y
@@ -508,7 +530,7 @@ export function parseTsbRow(row: TsbRow): ParseResult {
       series = smartCase(`${t0} ${t1}`);
       tokens = tokens.slice(2);
     } else {
-      series = smartCase(t0);
+      series = make === 'Lexus' ? key(t0) : smartCase(t0); // Lexus seri adları kısaltmadır: ES, NX, RX
       tokens = tokens.slice(1);
     }
   }
@@ -629,9 +651,11 @@ export function parseTsbRow(row: TsbRow): ParseResult {
     const engine = [engineL !== null ? engineL.toFixed(1) : powerClass, ...tech].filter(Boolean).join(' ');
     model = engine || (powerKw !== null ? `${powerKw} kW` : series);
   }
+  if (head.modelPrefix && model && !model.startsWith(head.modelPrefix))
+    model = `${head.modelPrefix} ${model}`;
 
   if (vehicleClass) body ??= vehicleClass.body;
-  const categories = vehicleClass ? [vehicleClass.category] : categorize(brandKey, series, body, fuel);
+  const categories = vehicleClass ? [vehicleClass.category] : categorize(brandKey, make, series, body, fuel);
   const trim = trimTokens.length ? smartCase(trimTokens.join(' ')) : null;
   const confidence: Confidence =
     model !== series && (engineL !== null || powerKw !== null || powerHp !== null || powerClass !== null)
@@ -669,8 +693,12 @@ function bmwFuel(suffix: string): Fuel {
   return 'benzin';
 }
 
+/** Bütün modelleri arazi/SUV olan markalar */
+const SUV_MAKES = new Set(['Jeep', 'Land Rover']);
+
 function categorize(
   brandKey: string,
+  make: string,
   series: string | null,
   body: string | null,
   fuel: Fuel | null,
@@ -682,7 +710,12 @@ function categorize(
     out.push('minivan-panelvan');
   else if (body && ['Minibüs', 'Midibüs', 'Otobüs', 'Kamyonet', 'Kamyon', 'Çekici'].includes(body))
     out.push('ticari');
-  else if (body === 'Pickup' || (series && SUV_SERIES.has(key(series)))) out.push('arazi-suv-pickup');
+  else if (
+    body === 'Pickup' ||
+    SUV_MAKES.has(make) ||
+    (series && SUV_SERIES.has(key(series).replace(/ SERISI$/, '')))
+  )
+    out.push('arazi-suv-pickup');
   else out.push('otomobil');
   if (fuel === 'elektrik' && !out.includes('ticari') && !out.includes('karavan')) out.push('elektrikli');
   return out;

@@ -1,5 +1,5 @@
 import { createHash, sign, verify } from 'node:crypto';
-import { type CatalogSourceKey, type ParsedVariant, parseTsbRow } from './tsb/parse.js';
+import { type CatalogSourceKey, type ParsedVariant, parseTsbRow, TSB_PARSER } from './tsb/parse.js';
 import { readTsbList } from './tsb/read.js';
 
 /**
@@ -11,10 +11,34 @@ export interface CatalogSnapshot {
   source: CatalogSourceKey;
   /** "2026-10" ya da revizyonla "2026-10-R2" */
   version: string;
+  /** Ayrıştırıcı sürümü: aynı dosya yeni kurallarla yeniden işlenebilir */
+  parser: string;
   periodLabel: string;
   generatedAt: string;
   items: ParsedVariant[];
+  /**
+   * Tiplerden bağımsız kasa kuşakları: vehicle-makes-models kuşakları (bütün yıllar, kasa başına) ve Wikidata
+   * nesil kodları. Tip kaydı olmayan yıllarda da kasa kuşağı ve makyaj sorusunu besler.
+   */
+  generations?: SnapshotGeneration[];
   stats: SnapshotStats;
+}
+
+export interface SnapshotGeneration {
+  make: string;
+  series: string;
+  name: string;
+  startYear: number;
+  endYear: number | null;
+  body?: string | null;
+  /** Nesil kodu (E46, W205, Mk7, B8) */
+  code?: string | null;
+  /** 0 makyajsız, 1 ilk makyaj … */
+  facelift?: number | null;
+  wikidataId?: string | null;
+  commonsCategory?: string | null;
+  /** Yılların alındığı yer (madde ve sürüm numarası) */
+  yearsSource?: string | null;
 }
 
 export interface SnapshotStats {
@@ -52,6 +76,7 @@ export function buildTsbSnapshot(
     format: 1,
     source: 'tsb',
     version: `${list.year}-${month}${opts.revision ? `-${opts.revision.toUpperCase()}` : ''}`,
+    parser: TSB_PARSER,
     periodLabel: list.periodLabel,
     generatedAt: (opts.now ?? new Date()).toISOString(),
     items,
@@ -87,7 +112,8 @@ export interface QualityIssue {
   mesaj: string;
 }
 
-const MIN_ITEMS: Record<string, number> = { tsb: 1000, vmm: 1000, yerli: 10 };
+// Wikidata yalnızca nesil kodu ekler, hiçbir şey silmez; boş yanıt reddedilir.
+const MIN_ITEMS: Record<string, number> = { tsb: 1000, vmm: 1000, yerli: 10, wikidata: 1 };
 
 export interface QualityReport {
   /** false ise yayın durur (Teknik tasarım §5) */
@@ -104,11 +130,13 @@ export function qualityCheck(next: CatalogSnapshot, prev?: PreviousSummary): Qua
   const warnings: QualityIssue[] = [];
   const keys = new Set(next.items.map((i) => i.sourceKey));
   // Kaynağın beklenen en küçük hacmi: TSB ve açık veri binlerce tip, kaynaklı yerli listesi birkaç düzine.
+  // Wikidata tip taşımaz, yalnızca nesil kodu; sayılan şey kuşaklardır.
   const minItems = MIN_ITEMS[next.source] ?? 1000;
-  if (next.items.length < minItems) {
+  const count = next.source === 'wikidata' ? (next.generations?.length ?? 0) : next.items.length;
+  if (count < minItems) {
     blocking.push({
       kod: 'az_kayit',
-      mesaj: `Dosyada yalnızca ${next.items.length} tip var; bu kaynak en az ${minItems} tip içerir`,
+      mesaj: `Dosyada yalnızca ${count} ${next.source === 'wikidata' ? 'nesil' : 'tip'} var; bu kaynak en az ${minItems} içerir`,
     });
   }
   // Eski ve özel modellerin bir kısmı tip adında motor bilgisi taşımaz; oranın kendisi değil, önceki dosyaya göre
@@ -138,9 +166,11 @@ export function qualityCheck(next: CatalogSnapshot, prev?: PreviousSummary): Qua
       });
     }
     const perMake: Record<string, number> = {};
-    for (const i of next.items) perMake[i.make] = (perMake[i.make] ?? 0) + 1;
+    // Marka adı kaynaklar arasında aksanla farklı yazılabilir (Citroen / Citroën); karşılaştırma aksansızdır.
+    const mk = (m: string) => m.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    for (const i of next.items) perMake[mk(i.make)] = (perMake[mk(i.make)] ?? 0) + 1;
     for (const [make, n] of Object.entries(prev.perMake)) {
-      if (n >= 20 && !perMake[make])
+      if (n >= 20 && !perMake[mk(make)])
         warnings.push({ kod: 'kaybolan_marka', mesaj: `${make} markası (${n} tip) yeni dosyada yok` });
     }
   }

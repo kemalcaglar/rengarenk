@@ -19,6 +19,8 @@ interface Source {
   lastError: string | null;
   variants: number;
   variantsInLatest: number;
+  generations: number;
+  generationsCoded: number;
   stale: boolean;
 }
 
@@ -51,6 +53,7 @@ const SOURCE_ROLE: Record<string, string> = {
   tsb: 'Ana kaynak · aylık dosya · 2006 ve sonrası',
   vmm: 'Açık veri · haftalık sürüm · 1985–2005 yılları',
   yerli: 'Türkiye’ye özgü eski modeller · kaynaklı liste (Vikipedi) · 1967–2002',
+  wikidata: 'Nesil kodları (E46, Mk7) ve makyaj sırası · haftalık · yıllar Vikipedi bilgi kutusundan',
 };
 
 interface SeriesDetail {
@@ -63,13 +66,19 @@ interface SeriesDetail {
   trims: { id: string; name: string; years: number[]; modelIds: string[] }[];
   generations: {
     id: string;
+    source: string;
     name: string;
-    startYear: number | null;
+    code: string | null;
+    body: string | null;
+    facelift: number | null;
+    startYear: number;
     endYear: number | null;
-    years: number[];
-    bodies: string[];
+    commonsCategory: string | null;
   }[];
+  codes: { id: string; code: string | null; name: string; startYear: number; endYear: number | null }[];
 }
+
+const makyajAdi = (n: number | null) => (n === null ? '' : n === 0 ? 'makyajsız' : `${n}. makyaj`);
 
 const STATUS: Record<Import['status'], [string, string, string]> = {
   APPLIED: ['Uygulandı', '#E7FAF0', '#11683F'],
@@ -215,9 +224,14 @@ export default function Katalog() {
                 <span>Son başarılı: {tarih(s.lastSuccessAt)}</span>
                 <span>Sürüm: {s.lastVersion ?? '—'}</span>
                 <span>Dosya: {s.lastFileName ?? '—'}</span>
-                <span>
-                  Tip: {sayi(s.variantsInLatest)} son sürümde · {sayi(s.variants)} toplam
-                </span>
+                {s.key === 'wikidata' ? (
+                  <span>Nesil kodu: {sayi(s.generations)}</span>
+                ) : (
+                  <span>
+                    Tip: {sayi(s.variantsInLatest)} son sürümde · {sayi(s.variants)} toplam
+                    {s.generations ? ` · ${sayi(s.generations)} kasa kuşağı` : ''}
+                  </span>
+                )}
                 <span>Son kontrol: {tarih(s.lastCheckedAt)}</span>
               </div>
               {s.lastError ? (
@@ -467,8 +481,8 @@ function Gezgin() {
           Katalog gezgini
         </h2>
         <p style={{ margin: '3px 0 0', fontSize: 12.5, color: '#5A6073' }}>
-          Sihirbaz ve portföyün göreceği seçenekler. Kasa kuşağı ve makyaj bilgisi açık kaynaklar eklenince
-          netleşir.
+          Sihirbaz ve portföyün göreceği seçenekler. Kasa kuşağı vehicle-makes-models'tan, nesil kodu ve
+          makyaj sırası Wikidata'dan; kodu olmayan yıllarda makyaj TSB'deki işaretten (LCI, FL) okunur.
         </p>
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, padding: '14px 18px' }}>
@@ -544,10 +558,20 @@ function Gezgin() {
               <strong>Kasa kuşakları</strong>
               {detail.generations.map((g) => (
                 <div key={g.id}>
-                  {g.startYear}–{g.endYear ?? '…'}{' '}
-                  <span className="muted">· {g.bodies.join(', ') || g.name}</span>
+                  {g.startYear}–{g.endYear ?? '…'} {g.code ? <strong>{g.code}</strong> : null}{' '}
+                  <span className="muted">
+                    · {[g.body ?? g.name, makyajAdi(g.facelift)].filter(Boolean).join(' · ')}
+                  </span>
                 </div>
               ))}
+              {detail.codes.length ? (
+                <div className="muted" style={{ marginTop: 6 }}>
+                  Nesiller:{' '}
+                  {detail.codes
+                    .map((c) => `${c.code ?? c.name} ${c.startYear}–${c.endYear ?? '…'}`)
+                    .join(', ')}
+                </div>
+              ) : null}
             </div>
           ) : null}
           <div>
