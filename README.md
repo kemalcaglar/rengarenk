@@ -2,7 +2,7 @@
 
 Tersine ilan pazaryeri: alıcı aradığı aracı yazar, uygun aracı olan galeriler ve satıcılar ona yazar.
 Ürün kararları, teknik tasarım ve geliştirme planı ürün kapsam dokümanındadır (Claude dokümanı:
-*Tersine İlan Uygulaması – Ürün Kapsam Dokümanı*; sekmeler: Teknik tasarım, Geliştirme planı).
+_Tersine İlan Uygulaması – Ürün Kapsam Dokümanı_; sekmeler: Teknik tasarım, Geliştirme planı).
 
 ## Yapı
 
@@ -49,14 +49,14 @@ düzeltme göçü önerir; adını `init_duzeltme` koyup kabul etmen yeterli.
 
 ## Komutlar
 
-| Komut | Ne yapar |
-| --- | --- |
-| `pnpm dev` | Tüm uygulamaları izleme kipinde çalıştırır |
-| `pnpm --filter @rengarenk/api dev:worker` | Arka plan işçisini çalıştırır (outbox aktarıcısı) |
-| `pnpm test` | Testler; API testleri `rengarenk_test` veritabanını kullanır |
-| `pnpm lint` / `pnpm format` | Biome ile denetim ve biçimlendirme |
-| `pnpm typecheck` | Tüm paketlerde tip denetimi |
-| `pnpm db:migrate` | Şema değişikliğinden yeni göç üretir ve uygular |
+| Komut                                     | Ne yapar                                                     |
+| ----------------------------------------- | ------------------------------------------------------------ |
+| `pnpm dev`                                | Tüm uygulamaları izleme kipinde çalıştırır                   |
+| `pnpm --filter @rengarenk/api dev:worker` | Arka plan işçisini çalıştırır (outbox aktarıcısı)            |
+| `pnpm test`                               | Testler; API testleri `rengarenk_test` veritabanını kullanır |
+| `pnpm lint` / `pnpm format`               | Biome ile denetim ve biçimlendirme                           |
+| `pnpm typecheck`                          | Tüm paketlerde tip denetimi                                  |
+| `pnpm db:migrate`                         | Şema değişikliğinden yeni göç üretir ve uygular              |
 
 Docker'daki PostgreSQL bilgisayarın **5433** portundan açılır (5432'yi bilgisayarda kurulu bir
 PostgreSQL kullanıyor olabilir). Test veritabanı `rengarenk_test` kapsayıcı ilk kez kurulurken
