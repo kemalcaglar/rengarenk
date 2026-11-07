@@ -159,13 +159,13 @@ export class StaffAuthService {
         expiresAt: new Date(Date.now() + LOGIN_STEP_MINUTES * 60_000),
       },
     });
-    return { ticket, needsSetup: !staff.twoFactorEnabled, name: staff.name };
+    return { ticket, needsSetup: !hasTotp(staff), name: staff.name };
   }
 
   /** İlk girişte doğrulama uygulaması kurulumu: sır ve karekod. Sır, ilk doğru kodla kalıcı olur. */
   async setup(ticket: string): Promise<{ secret: string; otpauthUri: string; qrSvg: string }> {
     const { ch, staff } = await this.byTicket(ticket);
-    if (staff.twoFactorEnabled) throw new ConflictException('İki adımlı doğrulama zaten kurulu');
+    if (hasTotp(staff)) throw new ConflictException('İki adımlı doğrulama zaten kurulu');
     const secret = newTotpSecret();
     await this.db.staffLoginChallenge.update({
       where: { id: ch.id },
@@ -188,7 +188,7 @@ export class StaffAuthService {
       throw new UnauthorizedException('Çok fazla hatalı deneme, girişe baştan başla');
     }
 
-    const setup = !staff.twoFactorEnabled;
+    const setup = !hasTotp(staff);
     let step: number | null = null;
     let recoveryId: string | null = null;
     if (setup) {
@@ -401,3 +401,7 @@ export class StaffAuthService {
     return { id: d.id, isNew: true };
   }
 }
+
+/** Doğrulama uygulaması gerçekten kurulu mu? İşaret açık ama sır yoksa (eski kayıt) yeniden kurulur. */
+const hasTotp = (s: { twoFactorEnabled: boolean; totpSecretEnc: string | null }) =>
+  s.twoFactorEnabled && s.totpSecretEnc !== null;

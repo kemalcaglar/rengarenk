@@ -113,6 +113,14 @@ describe('yönetim girişi: Google Workspace + zorunlu 2FA (T10, Karar 40)', () 
     expect((await staffCall(app, 'GET', '/staff/me', undefined, v.body.sessionToken)).status).toBe(401);
   });
 
+  it('2FA işareti açık ama sırrı olmayan eski hesap kuruluma yönlendirilir', async () => {
+    const s = await createStaff(db, 'OWNER');
+    await db.staffMember.update({ where: { id: s.id }, data: { twoFactorEnabled: true } });
+    expect((await googleStep(app, { email: s.email })).cb.body.needsSetup).toBe(true);
+    const { token } = await loginAs(app, s);
+    expect((await staffCall(app, 'GET', '/staff/me', undefined, token)).status).toBe(200);
+  });
+
   it('aynı kod ikinci girişte kullanılamaz; kurtarma kodu bir kez işe yarar', async () => {
     const s = await createStaff(db, 'ADMIN');
     const first = await loginAs(app, s);
