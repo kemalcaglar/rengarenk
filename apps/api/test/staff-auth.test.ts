@@ -3,6 +3,7 @@ import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from '../src/app.module.js';
+import { loadEnv } from '../src/config/env.js';
 import type { Db } from '../src/database/prisma.js';
 import { STAFF_ACCESS, type StaffAccess } from '../src/staff/permissions.js';
 import { StaffGuard } from '../src/staff/staff.guard.js';
@@ -244,6 +245,39 @@ describe('yönetim girişi: Google Workspace + zorunlu 2FA (T10, Karar 40)', () 
     expect(await count()).toBe(1);
     await loginAs(app, s, { secret: first.secret, stepOffset: 1, deviceId: 'ayni-cihaz-000000000001' });
     expect(await count()).toBe(1);
+  });
+});
+
+describe('yönetim girişi ayarları', () => {
+  const base = { DATABASE_URL: 'postgresql://x', JWT_SECRET: 'x'.repeat(32) };
+  const prod = {
+    ...base,
+    NODE_ENV: 'production',
+    SMS_PROVIDER: 'iletimerkezi',
+    ILETIMERKEZI_KEY: 'k',
+    ILETIMERKEZI_HASH: 'h',
+    METRICS_TOKEN: 't',
+    STAFF_AUTH_PROVIDER: 'google',
+    GOOGLE_CLIENT_ID: 'id',
+    GOOGLE_CLIENT_SECRET: 's',
+    STAFF_SECRET_KEY: 'y'.repeat(32),
+  };
+
+  it('canlıda sahte Google, eksik anahtar ve kapalı Workspace şartı reddedilir', () => {
+    expect(() => loadEnv(prod)).not.toThrow();
+    expect(() => loadEnv({ ...prod, STAFF_AUTH_PROVIDER: 'fake' })).toThrow('Google Workspace');
+    expect(() => loadEnv({ ...prod, STAFF_SECRET_KEY: '' })).toThrow('STAFF_SECRET_KEY');
+    expect(() => loadEnv({ ...prod, STAFF_REQUIRE_WORKSPACE: 'false' })).toThrow('Workspace şartı');
+  });
+
+  it('geliştirmede birden çok alan ve kapalı Workspace şartı kabul edilir', () => {
+    const e = loadEnv({
+      ...base,
+      STAFF_EMAIL_DOMAINS: 'rengarenk.com.tr, KGteknoloji.com.tr',
+      STAFF_REQUIRE_WORKSPACE: 'false',
+    });
+    expect(e.STAFF_EMAIL_DOMAINS).toEqual(['rengarenk.com.tr', 'kgteknoloji.com.tr']);
+    expect(e.STAFF_REQUIRE_WORKSPACE).toBe(false);
   });
 });
 

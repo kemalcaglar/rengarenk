@@ -42,7 +42,10 @@ export class AuthService {
   ) {}
 
   /** SMS kodu gönderir. Aynı numaraya 60 saniyede bir, saatte en fazla 5 kod. */
-  async requestOtp(phone: string, ip?: string): Promise<{ challengeId: string; expiresIn: number }> {
+  async requestOtp(
+    phone: string,
+    ip?: string,
+  ): Promise<{ challengeId: string; expiresIn: number; devCode?: string }> {
     // Aynı IP'den saatte en fazla 20 kod: numara değiştirerek SMS bombardımanını engeller.
     if (ip) await this.limiter.hit(`otp:ip:${ip}`, 20, 3600);
     const hourAgo = new Date(Date.now() - 3600_000);
@@ -82,7 +85,11 @@ export class AuthService {
         cause: err,
       });
     }
-    return { challengeId: id, expiresIn: OTP_TTL_SECONDS };
+    // Yalnızca yerel geliştirme: SMS gerçekten gönderilmediği için kod yanıtta da döner ve giriş
+    // ekranında gösterilir. Canlıda `console` sağlayıcısı zaten yasaktır (env.ts); iki koşul birlikte aranır.
+    const devCode =
+      this.env.NODE_ENV === 'development' && this.env.SMS_PROVIDER === 'console' ? code : undefined;
+    return { challengeId: id, expiresIn: OTP_TTL_SECONDS, ...(devCode ? { devCode } : {}) };
   }
 
   /** Kodu doğrular; kullanıcı yoksa oluşturur (bireysel hesabıyla birlikte) ve oturum açar. */

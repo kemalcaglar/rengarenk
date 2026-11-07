@@ -22,6 +22,8 @@ describe('telefon ve SMS koduyla giriş', () => {
   it('kod ister, doğrular, kullanıcı ve bireysel hesap oluşturur', async () => {
     const req = await call(app, 'POST', '/auth/otp/request', { phone: '0532 111 22 33' });
     expect(req.status).toBe(200);
+    // Kod yalnızca yerel geliştirmede (console sağlayıcı) yanıtta döner; testte ve canlıda asla.
+    expect(req.body.devCode).toBeUndefined();
     const code = sms.lastCode('+905321112233');
     expect(code).toMatch(/^\d{6}$/);
 

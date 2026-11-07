@@ -42,6 +42,7 @@ export class GoogleIdentityProvider implements IdentityProvider {
     private readonly clientId: string,
     private readonly clientSecret: string,
     private readonly domains: string[],
+    private readonly requireWorkspace = true,
     private readonly fetchFn: typeof fetch = fetch,
   ) {}
 
@@ -56,9 +57,9 @@ export class GoogleIdentityProvider implements IdentityProvider {
       code_challenge: p.codeChallenge,
       code_challenge_method: 'S256',
       prompt: 'select_account',
-      // Tek alan varsa Google hesap seçicisini o alana daraltır; asıl denetim sunucuda yapılır.
-      hd: this.domains.length === 1 ? (this.domains[0] as string) : '*',
     });
+    // Tek alan varsa Google hesap seçicisini o alana daraltır; asıl denetim sunucuda yapılır.
+    if (this.requireWorkspace) q.set('hd', this.domains.length === 1 ? (this.domains[0] as string) : '*');
     return `${GOOGLE_AUTH}?${q}`;
   }
 
@@ -141,6 +142,7 @@ export function createIdentityProvider(env: Env): IdentityProvider {
       env.GOOGLE_CLIENT_ID ?? '',
       env.GOOGLE_CLIENT_SECRET ?? '',
       env.STAFF_EMAIL_DOMAINS,
+      env.STAFF_REQUIRE_WORKSPACE,
     );
   }
   return new FakeIdentityProvider(env.ADMIN_ORIGIN);

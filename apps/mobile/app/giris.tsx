@@ -12,14 +12,20 @@ export default function Giris() {
   const [challengeId, setChallengeId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [devCode, setDevCode] = useState<string | null>(null);
 
   async function submit() {
     setBusy(true);
     setError(null);
     try {
       if (!challengeId) {
-        const r = await post<{ challengeId: string }>('/auth/otp/request', { phone });
+        const r = await post<{ challengeId: string; devCode?: string }>('/auth/otp/request', { phone });
         setChallengeId(r.challengeId);
+        // Yalnızca yerel geliştirmede API kodu döndürür (SMS gönderilmez).
+        if (r.devCode) {
+          setDevCode(r.devCode);
+          setCode(r.devCode);
+        }
       } else {
         const r = await post<{ refreshToken: string }>('/auth/otp/verify', {
           challengeId,
@@ -64,6 +70,9 @@ export default function Giris() {
             />
           </>
         )}
+        {devCode && (
+          <Text style={s.dev}>Geliştirme ortamı: SMS gönderilmedi, kod {devCode} (kutuya yazıldı).</Text>
+        )}
         {error && <Text style={{ color: '#A11B1B' }}>{error}</Text>}
         <Pressable
           style={[s.btn, busy && { opacity: 0.6 }]}
@@ -91,5 +100,6 @@ const s = StyleSheet.create({
     backgroundColor: '#fff',
   },
   btn: { backgroundColor: colors.blue, borderRadius: 14, padding: 15, alignItems: 'center', marginTop: 8 },
+  dev: { backgroundColor: '#FFF6DF', color: '#7A5300', borderRadius: 12, padding: 12, overflow: 'hidden' },
   btnText: { fontWeight: '800', color: colors.ink, fontSize: 15 },
 });

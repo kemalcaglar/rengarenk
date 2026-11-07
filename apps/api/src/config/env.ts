@@ -39,6 +39,14 @@ const schema = z.object({
     ),
   /** Doğrulama uygulaması sırlarını şifreleyen anahtar (en az 32 karakter). Canlıda zorunlu. */
   STAFF_SECRET_KEY: z.string().min(32, 'STAFF_SECRET_KEY en az 32 karakter olmalı').optional(),
+  /**
+   * Google Workspace hesabı şartı (Google'ın `hd` bilgisi). Yalnızca geliştirmede, kişisel Google
+   * hesabıyla gerçek giriş denemek için `false` yapılabilir; canlıda kapatılamaz.
+   */
+  STAFF_REQUIRE_WORKSPACE: z
+    .enum(['true', 'false'])
+    .default('true')
+    .transform((v) => v === 'true'),
 });
 
 export type Env = z.infer<typeof schema>;
@@ -58,6 +66,7 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (!e.METRICS_TOKEN) throw new Error('Canlıda METRICS_TOKEN gerekli');
     if (e.STAFF_AUTH_PROVIDER !== 'google') throw new Error('Canlıda yönetim girişi Google Workspace olmalı');
     if (!e.STAFF_SECRET_KEY) throw new Error('Canlıda STAFF_SECRET_KEY gerekli');
+    if (!e.STAFF_REQUIRE_WORKSPACE) throw new Error('Canlıda Google Workspace şartı kapatılamaz');
   }
   if (e.STAFF_AUTH_PROVIDER === 'google' && !(e.GOOGLE_CLIENT_ID && e.GOOGLE_CLIENT_SECRET)) {
     throw new Error('Google Workspace girişi için GOOGLE_CLIENT_ID ve GOOGLE_CLIENT_SECRET gerekli');

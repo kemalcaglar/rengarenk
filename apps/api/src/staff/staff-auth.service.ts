@@ -130,12 +130,11 @@ export class StaffAuthService {
       });
       throw new ForbiddenException(message);
     };
-    if (
-      !identity.emailVerified ||
-      !domains.includes(domain) ||
-      !identity.hd ||
-      !domains.includes(identity.hd)
-    ) {
+    // Google Workspace hesabı (hd) şartı canlıda her zaman aranır; yalnızca geliştirmede kişisel Google
+    // hesabıyla deneme için kapatılabilir (STAFF_REQUIRE_WORKSPACE=false, env.ts canlıda engeller).
+    const workspaceOk =
+      !this.env.STAFF_REQUIRE_WORKSPACE || (identity.hd !== undefined && domains.includes(identity.hd));
+    if (!identity.emailVerified || !domains.includes(domain) || !workspaceOk) {
       return reject('sirket_hesabi_degil', 'Yalnızca şirket Google hesabıyla giriş yapılabilir');
     }
     const staff = await this.db.staffMember.findUnique({ where: { email: identity.email } });

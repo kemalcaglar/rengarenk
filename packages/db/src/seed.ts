@@ -11,14 +11,16 @@ await prisma.staffMember.updateMany({
   data: { email: 'sahip@rengarenk.com.tr' },
 });
 
-// Yerel sahip: konsola sahte Google girişiyle bu e-postayla girilir; ilk girişte doğrulama uygulaması kurulur.
+// Yerel sahip: konsola bu e-postayla girilir; ilk girişte doğrulama uygulaması kurulur. Kendi adresinle
+// denemek için `.env` içinde SEED_OWNER_EMAIL ver (alanı STAFF_EMAIL_DOMAINS içinde olmalı).
+const ownerEmail = (process.env.SEED_OWNER_EMAIL || 'sahip@rengarenk.com.tr').trim().toLowerCase();
 const owner = await prisma.staffMember.upsert({
-  where: { email: 'sahip@rengarenk.com.tr' },
+  where: { email: ownerEmail },
   update: {},
   create: {
     id: uuidv7(),
-    email: 'sahip@rengarenk.com.tr',
-    name: 'Sahip (yerel)',
+    email: ownerEmail,
+    name: process.env.SEED_OWNER_NAME || 'Sahip (yerel)',
     role: 'OWNER',
   },
 });
@@ -52,5 +54,5 @@ if (!existing) {
   });
 }
 
-console.log('seed tamam: sahip@rengarenk.com.tr, +905550000001');
+console.log(`seed tamam: yönetim ${ownerEmail}, kullanıcı +905550000001`);
 await prisma.$disconnect();

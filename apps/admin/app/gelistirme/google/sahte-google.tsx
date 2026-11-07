@@ -10,7 +10,7 @@ const toBase64Url = (s: string) =>
 
 /** Sahte Google hesap seçicisi (geliştirme). Seçilen e-posta, yetki kodunun içine yazılır. */
 export function SahteGoogle({ state, redirectUri }: { state: string; redirectUri: string }) {
-  const [email, setEmail] = useState('sahip@rengarenk.com.tr');
+  const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   function submit(e: FormEvent) {
@@ -41,8 +41,20 @@ export function SahteGoogle({ state, redirectUri }: { state: string; redirectUri
       <h1 style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>Hesap seç</h1>
       <label className="k-field" htmlFor="eposta">
         Şirket e-postası
-        <input id="eposta" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input
+          id="eposta"
+          type="email"
+          required
+          placeholder="ad@sirket.com.tr"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </label>
+      <p className="muted" style={{ margin: 0, fontSize: 13 }}>
+        Gerçek bir e-posta kutusu gerekmez. Konsola kayıtlı bir çalışanın adresini yaz: seed'deki Sahip `.env`
+        içindeki SEED_OWNER_EMAIL, davet ettiklerin de kendi adresleriyle girer. Alan adı STAFF_EMAIL_DOMAINS
+        içinde olmalı.
+      </p>
       {error ? <p className="k-error">{error}</p> : null}
       <button className="k-btn" type="submit">
         Devam et

@@ -23,6 +23,7 @@ export default function Giris() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [devCode, setDevCode] = useState<string | null>(null);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -30,8 +31,13 @@ export default function Giris() {
     setError(null);
     try {
       if (!challengeId) {
-        const r = await post<{ challengeId: string }>('/auth/otp/request', { phone });
+        const r = await post<{ challengeId: string; devCode?: string }>('/auth/otp/request', { phone });
         setChallengeId(r.challengeId);
+        // Yalnızca yerel geliştirmede API kodu döndürür (SMS gönderilmez).
+        if (r.devCode) {
+          setDevCode(r.devCode);
+          setCode(r.devCode);
+        }
       } else {
         // Doğrulama web sunucusu üzerinden: yenileme jetonu httpOnly çereze yazılır.
         const r = await fetch('/api/oturum/dogrula', {
@@ -99,6 +105,20 @@ export default function Giris() {
             required
           />
         </>
+      )}
+      {devCode && (
+        <p
+          role="status"
+          style={{
+            margin: 0,
+            background: '#FFF6DF',
+            color: '#7A5300',
+            borderRadius: 12,
+            padding: '10px 14px',
+          }}
+        >
+          Geliştirme ortamı: SMS gönderilmedi, kod <strong>{devCode}</strong> (kutuya yazıldı).
+        </p>
       )}
       {error && (
         <p role="alert" style={{ margin: 0, color: '#a11b1b' }}>
