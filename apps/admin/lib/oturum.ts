@@ -61,7 +61,11 @@ export function apiFetch(
 export async function getMe(): Promise<Me | null> {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token) return null;
-  const res = await apiFetch('/staff/me', { method: 'GET', token, headers: await headers() });
+  // API'ye ulaşılamazsa (açılıyor ya da kapalı) sayfa çökmez; oturum yokmuş gibi girişe yönlenir.
+  const res = await apiFetch('/staff/me', { method: 'GET', token, headers: await headers() }).catch(
+    () => null,
+  );
+  if (!res) return null;
   if (!res.ok) return null;
   return (await res.json()) as Me;
 }
