@@ -6,7 +6,7 @@ import pg from 'pg';
 import { beforeAll } from 'vitest';
 
 // Testler ayrı bir veritabanında, her dosyadan önce şema sıfırlanarak çalışır.
-const url = process.env.TEST_DATABASE_URL ?? 'postgresql://rengarenk:rengarenk@localhost:5432/rengarenk_test';
+const url = process.env.TEST_DATABASE_URL ?? 'postgresql://rengarenk:rengarenk@localhost:5433/rengarenk_test';
 Object.assign(process.env, {
   NODE_ENV: 'test',
   DATABASE_URL: url,

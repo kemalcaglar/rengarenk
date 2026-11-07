@@ -10,7 +10,7 @@
     "dev:worker": "node --watch --env-file-if-exists=../../.env --import @swc-node/register/esm-register src/worker.ts",
     "start": "node dist/main.js",
     "start:worker": "node dist/worker.js",
-    "test": "vitest run"
+    "test": "node --env-file-if-exists=../../.env ./node_modules/vitest/vitest.mjs run"
   },
   "dependencies": {
     "@fastify/helmet": "13.2.0",

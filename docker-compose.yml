@@ -7,8 +7,11 @@ services:
       POSTGRES_USER: rengarenk
       POSTGRES_PASSWORD: rengarenk
       POSTGRES_DB: rengarenk
-    ports: ["5432:5432"]
-    volumes: [pgdata:/var/lib/postgresql/data]
+    # Bilgisayarda kurulu bir PostgreSQL 5432'yi kullanıyor olabilir; çakışmasın diye 5433.
+    ports: ["${POSTGRES_PORT:-5433}:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./deploy/dev/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck: { test: ["CMD-SHELL", "pg_isready -U rengarenk"], interval: 5s, retries: 10 }
   redis:
     image: redis:7

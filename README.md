@@ -58,9 +58,13 @@ düzeltme göçü önerir; adını `init_duzeltme` koyup kabul etmen yeterli.
 | `pnpm typecheck` | Tüm paketlerde tip denetimi |
 | `pnpm db:migrate` | Şema değişikliğinden yeni göç üretir ve uygular |
 
-API testleri için test veritabanı: `createdb rengarenk_test` (Docker'daki PostgreSQL'de:
-`docker compose exec postgres createdb -U rengarenk rengarenk_test`). Farklı bir adres için
-`TEST_DATABASE_URL` tanımla.
+Docker'daki PostgreSQL bilgisayarın **5433** portundan açılır (5432'yi bilgisayarda kurulu bir
+PostgreSQL kullanıyor olabilir). Test veritabanı `rengarenk_test` kapsayıcı ilk kez kurulurken
+kendiliğinden oluşur. Farklı bir adres için `.env` içindeki `DATABASE_URL` ve `TEST_DATABASE_URL`
+değerlerini değiştir.
+
+**Windows:** Docker Desktop açık olmalı. `corepack enable` nvm klasörüne yazamazsa hata verir;
+pnpm zaten kuruluysa bu adımı atlayabilirsin.
 
 ## Şu an neler var (Sprint 1)
 
