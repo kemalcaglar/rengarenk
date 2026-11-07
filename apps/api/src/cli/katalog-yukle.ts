@@ -14,13 +14,15 @@ import { DatabaseModule } from '../database/database.module.js';
  *   pnpm --filter @rengarenk/api katalog:yukle C:\yol\202610R2.xlsx
  *   pnpm --filter @rengarenk/api katalog:yukle            (TSB'den en son dosya)
  *   pnpm --filter @rengarenk/api katalog:yukle --arsiv    (TSB arşivi: eski model yılları, 2020'den beri)
+ *   pnpm --filter @rengarenk/api katalog:yukle --vmm      (vehicle-makes-models: 1985–2005 yılları)
  */
 @Module({ imports: [DatabaseModule, CatalogPipelineModule] })
 class CliModule {}
 
 const arg = process.argv[2];
 const archive = arg === '--arsiv';
-const file = archive ? undefined : arg;
+const vmm = arg === '--vmm';
+const file = archive || vmm ? undefined : arg;
 const app = await NestFactory.createApplicationContext(CliModule, { logger: ['error', 'warn'] });
 try {
   const pipeline = app.get(CatalogPipelineService);
@@ -33,12 +35,14 @@ try {
     await app.close();
     process.exit(0);
   }
-  const result = file
-    ? await pipeline.runTsbFile(new Uint8Array(readFileSync(file)), {
-        fileName: basename(file),
-        trigger: 'elle',
-      })
-    : (await pipeline.checkTsb({ force: true })).outcome;
+  const result = vmm
+    ? (await pipeline.checkVmm({ force: true })).outcome
+    : file
+      ? await pipeline.runTsbFile(new Uint8Array(readFileSync(file)), {
+          fileName: basename(file),
+          trigger: 'elle',
+        })
+      : (await pipeline.checkTsb({ force: true })).outcome;
   const sure = ((Date.now() - started) / 1000).toFixed(1);
   if (!result) {
     console.log(

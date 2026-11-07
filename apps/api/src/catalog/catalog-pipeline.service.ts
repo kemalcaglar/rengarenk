@@ -1,11 +1,12 @@
 import { createHash } from 'node:crypto';
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { buildTsbSnapshot, revisionFromFileName, signSnapshot } from '@rengarenk/catalog';
+import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { buildTsbSnapshot, buildVmmSnapshot, revisionFromFileName, signSnapshot } from '@rengarenk/catalog';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { CatalogImportService, type ImportMeta, type ImportOutcome } from './catalog-import.service.js';
 import { CATALOG_KEYS, type CatalogKeys } from './catalog-keys.js';
 import { TSB_CLIENT, type TsbClient } from './tsb-client.js';
+import { VMM_CLIENT, type VmmClient } from './vmm-client.js';
 
 /** Otomatik kaynak bu kadar süre başarıyla güncellenmezse uyarı gider (Karar 33). */
 export const STALE_HOURS = 48;
@@ -22,6 +23,7 @@ export class CatalogPipelineService {
     @Inject(PRISMA) private readonly db: Db,
     @Inject(CATALOG_KEYS) private readonly keys: CatalogKeys,
     @Inject(TSB_CLIENT) private readonly tsb: TsbClient,
+    @Inject(VMM_CLIENT) private readonly vmm: VmmClient,
     private readonly importer: CatalogImportService,
     private readonly outbox: OutboxService,
   ) {}
@@ -39,6 +41,59 @@ export class CatalogPipelineService {
       return this.failRead(meta, fileSha256, (err as Error).message);
     }
     return this.importer.apply(pkg, { ...meta, fileSha256 });
+  }
+
+  /** vehicle-makes-models sürüm dosyasını işler (1990–2005 yılları; Teknik tasarım §5). */
+  async runVmmFile(file: Uint8Array, meta: ImportMeta & { version: string }): Promise<ImportOutcome> {
+    const fileSha256 = createHash('sha256').update(file).digest('hex');
+    let pkg: ReturnType<typeof signSnapshot>;
+    try {
+      pkg = signSnapshot(buildVmmSnapshot(file, { version: meta.version }), this.keys.privatePem);
+    } catch (err) {
+      return this.importer.recordReadFailure('vmm', { ...meta, fileSha256 }, (err as Error).message);
+    }
+    return this.importer.apply(pkg, { ...meta, fileSha256 });
+  }
+
+  /** GitHub'da yeni sürüm varsa indirip işler. Aynı sürüm ikinci kez indirilmez. */
+  async checkVmm(
+    opts: { force?: boolean; staffId?: string; ip?: string } = {},
+  ): Promise<{ durum: string; outcome?: ImportOutcome }> {
+    const source = await this.db.catalogSource.findUniqueOrThrow({ where: { key: 'vmm' } });
+    if (!source.autoFetch && !opts.force) return { durum: 'kapali' };
+    try {
+      const rel = await this.vmm.latest();
+      if (rel.tag === source.lastVersion) {
+        await this.db.catalogSource.update({
+          where: { key: 'vmm' },
+          data: { lastCheckedAt: new Date(), lastError: null },
+        });
+        return { durum: 'yeni_dosya_yok' };
+      }
+      const outcome = await this.runVmmFile(await this.vmm.download(rel.url), {
+        fileName: rel.fileName,
+        version: rel.tag,
+        trigger: opts.staffId ? 'elle' : 'otomatik',
+        staffId: opts.staffId,
+        ip: opts.ip,
+      });
+      return { durum: outcome.status === 'APPLIED' ? 'uygulandi' : outcome.status.toLowerCase(), outcome };
+    } catch (err) {
+      const message = (err as Error).message;
+      this.log.warn(`vehicle-makes-models kontrolü başarısız: ${message}`);
+      await this.db.catalogSource.update({
+        where: { key: 'vmm' },
+        data: { lastCheckedAt: new Date(), lastError: message },
+      });
+      return { durum: 'hata' };
+    }
+  }
+
+  /** Konsoldaki "Şimdi kontrol et": kaynağa göre doğru hat. */
+  checkSource(key: string, opts: { force?: boolean; staffId?: string; ip?: string }) {
+    if (key === 'tsb') return this.checkTsb(opts);
+    if (key === 'vmm') return this.checkVmm(opts);
+    throw new NotFoundException('Kaynak bulunamadı');
   }
 
   /**

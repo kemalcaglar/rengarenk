@@ -1,5 +1,5 @@
 import { createHash, sign, verify } from 'node:crypto';
-import { type ParsedVariant, parseTsbRow } from './tsb/parse.js';
+import { type CatalogSourceKey, type ParsedVariant, parseTsbRow } from './tsb/parse.js';
 import { readTsbList } from './tsb/read.js';
 
 /**
@@ -8,7 +8,7 @@ import { readTsbList } from './tsb/read.js';
  */
 export interface CatalogSnapshot {
   format: 1;
-  source: 'tsb';
+  source: CatalogSourceKey;
   /** "2026-10" ya da revizyonla "2026-10-R2" */
   version: string;
   periodLabel: string;

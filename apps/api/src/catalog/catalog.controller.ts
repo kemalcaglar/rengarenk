@@ -15,6 +15,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import type { Prisma } from '@rengarenk/db';
 import { VEHICLE_CATEGORIES } from '@rengarenk/shared';
 import { z } from 'zod';
 import { AuditService } from '../audit/audit.service.js';
@@ -38,22 +39,31 @@ const uniqSorted = (xs: number[]) => [...new Set(xs)].sort((a, b) => a - b);
 export class CatalogController {
   constructor(@Inject(PRISMA) private readonly db: Db) {}
 
+  /** Konsoldan kapatılan kaynakların kayıtları görünmez (silinmez). */
+  private async visible(kategori?: string): Promise<Prisma.CatalogVariantWhereInput> {
+    const active = await this.db.catalogSource.findMany({ where: { active: true }, select: { key: true } });
+    return {
+      source: { in: active.map((a) => a.key) },
+      ...(kategori ? { categories: { has: kategori } } : {}),
+    };
+  }
+
   @Get('makes')
-  makes(@Query('kategori', new ZodPipe(categorySchema)) kategori?: string) {
+  async makes(@Query('kategori', new ZodPipe(categorySchema)) kategori?: string) {
     return this.db.catalogMake.findMany({
-      where: kategori ? { variants: { some: { categories: { has: kategori } } } } : {},
+      where: { variants: { some: await this.visible(kategori) } },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
     });
   }
 
   @Get('makes/:id/series')
-  series(
+  async series(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query('kategori', new ZodPipe(categorySchema)) kategori?: string,
   ) {
     return this.db.catalogSeries.findMany({
-      where: { makeId: id, ...(kategori ? { categories: { has: kategori } } : {}) },
+      where: { makeId: id, variants: { some: await this.visible(kategori) } },
       orderBy: { name: 'asc' },
       select: { id: true, name: true, categories: true },
     });
@@ -69,7 +79,7 @@ export class CatalogController {
       where: {
         makeId: id,
         seriesId: null,
-        ...(kategori ? { variants: { some: { categories: { has: kategori } } } } : {}),
+        variants: { some: await this.visible(kategori) },
       },
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
@@ -91,9 +101,10 @@ export class CatalogController {
     });
     if (!s) throw new NotFoundException('Seri bulunamadı');
     const variants = await this.db.catalogVariant.findMany({
-      where: { seriesId: id, ...(yil ? { years: { has: yil } } : {}) },
+      where: { seriesId: id, ...(await this.visible()), ...(yil ? { years: { has: yil } } : {}) },
       select: {
         years: true,
+        generation: { select: { id: true, name: true, code: true, startYear: true, endYear: true } },
         body: true,
         facelift: true,
         fuel: true,
@@ -131,6 +142,17 @@ export class CatalogController {
       years: yearsOf(vs),
       modelIds: [...new Set(vs.map((v) => v.model.id))],
     }));
+    const generations = [...group((v) => v.generation?.id ?? null)]
+      .map(([gid, vs]) => ({
+        id: gid,
+        name: vs[0]?.generation?.name,
+        code: vs[0]?.generation?.code ?? null,
+        startYear: vs[0]?.generation?.startYear ?? null,
+        endYear: vs[0]?.generation?.endYear ?? null,
+        years: yearsOf(vs),
+        bodies: [...new Set(vs.map((v) => v.body).filter(Boolean))],
+      }))
+      .sort((a, b) => (a.startYear ?? 0) - (b.startYear ?? 0));
     const byName = (a: { name?: string | null }, b: { name?: string | null }) =>
       (a.name ?? '').localeCompare(b.name ?? '', 'tr');
     return {
@@ -138,6 +160,8 @@ export class CatalogController {
       years: yearsOf(variants),
       models: models.sort(byName),
       bodies: bodies.sort(byName),
+      /** Kasa kuşakları (nesiller); TSB'de yoktur, açık kaynaklardan gelir */
+      generations,
       makyaj: {
         makyajsiz: yearsOf(variants.filter((v) => !v.facelift)),
         makyajli: yearsOf(variants.filter((v) => v.facelift)),
@@ -147,7 +171,10 @@ export class CatalogController {
   }
 }
 
-const sourcePatchSchema = z.object({ autoFetch: z.boolean() }).strict();
+const sourcePatchSchema = z
+  .object({ autoFetch: z.boolean().optional(), active: z.boolean().optional() })
+  .strict()
+  .refine((v) => v.autoFetch !== undefined || v.active !== undefined, { message: 'Değişiklik yok' });
 
 /** Yönetim: katalog kaynaklarını izleme (Karar 33: konsoldaki katalog bölümü yalnızca izleme içindir). */
 @Controller('staff/catalog')
@@ -187,7 +214,7 @@ export class StaffCatalogController {
     return this.db.$transaction(async (tx) => {
       const before = await tx.catalogSource.findUnique({ where: { key } });
       if (!before) throw new NotFoundException('Kaynak bulunamadı');
-      const after = await tx.catalogSource.update({ where: { key }, data: { autoFetch: body.autoFetch } });
+      const after = await tx.catalogSource.update({ where: { key }, data: body });
       await this.audit.record(
         {
           actorType: 'STAFF',
@@ -195,8 +222,8 @@ export class StaffCatalogController {
           action: 'katalog_kaynak_ayari',
           entityType: 'setting',
           entityId: `katalog.${key}`,
-          before: { otomatik: before.autoFetch },
-          after: { otomatik: after.autoFetch },
+          before: { otomatik: before.autoFetch, etkin: before.active },
+          after: { otomatik: after.autoFetch, etkin: after.active },
           ip: req.ip,
         },
         tx,
@@ -248,6 +275,14 @@ export class StaffCatalogController {
   @RequirePermission('kategori.ayarla')
   archive(@Req() req: StaffRequest) {
     return this.pipeline.backfillTsbArchive({ staffId: req.staff.staff.id, ip: req.ip });
+  }
+
+  /** "Şimdi kontrol et": kaynakta yeni dosya ya da sürüm varsa indirip işler. */
+  @Post('sources/:key/check')
+  @HttpCode(200)
+  @RequirePermission('kategori.ayarla')
+  checkSource(@Req() req: StaffRequest, @Param('key') key: string) {
+    return this.pipeline.checkSource(key, { force: true, staffId: req.staff.staff.id, ip: req.ip });
   }
 
   /** "Şimdi kontrol et": TSB'de yeni dosya varsa indirip işler (otomatik çekme kapalı olsa da). */

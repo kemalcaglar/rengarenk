@@ -6,6 +6,7 @@ import { AppModule } from '../src/app.module.js';
 import { CatalogImportService } from '../src/catalog/catalog-import.service.js';
 import { CatalogPipelineService } from '../src/catalog/catalog-pipeline.service.js';
 import { TSB_CLIENT, type TsbClient } from '../src/catalog/tsb-client.js';
+import { VMM_CLIENT, type VmmClient } from '../src/catalog/vmm-client.js';
 import { registerXlsxBody, XLSX_MIME } from '../src/catalog/xlsx-body.js';
 import { type Db, PRISMA } from '../src/database/prisma.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
@@ -104,10 +105,37 @@ const archives: Record<number, { name: string; file: Buffer }> = {
   2020: { name: '202004R1.xlsx', file: tsbXlsx(archiveRows(), 'Nisan 2020', OLD_YEARS) },
 };
 
+/** vehicle-makes-models sürümü: 1990'lar BMW 3 Serisi, yalnızca bu kaynakta olan Lada ve kalite için dolgu */
+const VMM_CSV = [
+  'make_group,make,model,generation,gen_year_start,gen_year_end,body_type,engine_label,fuel_type,cylinders,displacement_cc,power_hp,torque_nm,transmission,drivetrain',
+  'bmw,BMW,3 Series,3 Series Sedan (1991),1991,1998,,318i 5MT RWD (115 HP),Gasoline,4,1796,115,168,5-speed manual,Rear Wheel Drive',
+  'bmw,BMW,3 Series,3 Series Sedan (1991),1991,1998,,325i 5MT RWD (192 HP),Gasoline,6,2494,192,245,5-speed manual,Rear Wheel Drive',
+  'lada,Lada,Samara,Samara (1990),1990,2004,,1.3L 4MT FWD (64 HP),Gasoline,4,1288,64,,4-speed manual,Front Wheel Drive',
+  ...Array.from(
+    { length: 1100 },
+    (_, i) =>
+      `dolgu,Eskidolgu,M${i % 30},M${i % 30} (1995) ${i},1995,2000,,1.${i % 9}L 5MT FWD (${60 + (i % 50)} HP),Gasoline,4,1${i % 9}00,${60 + (i % 50)},,5-speed manual,Front Wheel Drive`,
+  ),
+].join(String.fromCharCode(10));
+const vmm = { tag: 'v1.0.2', downloads: 0 };
+const fakeVmm: VmmClient = {
+  latest: async () => ({
+    tag: vmm.tag,
+    url: 'https://github.com/x/y.zip',
+    fileName: `${vmm.tag}/vehicle-data-csv.zip`,
+  }),
+  download: async () => {
+    vmm.downloads++;
+    return new TextEncoder().encode(VMM_CSV);
+  },
+};
+
 beforeAll(async () => {
   const mod = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(TSB_CLIENT)
     .useValue(fakeTsb)
+    .overrideProvider(VMM_CLIENT)
+    .useValue(fakeVmm)
     .compile();
   app = mod.createNestApplication<NestFastifyApplication>(new FastifyAdapter(), { logger: ['error'] });
   registerXlsxBody(app);
@@ -289,6 +317,51 @@ describe('TSB arşivi: eski model yılları (Karar 33)', () => {
   });
 });
 
+describe('eski yıllar: vehicle-makes-models (1990–2005)', () => {
+  it('sürüm indirilir, eski nesiller aynı seriye girer; aynı sürüm ikinci kez indirilmez', async () => {
+    const r = await staffCall(app, 'POST', '/staff/catalog/sources/vmm/check', {}, owner);
+    expect(r.body.durum).toBe('uygulandi');
+    expect(r.body.outcome.version).toBe('v1.0.2');
+    expect((await staffCall(app, 'POST', '/staff/catalog/sources/vmm/check', {}, owner)).body.durum).toBe(
+      'yeni_dosya_yok',
+    );
+    expect(vmm.downloads).toBe(1);
+
+    const bmw = (await get('/catalog/makes')).body.find((m: { name: string }) => m.name === 'BMW');
+    const s3 = (await get(`/catalog/makes/${bmw.id}/series`)).body.filter(
+      (s: { name: string }) => s.name === '3 Serisi',
+    );
+    expect(s3).toHaveLength(1); // TSB ile aynı seri
+    const d = await get(`/catalog/series/${s3[0].id}?yil=1995`);
+    expect(d.body.models.map((m: { name: string }) => m.name)).toEqual(['318i', '325i']);
+    expect(d.body.bodies.map((b: { name: string }) => b.name)).toEqual(['Sedan']);
+    expect(d.body.generations).toMatchObject([
+      { name: '3 Series Sedan (1991)', startYear: 1991, endYear: 1998, years: [1995], bodies: ['Sedan'] },
+    ]);
+    expect(d.body.trims).toEqual([]);
+  });
+
+  it('kaynak kapatılınca kayıtları katalogdan görünmez (silinmez), açılınca geri gelir', async () => {
+    const off = await staffCall(app, 'PATCH', '/staff/catalog/sources/vmm', { active: false }, owner);
+    expect(off.body.active).toBe(false);
+    const names = async () => (await get('/catalog/makes')).body.map((m: { name: string }) => m.name);
+    expect(await names()).not.toContain('Lada');
+    expect(await names()).toContain('BMW');
+    const bmw = (await get('/catalog/makes')).body.find((m: { name: string }) => m.name === 'BMW');
+    const s3 = (await get(`/catalog/makes/${bmw.id}/series`)).body.find(
+      (s: { name: string }) => s.name === '3 Serisi',
+    );
+    expect((await get(`/catalog/series/${s3.id}?yil=1995`)).body.models).toEqual([]);
+    expect(await db.catalogVariant.count({ where: { source: 'vmm' } })).toBe(1103);
+
+    await staffCall(app, 'PATCH', '/staff/catalog/sources/vmm', { active: true }, owner);
+    expect(await names()).toContain('Lada');
+    expect(
+      await db.auditLog.count({ where: { action: 'katalog_kaynak_ayari', entityId: 'katalog.vmm' } }),
+    ).toBe(2);
+  });
+});
+
 describe('katalog okuma uçları', () => {
   it('marka → seri → seçenekler: modeller, kasalar, makyaj yılları ve paketler', async () => {
     const makes = await get('/catalog/makes?kategori=otomobil');
@@ -302,12 +375,14 @@ describe('katalog okuma uçları', () => {
     const detail = await get(`/catalog/series/${s3.id}`);
     expect(detail.status).toBe(200);
     expect(detail.body.make.name).toBe('BMW');
-    expect(detail.body.models.map((m: { name: string }) => m.name)).toEqual(['320d', '320i']);
+    // 318i ve 325i 1990'lardan (vehicle-makes-models, önceki test)
+    expect(detail.body.models.map((m: { name: string }) => m.name)).toEqual(['318i', '320d', '320i', '325i']);
     expect(detail.body.bodies.map((b: { name: string }) => b.name)).toEqual(['Sedan', 'Station wagon']);
-    // Arşivden gelen 2006–2013 yılları da makyajsız kasada görünür (önceki test).
+    // Arşivden (2006–2013) ve vehicle-makes-models'tan (1991–1998) gelen yıllar da makyajsız kasada görünür.
     expect(detail.body.makyaj).toEqual({
       makyajsiz: [
-        2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026,
+        1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2019,
+        2020, 2021, 2022, 2023, 2024, 2025, 2026,
       ],
       makyajli: [2022, 2023, 2024, 2025, 2026],
     });

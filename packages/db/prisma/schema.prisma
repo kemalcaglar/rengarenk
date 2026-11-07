@@ -510,6 +510,8 @@ model CatalogSource {
   url           String?
   /// Kaynak her ay kendiliğinden çekilsin mi (sahip kararı, 7 Kasım 2026: TSB için konsoldan yükleme ve otomatik çekme birlikte)
   autoFetch     Boolean   @default(false) @map("auto_fetch")
+  /// Kapalı kaynağın kayıtları katalogdan görünmez (silinmez); ör. avukat görüşü olumsuz çıkarsa (Teknik tasarım §5)
+  active        Boolean   @default(true)
   lastCheckedAt DateTime? @map("last_checked_at") @db.Timestamptz(3)
   lastSuccessAt DateTime? @map("last_success_at") @db.Timestamptz(3)
   lastVersion   String?   @map("last_version")
@@ -577,10 +579,11 @@ model CatalogSeries {
   categories String[]
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  make     CatalogMake      @relation(fields: [makeId], references: [id])
-  models   CatalogModel[]
-  trims    CatalogTrim[]
-  variants CatalogVariant[]
+  make        CatalogMake         @relation(fields: [makeId], references: [id])
+  models      CatalogModel[]
+  trims       CatalogTrim[]
+  variants    CatalogVariant[]
+  generations CatalogGeneration[]
 
   @@index([makeId])
   @@map("catalog_series")
@@ -621,6 +624,26 @@ model CatalogTrim {
   @@map("catalog_trims")
 }
 
+/// Kasa kuşağı (nesil): ör. BMW 3 Serisi Sedan 1998–2002. Kaynağıyla tutulur; açık kaynaklardan gelir (Karar 32–33).
+model CatalogGeneration {
+  id        String   @id @db.Uuid
+  key       String   @unique
+  seriesId  String   @map("series_id") @db.Uuid
+  source    String
+  name      String
+  /// Nesil kodu (ör. E46, G20); açık kaynaklardan (Wikidata) gelince dolar
+  code      String?
+  startYear Int      @map("start_year")
+  endYear   Int?     @map("end_year")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  series   CatalogSeries    @relation(fields: [seriesId], references: [id])
+  variants CatalogVariant[]
+
+  @@index([seriesId])
+  @@map("catalog_generations")
+}
+
 /// Kaynaktaki bir araç tipi (TSB'de bir satır). Kaynağı ve kimliği saklanır; TSB kayıtları ayrılabilir (Karar 33).
 model CatalogVariant {
   id           String   @id @db.Uuid
@@ -630,6 +653,7 @@ model CatalogVariant {
   seriesId     String?  @map("series_id") @db.Uuid
   modelId      String   @map("model_id") @db.Uuid
   trimId       String?  @map("trim_id") @db.Uuid
+  generationId String?  @map("generation_id") @db.Uuid
   categories   String[]
   body         String?
   engineL      Float?   @map("engine_l")
@@ -652,10 +676,11 @@ model CatalogVariant {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  make   CatalogMake    @relation(fields: [makeId], references: [id])
-  series CatalogSeries? @relation(fields: [seriesId], references: [id])
-  model  CatalogModel   @relation(fields: [modelId], references: [id])
-  trim   CatalogTrim?   @relation(fields: [trimId], references: [id])
+  make       CatalogMake        @relation(fields: [makeId], references: [id])
+  series     CatalogSeries?     @relation(fields: [seriesId], references: [id])
+  model      CatalogModel       @relation(fields: [modelId], references: [id])
+  trim       CatalogTrim?       @relation(fields: [trimId], references: [id])
+  generation CatalogGeneration? @relation(fields: [generationId], references: [id])
 
   @@unique([source, sourceKey])
   @@index([seriesId])

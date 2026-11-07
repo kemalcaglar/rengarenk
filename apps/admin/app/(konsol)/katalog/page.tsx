@@ -11,6 +11,7 @@ interface Source {
   license: string;
   url: string | null;
   autoFetch: boolean;
+  active: boolean;
   lastCheckedAt: string | null;
   lastSuccessAt: string | null;
   lastVersion: string | null;
@@ -45,6 +46,12 @@ interface Import {
   createdAt: string;
 }
 
+/** Kaynağın katalogdaki rolü */
+const SOURCE_ROLE: Record<string, string> = {
+  tsb: 'Ana kaynak · aylık dosya · 2006 ve sonrası',
+  vmm: 'Açık veri · haftalık sürüm · 1985–2005 yılları',
+};
+
 interface SeriesDetail {
   name: string;
   make: { name: string };
@@ -53,6 +60,14 @@ interface SeriesDetail {
   bodies: { name: string; years: number[] }[];
   makyaj: { makyajsiz: number[]; makyajli: number[] };
   trims: { id: string; name: string; years: number[]; modelIds: string[] }[];
+  generations: {
+    id: string;
+    name: string;
+    startYear: number | null;
+    endYear: number | null;
+    years: number[];
+    bodies: string[];
+  }[];
 }
 
 const STATUS: Record<Import['status'], [string, string, string]> = {
@@ -176,11 +191,14 @@ export default function Katalog() {
                 <span style={{ minWidth: 0 }}>
                   <span style={{ display: 'block', fontSize: 16, fontWeight: 800 }}>{s.name}</span>
                   <span style={{ display: 'block', fontSize: 13, color: '#5A6073', marginTop: 2 }}>
-                    Katalog · ana kaynak · aylık dosya · {s.license}
+                    {SOURCE_ROLE[s.key] ?? 'Katalog kaynağı'} · {s.license}
                   </span>
                 </span>
-                <span className="k-pill" style={{ background: bg, color: fg }}>
-                  {durum}
+                <span
+                  className="k-pill"
+                  style={{ background: s.active ? bg : '#F3F5FA', color: s.active ? fg : '#5A6073' }}
+                >
+                  {s.active ? durum : 'Kapalı · katalogda görünmüyor'}
                 </span>
               </div>
               <div
@@ -214,6 +232,32 @@ export default function Katalog() {
                   style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 700 }}
                 >
                   <Switch
+                    on={s.active}
+                    label="Etkin"
+                    disabled={busy}
+                    onChange={() => {
+                      if (
+                        s.active &&
+                        !confirm(`${s.name} kapatılsın mı? Kayıtları silinmez ama katalogda görünmez.`)
+                      )
+                        return;
+                      run(async () => {
+                        await yonetim(`catalog/sources/${s.key}`, {
+                          method: 'PATCH',
+                          body: { active: !s.active },
+                        });
+                        return s.active
+                          ? `${s.name} kapatıldı; kayıtları katalogda görünmüyor.`
+                          : `${s.name} açıldı.`;
+                      });
+                    }}
+                  />
+                  Etkin
+                </span>
+                <span
+                  style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 700 }}
+                >
+                  <Switch
                     on={s.autoFetch}
                     label="Otomatik çekme"
                     disabled={busy}
@@ -225,35 +269,54 @@ export default function Katalog() {
                         });
                         return s.autoFetch
                           ? 'Otomatik çekme kapatıldı.'
-                          : 'Otomatik çekme açıldı; 6 saatte bir yeni dosyaya bakılır.';
+                          : 'Otomatik çekme açıldı; 6 saatte bir yeni dosya ya da sürüme bakılır.';
                       })
                     }
                   />
                   Otomatik çekme
                 </span>
+                <button
+                  className="k-btn-line"
+                  type="button"
+                  disabled={busy}
+                  onClick={() =>
+                    run(async () => {
+                      const r = await yonetim<{ durum: string }>(`catalog/sources/${s.key}/check`, {
+                        method: 'POST',
+                        body: {},
+                      });
+                      const map: Record<string, string> = {
+                        uygulandi: 'Yeni dosya indirildi ve kataloğa işlendi.',
+                        yeni_dosya_yok: 'Kaynakta yeni dosya yok.',
+                        hata: 'Kaynağa ulaşılamadı; ayrıntı yukarıda.',
+                        rejected: 'Yeni dosya kalite kontrolünü geçmedi, yayımlanmadı.',
+                      };
+                      return map[r.durum] ?? `Sonuç: ${r.durum}`;
+                    })
+                  }
+                >
+                  Şimdi kontrol et
+                </button>
                 {s.key === 'tsb' ? (
                   <>
                     <button
                       className="k-btn-line"
                       type="button"
                       disabled={busy}
+                      title="TSB arşivinden (Nisan 2020'den beri) her yılın ilk dosyası: 2006'ya kadar eski model yılları"
                       onClick={() =>
                         run(async () => {
-                          const r = await yonetim<{ durum: string }>('catalog/tsb/check', {
-                            method: 'POST',
-                            body: {},
-                          });
-                          const map: Record<string, string> = {
-                            uygulandi: 'Yeni dosya indirildi ve kataloğa işlendi.',
-                            yeni_dosya_yok: 'TSB’de yeni dosya yok.',
-                            hata: 'TSB’ye ulaşılamadı; dosyayı buradan yükleyebilirsin.',
-                            rejected: 'Yeni dosya kalite kontrolünü geçmedi, yayımlanmadı.',
-                          };
-                          return map[r.durum] ?? `Sonuç: ${r.durum}`;
+                          const r = await yonetim<{
+                            dosyalar: { dosya: string; durum: string; yeniTip?: number }[];
+                          }>('catalog/tsb/archive', { method: 'POST', body: {} });
+                          const yeni = r.dosyalar.filter((d) => d.durum === 'applied');
+                          return yeni.length
+                            ? `Arşivden ${yeni.length} dosya işlendi, ${yeni.reduce((t, d) => t + (d.yeniTip ?? 0), 0)} eski tip eklendi.`
+                            : 'Arşivdeki dosyaların hepsi daha önce yüklenmiş.';
                         })
                       }
                     >
-                      Şimdi kontrol et
+                      Arşivi yükle (eski yıllar)
                     </button>
                     <label
                       className="k-btn"
@@ -450,7 +513,7 @@ function Gezgin() {
           disabled={!seri}
         >
           <option value="">Tüm yıllar</option>
-          {Array.from({ length: 15 }, (_, i) => 2026 - i).map((y) => (
+          {Array.from({ length: 2026 - 1985 + 1 }, (_, i) => 2026 - i).map((y) => (
             <option key={y} value={y}>
               {y}
             </option>
@@ -475,6 +538,17 @@ function Gezgin() {
               </div>
             ))}
           </div>
+          {detail.generations.length ? (
+            <div>
+              <strong>Kasa kuşakları</strong>
+              {detail.generations.map((g) => (
+                <div key={g.id}>
+                  {g.startYear}–{g.endYear ?? '…'}{' '}
+                  <span className="muted">· {g.bodies.join(', ') || g.name}</span>
+                </div>
+              ))}
+            </div>
+          ) : null}
           <div>
             <strong>Kasa</strong>
             {detail.bodies.length ? (

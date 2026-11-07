@@ -68,8 +68,10 @@ while (!stopping) {
   }
   if (Date.now() - lastCatalogCheck > CATALOG_CHECK_MS) {
     lastCatalogCheck = Date.now();
-    const r = await catalog.checkTsb().catch((err: Error) => ({ durum: `hata: ${err.message}` }));
-    if (r.durum !== 'kapali' && r.durum !== 'yeni_dosya_yok') log.log(`TSB kontrolü: ${r.durum}`);
+    for (const key of ['tsb', 'vmm']) {
+      const r = await catalog.checkSource(key, {}).catch((err: Error) => ({ durum: `hata: ${err.message}` }));
+      if (r.durum !== 'kapali' && r.durum !== 'yeni_dosya_yok') log.log(`${key} kontrolü: ${r.durum}`);
+    }
     await catalog.reportStaleSources().catch((err: Error) => log.error(err));
   }
   if (sent === 0) await new Promise((r) => setTimeout(r, 500));

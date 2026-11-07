@@ -132,6 +132,8 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   GCP gelince Cloud Run'a taşınacak; şimdilik API ve işçide çalışır.
 - TSB dosyası: konsol › Katalog › Katalog kaynakları'ndan yükleme ya da otomatik çekme (6 saatte bir, konsoldan açılır).
   Komut satırından: `pnpm --filter @rengarenk/api katalog:yukle <dosya.xlsx>` (dosya verilmezse TSB'den en son dosya).
+- Yıllar: 2006 ve sonrası TSB (güncel liste + arşiv: `katalog:yukle --arsiv`), 1985–2005 vehicle-makes-models
+  (`katalog:yukle --vmm`; ODbL, avukat teyidine kadar yalnızca eski yıllar, konsoldan kapatılabilir).
 - Kasko bedelleri okunduğu anda atılır; hiçbir tabloda ve yanıtta yoktur. Kaynaktan düşen tipler silinmez.
 - Okuma uçları: `GET /catalog/makes?kategori=`, `/catalog/makes/:id/series`, `/catalog/series/:id?yil=`.
 

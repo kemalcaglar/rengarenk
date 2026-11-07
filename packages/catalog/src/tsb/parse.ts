@@ -16,8 +16,17 @@ export type Drive = 'onden' | 'arkadan' | '4x4';
 export type Confidence = 'yuksek' | 'orta' | 'dusuk';
 
 /** TSB tip adından çıkarılan, katalog için normalize edilmiş araç tipi. */
+export type CatalogSourceKey = 'tsb' | 'vmm';
+
+/** Kasa kuşağı (nesil): ör. "3 Series Sedan (1998)", 1998–2002 */
+export interface ParsedGeneration {
+  name: string;
+  startYear: number;
+  endYear: number | null;
+}
+
 export interface ParsedVariant {
-  source: 'tsb';
+  source: CatalogSourceKey;
   /** TSB marka kodu + tip kodu: kaynaktaki değişmez kimlik */
   sourceKey: string;
   make: string;
@@ -38,8 +47,10 @@ export interface ParsedVariant {
   /** Donanım paketi (Karar 32): tip adından motor, güç, vites, kasa ifadeleri ayıklandıktan sonra kalan */
   trim: string | null;
   years: number[];
-  /** TSB'deki yazımı, olduğu gibi */
+  /** Kaynaktaki yazımı, olduğu gibi */
   raw: string;
+  /** Kasa kuşağı; TSB'de yoktur (açık kaynaklardan gelir) */
+  generation?: ParsedGeneration;
   confidence: Confidence;
 }
 
@@ -48,7 +59,7 @@ export type ParseResult = { ok: true; variant: ParsedVariant } | { ok: false; re
 // ── Sözlükler ─────────────────────────────────────────────────────
 
 /** Motor teknolojisi kelimeleri: model adında kalır, yakıtı da söyler */
-const ENGINE_TECH: Record<string, { label: string; fuel?: Fuel }> = {
+export const ENGINE_TECH: Record<string, { label: string; fuel?: Fuel }> = {
   TDI: { label: 'TDI', fuel: 'dizel' },
   TSI: { label: 'TSI', fuel: 'benzin' },
   ETSI: { label: 'eTSI', fuel: 'hibrit' },
@@ -108,7 +119,7 @@ const ENGINE_TECH: Record<string, { label: string; fuel?: Fuel }> = {
 /** Tip adında motor teknolojisine eşlik eden, adda tutulmayan kelimeler */
 const NOISE = new Set(['BMT', 'ACT', 'ECO', 'S&S', 'START&STOP', 'STOP&START', 'SS', 'BLUEMOTION', 'BLUE']);
 
-const GEARBOX: Record<string, Gearbox> = {
+export const GEARBOX: Record<string, Gearbox> = {
   AT: 'otomatik',
   OTOMATIK: 'otomatik',
   'OTOM.': 'otomatik',
@@ -146,7 +157,7 @@ const GEARBOX: Record<string, Gearbox> = {
   ETG: 'yari_otomatik',
 };
 
-const DRIVE: Record<string, Drive> = {
+export const DRIVE: Record<string, Drive> = {
   XDRIVE: '4x4',
   '4MATIC': '4x4',
   '4MATIC+': '4x4',

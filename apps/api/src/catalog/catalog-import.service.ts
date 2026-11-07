@@ -29,7 +29,9 @@ export function slug(text: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-export function catalogKeys(v: Pick<ParsedVariant, 'make' | 'series' | 'model' | 'trim'>) {
+export function catalogKeys(
+  v: Pick<ParsedVariant, 'make' | 'series' | 'model' | 'trim' | 'generation' | 'source'>,
+) {
   const make = slug(v.make);
   const scope = v.series ? `${make}/${slug(v.series)}` : `${make}/-`;
   return {
@@ -37,6 +39,10 @@ export function catalogKeys(v: Pick<ParsedVariant, 'make' | 'series' | 'model' |
     series: v.series ? scope : null,
     model: `${scope}/${slug(v.model)}`,
     trim: v.trim ? `${scope}/paket/${slug(v.trim)}` : null,
+    generation:
+      v.series && v.generation
+        ? `${scope}/nesil/${v.source}/${slug(v.generation.name)}-${v.generation.startYear}`
+        : null,
   };
 }
 
@@ -297,10 +303,39 @@ export class CatalogImportService {
     const modelIds = await upsertNamed('catalog_models', models);
     const trimIds = await upsertNamed('catalog_trims', trims);
 
+    // Kasa kuşakları (nesiller): kaynaktan gelir, seri başına
+    const generations = new Map<
+      string,
+      { series: string; name: string; start: number; end: number | null }
+    >();
+    for (const { v, k } of items) {
+      if (k.generation && k.series && v.generation && !generations.has(k.generation)) {
+        generations.set(k.generation, {
+          series: k.series,
+          name: v.generation.name,
+          start: v.generation.startYear,
+          end: v.generation.endYear,
+        });
+      }
+    }
+    for (const part of chunks([...generations])) {
+      await tx.$executeRaw`
+        INSERT INTO catalog_generations (id, key, series_id, source, name, start_year, end_year) VALUES
+        ${Prisma.join(
+          part.map(
+            ([key, g]) =>
+              Prisma.sql`(${uuidv7()}::uuid, ${key}, ${seriesIds.get(g.series)}::uuid, ${snap.source}, ${g.name}, ${g.start}::int, ${g.end}::int)`,
+          ),
+        )}
+        ON CONFLICT (key) DO UPDATE SET end_year = EXCLUDED.end_year`;
+    }
+    const generationIds = await ids('catalog_generations', [...generations.keys()]);
+
     // Güncel liste tipin bütün alanlarını yeniler; arşiv dosyası yalnızca model yıllarını birleştirir.
     const currentUpdate = Prisma.sql`
           make_id = EXCLUDED.make_id, series_id = EXCLUDED.series_id, model_id = EXCLUDED.model_id,
-          trim_id = EXCLUDED.trim_id, categories = EXCLUDED.categories, body = EXCLUDED.body,
+          trim_id = EXCLUDED.trim_id, generation_id = COALESCE(EXCLUDED.generation_id, catalog_variants.generation_id),
+          categories = EXCLUDED.categories, body = EXCLUDED.body,
           engine_l = EXCLUDED.engine_l, power_hp = EXCLUDED.power_hp, power_kw = EXCLUDED.power_kw,
           fuel = EXCLUDED.fuel, gearbox = EXCLUDED.gearbox, drive = EXCLUDED.drive, facelift = EXCLUDED.facelift,
           years = ARRAY(SELECT DISTINCT unnest(catalog_variants.years || EXCLUDED.years) ORDER BY 1),
@@ -314,7 +349,7 @@ export class CatalogImportService {
     let updated = 0;
     for (const part of chunks(items)) {
       const rows = await tx.$queryRaw<{ inserted: boolean }[]>`
-        INSERT INTO catalog_variants (id, source, source_key, make_id, series_id, model_id, trim_id, categories, body,
+        INSERT INTO catalog_variants (id, source, source_key, make_id, series_id, model_id, trim_id, generation_id, categories, body,
           engine_l, power_hp, power_kw, fuel, gearbox, drive, facelift, years, raw_name, confidence, in_latest,
           first_version, last_version, updated_at)
         VALUES ${Prisma.join(
@@ -324,7 +359,8 @@ export class CatalogImportService {
               k,
             }) => Prisma.sql`(${uuidv7()}::uuid, ${v.source}, ${v.sourceKey}, ${makeIds.get(k.make)}::uuid,
               ${k.series ? seriesIds.get(k.series) : null}::uuid, ${modelIds.get(k.model)}::uuid,
-              ${k.trim ? trimIds.get(k.trim) : null}::uuid, ${v.categories}::text[], ${v.body}, ${v.engineL}::float8,
+              ${k.trim ? trimIds.get(k.trim) : null}::uuid, ${k.generation ? generationIds.get(k.generation) : null}::uuid,
+              ${v.categories}::text[], ${v.body}, ${v.engineL}::float8,
               ${v.powerHp}::int, ${v.powerKw}::int, ${v.fuel}, ${v.gearbox}, ${v.drive}, ${v.facelift},
               ${v.years}::int[], ${v.raw}, ${v.confidence}, ${!archive}, ${snap.version}, ${snap.version}, now())`,
           ),
@@ -349,6 +385,7 @@ export class CatalogImportService {
       seriesTotal: series.size,
       modelsTotal: models.size,
       trimsTotal: trims.size,
+      generationsTotal: generations.size,
     };
   }
 
