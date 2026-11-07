@@ -59,6 +59,10 @@ model User {
   phoneVerifiedAt DateTime?  @map("phone_verified_at") @db.Timestamptz(3)
   /// @pii
   displayName     String?    @map("display_name")
+  /// @pii Ad (Karar 29: talepte tam ad ya da "Ayşe Y." gösterimi için ayrı tutulur)
+  firstName       String?    @map("first_name")
+  /// @pii Soyad
+  lastName        String?    @map("last_name")
   /// @pii
   email           String?
   status          UserStatus @default(ACTIVE)
@@ -769,4 +773,51 @@ model CatalogVariant {
   @@index([seriesId])
   @@index([modelId])
   @@map("catalog_variants")
+}
+
+/// Sürümlü yasal metin (Karar 46, Teknik tasarım consent_texts): kullanım koşulları, KVKK aydınlatma, açık rıza,
+/// ticari ileti, çerez politikası, sözleşmeler. Bir sürüm yayınlandıktan sonra değişmez; değişiklik yeni sürümdür.
+model ConsentText {
+  id          String    @id @db.Uuid
+  /// kullanim_kosullari | kvkk_aydinlatma | reklam_olcum | ticari_ileti | cerez_politikasi | on_bilgilendirme | mesafeli_sozlesme | galeri_sozlesmesi
+  key         String
+  version     Int
+  title       String
+  /// Markdown
+  body        String
+  /// taslak | yayinda | eski
+  status      String    @default("taslak")
+  /// Esaslı değişiklik: yayınlanınca kullanıcılara yeniden onaylatılır
+  material    Boolean   @default(false)
+  createdBy   String?   @map("created_by") @db.Uuid
+  publishedBy String?   @map("published_by") @db.Uuid
+  publishedAt DateTime? @map("published_at") @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@unique([key, version])
+  @@map("consent_texts")
+}
+
+/// Rıza ve onay kaydı (Karar 39 "rıza kayıtları", Karar 46): kim, hangi metnin hangi sürümünü, ne zaman, hangi
+/// kanaldan onayladı ya da reddetti. Yalnızca ekleme; güncel durum her türün en son kaydıdır.
+model Consent {
+  id          String   @id @db.Uuid
+  /// Üye; ziyaretçinin çerez tercihi için boş
+  userId      String?  @map("user_id") @db.Uuid
+  /// Ziyaretçi kimliği (çerez tercihi, rastgele; kişiyi tanımlamaz)
+  visitorId   String?  @map("visitor_id")
+  /// kullanim_kosullari | kvkk_aydinlatma | ticari_ileti | reklam_olcum | cerez_analiz | cerez_reklam
+  kind        String
+  granted     Boolean
+  textKey     String?  @map("text_key")
+  textVersion Int?     @map("text_version")
+  /// web | ios | android
+  channel     String
+  /// @pii
+  ip          String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([userId, kind, createdAt])
+  @@index([visitorId])
+  @@map("consents")
 }

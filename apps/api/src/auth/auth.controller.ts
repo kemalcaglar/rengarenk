@@ -22,7 +22,7 @@ export class AuthController {
   @Post('otp/verify')
   @HttpCode(200)
   verify(@Body(new ZodPipe(otpVerifySchema)) body: z.output<typeof otpVerifySchema>, @Ip() ip: string) {
-    return this.auth.verifyOtp(body.challengeId, body.code, body.platform, ip);
+    return this.auth.verifyOtp(body.challengeId, body.code, body.platform, ip, body.consents);
   }
 
   @Post('refresh')

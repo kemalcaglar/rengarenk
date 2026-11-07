@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module.js';
 import { CatalogModule } from './catalog/catalog.module.js';
+import { ConsentModule } from './consents/consent.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { EntitlementsModule } from './entitlements/entitlements.module.js';
 import { FlagsModule } from './flags/flags.module.js';
@@ -31,6 +32,7 @@ import { StorageModule } from './storage/storage.service.js';
     StaffModule,
     FlagsModule,
     StorageModule,
+    ConsentModule,
     CatalogModule,
   ],
   controllers: [HealthController, MetricsController],

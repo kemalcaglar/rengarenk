@@ -12,6 +12,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { personNameSchema } from '@rengarenk/shared';
 import { z } from 'zod';
 import { AuditService } from '../audit/audit.service.js';
 import { AuthGuard } from '../auth/auth.guard.js';
@@ -22,9 +23,17 @@ import { type Db, PRISMA } from '../database/prisma.js';
 const updateSchema = z
   .object({
     displayName: z.string().trim().min(2, 'En az 2 karakter').max(60).nullable().optional(),
+    /** Ad ve soyad ayrı (Karar 29); ikisi verilince görünen ad "Ad Soyad" olur */
+    firstName: personNameSchema.optional(),
+    lastName: personNameSchema.optional(),
     email: z.email('Geçerli bir e-posta gir').max(254).nullable().optional(),
   })
-  .strict();
+  .strict()
+  .transform((v) =>
+    v.firstName && v.lastName && v.displayName === undefined
+      ? { ...v, displayName: `${v.firstName} ${v.lastName}` }
+      : v,
+  );
 
 type AuthedRequest = { user: AccessClaims; ip: string };
 
@@ -44,6 +53,8 @@ export class MeController {
       select: {
         id: true,
         displayName: true,
+        firstName: true,
+        lastName: true,
         email: true,
         phone: true,
         status: true,
@@ -62,12 +73,12 @@ export class MeController {
     return this.db.$transaction(async (tx) => {
       const before = await tx.user.findUniqueOrThrow({
         where: { id: req.user.sub },
-        select: { displayName: true, email: true },
+        select: { displayName: true, firstName: true, lastName: true, email: true },
       });
       const after = await tx.user.update({
         where: { id: req.user.sub },
         data: body,
-        select: { id: true, displayName: true, email: true },
+        select: { id: true, displayName: true, firstName: true, lastName: true, email: true },
       });
       await this.audit.record(
         {

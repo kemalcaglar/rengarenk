@@ -12,6 +12,7 @@
     "start:worker": "node dist/worker.js",
     "test": "node --env-file-if-exists=../../.env ./node_modules/vitest/vitest.mjs run",
     "sahip": "node --env-file-if-exists=../../.env --import @swc-node/register/esm-register src/cli/sahip.ts",
+    "yasal:yukle": "node --env-file-if-exists=../../.env --import @swc-node/register/esm-register src/cli/yasal-yukle.ts",
     "katalog:anahtar": "node --import @swc-node/register/esm-register src/cli/katalog-anahtar.ts",
     "katalog:yukle": "node --env-file-if-exists=../../.env --import @swc-node/register/esm-register src/cli/katalog-yukle.ts"
   },

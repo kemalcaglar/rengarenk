@@ -22,6 +22,25 @@ a {
   color: var(--link);
   text-decoration: none;
 }
+/* Tasarımdaki bağlantı davranışı (bütün .dc.html dosyalarının ortak stili) */
+a:hover {
+  color: #1a3c99;
+  text-decoration: underline;
+}
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
 .bar {
   background: #fff;
   border-bottom: 1px solid var(--line);
@@ -87,4 +106,9 @@ a {
   text-align: center;
   font-size: 14px;
   font-weight: 700;
+}
+/* Onay kutusu: gizli gerçek checkbox klavyeyle seçilince tasarımın kutusu odak çerçevesi alır */
+.sr-only:focus-visible + .onay-kutu {
+  outline: 2px solid #2450c8;
+  outline-offset: 2px;
 }

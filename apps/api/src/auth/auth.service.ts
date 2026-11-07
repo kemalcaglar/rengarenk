@@ -1,9 +1,17 @@
-import { HttpException, HttpStatus, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { uuidv7 } from '@rengarenk/db';
-import type { TokenPair } from '@rengarenk/shared';
+import type { SignupConsents, TokenPair } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
+import { ConsentService, channelOf } from '../consents/consent.service.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { Metrics } from '../observability/metrics.js';
 import { OutboxService } from '../outbox/outbox.service.js';
@@ -39,6 +47,7 @@ export class AuthService {
     private readonly outbox: OutboxService,
     private readonly limiter: RateLimiter,
     private readonly metrics: Metrics,
+    private readonly consents: ConsentService,
   ) {}
 
   /** SMS kodu gönderir. Aynı numaraya 60 saniyede bir, saatte en fazla 5 kod. */
@@ -98,6 +107,7 @@ export class AuthService {
     code: string,
     platform: 'IOS' | 'ANDROID' | 'WEB',
     ip?: string,
+    consents?: SignupConsents,
   ): Promise<TokenPair & { isNewUser: boolean }> {
     if (ip) await this.limiter.hit(`verify:ip:${ip}`, 60, 3600);
     const ch = await this.db.otpChallenge.findUnique({ where: { id: challengeId } });
@@ -107,6 +117,12 @@ export class AuthService {
     if (!safeEqualHex(ch.codeHash, hashOtp(this.env.JWT_SECRET, ch.id, code))) {
       await this.db.otpChallenge.update({ where: { id: ch.id }, data: { attempts: { increment: 1 } } });
       throw invalid;
+    }
+    // Yeni üyelik kullanım koşulları ve KVKK aydınlatma onayı olmadan açılmaz (kod harcanmadan önce denetlenir).
+    if (!consents && !(await this.db.user.findUnique({ where: { phone: ch.phone }, select: { id: true } }))) {
+      throw new BadRequestException(
+        'Üye olmak için kullanım koşullarını ve KVKK aydınlatma metnini onaylamalısın',
+      );
     }
 
     return this.db.$transaction(async (tx) => {
@@ -133,6 +149,8 @@ export class AuthService {
       }
       if (user.status !== 'ACTIVE') throw new UnauthorizedException('Hesap kullanıma kapalı');
 
+      // Rıza kaydı (Karar 59): hangi metin sürümüne, hangi kanaldan, ne zaman
+      if (consents) await this.consents.recordSignup(tx, user.id, consents, channelOf(platform), ip);
       const device = await tx.device.create({ data: { id: uuidv7(), userId: user.id, platform } });
       const pair = await this.openSession(tx, user.id, device.id);
       await this.audit.record(

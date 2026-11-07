@@ -30,3 +30,11 @@ export async function call(
   });
   return { status: res.statusCode, body: res.body ? JSON.parse(res.body) : undefined };
 }
+
+/** Üyelik onayları (Karar 59): yeni üye kullanım koşulları ve KVKK aydınlatma onayı olmadan açılmaz */
+export const SIGNUP_CONSENTS = {
+  kullanimKosullari: true,
+  kvkkAydinlatma: true,
+  ticariIleti: false,
+  reklamOlcum: false,
+} as const;

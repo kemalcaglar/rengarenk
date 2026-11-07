@@ -1,8 +1,9 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
+import { uuidv7 } from '@rengarenk/db';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Db } from '../src/database/prisma.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp } from './helpers.js';
+import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
 
 let app: NestFastifyApplication;
 let sms: MemorySmsSender;
@@ -33,10 +34,18 @@ describe('telefon ve SMS koduyla giriş', () => {
     });
     expect(wrong.status).toBe(401);
 
+    // Yeni üyelik onaysız açılmaz; kod harcanmaz
+    const noConsent = await call(app, 'POST', '/auth/otp/verify', {
+      challengeId: req.body.challengeId,
+      code,
+    });
+    expect(noConsent.status).toBe(400);
+
     const ok = await call(app, 'POST', '/auth/otp/verify', {
       challengeId: req.body.challengeId,
       code,
       platform: 'IOS',
+      consents: { ...SIGNUP_CONSENTS, ticariIleti: true },
     });
     expect(ok.status).toBe(200);
     expect(ok.body.isNewUser).toBe(true);
@@ -67,6 +76,7 @@ describe('telefon ve SMS koduyla giriş', () => {
     const login = await call(app, 'POST', '/auth/otp/verify', {
       challengeId: req.body.challengeId,
       code: sms.lastCode(phone),
+      consents: SIGNUP_CONSENTS,
     });
     const first = login.body.refreshToken as string;
 
@@ -87,5 +97,80 @@ describe('telefon ve SMS koduyla giriş', () => {
   it('sağlık kontrolü veritabanına ulaşır', async () => {
     const r = await call(app, 'GET', '/health');
     expect(r.body.status).toBe('ok');
+  });
+});
+
+describe('rıza kayıtları ve yasal metinler (Karar 46, 59)', () => {
+  it('üyelik onayları metin sürümü ve kanalıyla saklanır; kayıt değiştirilemez', async () => {
+    await db.consentText.create({
+      data: {
+        id: uuidv7(),
+        key: 'kullanim_kosullari',
+        version: 3,
+        title: 'Kullanım koşulları',
+        body: 'Metin',
+      },
+    });
+    const phone = '+905327770011';
+    const req = await call(app, 'POST', '/auth/otp/request', { phone });
+    const zorunluEksik = await call(app, 'POST', '/auth/otp/verify', {
+      challengeId: req.body.challengeId,
+      code: sms.lastCode(phone),
+      consents: { ...SIGNUP_CONSENTS, kvkkAydinlatma: false },
+    });
+    expect(zorunluEksik.status).toBe(400);
+    const ok = await call(app, 'POST', '/auth/otp/verify', {
+      challengeId: req.body.challengeId,
+      code: sms.lastCode(phone),
+      platform: 'ANDROID',
+      consents: { ...SIGNUP_CONSENTS, reklamOlcum: true },
+    });
+    expect(ok.status).toBe(200);
+    const user = await db.user.findUniqueOrThrow({ where: { phone } });
+    const rows = await db.consent.findMany({ where: { userId: user.id }, orderBy: { kind: 'asc' } });
+    expect(rows.map((r) => [r.kind, r.granted, r.channel])).toEqual([
+      ['kullanim_kosullari', true, 'android'],
+      ['kvkk_aydinlatma', true, 'android'],
+      ['reklam_olcum', true, 'android'],
+      ['ticari_ileti', false, 'android'],
+    ]);
+    expect(rows.find((r) => r.kind === 'kullanim_kosullari')?.textVersion).toBe(3);
+    await expect(
+      db.consent.update({ where: { id: rows[0]?.id }, data: { granted: false } }),
+    ).rejects.toThrow();
+  });
+
+  it('yasal metin herkese açık; yayınlanmış sürüm değiştirilemez', async () => {
+    const r = await call(app, 'GET', '/legal/kullanim_kosullari');
+    expect(r.status).toBe(200);
+    expect(r.body).toMatchObject({ version: 3, status: 'taslak' });
+    expect((await call(app, 'GET', '/legal/bilinmeyen')).status).toBe(400);
+    const t = await db.consentText.findFirstOrThrow({ where: { key: 'kullanim_kosullari', version: 3 } });
+    await db.consentText.update({
+      where: { id: t.id },
+      data: { status: 'yayinda', publishedAt: new Date() },
+    });
+    await expect(db.consentText.update({ where: { id: t.id }, data: { body: 'Değişti' } })).rejects.toThrow();
+  });
+
+  it('çerez tercihi ziyaretçi kimliğiyle kaydedilir; kimliksiz istek reddedilir', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/consents/cookie',
+      payload: { analiz: true, reklam: false },
+      headers: { 'x-rr-ziyaretci': 'ziyaretci-kimligi-1234567', 'x-rr-platform': 'WEB' },
+    });
+    expect(res.statusCode).toBe(204);
+    const rows = await db.consent.findMany({ where: { visitorId: 'ziyaretci-kimligi-1234567' } });
+    expect(rows.map((r) => [r.kind, r.granted]).sort()).toEqual([
+      ['cerez_analiz', true],
+      ['cerez_reklam', false],
+    ]);
+    const bad = await app.inject({
+      method: 'POST',
+      url: '/consents/cookie',
+      payload: { analiz: true, reklam: true },
+    });
+    expect(bad.statusCode).toBe(400);
   });
 });

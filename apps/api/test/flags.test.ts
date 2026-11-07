@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Db } from '../src/database/prisma.js';
 import { FeatureFlagService } from '../src/flags/feature-flag.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp } from './helpers.js';
+import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
@@ -27,6 +27,7 @@ async function user(phone: string) {
   const v = await call(app, 'POST', '/auth/otp/verify', {
     challengeId: r.body.challengeId,
     code: sms.lastCode(`+9${phone.replace(/\s/g, '')}`),
+    consents: SIGNUP_CONSENTS,
   });
   const me = await call(app, 'GET', '/auth/me', undefined, v.body.accessToken);
   return { token: v.body.accessToken as string, id: me.body.id as string };

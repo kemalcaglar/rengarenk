@@ -1,7 +1,7 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp } from './helpers.js';
+import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
 
 let app: NestFastifyApplication;
 let sms: MemorySmsSender;
@@ -16,6 +16,7 @@ async function login(phone: string) {
   const v = await call(app, 'POST', '/auth/otp/verify', {
     challengeId: r.body.challengeId,
     code: sms.lastCode(phone),
+    consents: SIGNUP_CONSENTS,
   });
   return v.body as { accessToken: string; refreshToken: string };
 }
@@ -32,6 +33,10 @@ describe('profil ve oturumlar', () => {
     );
     expect(ok.status).toBe(200);
     expect(ok.body.displayName).toBe('Ayşe Y.');
+    // Üyeliğin son adımı: ad ve soyad ayrı; görünen ad ikisinden oluşur (Karar 29)
+    const ad = await call(app, 'PATCH', '/me', { firstName: 'Ayşe', lastName: 'Yılmaz' }, accessToken);
+    expect(ad.body).toMatchObject({ firstName: 'Ayşe', lastName: 'Yılmaz', displayName: 'Ayşe Yılmaz' });
+    expect((await call(app, 'PATCH', '/me', { firstName: 'A' }, accessToken)).status).toBe(400);
     expect((await call(app, 'PATCH', '/me', { email: 'yok' }, accessToken)).status).toBe(400);
     expect((await call(app, 'PATCH', '/me', { phone: '+905320000000' }, accessToken)).status).toBe(400);
   });
