@@ -50,6 +50,7 @@ interface Import {
 const SOURCE_ROLE: Record<string, string> = {
   tsb: 'Ana kaynak · aylık dosya · 2006 ve sonrası',
   vmm: 'Açık veri · haftalık sürüm · 1985–2005 yılları',
+  yerli: 'Türkiye’ye özgü eski modeller · kaynaklı liste (Vikipedi) · 1967–2002',
 };
 
 interface SeriesDetail {
@@ -513,7 +514,7 @@ function Gezgin() {
           disabled={!seri}
         >
           <option value="">Tüm yıllar</option>
-          {Array.from({ length: 2026 - 1985 + 1 }, (_, i) => 2026 - i).map((y) => (
+          {Array.from({ length: 2026 - 1960 + 1 }, (_, i) => 2026 - i).map((y) => (
             <option key={y} value={y}>
               {y}
             </option>

@@ -1,6 +1,14 @@
 import { createHash } from 'node:crypto';
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { buildTsbSnapshot, buildVmmSnapshot, revisionFromFileName, signSnapshot } from '@rengarenk/catalog';
+import {
+  buildTsbSnapshot,
+  buildVmmSnapshot,
+  buildYerliSnapshot,
+  revisionFromFileName,
+  signSnapshot,
+  YERLI_KLASIKLER,
+  YERLI_SURUM,
+} from '@rengarenk/catalog';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { CatalogImportService, type ImportMeta, type ImportOutcome } from './catalog-import.service.js';
@@ -89,10 +97,33 @@ export class CatalogPipelineService {
     }
   }
 
+  /**
+   * Türkiye'ye özgü eski modeller: depodaki kaynaklı liste (sahip kararı). Liste sürümü değiştiyse işlenir;
+   * ağ gerekmez.
+   */
+  async checkYerli(
+    opts: { force?: boolean; staffId?: string; ip?: string } = {},
+  ): Promise<{ durum: string; outcome?: ImportOutcome }> {
+    const source = await this.db.catalogSource.findUniqueOrThrow({ where: { key: 'yerli' } });
+    if (!source.autoFetch && !opts.force) return { durum: 'kapali' };
+    if (source.lastVersion === YERLI_SURUM) return { durum: 'yeni_dosya_yok' };
+    const fileSha256 = createHash('sha256').update(JSON.stringify(YERLI_KLASIKLER)).digest('hex');
+    const pkg = signSnapshot(buildYerliSnapshot(), this.keys.privatePem);
+    const outcome = await this.importer.apply(pkg, {
+      fileName: `yerli-klasikler-${YERLI_SURUM}`,
+      fileSha256,
+      trigger: opts.staffId ? 'elle' : 'otomatik',
+      staffId: opts.staffId,
+      ip: opts.ip,
+    });
+    return { durum: outcome.status === 'APPLIED' ? 'uygulandi' : outcome.status.toLowerCase(), outcome };
+  }
+
   /** Konsoldaki "Şimdi kontrol et": kaynağa göre doğru hat. */
   checkSource(key: string, opts: { force?: boolean; staffId?: string; ip?: string }) {
     if (key === 'tsb') return this.checkTsb(opts);
     if (key === 'vmm') return this.checkVmm(opts);
+    if (key === 'yerli') return this.checkYerli(opts);
     throw new NotFoundException('Kaynak bulunamadı');
   }
 

@@ -104,10 +104,13 @@ pnpm format        # Biome ile biçimlendir
   `packages/shared/src/flags.ts`), canlı provası (`deploy/prova/`, el kitabı `deploy/README.md`). API'de 59 test.
 - **Sprint 5 (Aşama 2) bitti:** katalog veri modeli, hat (`packages/catalog`, API `apps/api/src/catalog/`), TSB
   iki yoldan (konsoldan yükleme + otomatik çekme, sahip kararı), konsolda "Katalog kaynakları". Yerel veritabanında
-  Ekim 2026 TSB listesi, TSB arşivi (2006'ya kadar) ve vehicle-makes-models (1985–2005) yüklü: 1985–2026. API'de 74 test.
+  Ekim 2026 TSB listesi, TSB arşivi (2006'ya kadar), vehicle-makes-models (1985–2005) ve yerli klasikler yüklü: 1967–2026. API'de 75 test.
 - **Eski yıllar (sahip isteği, en az 1990'lar):** TSB arşivi Nisan 2020'den başlar (`GetInsuranceDataArchiveFile`,
   ay kimliği = ay + 1). 2005 ve öncesi vehicle-makes-models'tan; ODbL ve autoevolution kökenli olduğu için kaynak
-  ayrı tutulur ve konsoldan kapatılabilir (Teknik tasarım §5). Türkiye'ye özgü eski modeller için Wikidata gerekir.
+  ayrı tutulur ve konsoldan kapatılabilir (Teknik tasarım §5). Türkiye'ye özgü eski modeller (Şahin, Doğan, Kartal,
+  Serçe, Murat, Toros, Renault 12, Anadol) `packages/catalog/src/yerli/klasikler.ts` içinde kaynaklı listedir (sahip
+  kararı; Karar 33'e sınırlı istisna). Yeni değer eklerken maddeden oku, kaynak ve sürüm numarasını yaz, `YERLI_SURUM`'u artır.
+- Catalog listeleri Türkçe alfabeyle sıralanır (veritabanı Ş'yi S'nin önüne koyar).
 - **TSB dosyası:** `https://www.tsb.org.tr/InsuranceData/GetLatestExcelFile` → dosya yolu. Kasko bedeli asla
   saklanmaz ve gösterilmez (Karar 33). TSB dosyası depoya girmez.
 - **Sıradaki:** Sprint 6: Wikidata ile kasa kuşağı ve makyaj, ad eşleme, EEA, VehiclesDB, Commons fotoğrafları.

@@ -116,7 +116,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Demo: BMW 3 Serisi 320i'nin kasa ve paketleri katalogdan geliyor
 - [x] Eski model yılları (sahip isteği: en az 1990'lar): TSB arşivi (Nisan 2020'den beri; 2006–2011 yılları, 5.160 düşmüş tip) ve vehicle-makes-models (1985–2005, 11.052 tip, 2.259 kasa kuşağı). Katalog şimdi 1985–2026'yı kapsıyor
 - [x] Kaynak açma/kapama: kapatılan kaynağın kayıtları silinmez, katalogda görünmez (vehicle-makes-models için avukat görüşüne hazırlık)
-- [ ] Türkiye'ye özgü eski modeller (Tofaş Şahin, Doğan, Kartal; Renault Toros; Anadol): açık veri setlerinde yok, Wikidata'dan (Sprint 6)
+- [x] Türkiye'ye özgü eski modeller (sahip kararı: kaynaklı liste): Tofaş Şahin, Doğan, Kartal, Serçe, Murat 124 ve 131; Renault 12 ve Toros; Anadol A1, A2, STC-16, SV-1600, Böcek, A8-16, Kamyonet. Wikidata'da yılları yoktu; değerler Türkçe Vikipedi maddelerinden, her kayıt kaynağıyla. Katalog 1967–2026
 - [ ] Kasa kuşağı (nesil kodu) ve güvenilir makyaj yılları: Wikidata (Sprint 6). TSB "LCI" işaretini tutarlı kullanmıyor; vehicle-makes-models kuşağı kasa başına ayrı verir
 - [ ] Ad eşleme (catalog_aliases): aynı serinin farklı yazımları (i3 / I3S, M / M Serisi) (Sprint 6)
 - [ ] Açık kaynaklar: EEA teknik değerleri, VehiclesDB (motosiklet, kamyon, otobüs), Commons fotoğrafları (Sprint 6)

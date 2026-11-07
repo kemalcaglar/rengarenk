@@ -362,6 +362,38 @@ describe('eski yıllar: vehicle-makes-models (1990–2005)', () => {
   });
 });
 
+describe('yerli klasikler: kaynaklı liste', () => {
+  it('Şahin, Doğan, Kartal, Toros, Anadol katalogda; yıllar ve paketler maddedeki gibi', async () => {
+    const r = await staffCall(app, 'POST', '/staff/catalog/sources/yerli/check', {}, owner);
+    expect(r.body.durum).toBe('uygulandi');
+    expect((await staffCall(app, 'POST', '/staff/catalog/sources/yerli/check', {}, owner)).body.durum).toBe(
+      'yeni_dosya_yok',
+    );
+
+    const makes = (await get('/catalog/makes?kategori=otomobil')).body;
+    const tofas = makes.find((m: { name: string }) => m.name === 'Tofaş');
+    expect(makes.map((m: { name: string }) => m.name)).toEqual(expect.arrayContaining(['Tofaş', 'Anadol']));
+    const series = (await get(`/catalog/makes/${tofas.id}/series`)).body.map((s: { name: string }) => s.name);
+    expect(series).toEqual(['Doğan', 'Kartal', 'Murat 124', 'Murat 131', 'Serçe', 'Şahin']);
+
+    const sahin = (await get(`/catalog/makes/${tofas.id}/series`)).body.find(
+      (s: { name: string }) => s.name === 'Şahin',
+    );
+    const d = await get(`/catalog/series/${sahin.id}?yil=1997`);
+    expect(d.body.models.map((m: { name: string }) => m.name)).toEqual(['1.4', '1.6']);
+    expect(d.body.trims.map((t: { name: string }) => t.name)).toEqual(['S']);
+    expect(d.body.generations.map((g: { name: string }) => g.name)).toEqual(['İkinci nesil']);
+
+    const renault = makes.find((m: { name: string }) => m.name === 'Renault');
+    const toros = (await get(`/catalog/makes/${renault.id}/series`)).body.find(
+      (s: { name: string }) => s.name === 'Toros',
+    );
+    expect(
+      (await get(`/catalog/series/${toros.id}?yil=1995`)).body.bodies.map((b: { name: string }) => b.name),
+    ).toEqual(['Sedan', 'Station wagon']);
+  });
+});
+
 describe('katalog okuma uçları', () => {
   it('marka → seri → seçenekler: modeller, kasalar, makyaj yılları ve paketler', async () => {
     const makes = await get('/catalog/makes?kategori=otomobil');

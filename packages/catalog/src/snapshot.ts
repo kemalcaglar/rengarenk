@@ -87,6 +87,8 @@ export interface QualityIssue {
   mesaj: string;
 }
 
+const MIN_ITEMS: Record<string, number> = { tsb: 1000, vmm: 1000, yerli: 10 };
+
 export interface QualityReport {
   /** false ise yayın durur (Teknik tasarım §5) */
   ok: boolean;
@@ -101,10 +103,12 @@ export function qualityCheck(next: CatalogSnapshot, prev?: PreviousSummary): Qua
   const blocking: QualityIssue[] = [];
   const warnings: QualityIssue[] = [];
   const keys = new Set(next.items.map((i) => i.sourceKey));
-  if (next.items.length < 1000) {
+  // Kaynağın beklenen en küçük hacmi: TSB ve açık veri binlerce tip, kaynaklı yerli listesi birkaç düzine.
+  const minItems = MIN_ITEMS[next.source] ?? 1000;
+  if (next.items.length < minItems) {
     blocking.push({
       kod: 'az_kayit',
-      mesaj: `Dosyada yalnızca ${next.items.length} tip var; TSB listesi binlerce tip içerir`,
+      mesaj: `Dosyada yalnızca ${next.items.length} tip var; bu kaynak en az ${minItems} tip içerir`,
     });
   }
   // Eski ve özel modellerin bir kısmı tip adında motor bilgisi taşımaz; oranın kendisi değil, önceki dosyaya göre

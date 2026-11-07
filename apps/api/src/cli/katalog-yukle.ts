@@ -15,6 +15,7 @@ import { DatabaseModule } from '../database/database.module.js';
  *   pnpm --filter @rengarenk/api katalog:yukle            (TSB'den en son dosya)
  *   pnpm --filter @rengarenk/api katalog:yukle --arsiv    (TSB arşivi: eski model yılları, 2020'den beri)
  *   pnpm --filter @rengarenk/api katalog:yukle --vmm      (vehicle-makes-models: 1985–2005 yılları)
+ *   pnpm --filter @rengarenk/api katalog:yukle --yerli    (Türkiye'ye özgü eski modeller, kaynaklı liste)
  */
 @Module({ imports: [DatabaseModule, CatalogPipelineModule] })
 class CliModule {}
@@ -22,7 +23,8 @@ class CliModule {}
 const arg = process.argv[2];
 const archive = arg === '--arsiv';
 const vmm = arg === '--vmm';
-const file = archive || vmm ? undefined : arg;
+const yerli = arg === '--yerli';
+const file = archive || vmm || yerli ? undefined : arg;
 const app = await NestFactory.createApplicationContext(CliModule, { logger: ['error', 'warn'] });
 try {
   const pipeline = app.get(CatalogPipelineService);
@@ -35,14 +37,16 @@ try {
     await app.close();
     process.exit(0);
   }
-  const result = vmm
-    ? (await pipeline.checkVmm({ force: true })).outcome
-    : file
-      ? await pipeline.runTsbFile(new Uint8Array(readFileSync(file)), {
-          fileName: basename(file),
-          trigger: 'elle',
-        })
-      : (await pipeline.checkTsb({ force: true })).outcome;
+  const result = yerli
+    ? (await pipeline.checkYerli({ force: true })).outcome
+    : vmm
+      ? (await pipeline.checkVmm({ force: true })).outcome
+      : file
+        ? await pipeline.runTsbFile(new Uint8Array(readFileSync(file)), {
+            fileName: basename(file),
+            trigger: 'elle',
+          })
+        : (await pipeline.checkTsb({ force: true })).outcome;
   const sure = ((Date.now() - started) / 1000).toFixed(1);
   if (!result) {
     console.log(

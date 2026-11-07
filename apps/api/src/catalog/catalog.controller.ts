@@ -31,6 +31,10 @@ const yearSchema = z.coerce.number().int().min(1950).max(2100).optional();
 
 const uniqSorted = (xs: number[]) => [...new Set(xs)].sort((a, b) => a - b);
 
+/** Veritabanı sıralaması Türkçe alfabeyi bilmez (Ş'yi S'nin önüne koyar); listeler Türkçe kurallarla sıralanır. */
+const trOrder = <T extends { name: string }>(rows: T[]) =>
+  rows.sort((a, b) => a.name.localeCompare(b.name, 'tr', { numeric: true }));
+
 /**
  * Araç kataloğu (Karar 32–33): sihirbaz, portföy ve filtreler marka → seri → model, kasa ve makyaj, paket
  * seçimlerini buradan alır. Giriş gerekmez. Kasko bedeli hiçbir yanıtta yoktur.
@@ -50,11 +54,13 @@ export class CatalogController {
 
   @Get('makes')
   async makes(@Query('kategori', new ZodPipe(categorySchema)) kategori?: string) {
-    return this.db.catalogMake.findMany({
-      where: { variants: { some: await this.visible(kategori) } },
-      orderBy: { name: 'asc' },
-      select: { id: true, name: true },
-    });
+    return trOrder(
+      await this.db.catalogMake.findMany({
+        where: { variants: { some: await this.visible(kategori) } },
+        orderBy: { name: 'asc' },
+        select: { id: true, name: true },
+      }),
+    );
   }
 
   @Get('makes/:id/series')
@@ -62,11 +68,13 @@ export class CatalogController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query('kategori', new ZodPipe(categorySchema)) kategori?: string,
   ) {
-    return this.db.catalogSeries.findMany({
-      where: { makeId: id, variants: { some: await this.visible(kategori) } },
-      orderBy: { name: 'asc' },
-      select: { id: true, name: true, categories: true },
-    });
+    return trOrder(
+      await this.db.catalogSeries.findMany({
+        where: { makeId: id, variants: { some: await this.visible(kategori) } },
+        orderBy: { name: 'asc' },
+        select: { id: true, name: true, categories: true },
+      }),
+    );
   }
 
   /** Seri katmanı olmayan kategoriler (motosiklet, ATV) için markanın modelleri */
@@ -75,15 +83,17 @@ export class CatalogController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query('kategori', new ZodPipe(categorySchema)) kategori?: string,
   ) {
-    return this.db.catalogModel.findMany({
-      where: {
-        makeId: id,
-        seriesId: null,
-        variants: { some: await this.visible(kategori) },
-      },
-      orderBy: { name: 'asc' },
-      select: { id: true, name: true },
-    });
+    return trOrder(
+      await this.db.catalogModel.findMany({
+        where: {
+          makeId: id,
+          seriesId: null,
+          variants: { some: await this.visible(kategori) },
+        },
+        orderBy: { name: 'asc' },
+        select: { id: true, name: true },
+      }),
+    );
   }
 
   /**

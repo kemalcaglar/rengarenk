@@ -16,7 +16,7 @@ export type Drive = 'onden' | 'arkadan' | '4x4';
 export type Confidence = 'yuksek' | 'orta' | 'dusuk';
 
 /** TSB tip adından çıkarılan, katalog için normalize edilmiş araç tipi. */
-export type CatalogSourceKey = 'tsb' | 'vmm';
+export type CatalogSourceKey = 'tsb' | 'vmm' | 'yerli';
 
 /** Kasa kuşağı (nesil): ör. "3 Series Sedan (1998)", 1998–2002 */
 export interface ParsedGeneration {

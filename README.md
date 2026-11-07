@@ -134,6 +134,7 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   Komut satırından: `pnpm --filter @rengarenk/api katalog:yukle <dosya.xlsx>` (dosya verilmezse TSB'den en son dosya).
 - Yıllar: 2006 ve sonrası TSB (güncel liste + arşiv: `katalog:yukle --arsiv`), 1985–2005 vehicle-makes-models
   (`katalog:yukle --vmm`; ODbL, avukat teyidine kadar yalnızca eski yıllar, konsoldan kapatılabilir).
+  Türkiye'ye özgü eski modeller (Şahin, Toros, Anadol …) kaynaklı listeden: `katalog:yukle --yerli`.
 - Kasko bedelleri okunduğu anda atılır; hiçbir tabloda ve yanıtta yoktur. Kaynaktan düşen tipler silinmez.
 - Okuma uçları: `GET /catalog/makes?kategori=`, `/catalog/makes/:id/series`, `/catalog/series/:id?yil=`.
 
