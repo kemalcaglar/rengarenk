@@ -149,6 +149,12 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   konsol › Katalog › Ad eşleme'den onaylanınca tipler hedef seriye taşınır. Önerileri yeniden üretmek için
   `katalog:yukle --oneri`. Kayıtlar silinmez.
 - TSB ayrıştırıcısının sürümü var (`TSB_PARSER`); kurallar değişince sürümü artır, aynı dosya yeniden işlenir.
+- **VehiclesDB** (CC BY 4.0): motosiklet, moped, kamyon, otobüs, van (`katalog:yukle --vehiclesdb`). Atıf zorunlu:
+  sitede `/veri-kaynaklari` ve alt bilgideki bağlantı, mobilde Hesabım › Veri kaynakları. Atıf metni
+  `GET /catalog/attributions`.
+- **Nesil fotoğrafları** (Karar 34): `katalog:yukle --commons` Commons'tan aday toplar; seçim konsol › Katalog ›
+  Nesil fotoğrafları. Seçilen dosya SeaweedFS'e (`S3_*` ayarları) kopyalanır, `GET /catalog/images/:id` ile sunulur;
+  atfı seri ayrıntısında `photo.caption`.
 
 ## Canlıya alma
 

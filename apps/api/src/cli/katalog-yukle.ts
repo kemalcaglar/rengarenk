@@ -7,6 +7,7 @@ import { CatalogPipelineModule } from '../catalog/catalog.module.js';
 import { CatalogAliasService } from '../catalog/catalog-alias.service.js';
 import { CatalogPipelineService } from '../catalog/catalog-pipeline.service.js';
 import { DatabaseModule } from '../database/database.module.js';
+import { StorageModule } from '../storage/storage.service.js';
 
 /**
  * TSB dosyasını komut satırından kataloğa yükler (konsoldaki yüklemeyle aynı hat: imza, kalite kontrolü, kayıt).
@@ -20,8 +21,9 @@ import { DatabaseModule } from '../database/database.module.js';
  *   pnpm --filter @rengarenk/api katalog:yukle --wikidata (nesil kodları ve yılları: Wikidata, Vikipedi)
  *   pnpm --filter @rengarenk/api katalog:yukle --oneri    (ad eşleme önerilerini yeniden üret)
  *   pnpm --filter @rengarenk/api katalog:yukle --vehiclesdb (motosiklet, kamyon, otobüs, van: VehiclesDB)
+ *   pnpm --filter @rengarenk/api katalog:yukle --commons  (nesil fotoğrafı adayları: Wikimedia Commons)
  */
-@Module({ imports: [DatabaseModule, CatalogPipelineModule] })
+@Module({ imports: [DatabaseModule, StorageModule, CatalogPipelineModule] })
 class CliModule {}
 
 const arg = process.argv[2];
@@ -31,11 +33,18 @@ const yerli = arg === '--yerli';
 const wikidata = arg === '--wikidata';
 const oneri = arg === '--oneri';
 const vehiclesdb = arg === '--vehiclesdb';
-const file = archive || vmm || yerli || wikidata || oneri || vehiclesdb ? undefined : arg;
+const commons = arg === '--commons';
+const file = archive || vmm || yerli || wikidata || oneri || vehiclesdb || commons ? undefined : arg;
 const app = await NestFactory.createApplicationContext(CliModule, { logger: ['error', 'warn'] });
 try {
   const pipeline = app.get(CatalogPipelineService);
   const started = Date.now();
+  if (commons) {
+    const r = await pipeline.checkSource('commons', { force: true });
+    console.log(JSON.stringify(r));
+    await app.close();
+    process.exit(0);
+  }
   if (oneri) {
     const aliases = app.get(CatalogAliasService);
     for (const source of ['tsb', 'vmm', 'yerli'])

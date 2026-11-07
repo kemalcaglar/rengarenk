@@ -17,6 +17,7 @@ import {
 } from '@rengarenk/catalog';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
+import { CatalogImageService } from './catalog-image.service.js';
 import { CatalogImportService, type ImportMeta, type ImportOutcome } from './catalog-import.service.js';
 import { CATALOG_KEYS, type CatalogKeys } from './catalog-keys.js';
 import { TSB_CLIENT, type TsbClient } from './tsb-client.js';
@@ -46,6 +47,7 @@ export class CatalogPipelineService {
     @Inject(WIKIDATA_CLIENT) private readonly wikidata: WikidataClient,
     @Inject(VEHICLESDB_CLIENT) private readonly vehiclesdb: VehiclesDbClient,
     private readonly importer: CatalogImportService,
+    private readonly images: CatalogImageService,
     private readonly outbox: OutboxService,
   ) {}
 
@@ -237,6 +239,7 @@ export class CatalogPipelineService {
     if (key === 'yerli') return this.checkYerli(opts);
     if (key === 'wikidata') return this.checkWikidata(opts);
     if (key === 'vehiclesdb') return this.checkVehiclesDb(opts);
+    if (key === 'commons') return this.images.findCandidates({ force: opts.force });
     throw new NotFoundException('Kaynak bulunamadı');
   }
 

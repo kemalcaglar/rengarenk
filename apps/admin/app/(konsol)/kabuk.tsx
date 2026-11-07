@@ -51,6 +51,7 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
       { ad: 'Eşleştirme ayarı', sonra: true },
       { href: '/katalog', ad: 'Katalog kaynakları', izin: 'kategori.ayarla' },
       { href: '/katalog/ad-esleme', ad: 'Ad eşleme', izin: 'kategori.ayarla' },
+      { href: '/katalog/fotograflar', ad: 'Nesil fotoğrafları', izin: 'kategori.ayarla' },
     ],
   },
   {

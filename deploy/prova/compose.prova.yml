@@ -44,7 +44,7 @@ services:
   seaweedfs:
     volumes: !override
       - s3_data:/data
-      - ./seaweedfs.s3.example.json:/etc/seaweedfs/s3.json:ro
+      - ./prova/seaweedfs.s3.prova.json:/etc/seaweedfs/s3.json:ro
 
 volumes:
   prova_pg: {}

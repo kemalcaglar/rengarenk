@@ -10,6 +10,7 @@ import { DatabaseModule } from './database/database.module.js';
 import { type Db, PRISMA } from './database/prisma.js';
 import { OutboxService } from './outbox/outbox.service.js';
 import { QueueService } from './queue/queue.service.js';
+import { StorageModule } from './storage/storage.service.js';
 
 /**
  * Arka plan işçisi: API ile aynı kod tabanı, ayrı süreç (Teknik tasarım §2).
@@ -18,7 +19,7 @@ import { QueueService } from './queue/queue.service.js';
  * orada bulunacak (kilit 2); bu işçi iade yürütmez.
  */
 @Module({
-  imports: [DatabaseModule, ApprovalsModule, CatalogPipelineModule],
+  imports: [DatabaseModule, StorageModule, ApprovalsModule, CatalogPipelineModule],
   providers: [OutboxService, QueueService],
 })
 class WorkerModule {}
@@ -68,7 +69,7 @@ while (!stopping) {
   }
   if (Date.now() - lastCatalogCheck > CATALOG_CHECK_MS) {
     lastCatalogCheck = Date.now();
-    for (const key of ['tsb', 'vmm', 'yerli', 'wikidata', 'vehiclesdb']) {
+    for (const key of ['tsb', 'vmm', 'yerli', 'wikidata', 'vehiclesdb', 'commons']) {
       const r = await catalog.checkSource(key, {}).catch((err: Error) => ({ durum: `hata: ${err.message}` }));
       if (r.durum !== 'kapali' && r.durum !== 'yeni_dosya_yok') log.log(`${key} kontrolü: ${r.durum}`);
     }

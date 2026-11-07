@@ -15,6 +15,7 @@ import { RateLimitModule } from './ratelimit/ratelimit.module.js';
 import { RedisModule } from './redis/redis.module.js';
 import { SmsModule } from './sms/sms.module.js';
 import { StaffModule } from './staff/staff.module.js';
+import { StorageModule } from './storage/storage.service.js';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { StaffModule } from './staff/staff.module.js';
     EntitlementsModule,
     StaffModule,
     FlagsModule,
+    StorageModule,
     CatalogModule,
   ],
   controllers: [HealthController, MetricsController],

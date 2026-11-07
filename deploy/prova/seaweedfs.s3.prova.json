@@ -1,0 +1,9 @@
+{
+  "identities": [
+    {
+      "name": "rengarenk-api",
+      "credentials": [{ "accessKey": "prova-erisim", "secretKey": "prova-yalnizca-bu-bilgisayar-icin" }],
+      "actions": ["Read", "Write", "List", "Tagging"]
+    }
+  ]
+}

@@ -5,12 +5,14 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from '../src/app.module.js';
 import { CatalogImportService } from '../src/catalog/catalog-import.service.js';
 import { CatalogPipelineService } from '../src/catalog/catalog-pipeline.service.js';
+import { COMMONS_CLIENT, type CommonsClient } from '../src/catalog/commons-client.js';
 import { TSB_CLIENT, type TsbClient } from '../src/catalog/tsb-client.js';
 import { VEHICLESDB_CLIENT, type VehiclesDbClient } from '../src/catalog/vehiclesdb-client.js';
 import { VMM_CLIENT, type VmmClient } from '../src/catalog/vmm-client.js';
 import { WIKIDATA_CLIENT, type WikidataClient } from '../src/catalog/wikidata-client.js';
 import { registerXlsxBody, XLSX_MIME } from '../src/catalog/xlsx-body.js';
 import { type Db, PRISMA } from '../src/database/prisma.js';
+import { STORAGE, type Storage } from '../src/storage/storage.service.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 const YEARS = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019];
@@ -189,8 +191,46 @@ const fakeVehiclesDb: VehiclesDbClient = {
   },
 };
 
+/** Commons: G20 kategorisinde iki aday; depo bellekte (CI'da SeaweedFS yok) */
+const commonsCalls: string[] = [];
+const fakeCommons: CommonsClient = {
+  candidates: async (category: string) => {
+    commonsCalls.push(category);
+    if (category !== 'BMW G20') return [];
+    const c = (file: string, score: number) => ({
+      commonsFile: file,
+      pageUrl: `https://commons.wikimedia.org/wiki/File:${file}`,
+      sourceUrl: `https://upload.wikimedia.org/thumb/${file}/1600px-${file}`,
+      width: 4000,
+      height: 2600,
+      mime: 'image/jpeg',
+      author: 'Vauxford',
+      license: 'CC BY-SA 4.0',
+      licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0',
+      score,
+    });
+    return [c('2019 BMW 320d Front.jpg', 65), c('2019 BMW 330i Rear.jpg', 40)];
+  },
+  download: async () => ({ body: new Uint8Array([0xff, 0xd8, 0xff, 1, 2, 3]), contentType: 'image/jpeg' }),
+};
+const stored = new Map<string, Uint8Array>();
+const fakeStorage: Storage = {
+  put: async (key, body) => {
+    stored.set(key, body);
+  },
+  get: async (key) => {
+    const { Readable } = await import('node:stream');
+    const b = stored.get(key) as Uint8Array;
+    return { body: Readable.from([Buffer.from(b)]), contentType: 'image/jpeg', length: b.byteLength };
+  },
+};
+
 beforeAll(async () => {
   const mod = await Test.createTestingModule({ imports: [AppModule] })
+    .overrideProvider(COMMONS_CLIENT)
+    .useValue(fakeCommons)
+    .overrideProvider(STORAGE)
+    .useValue(fakeStorage)
     .overrideProvider(VEHICLESDB_CLIENT)
     .useValue(fakeVehiclesDb)
     .overrideProvider(WIKIDATA_CLIENT)
@@ -499,6 +539,69 @@ describe('kasa kuşağı ve nesil kodu: Wikidata (Sprint 6)', () => {
       (x: { key: string }) => x.key === 'wikidata',
     );
     expect(source).toMatchObject({ generations: 2, generationsCoded: 2 });
+  });
+});
+
+describe('nesil fotoğrafları: Wikimedia Commons (Karar 34)', () => {
+  it('adaylar nesil kodunun kategorisinden; seçilen fotoğraf depoya alınır, atfıyla gösterilir, değiştirilemez', async () => {
+    const r = await staffCall(app, 'POST', '/staff/catalog/sources/commons/check', {}, owner);
+    expect(r.body).toMatchObject({ durum: 'uygulandi', nesil: 2, aday: 2 });
+    expect(commonsCalls.sort()).toEqual(['BMW E36', 'BMW G20']);
+
+    const review = (await staffCall(app, 'GET', '/staff/catalog/images', undefined, owner)).body;
+    expect(review).toHaveLength(1);
+    expect(review[0]).toMatchObject({ code: 'G20', series: { name: '3 Serisi', make: { name: 'BMW' } } });
+    const [best, other] = review[0].images;
+    expect(best.commonsFile).toBe('2019 BMW 320d Front.jpg');
+
+    const support = (await loginAs(app, await createStaff(db, 'SUPPORT'))).token;
+    expect(
+      (await staffCall(app, 'POST', `/staff/catalog/images/${best.id}/select`, {}, support)).status,
+    ).toBe(403);
+    const sel = await staffCall(app, 'POST', `/staff/catalog/images/${best.id}/select`, {}, owner);
+    expect(sel.body).toMatchObject({ status: 'secildi' });
+    expect([...stored.keys()][0]).toMatch(/^katalog\/nesil\/[0-9a-f-]+\/[0-9a-f]{64}\.jpg$/);
+    // Bir kez seçilen fotoğraf o nesil için kalır
+    expect((await staffCall(app, 'POST', `/staff/catalog/images/${other.id}/select`, {}, owner)).status).toBe(
+      409,
+    );
+    expect(
+      (await staffCall(app, 'POST', `/staff/catalog/images/${other.id}/reject`, {}, owner)).body.status,
+    ).toBe('reddedildi');
+
+    const bmw = (await get('/catalog/makes')).body.find((m: { name: string }) => m.name === 'BMW');
+    const s3 = (await get(`/catalog/makes/${bmw.id}/series`)).body.find(
+      (x: { name: string }) => x.name === '3 Serisi',
+    );
+    const d = (await get(`/catalog/series/${s3.id}?yil=2022`)).body;
+    expect(d.generations[0].photo).toMatchObject({
+      url: `/catalog/images/${best.id}`,
+      caption: 'Fotoğraf: Vauxford · CC BY-SA 4.0 · Wikimedia Commons · temsilî görsel',
+      pageUrl: 'https://commons.wikimedia.org/wiki/File:2019 BMW 320d Front.jpg',
+    });
+    const file = await app.inject({ method: 'GET', url: `/catalog/images/${best.id}` });
+    expect(file.statusCode).toBe(200);
+    expect(file.headers['content-type']).toBe('image/jpeg');
+    expect(file.rawPayload.subarray(0, 3)).toEqual(Buffer.from([0xff, 0xd8, 0xff]));
+    expect((await app.inject({ method: 'GET', url: `/catalog/images/${other.id}` })).statusCode).toBe(404);
+
+    // Veritabanı da korur: NC lisans ve depoya alınmadan "seçildi" yazılamaz
+    await expect(
+      db.catalogImage.create({
+        data: {
+          id: '01900000-0000-7000-8000-000000000001',
+          generationId: best.generationId ?? d.codes[0].id,
+          commonsFile: 'x.jpg',
+          pageUrl: 'x',
+          sourceUrl: 'x',
+          width: 2000,
+          height: 1200,
+          mime: 'image/jpeg',
+          author: 'a',
+          license: 'CC BY-NC 4.0',
+        },
+      }),
+    ).rejects.toThrow();
   });
 });
 

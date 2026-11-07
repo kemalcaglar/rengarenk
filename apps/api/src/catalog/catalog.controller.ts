@@ -13,6 +13,7 @@ import {
   Post,
   Query,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import type { Prisma } from '@rengarenk/db';
@@ -24,6 +25,7 @@ import { type Db, PRISMA } from '../database/prisma.js';
 import { RequirePermission } from '../staff/permissions.js';
 import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
 import { CatalogAliasService } from './catalog-alias.service.js';
+import { CatalogImageService } from './catalog-image.service.js';
 import { CatalogPipelineService, STALE_HOURS } from './catalog-pipeline.service.js';
 import { XLSX_MIME } from './xlsx-body.js';
 
@@ -42,7 +44,23 @@ const trOrder = <T extends { name: string }>(rows: T[]) =>
  */
 @Controller('catalog')
 export class CatalogController {
-  constructor(@Inject(PRISMA) private readonly db: Db) {}
+  constructor(
+    @Inject(PRISMA) private readonly db: Db,
+    private readonly images: CatalogImageService,
+  ) {}
+
+  /** Seçilmiş nesil fotoğrafı (Karar 34): depodaki kopya. Atfı seri ayrıntısındaki `photo.caption`'dadır. */
+  @Get('images/:id')
+  async image(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Res() reply: { header: (k: string, v: string) => unknown; send: (b: unknown) => unknown },
+  ) {
+    const f = await this.images.file(id);
+    reply.header('content-type', f.contentType ?? 'image/jpeg');
+    reply.header('cache-control', 'public, max-age=604800, immutable');
+    if (f.sha256) reply.header('etag', `"${f.sha256}"`);
+    return reply.send(f.body);
+  }
 
   /** Konsoldan kapatılan kaynakların kayıtları görünmez (silinmez). */
   private async visible(kategori?: string): Promise<Prisma.CatalogVariantWhereInput> {
@@ -196,10 +214,24 @@ export class CatalogController {
         (_, i) => g.startYear + i,
       ).filter((y) => !yil || y === yil);
     const phases = genRows.filter((g) => g.source !== 'wikidata');
-    const generations = phases.map((g) => ({ ...g, years: span(g) }));
-    const codes = genRows
-      .filter((g) => g.source === 'wikidata')
-      .map(({ id: cid, code, name, startYear, endYear, wikidataId, commonsCategory }) => ({
+    // Nesil fotoğrafı (Karar 34) kod satırına bağlıdır; aynı koddaki kasa kuşakları onu paylaşır.
+    const codeRows = genRows.filter((g) => g.source === 'wikidata');
+    const selected = await this.db.catalogImage.findMany({
+      where: { status: 'secildi', generationId: { in: codeRows.map((g) => g.id) } },
+    });
+    const photoOf = new Map(
+      selected.flatMap((i) => {
+        const owner = codeRows.find((g) => g.id === i.generationId);
+        return owner?.wikidataId ? [[owner.wikidataId, CatalogImageService.publicPhoto(i)] as const] : [];
+      }),
+    );
+    const generations = phases.map((g) => ({
+      ...g,
+      years: span(g),
+      photo: g.wikidataId ? (photoOf.get(g.wikidataId) ?? null) : null,
+    }));
+    const codes = codeRows.map(
+      ({ id: cid, code, name, startYear, endYear, wikidataId, commonsCategory }) => ({
         id: cid,
         code,
         name,
@@ -207,7 +239,9 @@ export class CatalogController {
         endYear,
         wikidataId,
         commonsCategory,
-      }));
+        photo: wikidataId ? (photoOf.get(wikidataId) ?? null) : null,
+      }),
+    );
 
     // Makyaj: nesil kodu eşleşen kuşaklarda sıradan (0 makyajsız, 1+ makyajlı); kodlanmamış yıllarda TSB'nin
     // tip adındaki işaretinden (LCI, FL).
@@ -247,6 +281,7 @@ const sourcePatchSchema = z
   .refine((v) => v.autoFetch !== undefined || v.active !== undefined, { message: 'Değişiklik yok' });
 
 const aliasStatusSchema = z.enum(['onerildi', 'onaylandi', 'reddedildi']).optional();
+const imageStatusSchema = z.enum(['bekleyen', 'secili']).optional();
 const aliasCreateSchema = z.object({ fromSeriesId: z.uuid(), toSeriesId: z.uuid() }).strict();
 const aliasApproveSchema = z
   .object({ toKey: z.string().min(3).max(200).optional() })
@@ -263,7 +298,30 @@ export class StaffCatalogController {
     private readonly pipeline: CatalogPipelineService,
     private readonly audit: AuditService,
     private readonly aliases: CatalogAliasService,
+    private readonly images: CatalogImageService,
   ) {}
+
+  // ── Nesil fotoğrafları (Karar 34) ────────────────────────────────
+
+  @Get('images')
+  @RequirePermission('kategori.ayarla')
+  imageReview(@Query('durum', new ZodPipe(imageStatusSchema)) durum?: 'bekleyen' | 'secili') {
+    return this.images.review({ durum });
+  }
+
+  @Post('images/:id/select')
+  @HttpCode(200)
+  @RequirePermission('kategori.ayarla')
+  imageSelect(@Req() req: StaffRequest, @Param('id', new ParseUUIDPipe()) id: string) {
+    return this.images.select(id, req.staff.staff.id, req.ip);
+  }
+
+  @Post('images/:id/reject')
+  @HttpCode(200)
+  @RequirePermission('kategori.ayarla')
+  imageReject(@Req() req: StaffRequest, @Param('id', new ParseUUIDPipe()) id: string) {
+    return this.images.reject(id, req.staff.staff.id, req.ip);
+  }
 
   @Get('sources')
   @RequirePermission('kategori.ayarla')

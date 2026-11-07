@@ -652,9 +652,48 @@ model CatalogGeneration {
 
   series   CatalogSeries    @relation(fields: [seriesId], references: [id])
   variants CatalogVariant[]
+  images   CatalogImage[]
 
   @@index([seriesId])
   @@map("catalog_generations")
+}
+
+/// Nesil fotoğrafı (Karar 34): Wikimedia Commons'tan açık lisanslı gerçek fotoğraf. Sistem nesil kodunun Commons
+/// kategorisinden aday bulur, katalog sorumlusu seçer; seçilen fotoğrafın kopyası atfıyla SeaweedFS'e alınır.
+/// Yalnızca ticari kullanıma izin veren lisanslar (kamu malı, CC0, CC BY, CC BY-SA); NC ve ND alınmaz.
+model CatalogImage {
+  id            String    @id @db.Uuid
+  /// Nesil kodu satırı (Wikidata kaynağı; kasa kuşakları kodla bu fotoğrafı paylaşır)
+  generationId  String    @map("generation_id") @db.Uuid
+  /// Commons dosya adı (File:… olmadan)
+  commonsFile   String    @map("commons_file")
+  /// Commons dosya sayfası
+  pageUrl       String    @map("page_url")
+  /// Özgün dosya adresi ve ölçüleri
+  sourceUrl     String    @map("source_url")
+  width         Int
+  height        Int
+  mime          String
+  /// Yazar (düz metin, HTML ayıklanmış) ve lisans
+  author        String
+  license       String
+  licenseUrl    String?   @map("license_url")
+  /// Sıralama puanı: büyüklük, yatay kadraj, dosya adındaki ipuçları (ön, iç mekân, motor …)
+  score         Int       @default(0)
+  /// aday | secildi | reddedildi
+  status        String    @default("aday")
+  /// Seçilince depodaki kopyanın anahtarı ve özeti
+  storageKey    String?   @map("storage_key")
+  sha256        String?
+  decidedBy     String?   @map("decided_by") @db.Uuid
+  decidedAt     DateTime? @map("decided_at") @db.Timestamptz(3)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  generation CatalogGeneration @relation(fields: [generationId], references: [id])
+
+  @@unique([generationId, commonsFile])
+  @@index([status])
+  @@map("catalog_images")
 }
 
 /// Ad eşleme (Teknik tasarım §5, Karar 33): bir kaynaktaki seri yazımı katalogdaki seriye bağlanır

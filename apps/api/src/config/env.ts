@@ -50,6 +50,12 @@ const schema = z.object({
    */
   CATALOG_SIGNING_KEY: z.string().optional(),
   CATALOG_VERIFY_KEY: z.string().optional(),
+  /** Dosya deposu: SeaweedFS (S3 uyumlu). Yerelde kimlik doğrulama kapalı; canlıda anahtarlar zorunlu. */
+  S3_ENDPOINT: z.string().default('http://localhost:8333'),
+  S3_ACCESS_KEY: z.string().default('rengarenk'),
+  S3_SECRET_KEY: z.string().default('rengarenk-dev-secret'),
+  S3_BUCKET: z.string().default('rengarenk'),
+  S3_REGION: z.string().default('us-east-1'),
   /** TSB sitesinin adresi (testte sahte sunucu) */
   TSB_BASE_URL: z.string().default('https://www.tsb.org.tr'),
   STAFF_REQUIRE_WORKSPACE: z
@@ -76,6 +82,9 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (e.STAFF_AUTH_PROVIDER !== 'google') throw new Error('Canlıda yönetim girişi Google Workspace olmalı');
     if (!e.STAFF_SECRET_KEY) throw new Error('Canlıda STAFF_SECRET_KEY gerekli');
     if (!e.STAFF_REQUIRE_WORKSPACE) throw new Error('Canlıda Google Workspace şartı kapatılamaz');
+    if (e.S3_SECRET_KEY === 'rengarenk-dev-secret' || e.S3_SECRET_KEY === 'CHANGE_ME') {
+      throw new Error('Canlıda S3_SECRET_KEY geliştirme değeri olamaz');
+    }
     if (!e.CATALOG_SIGNING_KEY || !e.CATALOG_VERIFY_KEY) {
       throw new Error('Canlıda CATALOG_SIGNING_KEY ve CATALOG_VERIFY_KEY gerekli');
     }

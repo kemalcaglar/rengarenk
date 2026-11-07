@@ -131,6 +131,9 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Seri ayrıntısında yıl başına kasa kuşağı, kod ve makyaj; kodsuz yıllarda TSB işareti (LCI, FL)
 - [x] Ad eşleme (catalog_aliases): kural önerir (ek, bitişik yazım, noktalama farkı, yazım hatası, elektrikli sürüm), katalog sorumlusu onaylar; onayda tipler hedef seriye taşınır, sonraki dosyalarda da uygulanır; kayıt silinmez. Konsolda Katalog › Ad eşleme. İlk çalıştırmada 177 öneri
 - Kapsam ölçümü (Ekim 2026 TSB otomobil serileri): 966 serinin 571'inde kasa kuşağı (tiplerin %83'ü), 33'ünde nesil kodu (tiplerin %22'si). Wikidata'da nesil kodu ve yılı yaygın Avrupa modellerinde iyi, diğerlerinde eksik
-- [ ] EEA teknik değerleri (resmî güç, hacim, ağırlık; kaynaklar çelişirse EEA kazanır)
-- [ ] VehiclesDB: motosiklet, kamyon, otobüs
-- [ ] Commons fotoğrafları (Karar 34): kasa kuşağının Commons kategorisinden aday, katalog sorumlusu onaylar, kopya SeaweedFS'e
+- [x] VehiclesDB (CC BY 4.0): 7.432 motosiklet ve moped, 1.356 kamyon ve otobüs, 739 van modeli (yılsız). Seri katmanı olmayan türlerde aynı model tek kayıt (444 motosiklet modeli TSB ile birleşti)
+- [x] Veri kaynakları sayfası (web /veri-kaynaklari, mobil ekran, alt bilgide "Vehicle data by VehiclesDB"): her kaynağın lisansı ve zorunlu atıf metni
+- [x] Nesil fotoğrafları (Karar 34): nesil kodunun Commons kategorisinden aday (yalnızca kamu malı, CC0, CC BY, CC BY-SA; en az 1200 piksel), sıralama, konsolda seçim; seçilen fotoğraf SeaweedFS'e kopyalanır ve atfıyla sunulur. Veritabanı NC/ND lisansı, depoya alınmamış seçimi ve nesil başına ikinci fotoğrafı reddeder. İlk çalıştırmada 79 nesil için aday
+- [x] İçe aktarma tek veritabanı işleminde (katalog, kayıt, işlem kaydı, olay) ve kaynak başına kilitli
+- [ ] EEA teknik değerleri: Discodata SQL kapısı yalnızca `SELECT *` sorgusuna izin veriyor (toplulaştırma ağ geçidinde engelli); yıllık toplu dosyalar çok büyük. GCP hattıyla ya da EEA'dan erişim istenerek yapılacak
+- [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)

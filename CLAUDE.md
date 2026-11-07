@@ -119,8 +119,12 @@ pnpm format        # Biome ile biçimlendir
   (`packages/catalog/src/generations.ts`, `apps/api/src/catalog/catalog-generations.ts`), ad eşleme
   (`catalog_aliases`, `catalog-alias.service.ts`, konsolda Katalog › Ad eşleme). API'de 77, katalogda 33 test.
   Kapsam: TSB otomobil serilerinin %83'ünde kasa kuşağı, %22'sinde nesil kodu (tip ağırlıklı).
-- **Sıradaki:** Sprint 6 kalanı: EEA teknik değerleri, VehiclesDB (motosiklet, kamyon, otobüs), Commons fotoğrafları.
-  Sprint 7: 14 kategori şeması (Karar 45). Sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS. Liste:
+- **Sprint 6 ikinci bölüm (8 Kasım 2026):** VehiclesDB kaynağı ve Veri kaynakları sayfası (web, mobil), nesil
+  fotoğrafları (`catalog_images`, `catalog-image.service.ts`, depolama `apps/api/src/storage/`, konsolda Katalog ›
+  Nesil fotoğrafları). İçe aktarma tek işlem ve kaynak başına kilitli. API'de 79, katalogda 36 test.
+- **EEA bekliyor:** Discodata ağ geçidi yalnızca `SELECT *` sorgusuna izin veriyor (sütun seçme ve toplulaştırma
+  403). Engeli dolanmaya çalışma; GCP hattı ya da EEA'dan erişim gelince yapılacak.
+- **Sıradaki:** Sprint 7: 14 kategori şeması (Karar 45). Sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS. Liste:
   `docs/kapsam/03-gelistirme-plani.md` sonundaki sprint bölümleri. Bir sprint bitince oradaki kutuları
   işaretle ve README'deki "Şu an neler var" bölümünü güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, hesaplar (Apple, Google
