@@ -118,7 +118,17 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - İşlem kaydı ve olay (outbox), değişiklikle aynı veritabanı işleminde yazılır.
 - Değişiklik notlarında ilgili karar numarası anılır (ör. "Karar 12").
 
+## Özellik anahtarları ve bakım (Sprint 4)
+
+- Anahtarlar `packages/shared/src/flags.ts` içinde tanımlı; konsolda Sistem › Özellik anahtarları ve bakım'dan
+  açılır. Kapsam: kitle (herkes, kurumsal, deneme kullanıcıları), yüzde, platform. Yeni özellik yazarken API'de
+  `FeatureFlagService.isOn('anahtar', { userId, platform })`, istemcide `GET /flags` kullanılır.
+- Bakım: tüm site (API kullanıcı uçları 503), ödemeler, mesajlaşma, talep. Bir modül yazma işleminden önce
+  `assertAvailable('odeme')` çağırır. Web ve mobilde duyuru üst şeritte çıkar.
+
 ## Canlıya alma
+
+Ayrıntılı el kitabı ve bu bilgisayarda canlı provası: [deploy/README.md](deploy/README.md).
 
 `deploy/` klasörü sunucuda `/srv/rengarenk` altına kopyalanır, `.env.prod` oluşturulur
 (gerçek değerler depoda SOPS ile şifreli tutulur). `v0.1.0` gibi bir etiket gönderildiğinde

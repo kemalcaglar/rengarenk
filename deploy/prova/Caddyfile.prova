@@ -1,0 +1,12 @@
+# Provada alan adı ve TLS yok: her uygulama ayrı bir yerel porttan açılır.
+:18080 {
+  reverse_proxy web:3000
+}
+
+:14000 {
+  reverse_proxy api:4000
+}
+
+:13001 {
+  reverse_proxy admin:3000
+}

@@ -76,6 +76,10 @@ pnpm format        # Biome ile biçimlendir
 - İlk göç (`packages/db/prisma/migrations/20261109000000_init`) elle yazıldı ve Prisma'nın
   ifade edemediği tetikleyicileri içerir. Prisma bir "düzeltme" göçü önerirse içinde
   tetikleyicileri silen bir şey olmadığını kontrol et.
+- `compose.prod.yml` ile yerel `docker-compose.yml` aynı proje adını (`rengarenk`) taşır. Canlı yapılandırmayı
+  bu bilgisayarda yalnızca `deploy/prova/compose.prova.yml` ile çalıştır (proje adı `rengarenk-prova`); yoksa
+  geliştirme kapsayıcıları değişir.
+- Docker'ın içinden ad çözümleme zaman zaman düşüyor (`ENOTFOUND`, `no such host`); imaj derlemesini yeniden dene.
 - Depo kökündeki `rengarenk.bundle`, `rengarenk-depo.tar.gz`, PDF ve `*.patch` dosyaları
   `.git/info/exclude` ile dışarıda tutulur; bundle ve tar.gz artık gerekmiyor.
 
@@ -96,7 +100,10 @@ pnpm format        # Biome ile biçimlendir
 - **Sahip kararları (7 Kasım 2026):** Sahip kendi isteğini onaylayabilir, diğerlerinde isteyen ≠
   onaylayan; iade isteklerini yalnızca Sahip onaylar ve onay motoru iade yürütmez; CATALOG rolü
   atanamaz (özel rol kullanılır); yönetim e-posta alanı `rengarenk.com.tr`.
-- **Sıradaki:** Sprint 4 Radore'ye ilk dağıtım ve GCP test ortamı. Liste:
+- **Sprint 4 (sunucusuz kısmı) bitti:** özellik anahtarları ve bakım modu (`apps/api/src/flags/`,
+  `packages/shared/src/flags.ts`), canlı provası (`deploy/prova/`, el kitabı `deploy/README.md`). API'de 59 test.
+- **Sıradaki:** sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS; GCP test ortamı. Beklerken
+  Aşama 2 (katalog ve kategoriler, Sprint 5–7) başlayabilir. Liste:
   `docs/kapsam/03-gelistirme-plani.md` sonundaki sprint bölümleri. Bir sprint bitince oradaki kutuları
   işaretle ve README'deki "Şu an neler var" bölümünü güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, hesaplar (Apple, Google
