@@ -1,0 +1,23 @@
+# İmaj derlemesine girmeyenler: bağımlılıklar imajda yeniden kurulur; sırlar asla imaja girmez.
+**/node_modules
+**/dist
+**/.next
+**/.expo
+**/.turbo
+**/generated
+**/coverage
+**/*.log
+**/*.tsbuildinfo
+.git
+.env
+.env.*
+!.env.example
+!**/.env.*.example
+deploy/.env.prod
+deploy/seaweedfs.s3.json
+docs
+dump.rdb
+*.bundle
+*.tar.gz
+*.pdf
+*.patch

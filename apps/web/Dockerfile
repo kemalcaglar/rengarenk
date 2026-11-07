@@ -2,6 +2,9 @@
 ARG APP=web
 FROM node:22-slim AS build
 ARG APP
+# Tarayıcıya giden kodda API adresi derleme anında gömülür (Next.js NEXT_PUBLIC_*).
+ARG NEXT_PUBLIC_API_URL=https://api.rengarenk.com.tr
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} NEXT_TELEMETRY_DISABLED=1
 RUN corepack enable
 WORKDIR /repo
 COPY . .
@@ -10,7 +13,7 @@ RUN pnpm turbo run build --filter=@rengarenk/${APP}...
 
 FROM node:22-slim AS runtime
 ARG APP
-ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0
+ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0 NEXT_TELEMETRY_DISABLED=1
 WORKDIR /app
 COPY --from=build --chown=node:node /repo/apps/${APP}/.next/standalone ./
 COPY --from=build --chown=node:node /repo/apps/${APP}/.next/static ./apps/${APP}/.next/static
