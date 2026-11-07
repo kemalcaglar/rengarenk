@@ -1,0 +1,9 @@
+{
+  "identities": [
+    {
+      "name": "rengarenk-api",
+      "credentials": [{ "accessKey": "CHANGE_ME", "secretKey": "CHANGE_ME" }],
+      "actions": ["Read", "Write", "List", "Tagging"]
+    }
+  ]
+}

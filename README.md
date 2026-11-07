@@ -21,7 +21,7 @@ deploy/     Canlı ortam: Docker Compose, Caddy, ortam değişkeni örneği
 ## Gerekenler
 
 - Node.js 22 (`.nvmrc`), pnpm 10 (`corepack enable`)
-- Docker (yerel PostgreSQL, Redis, OpenSearch, MinIO ve e-posta yakalayıcı için)
+- Docker (yerel PostgreSQL, Redis, OpenSearch, SeaweedFS (S3) ve e-posta yakalayıcı için)
 - Mobil için: Expo Go uygulaması veya iOS Simulator / Android Emulator
 
 ## İlk kurulum
@@ -30,7 +30,7 @@ deploy/     Canlı ortam: Docker Compose, Caddy, ortam değişkeni örneği
 corepack enable
 pnpm install
 cp .env.example .env
-pnpm infra:up            # PostgreSQL, Redis, OpenSearch, MinIO, Mailpit
+pnpm infra:up            # PostgreSQL, Redis, OpenSearch, SeaweedFS, Mailpit
 pnpm db:migrate          # göçleri uygular (ilk çalıştırmada aşağıdaki nota bak)
 pnpm build               # paylaşılan paketleri derler, Prisma istemcisini üretir
 pnpm db:seed             # yerel başlangıç verisi
