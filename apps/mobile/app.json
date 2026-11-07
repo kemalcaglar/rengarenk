@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Rengarenk",
+    "slug": "rengarenk",
+    "scheme": "rengarenk",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": { "bundleIdentifier": "tr.com.rengarenk.app", "supportsTablet": false },
+    "android": { "package": "tr.com.rengarenk.app" },
+    "plugins": ["expo-router", "expo-secure-store"],
+    "experiments": { "typedRoutes": true }
+  }
+}

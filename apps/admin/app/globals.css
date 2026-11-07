@@ -1,0 +1,80 @@
+:root {
+  --blue: #5b8cff;
+  --pink: #ff6fb5;
+  --yellow: #ffc84a;
+  --green: #3dd68c;
+  --ink: #1e2333;
+  --muted: #5a6073;
+  --line: #e3e6ef;
+  --bg: #f6f8fd;
+  --link: #2450c8;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+.bar {
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -0.4px;
+  color: var(--ink);
+}
+.brand i {
+  display: inline-block;
+  width: 8px;
+  height: 18px;
+  border-radius: 4px;
+  margin-right: 2px;
+}
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 24px;
+}
+.btn {
+  border: 0;
+  border-radius: 14px;
+  padding: 14px 18px;
+  font: inherit;
+  font-weight: 800;
+  background: var(--blue);
+  color: var(--ink);
+  cursor: pointer;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.input {
+  width: 100%;
+  border: 1px solid #d5dae5;
+  border-radius: 12px;
+  padding: 13px 14px;
+  font: inherit;
+  font-size: 16px;
+}
+.muted {
+  color: var(--muted);
+}

@@ -1,0 +1,41 @@
+{
+  "name": "@rengarenk/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "node --watch --env-file-if-exists=../../.env --import @swc-node/register/esm-register src/main.ts",
+    "dev:worker": "node --watch --env-file-if-exists=../../.env --import @swc-node/register/esm-register src/worker.ts",
+    "start": "node dist/main.js",
+    "start:worker": "node dist/worker.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fastify/helmet": "13.2.0",
+    "@fastify/static": "10.1.10",
+    "@nestjs/common": "12.4.0",
+    "@nestjs/core": "12.4.0",
+    "@nestjs/jwt": "12.0.4",
+    "@nestjs/platform-fastify": "12.4.0",
+    "@nestjs/swagger": "12.1.1",
+    "@rengarenk/db": "workspace:*",
+    "@rengarenk/shared": "workspace:*",
+    "pg-boss": "12.38.1",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "12.4.0",
+    "@swc-node/register": "1.11.1",
+    "@swc/core": "1.16.22",
+    "@types/node": "22.19.17",
+    "@types/pg": "8.15.6",
+    "pg": "8.23.1",
+    "typescript": "6.0.3",
+    "unplugin-swc": "2.0.0",
+    "vitest": "5.1.0"
+  }
+}

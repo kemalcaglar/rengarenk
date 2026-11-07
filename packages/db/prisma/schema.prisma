@@ -1,0 +1,314 @@
+// Rengarenk veri modeli · Sprint 1 kapsamı
+// Kişisel veri içeren alanlar `/// @pii` ile etiketlenir (Teknik tasarım §4). Maskeleme,
+// veri kopyası, anonimleştirme ve imha bu etiketlerden çalışır.
+
+generator client {
+  provider               = "prisma-client"
+  output                 = "../src/generated"
+  moduleFormat           = "esm"
+  importFileExtension    = "js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Kimlik ve hesap ────────────────────────────────────────────
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum AccountKind {
+  INDIVIDUAL
+  BUSINESS
+}
+
+enum BusinessKind {
+  DEALER
+  RENTAL
+  BOAT
+  AIRCRAFT
+}
+
+enum AccountStatus {
+  PENDING_REVIEW
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum MemberRole {
+  OWNER
+  MANAGER
+  SALES
+}
+
+enum DevicePlatform {
+  IOS
+  ANDROID
+  WEB
+}
+
+model User {
+  id              String     @id @db.Uuid
+  /// @pii E.164 biçiminde, ör. +905321234567
+  phone           String     @unique
+  phoneVerifiedAt DateTime?  @map("phone_verified_at") @db.Timestamptz(3)
+  /// @pii
+  displayName     String?    @map("display_name")
+  /// @pii
+  email           String?
+  status          UserStatus @default(ACTIVE)
+  createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  memberships AccountMember[]
+  devices     Device[]
+  sessions    Session[]
+
+  @@map("users")
+}
+
+model Account {
+  id           String        @id @db.Uuid
+  kind         AccountKind
+  name         String
+  businessKind BusinessKind? @map("business_kind")
+  status       AccountStatus @default(ACTIVE)
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  members AccountMember[]
+  ledger  EntitlementLedger[]
+
+  @@map("accounts")
+}
+
+model AccountMember {
+  accountId String     @map("account_id") @db.Uuid
+  userId    String     @map("user_id") @db.Uuid
+  role      MemberRole
+  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([accountId, userId])
+  @@index([userId])
+  @@map("account_members")
+}
+
+model Device {
+  id         String         @id @db.Uuid
+  userId     String         @map("user_id") @db.Uuid
+  platform   DevicePlatform
+  /// @pii
+  pushToken  String?        @map("push_token")
+  trusted    Boolean        @default(false)
+  lastSeenAt DateTime       @default(now()) @map("last_seen_at") @db.Timestamptz(3)
+  createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions Session[]
+
+  @@index([userId])
+  @@map("devices")
+}
+
+/// Yenileme jetonu 90 gün geçerlidir (T09). Jetonun kendisi değil, SHA-256 özeti saklanır.
+model Session {
+  id               String    @id @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  deviceId         String?   @map("device_id") @db.Uuid
+  refreshTokenHash String    @unique @map("refresh_token_hash")
+  expiresAt        DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt        DateTime? @map("revoked_at") @db.Timestamptz(3)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  device Device? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model OtpChallenge {
+  id         String    @id @db.Uuid
+  /// @pii
+  phone      String
+  codeHash   String    @map("code_hash")
+  attempts   Int       @default(0)
+  expiresAt  DateTime  @map("expires_at") @db.Timestamptz(3)
+  consumedAt DateTime? @map("consumed_at") @db.Timestamptz(3)
+  /// @pii
+  ip         String?
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([phone, createdAt])
+  @@map("otp_challenges")
+}
+
+// ── Yönetim ekibi ve yetkiler ─────────────────────────────────
+
+enum StaffRole {
+  OWNER
+  ADMIN
+  MODERATOR
+  SUPPORT
+  CATALOG
+  FINANCE
+  AGENT
+}
+
+enum StaffStatus {
+  ACTIVE
+  DISABLED
+}
+
+model StaffMember {
+  id               String      @id @db.Uuid
+  /// @pii Google Workspace şirket e-postası
+  email            String      @unique
+  /// @pii
+  name             String
+  role             StaffRole
+  status           StaffStatus @default(ACTIVE)
+  twoFactorEnabled Boolean     @default(false) @map("two_factor_enabled")
+  createdAt        DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  requestedApprovals Approval[] @relation("ApprovalRequester")
+  decidedApprovals   Approval[] @relation("ApprovalDecider")
+
+  @@map("staff_members")
+}
+
+enum ActorType {
+  USER
+  STAFF
+  AGENT
+  SYSTEM
+}
+
+/// Yalnızca ekleme yapılır; güncelleme ve silme veritabanı tetikleyicisiyle engellenir. 2 yıl saklanır.
+model AuditLog {
+  id         BigInt    @id @default(autoincrement())
+  actorType  ActorType @map("actor_type")
+  actorId    String?   @map("actor_id")
+  action     String
+  entityType String    @map("entity_type")
+  entityId   String    @map("entity_id")
+  before     Json?
+  after      Json?
+  /// @pii
+  ip         String?
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_log")
+}
+
+// ── Olaylar ───────────────────────────────────────────────────
+
+/// Her işlem kendi olayını aynı veritabanı işleminde buraya yazar; aktarıcı kuyruğa iletir.
+model OutboxEvent {
+  id          BigInt    @id @default(autoincrement())
+  type        String
+  payload     Json
+  attempts    Int       @default(0)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  publishedAt DateTime? @map("published_at") @db.Timestamptz(3)
+
+  @@index([publishedAt, id])
+  @@map("outbox")
+}
+
+// ── Haklar ────────────────────────────────────────────────────
+
+/// Hak defteri: yalnızca ekleme. Bakiye defterden hesaplanır.
+/// (source_type, source_id, kind) tekil: aynı olay iki kez işlenmez.
+model EntitlementLedger {
+  id         BigInt   @id @default(autoincrement())
+  accountId  String   @map("account_id") @db.Uuid
+  /// talep, ilk_mesaj, uzatma, ust_sira, acil, vitrin
+  kind       String
+  /// artı: satın alma veya tanımlama, eksi: kullanım veya iade
+  delta      Int
+  /// satin_alma, paket, tanimlama, kullanim, iade, sure_dolumu
+  reason     String
+  /// order, staff_grant, package_cycle, message, refund
+  sourceType String   @map("source_type")
+  sourceId   String   @map("source_id")
+  /// kullanıcı, çalışan veya ajan
+  createdBy  String   @map("created_by")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@unique([sourceType, sourceId, kind])
+  @@index([accountId, kind])
+  @@map("entitlement_ledger")
+}
+
+// ── Onaylar ve iade kilidi ────────────────────────────────────
+
+enum ApprovalKind {
+  REFUND
+  PRICE_CHANGE
+  STAFF_ROLE
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Approval {
+  id          String         @id @db.Uuid
+  kind        ApprovalKind
+  status      ApprovalStatus @default(PENDING)
+  subjectType String         @map("subject_type")
+  subjectId   String         @map("subject_id")
+  /// Kuruş cinsinden tutar (iadelerde zorunlu)
+  amountKurus BigInt?        @map("amount_kurus")
+  payload     Json           @default("{}")
+  requestedBy String         @map("requested_by") @db.Uuid
+  decidedBy   String?        @map("decided_by") @db.Uuid
+  decidedAt   DateTime?      @map("decided_at") @db.Timestamptz(3)
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  requester StaffMember  @relation("ApprovalRequester", fields: [requestedBy], references: [id])
+  decider   StaffMember? @relation("ApprovalDecider", fields: [decidedBy], references: [id])
+  refunds   Refund[]
+
+  @@index([kind, status])
+  @@map("approvals")
+}
+
+enum RefundStatus {
+  PENDING_EXECUTION
+  EXECUTED
+  FAILED
+}
+
+/// "Bana sorulmadan sistemde hiçbir zaman iade yapılmasın." Kilit 1: veritabanı tetikleyicisi
+/// her iade kaydının Sahip rolündeki bir çalışanın 72 saatten eski olmayan onayına bağlı olduğunu
+/// ve tutarın onaydakiyle aynı olduğunu denetler (migration.sql).
+model Refund {
+  id          String       @id @db.Uuid
+  paymentId   String       @map("payment_id")
+  amountKurus BigInt       @map("amount_kurus")
+  approvalId  String       @map("approval_id") @db.Uuid
+  status      RefundStatus @default(PENDING_EXECUTION)
+  executedAt  DateTime?    @map("executed_at") @db.Timestamptz(3)
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  approval Approval @relation(fields: [approvalId], references: [id])
+
+  @@index([approvalId])
+  @@map("refunds")
+}

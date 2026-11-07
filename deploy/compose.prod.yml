@@ -1,0 +1,68 @@
+# Canlı ortam: tek uygulama sunucusu (Radore). PostgreSQL ayrı sunucuda; DATABASE_URL ile bağlanılır.
+# Kullanım (sunucuda): docker compose -f compose.prod.yml --env-file .env.prod up -d
+name: rengarenk
+x-app: &app
+  restart: unless-stopped
+  env_file: .env.prod
+  logging: { driver: json-file, options: { max-size: 20m, max-file: "5" } }
+
+services:
+  caddy:
+    image: caddy:2.10
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on: [api, web, admin]
+
+  api:
+    <<: *app
+    image: ghcr.io/kemalcaglar/rengarenk-api:${TAG:?TAG gerekli}
+    healthcheck: { test: ["CMD", "node", "-e", "fetch('http://localhost:4000/health').then(r=>process.exit(r.ok?0:1))"], interval: 15s }
+
+  worker:
+    <<: *app
+    image: ghcr.io/kemalcaglar/rengarenk-api:${TAG}
+    command: ["node", "dist/worker.js"]
+
+  web:
+    <<: *app
+    image: ghcr.io/kemalcaglar/rengarenk-web:${TAG}
+
+  admin:
+    <<: *app
+    image: ghcr.io/kemalcaglar/rengarenk-admin:${TAG}
+
+  migrate:
+    <<: *app
+    image: ghcr.io/kemalcaglar/rengarenk-migrate:${TAG}
+    restart: "no"
+    profiles: [migrate]
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    volumes: [redis_data:/data]
+
+  opensearch:
+    image: opensearchproject/opensearch:2.19.2
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+      DISABLE_SECURITY_PLUGIN: "true"
+      OPENSEARCH_JAVA_OPTS: -Xms1g -Xmx1g
+    volumes: [os_data:/usr/share/opensearch/data]
+
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    restart: unless-stopped
+    command: server /data
+    env_file: .env.prod
+    volumes: [minio_data:/data]
+
+volumes:
+  caddy_data: {}
+  redis_data: {}
+  os_data: {}
+  minio_data: {}
