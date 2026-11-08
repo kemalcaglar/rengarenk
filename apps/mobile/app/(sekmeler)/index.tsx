@@ -1,6 +1,6 @@
 import { colors, compactBudget, fiyatYaz, ONE_CIKARMA, tints } from '@rengarenk/shared';
-import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ikon } from '../../components/ikon';
@@ -8,6 +8,7 @@ import { Logo } from '../../components/logo';
 import { MenuCekmecesi } from '../../components/menu-cekmecesi';
 import { T, TInput } from '../../components/t';
 import { API } from '../../lib/api';
+import { useCanli } from '../../lib/canli';
 import { useOturum } from '../../lib/oturum';
 import { yilAraligi, zaman } from '../../lib/talep-bicim';
 
@@ -62,8 +63,21 @@ const ADIMLAR = [
  */
 export default function Home() {
   const [menu, setMenu] = useState(false);
-  const { durum } = useOturum();
+  const { durum, istek } = useOturum();
   const { width } = useWindowDimensions();
+  // Zil (AnasayfaMobil: okunmamış rozeti); ekrana dönünce ve anlık iletimle güncellenir
+  const [okunmamis, setOkunmamis] = useState(0);
+  useFocusEffect(
+    useCallback(() => {
+      if (durum !== 'uye') return;
+      istek<{ okunmamis: number }>('/notifications/unread')
+        .then((r) => setOkunmamis(r.okunmamis))
+        .catch(() => undefined);
+    }, [durum, istek]),
+  );
+  useCanli((o) => {
+    if (o.tip === 'bildirim' && typeof o.okunmamis === 'number') setOkunmamis(o.okunmamis);
+  });
   const [vitrin, setVitrin] = useState<Yanit | null>(null);
   const [son, setSon] = useState<Yanit | null>(null);
   useEffect(() => {
@@ -106,7 +120,7 @@ export default function Home() {
           </View>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Bildirimler"
+            accessibilityLabel={`Bildirimler, ${okunmamis} okunmamış`}
             onPress={() => router.push('/bildirimler')}
             style={{
               width: 44,
@@ -118,6 +132,24 @@ export default function Home() {
             }}
           >
             <Ikon d="zil" size={21} width={2} />
+            {okunmamis > 0 ? (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 6,
+                  right: 6,
+                  minWidth: 18,
+                  height: 18,
+                  borderRadius: 999,
+                  backgroundColor: colors.pink,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  paddingHorizontal: 4,
+                }}
+              >
+                <T style={{ fontSize: 11, fontWeight: '800' }}>{okunmamis > 99 ? '99+' : okunmamis}</T>
+              </View>
+            ) : null}
           </Pressable>
         </View>
         <View

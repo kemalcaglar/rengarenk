@@ -206,6 +206,9 @@ describe('bildirim katmanı (Karar 30, 48, 49, 50)', () => {
     expect((await call(app, 'GET', '/me/notification-preferences', undefined, u.token)).body.ticariOnay).toBe(
       false,
     );
+    // E-posta /me üzerinden değişirse doğrulama sıfırlanır (bildirim doğrulanmamış adrese gitmez)
+    await call(app, 'PATCH', '/me', { email: 'baska@ornek.com' }, u.token);
+    expect((await db.user.findUniqueOrThrow({ where: { id: u.userId } })).emailVerifiedAt).toBeNull();
   });
 
   it('kanal sırası: mesaj okunduysa gecikmeli e-posta gitmez; kalıcı hata ve geçersiz cihaz', async () => {

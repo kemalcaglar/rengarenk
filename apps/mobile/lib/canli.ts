@@ -3,8 +3,10 @@ import { API } from './api';
 import { useOturum } from './oturum';
 
 export interface CanliOlay {
-  tip: 'sohbet' | 'hazir';
+  tip: 'sohbet' | 'hazir' | 'bildirim';
   id?: string;
+  /** Bildirimde okunmamış sayısı */
+  okunmamis?: number;
 }
 
 /**

@@ -36,10 +36,10 @@ export class DeliveryService {
     let n = 0;
     if (due.length) this.log.debug(`${due.length} teslim gönderiliyor`);
     for (const d of due) {
-      // Sahiplenme: aynı teslimi iki işçi göndermesin
+      // Sahiplenme: zamanı 10 dakika ileri atılır; gönderim sürerken başka işçi aynı teslimi göremez ve alamaz
       const r = await this.db.delivery.updateMany({
-        where: { id: d.id, durum: 'bekliyor', attempts: d.attempts },
-        data: { attempts: { increment: 1 } },
+        where: { id: d.id, durum: 'bekliyor', attempts: d.attempts, dueAt: { lte: now } },
+        data: { attempts: { increment: 1 }, dueAt: new Date(Date.now() + 10 * 60_000) },
       });
       if (r.count !== 1) continue;
       try {

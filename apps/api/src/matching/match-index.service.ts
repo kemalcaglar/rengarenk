@@ -109,8 +109,15 @@ export class MatchIndexService {
     const kur = async (index: string, properties: Record<string, unknown>) => {
       const head = await fetch(`${this.env.OPENSEARCH_URL}/${index}`, { method: 'HEAD' });
       if (head.status === 404) {
-        await this.os('PUT', index, { settings: SETTINGS, mappings: { dynamic: 'strict', properties } });
-      } else await this.os('PUT', `${index}/_mapping`, { properties });
+        // Başka süreç (API ya da işçi) aynı anda kurmuş olabilir: "zaten var" hatası yok sayılıp eşleme güncellenir
+        try {
+          await this.os('PUT', index, { settings: SETTINGS, mappings: { dynamic: 'strict', properties } });
+          return;
+        } catch (e) {
+          if (!(e as Error).message.includes('resource_already_exists_exception')) throw e;
+        }
+      }
+      await this.os('PUT', `${index}/_mapping`, { properties });
     };
     await kur(this.vehicles, VEHICLE_PROPS);
     await kur(this.queries, { ...VEHICLE_PROPS, talep: { type: 'keyword' }, sorgu: { type: 'percolator' } });

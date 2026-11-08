@@ -57,7 +57,13 @@ const MENU: {
   {
     ad: 'Hesap',
     ogeler: [
-      { ikon: '⚙️', tint: '#F3F5FA', ad: 'Ayarlar', alt: 'Bildirimler, giriş, iletişim tercihleri' },
+      {
+        ikon: '⚙️',
+        tint: '#F3F5FA',
+        ad: 'Ayarlar',
+        alt: 'Bildirimler, giriş, iletişim tercihleri',
+        git: () => router.push('/ayarlar'),
+      },
       { ikon: '🔒', tint: '#F3F5FA', ad: 'Kişisel verilerim', alt: 'Verilerimi indir, KVKK başvurusu' },
       { ikon: '💬', tint: '#F3F5FA', ad: 'Yardım ve destek', alt: 'Asistan ve destek kaydı' },
       {

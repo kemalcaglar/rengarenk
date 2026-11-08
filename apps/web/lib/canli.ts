@@ -4,8 +4,10 @@ import { useEffect, useRef } from 'react';
 import { API, erisim, yenile } from './istemci';
 
 export interface CanliOlay {
-  tip: 'sohbet' | 'hazir';
+  tip: 'sohbet' | 'hazir' | 'bildirim';
   id?: string;
+  /** Bildirimde okunmamış sayısı */
+  okunmamis?: number;
 }
 
 /**

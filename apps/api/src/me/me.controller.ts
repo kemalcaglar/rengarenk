@@ -75,9 +75,12 @@ export class MeController {
         where: { id: req.user.sub },
         select: { displayName: true, firstName: true, lastName: true, email: true },
       });
+      // Adres değişirse doğrulama sıfırlanır: bildirim e-postası yalnızca doğrulanmış adrese gider (POST /me/email)
+      const adresDegisti =
+        body.email !== undefined && body.email?.toLowerCase() !== before.email?.toLowerCase();
       const after = await tx.user.update({
         where: { id: req.user.sub },
-        data: body,
+        data: { ...body, ...(adresDegisti ? { emailVerifiedAt: null } : {}) },
         select: { id: true, displayName: true, firstName: true, lastName: true, email: true },
       });
       await this.audit.record(

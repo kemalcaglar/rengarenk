@@ -1,62 +1,24 @@
 import 'reflect-metadata';
-import { Logger, Module } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ApprovalService } from './approvals/approval.service.js';
 import { ApprovalExecutor } from './approvals/approval-executor.js';
-import { ApprovalsModule } from './approvals/approvals.module.js';
-import { CatalogPipelineModule } from './catalog/catalog.module.js';
 import { CatalogPipelineService } from './catalog/catalog-pipeline.service.js';
-import { CategoriesWorkerModule } from './categories/categories.module.js';
-import { DatabaseModule } from './database/database.module.js';
 import { type Db, PRISMA } from './database/prisma.js';
 import { DemandService } from './demands/demand.service.js';
-import { DemandsWorkerModule } from './demands/demands.module.js';
-import { GalleriesWorkerModule } from './galleries/galleries.module.js';
 import { GalleryService } from './galleries/gallery.service.js';
 import { GalleryApplicationService } from './galleries/gallery-application.service.js';
-import { MatchingWorkerModule } from './matching/matching.module.js';
 import { MatchingService } from './matching/matching.service.js';
 import { DeliveryService } from './notifications/delivery.service.js';
 import { NOTIFY_EVENTS, NotificationEvents } from './notifications/notification-events.js';
-import { NotificationsWorkerModule } from './notifications/notifications.module.js';
 import { OutboxService } from './outbox/outbox.service.js';
 import { OrdersService } from './payments/orders.service.js';
-import { PaymentsWorkerModule } from './payments/payments.module.js';
 import { SubscriptionsService } from './payments/subscriptions.service.js';
-import { PortfolioWorkerModule } from './portfolio/portfolio.module.js';
 import { PortfolioService } from './portfolio/portfolio.service.js';
 import { QueueService } from './queue/queue.service.js';
 import { DemandSearchService } from './search/demand-search.service.js';
-import { SmsModule } from './sms/sms.module.js';
-import { StorageModule } from './storage/storage.service.js';
-import { TrustWorkerModule } from './trust/trust.module.js';
 import { TrustService } from './trust/trust.service.js';
-
-/**
- * Arka plan işçisi: API ile aynı kod tabanı, ayrı süreç (Teknik tasarım §2).
- * Outbox aktarıcısı, onaylanan isteklerin yürütülmesi (ör. kategori şemasının yayına alınması), süre dolumları ve
- * eşleştirme. Bildirim katmanı Aşama 7'de eklenir. İade yürütücü ayrı bir süreç olacak ve PayTR iade anahtarı yalnızca
- * orada bulunacak (kilit 2); bu işçi iade yürütmez.
- */
-@Module({
-  imports: [
-    DatabaseModule,
-    StorageModule,
-    ApprovalsModule,
-    CatalogPipelineModule,
-    CategoriesWorkerModule,
-    DemandsWorkerModule,
-    GalleriesWorkerModule,
-    PortfolioWorkerModule,
-    MatchingWorkerModule,
-    TrustWorkerModule,
-    PaymentsWorkerModule,
-    SmsModule,
-    NotificationsWorkerModule,
-  ],
-  providers: [OutboxService, QueueService],
-})
-class WorkerModule {}
+import { WorkerModule } from './worker.module.js';
 
 const log = new Logger('worker');
 const app = await NestFactory.createApplicationContext(WorkerModule);
