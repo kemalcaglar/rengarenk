@@ -17,6 +17,11 @@ const schema = z.object({
    * yok, kontroller "yapılamadı" sayılır ve başvuru insana düşer. fake: geliştirme ve test; canlıda kullanılamaz.
    */
   GALLERY_VERIFY_PROVIDER: z.enum(['none', 'fake']).default('none'),
+  /**
+   * EİDS (Karar 17, m.22/ç): portföy aracının ruhsat sahibi onayı. none: bağlantı yok, araç doğrulama bekler ve
+   * alıcılara görünmez. fake: geliştirme ve test; canlıda kullanılamaz.
+   */
+  EIDS_PROVIDER: z.enum(['none', 'fake']).default('none'),
   SMS_PROVIDER: z.enum(['console', 'test', 'iletimerkezi']).default('console'),
   /** Ana sağlayıcı arızalanınca kullanılacak yedek (Teknik tasarım §9). */
   SMS_FALLBACK_PROVIDER: z.enum(['console', 'test', 'iletimerkezi']).optional(),
@@ -93,6 +98,7 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (!e.METRICS_TOKEN) throw new Error('Canlıda METRICS_TOKEN gerekli');
     if (e.GALLERY_VERIFY_PROVIDER === 'fake')
       throw new Error('Canlıda sahte galeri doğrulaması kullanılamaz');
+    if (e.EIDS_PROVIDER === 'fake') throw new Error('Canlıda sahte EİDS kullanılamaz');
     if (e.STAFF_AUTH_PROVIDER !== 'google') throw new Error('Canlıda yönetim girişi Google Workspace olmalı');
     if (!e.STAFF_SECRET_KEY) throw new Error('Canlıda STAFF_SECRET_KEY gerekli');
     if (!e.STAFF_REQUIRE_WORKSPACE) throw new Error('Canlıda Google Workspace şartı kapatılamaz');

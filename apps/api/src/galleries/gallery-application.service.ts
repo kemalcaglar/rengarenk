@@ -15,7 +15,6 @@ import {
   BUSINESS_KIND_DEFS,
   type BusinessKindKey,
   DOCUMENT_MAX_BYTES,
-  DOCUMENT_MIMES,
   GALLERY_TRIAL,
   type GalleryApplicationData,
   type GalleryApplicationDraft,
@@ -24,6 +23,7 @@ import {
   ilBul,
 } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
+import { sniff } from '../common/files.js';
 import { ConsentService } from '../consents/consent.service.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
@@ -33,16 +33,6 @@ import { type GalleryVerifier, VerifierFactory } from './verification.js';
 const OPEN = ['DRAFT', 'SUBMITTED', 'IN_REVIEW', 'DOCS_REQUESTED'] as const;
 const EDITABLE = ['DRAFT', 'DOCS_REQUESTED'];
 const DAY = 86_400_000;
-
-/** Dosyanın ilk baytlarından gerçek türü (uzantıya ya da başlığa güvenilmez) */
-function sniff(b: Uint8Array): (typeof DOCUMENT_MIMES)[number] | null {
-  const s = (i: number, n: number) => Buffer.from(b.subarray(i, i + n)).toString('latin1');
-  if (s(0, 5) === '%PDF-') return 'application/pdf';
-  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return 'image/jpeg';
-  if (s(1, 3) === 'PNG' && b[0] === 0x89) return 'image/png';
-  if (s(0, 4) === 'RIFF' && s(8, 4) === 'WEBP') return 'image/webp';
-  return null;
-}
 
 /** Karar veren: çalışan ya da kurallarla ajan (Karar 41) */
 export type Decider = { staffId: string; ip?: string } | 'ajan';

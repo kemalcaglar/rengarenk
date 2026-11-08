@@ -90,11 +90,13 @@ model Account {
   createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  members AccountMember[]
-  ledger  EntitlementLedger[]
-  demands Demand[]
-  gallery Gallery?
-  invites AccountInvite[]
+  members  AccountMember[]
+  ledger   EntitlementLedger[]
+  demands  Demand[]
+  gallery  Gallery?
+  invites  AccountInvite[]
+  vehicles PortfolioVehicle[]
+  apiKeys  ApiKey[]
 
   @@map("accounts")
 }
@@ -855,6 +857,7 @@ model Category {
   children Category[]              @relation("CategoryTree")
   versions CategorySchemaVersion[]
   demands  Demand[]
+  vehicles PortfolioVehicle[]
 
   @@index([parentId, sort])
   @@map("categories")
@@ -1140,4 +1143,145 @@ model AccountInvite {
   @@index([phone])
   @@index([accountId])
   @@map("account_invites")
+}
+
+// ── Galeri portföyü (Karar 07, 17; Aşama 4) ───────────────────
+
+enum PortfolioStatus {
+  DRAFT
+  PENDING_EIDS
+  PUBLISHED
+  PASSIVE
+  SOLD
+  REJECTED
+}
+
+/// Portföy aracı. Alıcılara yalnızca EİDS onaylı ve yayındaki araç görünür (m.22/ç); satılan araç hemen kalkar (m.21).
+/// Araç silinmez (uyum kaydı); satıldı ya da pasif olur. Yakıt, vites, renk ve hasar anahtarları talep şemasıyla aynıdır.
+model PortfolioVehicle {
+  id                String          @id @db.Uuid
+  /// Portföy no (77100001'den başlar)
+  no                BigInt          @unique @default(autoincrement())
+  accountId         String          @map("account_id") @db.Uuid
+  categoryId        String          @map("category_id") @db.Uuid
+  makeKey           String?         @map("make_key")
+  seriesKey         String?         @map("series_key")
+  modelKey          String?         @map("model_key")
+  /// Kasa kuşağı: "G20:0" ya da kuşak anahtarı
+  generationKey     String?         @map("generation_key")
+  trimKey           String?         @map("trim_key")
+  /// Katalogda olmayan araçlar için marka ve model adı
+  makeName          String?         @map("make_name")
+  modelName         String?         @map("model_name")
+  year              Int
+  km                Int
+  fuel              String?
+  gearbox           String?
+  color             String?
+  priceTl           BigInt          @map("price_tl")
+  /// @pii Plaka (EİDS); alıcıya yalnızca il kodu gösterilir
+  plate             String?
+  /// @pii Şasi numarasının son 6 hanesi
+  chassisTail       String?         @map("chassis_tail")
+  firstRegistration DateTime?       @map("first_registration") @db.Date
+  lien              Boolean         @default(false)
+  warranty          String?
+  tradeIn           Boolean         @default(false) @map("trade_in")
+  /// Parça durumları, tramer, şasi/podye, airbag, ağır hasar (damageSchema)
+  damage            Json
+  description       String?
+  /// Fiyatın üretici tavsiye fiyatını aşmadığı beyanı ve bilinen üretici fiyatı (geçici m.2)
+  priceDeclared     Boolean         @default(false) @map("price_declared")
+  manufacturerPrice BigInt?         @map("manufacturer_price")
+  /// Galerinin stok numarası (toplu yükleme ve API); galeri içinde tekil
+  externalId        String?         @map("external_id")
+  status            PortfolioStatus @default(DRAFT)
+  statusNote        String?         @map("status_note")
+  /// Aracı düzenleyebilen satış temsilcisi (Karar 20)
+  assignedTo        String?         @map("assigned_to") @db.Uuid
+  createdBy         String          @map("created_by") @db.Uuid
+  /// Ekspertiz raporu (özel depo) ve tarihi (m.16)
+  reportKey         String?         @map("report_key")
+  reportName        String?         @map("report_name")
+  reportDate        DateTime?       @map("report_date") @db.Date
+  publishedAt       DateTime?       @map("published_at") @db.Timestamptz(3)
+  passiveAt         DateTime?       @map("passive_at") @db.Timestamptz(3)
+  soldAt            DateTime?       @map("sold_at") @db.Timestamptz(3)
+  createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  account    Account          @relation(fields: [accountId], references: [id])
+  category   Category         @relation(fields: [categoryId], references: [id])
+  photos     PortfolioPhoto[]
+  eidsChecks EidsCheck[]
+
+  @@unique([accountId, externalId])
+  @@index([accountId, status])
+  @@index([status, publishedAt])
+  @@map("portfolio_vehicles")
+}
+
+/// Portföy fotoğrafı (depoda); sıra 0'dan başlar, ilki kapak
+model PortfolioPhoto {
+  id         String   @id @db.Uuid
+  vehicleId  String   @map("vehicle_id") @db.Uuid
+  storageKey String   @map("storage_key")
+  mime       String
+  size       Int
+  sha256     String
+  sort       Int
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  vehicle PortfolioVehicle @relation(fields: [vehicleId], references: [id])
+
+  @@index([vehicleId, sort])
+  @@index([sha256])
+  @@map("portfolio_photos")
+}
+
+enum EidsStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+/// EİDS (Elektronik İlan Doğrulama Sistemi) isteği: ruhsat sahibinin ilan onayı. İşçi sağlayıcıya sorar.
+model EidsCheck {
+  id          String     @id @db.Uuid
+  vehicleId   String     @map("vehicle_id") @db.Uuid
+  status      EidsStatus @default(PENDING)
+  /// none | fake | (gerçek bağdaştırıcı)
+  provider    String
+  reference   String?
+  note        String?
+  /// @pii İstek anındaki plaka
+  plate       String
+  attempts    Int        @default(0)
+  requestedAt DateTime   @default(now()) @map("requested_at") @db.Timestamptz(3)
+  decidedAt   DateTime?  @map("decided_at") @db.Timestamptz(3)
+
+  vehicle PortfolioVehicle @relation(fields: [vehicleId], references: [id])
+
+  @@index([status, requestedAt])
+  @@index([vehicleId])
+  @@map("eids_checks")
+}
+
+/// Galeri API anahtarı (Karar 07.3; Kurumsal paket). Anahtarın kendisi saklanmaz, SHA-256 özeti saklanır.
+model ApiKey {
+  id         String    @id @db.Uuid
+  accountId  String    @map("account_id") @db.Uuid
+  name       String
+  /// Gösterim için ilk karakterler: "rgk_8f3a…"
+  prefix     String
+  hash       String    @unique
+  createdBy  String    @map("created_by") @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  lastUsedAt DateTime? @map("last_used_at") @db.Timestamptz(3)
+  revokedAt  DateTime? @map("revoked_at") @db.Timestamptz(3)
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
+  @@map("api_keys")
 }

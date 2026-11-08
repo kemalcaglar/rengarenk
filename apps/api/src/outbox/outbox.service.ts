@@ -48,7 +48,13 @@ export type EventType =
   | 'galeri.calisan_eklendi'
   | 'galeri.calisan_cikarildi'
   | 'galeri.deneme_bitiyor'
-  | 'galeri.deneme_bitti';
+  | 'galeri.deneme_bitti'
+  // Portföy (Karar 07, 17): EİDS işçide; yayın ve değişiklikler eşleştirmeye (Aşama 5)
+  | 'portfoy.eids_istendi'
+  | 'portfoy.eids_reddedildi'
+  | 'portfoy.yayinlandi'
+  | 'portfoy.guncellendi'
+  | 'portfoy.kalkti';
 
 @Injectable()
 export class OutboxService {

@@ -161,13 +161,16 @@ export class GalleryService {
       include: { account: { select: { status: true } } },
     });
     if (g?.account.status !== 'ACTIVE') throw new NotFoundException('Galeri bulunamadı');
-    const satis = await this.db.accountMember.count({ where: { accountId: g.accountId, role: 'SALES' } });
+    const [satis, yayinda] = await Promise.all([
+      this.db.accountMember.count({ where: { accountId: g.accountId, role: 'SALES' } }),
+      this.db.portfolioVehicle.count({ where: { accountId: g.accountId, status: 'PUBLISHED' } }),
+    ]);
     return {
       ...this.publicView(g),
       // İşletme adresi profilde görünür (GaleriProfil.dc.html); vergi ve MERSİS bilgisi görünmez
       adres: g.address,
       satisTemsilcisi: satis,
-      portfoy: { toplam: 0, araclar: [] as unknown[] },
+      portfoy: { toplam: yayinda },
     };
   }
 

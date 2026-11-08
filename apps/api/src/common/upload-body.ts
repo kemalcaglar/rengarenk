@@ -7,6 +7,14 @@ import { DOCUMENT_MAX_BYTES, DOCUMENT_MIMES } from '@rengarenk/shared';
  */
 export function registerUploadBodies(app: NestFastifyApplication) {
   const fastify = app.getHttpAdapter().getInstance();
+  // Portföy toplu yüklemesi: CSV (Excel türü katalog yüklemesiyle zaten kayıtlı)
+  if (!fastify.hasContentTypeParser('text/csv')) {
+    fastify.addContentTypeParser(
+      'text/csv',
+      { parseAs: 'buffer', bodyLimit: 5 * 1024 * 1024 },
+      (_req, body, done) => done(null, body),
+    );
+  }
   for (const mime of DOCUMENT_MIMES) {
     if (fastify.hasContentTypeParser(mime)) continue;
     fastify.addContentTypeParser(

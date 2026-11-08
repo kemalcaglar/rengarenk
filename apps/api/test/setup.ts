@@ -20,6 +20,7 @@ Object.assign(process.env, {
   OPENSEARCH_URL: process.env.TEST_OPENSEARCH_URL ?? 'http://localhost:9200',
   OPENSEARCH_PREFIX: 'rrtest',
   GALLERY_VERIFY_PROVIDER: 'fake',
+  EIDS_PROVIDER: 'fake',
 });
 
 const migrations = join(dirname(fileURLToPath(import.meta.url)), '../../../packages/db/prisma/migrations');
