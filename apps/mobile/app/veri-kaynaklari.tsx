@@ -1,8 +1,10 @@
 import { colors } from '@rengarenk/shared';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ikon } from '../components/ikon';
+import { T } from '../components/t';
 
 const API = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4000';
 
@@ -46,36 +48,63 @@ export default function VeriKaynaklari() {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
-        <Pressable accessibilityRole="button" onPress={() => router.back()} style={{ marginBottom: 12 }}>
-          <Text style={{ color: colors.blue, fontWeight: '700' }}>‹ Geri</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }} edges={['top']}>
+      <View
+        style={{
+          backgroundColor: colors.surface,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.line,
+          padding: 8,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 4,
+        }}
+      >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Geri"
+          onPress={() => router.back()}
+          style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Ikon d="geri" />
         </Pressable>
-        <Text accessibilityRole="header" style={{ fontSize: 22, fontWeight: '800', color: colors.ink }}>
+        <T accessibilityRole="header" style={{ fontSize: 18, fontWeight: '800' }}>
           Veri kaynakları
-        </Text>
-        <Text style={{ color: colors.muted, marginTop: 6 }}>
+        </T>
+      </View>
+      <ScrollView
+        style={{ flex: 1, backgroundColor: colors.background }}
+        contentContainerStyle={{ paddingTop: 12, paddingHorizontal: 12, paddingBottom: 24 }}
+      >
+        <T style={{ color: colors.muted, marginHorizontal: 4, fontSize: 13.5 }}>
           Araç kataloğundaki bilgiler aşağıdaki kaynaklardan derlenir. Kasko değerleri saklanmaz ve
           gösterilmez.
-        </Text>
-        {list === null ? <Text style={{ marginTop: 16 }}>Yükleniyor…</Text> : null}
-        {list === 'hata' ? <Text style={{ marginTop: 16 }}>Kaynak listesi şu an alınamadı.</Text> : null}
+        </T>
+        {list === null ? <T style={{ marginTop: 16 }}>Yükleniyor…</T> : null}
+        {list === 'hata' ? <T style={{ marginTop: 16 }}>Kaynak listesi şu an alınamadı.</T> : null}
         {Array.isArray(list)
           ? list.map((s) => (
               <View
                 key={s.key}
-                style={{ backgroundColor: '#fff', borderRadius: 14, padding: 16, marginTop: 14 }}
+                style={{
+                  backgroundColor: colors.surface,
+                  borderWidth: 1,
+                  borderColor: colors.line,
+                  borderRadius: 16,
+                  padding: 16,
+                  marginTop: 12,
+                }}
               >
-                <Text
+                <T
                   accessibilityRole={s.url ? 'link' : 'text'}
                   onPress={s.url ? () => Linking.openURL(s.url as string) : undefined}
-                  style={{ fontSize: 16, fontWeight: '800', color: s.url ? colors.blue : colors.ink }}
+                  style={{ fontSize: 16, fontWeight: '800', color: s.url ? colors.link : colors.ink }}
                 >
                   {s.attribution ?? s.name}
-                </Text>
-                <Text style={{ color: colors.muted, marginTop: 4, fontSize: 13 }}>
+                </T>
+                <T style={{ color: colors.muted, marginTop: 4, fontSize: 13 }}>
                   {s.name} · Lisans: {s.license}
-                </Text>
+                </T>
                 {s.notice ? (
                   <>
                     <Pressable
@@ -84,14 +113,14 @@ export default function VeriKaynaklari() {
                       onPress={() => setOpen(open === s.key ? null : s.key)}
                       style={{ marginTop: 10 }}
                     >
-                      <Text style={{ fontWeight: '700', color: colors.ink }}>
+                      <T style={{ fontWeight: '700', color: colors.ink }}>
                         {open === s.key ? 'Atıf metnini gizle' : 'Kaynağın atıf metni'}
-                      </Text>
+                      </T>
                     </Pressable>
                     {open === s.key ? (
-                      <Text style={{ fontSize: 12.5, lineHeight: 19, color: '#3A4052', marginTop: 6 }}>
+                      <T style={{ fontSize: 12.5, lineHeight: 19, color: '#3A4052', marginTop: 6 }}>
                         {noticeLines(s.notice).join('\n')}
-                      </Text>
+                      </T>
                     ) : null}
                   </>
                 ) : null}

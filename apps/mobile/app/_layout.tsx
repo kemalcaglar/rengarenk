@@ -1,23 +1,43 @@
+import {
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  PlusJakartaSans_800ExtraBold,
+  useFonts,
+} from '@expo-google-fonts/plus-jakarta-sans';
 import { colors } from '@rengarenk/shared';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { T } from '../components/t';
 import { useClientFlags } from '../lib/bakim';
+import { OturumProvider } from '../lib/oturum';
 
+/** Kök düzen: tasarımın yazı tipi (Plus Jakarta Sans), oturum, bakım duyurusu ve tam bakım ekranı. */
 export default function RootLayout() {
   const durum = useClientFlags();
+  const [fontlar] = useFonts({
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+    PlusJakartaSans_800ExtraBold,
+  });
+  // Yazı tipi yüklenmeden çizilirse sistem yazısıyla görünür; açılış ekranı yazı tipini bekler.
+  if (!fontlar) return <View style={{ flex: 1, backgroundColor: colors.background }} />;
   return (
-    <>
+    <OturumProvider>
       <StatusBar style="dark" />
       {durum?.duyuru ? (
         <SafeAreaView edges={['top']} style={{ backgroundColor: '#FFF6DF' }}>
-          <Text
+          <T
             accessibilityRole="alert"
             style={{ color: '#7A5300', fontWeight: '700', textAlign: 'center', padding: 10 }}
           >
             {durum.duyuru}
-          </Text>
+          </T>
         </SafeAreaView>
       ) : null}
       {durum?.bakim.tum ? (
@@ -27,15 +47,15 @@ export default function RootLayout() {
             alignItems: 'center',
             justifyContent: 'center',
             padding: 24,
-            backgroundColor: '#F6F8FD',
+            backgroundColor: colors.background,
           }}
         >
-          <Text style={{ fontSize: 22, fontWeight: '800', color: colors.ink }}>Kısa bir bakımdayız</Text>
-          <Text style={{ color: colors.muted, marginTop: 8, textAlign: 'center' }}>{durum.duyuru}</Text>
+          <T style={{ fontSize: 22, fontWeight: '800' }}>Kısa bir bakımdayız</T>
+          <T style={{ color: colors.muted, marginTop: 8, textAlign: 'center' }}>{durum.duyuru}</T>
         </View>
       ) : (
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#F6F8FD' } }} />
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }} />
       )}
-    </>
+    </OturumProvider>
   );
 }

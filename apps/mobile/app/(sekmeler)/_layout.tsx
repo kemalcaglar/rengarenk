@@ -1,21 +1,21 @@
 import { colors } from '@rengarenk/shared';
 import { Tabs } from 'expo-router';
+import { SekmeCubugu } from '../../components/sekme-cubugu';
 
-/** Alt sekme çubuğu: Ana sayfa · Taleplerim · Talep oluştur · Mesajlar · Hesabım (tasarım dosyası). */
+/**
+ * Alt sekmeler: Ana sayfa · Taleplerim · (Talep oluştur) · Mesajlar · Hesabım (tasarım: AnasayfaMobil). Ortadaki
+ * düğme sekme değildir, tam ekran sihirbazı açar (sekme-cubugu.tsx).
+ */
 export default function TabsLayout() {
   return (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.ink,
-        tabBarInactiveTintColor: colors.muted,
-      }}
+      tabBar={(props) => <SekmeCubugu {...props} />}
+      screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: colors.background } }}
     >
-      <Tabs.Screen name="index" options={{ title: 'Ana sayfa' }} />
-      <Tabs.Screen name="taleplerim" options={{ title: 'Taleplerim' }} />
-      <Tabs.Screen name="olustur" options={{ title: 'Talep oluştur' }} />
-      <Tabs.Screen name="mesajlar" options={{ title: 'Mesajlar' }} />
-      <Tabs.Screen name="hesabim" options={{ title: 'Hesabım' }} />
+      <Tabs.Screen name="index" />
+      <Tabs.Screen name="taleplerim" />
+      <Tabs.Screen name="mesajlar" />
+      <Tabs.Screen name="hesabim" />
     </Tabs>
   );
 }

@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 
-const API = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4000';
+export const API = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4000';
 
 export async function post<T>(path: string, body: object): Promise<T> {
   const r = await fetch(`${API}${path}`, {

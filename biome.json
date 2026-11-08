@@ -39,6 +39,16 @@
       "preset": "recommended",
       "style": {
         "useImportType": "off"
+      },
+      "correctness": {
+        "noReactNativeRawText": {
+          "level": "error",
+          "options": {
+            "skip": [
+              "T"
+            ]
+          }
+        }
       }
     }
   }
