@@ -7,8 +7,8 @@ import { GalleriesWorkerModule } from '../src/galleries/galleries.module.js';
 import { GalleryService } from '../src/galleries/gallery.service.js';
 import { GalleryApplicationService } from '../src/galleries/gallery-application.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { StorageModule } from '../src/storage/storage.service.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { STORAGE, StorageModule } from '../src/storage/storage.service.js';
+import { call, createTestApp, memoryStorage, SIGNUP_CONSENTS } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
@@ -278,7 +278,10 @@ describe('işçi modülü', () => {
   it('işçinin galeri modülü kendi başına kurulur (bağımlılık eksiği işçiyi sessizce durdurmasın)', async () => {
     const m = await Test.createTestingModule({
       imports: [DatabaseModule, StorageModule, GalleriesWorkerModule],
-    }).compile();
+    })
+      .overrideProvider(STORAGE)
+      .useValue(memoryStorage())
+      .compile();
     expect(m.get(GalleryApplicationService)).toBeDefined();
     await m.close();
   });
