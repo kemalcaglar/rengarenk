@@ -8,9 +8,9 @@ import {
   PHOTO_MAX,
   PHOTO_MIN,
   type PortfolioVehicleInput,
+  type PublicCategory,
   portfolioRules,
   portfolioVehicleSchema,
-  type PublicCategory,
   type RuleResult,
 } from '@rengarenk/shared';
 import { type CSSProperties, useEffect, useRef, useState } from 'react';
