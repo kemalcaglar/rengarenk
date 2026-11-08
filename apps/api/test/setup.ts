@@ -21,6 +21,8 @@ Object.assign(process.env, {
   OPENSEARCH_PREFIX: 'rrtest',
   GALLERY_VERIFY_PROVIDER: 'fake',
   EIDS_PROVIDER: 'fake',
+  PAYMENT_PROVIDER: 'fake',
+  EARSIV_PROVIDER: 'fake',
 });
 
 const migrations = join(dirname(fileURLToPath(import.meta.url)), '../../../packages/db/prisma/migrations');

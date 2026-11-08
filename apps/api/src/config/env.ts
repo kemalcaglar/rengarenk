@@ -22,6 +22,20 @@ const schema = z.object({
    * alıcılara görünmez. fake: geliştirme ve test; canlıda kullanılamaz.
    */
   EIDS_PROVIDER: z.enum(['none', 'fake']).default('none'),
+  /**
+   * Web ödemesi (Karar 12.7): none ödeme kapalı (PayTR sözleşmesi gelene kadar canlı), paytr gerçek iFrame API,
+   * fake geliştirme ve test için kendi sahte ödeme sayfası (canlıda kullanılamaz).
+   */
+  PAYMENT_PROVIDER: z.enum(['none', 'fake', 'paytr']).default('none'),
+  PAYTR_MERCHANT_ID: z.string().optional(),
+  PAYTR_MERCHANT_KEY: z.string().optional(),
+  PAYTR_MERCHANT_SALT: z.string().optional(),
+  /** PayTR canlı mağazada test işlemi (1) */
+  PAYTR_TEST_MODE: z.enum(['0', '1']).default('0'),
+  /** e-Arşiv fatura entegratörü: none (fatura kuyrukta bekler), fake (geliştirme ve test; canlıda kullanılamaz) */
+  EARSIV_PROVIDER: z.enum(['none', 'fake']).default('none'),
+  /** API'nin dışarıdan görünen adresi (sahte ödeme sayfası, bildirim adresi) */
+  API_PUBLIC_URL: z.string().default('http://localhost:4000'),
   SMS_PROVIDER: z.enum(['console', 'test', 'iletimerkezi']).default('console'),
   /** Ana sağlayıcı arızalanınca kullanılacak yedek (Teknik tasarım §9). */
   SMS_FALLBACK_PROVIDER: z.enum(['console', 'test', 'iletimerkezi']).optional(),
@@ -101,6 +115,8 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (e.GALLERY_VERIFY_PROVIDER === 'fake')
       throw new Error('Canlıda sahte galeri doğrulaması kullanılamaz');
     if (e.EIDS_PROVIDER === 'fake') throw new Error('Canlıda sahte EİDS kullanılamaz');
+    if (e.PAYMENT_PROVIDER === 'fake') throw new Error('Canlıda sahte ödeme kullanılamaz');
+    if (e.EARSIV_PROVIDER === 'fake') throw new Error('Canlıda sahte e-Arşiv kullanılamaz');
     if (e.STAFF_AUTH_PROVIDER !== 'google') throw new Error('Canlıda yönetim girişi Google Workspace olmalı');
     if (!e.STAFF_SECRET_KEY) throw new Error('Canlıda STAFF_SECRET_KEY gerekli');
     if (!e.MESSAGE_SECRET_KEY) throw new Error('Canlıda MESSAGE_SECRET_KEY gerekli');
@@ -114,6 +130,12 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
   }
   if (e.STAFF_AUTH_PROVIDER === 'google' && !(e.GOOGLE_CLIENT_ID && e.GOOGLE_CLIENT_SECRET)) {
     throw new Error('Google Workspace girişi için GOOGLE_CLIENT_ID ve GOOGLE_CLIENT_SECRET gerekli');
+  }
+  if (
+    e.PAYMENT_PROVIDER === 'paytr' &&
+    !(e.PAYTR_MERCHANT_ID && e.PAYTR_MERCHANT_KEY && e.PAYTR_MERCHANT_SALT)
+  ) {
+    throw new Error('PayTR için PAYTR_MERCHANT_ID, PAYTR_MERCHANT_KEY ve PAYTR_MERCHANT_SALT gerekli');
   }
   if (e.STAFF_EMAIL_DOMAINS.length === 0) throw new Error('STAFF_EMAIL_DOMAINS boş olamaz');
   for (const p of [e.SMS_PROVIDER, e.SMS_FALLBACK_PROVIDER]) {

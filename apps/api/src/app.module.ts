@@ -17,6 +17,7 @@ import { HttpMetricsInterceptor } from './observability/http-metrics.interceptor
 import { loggingModule } from './observability/logging.js';
 import { MetricsController } from './observability/metrics.controller.js';
 import { MetricsModule } from './observability/metrics.js';
+import { PaymentsModule } from './payments/payments.module.js';
 import { PortfolioModule } from './portfolio/portfolio.module.js';
 import { RateLimitModule } from './ratelimit/ratelimit.module.js';
 import { RedisModule } from './redis/redis.module.js';
@@ -43,6 +44,7 @@ import { TrustModule } from './trust/trust.module.js';
     MatchingModule,
     MessagesModule,
     TrustModule,
+    PaymentsModule,
     StorageModule,
     ConsentModule,
     CatalogModule,

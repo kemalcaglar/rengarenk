@@ -16,6 +16,8 @@ export type EventType =
   | 'talep.kapandi'
   | 'arac.bulundu'
   | 'odeme.alindi'
+  // Ödenen tutar siparişle uyuşmuyor: hak tanımlanmadı, inceleme (sahip)
+  | 'odeme.uyusmazlik'
   | 'iade.onaylandi'
   // Yönetim (Karar 40): bildirim katmanı bunları sahibe iletir.
   | 'calisan.giris'

@@ -79,6 +79,7 @@ model User {
   galleryApplications GalleryApplication[]
   buyerConversations  Conversation[]       @relation("alici")
   ratings             Rating[]
+  orders              Order[]
   follows             GalleryFollow[]
   blocks              UserBlock[]
 
@@ -104,6 +105,7 @@ model Account {
   matches             Match[]
   sellerConversations Conversation[]      @relation("satici")
   ratingsReceived     Rating[]
+  orders              Order[]
   followers           GalleryFollow[]
   sellerStats         SellerStats?
   blockedBy           UserBlock[]
@@ -971,13 +973,14 @@ model Demand {
   createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt         DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  account       Account        @relation(fields: [accountId], references: [id], onDelete: Restrict)
-  user          User           @relation(fields: [userId], references: [id], onDelete: Restrict)
-  category      Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  account       Account           @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  user          User              @relation(fields: [userId], references: [id], onDelete: Restrict)
+  category      Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   events        DemandEvent[]
   favorites     Favorite[]
   matches       Match[]
   conversations Conversation[]
+  promotions    DemandPromotion[]
 
   @@index([accountId, status])
   @@index([status, categoryId, publishedAt])
@@ -1481,4 +1484,123 @@ model GalleryFollow {
   @@id([userId, accountId])
   @@index([accountId])
   @@map("gallery_follows")
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+}
+
+/// Sipariş (Karar 12.8, 31, 39): sepet, fatura bilgileri, ödeme onayları ve doldurulmuş ön bilgilendirme formu.
+/// Ödeme ve fatura kayıtları vergi mevzuatı gereği 10 yıl saklanır (Karar 59); sipariş silinmez.
+model Order {
+  id         String      @id @db.Uuid
+  /// Kullanıcıya ve ödeme kuruluşuna giden sipariş no (merchant_oid; harf ve rakam)
+  no         String      @unique
+  accountId  String      @map("account_id") @db.Uuid
+  userId     String      @map("user_id") @db.Uuid
+  /// web | ios | android
+  channel    String
+  status     OrderStatus @default(PENDING)
+  /// Kalemler: ürün, ad, birim fiyat (kuruş), adet, talep (öne çıkarmada)
+  items      Json
+  totalKurus BigInt      @map("total_kurus")
+  vatKurus   BigInt      @map("vat_kurus")
+  /// @pii Fatura bilgileri: ad soyad, e-posta, il, ilçe, kurumsal fatura
+  billing    Json
+  /// Ödeme ekranındaki onaylar ve metin sürümleri (Karar 39)
+  consents   Json
+  /// Siparişe göre doldurulmuş ön bilgilendirme formu (3 yıl saklanır)
+  preInfo    String      @map("pre_info")
+  /// paytr | fake
+  provider   String
+  /// @pii Ödeme kuruluşuna giden müşteri IP'si
+  userIp     String?     @map("user_ip")
+  failReason String?     @map("fail_reason")
+  paidAt     DateTime?   @map("paid_at") @db.Timestamptz(3)
+  createdAt  DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  account    Account           @relation(fields: [accountId], references: [id])
+  user       User              @relation(fields: [userId], references: [id])
+  payments   Payment[]
+  invoice    Invoice?
+  promotions DemandPromotion[]
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@map("orders")
+}
+
+/// Ödeme kuruluşundan gelen bildirim (PayTR): aynı bildirim iki kez gelse de sipariş bir kez işlenir
+model Payment {
+  id          String   @id @db.Uuid
+  orderId     String   @map("order_id") @db.Uuid
+  provider    String
+  /// success | failed
+  status      String
+  amountKurus BigInt   @map("amount_kurus")
+  /// Taksit farkıyla tahsil edilen tutar (PayTR total_amount)
+  totalKurus  BigInt   @map("total_kurus")
+  /// card | eft
+  method      String?
+  failCode    String?  @map("fail_code")
+  failMessage String?  @map("fail_message")
+  testMode    Boolean  @default(false) @map("test_mode")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+  @@map("payments")
+}
+
+enum InvoiceStatus {
+  PENDING
+  ISSUED
+  FAILED
+}
+
+/// e-Arşiv fatura (Karar 12.7, 31): ödeme onaylanınca entegratöre gönderilir, başarısızsa kuyrukta yeniden denenir
+model Invoice {
+  id        String        @id @db.Uuid
+  orderId   String        @unique @map("order_id") @db.Uuid
+  status    InvoiceStatus @default(PENDING)
+  /// fake | entegratör adı
+  provider  String
+  /// Fatura no (entegratörden)
+  no        String?
+  /// Depodaki PDF
+  pdfKey    String?       @map("pdf_key")
+  attempts  Int           @default(0)
+  lastError String?       @map("last_error")
+  issuedAt  DateTime?     @map("issued_at") @db.Timestamptz(3)
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@index([status])
+  @@map("invoices")
+}
+
+/// Talebin öne çıkarması (Karar 12.6): üst sıra, acil arıyorum, ana sayfa vitrini; satın alındığı anda başlar
+model DemandPromotion {
+  id        String   @id @db.Uuid
+  demandId  String   @map("demand_id") @db.Uuid
+  /// ust_sira | acil | vitrin
+  kind      String
+  startsAt  DateTime @map("starts_at") @db.Timestamptz(3)
+  endsAt    DateTime @map("ends_at") @db.Timestamptz(3)
+  orderId   String?  @map("order_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  demand Demand @relation(fields: [demandId], references: [id])
+  order  Order? @relation(fields: [orderId], references: [id])
+
+  @@index([demandId, kind, endsAt])
+  @@index([kind, endsAt])
+  @@map("demand_promotions")
 }

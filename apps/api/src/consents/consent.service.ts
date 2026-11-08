@@ -97,6 +97,36 @@ export class ConsentService {
     }
   }
 
+  /**
+   * Ödeme onayları (Karar 39): ön bilgilendirme formu ve mesafeli hizmet sözleşmesi; sepette hemen başlayan hizmet varsa
+   * cayma süresinde başlatma talebi. Metin sürümüyle, siparişle aynı işlemde yazılır.
+   */
+  async recordPayment(tx: Tx, userId: string, hemenBaslat: boolean, channel: Channel, ip?: string) {
+    const rows: { kind: string; key: LegalKey | null }[] = [
+      { kind: 'on_bilgilendirme', key: 'on_bilgilendirme' },
+      { kind: 'mesafeli_sozlesme', key: 'mesafeli_sozlesme' },
+    ];
+    if (hemenBaslat) rows.push({ kind: 'cayma_hemen_baslat', key: null });
+    const surumler: Record<string, number | null> = {};
+    for (const r of rows) {
+      const text = r.key ? await this.current(r.key, tx) : null;
+      surumler[r.kind] = text?.version ?? null;
+      await tx.consent.create({
+        data: {
+          id: uuidv7(),
+          userId,
+          kind: r.kind,
+          granted: true,
+          textKey: r.key,
+          textVersion: text?.version ?? null,
+          channel,
+          ip: ip ?? null,
+        },
+      });
+    }
+    return surumler;
+  }
+
   /** Çerez tercihi: üye için kullanıcıya, ziyaretçi için rastgele ziyaretçi kimliğine bağlanır. */
   async recordCookie(
     subject: { userId?: string; visitorId?: string },

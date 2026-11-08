@@ -17,6 +17,8 @@ import { GalleryApplicationService } from './galleries/gallery-application.servi
 import { MatchingWorkerModule } from './matching/matching.module.js';
 import { MatchingService } from './matching/matching.service.js';
 import { OutboxService } from './outbox/outbox.service.js';
+import { OrdersService } from './payments/orders.service.js';
+import { PaymentsWorkerModule } from './payments/payments.module.js';
 import { PortfolioWorkerModule } from './portfolio/portfolio.module.js';
 import { PortfolioService } from './portfolio/portfolio.service.js';
 import { QueueService } from './queue/queue.service.js';
@@ -43,6 +45,7 @@ import { TrustService } from './trust/trust.service.js';
     PortfolioWorkerModule,
     MatchingWorkerModule,
     TrustWorkerModule,
+    PaymentsWorkerModule,
   ],
   providers: [OutboxService, QueueService],
 })
@@ -64,6 +67,7 @@ const galleries = app.get(GalleryService);
 const portfolio = app.get(PortfolioService);
 const matching = app.get(MatchingService);
 const trust = app.get(TrustService);
+const orders = app.get(OrdersService);
 await queue.start();
 
 await queue.consume<{ approvalId: string }>('onay.onaylandi', 'onay-yurut', async ({ approvalId }) => {
@@ -119,6 +123,10 @@ for (const event of ['portfoy.yayinlandi', 'portfoy.guncellendi', 'portfoy.kalkt
     matching.onVehicle(vehicleId),
   );
 }
+// Ödeme alındı: e-Arşiv fatura (Karar 12.7); başarısızsa beş dakikada bir yeniden denenir
+await queue.consume<{ orderId: string }>('odeme.alindi', 'odeme-fatura', ({ orderId }) =>
+  orders.issueInvoice(orderId),
+);
 // Açılışta ve her gece indeks veritabanıyla eşitlenir (artakalan kayıt kalmaz)
 const REINDEX_MS = 24 * 3600_000;
 let lastReindex = 0;
@@ -151,6 +159,9 @@ while (!stopping) {
       if (eids) log.log(`EİDS: ${eids} araç sonuçlandı`);
       const trials = await galleries.remindTrials();
       if (trials) log.log(`galeri denemesi: ${trials} hatırlatma`);
+      // Ödemeler: bekleyen e-Arşiv faturaları yeniden denenir, süresi geçen ödenmemiş siparişler iptal sayılır
+      const od = await orders.housekeeping();
+      if (od.iptal) log.log(`ödemeler: ${od.iptal} sipariş süresi doldu`);
       // Yarım kalmış yönetim girişi adımları bir gün sonra silinir.
       await db.staffLoginChallenge.deleteMany({
         where: { expiresAt: { lt: new Date(Date.now() - 86_400_000) } },

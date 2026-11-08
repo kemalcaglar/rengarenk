@@ -45,7 +45,13 @@ export interface DemandHit {
   yayin: string;
   /** Temsilî nesil fotoğrafı (Karar 24, 34): API'deki yolu */
   foto: string | null;
+  /** "Acil arıyorum" etiketi (Karar 12.6) */
+  acil: boolean;
+  /** Üst sırada (ücretli öne çıkarma) */
+  ustSira: boolean;
 }
+
+const suruyor = (v: unknown) => typeof v === 'string' && new Date(v).getTime() > Date.now();
 
 /** İndeks belgesinin alanları ve Türkçe çözümleyici (Teknik tasarım §12) */
 const MAPPING = {
@@ -83,6 +89,10 @@ const MAPPING = {
       bitis: { type: 'date' },
       /** Seçilmiş nesil fotoğrafının kimliği (vitrin ve liste kartları) */
       foto: { type: 'keyword' },
+      /** Öne çıkarmaların bitişi (Karar 12.6): üst sıra, acil arıyorum, ana sayfa vitrini */
+      ustSira: { type: 'date' },
+      acil: { type: 'date' },
+      vitrin: { type: 'date' },
     },
   },
 } as const;
@@ -104,6 +114,8 @@ const hit = (s: Record<string, unknown>): DemandHit =>
     telefon: s.telefon,
     yayin: s.yayin,
     foto: s.foto ? `/catalog/images/${s.foto}` : null,
+    acil: suruyor(s.acil),
+    ustSira: suruyor(s.ustSira),
   }) as DemandHit;
 
 /**
@@ -296,7 +308,19 @@ export class DemandSearchService {
       yayin: d.publishedAt?.toISOString(),
       bitis: d.expiresAt?.toISOString(),
       foto,
+      ...(await this.promotions(d.id)),
     };
+  }
+
+  /** Süren öne çıkarmaların bitişi; ardışık alınanlar kesintisiz sürdüğü için en geç bitiş alınır */
+  private async promotions(demandId: string) {
+    const ps = await this.db.demandPromotion.groupBy({
+      by: ['kind'],
+      where: { demandId, endsAt: { gt: new Date() } },
+      _max: { endsAt: true },
+    });
+    const bitis = (k: string) => ps.find((p) => p.kind === k)?._max.endsAt?.toISOString() ?? null;
+    return { ustSira: bitis('ust_sira'), acil: bitis('acil'), vitrin: bitis('vitrin') };
   }
 
   async search(q: DemandQuery) {
@@ -361,10 +385,24 @@ export class DemandSearchService {
         ? [{ butceMax: { order: 'desc', missing: '_last' } }, { yayin: 'desc' }]
         : q.sira === 'butce_artan'
           ? [{ butceMin: { order: 'asc', missing: '_last' } }, { yayin: 'desc' }]
-          : // Önerilen: metin aranıyorsa ilgiye göre, değilse en yeni (öne çıkarma ödeme modülüyle üste alınacak)
-            text && q.sira !== 'yeni'
-            ? ['_score', { yayin: 'desc' }]
-            : [{ yayin: 'desc' }];
+          : q.sira === 'yeni'
+            ? [{ yayin: 'desc' }]
+            : // Önerilen: üst sıra satın alınmış talepler önce (Karar 12.6), sonra metin ilgisi ya da en yeni
+              [
+                {
+                  _script: {
+                    type: 'number',
+                    order: 'desc',
+                    script: {
+                      source:
+                        "doc['ustSira'].size() > 0 && doc['ustSira'].value.toInstant().toEpochMilli() > params.simdi ? 1 : 0",
+                      params: { simdi: Date.now() },
+                    },
+                  },
+                },
+                ...(text ? ['_score'] : []),
+                { yayin: 'desc' },
+              ];
     const r = await this.os<{
       hits: { total: { value: number }; hits: { _source: Record<string, unknown> }[] };
       aggregations: Record<
@@ -443,6 +481,8 @@ export class DemandSearchService {
           functions: [
             { random_score: { seed: Date.now(), field: '_seq_no' } },
             { filter: { exists: { field: 'foto' } }, weight: 2 },
+            // Ücretli vitrin (Karar 12.6, 46) her zaman önce; boş yerleri yayındaki talepler doldurur
+            { filter: { range: { vitrin: { gt: 'now' } } }, weight: 100 },
           ],
           score_mode: 'sum',
           boost_mode: 'replace',

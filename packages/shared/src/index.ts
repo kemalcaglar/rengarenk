@@ -9,6 +9,7 @@ export * from './gallery.js';
 export * from './iller.js';
 export * from './matching.js';
 export * from './messages.js';
+export * from './payments.js';
 export * from './phone.js';
 export * from './portfolio.js';
 export * from './ratings.js';

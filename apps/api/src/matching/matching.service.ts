@@ -417,6 +417,20 @@ export class MatchingService {
       : [];
     const n = await vehicleNames(this.db, [...araclar, ...rows.map((r) => r.vehicle)]);
     const talepler = await this.demandCards([...new Set(rows.map((r) => r.demandId))]);
+    // Üst sıra satın alınmış talepler eşleşmelerde de önce (Karar 12.6)
+    const ust = new Set(
+      (
+        await this.db.demandPromotion.findMany({
+          where: {
+            demandId: { in: rows.map((r) => r.demandId) },
+            kind: 'ust_sira',
+            endsAt: { gt: new Date() },
+          },
+          select: { demandId: true },
+        })
+      ).map((p) => p.demandId),
+    );
+    rows.sort((x, y) => Number(ust.has(y.demandId)) - Number(ust.has(x.demandId)));
     const sayi = new Map(sayilar.map((s) => [s.vehicleId, s._count._all]));
     // Bu galerinin ilk mesaj attığı talepler ("İlk mesaj gönderildi")
     const yazilan = new Map(
