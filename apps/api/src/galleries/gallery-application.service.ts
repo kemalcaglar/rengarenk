@@ -218,7 +218,7 @@ export class GalleryApplicationService {
           actorType: 'USER',
           actorId: userId,
           action:
-            a.status === 'DOCS_REQUESTED' ? 'galeri_basvuru.yeniden_gonderildi' : 'galeri_basvuru.gonderildi',
+            a.status === 'DOCS_REQUESTED' ? 'galeri_basvuru_yeniden_gonderildi' : 'galeri_basvuru_gonderildi',
           entityType: 'gallery_application',
           entityId: a.id,
           ip,
@@ -365,7 +365,7 @@ export class GalleryApplicationService {
       await this.audit.record(
         {
           ...this.actor(by),
-          action: 'galeri_basvuru.onaylandi',
+          action: 'galeri_basvuru_onaylandi',
           entityType: 'gallery_application',
           entityId: a.id,
           after: { accountId, slug },
@@ -412,7 +412,7 @@ export class GalleryApplicationService {
       await this.audit.record(
         {
           ...this.actor(by),
-          action: 'galeri_basvuru.reddedildi',
+          action: 'galeri_basvuru_reddedildi',
           entityType: 'gallery_application',
           entityId: a.id,
           after: { gerekce },
@@ -434,7 +434,7 @@ export class GalleryApplicationService {
       await this.audit.record(
         {
           ...this.actor(by),
-          action: 'galeri_basvuru.belge_istendi',
+          action: 'galeri_basvuru_belge_istendi',
           entityType: 'gallery_application',
           entityId: a.id,
           after: { not },
@@ -458,7 +458,7 @@ export class GalleryApplicationService {
       await this.audit.record(
         {
           ...this.actor(by),
-          action: 'galeri_basvuru.onay_geri_alindi',
+          action: 'galeri_basvuru_onay_geri_alindi',
           entityType: 'gallery_application',
           entityId: a.id,
           after: { gerekce, accountId: a.accountId },
@@ -536,9 +536,17 @@ export class GalleryApplicationService {
     };
   }
 
-  async document(id: string, docId: string) {
+  /** Belgeyi açar; kişisel veri içerdiği için her görüntüleme işlem kaydına girer (Karar 40) */
+  async document(id: string, docId: string, by: { staffId: string; ip?: string }) {
     const d = await this.db.galleryDocument.findFirst({ where: { id: docId, applicationId: id } });
     if (!d) throw new NotFoundException('Belge bulunamadı');
+    await this.audit.record({
+      ...this.actor(by),
+      action: 'galeri_basvuru_belge_goruntulendi',
+      entityType: 'gallery_document',
+      entityId: d.id,
+      after: { applicationId: id, kind: d.kind },
+    });
     const file = await this.storage.get(d.storageKey);
     return { ...file, mime: d.mime, ad: d.fileName };
   }

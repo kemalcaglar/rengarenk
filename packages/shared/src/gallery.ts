@@ -19,6 +19,8 @@ export interface BusinessKindDef {
   ad: string;
   /** Kısa ad (konsol ve profil): "Galeri", "Kiralama firması" … */
   kisa: string;
+  /** Profildeki faaliyet alanı (GaleriProfil.dc.html: "Vasıta · yetki belgesi türü") */
+  alan: string;
   alt: string;
   dot: string;
   tint: string;
@@ -42,6 +44,7 @@ export const BUSINESS_KIND_DEFS: Record<BusinessKindKey, BusinessKindDef> = {
   DEALER: {
     ad: 'Vasıta galerisi',
     kisa: 'Galeri',
+    alan: 'Vasıta',
     alt: 'İkinci el ve sıfır kara taşıtı satan işletmeler',
     dot: '#5B8CFF',
     tint: '#EEF3FF',
@@ -53,6 +56,7 @@ export const BUSINESS_KIND_DEFS: Record<BusinessKindKey, BusinessKindDef> = {
   RENTAL: {
     ad: 'Kiralama firması',
     kisa: 'Kiralama firması',
+    alan: 'Kiralama',
     alt: 'Kısa ve uzun dönem araç kiralayan işletmeler',
     dot: '#FF6FB5',
     tint: '#FFEEF6',
@@ -69,6 +73,7 @@ export const BUSINESS_KIND_DEFS: Record<BusinessKindKey, BusinessKindDef> = {
   BOAT: {
     ad: 'Tekne ve yat galerisi',
     kisa: 'Tekne ve yat galerisi',
+    alan: 'Deniz araçları',
     alt: 'Tekne, yat ve deniz motoru satan işletmeler',
     dot: '#3DD68C',
     tint: '#E7FAF0',
@@ -90,6 +95,7 @@ export const BUSINESS_KIND_DEFS: Record<BusinessKindKey, BusinessKindDef> = {
   AIRCRAFT: {
     ad: 'Hava aracı satıcısı',
     kisa: 'Hava aracı satıcısı',
+    alan: 'Hava araçları',
     alt: 'Uçak, helikopter ve İHA satan işletmeler',
     dot: '#FFC84A',
     tint: '#FFF6DF',

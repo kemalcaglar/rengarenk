@@ -145,6 +145,7 @@ export class GalleryService {
       isletmeAdi: g.legalName,
       yetkiNo: g.authorityNo,
       tur: BUSINESS_KIND_DEFS[g.businessKind as BusinessKindKey].kisa,
+      alan: BUSINESS_KIND_DEFS[g.businessKind as BusinessKindKey].alan,
       il: g.il,
       ilce: g.ilce,
       hakkinda: g.about,
@@ -160,7 +161,14 @@ export class GalleryService {
       include: { account: { select: { status: true } } },
     });
     if (g?.account.status !== 'ACTIVE') throw new NotFoundException('Galeri bulunamadı');
-    return { ...this.publicView(g), portfoy: { toplam: 0, araclar: [] as unknown[] } };
+    const satis = await this.db.accountMember.count({ where: { accountId: g.accountId, role: 'SALES' } });
+    return {
+      ...this.publicView(g),
+      // İşletme adresi profilde görünür (GaleriProfil.dc.html); vergi ve MERSİS bilgisi görünmez
+      adres: g.address,
+      satisTemsilcisi: satis,
+      portfoy: { toplam: 0, araclar: [] as unknown[] },
+    };
   }
 
   async updateProfile(
@@ -184,7 +192,7 @@ export class GalleryService {
         {
           actorType: 'USER',
           actorId: userId,
-          action: 'galeri.profil_guncellendi',
+          action: 'galeri_profil_guncellendi',
           entityType: 'gallery',
           entityId: accountId,
           before: { displayName: g.displayName, about: g.about, workingHours: g.workingHours },
@@ -240,7 +248,7 @@ export class GalleryService {
         {
           actorType: 'USER',
           actorId: userId,
-          action: 'galeri.davet_edildi',
+          action: 'galeri_davet_edildi',
           entityType: 'account_invite',
           entityId: id,
           after: { accountId, role },
@@ -267,7 +275,7 @@ export class GalleryService {
         {
           actorType: 'USER',
           actorId: userId,
-          action: 'galeri.davet_iptal',
+          action: 'galeri_davet_iptal',
           entityType: 'account_invite',
           entityId: inv.id,
           ip,
@@ -302,7 +310,7 @@ export class GalleryService {
         {
           actorType: 'USER',
           actorId: userId,
-          action: 'galeri.rol_degisti',
+          action: 'galeri_rol_degisti',
           entityType: 'account_member',
           entityId: `${accountId}:${memberId}`,
           before: { role: m.role },
@@ -331,7 +339,7 @@ export class GalleryService {
         {
           actorType: 'USER',
           actorId: userId,
-          action: 'galeri.calisan_cikarildi',
+          action: 'galeri_calisan_cikarildi',
           entityType: 'account_member',
           entityId: `${accountId}:${memberId}`,
           before: { role: m.role },
@@ -402,7 +410,7 @@ export class GalleryService {
         {
           actorType: 'USER',
           actorId: userId,
-          action: accept ? 'galeri.davet_kabul' : 'galeri.davet_ret',
+          action: accept ? 'galeri_davet_kabul' : 'galeri_davet_ret',
           entityType: 'account_invite',
           entityId: inv.id,
           ip,

@@ -16,7 +16,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         />
       </head>
-      <body>{children}</body>
+      {/* Tarayıcı eklentileri (ör. ColorZilla) <body>'ye nitelik ekliyor; yalnızca bu etiketin uyarısı susturulur */}
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

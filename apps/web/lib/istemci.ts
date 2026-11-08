@@ -62,6 +62,37 @@ export async function istek<T>(
   return data as T;
 }
 
+/** Dosya yükler: gövde ham bayt, tür dosyanın kendi türü, ad `x-file-name` başlığında (galeri belgeleri). */
+export async function dosyaYukle<T>(path: string, file: File): Promise<T> {
+  const send = (token: string | null) =>
+    fetch(`${API}${path}`, {
+      method: 'POST',
+      headers: {
+        'content-type': file.type || 'application/octet-stream',
+        'x-file-name': encodeURIComponent(file.name),
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+      },
+      body: file,
+    });
+  let res = await send(access ?? (await yenile()));
+  if (res.status === 401) res = await send(await yenile());
+  const data = await res.json().catch(() => null);
+  if (!res.ok) {
+    const b = (data ?? {}) as ApiHatasi['body'] & { message?: string | string[] };
+    const msg = Array.isArray(b.message) ? b.message[0] : b.message;
+    throw new ApiHatasi(
+      res.status === 413
+        ? 'Dosya en çok 10 MB olabilir'
+        : res.status === 415
+          ? 'Yalnızca PDF ya da fotoğraf yükleyebilirsin'
+          : (msg ?? 'Dosya yüklenemedi'),
+      res.status,
+      b,
+    );
+  }
+  return data as T;
+}
+
 /** Sayfa açılınca oturum var mı? `null`: bakılıyor, `false`: misafir. */
 export function useGiris(): boolean | null {
   const [var_, setVar] = useState<boolean | null>(null);

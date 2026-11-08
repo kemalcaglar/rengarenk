@@ -53,6 +53,20 @@ export const AUDIT_ACTIONS: Record<string, string> = {
   talep_kapatildi: 'Talep kapatıldı',
   talep_tamamlandi: 'Aracı buldu (talep tamamlandı)',
   talep_suresi_doldu: 'Talebin süresi doldu',
+  galeri_basvuru_gonderildi: 'Galeri başvurusu gönderildi',
+  galeri_basvuru_yeniden_gonderildi: 'Galeri başvurusu yeniden gönderildi',
+  galeri_basvuru_onaylandi: 'Galeri başvurusu onaylandı',
+  galeri_basvuru_reddedildi: 'Galeri başvurusu reddedildi',
+  galeri_basvuru_belge_istendi: 'Galeri başvurusundan belge istendi',
+  galeri_basvuru_onay_geri_alindi: 'Galeri onayı geri alındı',
+  galeri_basvuru_belge_goruntulendi: 'Başvuru belgesi görüntülendi',
+  galeri_profil_guncellendi: 'Galeri profili güncellendi',
+  galeri_davet_edildi: 'Galeriye çalışan davet edildi',
+  galeri_davet_iptal: 'Galeri daveti iptal edildi',
+  galeri_davet_kabul: 'Galeri daveti kabul edildi',
+  galeri_davet_ret: 'Galeri daveti reddedildi',
+  galeri_rol_degisti: 'Galeri çalışanının rolü değişti',
+  galeri_calisan_cikarildi: 'Galeri çalışanı çıkarıldı',
 };
 
 /** Aranan metnin geçtiği işlem adları (Türkçe büyük-küçük harf duyarsız) */

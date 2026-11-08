@@ -30,10 +30,18 @@ async function handle(req: NextRequest, ctx: { params: Promise<{ yol: string[] }
     body: hasBody ? body : undefined,
     cache: 'no-store',
   });
-  const text = res.status === 204 ? null : await res.text();
-  const out = new NextResponse(text, {
+  // Yanıt ham bayt olarak iletilir: başvuru belgeleri (PDF, fotoğraf) bozulmadan konsola gelir
+  const data = res.status === 204 ? null : await res.arrayBuffer();
+  const pass = ['content-disposition', 'cache-control'].flatMap((k) => {
+    const v = res.headers.get(k);
+    return v ? [[k, v] as [string, string]] : [];
+  });
+  const out = new NextResponse(data, {
     status: res.status,
-    headers: { 'content-type': res.headers.get('content-type') ?? 'application/json' },
+    headers: {
+      'content-type': res.headers.get('content-type') ?? 'application/json',
+      ...Object.fromEntries(pass),
+    },
   });
   return res.status === 401 ? clearCookie(out, SESSION_COOKIE) : out;
 }

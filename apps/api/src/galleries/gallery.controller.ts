@@ -209,9 +209,10 @@ export class StaffGalleryApplicationsController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Param('docId', new ParseUUIDPipe()) docId: string,
     @Query('indir') indir: string | undefined,
+    @Req() req: StaffRequest,
     @Res() reply: Reply,
   ) {
-    const f = await this.apps.document(id, docId);
+    const f = await this.apps.document(id, docId, { staffId: req.staff.staff.id, ip: req.ip });
     reply.header('content-type', f.mime);
     reply.header('cache-control', 'private, no-store');
     reply.header(

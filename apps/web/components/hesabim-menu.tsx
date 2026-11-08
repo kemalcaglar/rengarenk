@@ -8,6 +8,8 @@ const OGELER: { ad: string; href?: string }[] = [
   { ad: 'Haklarım ve ödemeler' },
   { ad: 'Ayarlar' },
   { ad: 'Yardım' },
+  // Tasarımda yok: galeri paneline ya da kurumsal başvuruya giriş (Karar 03)
+  { ad: 'Kurumsal hesap', href: '/galeri-paneli' },
 ];
 
 export function HesabimMenu({ aktif }: { aktif: string }) {

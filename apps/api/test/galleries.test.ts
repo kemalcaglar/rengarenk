@@ -138,7 +138,7 @@ describe('kurumsal hesap başvurusu (Karar 03, 12.5, 17)', () => {
     expect(app_.decidedByAgent).toBe(true);
     expect(
       await db.auditLog.findFirst({
-        where: { entityId: id, action: 'galeri_basvuru.onaylandi', actorType: 'AGENT' },
+        where: { entityId: id, action: 'galeri_basvuru_onaylandi', actorType: 'AGENT' },
       }),
     ).not.toBeNull();
     expect(await db.outboxEvent.findFirst({ where: { type: 'galeri.onaylandi' } })).not.toBeNull();
@@ -194,6 +194,11 @@ describe('kurumsal hesap başvurusu (Karar 03, 12.5, 17)', () => {
     expect(doc.statusCode).toBe(200);
     expect(doc.headers['content-type']).toBe('application/pdf');
     expect(doc.rawPayload.subarray(0, 5).toString()).toBe('%PDF-');
+    expect(
+      await db.auditLog.findFirst({
+        where: { action: 'galeri_basvuru_belge_goruntulendi', actorType: 'STAFF' },
+      }),
+    ).not.toBeNull();
     expect((await call(app, 'GET', `/staff/gallery-applications/${id}`, undefined, t)).status).toBe(401);
 
     // Ek belge istenir: başvuran düzeltip yeniden gönderir

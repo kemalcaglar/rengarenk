@@ -1,5 +1,11 @@
 import { Body, Controller, Get, Headers, HttpCode, Inject, Ip, Post, Req, UseGuards } from '@nestjs/common';
-import { APPROVAL_POLICIES, BUILTIN_ROLES, STAFF_IDLE_MINUTES, totpCodeSchema } from '@rengarenk/shared';
+import {
+  APPROVAL_POLICIES,
+  BUILTIN_ROLES,
+  STAFF_IDLE_MINUTES,
+  satisfies,
+  totpCodeSchema,
+} from '@rengarenk/shared';
 import { z } from 'zod';
 import { ApprovalService } from '../approvals/approval.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
@@ -100,6 +106,12 @@ export class StaffMeController {
       integrationWarnings: await this.db.catalogSource.count({
         where: { active: true, lastError: { not: null } },
       }),
+      /** Menüde Galeri başvuruları rozeti: insan kararı bekleyenler (Karar 03) */
+      pendingGalleryApplications: satisfies(req.staff.grants['galeri_basvuru.onayla'], 'tam')
+        ? await this.db.galleryApplication.count({
+            where: { status: { in: ['IN_REVIEW', 'DOCS_REQUESTED'] } },
+          })
+        : 0,
       idleMinutes: STAFF_IDLE_MINUTES,
     };
   }

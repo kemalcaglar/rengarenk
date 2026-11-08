@@ -16,7 +16,7 @@ export function useKonsol() {
 }
 
 type Item =
-  | { href: string; ad: string; izin?: Permission; rozet?: 'onay' | 'entegrasyon' }
+  | { href: string; ad: string; izin?: Permission; rozet?: 'onay' | 'entegrasyon' | 'basvuru' }
   | { ad: string; sonra: true };
 
 /**
@@ -44,7 +44,12 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
     grup: 'Pazar',
     ogeler: [
       { ad: 'Kullanıcılar ve galeriler', sonra: true },
-      { ad: 'Galeri başvuruları', sonra: true },
+      {
+        href: '/galeri-basvurulari',
+        ad: 'Galeri başvuruları',
+        izin: 'galeri_basvuru.onayla',
+        rozet: 'basvuru',
+      },
       { ad: 'Moderasyon', sonra: true },
       { ad: 'Destek', sonra: true },
       { ad: 'Talepler ve portföy', sonra: true },
@@ -209,6 +214,11 @@ export function Kabuk({ me: initial, logo, children }: { me: Me; logo: ReactNode
                         {i.rozet === 'onay' ? (
                           <span style={{ fontSize: 11.5, fontWeight: 800, color: '#7A5300' }}>
                             {me.pendingApprovals}
+                          </span>
+                        ) : null}
+                        {i.rozet === 'basvuru' && me.pendingGalleryApplications > 0 ? (
+                          <span style={{ fontSize: 11.5, fontWeight: 800, color: '#7A5300' }}>
+                            {me.pendingGalleryApplications}
                           </span>
                         ) : null}
                         {i.rozet === 'entegrasyon' && me.integrationWarnings > 0 ? (

@@ -29,6 +29,7 @@ export interface Me {
   approverOf: string[];
   pendingApprovals: number;
   integrationWarnings: number;
+  pendingGalleryApplications: number;
   idleMinutes: number;
 }
 

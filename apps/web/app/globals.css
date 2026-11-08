@@ -185,3 +185,22 @@ textarea {
     display: none;
   }
 }
+
+/* Başvuru adımları (5) ve işletme türü kartları (4); dar ekranda alt alta */
+.rr-bes-sutun {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.rr-dort-sutun {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 900px) {
+  .rr-dort-sutun {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rr-bes-sutun {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
