@@ -33,7 +33,13 @@ const MENU: {
         alt: 'Favori talepler ve kayıtlı aramalar',
         git: () => router.push('/favoriler'),
       },
-      { ikon: '🎟️', tint: '#FFF6DF', ad: 'Haklarım ve ödemeler', alt: '1 ücretsiz talep · faturalar' },
+      {
+        ikon: '🎟️',
+        tint: '#FFF6DF',
+        ad: 'Haklarım ve ödemeler',
+        alt: 'Talep ve mesaj hakları · ödeme geçmişi',
+        git: () => router.push('/haklarim'),
+      },
     ],
   },
   {

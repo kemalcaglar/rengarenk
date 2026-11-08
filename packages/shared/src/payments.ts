@@ -223,6 +223,34 @@ export const orderCreateSchema = z
   });
 export type OrderCreate = z.infer<typeof orderCreateSchema>;
 
+// ── Mağaza ödemeleri (Karar 38) ──────────────────────────────
+
+/** Mağaza ürün kimliği: App Store Connect ve Google Play Console'da aynı adla tanımlanır (tüketilebilir ürün) */
+export const storeProductId = (key: string) => `rr_${key}`;
+export const productByStoreId = (id: string) => PRODUCTS.find((p) => storeProductId(p.key) === id);
+
+/** Uygulamada satın almadan önce: hangi ürün, öne çıkarmada hangi talep (mağaza bildirimi bu kayda bağlanır) */
+export const storeIntentSchema = z
+  .object({
+    urun: z.string().refine((k) => !!productByKey(k), 'Ürün bulunamadı'),
+    talepNo: z.number().int().positive().optional(),
+    platform: z.enum(['ios', 'android']),
+  })
+  .strict()
+  .superRefine((v, ctx) => {
+    if (productByKey(v.urun)?.oneCikarma && !v.talepNo) {
+      ctx.addIssue({ code: 'custom', path: ['talepNo'], message: 'Öne çıkarılacak talebi seç' });
+    }
+  });
+export type StoreIntent = z.infer<typeof storeIntentSchema>;
+
+/** HaklarimMobil.dc.html alt bilgisi; uygulamada web fiyatından söz edilmez */
+export const STORE_NOTES = {
+  ios: 'Ödeme Apple hesabınla alınır. İade talepleri Apple üzerinden yapılır. Satın aldığın haklar web sitesinde de geçerlidir.',
+  android:
+    'Ödeme Google Play hesabınla alınır. İade talepleri Google Play üzerinden yapılır. Satın aldığın haklar web sitesinde de geçerlidir.',
+} as const;
+
 /** "1.234,50 TL" */
 export const tlYaz = (kurus: number) =>
   `${new Intl.NumberFormat('tr-TR', {

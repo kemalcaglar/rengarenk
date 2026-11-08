@@ -1517,6 +1517,8 @@ model Order {
   preInfo        String      @map("pre_info")
   /// urun (bireysel ve galeri ek paketleri) | abonelik | yukseltme | yenileme (Karar 12.2, 12.7)
   kind           String      @default("urun")
+  /// Mağaza satışında işlem no (App Store / Google Play transaction id); aynı satış iki kez işlenmez
+  externalId     String?     @unique @map("external_id")
   subscriptionId String?     @map("subscription_id") @db.Uuid
   /// paytr | fake
   provider       String
@@ -1666,4 +1668,32 @@ model Subscription {
 
   @@index([status, currentPeriodEnd])
   @@map("subscriptions")
+}
+
+/// Mağaza bildirimi (RevenueCat; Karar 38). Aynı bildirim bir kez işlenir; kayıt değiştirilmez ve silinmez.
+/// İade bildirimleri yalnızca kaydedilir, hak düşülmez: iade akışı sahibin kararıyla (Teknik tasarım §7).
+model StoreEvent {
+  id            String   @id @db.Uuid
+  /// revenuecat | fake
+  provider      String
+  /// Sağlayıcının olay kimliği
+  eventId       String   @unique @map("event_id")
+  type          String
+  userId        String?  @map("user_id") @db.Uuid
+  productId     String?  @map("product_id")
+  transactionId String?  @map("transaction_id")
+  /// APP_STORE | PLAY_STORE
+  store         String?
+  /// PRODUCTION | SANDBOX
+  environment   String?
+  /// islendi | yok_sayildi | inceleme
+  result        String
+  note          String?
+  orderId       String?  @map("order_id") @db.Uuid
+  payload       Json
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([userId, createdAt])
+  @@index([result, createdAt])
+  @@map("store_events")
 }

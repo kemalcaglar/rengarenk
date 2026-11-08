@@ -34,6 +34,13 @@ const schema = z.object({
   PAYTR_TEST_MODE: z.enum(['0', '1']).default('0'),
   /** e-Arşiv fatura entegratörü: none (fatura kuyrukta bekler), fake (geliştirme ve test; canlıda kullanılamaz) */
   EARSIV_PROVIDER: z.enum(['none', 'fake']).default('none'),
+  /**
+   * Mağaza ödemeleri (Karar 38): none kapalı (Apple ve Google hesapları açılana kadar canlı), revenuecat gerçek
+   * (RevenueCat bildirimi), fake geliştirme ve test için sahte mağaza (canlıda kullanılamaz).
+   */
+  STORE_PROVIDER: z.enum(['none', 'fake', 'revenuecat']).default('none'),
+  /** RevenueCat panelinde bildirim (webhook) için tanımlanan Authorization değeri */
+  REVENUECAT_WEBHOOK_AUTH: z.string().min(24).optional(),
   /** API'nin dışarıdan görünen adresi (sahte ödeme sayfası, bildirim adresi) */
   API_PUBLIC_URL: z.string().default('http://localhost:4000'),
   SMS_PROVIDER: z.enum(['console', 'test', 'iletimerkezi']).default('console'),
@@ -117,6 +124,7 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (e.EIDS_PROVIDER === 'fake') throw new Error('Canlıda sahte EİDS kullanılamaz');
     if (e.PAYMENT_PROVIDER === 'fake') throw new Error('Canlıda sahte ödeme kullanılamaz');
     if (e.EARSIV_PROVIDER === 'fake') throw new Error('Canlıda sahte e-Arşiv kullanılamaz');
+    if (e.STORE_PROVIDER === 'fake') throw new Error('Canlıda sahte mağaza kullanılamaz');
     if (e.STAFF_AUTH_PROVIDER !== 'google') throw new Error('Canlıda yönetim girişi Google Workspace olmalı');
     if (!e.STAFF_SECRET_KEY) throw new Error('Canlıda STAFF_SECRET_KEY gerekli');
     if (!e.MESSAGE_SECRET_KEY) throw new Error('Canlıda MESSAGE_SECRET_KEY gerekli');
@@ -136,6 +144,9 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     !(e.PAYTR_MERCHANT_ID && e.PAYTR_MERCHANT_KEY && e.PAYTR_MERCHANT_SALT)
   ) {
     throw new Error('PayTR için PAYTR_MERCHANT_ID, PAYTR_MERCHANT_KEY ve PAYTR_MERCHANT_SALT gerekli');
+  }
+  if (e.STORE_PROVIDER === 'revenuecat' && !e.REVENUECAT_WEBHOOK_AUTH) {
+    throw new Error('RevenueCat için REVENUECAT_WEBHOOK_AUTH gerekli');
   }
   if (e.STAFF_EMAIL_DOMAINS.length === 0) throw new Error('STAFF_EMAIL_DOMAINS boş olamaz');
   for (const p of [e.SMS_PROVIDER, e.SMS_FALLBACK_PROVIDER]) {

@@ -90,7 +90,7 @@ export class OrdersService {
     this.earsiv = earsiv.create();
   }
 
-  private async personal(userId: string) {
+  async personal(userId: string) {
     const m = await this.db.accountMember.findFirst({
       where: { userId, role: 'OWNER', account: { kind: 'INDIVIDUAL', status: 'ACTIVE' } },
       select: { accountId: true },
@@ -137,7 +137,9 @@ export class OrdersService {
         this.flags.maintenance('odeme'),
       ]);
     const saglayici = this.providers.get().ad;
+    const magaza = this.env.STORE_PROVIDER;
     return {
+      talepHakki: await this.entitlements.balance(accountId, 'talep'),
       ekMesaj,
       gunlukMesaj: { toplam: 5, kalan: Math.max(0, 5 - gunlukKullanilan) },
       uzatmaHakki,
@@ -147,6 +149,11 @@ export class OrdersService {
         acik: saglayici !== 'none' && !odeme.on,
         not: odeme.on ? odeme.note : saglayici === 'none' ? 'Ödemeler yakında açılacak' : null,
       },
+      // Uygulama içi satın alma (Karar 38)
+      magaza: {
+        acik: magaza !== 'none' && !odeme.on,
+        not: odeme.on ? odeme.note : magaza === 'none' ? 'Uygulama içi satın alma yakında açılacak' : null,
+      },
       urunler: PRODUCTS.map((p) => ({
         key: p.key,
         grup: p.grup,
@@ -154,6 +161,7 @@ export class OrdersService {
         ad: p.ad,
         not: p.not,
         kurus: Math.round(p.tl * 100),
+        mobilKurus: Math.round(p.mobil * 100),
         oneCikarma: !!p.oneCikarma,
         hemenBaslar: p.hemenBaslar,
       })),
@@ -403,7 +411,8 @@ export class OrdersService {
   }
 
   /** Haklar ve öne çıkarmalar; aynı işlemde işlem kaydı ve olaylar */
-  private async fulfill(tx: Tx, o: Order, n: Notification) {
+  /** Ödeme onaylandı (web bildirimi ya da mağaza bildirimi): haklar, öne çıkarma, fatura kaydı; aynı işlemde */
+  async fulfill(tx: Tx, o: Order, n: Notification) {
     const now = new Date();
     const kalemler = o.kind === 'urun' ? kalemlerOf(o.items) : [];
     const yenidenIndeks = new Set<string>();
@@ -460,7 +469,10 @@ export class OrdersService {
       }
     }
     await tx.order.update({ where: { id: o.id }, data: { status: 'PAID', paidAt: now, failReason: null } });
-    await tx.invoice.create({ data: { id: uuidv7(), orderId: o.id, provider: this.earsiv.ad } });
+    // Mağaza satışının faturasını mağaza keser (Karar 38); web ve abonelik satışında e-Arşiv
+    if (o.channel === 'web' || o.channel === 'otomatik') {
+      await tx.invoice.create({ data: { id: uuidv7(), orderId: o.id, provider: this.earsiv.ad } });
+    }
     await this.audit.record(
       {
         actorType: 'SYSTEM',

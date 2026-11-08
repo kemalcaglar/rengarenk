@@ -28,6 +28,9 @@ export type EventType =
   | 'abonelik.bitti'
   | 'abonelik.kart_kaydedildi'
   | 'abonelik.bildirim_gelmedi'
+  // Mağaza ödemeleri (Karar 38): iade bildirimi ve tanınmayan satış sahibe ve desteğe iletilir
+  | 'magaza.iade_bildirimi'
+  | 'magaza.inceleme'
   | 'iade.onaylandi'
   // Yönetim (Karar 40): bildirim katmanı bunları sahibe iletir.
   | 'calisan.giris'
