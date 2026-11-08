@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ilBul } from './iller.js';
 
 /**
  * Kategori şeması (Karar 45, Teknik tasarım §5). Her kategori sürümü kendi alanlarını, kurallarını ve
@@ -500,7 +501,14 @@ const catalogValue = z
   .strict();
 const locationValue = z
   .object({ il: z.string().trim().min(2).max(40), ilce: z.string().trim().min(2).max(60).optional() })
-  .strict();
+  .strict()
+  .superRefine((v, ctx) => {
+    const il = ilBul(v.il);
+    if (!il) ctx.addIssue({ code: 'custom', path: ['il'], message: 'İl bulunamadı' });
+    else if (v.ilce && !il.ilceler.includes(v.ilce)) {
+      ctx.addIssue({ code: 'custom', path: ['ilce'], message: `${v.ilce}, ${il.ad} ilinin ilçesi değil` });
+    }
+  });
 const paintValue = z
   .object({
     limit: z.number().int().min(0).max(PAINT_PARTS.length),

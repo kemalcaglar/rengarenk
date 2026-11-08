@@ -94,8 +94,28 @@ describe('talepler (Karar 04, 05, 09, 10, 12, 21)', () => {
       { data: otomobil(), contact: { phoneVisible: true, whatsappVisible: true, nameMode: 'kisa' } },
       t,
     );
+    const before = await call(app, 'GET', '/demands/rights', undefined, t);
+    expect(before.body).toEqual({
+      ucretsizTalep: true,
+      talep: 1,
+      uzatma: 0,
+      telefonMaske: '0 (5XX) XXX XX 01',
+    });
+    expect((await call(app, 'PATCH', `/demands/${d.body.id}`, { headline: 'Kısa' }, t)).status).toBe(400);
+    await call(
+      app,
+      'PATCH',
+      `/demands/${d.body.id}`,
+      { headline: 'BMW 320i arıyorum: 2019 sonrası, otomatik' },
+      t,
+    );
     const pub = await call(app, 'POST', `/demands/${d.body.id}/publish`, {}, t);
     expect(pub.status).toBe(200);
+    expect(pub.body.baslik).toBe('BMW 320i arıyorum: 2019 sonrası, otomatik');
+    expect((await call(app, 'GET', '/demands/rights', undefined, t)).body).toMatchObject({
+      ucretsizTalep: false,
+      talep: 0,
+    });
     expect(pub.body).toMatchObject({
       status: 'PUBLISHED',
       title: 'BMW 3 Serisi 320i',

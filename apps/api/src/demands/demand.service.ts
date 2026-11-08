@@ -38,6 +38,7 @@ export interface DemandUpdate {
   step?: number;
   data?: DemandData;
   contact?: { phoneVisible: boolean; whatsappVisible: boolean; nameMode: 'tam' | 'kisa' };
+  headline?: string | null;
 }
 
 const range = (v: unknown) =>
@@ -135,6 +136,34 @@ export class DemandService {
     };
   }
 
+  /** Kalan haklar (Sihirbaz 6. adım: "Bu telefon numarasıyla 1 ücretsiz talep hakkın var"). */
+  async rights(userId: string) {
+    const accountId = await this.accountOf(userId);
+    const user = await this.db.user.findUniqueOrThrow({ where: { id: userId }, select: { phone: true } });
+    const freeUsed = await this.db.entitlementLedger.findUnique({
+      where: {
+        sourceType_sourceId_kind: {
+          sourceType: 'ucretsiz_talep',
+          sourceId: sha256(`rr-ucretsiz-talep:${user.phone}`),
+          kind: 'talep',
+        },
+      },
+      select: { id: true },
+    });
+    const [talep, uzatma] = await Promise.all([
+      this.entitlements.balance(accountId, 'talep'),
+      this.entitlements.balance(accountId, 'uzatma'),
+    ]);
+    const phone = user.phone.replace(/\D/g, '');
+    return {
+      ucretsizTalep: !freeUsed,
+      talep: talep + (freeUsed ? 0 : 1),
+      uzatma,
+      /** "0 (5XX) XXX XX 67" */
+      telefonMaske: `0 (5XX) XXX XX ${phone.slice(-2)}`,
+    };
+  }
+
   // ── Taslak ────────────────────────────────────────────────────
 
   async create(userId: string, kategori: string) {
@@ -178,6 +207,7 @@ export class DemandService {
           ...(changedCategory ? { data: { alanlar: {}, alternatifler: [{}] } } : {}),
           ...(input.data && !changedCategory ? { data: input.data as unknown as Prisma.InputJsonValue } : {}),
           ...(input.contact ?? {}),
+          ...(input.headline !== undefined ? { headline: input.headline } : {}),
         },
         include: { category: { select: { slug: true, name: true } } },
       });
@@ -194,6 +224,7 @@ export class DemandService {
           ...cols,
           ...(input.data ? { data: data as unknown as Prisma.InputJsonValue } : {}),
           ...(input.contact ?? {}),
+          ...(input.headline !== undefined ? { headline: input.headline } : {}),
         },
         include: { category: { select: { slug: true, name: true } } },
       });
@@ -440,6 +471,9 @@ export class DemandService {
       status: d.status,
       statusName: DEMAND_STATUS_NAMES[d.status as DemandStatusKey],
       title: d.title,
+      headline: d.headline,
+      /** Gösterilecek başlık: alıcının yazdığı, yoksa katalogdan üretilen */
+      baslik: d.headline || d.title || d.category.name,
       category: d.category,
       il: d.il,
       ilce: d.ilce,

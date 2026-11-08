@@ -5,6 +5,7 @@ export * from './category-defaults.js';
 export * from './category-schema.js';
 export * from './demand.js';
 export * from './flags.js';
+export * from './iller.js';
 export * from './matching.js';
 export * from './phone.js';
 export * from './staff.js';

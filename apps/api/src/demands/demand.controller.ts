@@ -55,6 +55,11 @@ export class DemandsController {
     return this.demands.mine(req.user.sub);
   }
 
+  @Get('rights')
+  rights(@Req() req: AuthedRequest) {
+    return this.demands.rights(req.user.sub);
+  }
+
   @Post()
   create(
     @Req() req: AuthedRequest,

@@ -23,7 +23,12 @@ export async function createApp(): Promise<NestFastifyApplication> {
   registerXlsxBody(app);
   if (reporting) app.useGlobalFilters(new ReportingExceptionFilter(app.get(HttpAdapterHost).httpAdapter));
   await app.register(helmet);
-  app.enableCors({ origin: [env.WEB_ORIGIN, env.ADMIN_ORIGIN], credentials: true });
+  // Fastify'ın varsayılanı yalnızca GET, HEAD, POST; tarayıcıdan PATCH (profil, talep taslağı) ve DELETE de gelir.
+  app.enableCors({
+    origin: [env.WEB_ORIGIN, env.ADMIN_ORIGIN],
+    credentials: true,
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  });
   app.enableShutdownHooks();
   if (env.NODE_ENV !== 'production') setupDocs(app);
   return app;

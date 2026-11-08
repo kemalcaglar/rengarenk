@@ -107,8 +107,13 @@ export default function Giris() {
   const [soyad, setSoyad] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Talep sihirbazı gelene kadar iki düğme de ana sayfaya döner
   const [hedef, setHedef] = useState('/');
+  // Giriş isteyen sayfadan gelindiyse (ör. talep sihirbazı) girişten sonra oraya dönülür.
+  const [sonra, setSonra] = useState<string | null>(null);
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get('sonra');
+    if (q?.startsWith('/') && !q.startsWith('//')) setSonra(q);
+  }, []);
 
   useEffect(() => {
     if (step !== 2) return;
@@ -163,7 +168,7 @@ export default function Giris() {
         consents: onay,
       });
       if (!r.isNewUser) {
-        router.push('/');
+        router.push(sonra ?? '/');
         return;
       }
       setAccess(r.accessToken);
@@ -511,8 +516,13 @@ export default function Giris() {
                 Telefon numaran doğrulandı. 1 ücretsiz talep hakkın hazır.
               </span>
             </div>
-            <button type="submit" disabled={busy} onClick={() => setHedef('/')} style={primary(true)}>
-              {busy && hedef === '/' ? 'Kaydediliyor…' : 'İlk talebimi oluştur'}
+            <button
+              type="submit"
+              disabled={busy}
+              onClick={() => setHedef(sonra ?? '/talep-olustur')}
+              style={primary(true)}
+            >
+              {busy && hedef !== '/' ? 'Kaydediliyor…' : 'İlk talebimi oluştur'}
             </button>
             <button
               type="submit"

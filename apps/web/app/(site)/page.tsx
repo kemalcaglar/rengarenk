@@ -139,7 +139,7 @@ export default async function Home() {
               yazsın.
             </p>
             <Link
-              href="/giris"
+              href="/talep-olustur"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',

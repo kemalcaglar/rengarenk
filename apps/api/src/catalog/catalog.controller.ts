@@ -92,7 +92,7 @@ export class CatalogController {
       await this.db.catalogMake.findMany({
         where: { variants: { some: await this.visible(kategori) } },
         orderBy: { name: 'asc' },
-        select: { id: true, name: true },
+        select: { id: true, key: true, name: true },
       }),
     );
   }
@@ -106,7 +106,7 @@ export class CatalogController {
       await this.db.catalogSeries.findMany({
         where: { makeId: id, variants: { some: await this.visible(kategori) } },
         orderBy: { name: 'asc' },
-        select: { id: true, name: true, categories: true },
+        select: { id: true, key: true, name: true, categories: true },
       }),
     );
   }
@@ -125,7 +125,7 @@ export class CatalogController {
           variants: { some: await this.visible(kategori) },
         },
         orderBy: { name: 'asc' },
-        select: { id: true, name: true },
+        select: { id: true, key: true, name: true },
       }),
     );
   }
@@ -141,7 +141,13 @@ export class CatalogController {
   ) {
     const s = await this.db.catalogSeries.findUnique({
       where: { id },
-      select: { id: true, name: true, categories: true, make: { select: { id: true, name: true } } },
+      select: {
+        id: true,
+        key: true,
+        name: true,
+        categories: true,
+        make: { select: { id: true, key: true, name: true } },
+      },
     });
     if (!s) throw new NotFoundException('Seri bulunamadı');
     const variants = await this.db.catalogVariant.findMany({
@@ -155,8 +161,8 @@ export class CatalogController {
         engineL: true,
         powerHp: true,
         powerKw: true,
-        model: { select: { id: true, name: true } },
-        trim: { select: { id: true, name: true } },
+        model: { select: { id: true, key: true, name: true } },
+        trim: { select: { id: true, key: true, name: true } },
       },
     });
     const yearsOf = (vs: typeof variants) =>
@@ -173,6 +179,7 @@ export class CatalogController {
 
     const models = [...group((v) => v.model.id)].map(([mid, vs]) => ({
       id: mid,
+      key: vs[0]?.model.key,
       name: vs[0]?.model.name,
       years: yearsOf(vs),
       fuels: [...new Set(vs.map((v) => v.fuel).filter(Boolean))],
@@ -181,6 +188,7 @@ export class CatalogController {
     const bodies = [...group((v) => v.body)].map(([name, vs]) => ({ name, years: yearsOf(vs) }));
     const trims = [...group((v) => v.trim?.id ?? null)].map(([tid, vs]) => ({
       id: tid,
+      key: vs[0]?.trim?.key,
       name: vs[0]?.trim?.name,
       years: yearsOf(vs),
       modelIds: [...new Set(vs.map((v) => v.model.id))],
@@ -196,6 +204,7 @@ export class CatalogController {
       },
       select: {
         id: true,
+        key: true,
         source: true,
         name: true,
         code: true,

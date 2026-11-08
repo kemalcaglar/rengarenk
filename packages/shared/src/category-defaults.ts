@@ -154,6 +154,9 @@ const tramer = () =>
     label: 'Tramer tutarı (en çok)',
     type: 'number',
     filter: false,
+    // Sihirbaz tasarımında boya ve hasar adımında: "En fazla tramer tutarı (TL)"
+    step: 'boya_hasar',
+    scope: 'talep',
     unit: 'TL',
     min: 0,
     max: 100_000_000,

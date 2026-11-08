@@ -23,7 +23,7 @@ export const EXTEND_WINDOW_DAYS = 7;
 
 /** "Aracı buldum" sorusu (Karar 31); cevap satıcıya gösterilmez, başarı ölçümünde kullanılır. */
 export const FOUND_VIA = [
-  { key: 'rengarenk', ad: "Rengarenk'te bir satıcıdan" },
+  { key: 'rengarenk', ad: 'Rengarenk’te mesajlaştığım bir satıcıdan' },
   { key: 'baska_site', ad: 'Başka bir siteden veya galeriden' },
   { key: 'tanidik', ad: 'Tanıdık üzerinden' },
   { key: 'vazgectim', ad: 'Almaktan vazgeçtim' },
@@ -71,6 +71,8 @@ export const demandUpdateSchema = z
     step: z.number().int().min(1).max(WIZARD_LABELS.length).optional(),
     data: demandDataSchema.optional(),
     contact: demandContactSchema.optional(),
+    /** Alıcının yazdığı başlık (Sihirbaz 5. adım); boş bırakılırsa katalogdan üretilen başlık gösterilir */
+    headline: z.string().trim().min(5, 'Başlık en az 5 karakter').max(120).nullable().optional(),
   })
   .strict();
 
@@ -91,3 +93,20 @@ export function demandOwnerName(
   if (!l) return f;
   return mode === 'kisa' ? `${f} ${l.charAt(0).toLocaleUpperCase('tr-TR')}.` : `${f} ${l}`;
 }
+
+/**
+ * Bireysel hizmet fiyatları, KDV dahil (Karar 12.8). Başlangıç değerleridir; ödeme modülüyle birlikte
+ * konsoldaki "Kurallar ve fiyatlar" ekranından yönetilecek (Karar 13.3, 47).
+ */
+export const BIREYSEL_FIYATLAR = {
+  ekTalep: { ad: 'Ek talep', sure: '1 talep, 30 gün', tl: 199 },
+  talepPaketi: { ad: 'Talep paketi', sure: '3 talep', tl: 499 },
+  uzatma: { ad: 'Ücretli uzatma', sure: '30 gün', tl: 99 },
+} as const;
+
+/** Öne çıkarma seçenekleri (Karar 12.6, 12.8; Sihirbaz 6. adım) */
+export const ONE_CIKARMA = [
+  { key: 'ust_sira', ad: 'Üst sıra', aciklama: 'Satıcıların listelerinde 7 gün üstte', tl: 149 },
+  { key: 'acil', ad: 'Acil arıyorum', aciklama: '7 gün dikkat çeken etiket', tl: 79 },
+  { key: 'vitrin', ad: 'Ana sayfa vitrini', aciklama: '7 gün ana sayfada', tl: 299 },
+] as const;

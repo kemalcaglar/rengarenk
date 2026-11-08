@@ -912,6 +912,8 @@ model Demand {
   status            DemandStatus @default(DRAFT)
   /// Katalogdan üretilen başlık ("BMW 3 Serisi 320i")
   title             String       @default("")
+  /// @pii Alıcının yazdığı talep başlığı (Sihirbaz 5. adım); boşsa `title` gösterilir
+  headline          String?
   /// @pii Talep alanları ve alternatifler; açıklama serbest metindir
   data              Json         @default("{}")
   /// Taslakta kalınan sihirbaz adımı (Karar 21)
