@@ -135,10 +135,14 @@ pnpm format        # Biome ile biçimlendir
   Eşleştirme ayarı. Kurallar ve ağırlıklar sürümün içinde; yayın dört göz onayıyla (CATEGORY_SCHEMA), işçi yayına alır.
   Kilit: RR030–RR033. `category-defaults.ts` yalnızca ilk kurulumu etkiler; var olan kategori konsoldan değişir.
   Web ana sayfası ve mobil menü `GET /categories` okur. API'de 88, ortak pakette 33 test.
-- **Sıradaki:** Aşama 3 (Talep): talep sihirbazı web ve mobil (`Sihirbaz*.dc.html`, şema `demandSchema` ile), yaşam
-  döngüsü, liste ve arama, talep detayı. Sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS. Liste:
-  `docs/kapsam/03-gelistirme-plani.md` sonundaki sprint bölümleri. Bir sprint bitince oradaki kutuları
-  işaretle ve README'deki "Şu an neler var" bölümünü güncelle.
+- **Sprint 8 (8 Kasım 2026, Aşama 3 ilk bölüm):** talepler (`apps/api/src/demands/`, `packages/shared/src/demand.ts`),
+  yaşam döngüsü ve süreler (işçi), ilk talep ücretsiz (hak defteri, telefon özeti), arama OpenSearch
+  (`apps/api/src/search/`, testler `rrtest_` öneki), il/ilçe listesi (`iller.ts`). Web: `/talep-olustur`, `/taleplerim`,
+  `/talepler`, `/talep/[no]`; mobil aynı ekranlar. API'de 93 test. Web ekran görüntüsü için yerelde API kodu yanıtta
+  verdiğinden deneme numarasıyla oturum açılabilir (OTP hız sınırı yüzünden her denemede başka numara).
+- **Sıradaki:** Aşama 3'ün kalanı: favoriler, kayıtlı arama, ana sayfada vitrin ve son talepler (liste:
+  `docs/kapsam/03-gelistirme-plani.md` Sprint 8). Sonra Aşama 4 (galeri). Sunucular gelince Radore'ye ilk dağıtım,
+  yedek, izleme, SOPS. Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu
   gerçek anahtarla deneme; test/sahte sağlayıcı kullan.

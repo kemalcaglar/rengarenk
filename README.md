@@ -173,6 +173,18 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Talepler, liste ve arama (Sprint 8)
+
+- **Sihirbaz:** web `/talep-olustur`, mobilde "Talep oluştur". Alanlar kategorinin yayındaki şemasından gelir; taslak
+  her değişiklikte kaydedilir. İlk talep telefon numarası başına ücretsiz; sonrası ödeme modülüyle satın alınacak.
+- **Yaşam döngüsü:** Taslak → Yayında ⇄ Pasif → Tamamlandı / Kapatıldı. Uçlar `/demands` (sahip) ve
+  `GET /talepler/:no` (herkese açık; telefon izinliyse ve girişli kullanıcıya). İşçi süresi dolanı pasife alır, 7/3/1
+  gün kala `talep.suresi_doluyor` olayı yazar.
+- **Arama:** `GET /talepler?kategori=&marka=&seri=&makyaj=&paket=&yilMin=&yilMax=&butceMin=&butceMax=&il=&telefon=1&q=&sira=`.
+  OpenSearch (`OPENSEARCH_URL`, indeks öneki `OPENSEARCH_PREFIX`, varsayılan `rr`); indeks işçide güncellenir, açılışta
+  ve her gece veritabanıyla eşitlenir. Testler `rrtest_` önekini kullanır; yerelde `pnpm infra:up` OpenSearch'ü açar.
+- **İl ve ilçe:** `packages/shared/src/iller.ts` (81 il, 973 ilçe; kaynağı dosyada).
+
 ## Canlıya alma
 
 Ayrıntılı el kitabı ve bu bilgisayarda canlı provası: [deploy/README.md](deploy/README.md).

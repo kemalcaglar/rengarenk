@@ -138,6 +138,35 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 8 · talep sihirbazı, yaşam döngüsü, liste ve arama (Aşama 3, 8 Kasım 2026'da başladı)
+
+- [x] Talep veri modeli: demands (sık filtrelenen alanlar ayrı sütun, gerisi JSONB) ve yalnızca ekleme yapılan
+  demand_events; talep silinmez, kapatılır; talep yayına girdiği kategori şeması sürümünü taşır (Karar 45)
+- [x] Yayın: kategori şemasıyla doğrulama, katalog seçiminin katalogda denetimi; ilk talep telefon numarası
+  başına ücretsiz (hak defterinde numara özetiyle, yeni hesap hakkı yenilemez; Karar 12), sonrakiler hak ister
+- [x] Yaşam döngüsü (Kullanıcı akışları, 5 durum): düzenle (yayında kalır), pasife al, yeniden aç, uzat (ilk uzatma
+  ücretsiz, sonrası hak), kapat, aracı buldum (nereden bulundu satıcıya gösterilmez; Karar 31)
+- [x] Süre: kategori kuralındaki yayın süresi (Hava 90 gün, Kiralık alış tarihine kadar); işçi süresi dolanı pasife
+  alır, bitişe 7/3/1 gün kala hatırlatma olayı yazar (bildirim katmanı Aşama 7'de iletecek)
+- [x] Türkiye'nin 81 ili ve 973 ilçesi ortak pakette (Vikipedi ve İçişleri envanteri; plakalar Wikidata'dan, iki
+  hata düzeltildi); konum bu listeyle doğrulanır
+- [x] Arama: OpenSearch, Türkçe çözümleyici; indeks talep olaylarıyla işçide güncellenir ve her gece eşitlenir.
+  Filtreler: kategori, marka, seri, makyaj, paket, yıl ve bütçe aralığı örtüşmesi, il/ilçe, telefon, talep no; sıralama
+- [x] Web: talep sihirbazı (Sihirbaz.dc.html), Taleplerim, talep listesi (Liste.dc.html), talep sayfası (Main.dc.html;
+  sunucuda çizilir, temsilî fotoğraf Commons'tan atfıyla), girişli üst bilgi (avatar ve ad)
+- [x] Mobil: sihirbaz (SihirbazMobilAkis, SihirbazMobil), Taleplerim, liste (ListeMobil), talep sayfası (Mobil.dc.html)
+- [ ] Favoriler ve favori bildirimleri (Karar 06.4), kayıtlı arama (Karar 30) ve "Aramayı kaydet" düğmesi
+- [ ] Ana sayfada vitrin ve son talepler, galeri ana sayfası (Karar 22)
+- [ ] Öne çıkarma ve ek talep/uzatma satın alma: ödeme modülüyle (Aşama 6); şimdilik seçenekler görünür ama pasif
+- [ ] Talep sayfasında "Mesaj at" (Aşama 5), "Favorilere ekle", "Şikayet et" (Aşama 8): şimdilik pasif
+- [ ] Talep kartlarında görüntülenme, favori, mesaj ve uyan portföy sayıları (ilgili modüllerle)
+- Tasarımdan farklar: mobil tasarımda 2. adımda alternatif başka araç olarak ekleniyor; Karar 05 ve web tasarımına
+  göre alternatifler aynı aracın farklı kriterleri olarak yapıldı. Mobil kategori kartlarına tasarımda olmayan
+  Hasarlı, Klasik ve Hava eklendi (Karar 19). Kiralamada araç türü kartı kiralık kategorisine gider, uygun olanlarda
+  segmenti önceden seçer. Talep sayfasındaki ilk mesaj hakkı sayacı mesajlaşma modülüyle gelecek
+- Tasarımda olmayıp eklenenler: sihirbazda "Adım talep sayfasında kısaltılsın" (Karar 29), yayındaki talebin
+  sihirbazla düzenlenmesi, Taleplerim'de "Taslağı sil", listede sonuç yokken bilgi kutusu
+
 ## Sprint 7 · 14 kategori şeması ve kategori yönetimi (8 Kasım 2026)
 
 - [x] Kategori ağacı: 14 vasıta kategorisi (Karar 19) ve Ticari Araçlar'ın alt kategorileri (Kamyon & Çekici, Kamyonet,
