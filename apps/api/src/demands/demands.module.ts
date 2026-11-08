@@ -6,12 +6,14 @@ import { OutboxService } from '../outbox/outbox.service.js';
 import { SearchModule } from '../search/search.module.js';
 import { DemandsController, PublicDemandsController } from './demand.controller.js';
 import { DemandService } from './demand.service.js';
+import { FavoritesController, SavedSearchesController } from './favorites.controller.js';
+import { FavoritesService } from './favorites.service.js';
 
 /** Talepler (Aşama 3). */
 @Module({
   imports: [AuthModule, EntitlementsModule, SearchModule],
-  controllers: [DemandsController, PublicDemandsController],
-  providers: [DemandService, AuditService, OutboxService],
+  controllers: [DemandsController, PublicDemandsController, FavoritesController, SavedSearchesController],
+  providers: [DemandService, FavoritesService, AuditService, OutboxService],
   exports: [DemandService],
 })
 export class DemandsModule {}

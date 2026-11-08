@@ -13,6 +13,7 @@ export const IKON = {
   kapat: 'M6 6l12 12M18 6L6 18',
   geri: 'M15 5l-7 7 7 7',
   onay: 'M5 12l5 5 9-10',
+  kalp: 'M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z',
 } as const;
 
 export function Ikon({
@@ -20,15 +21,25 @@ export function Ikon({
   size = 22,
   color = '#1E2333',
   width = 2.2,
+  fill = 'none',
 }: {
   d: keyof typeof IKON;
   size?: number;
   color?: string;
   width?: number;
+  /** Dolu ikon (ör. favorideki kalp) */
+  fill?: string;
 }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" accessibilityElementsHidden>
-      <Path d={IKON[d]} stroke={color} strokeWidth={width} strokeLinecap="round" strokeLinejoin="round" />
+      <Path
+        d={IKON[d]}
+        fill={fill}
+        stroke={color}
+        strokeWidth={width}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </Svg>
   );
 }

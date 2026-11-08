@@ -1,5 +1,6 @@
 import { colors } from '@rengarenk/shared';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Linking, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { T } from '../../components/t';
@@ -25,7 +26,13 @@ const MENU: {
         alt: 'Yayındaki, pasif ve taslak taleplerin',
         git: () => router.push('/(sekmeler)/taleplerim'),
       },
-      { ikon: '♥', tint: '#FFEEF6', ad: 'Favoriler ve aramalar', alt: 'Favori talepler ve kayıtlı aramalar' },
+      {
+        ikon: '♥',
+        tint: '#FFEEF6',
+        ad: 'Favoriler ve aramalar',
+        alt: 'Favori talepler ve kayıtlı aramalar',
+        git: () => router.push('/favoriler'),
+      },
       { ikon: '🎟️', tint: '#FFF6DF', ad: 'Haklarım ve ödemeler', alt: '1 ücretsiz talep · faturalar' },
     ],
   },
@@ -60,7 +67,22 @@ const kart = { backgroundColor: colors.surface, borderWidth: 1, borderColor: col
  * lisans atfı ve oturum kapatma gerektirdiği için aynı biçimle eklendi.
  */
 export default function Hesabim() {
-  const { durum, me, cikis } = useOturum();
+  const { durum, me, cikis, istek } = useOturum();
+  const [sayilar, setSayilar] = useState<Record<string, number>>({});
+  // Özet kutuları: aktif talep ve favori sayısı; sohbet sayısı mesajlaşmayla gelir
+  useFocusEffect(
+    useCallback(() => {
+      if (durum !== 'uye') return;
+      Promise.all([istek<{ items: { status: string }[] }>('/demands/mine'), istek<unknown[]>('/favorites')])
+        .then(([m, f]) =>
+          setSayilar({
+            'Aktif talep': m.items.filter((x) => x.status === 'PUBLISHED').length,
+            Favori: f.length,
+          }),
+        )
+        .catch(() => undefined);
+    }, [durum, istek]),
+  );
   if (durum !== 'uye') {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }} edges={['top']}>
@@ -144,7 +166,7 @@ export default function Hesabim() {
                 alignItems: 'center',
               }}
             >
-              <T style={{ fontSize: 20, fontWeight: '800' }}>0</T>
+              <T style={{ fontSize: 20, fontWeight: '800' }}>{sayilar[k] ?? 0}</T>
               <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 2 }}>{k}</T>
             </View>
           ))}

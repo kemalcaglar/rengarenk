@@ -155,17 +155,23 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Web: talep sihirbazı (Sihirbaz.dc.html), Taleplerim, talep listesi (Liste.dc.html), talep sayfası (Main.dc.html;
   sunucuda çizilir, temsilî fotoğraf Commons'tan atfıyla), girişli üst bilgi (avatar ve ad)
 - [x] Mobil: sihirbaz (SihirbazMobilAkis, SihirbazMobil), Taleplerim, liste (ListeMobil), talep sayfası (Mobil.dc.html)
-- [ ] Favoriler ve favori bildirimleri (Karar 06.4), kayıtlı arama (Karar 30) ve "Aramayı kaydet" düğmesi
+- [x] Favoriler (Karar 06.4) ve kayıtlı arama (Karar 30): talep sayfasında kalp, listede "Aramayı kaydet", web
+  /favoriler (Favoriler.dc.html) ve mobil "Favoriler ve aramalar" (HesapMobil); en fazla 10 arama, her biri için
+  anlık / günlük özet / kapalı; "N yeni talep" son bakıştan sonra yayınlananları sayar. Kendi talebi favoriye eklenmez
+- [ ] Favori ve kayıtlı arama bildirimlerinin iletimi: olaylar yazılıyor (talep güncellendi, pasife alındı, kapandı,
+  yeni talep), uygulama/e-posta/SMS iletimi bildirim katmanıyla (Aşama 7)
 - [ ] Ana sayfada vitrin ve son talepler, galeri ana sayfası (Karar 22)
 - [ ] Öne çıkarma ve ek talep/uzatma satın alma: ödeme modülüyle (Aşama 6); şimdilik seçenekler görünür ama pasif
-- [ ] Talep sayfasında "Mesaj at" (Aşama 5), "Favorilere ekle", "Şikayet et" (Aşama 8): şimdilik pasif
+- [ ] Talep sayfasında "Mesaj at" (Aşama 5) ve "Şikayet et" (Aşama 8): şimdilik pasif
 - [ ] Talep kartlarında görüntülenme, favori, mesaj ve uyan portföy sayıları (ilgili modüllerle)
 - Tasarımdan farklar: mobil tasarımda 2. adımda alternatif başka araç olarak ekleniyor; Karar 05 ve web tasarımına
   göre alternatifler aynı aracın farklı kriterleri olarak yapıldı. Mobil kategori kartlarına tasarımda olmayan
   Hasarlı, Klasik ve Hava eklendi (Karar 19). Kiralamada araç türü kartı kiralık kategorisine gider, uygun olanlarda
   segmenti önceden seçer. Talep sayfasındaki ilk mesaj hakkı sayacı mesajlaşma modülüyle gelecek
 - Tasarımda olmayıp eklenenler: sihirbazda "Adım talep sayfasında kısaltılsın" (Karar 29), yayındaki talebin
-  sihirbazla düzenlenmesi, Taleplerim'de "Taslağı sil", listede sonuç yokken bilgi kutusu
+  sihirbazla düzenlenmesi, Taleplerim'de "Taslağı sil", listede sonuç yokken bilgi kutusu; Favoriler'de kayıtlı
+  aramanın adını değiştirme (tasarımda "Düzenle" bağlantısı), mobilde kayıtlı arama kartına dokununca açılan
+  bildirim ve silme bölümü; mobil Hesabım özetinde aktif talep ve favori sayısı
 
 ## Sprint 7 · 14 kategori şeması ve kategori yönetimi (8 Kasım 2026)
 

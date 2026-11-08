@@ -110,3 +110,87 @@ export const ONE_CIKARMA = [
   { key: 'acil', ad: 'Acil arıyorum', aciklama: '7 gün dikkat çeken etiket', tl: 79 },
   { key: 'vitrin', ad: 'Ana sayfa vitrini', aciklama: '7 gün ana sayfada', tl: 299 },
 ] as const;
+
+// ── Liste, arama ve kayıtlı arama ─────────────────────────────
+
+/** Tekrarlanan ya da virgülle ayrılmış sorgu değeri → dizi */
+const liste = z
+  .union([z.string(), z.array(z.string())])
+  .transform((v) =>
+    (Array.isArray(v) ? v : v.split(','))
+      .map((x) => x.trim())
+      .filter(Boolean)
+      .slice(0, 30),
+  )
+  .optional();
+const sayi = z.coerce.number().int().min(0).max(1_000_000_000).optional();
+
+/** GET /talepler filtreleri; kayıtlı arama da aynı biçimi saklar (sayfa ve sıra hariç) */
+export const demandSearchQuerySchema = z
+  .object({
+    kategori: z.string().max(60).optional(),
+    marka: z.string().max(200).optional(),
+    seri: liste,
+    model: z.string().max(200).optional(),
+    makyaj: liste,
+    paket: liste,
+    yilMin: sayi,
+    yilMax: sayi,
+    butceMin: sayi,
+    butceMax: sayi,
+    il: z.string().max(40).optional(),
+    ilce: z.string().max(60).optional(),
+    telefon: z
+      .union([z.literal(true), z.enum(['1', 'true'])])
+      .transform(() => true as const)
+      .optional(),
+    q: z.string().max(120).optional(),
+    sira: z.enum(['onerilen', 'yeni', 'butce_azalan', 'butce_artan']).optional(),
+    sayfa: z.coerce.number().int().min(1).max(500).optional(),
+    boyut: z.coerce.number().int().min(1).max(50).optional(),
+  })
+  .strip();
+export type DemandSearchQuery = z.output<typeof demandSearchQuerySchema>;
+
+/**
+ * Aramanın karşılaştırma anahtarı: sayfa, sıra ve boş değerler hariç, değerler sıralı. Listedeki "Aramayı kaydet"
+ * düğmesi bu anahtarla aynı aramanın zaten kayıtlı olup olmadığına bakar.
+ */
+export function searchQueryKey(input: Record<string, unknown>): string {
+  const r = demandSearchQuerySchema.safeParse(input);
+  if (!r.success) return '';
+  const { sayfa: _s, sira: _o, boyut: _b, ...q } = r.data;
+  return JSON.stringify(
+    Object.entries(q)
+      .map(
+        ([k, v]) =>
+          [k, (Array.isArray(v) ? v : v === undefined || v === '' ? [] : [v]).map(String).sort()] as const,
+      )
+      .filter(([, v]) => v.length > 0)
+      .sort(([a], [b]) => (a < b ? -1 : 1)),
+  );
+}
+
+/** Kayıtlı arama en fazla 10 (Karar 30) */
+export const MAX_SAVED_SEARCHES = 10;
+export const SAVED_SEARCH_NOTIFY = [
+  { key: 'anlik', ad: 'Anlık' },
+  { key: 'gunluk', ad: 'Günlük özet' },
+  { key: 'kapali', ad: 'Kapalı' },
+] as const;
+
+export const savedSearchCreateSchema = z
+  .object({
+    ad: z.string().trim().min(2, 'Arama adı en az 2 karakter').max(80),
+    sorgu: demandSearchQuerySchema,
+  })
+  .strict();
+
+export const savedSearchUpdateSchema = z
+  .object({
+    ad: z.string().trim().min(2).max(80).optional(),
+    bildirim: z.enum(['anlik', 'gunluk', 'kapali']).optional(),
+    /** "N yeni" sayacını sıfırlar */
+    gordum: z.literal(true).optional(),
+  })
+  .strict();

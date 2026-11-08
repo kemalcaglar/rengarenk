@@ -17,7 +17,7 @@ export async function createTestApp() {
 
 export async function call(
   app: NestFastifyApplication,
-  method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
+  method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE',
   url: string,
   body?: object,
   token?: string,

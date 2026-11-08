@@ -142,3 +142,15 @@ textarea {
   outline: 2px solid #2450c8;
   outline-offset: 2px;
 }
+
+/* İki sütunlu kart ızgarası (Favoriler.dc.html); dar ekranda tek sütun */
+.rr-iki-sutun {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 720px) {
+  .rr-iki-sutun {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

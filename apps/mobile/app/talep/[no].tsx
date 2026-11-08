@@ -36,7 +36,14 @@ interface Talep {
       teknikOrnek: string | null;
     }[];
   };
-  owner: { name: string; isYou: boolean; phone: string | null; phoneHidden: boolean; whatsapp: boolean };
+  owner: {
+    name: string;
+    isYou: boolean;
+    favori: boolean;
+    phone: string | null;
+    phoneHidden: boolean;
+    whatsapp: boolean;
+  };
 }
 
 const TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0'];
@@ -65,6 +72,23 @@ export default function TalepDetay() {
           );
     al.then(setT).catch((e: Error) => setHata(e.message));
   }, [no, durum, istek]);
+
+  // Favori (Karar 06.4): misafir önce giriş yapar
+  async function favori() {
+    if (!t) return;
+    if (durum !== 'uye') {
+      router.push('/giris');
+      return;
+    }
+    const yeni = !t.owner.favori;
+    const ayarla = (v: boolean) => setT((o) => (o ? { ...o, owner: { ...o.owner, favori: v } } : o));
+    ayarla(yeni);
+    try {
+      await istek(`/favorites/${t.no}`, { method: yeni ? 'PUT' : 'DELETE' });
+    } catch {
+      ayarla(!yeni);
+    }
+  }
 
   if (!t) {
     return (
@@ -146,18 +170,43 @@ export default function TalepDetay() {
           <Ikon d="geri" />
         </Pressable>
         <T style={{ fontSize: 15, fontWeight: '800' }}>Talep No {t.no}</T>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Paylaş"
-          onPress={() =>
-            Share.share({ message: `${t.baslik} · https://rengarenk.com.tr/talep/${t.no}` }).catch(
-              () => undefined,
-            )
-          }
-          style={{ height: 44, paddingHorizontal: 8, alignItems: 'center', justifyContent: 'center' }}
-        >
-          <T style={{ fontSize: 13, fontWeight: '700', color: colors.link }}>Paylaş</T>
-        </Pressable>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          {t.owner.isYou ? null : (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t.owner.favori ? 'Favorilerden çıkar' : 'Favorilere ekle'}
+              accessibilityState={{ selected: t.owner.favori }}
+              onPress={favori}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 12,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Ikon
+                d="kalp"
+                size={21}
+                width={2}
+                color={t.owner.favori ? '#E0479A' : colors.ink}
+                fill={t.owner.favori ? colors.pink : 'none'}
+              />
+            </Pressable>
+          )}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Paylaş"
+            onPress={() =>
+              Share.share({ message: `${t.baslik} · https://rengarenk.com.tr/talep/${t.no}` }).catch(
+                () => undefined,
+              )
+            }
+            style={{ height: 44, paddingHorizontal: 8, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <T style={{ fontSize: 13, fontWeight: '700', color: colors.link }}>Paylaş</T>
+          </Pressable>
+        </View>
       </View>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
         <View

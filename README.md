@@ -184,6 +184,9 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   OpenSearch (`OPENSEARCH_URL`, indeks öneki `OPENSEARCH_PREFIX`, varsayılan `rr`); indeks işçide güncellenir, açılışta
   ve her gece veritabanıyla eşitlenir. Testler `rrtest_` önekini kullanır; yerelde `pnpm infra:up` OpenSearch'ü açar.
 - **İl ve ilçe:** `packages/shared/src/iller.ts` (81 il, 973 ilçe; kaynağı dosyada).
+- **Favoriler ve kayıtlı aramalar:** `PUT/DELETE /favorites/:no`, `GET /favorites`; `GET/POST /saved-searches`,
+  `PATCH/DELETE /saved-searches/:id` (en fazla 10; bildirim `anlik`/`gunluk`/`kapali`; `gordum: true` "yeni" sayacını
+  sıfırlar). Web `/favoriler`, mobilde Hesabım › Favoriler ve aramalar. Bildirimlerin iletimi Aşama 7'de.
 
 ## Canlıya alma
 

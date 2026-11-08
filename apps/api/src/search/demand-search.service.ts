@@ -24,6 +24,8 @@ export interface DemandQuery {
   sira?: 'onerilen' | 'yeni' | 'butce_azalan' | 'butce_artan';
   sayfa?: number;
   boyut?: number;
+  /** Yalnızca bu tarihten sonra yayınlananlar (kayıtlı aramada "N yeni") */
+  yayinSonra?: Date;
 }
 
 export interface DemandHit {
@@ -268,6 +270,7 @@ export class DemandSearchService {
     if (q.il) filter.push({ term: { il: q.il } });
     if (q.ilce) filter.push({ term: { ilce: q.ilce } });
     if (q.telefon) filter.push({ term: { telefon: true } });
+    if (q.yayinSonra) filter.push({ range: { yayin: { gt: q.yayinSonra.toISOString() } } });
     const must: unknown[] = [];
     const text = q.q?.trim();
     if (text) {

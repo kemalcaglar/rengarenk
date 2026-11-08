@@ -74,6 +74,8 @@ model User {
   sessions      Session[]
   featureTester FeatureTester?
   demands       Demand[]
+  favorites     Favorite[]
+  savedSearches SavedSearch[]
 
   @@map("users")
 }
@@ -951,10 +953,11 @@ model Demand {
   createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt         DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  account  Account       @relation(fields: [accountId], references: [id], onDelete: Restrict)
-  user     User          @relation(fields: [userId], references: [id], onDelete: Restrict)
-  category Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  events   DemandEvent[]
+  account   Account       @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  user      User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  category  Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  events    DemandEvent[]
+  favorites Favorite[]
 
   @@index([accountId, status])
   @@index([status, categoryId, publishedAt])
@@ -976,4 +979,37 @@ model DemandEvent {
 
   @@index([demandId, id])
   @@map("demand_events")
+}
+
+/// Favori talepler (Karar 06.4): talep güncellenince, pasife alınınca ya da kapanınca ekleyene bildirim gider.
+model Favorite {
+  userId    String   @map("user_id") @db.Uuid
+  demandId  String   @map("demand_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  demand Demand @relation(fields: [demandId], references: [id], onDelete: Restrict)
+
+  @@id([userId, demandId])
+  @@index([demandId])
+  @@map("favorites")
+}
+
+/// Kayıtlı arama (Karar 30): en fazla 10; her biri için anlık, günlük özet ya da kapalı bildirim.
+model SavedSearch {
+  id         String   @id @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  name       String
+  /// Liste filtreleri (GET /talepler sorgusu)
+  query      Json
+  /// anlik | gunluk | kapali
+  notify     String   @default("anlik")
+  /// "N yeni" bu tarihten sonra yayınlananlar
+  lastSeenAt DateTime @default(now()) @map("last_seen_at") @db.Timestamptz(3)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("saved_searches")
 }

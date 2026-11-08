@@ -40,7 +40,7 @@ export class ApiHatasi extends Error {
 /** Oturumlu istek; 401'de bir kez yenileyip tekrar dener. */
 export async function istek<T>(
   path: string,
-  init: { method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'; body?: unknown } = {},
+  init: { method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'; body?: unknown } = {},
 ): Promise<T> {
   const send = (token: string | null) =>
     fetch(`${API}${path}`, {

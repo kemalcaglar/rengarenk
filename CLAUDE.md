@@ -140,7 +140,11 @@ pnpm format        # Biome ile biçimlendir
   (`apps/api/src/search/`, testler `rrtest_` öneki), il/ilçe listesi (`iller.ts`). Web: `/talep-olustur`, `/taleplerim`,
   `/talepler`, `/talep/[no]`; mobil aynı ekranlar. API'de 93 test. Web ekran görüntüsü için yerelde API kodu yanıtta
   verdiğinden deneme numarasıyla oturum açılabilir (OTP hız sınırı yüzünden her denemede başka numara).
-- **Sıradaki:** Aşama 3'ün kalanı: favoriler, kayıtlı arama, ana sayfada vitrin ve son talepler (liste:
+- **Favoriler ve kayıtlı aramalar (8 Kasım 2026):** `favorites` ve `saved_searches` tabloları,
+  `apps/api/src/demands/favorites.*`, web `/favoriler`, listede "Aramayı kaydet", talep sayfasında kalp, mobil
+  `app/favoriler.tsx`. Aynı aramanın kayıtlı olup olmadığı `searchQueryKey` (ortak paket) ile bulunur. API'de 94 test.
+  Web'de `<body suppressHydrationWarning>`: bu bilgisayardaki ColorZilla eklentisi body'ye nitelik ekliyor.
+- **Sıradaki:** Aşama 3'ün kalanı: ana sayfada vitrin ve son talepler (liste:
   `docs/kapsam/03-gelistirme-plani.md` Sprint 8). Sonra Aşama 4 (galeri). Sunucular gelince Radore'ye ilk dağıtım,
   yedek, izleme, SOPS. Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google

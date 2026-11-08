@@ -22,7 +22,7 @@ interface Oturum {
   /** Oturumlu API isteği; erişim jetonunun süresi dolduysa bir kez yeniler ve tekrar dener */
   istek: <T>(
     path: string,
-    init?: { method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'; body?: unknown },
+    init?: { method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'; body?: unknown },
   ) => Promise<T>;
 }
 
@@ -142,7 +142,7 @@ export function OturumProvider({ children }: { children: ReactNode }) {
   const istek = useCallback(
     async <T,>(
       path: string,
-      init: { method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'; body?: unknown } = {},
+      init: { method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'; body?: unknown } = {},
     ): Promise<T> => {
       const send = (token: string | null) =>
         fetch(`${API}${path}`, {

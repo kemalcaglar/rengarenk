@@ -4,6 +4,7 @@ import { BIREYSEL_FIYATLAR, DOTS, FOUND_VIA, type FoundViaKey } from '@rengarenk
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { HesabimMenu } from '../../../components/hesabim-menu';
 import { binlik, istek, useGiris } from '../../../lib/istemci';
 
 interface Talep {
@@ -48,7 +49,6 @@ const ETIKET: Record<Talep['status'], [string, string, string]> = {
   CLOSED: ['Kapatıldı', '#F3F5FA', '#3A4052'],
 };
 const TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0', '#F3EFFF', '#FFF0EA'];
-const HESABIM = ['Mesajlarım', 'Favoriler ve aramalar', 'Haklarım ve ödemeler', 'Ayarlar', 'Yardım'];
 
 const sekmeOf = (t: Talep): Sekme | null =>
   t.status === 'PUBLISHED'
@@ -209,64 +209,7 @@ export default function Taleplerim() {
           gap: 24,
         }}
       >
-        <nav
-          aria-label="Hesabım"
-          style={{
-            flex: '1 1 220px',
-            maxWidth: 250,
-            minWidth: 0,
-            background: '#FFFFFF',
-            border: '1px solid #E3E6EF',
-            borderRadius: 18,
-            padding: 12,
-          }}
-        >
-          <span
-            style={{
-              display: 'block',
-              padding: '8px 10px 10px',
-              fontSize: 13,
-              fontWeight: 800,
-              letterSpacing: 0.6,
-              textTransform: 'uppercase',
-              color: '#5A6073',
-            }}
-          >
-            Hesabım
-          </span>
-          <Link
-            href="/taleplerim"
-            aria-current="page"
-            style={{
-              display: 'block',
-              background: '#EEF3FF',
-              borderRadius: 12,
-              padding: '11px 12px',
-              fontSize: 14.5,
-              fontWeight: 800,
-              color: '#1E2333',
-              textDecoration: 'none',
-            }}
-          >
-            Taleplerim
-          </Link>
-          {/* Diğer hesap ekranları kendi modülleriyle gelir; o zamana kadar soluk ve tıklanmaz */}
-          {HESABIM.map((ad) => (
-            <span
-              key={ad}
-              style={{
-                display: 'block',
-                borderRadius: 12,
-                padding: '11px 12px',
-                fontSize: 14.5,
-                fontWeight: 600,
-                color: '#8A91A3',
-              }}
-            >
-              {ad}
-            </span>
-          ))}
-        </nav>
+        <HesabimMenu aktif="/taleplerim" />
 
         <main style={{ flex: '999 1 760px', minWidth: 0 }}>
           <div

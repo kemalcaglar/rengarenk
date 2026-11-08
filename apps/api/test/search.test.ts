@@ -158,3 +158,59 @@ describe('talep araması (Karar 06.1, 06.3)', () => {
     expect((await call(app, 'GET', '/talepler')).body.toplam).toBe(2);
   });
 });
+
+describe('favoriler ve kayıtlı aramalar (Karar 06.4, 30)', () => {
+  it('favoriye ekle, durum, kendi talebi eklenemez; kayıtlı arama sayıları ve 10 sınırı', async () => {
+    const sahip = await talep(
+      '3-serisi',
+      '320i',
+      { butce: { max: 1_900_000 }, yil: { min: 2018 } },
+      { il: 'Bursa' },
+    );
+    const phone = '+905327779999';
+    const r = await call(app, 'POST', '/auth/otp/request', { phone });
+    const v = await call(app, 'POST', '/auth/otp/verify', {
+      challengeId: r.body.challengeId,
+      code: sms.lastCode(phone),
+      consents: SIGNUP_CONSENTS,
+    });
+    const t = v.body.accessToken as string;
+
+    expect((await call(app, 'PUT', `/favorites/${sahip.no}`, undefined, sahip.token)).status).toBe(400);
+    expect((await call(app, 'PUT', `/favorites/${sahip.no}`, undefined, t)).status).toBe(204);
+    expect((await call(app, 'PUT', `/favorites/${sahip.no}`, undefined, t)).status).toBe(204);
+    const fav = await call(app, 'GET', '/favorites', undefined, t);
+    expect(fav.body).toHaveLength(1);
+    expect(fav.body[0]).toMatchObject({ no: sahip.no, durum: 'yayinda', yazilabilir: true, il: 'Bursa' });
+    expect((await call(app, 'GET', `/talepler/${sahip.no}`, undefined, t)).body.owner.favori).toBe(true);
+    await call(app, 'POST', `/demands/${sahip.id}/passivate`, {}, sahip.token);
+    expect((await call(app, 'GET', '/favorites', undefined, t)).body[0].durum).toBe('pasif');
+    expect((await call(app, 'DELETE', `/favorites/${sahip.no}`, undefined, t)).status).toBe(204);
+    expect((await call(app, 'GET', '/favorites', undefined, t)).body).toHaveLength(0);
+
+    const k = await call(
+      app,
+      'POST',
+      '/saved-searches',
+      { ad: 'Benim 320i', sorgu: { marka: 'bmw', seri: ['bmw/3-serisi'], il: 'İstanbul', sayfa: 3 } },
+      t,
+    );
+    expect(k.status).toBe(201);
+    let liste = await call(app, 'GET', '/saved-searches', undefined, t);
+    expect(liste.body[0]).toMatchObject({ ad: 'Benim 320i', bildirim: 'anlik', toplam: 1, yeni: 0 });
+    expect(liste.body[0].sorgu.sayfa).toBeUndefined();
+    expect(liste.body[0].kriterler).toEqual(['BMW', '3 Serisi', 'İstanbul']);
+    // Yeni bir uygun talep yayınlanınca "1 yeni"
+    await talep('3-serisi', '320i', { butce: { max: 2_000_000 }, yil: { min: 2020 } }, { il: 'İstanbul' });
+    liste = await call(app, 'GET', '/saved-searches', undefined, t);
+    expect(liste.body[0]).toMatchObject({ toplam: 2, yeni: 1 });
+    await call(app, 'PATCH', `/saved-searches/${k.body.id}`, { gordum: true, bildirim: 'gunluk' }, t);
+    liste = await call(app, 'GET', '/saved-searches', undefined, t);
+    expect(liste.body[0]).toMatchObject({ yeni: 0, bildirim: 'gunluk' });
+
+    for (let i = 0; i < 9; i++)
+      await call(app, 'POST', '/saved-searches', { ad: `Arama ${i}`, sorgu: {} }, t);
+    expect((await call(app, 'POST', '/saved-searches', { ad: 'Fazla', sorgu: {} }, t)).status).toBe(409);
+    expect((await call(app, 'DELETE', `/saved-searches/${k.body.id}`, undefined, t)).status).toBe(204);
+  });
+});

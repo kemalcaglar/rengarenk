@@ -133,6 +133,14 @@ export class DemandService {
         /** "Kasım 2025'ten beri üye" */
         memberSince: d.user.createdAt,
         isYou: viewerUserId === d.userId,
+        /** Bakan kişinin favorisinde mi (Karar 06.4) */
+        favori: viewerUserId
+          ? Boolean(
+              await this.db.favorite.findUnique({
+                where: { userId_demandId: { userId: viewerUserId, demandId: d.id } },
+              }),
+            )
+          : false,
         phone: showPhone ? d.user.phone : null,
         phoneHidden: d.phoneVisible && !viewerUserId,
         whatsapp: showPhone && d.whatsappVisible,

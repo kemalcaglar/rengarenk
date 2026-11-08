@@ -13,7 +13,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { demandCompleteSchema, demandCreateSchema, demandUpdateSchema } from '@rengarenk/shared';
+import {
+  demandCompleteSchema,
+  demandCreateSchema,
+  demandSearchQuerySchema,
+  demandUpdateSchema,
+} from '@rengarenk/shared';
 import { z } from 'zod';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { type AccessClaims, AuthService } from '../auth/auth.service.js';
@@ -23,41 +28,7 @@ import { DemandService } from './demand.service.js';
 
 type AuthedRequest = { user: AccessClaims; ip: string };
 
-/** Tekrarlanan ya da virgülle ayrılmış sorgu değeri → dizi */
-const liste = z
-  .union([z.string(), z.array(z.string())])
-  .transform((v) =>
-    (Array.isArray(v) ? v : v.split(','))
-      .map((x) => x.trim())
-      .filter(Boolean)
-      .slice(0, 30),
-  )
-  .optional();
-const sayi = z.coerce.number().int().min(0).max(1_000_000_000).optional();
-const listQuery = z
-  .object({
-    kategori: z.string().max(60).optional(),
-    marka: z.string().max(200).optional(),
-    seri: liste,
-    model: z.string().max(200).optional(),
-    makyaj: liste,
-    paket: liste,
-    yilMin: sayi,
-    yilMax: sayi,
-    butceMin: sayi,
-    butceMax: sayi,
-    il: z.string().max(40).optional(),
-    ilce: z.string().max(60).optional(),
-    telefon: z
-      .enum(['1', 'true'])
-      .transform(() => true)
-      .optional(),
-    q: z.string().max(120).optional(),
-    sira: z.enum(['onerilen', 'yeni', 'butce_azalan', 'butce_artan']).optional(),
-    sayfa: z.coerce.number().int().min(1).max(500).optional(),
-    boyut: z.coerce.number().int().min(1).max(50).optional(),
-  })
-  .strip();
+const listQuery = demandSearchQuerySchema;
 
 /** Herkese açık talep sayfası; jeton varsa izin verilen telefon numarası görünür (Karar 11.4). */
 @Controller('talepler')

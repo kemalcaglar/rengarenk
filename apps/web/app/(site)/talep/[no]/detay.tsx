@@ -35,6 +35,7 @@ export interface TalepVeri {
     name: string;
     memberSince: string;
     isYou: boolean;
+    favori: boolean;
     phone: string | null;
     phoneHidden: boolean;
     whatsapp: boolean;
@@ -108,6 +109,25 @@ export function TalepDetay({
   const [sahip, setSahip] = useState(t.owner);
   const [goster, setGoster] = useState(false);
   const [paylasildi, setPaylasildi] = useState(false);
+  const [favBusy, setFavBusy] = useState(false);
+
+  // Favori (Karar 06.4): misafir önce giriş yapar; kendi talebi favoriye eklenmez
+  async function favori() {
+    if (!giris) {
+      window.location.href = `/giris?sonra=/talep/${t.no}`;
+      return;
+    }
+    const yeni = !sahip.favori;
+    setFavBusy(true);
+    setSahip((o) => ({ ...o, favori: yeni }));
+    try {
+      await istek(`/favorites/${t.no}`, { method: yeni ? 'PUT' : 'DELETE' });
+    } catch {
+      setSahip((o) => ({ ...o, favori: !yeni }));
+    } finally {
+      setFavBusy(false);
+    }
+  }
 
   // Giriş yapmış kullanıcı için izin verilen telefon numarası (Karar 11.4)
   useEffect(() => {
@@ -305,39 +325,42 @@ export function TalepDetay({
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            type="button"
-            disabled
-            title="Favoriler yakında açılacak"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 7,
-              background: '#FFFFFF',
-              border: '1px solid #E3E6EF',
-              borderRadius: 12,
-              padding: '11px 14px',
-              fontSize: 14,
-              fontWeight: 600,
-              color: '#8A91A3',
-              cursor: 'default',
-              fontFamily: 'inherit',
-            }}
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinejoin="round"
-              aria-hidden="true"
+          {sahip.isYou ? null : (
+            <button
+              type="button"
+              onClick={favori}
+              disabled={favBusy}
+              aria-pressed={sahip.favori}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 7,
+                background: '#FFFFFF',
+                border: '1px solid #E3E6EF',
+                borderRadius: 12,
+                padding: '11px 14px',
+                fontSize: 14,
+                fontWeight: 600,
+                color: '#1E2333',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
             >
-              <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />
-            </svg>
-            Favorilere ekle
-          </button>
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill={sahip.favori ? '#FF6FB5' : 'none'}
+                stroke={sahip.favori ? '#E0479A' : 'currentColor'}
+                strokeWidth="2"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />
+              </svg>
+              {sahip.favori ? 'Favorilerde' : 'Favorilere ekle'}
+            </button>
+          )}
           <button
             type="button"
             aria-label="Paylaş"

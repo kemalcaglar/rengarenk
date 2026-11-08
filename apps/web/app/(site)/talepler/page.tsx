@@ -5,6 +5,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { Suspense } from 'react';
 import { getCategories } from '../../../lib/kategoriler';
 import { binlik, butceAraligi, yilAraligi, zaman } from '../../../lib/talep-bicim';
+import { AramaKaydet } from './arama-kaydet';
 import { SiralamaSecimi } from './siralama';
 
 const API = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
@@ -437,9 +438,12 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                 {y ? `${binlik(y.toplam)} talep` : 'Talepler şu an yüklenemedi; biraz sonra yeniden dene.'}
               </p>
             </div>
-            <Suspense>
-              <SiralamaSecimi deger={tek(q.sira) ?? 'onerilen'} />
-            </Suspense>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
+              <Suspense>
+                <AramaKaydet ad={baslik} />
+                <SiralamaSecimi deger={tek(q.sira) ?? 'onerilen'} />
+              </Suspense>
+            </div>
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>

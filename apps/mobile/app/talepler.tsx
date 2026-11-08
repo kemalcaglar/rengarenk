@@ -1,7 +1,7 @@
-import { colors, ILLER } from '@rengarenk/shared';
+import { colors, ILLER, searchQueryKey } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { FlatList, Modal, Pressable, View } from 'react-native';
+import { Alert, FlatList, Modal, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ikon } from '../components/ikon';
 import { Logo } from '../components/logo';
@@ -38,9 +38,19 @@ type Q = Record<string, string | undefined>;
 /** Talep listesi ve arama (tasarım: ListeMobil; Karar 06.1, 06.3) */
 export default function Talepler() {
   const p = useLocalSearchParams<Q>();
-  const { durum } = useOturum();
+  const { durum, istek } = useOturum();
   const kategoriler = useKategoriler();
-  const [q, setQ] = useState<Q>({ kategori: p.kategori, marka: p.marka, q: p.q });
+  // Kayıtlı aramadan gelindiyse bütün filtreler adresle gelir; çoklu değerler virgülle ayrılır.
+  const [q, setQ] = useState<Q>(() =>
+    Object.fromEntries(
+      Object.entries(p as Record<string, string | string[] | undefined>).map(([k, v]) => [
+        k,
+        Array.isArray(v) ? v.join(',') : v,
+      ]),
+    ),
+  );
+  const [kayit, setKayit] = useState<string | null>(null);
+  const [kaydediliyor, setKaydediliyor] = useState(false);
   const [metin, setMetin] = useState(p.q ?? '');
   const [liste, setListe] = useState<Sonuc[] | null>(null);
   const [toplam, setToplam] = useState(0);
@@ -74,12 +84,49 @@ export default function Talepler() {
     yukle(1).catch(() => setListe([]));
   }, [yukle]);
 
+  // Bu arama kayıtlı mı (Karar 30)
+  const anahtar = searchQueryKey(q);
+  useEffect(() => {
+    if (durum !== 'uye') {
+      setKayit(null);
+      return;
+    }
+    istek<{ id: string; sorgu: Record<string, unknown> }[]>('/saved-searches')
+      .then((l) => setKayit(l.find((s) => searchQueryKey(s.sorgu) === anahtar)?.id ?? null))
+      .catch(() => undefined);
+  }, [durum, istek, anahtar]);
+
   const kat = kategoriler.find((c) => c.slug === q.kategori || c.children.some((x) => x.slug === q.kategori));
   const altKat = kat?.children.find((x) => x.slug === q.kategori);
   const markaAd = markalar.find((m) => m.key === q.marka)?.ad;
   const baslik = q.q
     ? `“${q.q}” için talepler`
     : `${markaAd ?? altKat?.name ?? kat?.name ?? 'Tüm'} talepleri`;
+
+  async function kaydet() {
+    if (durum !== 'uye') {
+      router.push('/giris');
+      return;
+    }
+    setKaydediliyor(true);
+    try {
+      if (kayit) {
+        await istek(`/saved-searches/${kayit}`, { method: 'DELETE' });
+        setKayit(null);
+      } else {
+        const sorgu = Object.fromEntries(Object.entries(q).filter(([, v]) => v));
+        const r = await istek<{ id: string }>('/saved-searches', {
+          method: 'POST',
+          body: { ad: baslik.slice(0, 80), sorgu },
+        });
+        setKayit(r.id);
+      }
+    } catch (e) {
+      Alert.alert('Arama kaydedilemedi', (e as Error).message);
+    } finally {
+      setKaydediliyor(false);
+    }
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }} edges={['top']}>
@@ -177,6 +224,25 @@ export default function Talepler() {
             <T style={{ fontSize: 14, fontWeight: '700' }}>{ad as string}</T>
           </Pressable>
         ))}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ selected: Boolean(kayit), busy: kaydediliyor }}
+          disabled={kaydediliyor}
+          onPress={kaydet}
+          style={{
+            flex: 1,
+            borderWidth: kayit ? 1.5 : 1,
+            borderColor: kayit ? '#25A35A' : '#D5DAE5',
+            backgroundColor: kayit ? '#E7FAF0' : colors.surface,
+            borderRadius: 12,
+            paddingVertical: kayit ? 10.5 : 11,
+            alignItems: 'center',
+          }}
+        >
+          <T style={{ fontSize: 13.5, fontWeight: '700', color: kayit ? '#11683F' : colors.ink }}>
+            {kayit ? 'Kaydedildi' : 'Aramayı kaydet'}
+          </T>
+        </Pressable>
       </View>
       <FlatList
         style={{ flex: 1, backgroundColor: colors.background }}
