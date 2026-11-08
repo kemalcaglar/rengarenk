@@ -16,6 +16,7 @@ import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { API, binlik, istek, useGiris } from '../../lib/istemci';
 import { AracFormu } from './arac-formu';
 import { Eslesmeler, type EslesmeVerisi } from './eslesmeler';
+import { Guven, type GuvenVerisi } from './guven';
 import { Portfoy, type PortfoyListesi, TopluYukleme } from './portfoy';
 
 interface Panel {
@@ -44,7 +45,15 @@ interface Panel {
     gunlukMesaj: number;
     calisan: number;
   };
-  ekip: { userId: string; ad: string; telefon: string; rol: MemberRoleKey; rolAd: string; sen: boolean }[];
+  ekip: {
+    userId: string;
+    ad: string;
+    telefon: string;
+    rol: MemberRoleKey;
+    rolAd: string;
+    gunlukSinir: number | null;
+    sen: boolean;
+  }[];
   davetler: { id: string; telefon: string; rol: MemberRoleKey; rolAd: string; bitis: string }[];
 }
 type Gorunum = 'ozet' | 'portfoy' | 'ekle' | 'toplu' | 'eslesme' | 'ekip' | 'paket';
@@ -129,6 +138,7 @@ export function GaleriPaneli() {
   const [portfoy, setPortfoy] = useState<PortfoyListesi | null>(null);
   const [eslesme, setEslesme] = useState<EslesmeVerisi | null>(null);
   const [okunmamis, setOkunmamis] = useState(0);
+  const [guven, setGuven] = useState<GuvenVerisi | null>(null);
   const setGorunum = (g: Gorunum) => {
     setDuzenle(null);
     setGorunumHam(g);
@@ -177,6 +187,9 @@ export function GaleriPaneli() {
     setEslesme(e);
     istek<{ okunmamis: number }>(`/conversations/unread?hesap=${secili}`)
       .then((u) => setOkunmamis(u.okunmamis))
+      .catch(() => undefined);
+    istek<GuvenVerisi>(`/gallery/${secili}/trust`)
+      .then(setGuven)
       .catch(() => undefined);
   }, [secili]);
 
@@ -475,6 +488,7 @@ export function GaleriPaneli() {
               yeniEslesme={eslesme?.yeni ?? 0}
               kullanilanMesaj={eslesme ? eslesme.gunlukMesaj - eslesme.kalanMesaj : 0}
               okunmamis={okunmamis}
+              guven={guven}
               git={setGorunum}
               islem={islem}
             />
@@ -529,6 +543,7 @@ function Ozet({
   yeniEslesme,
   kullanilanMesaj,
   okunmamis,
+  guven,
   git,
   islem,
 }: {
@@ -537,6 +552,7 @@ function Ozet({
   yeniEslesme: number;
   kullanilanMesaj: number;
   okunmamis: number;
+  guven: GuvenVerisi | null;
   git: (g: Gorunum) => void;
   islem: Islem;
 }) {
@@ -662,6 +678,8 @@ function Ozet({
         })}
       </div>
 
+      {guven ? <Guven v={guven} /> : null}
+
       <section style={{ ...kart, borderRadius: 18, padding: 20, marginTop: 16 }} aria-labelledby="profil">
         <div
           style={{
@@ -682,6 +700,7 @@ function Ozet({
         <p style={{ margin: '6px 0 14px', fontSize: 13.5, color: '#5A6073' }}>
           {p.galeri.isletmeAdi}
           {p.galeri.yetkiNo ? ` · Yetki belgesi no ${p.galeri.yetkiNo}` : ''} · {p.galeri.il}, {p.galeri.ilce}
+          {guven ? ` · ${guven.takipci} takipçi` : ''}
         </p>
         {duzenleyebilir ? (
           <form
@@ -898,8 +917,11 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
                 </span>
               </span>
               <span style={{ flex: '1 1 150px', fontSize: 14, fontWeight: 700 }}>{u.rolAd}</span>
-              <span style={{ flex: '1 1 180px', fontSize: 13.5, color: '#3A4052' }}>Sınır yok</span>
-              {u.rol !== 'OWNER' && (p.rol === 'OWNER' || (p.rol === 'MANAGER' && u.rol === 'SALES')) ? (
+              <span style={{ flex: '1 1 180px', fontSize: 13.5, color: '#3A4052' }}>
+                {u.gunlukSinir ? `Günde en fazla ${u.gunlukSinir} ilk mesaj` : 'Sınır yok'}
+              </span>
+              {(u.rol !== 'OWNER' && (p.rol === 'OWNER' || (p.rol === 'MANAGER' && u.rol === 'SALES'))) ||
+              (p.rol === 'OWNER' && u.rol === 'OWNER') ? (
                 <button
                   type="button"
                   onClick={() => setDuzen(duzen === u.userId ? null : u.userId)}
@@ -924,7 +946,42 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
             </div>
             {duzen === u.userId ? (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '0 18px 14px 76px' }}>
-                {p.rol === 'OWNER'
+                {p.rol === 'OWNER' ? (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const v = new FormData(e.currentTarget).get('sinir');
+                      const n = Number.parseInt(String(v ?? ''), 10);
+                      islem(
+                        () =>
+                          istek<Panel>(`/gallery/${p.accountId}/members/${u.userId}/limit`, {
+                            method: 'PATCH',
+                            body: { gunlukSinir: Number.isFinite(n) && n > 0 ? n : null },
+                          }),
+                        Number.isFinite(n) && n > 0
+                          ? `${u.ad} günde en fazla ${n} ilk mesaj atabilir.`
+                          : `${u.ad} için mesaj sınırı kaldırıldı.`,
+                      );
+                    }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                  >
+                    <label htmlFor={`sinir-${u.userId}`} style={{ fontSize: 13.5, fontWeight: 700 }}>
+                      Günlük ilk mesaj sınırı
+                    </label>
+                    <input
+                      id={`sinir-${u.userId}`}
+                      name="sinir"
+                      inputMode="numeric"
+                      defaultValue={u.gunlukSinir ?? ''}
+                      placeholder="Sınır yok"
+                      style={{ ...girdi, width: 110, padding: '9px 10px', fontSize: 14 }}
+                    />
+                    <button type="submit" style={ikincil}>
+                      Kaydet
+                    </button>
+                  </form>
+                ) : null}
+                {p.rol === 'OWNER' && u.rol !== 'OWNER'
                   ? (['MANAGER', 'SALES'] as const)
                       .filter((r) => r !== u.rol)
                       .map((r) => (
@@ -947,20 +1004,22 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
                         </button>
                       ))
                   : null}
-                <button
-                  type="button"
-                  onClick={() =>
-                    window.confirm(`${u.ad} ekipten çıkarılsın mı?`) &&
-                    islem(async () => {
-                      await istek(`/gallery/${p.accountId}/members/${u.userId}`, { method: 'DELETE' });
-                      setDuzen(null);
-                      return null;
-                    }, `${u.ad} ekipten çıkarıldı.`)
-                  }
-                  style={{ ...ikincil, color: '#A3271F' }}
-                >
-                  Ekipten çıkar
-                </button>
+                {u.rol !== 'OWNER' ? (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      window.confirm(`${u.ad} ekipten çıkarılsın mı?`) &&
+                      islem(async () => {
+                        await istek(`/gallery/${p.accountId}/members/${u.userId}`, { method: 'DELETE' });
+                        setDuzen(null);
+                        return null;
+                      }, `${u.ad} ekipten çıkarıldı.`)
+                    }
+                    style={{ ...ikincil, color: '#A3271F' }}
+                  >
+                    Ekipten çıkar
+                  </button>
+                ) : null}
               </div>
             ) : null}
           </div>

@@ -138,6 +138,31 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 13 · yıldız, rozetler, galeri takibi, çalışan sınırı (Aşama 5 son bölüm, 8 Kasım 2026)
+
+- [x] Veri modeli: ratings (sohbet başına bir), seller_stats (göstergeler ve rozetler), gallery_follows,
+  account_members.daily_message_limit
+- [x] Yıldız (Karar 55): yalnızca 1–5, yorum yok; satıcıyla sohbeti açılmış ve alıcının mesajından sonra satıcının yanıt
+  verdiği alıcı, sohbet başına bir kez, son mesajdan sonraki 30 gün içinde. Web sohbette "Puan ver", mobilde Mesajlar'da
+  "… puan ver" kartı ve sohbetin diğer işlemlerinde (MesajlarMobil.dc.html puan penceresi)
+- [x] Manipülasyon (ajan gelene kadar kural): son 3 günde açılmış hesap, aynı cihaz ve ağdan (IP ve tarayıcının anahtarlı
+  özeti; kendisi saklanmaz) birden çok hesap, satıcıyla aynı işletmede üye olan hesap → yıldız hesaba katılmaz
+- [x] Göstergeler: yıldız sayısı, ortalaması, dağılımı; son 30 günde ortanca ve ortalama ilk yanıt (yanıtsız sohbet sonsuz
+  sayılır); iç puan (yıldız %40, yanıt %25, şikâyet %25, doğrulama %10). Yeni yıldızda ve her gece işçide
+- [x] Rozetler: Onaylı galeri, Hızlı yanıt (10+ sohbet, ortanca < 1 saat), Güvenilir satıcı (10+ yıldız, ortalama ≥ 4,5,
+  şikâyet < %1, onaylı galeri). Alıcı galeri profilinde (web, mobil), sohbet listesinde ve sohbette görür; puanı görmez
+- [x] Galeri paneli: yıldız ortalaması, dağılımı, rozete ne kadar kaldığı, takipçi sayısı (web Özet; mobil "Rozetlerin")
+- [x] Konsol › Satıcı puanı ve rozetler (YonetimPazar.dc.html): ücretli galerilerde rozet sayıları, son 90 günün yıldız
+  dağılımı, iç puan bileşenleri, hesaba katılmayan yıldızlar
+- [x] Galeri takibi (Karar 28): profilde "Galeriyi takip et" (web; mobilde tasarıma ek), galeri takipçi sayısını görür;
+  takip edilen galeriye eklenen ve yayındaki taleplere uyan araçlar her gece `takip.ozet` olayı (iletim Aşama 7)
+- [x] Çalışan başına günlük ilk mesaj sınırı (Karar 20): sahip Ekip'te koyar (işlem kaydına girer), "Günde en fazla N ilk
+  mesaj"; paket hakkı ortak havuzdur
+- [ ] Şikâyet oranı moderasyonla (Aşama 8), o zamana kadar 0; galerinin 1 yıldıza itirazı (moderasyon); rozet eşiklerinin
+  konsoldan değiştirilmesi (Kurallar ve fiyatlar, Karar 47, 56); ajanın yıldız incelemesi (Karar 41)
+- Kararlar: "Hızlı yanıt" bireysel satıcıya da verilir (Karar 55'te galeri şartı yalnızca Güvenilir satıcıda); profildeki
+  "ortalama yanıt süresi" son 30 günde yanıtlanan sohbetlerin ortalamasıdır
+
 ## Sprint 12 · ilk mesaj, haklar ve sohbet (Aşama 5 ikinci bölüm, 8 Kasım 2026)
 
 - [x] Veri modeli: conversations (talebe bir satıcı hesabından tek ilk mesaj, araç için alıcı başına tek sohbet; ikisi de

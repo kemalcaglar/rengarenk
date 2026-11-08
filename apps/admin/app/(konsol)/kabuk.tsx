@@ -53,7 +53,7 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
       { ad: 'Moderasyon', sonra: true },
       { ad: 'Destek', sonra: true },
       { ad: 'Talepler ve portföy', sonra: true },
-      { ad: 'Satıcı puanı ve rozetler', sonra: true },
+      { href: '/puan', ad: 'Satıcı puanı ve rozetler', izin: 'rapor.gor' },
     ],
   },
   {

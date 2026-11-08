@@ -173,6 +173,13 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Yıldız, rozetler, takip (Sprint 13)
+
+- **Uçlar:** `GET/POST /conversations/:id/rating` (`{ yildiz }`), `GET /ratings/pending`, `GET /gallery/:hesap/trust`,
+  `GET/PUT/DELETE /galeriler/:slug/takip`, `PATCH /gallery/:hesap/members/:kişi/limit` (`{ gunlukSinir }`), konsol
+  `GET /staff/trust/overview`. Kurallar `packages/shared/src/ratings.ts`, hesaplama `apps/api/src/trust/`.
+- İşçi her gece satıcı göstergelerini ve rozetleri yeniler, takip özetini yazar.
+
 ## Mesajlaşma (Sprint 12)
 
 - **İlk mesaj:** `GET/POST /talepler/:no/mesaj` (durum, kalan hak; gönderim `{ metin, hesap?, aracId? }`),

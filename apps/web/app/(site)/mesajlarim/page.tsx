@@ -4,6 +4,7 @@ import { DEPOSIT_NOTE, MESSAGE_MAX } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type CSSProperties, type FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { PuanVer } from '../../../components/puan-ver';
 import { useCanli } from '../../../lib/canli';
 import { API, binlik, istek, useGiris } from '../../../lib/istemci';
 
@@ -37,7 +38,15 @@ interface Sohbet {
   id: string;
   taraf: 'alici' | 'satici';
   durum: 'WAITING' | 'OPEN' | 'DECLINED';
-  karsi: { ad: string; bas: string; alt: string; galeri: { slug: string } | null; telefon: string | null };
+  karsi: {
+    ad: string;
+    bas: string;
+    alt: string;
+    galeri: { slug: string } | null;
+    telefon: string | null;
+    rozetler: { key: string; ad: string; bg: string; renk: string; aciklama: string }[];
+  };
+  puan: { uygun: boolean; verilen: number | null };
   talep: { no: number; baslik: string } | null;
   arac: { no: number; ad: string } | null;
   numaraPaylasildi: boolean;
@@ -108,6 +117,7 @@ export default function Mesajlarim() {
   const [mesgul, setMesgul] = useState(false);
   const [araclar, setAraclar] = useState<{ id: string; ad: string }[]>([]);
   const [kart, setKart] = useState('');
+  const [puanAcik, setPuanAcik] = useState(false);
   const alt = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -401,9 +411,40 @@ export default function Mesajlarim() {
                       {s.karsi.alt}
                       {s.karsi.telefon ? ` · Telefon: ${s.karsi.telefon}` : ''}
                     </p>
+                    {s.karsi.rozetler.some((r) => r.key !== 'onay') ? (
+                      <span style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 5 }}>
+                        {s.karsi.rozetler
+                          .filter((r) => r.key !== 'onay')
+                          .map((r) => (
+                            <span key={r.key} title={r.aciklama} style={rozet(r.bg, r.renk)}>
+                              {r.ad}
+                            </span>
+                          ))}
+                      </span>
+                    ) : null}
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {s.puan.uygun ? (
+                    <button
+                      type="button"
+                      onClick={() => setPuanAcik(true)}
+                      style={{
+                        ...kenarDugme,
+                        background: '#1E2333',
+                        color: '#FFFFFF',
+                        border: '1px solid #1E2333',
+                      }}
+                    >
+                      ★ Puan ver
+                    </button>
+                  ) : s.puan.verilen ? (
+                    <span
+                      style={{ ...kenarDugme, cursor: 'default', color: '#7A5300', background: '#FFF6DF' }}
+                    >
+                      {'★'.repeat(s.puan.verilen)} verdin
+                    </span>
+                  ) : null}
                   {s.karsi.galeri && s.taraf === 'alici' ? (
                     <Link href={`/galeri/${s.karsi.galeri.slug}`} style={kenarDugme}>
                       Galeri profili
@@ -618,6 +659,22 @@ export default function Mesajlarim() {
                 <p role="alert" style={{ margin: '0 22px 10px', fontSize: 13.5, color: '#A3271F' }}>
                   {hata}
                 </p>
+              ) : null}
+
+              {puanAcik ? (
+                <PuanVer
+                  sohbet={s.id}
+                  ad={s.karsi.ad}
+                  bas={s.karsi.bas}
+                  alt={[
+                    s.talep ? `${s.talep.baslik} talebin` : s.arac?.ad,
+                    s.karsi.galeri ? s.karsi.alt.split(' · ')[1]?.split(',')[0] : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                  kapat={() => setPuanAcik(false)}
+                  verildi={(n) => setS((x) => (x ? { ...x, puan: { uygun: false, verilen: n } } : x))}
+                />
               ) : null}
 
               {besteci ? (

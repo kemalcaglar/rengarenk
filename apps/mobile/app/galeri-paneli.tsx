@@ -119,6 +119,13 @@ export default function GaleriPaneli() {
   const [eslesme, setEslesme] = useState<Eslesmeler | null>(null);
   const [aracFiltre, setAracFiltre] = useState<string | null>(null);
   const [yaz, setYaz] = useState<Eslesmeler['eslesmeler'][number] | null>(null);
+  // Yıldızlar ve rozetler (Karar 55): galeri kendi ortalamasını ve rozete ne kadar kaldığını görür
+  const [guven, setGuven] = useState<{
+    yildizSayisi: number;
+    yildizOrtalama: number | null;
+    rozetler: { rozet: string; var: boolean; eksik: string[] }[];
+    takipci: number;
+  } | null>(null);
   const [gonderilen, setGonderilen] = useState<Record<string, string>>({});
 
   const yukle = useCallback(async () => {
@@ -142,6 +149,9 @@ export default function GaleriPaneli() {
     setP(x);
     setPortfoy(l);
     setEslesme(e);
+    istek<NonNullable<typeof guven>>(`/gallery/${ilk.accountId}/trust`)
+      .then(setGuven)
+      .catch(() => undefined);
   }, [istek]);
 
   useFocusEffect(
@@ -767,21 +777,46 @@ export default function GaleriPaneli() {
             </T>
             <View style={{ ...kart, borderRadius: 16, padding: 14 }}>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-                <T
-                  style={{
-                    fontSize: 12.5,
-                    fontWeight: '800',
-                    paddingVertical: 5,
-                    paddingHorizontal: 10,
-                    borderRadius: 999,
-                    overflow: 'hidden',
-                    backgroundColor: '#E7FAF0',
-                    color: '#11683F',
-                  }}
-                >
-                  Kurumsal doğrulandı
-                </T>
+                {(guven?.rozetler ?? [{ rozet: 'onay', var: true, eksik: [] }])
+                  .filter((r) => r.var)
+                  .map((r) => (
+                    <T
+                      key={r.rozet}
+                      style={{
+                        fontSize: 12.5,
+                        fontWeight: '800',
+                        paddingVertical: 5,
+                        paddingHorizontal: 10,
+                        borderRadius: 999,
+                        overflow: 'hidden',
+                        backgroundColor: r.rozet === 'onay' ? '#E7FAF0' : '#FFF6DF',
+                        color: r.rozet === 'onay' ? '#11683F' : '#7A5200',
+                      }}
+                    >
+                      {r.rozet === 'onay'
+                        ? 'Kurumsal doğrulandı'
+                        : r.rozet === 'hizli'
+                          ? '⚡ Hızlı yanıt'
+                          : '★ Güvenilir satıcı'}
+                    </T>
+                  ))}
               </View>
+              {guven ? (
+                <T style={{ marginTop: 10, fontSize: 12.5, color: '#3A4052', lineHeight: 18 }}>
+                  {guven.yildizOrtalama === null
+                    ? 'Henüz yıldız yok'
+                    : `★ ${String(guven.yildizOrtalama).replace('.', ',')} · ${guven.yildizSayisi} yıldız`}
+                  {' · '}
+                  {guven.takipci} takipçi
+                  {guven.rozetler
+                    .filter((r) => !r.var && r.rozet !== 'onay')
+                    .map(
+                      (r) =>
+                        `\n${r.rozet === 'hizli' ? 'Hızlı yanıt' : 'Güvenilir satıcı'} için: ${r.eksik.join(', ')}`,
+                    )
+                    .join('')}
+                </T>
+              ) : null}
               <T style={{ marginTop: 10, fontSize: 12.5, color: colors.muted, lineHeight: 18 }}>
                 Rozetler alıcı yıldızları, yanıt süren ve şikayet oranınla her gece güncellenir. Alıcılar tek
                 tek puan görmez.

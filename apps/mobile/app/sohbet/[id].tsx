@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path } from 'react-native-svg';
+import { PuanVer } from '../../components/puan-ver';
 import { T } from '../../components/t';
 import { API } from '../../lib/api';
 import { useCanli } from '../../lib/canli';
@@ -32,7 +33,15 @@ interface Sohbet {
   id: string;
   taraf: 'alici' | 'satici';
   durum: 'WAITING' | 'OPEN' | 'DECLINED';
-  karsi: { ad: string; bas: string; alt: string; galeri: { slug: string } | null; telefon: string | null };
+  karsi: {
+    ad: string;
+    bas: string;
+    alt: string;
+    galeri: { slug: string } | null;
+    telefon: string | null;
+    rozetler: { key: string; ad: string; bg: string; renk: string }[];
+  };
+  puan: { uygun: boolean; verilen: number | null };
   talep: { no: number; baslik: string } | null;
   arac: { no: number; ad: string } | null;
   numaraPaylasildi: boolean;
@@ -73,6 +82,7 @@ export default function SohbetEkrani() {
   const [yanitla, setYanitla] = useState(false);
   const [mesgul, setMesgul] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
+  const [puanAcik, setPuanAcik] = useState(false);
   const kaydir = useRef<ComponentRef<typeof ScrollView>>(null);
 
   const yukle = useCallback(() => {
@@ -107,6 +117,7 @@ export default function SohbetEkrani() {
   function diger() {
     if (!s) return;
     const secenekler: [string, () => void, boolean?][] = [];
+    if (s.puan.uygun) secenekler.push(['Puan ver', () => setPuanAcik(true)]);
     if (s.taraf === 'alici' && s.durum === 'OPEN' && !s.numaraPaylasildi) {
       secenekler.push([
         'Numaramı paylaş',
@@ -190,6 +201,34 @@ export default function SohbetEkrani() {
             <T numberOfLines={1} style={{ fontSize: 12, color: colors.muted }}>
               {s ? `${s.karsi.alt}${s.karsi.telefon ? ` · ${s.karsi.telefon}` : ''}` : ''}
             </T>
+            {s?.karsi.rozetler.some((r) => r.key !== 'onay') || s?.puan.verilen ? (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, marginTop: 3 }}>
+                {s.karsi.rozetler
+                  .filter((r) => r.key !== 'onay')
+                  .map((r) => (
+                    <T
+                      key={r.key}
+                      style={{
+                        fontSize: 10.5,
+                        fontWeight: '800',
+                        paddingVertical: 2,
+                        paddingHorizontal: 7,
+                        borderRadius: 999,
+                        overflow: 'hidden',
+                        backgroundColor: r.bg,
+                        color: r.renk,
+                      }}
+                    >
+                      {r.ad}
+                    </T>
+                  ))}
+                {s.puan.verilen ? (
+                  <T style={{ fontSize: 10.5, fontWeight: '800', color: '#7A5300' }}>
+                    {'★'.repeat(s.puan.verilen)} verdin
+                  </T>
+                ) : null}
+              </View>
+            ) : null}
           </View>
           <Pressable
             accessibilityRole="button"
@@ -425,6 +464,17 @@ export default function SohbetEkrani() {
           </View>
         ) : null}
       </KeyboardAvoidingView>
+      {s ? (
+        <PuanVer
+          acik={puanAcik}
+          sohbet={s.id}
+          ad={s.karsi.ad}
+          bas={s.karsi.bas}
+          alt={s.talep ? `${s.talep.baslik} talebin` : (s.arac?.ad ?? '')}
+          kapat={() => setPuanAcik(false)}
+          verildi={(n) => setS((x) => (x ? { ...x, puan: { uygun: false, verilen: n } } : x))}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }

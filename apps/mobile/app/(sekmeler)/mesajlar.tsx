@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BosDurum } from '../../components/bos-durum';
+import { PuanVer } from '../../components/puan-ver';
 import { T } from '../../components/t';
 import { useCanli } from '../../lib/canli';
 import { useOturum } from '../../lib/oturum';
@@ -23,6 +24,7 @@ interface Satir {
   bekliyor: boolean;
   uyari: boolean;
   numara: boolean;
+  rozetler: { key: 'onay' | 'hizli' | 'guven' }[];
   okunmamis: number;
 }
 
@@ -35,6 +37,8 @@ const R = {
   uyari: { ad: 'Güvenlik uyarısı', bg: '#FFEEEE', renk: '#A11B1B' },
   bekliyor: { ad: 'Yanıt bekleniyor', bg: '#FFF6DF', renk: '#7A5300' },
   kapandi: { ad: 'Kapandı', bg: '#F3F5FA', renk: '#5A6073' },
+  hizli: { ad: '⚡ Hızlı yanıt', bg: '#FFF6DF', renk: '#7A5200' },
+  guven: { ad: '★ Güvenilir satıcı', bg: '#FFF6DF', renk: '#7A5200' },
 };
 
 const zamanYaz = (iso: string) => {
@@ -56,11 +60,22 @@ export default function Mesajlar() {
   const { durum, istek } = useOturum();
   const [liste, setListe] = useState<Satir[] | null>(null);
   const [filtre, setFiltre] = useState('hepsi');
+  // Yıldız verilmemiş uygun sohbet: "… puan ver" kartı (Karar 55)
+  const [bekleyen, setBekleyen] = useState<{
+    sohbet: string;
+    ad: string;
+    talep: string | null;
+    temsilci: string | null;
+  } | null>(null);
+  const [puanAcik, setPuanAcik] = useState(false);
 
   const yukle = useCallback(() => {
     istek<Satir[]>('/conversations')
       .then(setListe)
       .catch(() => setListe([]));
+    istek<typeof bekleyen>('/ratings/pending')
+      .then(setBekleyen)
+      .catch(() => setBekleyen(null));
   }, [istek]);
   useFocusEffect(
     useCallback(() => {
@@ -201,6 +216,8 @@ export default function Mesajlar() {
                   m.ilkMesaj && m.taraf === 'alici' && m.bekliyor ? R.ilk : null,
                   m.taraf === 'alici' ? (m.galeri ? R.galeri : R.bireysel) : null,
                   m.numara && m.taraf === 'alici' ? R.numara : null,
+                  m.rozetler?.some((r) => r.key === 'hizli') ? R.hizli : null,
+                  m.rozetler?.some((r) => r.key === 'guven') ? R.guven : null,
                   m.uyari ? R.uyari : null,
                   m.bekliyor && m.taraf === 'satici' ? R.bekliyor : null,
                   m.durum === 'DECLINED' ? R.kapandi : null,
@@ -290,11 +307,77 @@ export default function Mesajlar() {
             </View>
           </View>
         ))}
+        {bekleyen ? (
+          <View
+            style={{
+              marginTop: 14,
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.line,
+              borderRadius: 16,
+              padding: 14,
+              flexDirection: 'row',
+              gap: 12,
+              alignItems: 'center',
+            }}
+          >
+            <View
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 12,
+                backgroundColor: '#FFF6DF',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <T style={{ fontSize: 18 }}>★</T>
+            </View>
+            <View style={{ flex: 1 }}>
+              <T style={{ fontSize: 14, fontWeight: '800' }}>{bekleyen.ad}’e puan ver</T>
+              <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 2 }}>
+                {bekleyen.talep ? `${bekleyen.talep} · ` : ''}Görüşme nasıldı?
+              </T>
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => setPuanAcik(true)}
+              style={{
+                backgroundColor: colors.ink,
+                borderRadius: 12,
+                paddingVertical: 10,
+                paddingHorizontal: 14,
+              }}
+            >
+              <T style={{ fontSize: 13.5, fontWeight: '800', color: '#FFFFFF' }}>Puan ver</T>
+            </Pressable>
+          </View>
+        ) : null}
         <T style={{ marginTop: 14, marginHorizontal: 6, fontSize: 12, color: colors.muted, lineHeight: 18 }}>
           Satıcı numaranı yalnızca sen “numaramı paylaş” dersen görür. Kapora isteyen, ödeme bağlantısı
           gönderen satıcıyı şikayet et; mesaj hemen gizlenir.
         </T>
       </ScrollView>
+      {bekleyen ? (
+        <PuanVer
+          acik={puanAcik}
+          sohbet={bekleyen.sohbet}
+          ad={bekleyen.ad}
+          bas={bekleyen.ad
+            .split(/\s+/)
+            .slice(0, 2)
+            .map((x) => x.charAt(0).toLocaleUpperCase('tr-TR'))
+            .join('')}
+          alt={[bekleyen.talep ? `${bekleyen.talep} talebin` : null, bekleyen.temsilci]
+            .filter(Boolean)
+            .join(' · ')}
+          kapat={() => {
+            setPuanAcik(false);
+            yukle();
+          }}
+          verildi={() => undefined}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }

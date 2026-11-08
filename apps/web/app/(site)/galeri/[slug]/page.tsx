@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { binlik } from '../../../../lib/talep-bicim';
+import { TakipDugmesi } from './takip';
 
 const API = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
@@ -20,7 +21,14 @@ interface Profil {
   uyelik: string;
   satisTemsilcisi: number;
   portfoy: { toplam: number; araclar: unknown[] };
+  /** Alıcının gördüğü rozetler (Karar 55): onaylı galeri, hızlı yanıt, güvenilir satıcı */
+  rozetler: { key: 'onay' | 'hizli' | 'guven'; ad: string; bg: string; renk: string; aciklama: string }[];
+  ortalamaYanitDakika: number | null;
 }
+
+/** "18 dk", "2 sa" */
+const sureYaz = (dk: number | null | undefined) =>
+  typeof dk !== 'number' ? '—' : dk < 60 ? `${Math.max(1, Math.round(dk))} dk` : `${Math.round(dk / 60)} sa`;
 
 interface Kart {
   no: number;
@@ -84,7 +92,8 @@ const basHarf = (ad: string) =>
 
 /**
  * Galeri profili (tasarım: GaleriProfil.dc.html; Karar 07, 17). İşletme adı ve yetki belgesi numarası profilde
- * görünür (yönetmelik m.21). Portföy Sprint 10'da, takip (Karar 28) ve rozetler (Karar 55) kendi modülleriyle gelir.
+ * görünür (yönetmelik m.21). Rozetler (Karar 55) alıcı yıldızları, yanıt süresi ve şikâyet oranından her gece hesaplanır;
+ * puan sayı olarak gösterilmez. Galeri takip edilebilir (Karar 28).
  */
 export default async function GaleriProfili({ params }: { params: Promise<{ slug: string }> }) {
   const slug = (await params).slug;
@@ -97,7 +106,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
   }).format(new Date(p.uyelik));
   const istatistik: [string, string][] = [
     [String(p.portfoy.toplam), 'yayında araç'],
-    ['—', 'ortalama yanıt süresi'],
+    [sureYaz(p.ortalamaYanitDakika), 'ortalama yanıt süresi'],
     [String(p.satisTemsilcisi), 'satış temsilcisi'],
     [p.alan, p.yetkiNo ? 'yetki belgesi türü' : 'faaliyet alanı'],
   ];
@@ -174,6 +183,24 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
                   Yetki belgesi doğrulandı
                 </span>
               ) : null}
+              {(p.rozetler ?? [])
+                .filter((r) => r.key !== 'onay')
+                .map((r) => (
+                  <span
+                    key={r.key}
+                    title={r.aciklama}
+                    style={{
+                      fontSize: 12.5,
+                      fontWeight: 800,
+                      padding: '4px 10px',
+                      borderRadius: 999,
+                      background: r.bg,
+                      color: r.renk,
+                    }}
+                  >
+                    {r.ad}
+                  </span>
+                ))}
               <span
                 style={{
                   fontSize: 12.5,
@@ -201,24 +228,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
               paddingTop: 58,
             }}
           >
-            <button
-              type="button"
-              disabled
-              title="Galeri takibi yakında açılacak"
-              style={{
-                border: 0,
-                background: '#E3E6EF',
-                borderRadius: 12,
-                padding: '11px 16px',
-                fontSize: 14.5,
-                fontWeight: 800,
-                color: '#5A6073',
-                cursor: 'default',
-                fontFamily: 'inherit',
-              }}
-            >
-              Takip et
-            </button>
+            <TakipDugmesi slug={p.slug} />
           </div>
         </div>
         <div className="rr-dort-sutun" style={{ gap: 0, borderTop: '1px solid #EEF0F5' }}>

@@ -7,7 +7,7 @@ import Svg, { Path } from 'react-native-svg';
 import { Ikon } from '../../components/ikon';
 import { T } from '../../components/t';
 import { API } from '../../lib/api';
-import { basHarf } from '../../lib/oturum';
+import { basHarf, useOturum } from '../../lib/oturum';
 
 interface Profil {
   slug: string;
@@ -23,6 +23,8 @@ interface Profil {
   uyelik: string;
   satisTemsilcisi: number;
   portfoy: { toplam: number };
+  rozetler: { key: string; ad: string; bg: string; renk: string }[];
+  ortalamaYanitDakika: number | null;
 }
 
 /** Yıla gelen ek: 2026’dan, 2027’den */
@@ -38,6 +40,29 @@ function yilEki(yil: number) {
  */
 export default function GaleriProfili() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
+  const { durum, istek } = useOturum();
+  // Galeriyi takip et (Karar 28)
+  const [takip, setTakip] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (durum === 'uye')
+      istek<{ takip: boolean }>(`/galeriler/${encodeURIComponent(slug)}/takip`)
+        .then((r) => setTakip(r.takip))
+        .catch(() => undefined);
+  }, [durum, istek, slug]);
+  async function takipEt() {
+    if (durum !== 'uye') {
+      router.push('/giris');
+      return;
+    }
+    try {
+      const r = await istek<{ takip: boolean }>(`/galeriler/${encodeURIComponent(slug)}/takip`, {
+        method: takip ? 'DELETE' : 'PUT',
+      });
+      setTakip(r.takip);
+    } catch {
+      setTakip(null);
+    }
+  }
   const [p, setP] = useState<Profil | null | 'yok'>(null);
   const [araclar, setAraclar] = useState<
     { no: number; ad: string; ozellik: string; fiyat: number; foto: string | null }[]
@@ -163,11 +188,37 @@ export default function GaleriProfili() {
                 >
                   ✓ Onaylı {profil.tur.toLocaleLowerCase('tr-TR')}
                 </T>
+                {(profil.rozetler ?? [])
+                  .filter((r) => r.key !== 'onay')
+                  .map((r) => (
+                    <T
+                      key={r.key}
+                      style={{
+                        fontSize: 12,
+                        fontWeight: '800',
+                        paddingVertical: 4,
+                        paddingHorizontal: 10,
+                        borderRadius: 999,
+                        overflow: 'hidden',
+                        backgroundColor: '#FFF6DF',
+                        color: '#7A5200',
+                      }}
+                    >
+                      {r.ad}
+                    </T>
+                  ))}
               </View>
               <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
                 {[
                   [String(profil.portfoy.toplam), 'yayında araç'],
-                  ['—', 'ortalama yanıt'],
+                  [
+                    typeof profil.ortalamaYanitDakika !== 'number'
+                      ? '—'
+                      : profil.ortalamaYanitDakika < 60
+                        ? `${Math.max(1, Math.round(profil.ortalamaYanitDakika))} dk`
+                        : `${Math.round(profil.ortalamaYanitDakika / 60)} sa`,
+                    'ortalama yanıt',
+                  ],
                   [String(profil.satisTemsilcisi), 'satış temsilcisi'],
                 ].map(([d, k]) => (
                   <View
@@ -185,6 +236,22 @@ export default function GaleriProfili() {
                   </View>
                 ))}
               </View>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ selected: !!takip }}
+                onPress={takipEt}
+                style={{
+                  marginTop: 12,
+                  backgroundColor: takip ? '#E7FAF0' : colors.blue,
+                  borderRadius: 12,
+                  paddingVertical: 11,
+                  alignItems: 'center',
+                }}
+              >
+                <T style={{ fontSize: 14.5, fontWeight: '800' }}>
+                  {takip ? '✓ Takip ediliyor' : 'Galeriyi takip et'}
+                </T>
+              </Pressable>
               <T style={{ marginTop: 12, fontSize: 12.5, color: '#3A4052', lineHeight: 19 }}>
                 {profil.il}, {profil.ilce} · {profil.adres}
                 {profil.calismaSaatleri ? `\n${profil.calismaSaatleri}` : ''}

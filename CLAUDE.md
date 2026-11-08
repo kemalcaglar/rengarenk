@@ -167,8 +167,13 @@ pnpm format        # Biome ile biçimlendir
   paylaşımı, engelle, mesaj güvenliği kuralları, `/ws` anlık iletim (Redis yayını). Mesaj gövdesi `MESSAGE_SECRET_KEY` ile
   şifreli (canlıda zorunlu). Web `/mesajlarim`, mobil Mesajlar sekmesi ve `app/sohbet/[id].tsx`. API'de 109, ortak pakette 61 test.
   Telefon başına yeni SMS kodu için kısa bekleme var; ekran görüntüsünde aynı numarayla art arda giriş 429 verir.
-- **Sıradaki:** Aşama 5'in kalanı: yıldız ve rozetler (Karar 55), galeri takibi (Karar 28), çalışan başına günlük mesaj
-  sınırı (Karar 20) (liste: `docs/kapsam/03-gelistirme-plani.md`). Sonra Aşama 6: ödemeler. Sunucular gelince Radore'ye ilk dağıtım,
+- **Sprint 13 (8 Kasım 2026, Aşama 5 bitti):** yıldız ve rozetler (`apps/api/src/trust/`, `packages/shared/src/ratings.ts`),
+  hile kuralları (yeni hesap, aynı cihaz ve ağ özeti, bağlı hesap), seller_stats, galeri takibi, çalışan başına günlük ilk
+  mesaj sınırı, konsol `/puan`. API'de 111, ortak pakette 63 test. Şikâyet oranı moderasyona kadar 0.
+- **Ekran görüntüsü betikleri** (scratchpad `betik/`): Edge başsız açılır; Windows'ta `p.kill()` yetmez, betik sonunda
+  profil klasörünü kullanan bütün `msedge.exe` süreçleri kapatılır. Çekimden sonra Edge sayısını kontrol et.
+- **Sıradaki:** Aşama 6: ödemeler (PayTR, abonelik, mağaza ödemeleri ve RevenueCat, e-Arşiv, iade akışı ve 4 kilit,
+  ön bilgilendirme ve sözleşmeler). Gerçek anahtar yok: sahte sağlayıcıyla. İade akışına dokunmadan önce sahibe sor. Sunucular gelince Radore'ye ilk dağıtım,
   yedek, izleme, SOPS. Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu
