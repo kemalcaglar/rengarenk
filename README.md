@@ -173,6 +173,15 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Eşleştirme (Sprint 11)
+
+- **Skor:** `evaluateMatch` (`packages/shared/src/matching.ts`); motor `apps/api/src/matching/`. Talep ve araç olaylarında
+  işçi yeniden skorlar; OpenSearch'te `<önek>_portfoy` (araçlar) ve `<önek>_talep_sorgu` (talep sorguları, percolator).
+- **Uçlar:** `GET /gallery/:hesap/matches` (`?arac=`), `POST …/matches/seen`, `GET /me/matches` (ana sayfa),
+  `GET /araclar/:no/uyum` (girişli alıcı), konsol `POST /staff/categories/:id/matching/simulate`.
+- Yerelde eşleşme işçide hesaplanır: `pnpm --filter @rengarenk/api dev:worker` açılışta indeksleri kurar ve bütün
+  yayındaki talepleri skorlar.
+
 ## Galeri portföyü (Sprint 10)
 
 - **Panel:** `/gallery/:hesap/portfolio` (liste, ekle, `PUT :id`, `photos`, `report?tarih=`, `submit`, `passivate`,

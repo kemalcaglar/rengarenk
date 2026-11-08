@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AracSemasiGorunum } from '../../../../components/arac-semasi';
 import { binlik } from '../../../../lib/talep-bicim';
-import { FotoGezgini, Iletisim } from './arac-istemci';
+import { FotoGezgini, Iletisim, TalebineUyuyor } from './arac-istemci';
 
 const API = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 const GENEL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
@@ -72,8 +72,8 @@ const DURUM_AD: Record<string, string> = {
 
 /**
  * Portföy aracı sayfası (tasarım: PortfoyArac.dc.html; Karar 07, 17). Yalnızca EİDS onaylı ve yayındaki araç görünür;
- * plakanın yalnızca il kodu yazılır. "Talebine uyuyor" bandı eşleştirmeyle (Aşama 5), mesaj Aşama 5'te, şikayet
- * Aşama 8'de, araç favorisi sonra gelir.
+ * plakanın yalnızca il kodu yazılır. "Talebine uyuyor" bandı girişli alıcının yayındaki talepleriyle hesaplanır; mesaj
+ * Aşama 5'in ikinci bölümünde, şikayet Aşama 8'de, araç favorisi sonra gelir.
  */
 export default async function AracSayfasi({ params }: { params: Promise<{ no: string }> }) {
   const a = await al((await params).no);
@@ -100,6 +100,8 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
           Portföy no {a.no} · {tarih(a.yayin)}
         </span>
       </div>
+
+      <TalebineUyuyor no={a.no} />
 
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 20 }}>
         <div style={{ flex: '999 1 640px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>

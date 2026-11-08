@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getCategories } from '../../lib/kategoriler';
 import { butceAraligi, zaman } from '../../lib/talep-bicim';
 import { KayitliAramalarim } from './kayitli-aramalarim';
+import { PortfoyEslesmeleri } from './portfoy-eslesmeleri';
 
 const API = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 /** Görseller tarayıcıdan istenir: genel API adresi */
@@ -242,6 +243,8 @@ export default async function Home() {
             ))}
           </ol>
         </section>
+
+        <PortfoyEslesmeleri />
 
         <KayitliAramalarim />
 

@@ -1,5 +1,6 @@
 import {
   colors,
+  compactBudget,
   DOTS,
   GALLERY_PLANS,
   GALLERY_TRIAL,
@@ -51,16 +52,49 @@ const DURUM_RENK: Record<string, [string, string]> = {
   REJECTED: ['#FDECEC', '#A3271F'],
 };
 
+interface Eslesmeler {
+  eslesme: boolean;
+  gunlukMesaj: number;
+  yeni: number;
+  toplam: number;
+  araclar: { id: string; ad: string; sayi: number }[];
+  eslesmeler: {
+    id: string;
+    skor: number;
+    uyum: string;
+    zaman: string;
+    arac: { id: string; no: number; ad: string; foto: string | null };
+    talep: {
+      no: number;
+      baslik: string;
+      sahip: string;
+      il: string | null;
+      ilce: string | null;
+      butceMin: number | null;
+      butceMax: number | null;
+    };
+  }[];
+}
+
+/** "12 dk", "1 sa", "Dün", "3 gün" (GaleriMobil.dc.html) */
+function kisaZaman(iso: string) {
+  const dk = Math.max(1, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
+  if (dk < 60) return `${dk} dk`;
+  if (dk < 24 * 60) return `${Math.round(dk / 60)} sa`;
+  const gun = Math.floor(dk / (24 * 60));
+  return gun <= 1 ? 'Dün' : `${gun} gün`;
+}
+
 interface Davet {
   id: string;
   galeri: string;
   rolAd: string;
 }
 
-/** Alt sekmeler (GaleriMobil.dc.html); eşleşme ve mesaj Aşama 5, portföy Sprint 10 */
+/** Alt sekmeler (GaleriMobil.dc.html); mesajlar Aşama 5'in ikinci bölümünde açılır */
 const SEKME: { ad: string; key: string; d: string; orta?: true; acik?: true }[] = [
   { ad: 'Panel', key: 'panel', d: 'M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 4v3h6V4z', acik: true },
-  { ad: 'Eşleşmeler', key: 'eslesme', d: 'M7 7h10l-3-3M17 17H7l3 3' },
+  { ad: 'Eşleşmeler', key: 'eslesme', d: 'M7 7h10l-3-3M17 17H7l3 3', acik: true },
   { ad: 'Araç ekle', key: 'ekle', d: 'M12 5v14M5 12h14', orta: true, acik: true },
   { ad: 'Portföy', key: 'portfoy', d: 'M3 13l2-6h14l2 6v5H3zM7 18v2M17 18v2M6 13h12', acik: true },
   { ad: 'Mesajlar', key: 'mesaj', d: 'M4 5h16v11H9l-5 4z' },
@@ -77,8 +111,10 @@ export default function GaleriPaneli() {
   const [p, setP] = useState<Panel | null>(null);
   const [davetler, setDavetler] = useState<Davet[] | null>(null);
   const [hata, setHata] = useState<string | null>(null);
-  const [gorunum, setGorunum] = useState<'panel' | 'portfoy'>('panel');
+  const [gorunum, setGorunum] = useState<'panel' | 'portfoy' | 'eslesme'>('panel');
   const [portfoy, setPortfoy] = useState<Portfoy | null>(null);
+  const [eslesme, setEslesme] = useState<Eslesmeler | null>(null);
+  const [aracFiltre, setAracFiltre] = useState<string | null>(null);
 
   const yukle = useCallback(async () => {
     const g = await istek<{ accountId: string }[]>('/gallery/mine');
@@ -93,12 +129,14 @@ export default function GaleriPaneli() {
       return;
     }
     setDavetler(null);
-    const [x, l] = await Promise.all([
+    const [x, l, e] = await Promise.all([
       istek<Panel>(`/gallery/${ilk.accountId}`),
       istek<Portfoy>(`/gallery/${ilk.accountId}/portfolio`).catch(() => null),
+      istek<Eslesmeler>(`/gallery/${ilk.accountId}/matches`).catch(() => null),
     ]);
     setP(x);
     setPortfoy(l);
+    setEslesme(e);
   }, [istek]);
 
   useFocusEffect(
@@ -118,6 +156,16 @@ export default function GaleriPaneli() {
   }
 
   const deneme = p?.paket.key === 'deneme';
+
+  function eslesmeAc() {
+    setGorunum('eslesme');
+    if (p && eslesme?.yeni) {
+      istek(`/gallery/${p.accountId}/matches/seen`, { method: 'POST' })
+        .then(() => setEslesme((e) => (e ? { ...e, yeni: 0 } : e)))
+        .catch(() => undefined);
+    }
+  }
+  const eslesmeListe = (eslesme?.eslesmeler ?? []).filter((e) => !aracFiltre || e.arac.id === aracFiltre);
   const plan = p && !deneme ? GALLERY_PLANS[p.paket.key as keyof typeof GALLERY_PLANS] : null;
   const haklar = p
     ? [
@@ -175,7 +223,13 @@ export default function GaleriPaneli() {
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>
           <T accessibilityRole="header" style={{ fontSize: 16, fontWeight: '800' }}>
-            {davetler ? 'Galeri davetlerin' : gorunum === 'portfoy' ? 'Portföy' : 'Panel'}
+            {davetler
+              ? 'Galeri davetlerin'
+              : gorunum === 'portfoy'
+                ? 'Portföy'
+                : gorunum === 'eslesme'
+                  ? 'Eşleşmeler'
+                  : 'Panel'}
           </T>
           {p ? (
             <T numberOfLines={1} style={{ fontSize: 12, color: colors.muted, marginTop: 1 }}>
@@ -297,6 +351,156 @@ export default function GaleriPaneli() {
           >
             Deneme süren bitti. Paket seçene kadar yalnızca portföyünü görüntüleyebilirsin.
           </T>
+        ) : null}
+
+        {p && gorunum === 'eslesme' ? (
+          <>
+            <View
+              style={{
+                ...kart,
+                borderRadius: 14,
+                paddingVertical: 12,
+                paddingHorizontal: 14,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <T style={{ fontSize: 13, color: '#3A4052' }}>Bugün kalan ilk mesaj</T>
+              <T style={{ fontSize: 15, fontWeight: '800' }}>
+                {eslesme?.gunlukMesaj ?? p.paket.gunlukMesaj} / {eslesme?.gunlukMesaj ?? p.paket.gunlukMesaj}
+              </T>
+            </View>
+            {eslesme?.eslesme && eslesme.araclar.length > 1 ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 6, marginTop: 10, marginBottom: 4 }}
+              >
+                {[{ id: null as string | null, ad: 'Tümü' }, ...eslesme.araclar].map((a) => {
+                  const secili = aracFiltre === a.id;
+                  return (
+                    <Pressable
+                      key={a.id ?? 'tumu'}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: secili }}
+                      onPress={() => setAracFiltre(a.id)}
+                      style={{
+                        borderWidth: 1,
+                        borderColor: secili ? colors.ink : '#D5DAE5',
+                        backgroundColor: secili ? colors.ink : colors.surface,
+                        borderRadius: 999,
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
+                      }}
+                    >
+                      <T style={{ fontSize: 13, fontWeight: '700', color: secili ? '#FFFFFF' : colors.ink }}>
+                        {a.ad}
+                      </T>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            ) : null}
+            {eslesme && !eslesme.eslesme ? (
+              <View style={{ ...kart, borderRadius: 16, padding: 14, marginTop: 8 }}>
+                <T style={{ fontSize: 13.5, color: colors.muted, lineHeight: 19 }}>
+                  Otomatik eşleşme Profesyonel ve Kurumsal paketlerdedir. Talepleri arayarak bulup
+                  yazabilirsin.
+                </T>
+              </View>
+            ) : null}
+            {eslesme?.eslesme && !eslesmeListe.length ? (
+              <View style={{ ...kart, borderRadius: 16, padding: 14, marginTop: 8 }}>
+                <T style={{ fontSize: 13.5, color: colors.muted, lineHeight: 19 }}>
+                  Henüz eşleşme yok. Yayındaki araçlarına uyan yeni talepler burada görünür.
+                </T>
+              </View>
+            ) : null}
+            {eslesmeListe.map((e) => (
+              <View key={e.id} style={{ ...kart, borderRadius: 16, padding: 14, marginTop: 8 }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
+                  <T
+                    style={{
+                      fontSize: 12,
+                      fontWeight: '700',
+                      color: '#11683F',
+                      backgroundColor: '#E7FAF0',
+                      paddingVertical: 3,
+                      paddingHorizontal: 8,
+                      borderRadius: 999,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    %{e.skor} uyum
+                  </T>
+                  <T style={{ fontSize: 11.5, color: colors.muted }}>{kisaZaman(e.zaman)}</T>
+                </View>
+                <T
+                  accessibilityRole="link"
+                  onPress={() => router.push(`/talep/${e.talep.no}`)}
+                  style={{ fontSize: 15, fontWeight: '800', marginTop: 8, lineHeight: 20 }}
+                >
+                  {e.talep.baslik}
+                </T>
+                <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 3 }}>
+                  {[
+                    e.talep.sahip,
+                    [e.talep.il, e.talep.ilce].filter(Boolean).join(', '),
+                    compactBudget(e.talep.butceMin, e.talep.butceMax, 'milyon'),
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </T>
+                <T style={{ fontSize: 12.5, color: '#3A4052', marginTop: 6 }}>{e.uyum}</T>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 8,
+                    marginTop: 10,
+                    paddingTop: 10,
+                    borderTopWidth: 1,
+                    borderTopColor: '#EEF0F5',
+                  }}
+                >
+                  <View
+                    style={{
+                      width: 46,
+                      height: 34,
+                      borderRadius: 8,
+                      overflow: 'hidden',
+                      backgroundColor: '#DCE3F0',
+                    }}
+                  >
+                    {e.arac.foto ? (
+                      <Image
+                        source={{ uri: `${API}${e.arac.foto}` }}
+                        style={{ width: '100%', height: '100%' }}
+                      />
+                    ) : null}
+                  </View>
+                  <T numberOfLines={2} style={{ flex: 1, minWidth: 0, fontSize: 12.5, fontWeight: '700' }}>
+                    {e.arac.ad}
+                  </T>
+                  <View
+                    accessibilityRole="button"
+                    accessibilityState={{ disabled: true }}
+                    accessibilityLabel="İlk mesaj at, yakında"
+                    style={{
+                      backgroundColor: '#5B8CFF',
+                      borderRadius: 12,
+                      paddingVertical: 10,
+                      paddingHorizontal: 12,
+                      opacity: 0.55,
+                    }}
+                  >
+                    <T style={{ fontSize: 13.5, fontWeight: '800' }}>İlk mesaj at</T>
+                  </View>
+                </View>
+              </View>
+            ))}
+          </>
         ) : null}
 
         {p && gorunum === 'portfoy' ? (
@@ -464,12 +668,78 @@ export default function GaleriPaneli() {
               <T accessibilityRole="header" style={{ fontSize: 16, fontWeight: '800' }}>
                 Yeni eşleşmeler
               </T>
+              {eslesme?.eslesme && eslesme.toplam ? (
+                <T
+                  accessibilityRole="button"
+                  onPress={eslesmeAc}
+                  style={{ fontSize: 13.5, fontWeight: '700', color: colors.link, paddingVertical: 6 }}
+                >
+                  Tümü ({eslesme.toplam})
+                </T>
+              ) : null}
             </View>
-            <View style={{ ...kart, borderRadius: 16, padding: 14 }}>
-              <T style={{ fontSize: 13, color: colors.muted, lineHeight: 19 }}>
-                Portföyüne araç ekleyince uyan talepler burada görünür.
-              </T>
-            </View>
+            {eslesme?.eslesme && eslesme.eslesmeler.length ? (
+              eslesme.eslesmeler.slice(0, 2).map((e) => (
+                <Pressable
+                  key={e.id}
+                  accessibilityRole="link"
+                  onPress={() => router.push(`/talep/${e.talep.no}`)}
+                  style={{
+                    ...kart,
+                    borderRadius: 16,
+                    paddingVertical: 12,
+                    paddingHorizontal: 14,
+                    marginBottom: 8,
+                  }}
+                >
+                  <T style={{ fontSize: 14, fontWeight: '800', lineHeight: 19 }}>{e.talep.baslik}</T>
+                  <T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>
+                    {[
+                      e.talep.sahip,
+                      [e.talep.il, e.talep.ilce].filter(Boolean).join(', '),
+                      compactBudget(e.talep.butceMin, e.talep.butceMax, 'milyon'),
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </T>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 8,
+                      marginTop: 8,
+                    }}
+                  >
+                    <T
+                      style={{
+                        fontSize: 12,
+                        fontWeight: '700',
+                        color: '#11683F',
+                        backgroundColor: '#E7FAF0',
+                        paddingVertical: 3,
+                        paddingHorizontal: 8,
+                        borderRadius: 999,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      %{e.skor} uyum
+                    </T>
+                    <T numberOfLines={1} style={{ flexShrink: 1, fontSize: 12, color: '#3A4052' }}>
+                      ↔ {e.arac.ad}
+                    </T>
+                  </View>
+                </Pressable>
+              ))
+            ) : (
+              <View style={{ ...kart, borderRadius: 16, padding: 14 }}>
+                <T style={{ fontSize: 13, color: colors.muted, lineHeight: 19 }}>
+                  {eslesme && !eslesme.eslesme
+                    ? 'Otomatik eşleşme Profesyonel ve Kurumsal paketlerdedir.'
+                    : 'Yayındaki araçlarına uyan talepler burada görünür.'}
+                </T>
+              </View>
+            )}
 
             <T
               accessibilityRole="header"
@@ -536,6 +806,7 @@ export default function GaleriPaneli() {
               if (!p) return;
               if (s.key === 'ekle')
                 router.push({ pathname: '/galeri-arac', params: { accountId: p.accountId } });
+              else if (s.key === 'eslesme') eslesmeAc();
               else setGorunum(s.key as 'panel' | 'portfoy');
             }}
             style={{
@@ -563,15 +834,35 @@ export default function GaleriPaneli() {
                 </Svg>
               </View>
             ) : (
-              <Svg width={23} height={23} viewBox="0 0 24 24" fill="none">
-                <Path
-                  d={s.d}
-                  stroke={s.key === gorunum ? colors.ink : colors.muted}
-                  strokeWidth={s.key === gorunum ? 2.4 : 1.9}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </Svg>
+              <View style={{ width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
+                <Svg width={23} height={23} viewBox="0 0 24 24" fill="none">
+                  <Path
+                    d={s.d}
+                    stroke={s.key === gorunum ? colors.ink : colors.muted}
+                    strokeWidth={s.key === gorunum ? 2.4 : 1.9}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </Svg>
+                {s.key === 'eslesme' && eslesme?.yeni ? (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: -5,
+                      right: -11,
+                      minWidth: 16,
+                      height: 16,
+                      paddingHorizontal: 3,
+                      borderRadius: 999,
+                      backgroundColor: '#FF6FB5',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <T style={{ fontSize: 10, fontWeight: '800', color: colors.ink }}>{eslesme.yeni}</T>
+                  </View>
+                ) : null}
+              </View>
             )}
             <T
               style={{

@@ -138,6 +138,33 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 11 · eşleştirme motoru ve skor (Aşama 5 ilk bölüm, 8 Kasım 2026)
+
+- [x] Skor (Teknik tasarım §6): `evaluateMatch` ortak pakette; motor, galeri ekranları ve konsoldaki deneme alanı aynı
+  işlevi kullanır. Skor talebin yayına girdiği şema sürümünün ağırlıklarıyla hesaplanır (yeni ağırlıklar yalnızca yeni
+  ve güncellenen taleplere); her alternatif ayrı skorlanır, en iyisi alınır; araçta karşılığı olmayan alan hesaba katılmaz
+- [x] Sert koşullar: kategori, alıcının ili, bütçe üst sınırı +%5, alıcının seçtiği marka, "Kimden" yalnızca sahibinden
+  ise galeri yok, alıcının kabul etmediği işlemler (şasi, podye, airbag, ağır hasar), kategoride sert koşul olan alanlar;
+  galeri kendi çalışanının talebiyle eşleşmez
+- [x] İki yön OpenSearch'te (T04): yayındaki araçlar indekste, yayındaki talepler kayıtlı sorgu (percolator); talep ve araç
+  olaylarında işçi yeniden skorlar, her gece ikisi de yeniden kurulur. `matches` tablosu skoru, ölçütleri ve şema
+  sürümünü saklar; skoru 60'ın altındaki eşleşme saklanmaz, kapanan eşleşme silinmez
+- [x] Bildirim olayı: eşiği (kategori kuralı, başlangıç %80) geçen yeni eşleşme için `eslesme.bulundu`; galeri başına
+  günde 20 anlık, fazlası günlük özet (iletim Aşama 7). Otomatik eşleşme Profesyonel, Kurumsal ve denemede (Karar 12.2)
+- [x] Web galeri paneli › Eşleşmeler (GaleriPanel.dc.html): araç → talep kartı, uyum özeti, "yeni" sayısı menüde ve
+  Özet'te; portföy listesinde "Eşleşme" sütunu; ana sayfada "Portföyünüze uyan talepler" (Anasayfa.dc.html, Karar 22)
+- [x] Mobil galeri paneli: Eşleşmeler sekmesi (araç süzgeci, %uyum, zaman), Panel'de "Yeni eşleşmeler" (GaleriMobil.dc.html)
+- [x] Araç sayfasında "… talebine uyuyor. N kriterin M'si tutuyor" bandı girişli alıcının yayındaki talepleriyle (PortfoyArac)
+- [x] Konsol › Eşleştirme ayarı › Deneme alanı: gerçek talep, taslak ve yayındaki ayarla skor, sıra değişimi, bildirim
+  alacak galeri sayısı (YonetimIcerik.dc.html)
+- [ ] "Araç kartıyla mesaj at" / "İlk mesaj at": ilk mesaj ve haklarla (Aşama 5 ikinci bölüm); şimdilik pasif
+- [ ] Komşu il (0,5): sert koşul il olduğu için şimdilik uygulanmıyor; alıcıya mesafe seçimi gelince açılır. Wikidata'nın
+  il komşuluk verisi eksik (İstanbul–Kırklareli yok), kaynak ayrıca seçilmeli
+- [ ] Galeri takibi (Karar 28) eşleşmeyle birlikte günlük özet; galeri ana sayfası düzeni (Karar 46) konsolla
+- Kararlar: alıcının seçtiği marka sert koşul sayıldı (başka markadan araç galeriye eşleşme diye düşmesin); sihirbazda
+  "kesin" seçimi olmadığından vites ve yakıt yalnızca skora girer; katalogda paket sırası olmadığından farklı paket 0,4
+- Tasarıma ek: konsol deneme alanında talep numarasıyla talep seçme; web eşleşme kartında araç adı araç sayfasına gider
+
 ## Sprint 10 · galeri portföyü (Aşama 4 ikinci bölüm, 8 Kasım 2026)
 
 - [x] Veri modeli: portfolio_vehicles (portföy no 77100001'den, silinmez), portfolio_photos, eids_checks, api_keys;

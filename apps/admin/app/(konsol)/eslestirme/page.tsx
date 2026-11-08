@@ -9,6 +9,31 @@ import { useKonsol } from '../kabuk';
 
 const ADIM = 2;
 
+interface Deneme {
+  talep: {
+    no: number;
+    baslik: string;
+    il: string | null;
+    butceMin: number | null;
+    butceMax: number | null;
+    yilMin: number | null;
+    yilMax: number | null;
+  } | null;
+  esik: number;
+  bildirim: { yeni: number; eski: number };
+  adaylar: {
+    id: string;
+    ad: string;
+    detay: string;
+    skor: number;
+    eski: number;
+    sira: number;
+    eskiSira: number;
+  }[];
+}
+
+const tl = (n: number) => `₺${new Intl.NumberFormat('tr-TR').format(n)}`;
+
 /** Pasif düğme soluk görünür */
 const pasif = (off: boolean): CSSProperties => (off ? { opacity: 0.5, cursor: 'default' } : {});
 
@@ -102,6 +127,24 @@ export default function Eslestirme() {
     : [];
   const toplam = satirlar.reduce((s, f) => s + f.weight, 0);
   const degisti = satirlar.some((f) => f.weight !== (yayinW.get(f.key) ?? 0));
+
+  // Deneme alanı: taslak ağırlıklarla ve yayındaki ayarla aynı talep, motorla aynı işlev (Teknik tasarım §6)
+  const [deneme, setDeneme] = useState<Deneme | null>(null);
+  const [talepNo, setTalepNo] = useState('');
+  const [aranan, setAranan] = useState<number | undefined>(undefined);
+  const defJson = def ? JSON.stringify(def) : '';
+  useEffect(() => {
+    if (!secili || !defJson) return;
+    const t = setTimeout(() => {
+      yonetim<Deneme>(`categories/${secili}/matching/simulate`, {
+        method: 'POST',
+        body: { definition: JSON.parse(defJson), ...(aranan ? { talepNo: aranan } : {}) },
+      })
+        .then(setDeneme)
+        .catch((e: Error) => setError(e.message));
+    }, 250);
+    return () => clearTimeout(t);
+  }, [secili, defJson, aranan]);
 
   const kaydet = (next: CategoryDefinition) =>
     islem(() => yonetim(`categories/${secili}/draft`, { method: 'PUT', body: next }));
@@ -335,9 +378,45 @@ export default function Eslestirme() {
           }}
         >
           <div style={{ padding: '16px 18px', borderBottom: '1px solid #EEF0F5' }}>
-            <h2 id="deneme" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
-              Deneme alanı
-            </h2>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 10,
+              }}
+            >
+              <h2 id="deneme" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+                Deneme alanı
+              </h2>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const n = Number.parseInt(talepNo, 10);
+                  setAranan(Number.isFinite(n) && n > 0 ? n : undefined);
+                }}
+                style={{ display: 'flex', gap: 6 }}
+              >
+                <input
+                  aria-label="Talep no"
+                  inputMode="numeric"
+                  placeholder="Talep no"
+                  value={talepNo}
+                  onChange={(e) => setTalepNo(e.target.value.replace(/\D/g, ''))}
+                  style={{
+                    width: 120,
+                    border: '1px solid #D5DAE5',
+                    borderRadius: 10,
+                    padding: '7px 10px',
+                    fontSize: 13.5,
+                  }}
+                />
+                <button type="submit" style={{ ...ikincil, padding: '7px 12px', fontSize: 13 }}>
+                  Göster
+                </button>
+              </form>
+            </div>
             <div
               style={{
                 marginTop: 10,
@@ -348,20 +427,152 @@ export default function Eslestirme() {
                 lineHeight: 1.5,
               }}
             >
-              <strong>Henüz talep ve portföy aracı yok</strong>
-              <span style={{ display: 'block', color: '#3A4052' }}>
-                Deneme alanı gerçek bir talebi seçip portföydeki araçların skorunu bu ayarla ve yayındaki
-                ayarla yan yana gösterir. Talepler (Aşama 3) ve galeri portföyü (Aşama 4) açılınca burada
-                çalışır; skor, eşleşme motoruyla aynı işlevle hesaplanır.
-              </span>
+              {deneme?.talep ? (
+                <>
+                  <strong>
+                    Talep No {deneme.talep.no} · {deneme.talep.baslik}
+                  </strong>
+                  <span style={{ display: 'block', color: '#3A4052' }}>
+                    {[
+                      deneme.talep.yilMin || deneme.talep.yilMax
+                        ? `${deneme.talep.yilMin ?? ''}–${deneme.talep.yilMax ?? ''}`
+                        : null,
+                      deneme.talep.butceMax
+                        ? `${deneme.talep.butceMin ? `${tl(deneme.talep.butceMin)} – ` : ''}${tl(deneme.talep.butceMax)}`
+                        : null,
+                      deneme.talep.il,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <strong>{deneme ? 'Bu kategoride yayında talep yok' : 'Yükleniyor…'}</strong>
+                  <span style={{ display: 'block', color: '#3A4052' }}>
+                    Deneme alanı gerçek bir talebi seçip sert koşullara uyan portföy araçlarının skorunu bu
+                    ayarla ve yayındaki ayarla yan yana gösterir.
+                  </span>
+                </>
+              )}
             </div>
             <p style={{ margin: '10px 0 0', fontSize: 13, color: '#3A4052' }}>
               Galeriye “sana uygun talep” bildirimi eşiği:{' '}
-              <strong>skor %{def?.rules.matchThreshold ?? 80}</strong>
+              <strong>skor %{deneme?.esik ?? def?.rules.matchThreshold ?? 80}</strong>
+              {deneme?.talep
+                ? ` · bu ayarla bu talep için ${deneme.bildirim.yeni} galeri bildirim alır (yayındaki ayarla ${deneme.bildirim.eski}).`
+                : ''}
             </p>
           </div>
-          <p style={{ margin: 0, padding: '12px 18px', fontSize: 12.5, color: '#5A6073' }}>
-            Yayın, sahip veya yönetici onayıyla yapılır ve işlem kaydına girer.
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '34px minmax(0, 2.6fr) minmax(0, 2fr) 70px 70px',
+              gap: 8,
+              padding: '10px 18px',
+              background: '#F3F5FA',
+              fontSize: 11.5,
+              fontWeight: 800,
+              color: '#5A6073',
+              textTransform: 'uppercase',
+              letterSpacing: 0.3,
+            }}
+          >
+            <span>Sıra</span>
+            <span>Portföy aracı</span>
+            <span>Skor</span>
+            <span style={{ textAlign: 'right' }}>Yayında</span>
+            <span style={{ textAlign: 'right' }}>Değişim</span>
+          </div>
+          {deneme?.talep && !deneme.adaylar.length ? (
+            <p style={{ margin: 0, padding: '14px 18px', fontSize: 13, color: '#5A6073' }}>
+              Bu talebin sert koşullarına uyan yayında portföy aracı yok.
+            </p>
+          ) : null}
+          {(deneme?.adaylar ?? []).map((c) => {
+            const esik = deneme?.esik ?? 80;
+            const fark = c.eskiSira - c.sira;
+            return (
+              <div
+                key={c.id}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '34px minmax(0, 2.6fr) minmax(0, 2fr) 70px 70px',
+                  gap: 8,
+                  alignItems: 'center',
+                  padding: '11px 18px',
+                  borderTop: '1px solid #EEF0F5',
+                  fontSize: 13,
+                }}
+              >
+                <span style={{ fontSize: 15, fontWeight: 800 }}>{c.sira}</span>
+                <span style={{ minWidth: 0 }}>
+                  <span style={{ display: 'block', fontWeight: 800 }}>{c.ad}</span>
+                  <span style={{ display: 'block', fontSize: 12, color: '#5A6073' }}>{c.detay}</span>
+                </span>
+                <span
+                  style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                  title={`${c.ad}: yeni skor %${c.skor}, yayında %${c.eski}`}
+                >
+                  <span
+                    style={{
+                      flex: 1,
+                      height: 10,
+                      background: '#F3F5FA',
+                      borderRadius: '0 4px 4px 0',
+                      position: 'relative',
+                    }}
+                  >
+                    <span
+                      style={{
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        bottom: 0,
+                        width: `${c.skor}%`,
+                        background: c.skor >= esik ? '#2450C8' : '#A9C2FF',
+                        borderRadius: '0 4px 4px 0',
+                      }}
+                    />
+                    <span
+                      style={{
+                        position: 'absolute',
+                        top: -3,
+                        bottom: -3,
+                        left: `${esik}%`,
+                        width: 2,
+                        background: '#1E2333',
+                      }}
+                    />
+                  </span>
+                  <span style={{ flex: '0 0 42px', fontWeight: 800 }}>%{c.skor}</span>
+                </span>
+                <span style={{ textAlign: 'right', color: '#5A6073' }}>
+                  %{c.eski} · {c.eskiSira}.
+                </span>
+                <span
+                  style={{
+                    textAlign: 'right',
+                    fontWeight: 800,
+                    color: fark > 0 ? '#11683F' : fark < 0 ? '#A3271F' : '#5A6073',
+                  }}
+                >
+                  {fark > 0 ? `▲ ${fark}` : fark < 0 ? `▼ ${-fark}` : '—'}
+                </span>
+              </div>
+            );
+          })}
+          <p
+            style={{
+              margin: 0,
+              padding: '12px 18px',
+              fontSize: 12.5,
+              color: '#5A6073',
+              borderTop: '1px solid #EEF0F5',
+            }}
+          >
+            Siyah çizgi bildirim eşiğidir; koyu mavi çubuklar eşiği geçen araçlardır. Yayın, sahip veya
+            yönetici onayıyla yapılır ve işlem kaydına girer.
           </p>
         </section>
       </div>

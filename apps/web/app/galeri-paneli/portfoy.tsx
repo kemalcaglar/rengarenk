@@ -22,6 +22,8 @@ export interface PortfoyListesi {
     foto: string | null;
     fotoSayisi: number;
     duzenlenebilir: boolean;
+    /** Yayındaki aracın açık eşleşme sayısı (GaleriPanel.dc.html: "3 talep") */
+    eslesme: number | null;
   }[];
 }
 
@@ -244,7 +246,9 @@ export function Portfoy({
                   <span style={{ fontSize: 13, color: '#5A6073' }}>—</span>
                 )}
               </span>
-              <span style={{ flex: '1 1 90px', fontSize: 14, fontWeight: 700 }}>—</span>
+              <span style={{ flex: '1 1 90px', fontSize: 14, fontWeight: 700 }}>
+                {typeof p.eslesme === 'number' ? `${p.eslesme} talep` : '—'}
+              </span>
               <span style={{ flex: '1 1 90px', fontSize: 13.5, color: '#3A4052' }}>{p.durumAd}</span>
               <span
                 style={{

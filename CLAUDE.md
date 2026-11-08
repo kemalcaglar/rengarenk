@@ -157,8 +157,14 @@ pnpm format        # Biome ile biçimlendir
   sağlayıcısı (`eids.ts`, canlıda `none`), toplu yükleme (Excel/CSV), Kurumsal API anahtarı, araç sayfası (web, mobil).
   API testleri bellek içi depo kullanır (`test/helpers.ts`), CI'da SeaweedFS yok. API'de 104 test, ortak pakette 52.
   Yerelde OTP IP hız sınırı dolarsa Redis'te `rl:otp:ip:*` anahtarı silinebilir (yalnızca yerel).
-- **Sıradaki:** Aşama 5: eşleştirme motoru ve skor, ilk mesaj ve haklar, sohbet (WebSocket), numara paylaşımı, mesaj
-  güvenliği, yıldız ve rozetler (liste: `docs/kapsam/03-gelistirme-plani.md`). Sunucular gelince Radore'ye ilk dağıtım,
+- **Sprint 11 (8 Kasım 2026, Aşama 5 ilk bölüm):** eşleştirme motoru (`apps/api/src/matching/`, skor
+  `packages/shared/src/matching.ts` `evaluateMatch`), OpenSearch'te araç indeksi ve talep kayıtlı sorguları (percolator),
+  `matches` tablosu, `eslesme.bulundu` olayı (günde 20 anlık), galeri Eşleşmeler (web, mobil), ana sayfa "Portföyünüze
+  uyan talepler", araç sayfası "talebine uyuyor", konsol deneme alanı. Skor talebin şema sürümüyle; marka sert koşul.
+  API'de 106, ortak pakette 58 test.
+- **Sıradaki:** Aşama 5'in kalanı: ilk mesaj ve haklar (günlük ücretsiz, paket, ek; Karar 11, 12), sohbet (WebSocket),
+  araç kartı (Karar 26), alıcının portföy aracına yazması (Karar 27), numara paylaşımı, mesaj güvenliği (Karar 25),
+  engelle, yıldız ve rozetler (Karar 55) (liste: `docs/kapsam/03-gelistirme-plani.md`). Sunucular gelince Radore'ye ilk dağıtım,
   yedek, izleme, SOPS. Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { API, istek, useGiris } from '../../../../lib/istemci';
 
 /** Fotoğraf gezgini (PortfoyArac.dc.html): büyük görsel, önceki/sonraki, küçük resimler */
@@ -195,5 +196,44 @@ export function Iletisim({ no }: { no: number }) {
         </a>
       ) : null}
     </>
+  );
+}
+
+/**
+ * "BMW 3 Serisi 320i talebine uyuyor. 6 kriterin 6’sı tutuyor: …" (PortfoyArac.dc.html): girişli alıcının yayındaki
+ * taleplerinden bu araca en iyi uyanı. Uyan talep yoksa ya da giriş yapılmamışsa gösterilmez.
+ */
+export function TalebineUyuyor({ no }: { no: number }) {
+  const giris = useGiris();
+  const [u, setU] = useState<{ talepNo: number; baslik: string; metin: string } | null>(null);
+  useEffect(() => {
+    if (!giris) return;
+    istek<{ uyan: typeof u }>(`/araclar/${no}/uyum`)
+      .then((r) => setU(r.uyan))
+      .catch(() => undefined);
+  }, [giris, no]);
+  if (!u) return null;
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 10,
+        background: '#FFEEF6',
+        border: '1px solid #FFC2DF',
+        borderRadius: 16,
+        padding: '12px 18px',
+        marginBottom: 16,
+      }}
+    >
+      <span style={{ fontSize: 14.5 }}>
+        <strong>{u.baslik} talebine uyuyor.</strong> {u.metin}
+      </span>
+      <Link href={`/talep/${u.talepNo}`} style={{ fontSize: 14, fontWeight: 800 }}>
+        Talebimi aç
+      </Link>
+    </div>
   );
 }

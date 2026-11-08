@@ -15,6 +15,7 @@ import { useRouter } from 'next/navigation';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { API, binlik, istek, useGiris } from '../../lib/istemci';
 import { AracFormu } from './arac-formu';
+import { Eslesmeler, type EslesmeVerisi } from './eslesmeler';
 import { Portfoy, type PortfoyListesi, TopluYukleme } from './portfoy';
 
 interface Panel {
@@ -48,13 +49,13 @@ interface Panel {
 }
 type Gorunum = 'ozet' | 'portfoy' | 'ekle' | 'toplu' | 'eslesme' | 'ekip' | 'paket';
 
-/** Menü (GaleriPanel.dc.html); portföy Sprint 10'da, eşleşmeler Aşama 5'te açılır */
+/** Menü (GaleriPanel.dc.html) */
 const MENU: { key: Gorunum; ad: string; sonra?: true }[] = [
   { key: 'ozet', ad: 'Özet' },
   { key: 'portfoy', ad: 'Portföy' },
   { key: 'ekle', ad: 'Araç ekle' },
   { key: 'toplu', ad: 'Toplu yükleme' },
-  { key: 'eslesme', ad: 'Eşleşmeler', sonra: true },
+  { key: 'eslesme', ad: 'Eşleşmeler' },
   { key: 'ekip', ad: 'Ekip' },
   { key: 'paket', ad: 'Paket ve faturalar' },
 ];
@@ -126,6 +127,7 @@ export function GaleriPaneli() {
   const [duzenle, setDuzenle] = useState<string | null>(null);
   const [kategoriler, setKategoriler] = useState<PublicCategory[]>([]);
   const [portfoy, setPortfoy] = useState<PortfoyListesi | null>(null);
+  const [eslesme, setEslesme] = useState<EslesmeVerisi | null>(null);
   const setGorunum = (g: Gorunum) => {
     setDuzenle(null);
     setGorunumHam(g);
@@ -135,6 +137,12 @@ export function GaleriPaneli() {
   const [davetler, setDavetler] = useState<
     { id: string; galeri: string; rolAd: string; bitis: string }[] | null
   >(null);
+
+  // Ana sayfadaki "Tümünü gör" doğrudan Eşleşmeler'i açar
+  useEffect(() => {
+    const b = new URLSearchParams(window.location.search).get('bolum');
+    if (b && MENU.some((m) => m.key === b)) setGorunumHam(b as Gorunum);
+  }, []);
 
   useEffect(() => {
     if (giris === false) router.replace('/giris?sonra=/galeri-paneli');
@@ -158,12 +166,14 @@ export function GaleriPaneli() {
 
   const yukle = useCallback(async () => {
     if (!secili) return;
-    const [x, l] = await Promise.all([
+    const [x, l, e] = await Promise.all([
       istek<Panel>(`/gallery/${secili}`),
       istek<PortfoyListesi>(`/gallery/${secili}/portfolio`).catch(() => null),
+      istek<EslesmeVerisi>(`/gallery/${secili}/matches`).catch(() => null),
     ]);
     setP(x);
     setPortfoy(l);
+    setEslesme(e);
   }, [secili]);
 
   useEffect(() => {
@@ -199,6 +209,8 @@ export function GaleriPaneli() {
     const t = setTimeout(() => setBilgi(null), 4000);
     return () => clearTimeout(t);
   }, [bilgi]);
+
+  const eslesmeGoruldu = useCallback(() => setEslesme((e) => (e ? { ...e, yeni: 0 } : e)), []);
 
   const benimAd = [me?.firstName, me?.lastName].filter(Boolean).join(' ') || 'Sen';
 
@@ -334,7 +346,14 @@ export function GaleriPaneli() {
           >
             {MENU.map((m, i) => {
               const on = gorunum === m.key;
-              const rozet = m.key === 'ekip' && p ? String(p.ekip.length) : m.sonra ? 'yakında' : '';
+              const rozet =
+                m.key === 'ekip' && p
+                  ? String(p.ekip.length)
+                  : m.key === 'eslesme' && eslesme?.yeni
+                    ? String(eslesme.yeni)
+                    : m.sonra
+                      ? 'yakında'
+                      : '';
               return (
                 <li key={m.key}>
                   <button
@@ -445,7 +464,12 @@ export function GaleriPaneli() {
             />
           ) : null}
           {!p && !davetler ? <p style={{ color: '#5A6073' }}>Yükleniyor…</p> : null}
-          {p && gorunum === 'ozet' ? <Ozet p={p} portfoy={portfoy} git={setGorunum} islem={islem} /> : null}
+          {p && gorunum === 'ozet' ? (
+            <Ozet p={p} portfoy={portfoy} yeniEslesme={eslesme?.yeni ?? 0} git={setGorunum} islem={islem} />
+          ) : null}
+          {p && gorunum === 'eslesme' ? (
+            <Eslesmeler accountId={p.accountId} veri={eslesme} gorundu={eslesmeGoruldu} />
+          ) : null}
           {p && gorunum === 'portfoy' && !duzenle ? (
             <Portfoy
               key={String(portfoy?.aktif)}
@@ -485,11 +509,13 @@ type Islem = (fn: () => Promise<Panel | null | undefined>, mesaj: string) => Pro
 function Ozet({
   p,
   portfoy,
+  yeniEslesme,
   git,
   islem,
 }: {
   p: Panel;
   portfoy: PortfoyListesi | null;
+  yeniEslesme: number;
   git: (g: Gorunum) => void;
   islem: Islem;
 }) {
@@ -579,7 +605,7 @@ function Ozet({
       </div>
       <div className="rr-uc-sutun" style={{ marginTop: 16 }}>
         {[
-          ['0', '#11683F', 'Yeni eşleşme', 'Portföyündeki araçlara uyan talepler', 'eslesme'],
+          [String(yeniEslesme), '#11683F', 'Yeni eşleşme', 'Portföyündeki araçlara uyan talepler', 'eslesme'],
           [
             String(bekleyen),
             '#7A5300',
@@ -588,13 +614,29 @@ function Ozet({
             'portfoy',
           ],
           ['0', '#9B1C5B', 'Okunmamış mesaj', 'Ekip üyelerine gelen sohbetler dahil', ''],
-        ].map(([n, renk, ad, alt]) => (
-          <div key={ad} style={{ ...kart, padding: 18 }}>
-            <span style={{ display: 'block', fontSize: 30, fontWeight: 800, color: renk }}>{n}</span>
-            <span style={{ display: 'block', fontSize: 15, fontWeight: 700, marginTop: 2 }}>{ad}</span>
-            <span style={{ display: 'block', fontSize: 13, color: '#5A6073', marginTop: 4 }}>{alt}</span>
-          </div>
-        ))}
+        ].map(([n, renk, ad, alt, hedef]) => {
+          const ic = (
+            <>
+              <span style={{ display: 'block', fontSize: 30, fontWeight: 800, color: renk }}>{n}</span>
+              <span style={{ display: 'block', fontSize: 15, fontWeight: 700, marginTop: 2 }}>{ad}</span>
+              <span style={{ display: 'block', fontSize: 13, color: '#5A6073', marginTop: 4 }}>{alt}</span>
+            </>
+          );
+          return hedef ? (
+            <button
+              key={ad}
+              type="button"
+              onClick={() => git(hedef as Gorunum)}
+              style={{ ...kart, padding: 18, textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              {ic}
+            </button>
+          ) : (
+            <div key={ad} style={{ ...kart, padding: 18 }}>
+              {ic}
+            </div>
+          );
+        })}
       </div>
 
       <section style={{ ...kart, borderRadius: 18, padding: 20, marginTop: 16 }} aria-labelledby="profil">
