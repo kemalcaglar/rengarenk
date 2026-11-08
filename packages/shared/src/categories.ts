@@ -1,4 +1,7 @@
-/** Vasıta kategorileri (Karar 19). Sıra ana sayfa ve menüdeki sıradır. */
+/**
+ * Vasıta kategorileri (Karar 19): katalog ataması ve ilk kurulumun sırası. Kategoriler canlıda konsoldan yönetilir
+ * (Karar 45); web ve mobil menüyü `GET /categories` ile okur, API'ye ulaşılamazsa bu listeyi gösterir.
+ */
 export const VEHICLE_CATEGORIES = [
   { slug: 'otomobil', name: 'Otomobil', listingDays: 30 },
   { slug: 'arazi-suv-pickup', name: 'Arazi, SUV & Pickup', listingDays: 30 },

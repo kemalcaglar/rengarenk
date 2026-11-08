@@ -1,8 +1,9 @@
-import { colors, dotColor, VEHICLE_CATEGORIES } from '@rengarenk/shared';
+import { colors, DOTS } from '@rengarenk/shared';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Linking, Modal, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useKategoriler } from '../lib/kategoriler';
 import { basHarf, useOturum } from '../lib/oturum';
 import { Ikon } from './ikon';
 import { Logo } from './logo';
@@ -27,6 +28,7 @@ const baslik = {
 export function MenuCekmecesi({ acik, kapat }: { acik: boolean; kapat: () => void }) {
   const { durum, me } = useOturum();
   const [vasita, setVasita] = useState(true);
+  const kategoriler = useKategoriler().filter((c) => c.vertical === 'vasita');
   const git = (yol: '/giris' | '/(sekmeler)/hesabim') => {
     kapat();
     router.push(yol);
@@ -156,7 +158,7 @@ export function MenuCekmecesi({ acik, kapat }: { acik: boolean; kapat: () => voi
               >
                 <T style={{ fontSize: 14.5, fontWeight: '800' }}>Tüm vasıta talepleri</T>
               </View>
-              {VEHICLE_CATEGORIES.map((c, i) => (
+              {kategoriler.map((c, i) => (
                 <View
                   key={c.slug}
                   style={{
@@ -172,12 +174,14 @@ export function MenuCekmecesi({ acik, kapat }: { acik: boolean; kapat: () => voi
                       width: 30,
                       height: 30,
                       borderRadius: 9,
-                      backgroundColor: TINTS[i % TINTS.length],
+                      // Kare, noktanın renginin açık tonu (DOTS ile TINTS aynı sırada)
+                      backgroundColor:
+                        TINTS[(DOTS as readonly string[]).indexOf(c.color)] ?? TINTS[i % TINTS.length],
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
                   >
-                    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: dotColor(i) }} />
+                    <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: c.color }} />
                   </View>
                   <T style={{ flex: 1, fontSize: 14.5, fontWeight: '600' }}>{c.name}</T>
                 </View>

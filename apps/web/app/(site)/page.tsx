@@ -1,5 +1,6 @@
-import { colors, dotColor, tints, VEHICLE_CATEGORIES } from '@rengarenk/shared';
+import { colors, tints } from '@rengarenk/shared';
 import Link from 'next/link';
+import { getCategories } from '../../lib/kategoriler';
 
 /** Yakında açılacak ana kategoriler (tasarım: kenar çubuğunun alt bölümü) */
 const YAKINDA = ['Emlak', 'İkinci el alışveriş'];
@@ -16,7 +17,8 @@ const card = { background: colors.surface, border: `1px solid ${colors.line}` } 
  * Ana sayfa, ziyaretçi görünümü (tasarım: Anasayfa.dc.html, gorunum = Ziyaretçi). Vitrin ve son talepler bölümleri
  * talep modülüyle (Aşama 3) gelir; o zamana kadar gösterilmez. Galeri görünümü kurumsal hesaplarla gelir.
  */
-export default function Home() {
+export default async function Home() {
+  const kategoriler = (await getCategories()).filter((c) => c.vertical === 'vasita');
   return (
     <main
       style={{
@@ -54,7 +56,7 @@ export default function Home() {
         </h2>
         <span style={{ display: 'block', padding: '10px 8px', fontSize: 15.5, fontWeight: 800 }}>Vasıta</span>
         <ul style={{ listStyle: 'none', margin: '0 0 8px', padding: 0 }}>
-          {VEHICLE_CATEGORIES.map((c, i) => (
+          {kategoriler.map((c) => (
             <li key={c.slug}>
               <Link
                 href={`/kategori/${c.slug}`}
@@ -72,7 +74,7 @@ export default function Home() {
                 }}
               >
                 <span
-                  style={{ width: 9, height: 9, borderRadius: '50%', background: dotColor(i), flex: 'none' }}
+                  style={{ width: 9, height: 9, borderRadius: '50%', background: c.color, flex: 'none' }}
                   aria-hidden="true"
                 />
                 {c.name}

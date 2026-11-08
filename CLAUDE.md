@@ -130,7 +130,13 @@ pnpm format        # Biome ile biçimlendir
 - **EEA bekliyor (sahip kararı, 8 Kasım 2026: EEA'dan erişim istenecek):** Discodata ağ geçidi sütun seçen,
   toplulaştıran ve birden çok koşullu sorguları 403 ile reddediyor; ayrı toplu dosya yok. Engeli dolanmaya
   çalışma. Erişim biçimi (toplu dosya ya da sorgu izni) gelince hat yazılacak.
-- **Sıradaki:** Sprint 7: 14 kategori şeması (Karar 45). Sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS. Liste:
+- **Sprint 7 (8 Kasım 2026) bitti:** kategori ağacı ve sürümlü şema (`packages/shared/src/category-schema.ts`,
+  başlangıç tanımları `category-defaults.ts`, API `apps/api/src/categories/`), konsolda Katalog › Kategoriler ve alanlar,
+  Eşleştirme ayarı. Kurallar ve ağırlıklar sürümün içinde; yayın dört göz onayıyla (CATEGORY_SCHEMA), işçi yayına alır.
+  Kilit: RR030–RR033. `category-defaults.ts` yalnızca ilk kurulumu etkiler; var olan kategori konsoldan değişir.
+  Web ana sayfası ve mobil menü `GET /categories` okur. API'de 88, ortak pakette 33 test.
+- **Sıradaki:** Aşama 3 (Talep): talep sihirbazı web ve mobil (`Sihirbaz*.dc.html`, şema `demandSchema` ile), yaşam
+  döngüsü, liste ve arama, talep detayı. Sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS. Liste:
   `docs/kapsam/03-gelistirme-plani.md` sonundaki sprint bölümleri. Bir sprint bitince oradaki kutuları
   işaretle ve README'deki "Şu an neler var" bölümünü güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google

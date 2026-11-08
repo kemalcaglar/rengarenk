@@ -156,6 +156,23 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   Nesil fotoğrafları. Seçilen dosya SeaweedFS'e (`S3_*` ayarları) kopyalanır, `GET /catalog/images/:id` ile sunulur;
   atfı seri ayrıntısında `photo.caption`.
 
+## Kategoriler ve alanlar (Sprint 7)
+
+- **Ağaç (Karar 19, 23):** 14 vasıta kategorisi ve Ticari Araçlar'ın alt kategorileri ilk açılışta 1. sürümle yayına
+  girer (`packages/shared/src/category-defaults.ts`). Ticari Hat & Plaka avukat görüşüne kadar kapalı. Kategori
+  silinmez, kapatılır. Emlak ve İkinci el aynı yapıyla taslak olarak eklenir, yayına girene kadar kapalı kalır.
+- **Şema (Karar 45):** taban şema (konum, bütçe, açıklama) kodda ve kilitli; her kategori kendi alanlarını, kurallarını
+  (yayın süresi, tarife, yasal uyarı, galeri doğrulamaları, katalog kaynağı, ücretsiz ilk mesaj) ve eşleştirme
+  ağırlıklarını sürümünde taşır. Talep doğrulayıcı ortak pakette (`demandSchema`); web, mobil ve API aynısını kullanır.
+- **Yayın:** konsol › Katalog › Kategoriler ve alanlar'da değişiklik taslağa yazılır, web ve mobil önizlemesiyle
+  kontrol edilir, "Yayına gönder" dört göz onayı ister (CATEGORY_SCHEMA; sahip veya yönetici onaylar). Onaylanan
+  sürümü işçi yayına alır. Eski sürüme "Bu sürüme dön" ile yeni bir taslak açılır. Veritabanı kilidi: yayındaki sürüm
+  değişmez ve silinmez, onaysız yayına girmez (RR030–RR033).
+- **Uçlar:** `GET /categories` (menü), `GET /categories/:slug/schema?surum=` (alanlar, kurallar, JSON Schema). Web ana
+  sayfası ve mobil menü kategorileri buradan okur; API'ye ulaşılamazsa ilk kurulumdaki listeyi gösterir.
+- **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
+  `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
+
 ## Canlıya alma
 
 Ayrıntılı el kitabı ve bu bilgisayarda canlı provası: [deploy/README.md](deploy/README.md).

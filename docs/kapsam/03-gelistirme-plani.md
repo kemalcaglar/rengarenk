@@ -120,7 +120,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Kasa kuşağı ve makyaj yılları → Sprint 6
 - [x] Ad eşleme → Sprint 6
 - [ ] Açık kaynaklar: EEA teknik değerleri, VehiclesDB (motosiklet, kamyon, otobüs), Commons fotoğrafları (Sprint 6)
-- [ ] 14 kategori şeması ve kategori yönetimi (Karar 45) (Sprint 7)
+- [x] 14 kategori şeması ve kategori yönetimi (Karar 45) → Sprint 7
 
 ## Sprint 6 · kasa kuşağı, nesil kodu, ad eşleme (8 Kasım 2026'da başladı)
 
@@ -137,6 +137,39 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] İçe aktarma tek veritabanı işleminde (katalog, kayıt, işlem kaydı, olay) ve kaynak başına kilitli
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
+
+## Sprint 7 · 14 kategori şeması ve kategori yönetimi (8 Kasım 2026)
+
+- [x] Kategori ağacı: 14 vasıta kategorisi (Karar 19) ve Ticari Araçlar'ın alt kategorileri (Kamyon & Çekici, Kamyonet,
+  Otobüs, Minibüs & Midibüs, Dorse & Römork, Karoser & Üst Yapı, Oto Kurtarıcı & Taşıyıcı, Ticari Hat & Plaka).
+  Ticari Hat & Plaka kapalı (Karar 19). Kategori silinmez, kapatılır; sıra ve nokta rengi konsoldan
+- [x] Kategori şeması: taban şema (konum, bütçe, açıklama; kilitli) ve her kategorinin alanları
+  `docs/kapsam/04-kategori-semalari.md`, sihirbaz tasarımı ve konsol tasarımındaki örneklerden. Alan tipleri: seçim,
+  çoklu seçim, aralık, sayı, evet/hayır, metin; sistem tipleri: katalog seçimi, konum, boya ve değişen şeması (13 parça),
+  tarih aralığı. Koşullu alanlar (ör. pickup kabini yalnızca pickup seçilince, çekme karavanda km yok)
+- [x] Talep doğrulayıcı ve JSON Schema ortak pakette: ana araç ve talep alanları bir kez, bütçe ve kriterler her
+  alternatifte (Karar 05, en çok 5 alternatif)
+- [x] Sürüm ve yayın: taslak → web/mobil önizleme → dört göz onayı (CATEGORY_SCHEMA, sahip veya yönetici) → işçi yayına
+  alır; eski sürüme yeni taslakla dönülür; talepler oluşturuldukları sürümle okunur (`?surum=`). Veritabanı kilidi:
+  yayındaki sürüm değişmez, silinmez, onaysız yayına girmez (RR030–RR033)
+- [x] Kategori kuralları sürümün içinde: yayın süresi (Hava 90 gün, Kiralık alış tarihine kadar), fiyat tarifesi, yasal
+  uyarı metni, galeri için zorunlu doğrulama, katalog kaynağı, bireysel günlük ücretsiz ilk mesaj, bildirim eşiği
+- [x] Eşleştirme ayarı: ağırlıklar şemanın parçası (tasarımdaki Sürümler ağırlık değişikliğini de sürüm sayıyor),
+  ikişer adımla; skor işlevi ortak pakette (Teknik tasarım §6 uyum kuralları)
+- [x] Konsol: Katalog › Kategoriler ve alanlar, Eşleştirme ayarı; Onay kuyruğunda "Kategori şeması" türü
+- [x] Web ana sayfası ve mobil menü kategorileri `GET /categories`'ten (konsolda kapatılan kategori menüden kalkar)
+- [ ] Deneme alanı: talep (Aşama 3) ve portföy (Aşama 4) gelince; skor işlevi hazır
+- [ ] Arama eşlemesi: "filtrede" alanların OpenSearch'e eklenmesi talep aramasıyla (Aşama 3); `kategori.yayinlandi`
+  olayı yazılıyor
+- [ ] Aktif talep sayıları ağaçta: talep modülüyle (şimdilik 0)
+- Tasarımdan farklar: konsol tasarımındaki ağaçta "ATV & UTV" tek satır, Karar 19 ve sihirbaz tasarımında ayrı; ayrı
+  tutuldu. Ticari Hat & Plaka tasarımda en altta ana kategori gibi duruyor, 04 dokümanında Ticari'nin alt kategorisi;
+  alt kategori yapıldı. Ticari'de 04 dokümanındaki Dorse & Römork, Karoser & Üst Yapı ve Oto Kurtarıcı & Taşıyıcı da
+  eklendi. Tasarımdaki "Elif Kara'nın onayında" yerine onay belirli kişiye atanmadığı için "Sahip veya yönetici
+  onayında" yazıyor. Önizleme 3. adımı (Kriterler) gösteriyor; ana araç 2. adımda
+- Tasarımda olmayıp eklenenler: ağaçta sıra (↑ ↓) ve nokta rengi (Karar 45 "sıralama, simge ve renk"), alan adına
+  tıklayınca düzenleme ve "Alanı kaldır", seçim alanında seçenekler ve sayı alanında birim kutusu, "Taslağı sil",
+  Eşleştirme ayarında kategori seçimi
 
 ## Tasarım uyum geçişi (8 Kasım 2026, Sprint 7 öncesi)
 

@@ -37,6 +37,14 @@ export const AUDIT_ACTIONS: Record<string, string> = {
   katalog_ad_esleme_reddedildi: 'Ad eşleme reddedildi',
   katalog_fotograf_secildi: 'Nesil fotoğrafı seçildi',
   katalog_fotograf_elendi: 'Nesil fotoğrafı elendi',
+  kategori_tanimlandi: 'Kategori tanımlandı',
+  kategori_eklendi: 'Kategori eklendi',
+  kategori_guncellendi: 'Kategori güncellendi',
+  kategori_taslak_kaydedildi: 'Kategori taslağı kaydedildi',
+  kategori_taslak_silindi: 'Kategori taslağı silindi',
+  kategori_surume_donuldu: 'Eski sürüm taslağa alındı',
+  kategori_yayina_gonderildi: 'Kategori şeması onaya gönderildi',
+  kategori_yayinlandi: 'Kategori şeması yayınlandı',
 };
 
 /** Aranan metnin geçtiği işlem adları (Türkçe büyük-küçük harf duyarsız) */

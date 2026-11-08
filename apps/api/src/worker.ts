@@ -6,6 +6,7 @@ import { ApprovalExecutor } from './approvals/approval-executor.js';
 import { ApprovalsModule } from './approvals/approvals.module.js';
 import { CatalogPipelineModule } from './catalog/catalog.module.js';
 import { CatalogPipelineService } from './catalog/catalog-pipeline.service.js';
+import { CategoriesWorkerModule } from './categories/categories.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { type Db, PRISMA } from './database/prisma.js';
 import { OutboxService } from './outbox/outbox.service.js';
@@ -14,12 +15,12 @@ import { StorageModule } from './storage/storage.service.js';
 
 /**
  * Arka plan işçisi: API ile aynı kod tabanı, ayrı süreç (Teknik tasarım §2).
- * Outbox aktarıcısı, onaylanan isteklerin yürütülmesi ve süre dolumları. Eşleştirme ve bildirim
+ * Outbox aktarıcısı, onaylanan isteklerin yürütülmesi (ör. kategori şemasının yayına alınması) ve süre dolumları. Eşleştirme ve bildirim
  * sonraki sprintlerde eklenir. İade yürütücü ayrı bir süreç olacak ve PayTR iade anahtarı yalnızca
  * orada bulunacak (kilit 2); bu işçi iade yürütmez.
  */
 @Module({
-  imports: [DatabaseModule, StorageModule, ApprovalsModule, CatalogPipelineModule],
+  imports: [DatabaseModule, StorageModule, ApprovalsModule, CatalogPipelineModule, CategoriesWorkerModule],
   providers: [OutboxService, QueueService],
 })
 class WorkerModule {}

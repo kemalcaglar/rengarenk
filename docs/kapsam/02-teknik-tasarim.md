@@ -62,7 +62,7 @@ Her modülün PostgreSQL'de kendi şeması vardır. Ana tablolar:
 | Kimlik ve hesap | users, accounts, account\_members, devices, sessions | Bir telefon numarasına bir bireysel hesap; galeri hesabına paket sınırı kadar çalışan eklenir |
 | Yetki | roles, permissions, staff\_members, approvals, audit\_log | İşlem kaydı yalnızca ekleme, aylık bölümlenir, 2 yıl saklanır |
 | Katalog | makes, series, models, generations, facelifts, trims, trim\_specs, catalog\_aliases | Her kaydın kaynak kimliği saklanır; güncelleme farkla işlenir |
-| Kategori | categories, category\_schema\_versions, category\_rules, matching\_configs | Sürümlü; yayındaki sürüm işaretli (Karar 45) |
+| Kategori | categories, category\_schema\_versions | Sürümlü; yayındaki sürüm işaretli (Karar 45). Kategori kuralları ve eşleştirme ağırlıkları sürümün tanımındadır (ayrı category\_rules ve matching\_configs tablosu yok): tasarımdaki Sürümler ağırlık değişikliğini de sürüm sayar, talep ve eşleşme tek sürüm numarası taşır |
 | Talep | demands, demand\_photos, demand\_events | Talep, oluşturulduğu şema sürümünü taşır; sık filtrelenen alanlar ayrı kolon, geri kalanı JSONB |
 | Portföy | portfolio\_vehicles, vehicle\_photos, eids\_checks |  |
 | Eşleşme | matches | Skor ve hesaplandığı ayar sürümü birlikte saklanır |
@@ -97,7 +97,7 @@ create table entitlement_ledger (
 
 ## 5. Kategori şeması ve katalog hattı
 
-- **Şema:** her kategori sürümü bir JSON Schema ve arayüz ipuçlarından (sihirbaz adımı, bileşen tipi) oluşur; taban şema her kategoriye eklenir. Web, mobil ve API aynı şemayla doğrular; doğrulama kodu ortak pakettedir.
+- **Şema:** her kategori sürümü alan tanımları (tip, zorunluluk, filtre, eşleşme, sihirbaz adımı, talep ya da alternatif kapsamı, koşul), kurallar ve ağırlıklardan oluşur; taban şema (konum, bütçe, açıklama) koddadır ve her kategoriye eklenir. Doğrulayıcı ve JSON Schema bu tanımdan üretilir (`packages/shared/src/category-schema.ts`); web, mobil ve API aynısıyla doğrular. Veritabanı kilidi yayındaki sürümü değiştirmeye, silmeye ve onaysız yayına almaya izin vermez (RR030–RR033).
 - **Yayın:** taslak → önizleme → dört göz onayı → yayında. Talep o anki sürümle kaydedilir; eski talepler eski sürümle okunur (Karar 45).
 - **Arama:** şemada "filtrede" işaretli alanlar OpenSearch eşlemesine kendiliğinden eklenir; yeni alan için yeniden indeksleme arka planda yapılır.
 - **Katalog hattı (GCP, kişisel veri yok):** Cloud Run işleri ana kaynak olan TSB listesini ayda bir, VehiclesDB'yi ayda bir, Wikidata ve vehicle-makes-models'ı haftada bir, AB Çevre Ajansı veri setini yayınlandıkça, motodb'yi haftada bir çeker. Adımlar: indir → normalize et → önceki sürümle karşılaştır → kalite kontrolü (kaybolan model, olağandışı değişim) → imzalı paket olarak Radore'ye yayınla. Kontrol geçmezse yayın durur ve ajan bildirir.

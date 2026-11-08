@@ -27,7 +27,10 @@ export type EventType =
   | 'katalog.guncellendi'
   | 'katalog.reddedildi'
   | 'katalog.kaynak_gecikti'
-  | 'katalog.ad_esleme';
+  | 'katalog.ad_esleme'
+  // Kategori şeması (Karar 45): yeni sürüm yayına girdi; arama eşlemesi ve önbellekler yenilenir
+  | 'kategori.yayinlandi'
+  | 'kategori.degisti';
 
 @Injectable()
 export class OutboxService {

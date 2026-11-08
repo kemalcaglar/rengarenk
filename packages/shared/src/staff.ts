@@ -134,6 +134,7 @@ export const APPROVAL_KINDS = [
   'COUPON',
   'PERMANENT_BAN',
   'ACCOUNT_DELETE',
+  'CATEGORY_SCHEMA',
 ] as const;
 export type ApprovalKindKey = (typeof APPROVAL_KINDS)[number];
 
@@ -182,6 +183,12 @@ export const APPROVAL_POLICIES: Record<ApprovalKindKey, ApprovalPolicy> = {
     permission: 'kvkk.yanitla',
     approvers: ['OWNER', 'ADMIN'],
     kural: 'Hesap silme sahip veya yönetici onayı ister.',
+  },
+  CATEGORY_SCHEMA: {
+    ad: 'Kategori şeması',
+    permission: 'kategori.ayarla',
+    approvers: ['OWNER', 'ADMIN'],
+    kural: 'Kategori ve alan değişikliği dört göz onayıyla yayınlanır (Karar 45).',
   },
 };
 

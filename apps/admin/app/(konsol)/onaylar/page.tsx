@@ -32,6 +32,8 @@ const KIND: Record<string, { tur?: string; bg: string; fg: string; onay: string 
   PERMANENT_BAN: { bg: '#FFF6DF', fg: '#7A5300', onay: 'Engellemeyi onayla' },
   PRICE_CHANGE: { bg: '#E7FAF0', fg: '#11683F', onay: 'Değişikliği onayla' },
   ACCOUNT_DELETE: { bg: '#FDECEC', fg: '#A3271F', onay: 'Silmeyi onayla' },
+  // Tasarımdaki kuyrukta yok; kategori ekranı onayı buraya düşürür (YonetimIcerik: "onayında · dört göz")
+  CATEGORY_SCHEMA: { bg: '#EEF3FF', fg: '#2450C8', onay: 'Yayını onayla' },
 };
 
 const SONUC: Record<Exclude<ApprovalRow['status'], 'PENDING'>, [string, string]> = {
