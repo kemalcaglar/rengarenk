@@ -99,6 +99,7 @@ model Account {
   ledger              EntitlementLedger[]
   demands             Demand[]
   gallery             Gallery?
+  subscription        Subscription?
   invites             AccountInvite[]
   vehicles            PortfolioVehicle[]
   apiKeys             ApiKey[]
@@ -1496,41 +1497,47 @@ enum OrderStatus {
 /// Sipariş (Karar 12.8, 31, 39): sepet, fatura bilgileri, ödeme onayları ve doldurulmuş ön bilgilendirme formu.
 /// Ödeme ve fatura kayıtları vergi mevzuatı gereği 10 yıl saklanır (Karar 59); sipariş silinmez.
 model Order {
-  id         String      @id @db.Uuid
+  id             String      @id @db.Uuid
   /// Kullanıcıya ve ödeme kuruluşuna giden sipariş no (merchant_oid; harf ve rakam)
-  no         String      @unique
-  accountId  String      @map("account_id") @db.Uuid
-  userId     String      @map("user_id") @db.Uuid
+  no             String      @unique
+  accountId      String      @map("account_id") @db.Uuid
+  userId         String      @map("user_id") @db.Uuid
   /// web | ios | android
-  channel    String
-  status     OrderStatus @default(PENDING)
+  channel        String
+  status         OrderStatus @default(PENDING)
   /// Kalemler: ürün, ad, birim fiyat (kuruş), adet, talep (öne çıkarmada)
-  items      Json
-  totalKurus BigInt      @map("total_kurus")
-  vatKurus   BigInt      @map("vat_kurus")
+  items          Json
+  totalKurus     BigInt      @map("total_kurus")
+  vatKurus       BigInt      @map("vat_kurus")
   /// @pii Fatura bilgileri: ad soyad, e-posta, il, ilçe, kurumsal fatura
-  billing    Json
+  billing        Json
   /// Ödeme ekranındaki onaylar ve metin sürümleri (Karar 39)
-  consents   Json
+  consents       Json
   /// Siparişe göre doldurulmuş ön bilgilendirme formu (3 yıl saklanır)
-  preInfo    String      @map("pre_info")
+  preInfo        String      @map("pre_info")
+  /// urun (bireysel ve galeri ek paketleri) | abonelik | yukseltme | yenileme (Karar 12.2, 12.7)
+  kind           String      @default("urun")
+  subscriptionId String?     @map("subscription_id") @db.Uuid
   /// paytr | fake
-  provider   String
+  provider       String
   /// @pii Ödeme kuruluşuna giden müşteri IP'si
-  userIp     String?     @map("user_ip")
-  failReason String?     @map("fail_reason")
-  paidAt     DateTime?   @map("paid_at") @db.Timestamptz(3)
-  createdAt  DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt  DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
+  userIp         String?     @map("user_ip")
+  failReason     String?     @map("fail_reason")
+  paidAt         DateTime?   @map("paid_at") @db.Timestamptz(3)
+  createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  account    Account           @relation(fields: [accountId], references: [id])
-  user       User              @relation(fields: [userId], references: [id])
-  payments   Payment[]
-  invoice    Invoice?
-  promotions DemandPromotion[]
+  account      Account           @relation(fields: [accountId], references: [id])
+  user         User              @relation(fields: [userId], references: [id])
+  payments     Payment[]
+  invoice      Invoice?
+  promotions   DemandPromotion[]
+  subscription Subscription?     @relation(fields: [subscriptionId], references: [id])
 
   @@index([userId, createdAt])
   @@index([status, createdAt])
+  @@index([accountId, createdAt])
+  @@index([subscriptionId, createdAt])
   @@map("orders")
 }
 
@@ -1603,4 +1610,60 @@ model DemandPromotion {
   @@index([demandId, kind, endsAt])
   @@index([kind, endsAt])
   @@map("demand_promotions")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  /// Yenileme ödemesi alınamadı; 3 gün yeniden denenir, özellikler açık kalır
+  PAST_DUE
+  /// İptal edildi (dönem sonu) ya da ödeme alınamadığı için askıya alındı
+  ENDED
+}
+
+/// Galeri aboneliği (Karar 12.2, 12.3, 12.7, 39; Teknik tasarım §7): galeri başına tek satır, her dönem bir sipariş.
+/// Kart bilgisi Rengarenk'te yoktur: ödeme kuruluşunun kullanıcı anahtarı (PayTR utoken) şifreli saklanır.
+model Subscription {
+  id                 String             @id @db.Uuid
+  accountId          String             @unique @map("account_id") @db.Uuid
+  /// Aboneliği başlatan ve kartı kaydeden kullanıcı (galeri sahibi)
+  userId             String             @map("user_id") @db.Uuid
+  /// baslangic | profesyonel | kurumsal
+  plan               String
+  /// aylik | yillik
+  period             String
+  status             SubscriptionStatus @default(ACTIVE)
+  /// Dönemin KDV hariç fiyatı (kuruş); yıllık ödemede dönem sonuna kadar sabit
+  priceKurus         BigInt             @map("price_kurus")
+  currentPeriodStart DateTime           @map("current_period_start") @db.Timestamptz(3)
+  currentPeriodEnd   DateTime           @map("current_period_end") @db.Timestamptz(3)
+  /// Aylık hak döngüsü (yıllık ödemede de haklar her ay yenilenir, devretmez); sıra hiç sıfırlanmaz
+  quotaCycleStart    DateTime           @map("quota_cycle_start") @db.Timestamptz(3)
+  quotaCycleNo       Int                @default(0) @map("quota_cycle_no")
+  cancelAtPeriodEnd  Boolean            @default(false) @map("cancel_at_period_end")
+  cancelRequestedAt  DateTime?          @map("cancel_requested_at") @db.Timestamptz(3)
+  /// Sonraki dönemde geçilecek paket ve ödeme dönemi (alt paket ya da aylık/yıllık değişikliği)
+  nextPlan           String?            @map("next_plan")
+  nextPeriod         String?            @map("next_period")
+  /// Ödeme kuruluşundaki kart anahtarı, şifreli (SecretBox)
+  cardToken          String?            @map("card_token")
+  /// "VISA •••• 4242"
+  cardLabel          String?            @map("card_label")
+  /// @pii Faturanın gönderileceği e-posta
+  billingEmail       String             @map("billing_email")
+  /// Art arda başarısız yenileme sayısı ve sonraki deneme
+  failCount          Int                @default(0) @map("fail_count")
+  nextRetryAt        DateTime?          @map("next_retry_at") @db.Timestamptz(3)
+  /// Yenileme hatırlatmasının gönderildiği dönem sonu
+  remindedFor        DateTime?          @map("reminded_for") @db.Timestamptz(3)
+  endedAt            DateTime?          @map("ended_at") @db.Timestamptz(3)
+  /// iptal | odeme_alinamadi
+  endReason          String?            @map("end_reason")
+  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  account Account @relation(fields: [accountId], references: [id])
+  orders  Order[]
+
+  @@index([status, currentPeriodEnd])
+  @@map("subscriptions")
 }

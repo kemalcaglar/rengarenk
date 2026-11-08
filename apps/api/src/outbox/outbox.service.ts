@@ -18,6 +18,16 @@ export type EventType =
   | 'odeme.alindi'
   // Ödenen tutar siparişle uyuşmuyor: hak tanımlanmadı, inceleme (sahip)
   | 'odeme.uyusmazlik'
+  // Galeri abonelikleri (Karar 12.2, 12.7, 39): bildirim katmanı galeri sahibine iletir (Aşama 7)
+  | 'abonelik.basladi'
+  | 'abonelik.degisti'
+  | 'abonelik.yenilendi'
+  | 'abonelik.yenileme_yaklasti'
+  | 'abonelik.odeme_basarisiz'
+  | 'abonelik.iptal_edildi'
+  | 'abonelik.bitti'
+  | 'abonelik.kart_kaydedildi'
+  | 'abonelik.bildirim_gelmedi'
   | 'iade.onaylandi'
   // Yönetim (Karar 40): bildirim katmanı bunları sahibe iletir.
   | 'calisan.giris'

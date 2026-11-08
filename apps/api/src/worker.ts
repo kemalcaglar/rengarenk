@@ -19,6 +19,7 @@ import { MatchingService } from './matching/matching.service.js';
 import { OutboxService } from './outbox/outbox.service.js';
 import { OrdersService } from './payments/orders.service.js';
 import { PaymentsWorkerModule } from './payments/payments.module.js';
+import { SubscriptionsService } from './payments/subscriptions.service.js';
 import { PortfolioWorkerModule } from './portfolio/portfolio.module.js';
 import { PortfolioService } from './portfolio/portfolio.service.js';
 import { QueueService } from './queue/queue.service.js';
@@ -68,6 +69,7 @@ const portfolio = app.get(PortfolioService);
 const matching = app.get(MatchingService);
 const trust = app.get(TrustService);
 const orders = app.get(OrdersService);
+const subscriptions = app.get(SubscriptionsService);
 await queue.start();
 
 await queue.consume<{ approvalId: string }>('onay.onaylandi', 'onay-yurut', async ({ approvalId }) => {
@@ -127,6 +129,10 @@ for (const event of ['portfoy.yayinlandi', 'portfoy.guncellendi', 'portfoy.kalkt
 await queue.consume<{ orderId: string }>('odeme.alindi', 'odeme-fatura', ({ orderId }) =>
   orders.issueInvoice(orderId),
 );
+// Abonelik kartı kaydedildi: kartın gösterim adı ödeme kuruluşundan alınır
+await queue.consume<{ accountId: string }>('abonelik.kart_kaydedildi', 'abonelik-kart', ({ accountId }) =>
+  subscriptions.refreshCard(accountId),
+);
 // Açılışta ve her gece indeks veritabanıyla eşitlenir (artakalan kayıt kalmaz)
 const REINDEX_MS = 24 * 3600_000;
 let lastReindex = 0;
@@ -162,6 +168,16 @@ while (!stopping) {
       // Ödemeler: bekleyen e-Arşiv faturaları yeniden denenir, süresi geçen ödenmemiş siparişler iptal sayılır
       const od = await orders.housekeeping();
       if (od.iptal) log.log(`ödemeler: ${od.iptal} sipariş süresi doldu`);
+      if (od.sessiz) log.warn(`ödemeler: ${od.sessiz} otomatik çekimin bildirimi gelmedi`);
+      // Galeri abonelikleri (Karar 12.2, 12.7): dönem sonu yenileme ve yeniden deneme, hatırlatma, aylık hak döngüsü
+      const ab = await subscriptions.renewDue();
+      const abHat = await subscriptions.remindDue();
+      const abDongu = await subscriptions.cycleDue();
+      if (ab.yenilenen || ab.biten || ab.basarisiz || abHat || abDongu) {
+        log.log(
+          `abonelikler: ${ab.yenilenen} yenileme, ${ab.basarisiz} başarısız, ${ab.biten} bitti, ${abHat} hatırlatma, ${abDongu} hak döngüsü`,
+        );
+      }
       // Yarım kalmış yönetim girişi adımları bir gün sonra silinir.
       await db.staffLoginChallenge.deleteMany({
         where: { expiresAt: { lt: new Date(Date.now() - 86_400_000) } },

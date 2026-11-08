@@ -13,10 +13,11 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
-import { API, binlik, istek, useGiris } from '../../lib/istemci';
+import { API, istek, useGiris } from '../../lib/istemci';
 import { AracFormu } from './arac-formu';
 import { Eslesmeler, type EslesmeVerisi } from './eslesmeler';
 import { Guven, type GuvenVerisi } from './guven';
+import { Paket } from './paket';
 import { Portfoy, type PortfoyListesi, TopluYukleme } from './portfoy';
 
 interface Panel {
@@ -528,7 +529,9 @@ export function GaleriPaneli() {
             )
           ) : null}
           {p && gorunum === 'ekip' ? <Ekip p={p} islem={islem} /> : null}
-          {p && gorunum === 'paket' ? <Paket p={p} /> : null}
+          {p && gorunum === 'paket' ? (
+            <Paket accountId={p.accountId} onDegisti={() => yukle().catch(() => undefined)} />
+          ) : null}
         </main>
       </div>
     </div>
@@ -561,6 +564,9 @@ function Ozet({
   const [hakkinda, setHakkinda] = useState(p.galeri.hakkinda ?? '');
   const [saatler, setSaatler] = useState(p.galeri.calismaSaatleri ?? '');
   const deneme = p.paket.key === 'deneme';
+  const plan = GALLERY_PLANS[p.paket.key as keyof typeof GALLERY_PLANS] as
+    | (typeof GALLERY_PLANS)[keyof typeof GALLERY_PLANS]
+    | undefined;
   const kotalar = [
     {
       label: 'Portföy',
@@ -580,15 +586,13 @@ function Ozet({
     {
       label: deneme ? 'Deneme talep hakkı' : 'Bu ay açılan talep',
       value: 0,
-      max: String(
-        deneme ? GALLERY_TRIAL.talep : GALLERY_PLANS[p.paket.key as keyof typeof GALLERY_PLANS].aylikTalep,
-      ),
+      max: String(deneme ? GALLERY_TRIAL.talep : (plan?.aylikTalep ?? 0)),
       not: 'Galerinin kendi araç arayışları için',
     },
     {
       label: 'Öne çıkarma',
       value: 0,
-      max: String(deneme ? 0 : GALLERY_PLANS[p.paket.key as keyof typeof GALLERY_PLANS].oneCikarma),
+      max: String(plan?.oneCikarma ?? 0),
       not: deneme ? 'Denemede öne çıkarma yok' : 'Bu ay kullanılabilir',
     },
   ];
@@ -599,7 +603,9 @@ function Ozet({
       <p style={{ margin: '0 0 20px', fontSize: 14.5, color: '#5A6073' }}>
         {deneme
           ? `Ücretsiz deneme · ${p.paket.denemeKalanGun} gün kaldı (bitiş ${tarih(p.paket.denemeBitis)})`
-          : `${p.paket.ad} paket`}
+          : plan
+            ? `${p.paket.ad} paket`
+            : 'Paket yok'}
       </p>
       {p.paket.saltOkunur ? (
         <p
@@ -614,7 +620,23 @@ function Ozet({
             fontWeight: 600,
           }}
         >
-          Deneme süren bitti. Paket seçene kadar yalnızca portföyünü görüntüleyebilirsin.
+          {deneme ? 'Deneme süren bitti.' : 'Paketin sona erdi.'} Paket seçene kadar yalnızca portföyünü
+          görüntüleyebilirsin.{' '}
+          <button
+            type="button"
+            onClick={() => git('paket')}
+            style={{
+              border: 0,
+              background: 'none',
+              padding: 0,
+              font: 'inherit',
+              fontWeight: 800,
+              color: '#2450C8',
+              cursor: 'pointer',
+            }}
+          >
+            Paket seç
+          </button>
         </p>
       ) : null}
       <div className="rr-dort-sutun">
@@ -1086,123 +1108,6 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
           Paketindeki kullanıcı sınırına ulaştın. Daha büyük bir pakete geçince yeni çalışan ekleyebilirsin.
         </p>
       ) : null}
-    </>
-  );
-}
-
-function Paket({ p }: { p: Panel }) {
-  const deneme = p.paket.key === 'deneme';
-  const plan = deneme ? null : GALLERY_PLANS[p.paket.key as keyof typeof GALLERY_PLANS];
-  return (
-    <>
-      <h1 style={{ margin: '0 0 18px', fontSize: 26, fontWeight: 800 }}>Paket ve faturalar</h1>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
-        <section
-          aria-labelledby="pk"
-          style={{
-            flex: '2 1 380px',
-            minWidth: 0,
-            background: '#FFFFFF',
-            border: '2px solid #5B8CFF',
-            borderRadius: 18,
-            padding: 22,
-          }}
-        >
-          <span style={{ fontSize: 12.5, fontWeight: 800, color: '#2450C8' }}>Mevcut paket</span>
-          <h2 id="pk" style={{ margin: '4px 0 2px', fontSize: 24, fontWeight: 800 }}>
-            {deneme ? 'Ücretsiz deneme' : plan?.ad}
-          </h2>
-          <p style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>
-            {deneme ? `${p.paket.denemeKalanGun} gün kaldı` : `${binlik(plan?.aylik)} TL / ay`}{' '}
-            <span style={{ fontSize: 13, color: '#5A6073', fontWeight: 500 }}>
-              {deneme
-                ? `Bitiş ${tarih(p.paket.denemeBitis)} · kart istenmez, kendiliğinden ücretli pakete geçmez`
-                : 'KDV hariç'}
-            </span>
-          </p>
-          <ul
-            style={{ margin: '14px 0 0', paddingLeft: 18, fontSize: 14, lineHeight: 1.7, color: '#3A4052' }}
-          >
-            {deneme ? (
-              <>
-                <li>
-                  Profesyonel paketin özellikleri: {GALLERY_TRIAL.portfoy} araçlık portföy, günde{' '}
-                  {GALLERY_TRIAL.gunlukMesaj} ilk mesaj, {GALLERY_TRIAL.talep} talep hakkı
-                </li>
-                <li>Excel/CSV toplu yükleme ve otomatik eşleşme</li>
-                <li>Öne çıkarma ve API denemede yok</li>
-              </>
-            ) : (
-              <li>
-                {plan?.portfoy ?? 'Sınırsız'} araçlık portföy, günde {plan?.gunlukMesaj} ilk mesaj, ayda{' '}
-                {plan?.aylikTalep} talep
-              </li>
-            )}
-          </ul>
-          <p style={{ margin: '14px 0 0', fontSize: 13, color: '#5A6073' }}>
-            Paket satın alma ödeme altyapısı (PayTR) açılınca bu ekrandan yapılacak.
-          </p>
-        </section>
-        <section
-          aria-labelledby="pl"
-          style={{
-            flex: '1 1 260px',
-            minWidth: 0,
-            background: '#FFFFFF',
-            border: '1px solid #E3E6EF',
-            borderRadius: 18,
-            padding: 22,
-          }}
-        >
-          <h2 id="pl" style={{ margin: '0 0 10px', fontSize: 17, fontWeight: 800 }}>
-            Paketler
-          </h2>
-          <p style={{ margin: '0 0 14px', fontSize: 13.5, color: '#5A6073' }}>
-            Aylık, KDV hariç; yıllık ödemede 2 ay ücretsiz.
-          </p>
-          {Object.entries(GALLERY_PLANS).map(([k, v]) => (
-            <div
-              key={k}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                padding: '10px 0',
-                borderTop: '1px solid #EEF0F5',
-                fontSize: 14,
-              }}
-            >
-              <span>
-                {v.ad} · {v.portfoy ?? 'sınırsız'} araç · {v.calisan} kullanıcı
-              </span>
-              <strong>{binlik(v.aylik)} TL</strong>
-            </div>
-          ))}
-        </section>
-      </div>
-      <section
-        aria-labelledby="ft"
-        style={{
-          marginTop: 16,
-          background: '#FFFFFF',
-          border: '1px solid #E3E6EF',
-          borderRadius: 18,
-          overflow: 'hidden',
-        }}
-      >
-        <h2
-          id="ft"
-          style={{
-            margin: 0,
-            padding: '16px 18px',
-            fontSize: 17,
-            fontWeight: 800,
-            borderBottom: '1px solid #EEF0F5',
-          }}
-        >
-          Faturalar
-        </h2>
-        <p style={{ margin: 0, padding: '14px 18px', fontSize: 14, color: '#5A6073' }}>Henüz faturan yok.</p>
-      </section>
     </>
   );
 }

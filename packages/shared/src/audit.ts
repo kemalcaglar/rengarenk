@@ -68,6 +68,13 @@ export const AUDIT_ACTIONS: Record<string, string> = {
   galeri_rol_degisti: 'Galeri çalışanının rolü değişti',
   galeri_mesaj_siniri: 'Galeri çalışanının günlük mesaj sınırı değişti',
   odeme_alindi: 'Ödeme alındı, haklar tanımlandı',
+  abonelik_basladi: 'Galeri aboneliği başladı',
+  abonelik_yukseltildi: 'Galeri üst pakete geçti',
+  abonelik_yenilendi: 'Galeri aboneliği yenilendi',
+  abonelik_degisti: 'Sonraki dönemin paketi değişti',
+  abonelik_iptal: 'Galeri aboneliği iptal edildi (dönem sonunda)',
+  abonelik_iptal_geri: 'Abonelik iptali geri alındı',
+  abonelik_bitti: 'Galeri aboneliği sona erdi',
   galeri_calisan_cikarildi: 'Galeri çalışanı çıkarıldı',
 };
 

@@ -4,9 +4,9 @@ import {
   BUSINESS_KIND_DEFS,
   type BusinessKindKey,
   canInvite,
-  GALLERY_PLANS,
   GALLERY_TRIAL,
   type GalleryPlanKey,
+  galleryAccess,
   INVITE_DAYS,
   MEMBER_ROLE_NAMES,
   maskTrMobile,
@@ -58,16 +58,15 @@ export class GalleryService {
   }
 
   private planOf(g: { plan: string; trialEndsAt: Date | null }) {
-    const plan = g.plan as GalleryPlanKey;
+    const { plan, ad, ozellik, saltOkunur } = galleryAccess(g);
     const kalan = g.trialEndsAt ? Math.ceil((g.trialEndsAt.getTime() - Date.now()) / DAY) : null;
-    const ozellik = plan === 'deneme' ? GALLERY_TRIAL : GALLERY_PLANS[plan];
     return {
       key: plan,
-      ad: plan === 'deneme' ? 'Deneme' : GALLERY_PLANS[plan].ad,
+      ad,
       denemeBitis: g.trialEndsAt,
       denemeKalanGun: plan === 'deneme' && kalan !== null ? Math.max(0, kalan) : null,
-      // Deneme bitti ve paket seçilmediyse galeri yalnızca portföyünü görüntüler (Karar 12.5)
-      saltOkunur: plan === 'deneme' && kalan !== null && kalan <= 0,
+      // Deneme bitti ya da paket sona erdiyse galeri yalnızca portföyünü görüntüler (Karar 12.5)
+      saltOkunur,
       portfoy: ozellik.portfoy,
       gunlukMesaj: ozellik.gunlukMesaj,
       calisan: memberLimit(plan),

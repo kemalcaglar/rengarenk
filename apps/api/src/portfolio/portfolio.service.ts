@@ -16,10 +16,9 @@ import {
   eidsRequired,
   FUELS,
   formatPlate,
-  GALLERY_PLANS,
-  GALLERY_TRIAL,
   type GalleryPlanKey,
   GEARBOXES,
+  galleryAccess,
   normalizePlate,
   PAINT_PARTS,
   PAINT_STATES,
@@ -84,16 +83,15 @@ export class PortfolioService {
     });
     const g = m?.account.gallery;
     if (!m || !g) throw new NotFoundException('Galeri bulunamadı');
-    const plan = g.plan as GalleryPlanKey;
+    const { plan, ozellik, saltOkunur } = galleryAccess(g);
     if (yaz) {
       if (m.account.status !== 'ACTIVE') throw new ForbiddenException('Galeri hesabı askıda');
-      if (plan === 'deneme' && g.trialEndsAt && g.trialEndsAt < new Date()) {
+      if (saltOkunur) {
         throw new ForbiddenException(
-          'Deneme süren bitti; paket seçene kadar portföyünü yalnızca görüntüleyebilirsin',
+          `${plan === 'deneme' ? 'Deneme süren bitti' : 'Paketin sona erdi'}; paket seçene kadar portföyünü yalnızca görüntüleyebilirsin`,
         );
       }
     }
-    const ozellik = plan === 'deneme' ? GALLERY_TRIAL : GALLERY_PLANS[plan];
     return {
       userId,
       accountId,

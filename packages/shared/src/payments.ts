@@ -191,6 +191,8 @@ export const orderCreateSchema = z
       .min(1, 'Sepet boş')
       .max(20),
     fatura: billingSchema,
+    /** Galeri adına ek paket (yalnızca galeri sahibi; fatura galerinin ticari bilgileriyle) */
+    hesap: z.uuid().optional(),
     onay: z
       .object({
         sozlesme: z.literal(true, 'Sözleşme onayı gerekli'),

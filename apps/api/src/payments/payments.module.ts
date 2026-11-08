@@ -7,20 +7,33 @@ import { OutboxService } from '../outbox/outbox.service.js';
 import { OrdersController, PaymentCallbackController } from './orders.controller.js';
 import { OrdersService } from './orders.service.js';
 import { EArsivFactory, PaymentProviderFactory } from './providers.js';
+import { SubscriptionBilling } from './subscription-billing.js';
+import { CardPageController, SubscriptionsController } from './subscriptions.controller.js';
+import { SubscriptionsService } from './subscriptions.service.js';
 
-/** Web ödemeleri (Aşama 6): sipariş, PayTR, haklar ve öne çıkarma, e-Arşiv fatura. İade burada değil. */
+const PROVIDERS = [
+  OrdersService,
+  SubscriptionsService,
+  SubscriptionBilling,
+  PaymentProviderFactory,
+  EArsivFactory,
+  OutboxService,
+  AuditService,
+];
+
+/** Web ödemeleri (Aşama 6): sipariş, PayTR, haklar ve öne çıkarma, galeri abonelikleri, e-Arşiv. İade burada değil. */
 @Module({
   imports: [AuthModule, EntitlementsModule, FlagsModule],
-  controllers: [OrdersController, PaymentCallbackController],
-  providers: [OrdersService, PaymentProviderFactory, EArsivFactory, OutboxService, AuditService],
-  exports: [OrdersService],
+  controllers: [OrdersController, PaymentCallbackController, SubscriptionsController, CardPageController],
+  providers: PROVIDERS,
+  exports: [OrdersService, SubscriptionsService],
 })
 export class PaymentsModule {}
 
-/** İşçi için: fatura kesme ve süresi geçen siparişler. */
+/** İşçi için: fatura kesme, süresi geçen siparişler, abonelik yenileme, hatırlatma ve aylık hak döngüsü. */
 @Module({
   imports: [EntitlementsModule, FlagsModule],
-  providers: [OrdersService, PaymentProviderFactory, EArsivFactory, OutboxService, AuditService],
-  exports: [OrdersService],
+  providers: PROVIDERS,
+  exports: [OrdersService, SubscriptionsService],
 })
 export class PaymentsWorkerModule {}

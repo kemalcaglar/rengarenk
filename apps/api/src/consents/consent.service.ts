@@ -127,6 +127,33 @@ export class ConsentService {
     return surumler;
   }
 
+  /**
+   * Galeri aboneliği onayları (Karar 12.7, 39): galeri hizmet sözleşmesi ve otomatik yenileme ayrı satırlar. Siparişle
+   * aynı işlemde yazılır; metin sürümlerini döner.
+   */
+  async recordSubscription(tx: Tx, userId: string, ip?: string) {
+    const text = await this.current('galeri_sozlesmesi', tx);
+    const surumler: Record<string, number | null> = {
+      galeri_sozlesmesi: text?.version ?? null,
+      abonelik_otomatik_yenileme: null,
+    };
+    for (const kind of Object.keys(surumler)) {
+      await tx.consent.create({
+        data: {
+          id: uuidv7(),
+          userId,
+          kind,
+          granted: true,
+          textKey: kind === 'galeri_sozlesmesi' ? 'galeri_sozlesmesi' : null,
+          textVersion: surumler[kind] ?? null,
+          channel: 'web',
+          ip: ip ?? null,
+        },
+      });
+    }
+    return surumler;
+  }
+
   /** Çerez tercihi: üye için kullanıcıya, ziyaretçi için rastgele ziyaretçi kimliğine bağlanır. */
   async recordCookie(
     subject: { userId?: string; visitorId?: string },

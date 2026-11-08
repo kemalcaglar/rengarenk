@@ -301,7 +301,8 @@ export const GALLERY_PLANS = {
     calisan: 15,
   },
 } as const;
-export type GalleryPlanKey = keyof typeof GALLERY_PLANS | 'deneme';
+/** deneme: 30 gün deneme; pasif: paketi sona ermiş ya da askıya alınmış (yalnızca portföy görüntülenir) */
+export type GalleryPlanKey = keyof typeof GALLERY_PLANS | 'deneme' | 'pasif';
 
 /** 30 gün deneme: Profesyonel özellikleri, sınırlı haklar; kart istenmez, kendiliğinden ücretliye geçmez */
 export const GALLERY_TRIAL = {
@@ -317,9 +318,59 @@ export const GALLERY_TRIAL = {
   hatirlatmaGunleri: [7, 3, 1],
 } as const;
 
+/** Paketi olmayan galeri: haklar sıfır, yalnızca portföyünü görüntüler (Karar 12.5) */
+export const GALLERY_PASSIVE = {
+  portfoy: 0,
+  gunlukMesaj: 0,
+  talep: 0,
+  aylikTalep: 0,
+  oneCikarma: 0,
+  toplu: false,
+  eslesme: false,
+  api: false,
+  calisan: 2,
+} as const;
+
+export interface GalleryFeatures {
+  portfoy: number | null;
+  gunlukMesaj: number;
+  oneCikarma: number;
+  toplu: boolean;
+  eslesme: boolean;
+  api: boolean;
+  calisan: number;
+}
+
+/**
+ * Galerinin şu an kullanabildiği özellikler. Denemesi biten ya da paketi sona eren galeri salt okunurdur: portföyünü
+ * görür, mesaj gönderemez, araç ekleyemez, eşleşme almaz.
+ */
+export function galleryAccess(
+  g: { plan: string; trialEndsAt: Date | null },
+  now: Date = new Date(),
+): { plan: GalleryPlanKey; ad: string; ozellik: GalleryFeatures; saltOkunur: boolean } {
+  const plan = g.plan as GalleryPlanKey;
+  if (plan === 'deneme') {
+    const bitti = !!g.trialEndsAt && g.trialEndsAt <= now;
+    return {
+      plan,
+      ad: 'Deneme',
+      ozellik: bitti ? GALLERY_PASSIVE : GALLERY_TRIAL,
+      saltOkunur: bitti,
+    };
+  }
+  const p = GALLERY_PLANS[plan as keyof typeof GALLERY_PLANS];
+  if (!p) return { plan: 'pasif', ad: 'Paket yok', ozellik: GALLERY_PASSIVE, saltOkunur: true };
+  return { plan, ad: p.ad, ozellik: p, saltOkunur: false };
+}
+
 /** Galerinin kullanabileceği çalışan sayısı */
 export const memberLimit = (plan: GalleryPlanKey) =>
-  plan === 'deneme' ? GALLERY_TRIAL.calisan : GALLERY_PLANS[plan].calisan;
+  plan === 'deneme'
+    ? GALLERY_TRIAL.calisan
+    : plan === 'pasif'
+      ? GALLERY_PASSIVE.calisan
+      : GALLERY_PLANS[plan].calisan;
 
 // ── Çalışanlar (Karar 20) ─────────────────────────────────────
 

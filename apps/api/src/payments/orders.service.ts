@@ -12,6 +12,7 @@ import { type Order, type Prisma, uuidv7 } from '@rengarenk/db';
 import {
   type Billing,
   CONTRACT_CONSENT,
+  galleryAccess,
   ORDER_STATUS_NAMES,
   type OrderCreate,
   PRODUCT_GROUP_NAMES,
@@ -22,6 +23,7 @@ import {
   tlYaz,
   vatOfGross,
   WAIVER_CONSENT,
+  withVat,
 } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
@@ -31,6 +33,7 @@ import { EntitlementService } from '../entitlements/entitlement.service.js';
 import { FeatureFlagService } from '../flags/feature-flag.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { STORAGE, type Storage } from '../storage/storage.service.js';
+import { type Kalem, kalemler as kalemlerOf } from './order-item.js';
 import {
   EArsivFactory,
   type EArsivProvider,
@@ -38,27 +41,22 @@ import {
   type Notification,
   PaymentProviderFactory,
 } from './providers.js';
+import { SubscriptionBilling } from './subscription-billing.js';
 
 const DAY = 86_400_000;
 /** Ödenmeyen sipariş bu süre sonra iptal sayılır (PayTR çerçevesi 30 dakika açık kalır) */
 const PENDING_MINUTES = 45;
 
-interface Kalem {
-  urun: string;
-  ad: string;
-  adet: number;
-  birimKurus: number;
-  tutarKurus: number;
-  talepId?: string;
-  talepNo?: number;
-  talepBaslik?: string;
-}
+/** Galeri hesabının satın alabildiği ek paketler (GaleriPanel.dc.html "Ek paket al"; Karar 12.4) */
+export const GALLERY_EXTRAS = ['mesaj_30', 'mesaj_10'] as const;
 
 /** Sipariş no: PayTR'nin istediği harf ve rakamdan; "RG" + zaman + rastgele */
 const siparisNo = () =>
   `RG${Date.now().toString(36).toUpperCase()}${randomInt(36 ** 4)
     .toString(36)
     .toUpperCase()}`;
+
+export { siparisNo };
 
 const bugun = () => {
   const tr = new Date(Date.now() + 3 * 3600_000);
@@ -86,6 +84,7 @@ export class OrdersService {
     private readonly consents: ConsentService,
     private readonly outbox: OutboxService,
     private readonly audit: AuditService,
+    private readonly subs: SubscriptionBilling,
     earsiv: EArsivFactory,
   ) {
     this.earsiv = earsiv.create();
@@ -130,7 +129,7 @@ export class OrdersService {
           include: { demand: { select: { no: true, title: true, headline: true } } },
         }),
         this.db.order.findMany({
-          where: { userId, status: 'PAID' },
+          where: { accountId, status: 'PAID' },
           orderBy: { paidAt: 'desc' },
           take: 50,
           include: { invoice: { select: { status: true } } },
@@ -205,20 +204,32 @@ export class OrdersService {
     await this.flags.assertAvailable('odeme');
     const provider = this.providers.get();
     if (provider.ad === 'none') throw new ServiceUnavailableException('Ödemeler yakında açılacak');
-    const accountId = await this.personal(userId);
+    const galeri = input.hesap ? await this.galleryBuyer(userId, input.hesap) : null;
+    if (galeri && galleryAccess(galeri.gallery).saltOkunur) {
+      throw new ForbiddenException('Ek paket almak için önce bir paket seç');
+    }
+    const accountId = galeri?.accountId ?? (await this.personal(userId));
     const user = await this.db.user.findUniqueOrThrow({ where: { id: userId }, select: { phone: true } });
+    // Galeriye aynı tutarlar KDV hariç faturalanır (Karar 12.8); fatura galerinin ticari bilgileriyle
+    const fatura: Billing = galeri ? { ...galeri.fatura, eposta: input.fatura.eposta } : input.fatura;
 
     // Kalemler: öne çıkarmada talep kullanıcının yayındaki talebi olmalı
     const kalemler: Kalem[] = [];
     for (const k of input.kalemler) {
       const p = productByKey(k.urun);
       if (!p) throw new BadRequestException('Ürün bulunamadı');
+      if (galeri && !(GALLERY_EXTRAS as readonly string[]).includes(p.key)) {
+        throw new BadRequestException('Bu ürün galeri hesabıyla alınamaz');
+      }
+      const net = Math.round(p.tl * 100);
+      const brut = galeri ? withVat(net) : net;
       const kalem: Kalem = {
         urun: p.key,
         ad: p.ad,
         adet: 1,
-        birimKurus: Math.round(p.tl * 100),
-        tutarKurus: Math.round(p.tl * 100),
+        birimKurus: brut,
+        tutarKurus: brut,
+        ...(galeri ? { netKurus: net } : {}),
       };
       if (p.oneCikarma) {
         const d = await this.db.demand.findFirst({
@@ -247,7 +258,7 @@ export class OrdersService {
           items: kalemler as unknown as Prisma.InputJsonValue,
           totalKurus: BigInt(toplam),
           vatKurus: BigInt(vatOfGross(toplam)),
-          billing: input.fatura as unknown as Prisma.InputJsonValue,
+          billing: fatura as unknown as Prisma.InputJsonValue,
           consents: {
             sozlesme: CONTRACT_CONSENT,
             cayma: hemen ? WAIVER_CONSENT : null,
@@ -266,14 +277,13 @@ export class OrdersService {
       odemeAdresi = await provider.checkout({
         oid: no,
         amountKurus: toplam,
-        email: input.fatura.eposta,
+        email: fatura.eposta,
         userIp: meta.ip ?? '127.0.0.1',
         basket: kalemler.map((k) => [k.ad, (k.birimKurus / 100).toFixed(2), k.adet]),
-        userName: input.fatura.ad,
-        userAddress: `${input.fatura.ilce} / ${input.fatura.il}`,
+        userName: fatura.ad,
+        userAddress: `${fatura.ilce} / ${fatura.il}`,
         userPhone: user.phone,
-        okUrl: `${this.env.WEB_ORIGIN}/haklarim/odeme-sonucu?siparis=${no}`,
-        failUrl: `${this.env.WEB_ORIGIN}/haklarim/odeme-sonucu?siparis=${no}&hata=1`,
+        ...this.returnUrls(no, !!galeri),
       });
     } catch (e) {
       await this.db.order.update({
@@ -285,9 +295,48 @@ export class OrdersService {
     return { no, odemeAdresi, toplamKurus: toplam };
   }
 
+  /** Ödeme kuruluşunun dönüş adresleri: galeri siparişinde galeri paneline döner */
+  returnUrls(no: string, galeri: boolean) {
+    const g = galeri ? '&galeri=1' : '';
+    return {
+      okUrl: `${this.env.WEB_ORIGIN}/haklarim/odeme-sonucu?siparis=${no}${g}`,
+      failUrl: `${this.env.WEB_ORIGIN}/haklarim/odeme-sonucu?siparis=${no}${g}&hata=1`,
+    };
+  }
+
+  /** Galeri adına ödeme: yalnızca sahip, hesap etkin ve paketi açık (Karar 20: paket, ödeme, fatura sahipte) */
+  async galleryBuyer(userId: string, accountId: string) {
+    const m = await this.db.accountMember.findUnique({
+      where: { accountId_userId: { accountId, userId } },
+      include: { account: { include: { gallery: true } } },
+    });
+    const g = m?.account.gallery;
+    if (!m || !g) throw new NotFoundException('Galeri bulunamadı');
+    if (m.role !== 'OWNER') throw new ForbiddenException('Paket ve ödemeleri yalnızca galeri sahibi yönetir');
+    if (m.account.status !== 'ACTIVE') throw new ForbiddenException('Galeri hesabı askıda');
+    const fatura: Billing = {
+      ad: g.legalName.slice(0, 120),
+      eposta: '',
+      il: g.il,
+      ilce: g.ilce,
+      kurumsal: { unvan: g.legalName.slice(0, 200), vergiNo: g.taxNo, vergiDairesi: g.taxOffice },
+    };
+    return { accountId, gallery: g, fatura };
+  }
+
+  /** Siparişi görebilen: siparişi veren ya da hesabın sahibi/yöneticisi (galeri faturaları) */
+  private async canSee(userId: string, o: { userId: string; accountId: string }) {
+    if (o.userId === userId) return true;
+    const m = await this.db.accountMember.findUnique({
+      where: { accountId_userId: { accountId: o.accountId, userId } },
+      select: { role: true },
+    });
+    return m?.role === 'OWNER' || m?.role === 'MANAGER';
+  }
+
   async status(userId: string, no: string) {
     const o = await this.db.order.findUnique({ where: { no } });
-    if (!o || o.userId !== userId) throw new NotFoundException('Sipariş bulunamadı');
+    if (!o || !(await this.canSee(userId, o))) throw new NotFoundException('Sipariş bulunamadı');
     return {
       no: o.no,
       durum: o.status,
@@ -334,6 +383,9 @@ export class OrdersService {
             where: { id: siparis.id },
             data: { status: 'FAILED', failReason: n.failMessage ?? 'Ödeme onaylanmadı' },
           });
+          if (siparis.kind === 'yenileme' && siparis.channel === 'otomatik') {
+            await this.subs.onRenewalFailed(tx, siparis, n.failMessage ?? 'Ödeme onaylanmadı');
+          }
         }
         return;
       }
@@ -353,8 +405,9 @@ export class OrdersService {
   /** Haklar ve öne çıkarmalar; aynı işlemde işlem kaydı ve olaylar */
   private async fulfill(tx: Tx, o: Order, n: Notification) {
     const now = new Date();
-    const kalemler = o.items as unknown as Kalem[];
+    const kalemler = o.kind === 'urun' ? kalemlerOf(o.items) : [];
     const yenidenIndeks = new Set<string>();
+    if (o.kind !== 'urun') await this.subs.fulfill(tx, o, n);
     for (const [i, k] of kalemler.entries()) {
       const p = productByKey(k.urun);
       if (!p) continue;
@@ -442,7 +495,14 @@ export class OrdersService {
 <body style="margin:0;font-family:system-ui,sans-serif;background:#F6F8FD;color:#1E2333"><div style="max-width:420px;margin:0 auto;padding:20px">
 <p style="margin:0;font-size:12px;font-weight:800;color:#A3271F">GELİŞTİRME ORTAMI · SAHTE ÖDEME · KART BİLGİSİ İSTENMEZ</p>
 <h1 style="font-size:20px;margin:8px 0 4px">Sipariş ${no}</h1><p style="margin:0 0 6px;font-size:15px">Tutar: <strong>${tutar}</strong></p>
-${o.status === 'PENDING' ? dugme('success', 'Ödemeyi onayla (başarılı)', '#3DD68C') + dugme('failed', 'Ödemeyi reddet (başarısız)', '#FFD7D2') : `<p>Bu sipariş artık beklemede değil: ${ORDER_STATUS_NAMES[o.status]}</p>`}
+${
+  o.status !== 'PENDING'
+    ? `<p>Bu sipariş artık beklemede değil: ${ORDER_STATUS_NAMES[o.status]}</p>`
+    : o.kind === 'urun'
+      ? dugme('success', 'Ödemeyi onayla (başarılı)', '#3DD68C') +
+        dugme('failed', 'Ödemeyi reddet (başarısız)', '#FFD7D2')
+      : `<p style="font-size:13px;margin:6px 0 0">Kart ödeme kuruluşunda saklanır; sonraki dönemler bu karttan çekilir.</p>${dugme('success', 'Kartı kaydet ve öde (başarılı)', '#3DD68C')}${dugme('success-red', 'Kaydet ve öde · yenilemede reddedilecek kart', '#FFE7A8')}${dugme('failed', 'Ödemeyi reddet (başarısız)', '#FFD7D2')}`
+}
 </div></body></html>`;
   }
 
@@ -451,9 +511,19 @@ ${o.status === 'PENDING' ? dugme('success', 'Ödemeyi onayla (başarılı)', '#3
     const fake = this.fake();
     const o = await this.db.order.findUnique({ where: { no } });
     if (!o) throw new NotFoundException('Sipariş bulunamadı');
-    const status = durum === 'success' ? 'success' : 'failed';
-    await this.notify(fake.notification(no, status, Number(o.totalKurus)));
-    return `${this.env.WEB_ORIGIN}/haklarim/odeme-sonucu?siparis=${no}${status === 'failed' ? '&hata=1' : ''}`;
+    const status = durum.startsWith('success') ? 'success' : 'failed';
+    // Kart saklayan siparişte sahte kullanıcı anahtarı; "red" kartı yenilemede reddedilir
+    const utoken =
+      o.kind === 'urun'
+        ? undefined
+        : `${durum === 'success-red' ? 'sahte-red-' : 'sahte-u-'}${randomInt(1e9)}`;
+    await this.notify(fake.notification(no, status, Number(o.totalKurus), utoken));
+    const hesap = await this.db.account.findUniqueOrThrow({
+      where: { id: o.accountId },
+      select: { kind: true },
+    });
+    const u = this.returnUrls(no, hesap.kind !== 'INDIVIDUAL');
+    return status === 'failed' ? u.failUrl : u.okUrl;
   }
 
   // ── Fatura ────────────────────────────────────────────────────
@@ -468,7 +538,7 @@ ${o.status === 'PENDING' ? dugme('success', 'Ödemeyi onayla (başarılı)', '#3
         orderNo: o.no,
         date: o.paidAt ?? new Date(),
         billing: o.billing as unknown as Billing,
-        lines: (o.items as unknown as Kalem[]).map((k) => ({
+        lines: kalemlerOf(o.items).map((k) => ({
           ad: k.talepBaslik ? `${k.ad} · ${k.talepBaslik}` : k.ad,
           adet: k.adet,
           tutarKurus: k.tutarKurus,
@@ -508,18 +578,41 @@ ${o.status === 'PENDING' ? dugme('success', 'Ödemeyi onayla (başarılı)', '#3
     });
     for (const b of bekleyen) await this.issueInvoice(b.orderId);
     const iptal = await this.db.order.updateMany({
-      where: { status: 'PENDING', createdAt: { lt: new Date(Date.now() - PENDING_MINUTES * 60_000) } },
+      where: {
+        status: 'PENDING',
+        NOT: { channel: 'otomatik' },
+        createdAt: { lt: new Date(Date.now() - PENDING_MINUTES * 60_000) },
+      },
       data: { status: 'CANCELLED', failReason: 'Ödeme süresi doldu' },
     });
-    return { fatura: bekleyen.length, iptal: iptal.count };
+    // Saklı karttan çekim yapıldı ama bildirim bir günde gelmedi: yeniden çekilmez (çift tahsilat olmasın), sahip inceler
+    const sessiz = await this.db.order.findMany({
+      where: {
+        status: 'PENDING',
+        channel: 'otomatik',
+        failReason: null,
+        createdAt: { lt: new Date(Date.now() - DAY) },
+      },
+      select: { id: true, accountId: true },
+    });
+    for (const s of sessiz) {
+      await this.db.$transaction(async (tx) => {
+        await tx.order.update({
+          where: { id: s.id },
+          data: { failReason: 'Ödeme kuruluşunun bildirimi gelmedi; inceleniyor' },
+        });
+        await this.outbox.add(tx, 'abonelik.bildirim_gelmedi', { orderId: s.id, accountId: s.accountId });
+      });
+    }
+    return { fatura: bekleyen.length, iptal: iptal.count, sessiz: sessiz.length };
   }
 
   async invoicePdf(userId: string, orderId: string) {
     const inv = await this.db.invoice.findUnique({
       where: { orderId },
-      include: { order: { select: { userId: true, no: true } } },
+      include: { order: { select: { userId: true, accountId: true, no: true } } },
     });
-    if (!inv || inv.order.userId !== userId) throw new NotFoundException('Fatura bulunamadı');
+    if (!inv || !(await this.canSee(userId, inv.order))) throw new NotFoundException('Fatura bulunamadı');
     if (inv.status !== 'ISSUED' || !inv.pdfKey) throw new NotFoundException('Fatura henüz kesilmedi');
     const f = await this.storage.get(inv.pdfKey);
     return { ...f, ad: `fatura-${inv.no ?? inv.order.no}.pdf` };
@@ -528,7 +621,7 @@ ${o.status === 'PENDING' ? dugme('success', 'Ödemeyi onayla (başarılı)', '#3
   /** Doldurulmuş ön bilgilendirme formu ve sözleşme onayı (Haklarım › Ödeme geçmişi) */
   async contract(userId: string, orderId: string) {
     const o = await this.db.order.findUnique({ where: { id: orderId } });
-    if (!o || o.userId !== userId) throw new NotFoundException('Sipariş bulunamadı');
+    if (!o || !(await this.canSee(userId, o))) throw new NotFoundException('Sipariş bulunamadı');
     return { no: o.no, onBilgilendirme: o.preInfo, onaylar: o.consents };
   }
 }

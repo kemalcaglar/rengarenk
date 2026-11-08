@@ -15,10 +15,8 @@ import {
   demandOwnerName,
   FLAG_TITLES,
   FUELS,
-  GALLERY_PLANS,
-  GALLERY_TRIAL,
-  type GalleryPlanKey,
   GEARBOXES,
+  galleryAccess,
   MEMBER_ROLE_NAMES,
   type MessageFlag,
   SECURITY_WARNING,
@@ -114,11 +112,14 @@ export class MessagesService {
       throw new ForbiddenException('Bu hesap adına yazamazsın');
     }
     if (m.account.status !== 'ACTIVE') throw new ForbiddenException('Galeri hesabı askıda');
-    const plan = g.plan as GalleryPlanKey;
-    if (plan === 'deneme' && g.trialEndsAt && g.trialEndsAt < new Date()) {
-      throw new ForbiddenException('Deneme süren bitti; paket seçene kadar mesaj gönderemezsin');
+    const { plan, ozellik, saltOkunur } = galleryAccess(g);
+    if (saltOkunur) {
+      throw new ForbiddenException(
+        plan === 'deneme'
+          ? 'Deneme süren bitti; paket seçene kadar mesaj gönderemezsin'
+          : 'Paketin sona erdi; paket seçene kadar mesaj gönderemezsin',
+      );
     }
-    const ozellik = plan === 'deneme' ? GALLERY_TRIAL : GALLERY_PLANS[plan];
     return {
       userId,
       accountId: hesap,

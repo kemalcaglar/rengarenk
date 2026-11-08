@@ -31,6 +31,11 @@ export class SecretBox {
     return new SecretBox(env.MESSAGE_SECRET_KEY ?? `gelistirme:${env.JWT_SECRET}`, 'mesaj');
   }
 
+  /** Ödeme kuruluşundaki saklı kartın kullanıcı anahtarı (galeri aboneliği) */
+  static forPayments(env: Env) {
+    return new SecretBox(env.MESSAGE_SECRET_KEY ?? `gelistirme:${env.JWT_SECRET}`, 'odeme-kart');
+  }
+
   seal(plain: string): string {
     const iv = randomBytes(12);
     const c = createCipheriv('aes-256-gcm', this.key, iv);

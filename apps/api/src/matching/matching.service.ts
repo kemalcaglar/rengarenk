@@ -4,9 +4,7 @@ import {
   type CategoryDefinition,
   demandOwnerName,
   evaluateMatch,
-  GALLERY_PLANS,
-  GALLERY_TRIAL,
-  type GalleryPlanKey,
+  galleryAccess,
   MATCH_DAILY_INSTANT,
   MATCH_MIN_SCORE,
   type MatchCriterion,
@@ -56,9 +54,7 @@ export function matchingEnabled(
   accountStatus: string,
 ): boolean {
   if (accountStatus !== 'ACTIVE') return false;
-  const plan = g.plan as GalleryPlanKey;
-  if (plan === 'deneme') return !g.trialEndsAt || g.trialEndsAt > new Date();
-  return GALLERY_PLANS[plan]?.eslesme ?? false;
+  return galleryAccess(g).ozellik.eslesme;
 }
 
 /**
@@ -370,8 +366,7 @@ export class MatchingService {
   /** Galeri paneli › Eşleşmeler (GaleriPanel.dc.html, GaleriMobil.dc.html) */
   async listForGallery(userId: string, accountId: string, aracId?: string) {
     const { gallery: g, status } = await this.member(userId, accountId);
-    const plan = g.plan as GalleryPlanKey;
-    const ozellik = plan === 'deneme' ? GALLERY_TRIAL : GALLERY_PLANS[plan];
+    const { ozellik } = galleryAccess(g);
     const acik = matchingEnabled(g, status);
     // Bugün kullanılan paket hakkı (ilk mesaj; Karar 11.2, 12.2)
     const kullanilan = await this.db.conversation.count({

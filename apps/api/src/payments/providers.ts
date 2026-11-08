@@ -25,6 +25,31 @@ export interface Notification {
   failCode: string | null;
   failMessage: string | null;
   testMode: boolean;
+  /** Kart saklandıysa ödeme kuruluşunun kullanıcı anahtarı (PayTR utoken) */
+  cardToken: string | null;
+}
+
+/** Kart saklayan ödeme (galeri aboneliği): kartı kayıtlı kullanıcının anahtarı da gönderilir */
+export interface CardCheckoutInput extends CheckoutInput {
+  utoken?: string | null;
+}
+
+/** Tarayıcının kart bilgisiyle doğrudan ödeme kuruluşuna gönderdiği form */
+export interface CardForm {
+  action: string;
+  fields: Record<string, string>;
+}
+
+export interface StoredCard {
+  ctoken: string;
+  last4: string;
+  schema: string;
+  requireCvv: boolean;
+}
+
+export interface ChargeResult {
+  status: 'success' | 'failed' | 'wait_callback';
+  message: string | null;
 }
 
 /**
@@ -37,6 +62,15 @@ export interface PaymentProvider {
   checkout(i: CheckoutInput): Promise<string>;
   /** Bildirimin imzasını doğrular; geçersizse null */
   verify(body: Record<string, string>): Notification | null;
+  /**
+   * Kartı saklayarak ödeme formu (PayTR Direkt API, `store_card=1`). Kart bilgisi tarayıcıdan doğrudan ödeme kuruluşuna
+   * gider; Rengarenk sunucusuna gelmez.
+   */
+  cardForm(i: CardCheckoutInput): CardForm;
+  /** Kullanıcının saklı kartları (PayTR CAPI LIST) */
+  cards(utoken: string): Promise<StoredCard[]>;
+  /** Saklı karttan tekrarlı tahsilat (3D'siz, `recurring_payment=1`); kesin sonuç bildirimle de gelir */
+  chargeStored(i: CheckoutInput & { utoken: string; ctoken: string }): Promise<ChargeResult>;
 }
 
 const hmac = (key: string, msg: string) => createHmac('sha256', key).update(msg).digest('base64');
@@ -60,8 +94,12 @@ function parseNotification(body: Record<string, string>, key: string, salt: stri
     failCode: body.failed_reason_code ?? null,
     failMessage: body.failed_reason_msg ?? null,
     testMode: body.test_mode === '1',
+    cardToken: body.utoken || null,
   };
 }
+
+/** PayTR Direkt API tutar biçimi: "1788.00" */
+const tutar = (kurus: number) => (kurus / 100).toFixed(2);
 
 /** Ödeme kapalı: PayTR sözleşmesi gelene kadar canlıda satın alma yapılamaz. */
 export class NoPayment implements PaymentProvider {
@@ -71,6 +109,15 @@ export class NoPayment implements PaymentProvider {
   }
   verify() {
     return null;
+  }
+  cardForm(): CardForm {
+    throw new Error('Ödeme şu an kapalı');
+  }
+  async cards(): Promise<StoredCard[]> {
+    return [];
+  }
+  async chargeStored(): Promise<ChargeResult> {
+    return { status: 'failed', message: 'Ödeme şu an kapalı' };
   }
 }
 
@@ -132,6 +179,86 @@ export class PaytrPayment implements PaymentProvider {
   verify(body: Record<string, string>) {
     return parseNotification(body, this.key, this.salt);
   }
+
+  /**
+   * Direkt API 1. adım ve Kart Saklama API özeti: merchant_id + user_ip + merchant_oid + email + payment_amount +
+   * payment_type + installment_count + currency + test_mode + non_3d + merchant_salt
+   */
+  private token(i: CheckoutInput, non3d: '0' | '1') {
+    return hmac(
+      this.key,
+      `${this.id}${i.userIp}${i.oid}${i.email}${tutar(i.amountKurus)}card0TL${this.testMode}${non3d}${this.salt}`,
+    );
+  }
+
+  private ortak(i: CheckoutInput, non3d: '0' | '1') {
+    return {
+      merchant_id: this.id,
+      paytr_token: this.token(i, non3d),
+      user_ip: i.userIp,
+      merchant_oid: i.oid,
+      email: i.email,
+      payment_amount: tutar(i.amountKurus),
+      payment_type: 'card',
+      installment_count: '0',
+      currency: 'TL',
+      client_lang: 'tr',
+      test_mode: this.testMode,
+      non_3d: non3d,
+      merchant_ok_url: i.okUrl,
+      merchant_fail_url: i.failUrl,
+      user_name: i.userName.slice(0, 60),
+      user_address: i.userAddress.slice(0, 400),
+      user_phone: i.userPhone.slice(0, 20),
+      user_basket: JSON.stringify(i.basket),
+      debug_on: '0',
+    };
+  }
+
+  cardForm(i: CardCheckoutInput): CardForm {
+    return {
+      action: 'https://www.paytr.com/odeme',
+      fields: { ...this.ortak(i, '0'), store_card: '1', ...(i.utoken ? { utoken: i.utoken } : {}) },
+    };
+  }
+
+  async cards(utoken: string): Promise<StoredCard[]> {
+    const r = await fetch('https://www.paytr.com/odeme/capi/list', {
+      method: 'POST',
+      body: new URLSearchParams({
+        merchant_id: this.id,
+        utoken,
+        paytr_token: hmac(this.key, `${utoken}${this.salt}`),
+      }),
+      signal: AbortSignal.timeout(20_000),
+    });
+    const j = (await r.json().catch(() => null)) as unknown;
+    if (!Array.isArray(j)) return [];
+    return j.map((c: Record<string, string>) => ({
+      ctoken: c.ctoken ?? '',
+      last4: c.last_4 ?? '',
+      schema: c.schema ?? 'KART',
+      requireCvv: c.require_cvv === '1',
+    }));
+  }
+
+  async chargeStored(i: CheckoutInput & { utoken: string; ctoken: string }): Promise<ChargeResult> {
+    const r = await fetch('https://www.paytr.com/odeme', {
+      method: 'POST',
+      body: new URLSearchParams({
+        ...this.ortak(i, '1'),
+        utoken: i.utoken,
+        ctoken: i.ctoken,
+        recurring_payment: '1',
+        sync_mode: '1',
+      }),
+      signal: AbortSignal.timeout(30_000),
+    });
+    const j = (await r.json().catch(() => ({}))) as { status?: string; msg?: string; reason?: string };
+    if (j.status === 'success') return { status: 'success', message: null };
+    if (j.status === 'wait_callback') return { status: 'wait_callback', message: j.msg ?? null };
+    return { status: 'failed', message: (j.msg ?? j.reason ?? `PayTR ${r.status}`).slice(0, 300) };
+  }
 }
 
 /**
@@ -151,10 +278,11 @@ export class FakePayment implements PaymentProvider {
   async checkout(i: CheckoutInput): Promise<string> {
     return `${this.apiUrl}/odeme/sahte/${encodeURIComponent(i.oid)}`;
   }
-  /** Sahte sayfanın göndereceği bildirim gövdesi */
-  notification(oid: string, status: 'success' | 'failed', amountKurus: number) {
+  /** Sahte sayfanın göndereceği bildirim gövdesi; kart saklandıysa kullanıcı anahtarıyla */
+  notification(oid: string, status: 'success' | 'failed', amountKurus: number, utoken?: string) {
     const total = String(amountKurus);
     return {
+      ...(utoken && status === 'success' ? { utoken } : {}),
       merchant_oid: oid,
       status,
       total_amount: total,
@@ -170,6 +298,19 @@ export class FakePayment implements PaymentProvider {
   }
   verify(body: Record<string, string>) {
     return parseNotification(body, this.key, this.salt);
+  }
+  /** Sahte kart sayfası: kart bilgisi istenmez, "kartı kaydet" düğmeleri */
+  cardForm(i: CardCheckoutInput): CardForm {
+    return { action: `${this.apiUrl}/odeme/sahte/${encodeURIComponent(i.oid)}`, fields: {} };
+  }
+  /** "sahte-red-" ile başlayan anahtarın kartı yenilemede reddedilir (başarısız yenileme denemesi için) */
+  async cards(utoken: string): Promise<StoredCard[]> {
+    const red = utoken.startsWith('sahte-red-');
+    return [{ ctoken: `c-${utoken}`, last4: red ? '0002' : '4242', schema: 'VISA', requireCvv: false }];
+  }
+  async chargeStored(i: CheckoutInput & { utoken: string; ctoken: string }): Promise<ChargeResult> {
+    if (i.utoken.startsWith('sahte-red-')) return { status: 'failed', message: 'Kart reddedildi (sahte)' };
+    return { status: 'success', message: null };
   }
 }
 

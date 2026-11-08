@@ -253,7 +253,12 @@ export default function GaleriPaneli() {
           </T>
           {p ? (
             <T numberOfLines={1} style={{ fontSize: 12, color: colors.muted, marginTop: 1 }}>
-              {p.galeri.ad} · {deneme ? `Deneme, ${p.paket.denemeKalanGun} gün kaldı` : `${p.paket.ad} paket`}
+              {p.galeri.ad} ·{' '}
+              {deneme
+                ? `Deneme, ${p.paket.denemeKalanGun} gün kaldı`
+                : plan
+                  ? `${p.paket.ad} paket`
+                  : 'Paket yok'}
             </T>
           ) : null}
         </View>
@@ -369,7 +374,8 @@ export default function GaleriPaneli() {
               fontWeight: '700',
             }}
           >
-            Deneme süren bitti. Paket seçene kadar yalnızca portföyünü görüntüleyebilirsin.
+            {deneme ? 'Deneme süren bitti.' : 'Paketin sona erdi.'} Paket seçilene kadar yalnızca portföyünü
+            görüntüleyebilirsin.
           </T>
         ) : null}
 
