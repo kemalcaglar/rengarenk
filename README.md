@@ -173,6 +173,15 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## KVKK araçları (Sprint 21)
+
+- **Kullanıcı:** `POST /me/data-exports` (`{ challengeId, code }` kişinin kendi numarasına `/auth/otp/request` ile alınan
+  kod), `GET /me/data-exports`, `GET /me/data-exports/:id/download`; `POST /me/kvkk` (`{ tur, metin, challengeId, code }`),
+  `GET /me/kvkk`; `GET /me/blocks`, `DELETE /me/blocks/:hesap`.
+- **Konsol:** `GET/POST /staff/kvkk`, `GET /staff/kvkk/:id`, `POST /staff/kvkk/:id/reply` (`{ metin, okudum: true }`,
+  `kvkk.yanitla` tam); `GET /staff/consents/overview`, `GET /staff/consents?q=`.
+- İşçi `veri.indirme_istendi` olayında kopyayı hazırlar (`veri-indirme/<id>.json`). Kurallar `packages/shared/src/kvkk.ts`.
+
 ## Destek (Sprint 20)
 
 - **Kullanıcı:** `POST /support/tickets` (`{ konu, referans?, metin }`), `GET /support/tickets`, `GET /support/tickets/:no`,

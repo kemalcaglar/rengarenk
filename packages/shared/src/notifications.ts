@@ -528,6 +528,36 @@ export const NOTIFY_TEMPLATES = {
       dugme: { yazi: 'E-postamı doğrula', url: '/eposta-dogrula?kod={{kod}}' },
     },
   },
+  'veri.hazir': {
+    ad: 'Veri kopyan hazır',
+    konu: 'guvenlik',
+    grup: 'guvenlik',
+    baslik: 'Verilerinin kopyası hazır',
+    metin:
+      'Ayarlar › Gizlilik ve güvenlik bölümünden indirebilirsin; bağlantı {{tarih}} tarihine kadar geçerli.',
+    url: '/ayarlar?bolum=gizlilik',
+    eposta: {
+      konu: 'Verilerinin kopyası hazır',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        'İstediğin veri kopyası hazır. Güvenliğin için dosyayı yalnızca hesabına giriş yaparak indirebilirsin; bağlantı {{tarih}} tarihine kadar geçerli.',
+        'Bu isteği sen yapmadıysan hemen oturumlarını kapat ve bize yaz.',
+      ],
+      dugme: { yazi: 'Verilerimi indir', url: '/ayarlar?bolum=gizlilik' },
+    },
+  },
+  'kvkk.yanit': {
+    ad: 'KVKK başvurusu yanıtı',
+    konu: 'guvenlik',
+    grup: 'guvenlik',
+    baslik: 'KVKK başvurun yanıtlandı',
+    metin: '{{numara}} numaralı başvurunun yanıtı e-postanda ve Ayarlar › Gizlilik ve güvenlik bölümünde.',
+    url: '/ayarlar?bolum=gizlilik',
+    eposta: {
+      konu: 'KVKK başvurunun yanıtı · {{numara}}',
+      paragraflar: ['Merhaba {{ad}},', '{{yanit}}', 'Rengarenk · Veri sorumlusu'],
+    },
+  },
   'destek.yanit': {
     ad: 'Destek yanıtı',
     konu: 'guvenlik',

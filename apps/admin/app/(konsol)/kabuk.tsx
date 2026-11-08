@@ -20,7 +20,7 @@ type Item =
       href: string;
       ad: string;
       izin?: Permission;
-      rozet?: 'onay' | 'entegrasyon' | 'basvuru' | 'moderasyon' | 'destek';
+      rozet?: 'onay' | 'entegrasyon' | 'basvuru' | 'moderasyon' | 'destek' | 'kvkk';
     }
   | { ad: string; sonra: true };
 
@@ -105,9 +105,9 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
   {
     grup: 'Uyum ve KVKK',
     ogeler: [
-      { ad: 'KVKK başvuruları', sonra: true },
+      { href: '/kvkk', ad: 'KVKK başvuruları', izin: 'kvkk.yanitla', rozet: 'kvkk' },
       { ad: 'Saklama, imha ve VERBİS', sonra: true },
-      { ad: 'Rıza ve çerez kayıtları', sonra: true },
+      { href: '/riza', ad: 'Rıza ve çerez kayıtları', izin: 'kvkk.yanitla' },
       { ad: 'İhlal ve resmi talepler', sonra: true },
     ],
   },
@@ -225,6 +225,11 @@ export function Kabuk({ me: initial, logo, children }: { me: Me; logo: ReactNode
                         {i.rozet === 'basvuru' && me.pendingGalleryApplications > 0 ? (
                           <span style={{ fontSize: 11.5, fontWeight: 800, color: '#7A5300' }}>
                             {me.pendingGalleryApplications}
+                          </span>
+                        ) : null}
+                        {i.rozet === 'kvkk' && me.openKvkk > 0 ? (
+                          <span style={{ fontSize: 11.5, fontWeight: 800, color: '#7A5300' }}>
+                            {me.openKvkk}
                           </span>
                         ) : null}
                         {i.rozet === 'destek' && me.openSupport > 0 ? (

@@ -22,6 +22,7 @@ import { MetricsModule } from './observability/metrics.js';
 import { PaymentsModule } from './payments/payments.module.js';
 import { PeopleModule } from './people/people.module.js';
 import { PortfolioModule } from './portfolio/portfolio.module.js';
+import { PrivacyModule } from './privacy/privacy.module.js';
 import { RateLimitModule } from './ratelimit/ratelimit.module.js';
 import { RedisModule } from './redis/redis.module.js';
 import { RefundsModule } from './refunds/refunds.module.js';
@@ -51,6 +52,7 @@ import { TrustModule } from './trust/trust.module.js';
     ModerationModule,
     PeopleModule,
     SupportModule,
+    PrivacyModule,
     TrustModule,
     PaymentsModule,
     RefundsModule,

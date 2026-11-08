@@ -96,6 +96,11 @@ export type EventType =
   | 'destek.acildi'
   | 'destek.yanitlandi'
   | 'destek.memnuniyet'
+  // KVKK (Karar 58): veri kopyası istendi (işçi hazırlar) ve hazır; başvuru ve yanıtı
+  | 'veri.indirme_istendi'
+  | 'veri.hazir'
+  | 'kvkk.basvuru'
+  | 'kvkk.yanitlandi'
   | 'sohbet.numara_paylasildi'
   | 'sohbet.engellendi'
   // Güven (Karar 28, 55): yıldız ve takip edilen galerinin günlük özeti

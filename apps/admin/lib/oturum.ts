@@ -32,6 +32,7 @@ export interface Me {
   pendingGalleryApplications: number;
   overdueReports: number;
   openSupport: number;
+  openKvkk: number;
   idleMinutes: number;
 }
 

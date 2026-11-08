@@ -209,8 +209,12 @@ pnpm format        # Biome ile biçimlendir
 - **Sprint 20 (8 Kasım 2026):** destek ve yardım merkezi (`apps/api/src/support/`, `packages/shared/src/support.ts`):
   web `/yardim` ve `/destek`, Mesajlarım'da sabit destek satırı, konsol `/destek`, mobil yardım ve destek ekranları,
   ilk yanıt süresi, memnuniyet sorusu, imzalı destek e-postası ucu. API'de 144 test.
-- **Sıradaki (Aşama 8 devamı):**
-  KVKK araçları (Karar 58, 59), Rengarenk Ajanı ve yapay zekâ bütçesi (Karar 41, 57), çalışan uyarılarının sahibe
+- **Sprint 21 (9 Kasım 2026):** KVKK araçları (`apps/api/src/privacy/`, `packages/shared/src/kvkk.ts`): verilerimi indir
+  (SMS kodu `AuthService.confirmCode`, işçi hazırlar), KVKK başvuruları (konsol `/kvkk`), rıza kayıtları (konsol
+  `/riza`), Ayarlar › Gizlilik'te engellediklerin ve kişisel verilerim, mobil `app/kisisel-verilerim.tsx`. Hesap kapatma
+  iadeye dokunduğu için sahibe sorulacak. API'de 147 test.
+- **Sıradaki (Aşama 8 devamı):** saklama/imha/VERBİS ve ihlal/resmi talepler (Karar 59),
+  Rengarenk Ajanı ve yapay zekâ bütçesi (Karar 41, 57), çalışan uyarılarının sahibe
   iletilmesi; ya da
   sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan
   kutularını işaretle ve README'yi güncelle.

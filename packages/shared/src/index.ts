@@ -7,6 +7,7 @@ export * from './demand.js';
 export * from './flags.js';
 export * from './gallery.js';
 export * from './iller.js';
+export * from './kvkk.js';
 export * from './matching.js';
 export * from './messages.js';
 export * from './moderation.js';

@@ -19,6 +19,7 @@ import { OutboxService } from './outbox/outbox.service.js';
 import { OrdersService } from './payments/orders.service.js';
 import { SubscriptionsService } from './payments/subscriptions.service.js';
 import { PortfolioService } from './portfolio/portfolio.service.js';
+import { PrivacyService } from './privacy/privacy.service.js';
 import { QueueService } from './queue/queue.service.js';
 import { DemandSearchService } from './search/demand-search.service.js';
 import { SupportService } from './support/support.service.js';
@@ -50,6 +51,7 @@ const akislar = app.get(AutomationService);
 const moderasyon = app.get(ModerationService);
 const itibar = app.get(ReputationService);
 const destek = app.get(SupportService);
+const gizlilik = app.get(PrivacyService);
 const iys = app.get<IysProvider>(IYS);
 await queue.start();
 
@@ -115,6 +117,10 @@ await queue.consume<{ messageId?: string }>('mesaj.uyari', 'moderasyon-ajan', as
   if (!messageId) return;
   const r = await moderasyon.ajanMesajKontrolu(messageId);
   if (r !== 'islem_yok') log.log(`ajan mesaj kontrolü: ${r}`);
+});
+// KVKK (Karar 58): veri kopyası hazırlanır, hazır olunca bildirim gider
+await queue.consume<{ exportId: string }>('veri.indirme_istendi', 'veri-indirme', async ({ exportId }) => {
+  log.log(`veri kopyası ${exportId}: ${await gizlilik.buildExport(exportId)}`);
 });
 // Bildirim katmanı (Karar 48): olaylar alıcı ve şablona çevrilir; teslimleri döngü gönderir
 for (const event of NOTIFY_EVENTS) {

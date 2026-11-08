@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { HesabimMenu } from '../../../components/hesabim-menu';
 import { istek, useGiris } from '../../../lib/istemci';
+import { Engellediklerin, KisiselVerilerim } from './gizlilik';
 
 interface Kanal {
   kanal: 'uygulama' | 'eposta' | 'sms';
@@ -83,7 +84,8 @@ const tarih = (iso: string) =>
 
 /**
  * Ayarlar (Ayarlar.dc.html; Karar 29, 30, 48, 49): Profil (ad, soyad, telefon, e-posta ve doğrulama), Bildirimler (konu
- * ve kanal; ödeme kapatılamaz; kampanya ticari ileti onayıyla), Gizlilik ve güvenlik (açık oturumlar).
+ * ve kanal; ödeme kapatılamaz; kampanya ticari ileti onayıyla), Gizlilik ve güvenlik (açık oturumlar, engellediklerin,
+ * kişisel verilerim: verilerimi indir ve KVKK başvurusu, Karar 58).
  */
 export default function Ayarlar() {
   const giris = useGiris();
@@ -416,50 +418,69 @@ export default function Ayarlar() {
         ) : null}
 
         {bolum === 'gizlilik' ? (
-          <section style={{ ...kart, padding: 20 }} aria-labelledby="ot">
-            <h2 id="ot" style={{ margin: '0 0 10px', fontSize: 18, fontWeight: 800 }}>
-              Açık oturumlar
-            </h2>
-            {oturumlar.map((o) => (
-              <div
-                key={o.id}
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  gap: 8,
-                  padding: '12px 0',
-                  borderTop: '1px solid #EEF0F5',
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <section style={{ ...kart, padding: 20 }} aria-labelledby="ot">
+              <h2 id="ot" style={{ margin: '0 0 10px', fontSize: 18, fontWeight: 800 }}>
+                Açık oturumlar
+              </h2>
+              {oturumlar.map((o) => (
+                <div
+                  key={o.id}
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '12px 0',
+                    borderTop: '1px solid #EEF0F5',
+                  }}
+                >
+                  <span>
+                    <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>
+                      {PLATFORM[o.device?.platform ?? 'WEB'] ?? 'Tarayıcı'}
+                    </span>
+                    <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+                      {o.current
+                        ? 'şu an etkin'
+                        : `son etkinlik ${tarih(o.device?.lastSeenAt ?? o.createdAt)}`}
+                    </span>
+                  </span>
+                  {o.current ? (
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#11683F' }}>Bu cihaz</span>
+                  ) : (
+                    <button
+                      type="button"
+                      style={ikincil}
+                      onClick={() =>
+                        calistir(async () => {
+                          await istek(`/me/sessions/${o.id}`, { method: 'DELETE' });
+                          setOturumlar((x) => x.filter((y) => y.id !== o.id));
+                        }, 'Oturum kapatıldı.')
+                      }
+                    >
+                      Oturumu kapat
+                    </button>
+                  )}
+                </div>
+              ))}
+            </section>
+            <Engellediklerin
+              bildir={(m, h) => {
+                setBilgi(m);
+                setHata(h ?? null);
+              }}
+            />
+            {ben ? (
+              <KisiselVerilerim
+                telefon={ben.phone}
+                bildir={(m, h) => {
+                  setBilgi(m);
+                  setHata(h ?? null);
                 }}
-              >
-                <span>
-                  <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>
-                    {PLATFORM[o.device?.platform ?? 'WEB'] ?? 'Tarayıcı'}
-                  </span>
-                  <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
-                    {o.current ? 'şu an etkin' : `son etkinlik ${tarih(o.device?.lastSeenAt ?? o.createdAt)}`}
-                  </span>
-                </span>
-                {o.current ? (
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#11683F' }}>Bu cihaz</span>
-                ) : (
-                  <button
-                    type="button"
-                    style={ikincil}
-                    onClick={() =>
-                      calistir(async () => {
-                        await istek(`/me/sessions/${o.id}`, { method: 'DELETE' });
-                        setOturumlar((x) => x.filter((y) => y.id !== o.id));
-                      }, 'Oturum kapatıldı.')
-                    }
-                  >
-                    Oturumu kapat
-                  </button>
-                )}
-              </div>
-            ))}
-          </section>
+              />
+            ) : null}
+          </div>
         ) : null}
       </main>
     </div>

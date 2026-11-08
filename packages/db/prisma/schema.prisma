@@ -2090,3 +2090,55 @@ model SupportMessage {
   @@index([ticketId, createdAt])
   @@map("support_messages")
 }
+
+/// Kendi verini indir (Karar 58): SMS koduyla istenir, işçi hazırlar, bağlantı 7 gün geçerli
+model DataExport {
+  id          String    @id @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  /// hazirlaniyor | hazir | hata | suresi_doldu
+  status      String    @default("hazirlaniyor")
+  /// Depolamadaki dosya anahtarı
+  storageKey  String?   @map("storage_key")
+  sizeBytes   Int?      @map("size_bytes")
+  readyAt     DateTime? @map("ready_at") @db.Timestamptz(3)
+  expiresAt   DateTime? @map("expires_at") @db.Timestamptz(3)
+  downloadedAt DateTime? @map("downloaded_at") @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@map("data_exports")
+}
+
+/// KVKK m.11 başvurusu (Karar 58): en geç 30 gün içinde yanıt; ajan taslak hazırlar, yanıtı çalışan gönderir
+model KvkkRequest {
+  id           String    @id @db.Uuid
+  /// Görünen numara ("K-1001")
+  no           Int       @unique @default(autoincrement())
+  userId       String?   @map("user_id") @db.Uuid
+  /// @pii Dışarıdan gelen başvuruda başvuranın adı
+  applicantName  String? @map("applicant_name")
+  /// @pii Dışarıdan gelen başvuruda yanıt adresi
+  applicantEmail String? @map("applicant_email")
+  /// bilgi | duzeltme | silme | itiraz
+  kind         String
+  /// @pii Başvuru metni
+  text         String
+  /// hesap_kodu | kimlik
+  verification String
+  /// uygulama | eposta | posta
+  channel      String
+  /// acik | yanitlandi
+  status       String    @default("acik")
+  dueAt        DateTime  @map("due_at") @db.Timestamptz(3)
+  /// @pii Gönderilen yanıt
+  response     String?
+  respondedBy  String?   @map("responded_by") @db.Uuid
+  respondedAt  DateTime? @map("responded_at") @db.Timestamptz(3)
+  createdBy    String?   @map("created_by") @db.Uuid
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([status, dueAt])
+  @@index([userId, createdAt])
+  @@map("kvkk_requests")
+}

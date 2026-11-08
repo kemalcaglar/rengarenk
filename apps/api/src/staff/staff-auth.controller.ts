@@ -120,6 +120,10 @@ export class StaffMeController {
       openSupport: satisfies(req.staff.grants['destek.yanitla'], 'tam')
         ? await this.db.supportTicket.count({ where: { status: 'acik' } })
         : 0,
+      /** Menüde KVKK başvuruları rozeti: yanıt bekleyen başvurular (Karar 58) */
+      openKvkk: req.staff.grants['kvkk.yanitla']
+        ? await this.db.kvkkRequest.count({ where: { status: 'acik' } })
+        : 0,
       idleMinutes: STAFF_IDLE_MINUTES,
     };
   }

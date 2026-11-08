@@ -13,6 +13,7 @@ import { MetricsModule } from './observability/metrics.js';
 import { OutboxService } from './outbox/outbox.service.js';
 import { PaymentsWorkerModule } from './payments/payments.module.js';
 import { PortfolioWorkerModule } from './portfolio/portfolio.module.js';
+import { PrivacyWorkerModule } from './privacy/privacy.module.js';
 import { QueueService } from './queue/queue.service.js';
 import { RateLimitModule } from './ratelimit/ratelimit.module.js';
 import { RedisModule } from './redis/redis.module.js';
@@ -46,6 +47,7 @@ import { TrustWorkerModule } from './trust/trust.module.js';
     SmsModule,
     NotificationsWorkerModule,
     ModerationServiceModule,
+    PrivacyWorkerModule,
   ],
   providers: [OutboxService, QueueService],
 })

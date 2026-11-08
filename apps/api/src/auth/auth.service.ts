@@ -110,6 +110,34 @@ export class AuthService {
     return { challengeId: id, expiresIn: OTP_TTL_SECONDS, ...(devCode ? { devCode } : {}) };
   }
 
+  /**
+   * Hassas işlem onayı (Karar 58: veri indirme, KVKK başvurusu): kişinin kendi numarasına gönderilen kodu doğrular ve
+   * harcar; oturum açmaz. Yanlış kod deneme hakkını azaltır.
+   */
+  async confirmCode(userId: string, challengeId: string, code: string) {
+    const u = await this.db.user.findUniqueOrThrow({ where: { id: userId }, select: { phone: true } });
+    const ch = await this.db.otpChallenge.findUnique({ where: { id: challengeId } });
+    const invalid = new UnauthorizedException('Kod hatalı ya da süresi dolmuş');
+    if (
+      !ch ||
+      ch.phone !== u.phone ||
+      ch.consumedAt ||
+      ch.expiresAt < new Date() ||
+      ch.attempts >= OTP_MAX_ATTEMPTS
+    ) {
+      throw invalid;
+    }
+    if (!safeEqualHex(ch.codeHash, hashOtp(this.env.JWT_SECRET, ch.id, code))) {
+      await this.db.otpChallenge.update({ where: { id: ch.id }, data: { attempts: { increment: 1 } } });
+      throw invalid;
+    }
+    const k = await this.db.otpChallenge.updateMany({
+      where: { id: ch.id, consumedAt: null },
+      data: { consumedAt: new Date() },
+    });
+    if (k.count !== 1) throw invalid;
+  }
+
   /** Kodu doğrular; kullanıcı yoksa oluşturur (bireysel hesabıyla birlikte) ve oturum açar. */
   async verifyOtp(
     challengeId: string,

@@ -138,6 +138,21 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 21 · KVKK başvuruları, verilerimi indir, rıza kayıtları (Aşama 8 dördüncü bölüm, 9 Kasım 2026)
+
+- [x] Verilerimi indir (Karar 58): SMS koduyla istenir; işçi profil, talepler, mesajlar, ödemeler, rızalar, destek ve
+  başvuruları JSON olarak hazırlar; yalnızca hesabıyla 7 gün indirilir; istek ve indirme işlem kaydına girer. Web Ayarlar ›
+  Gizlilik ve güvenlik, mobil Hesabım › Kişisel verilerim (indirme web'den)
+- [x] KVKK başvurusu (m.11): hesaptan SMS koduyla ya da konsoldan dışarıdan (kimlik çalışanca doğrulanır); 30 gün süre
+  (m.13). Konsol › KVKK başvuruları: dört sayı, süre sayacı, ajanın topladığı veriler ve türe göre taslak, "okudum"
+  onayıyla yalnızca tam yetkili çalışan gönderir; yanıt uygulama içi ve e-postayla; menüde açık başvuru sayısı
+- [x] Konsol › Rıza ve çerez kayıtları: reklam ölçümü, analitik çerez ve ticari ileti oranları, kişinin rıza geçmişi
+  (metin sürümü, tarih, kanal)
+- [x] Ayarlar › Gizlilik ve güvenlik: Engellediklerin (engeli kaldır)
+- [ ] Hesap kapatma ve anonimleştirme (Karar 31, 59): kullanılmamış hakların iadesine dokunduğu için sahibe sorulacak
+- [ ] Saklama, imha ve VERBİS; veri ihlali prosedürü ve resmi makam talepleri (sonraki bölüm); 7 gün kala ajan uyarısı
+  (çalışan bildirimleriyle); süresi dolan kopya dosyasının silinmesi (imha süreciyle)
+
 ## Sprint 20 · destek ve yardım merkezi (Aşama 8 üçüncü bölüm, 8 Kasım 2026)
 
 - [x] Yardım merkezi (Yardim.dc.html): web `/yardim` (konular, sık sorulanlar, arama, güvenli alışveriş, destek talebi

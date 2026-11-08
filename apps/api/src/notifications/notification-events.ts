@@ -77,6 +77,8 @@ export const NOTIFY_EVENTS = [
   'hak.tanimlandi',
   'destek.yanitlandi',
   'destek.memnuniyet',
+  'veri.hazir',
+  'kvkk.yanitlandi',
 ] as const;
 export type NotifyEvent = (typeof NOTIFY_EVENTS)[number];
 
@@ -355,6 +357,30 @@ export class NotificationEvents {
         // E-postayla gelen ve kullanıcıyla eşleşmeyen talep: yanıt doğrudan adrese gider
         if (t.email && this.teslim && type === 'destek.yanitlandi') {
           return (await this.teslim.dogrudanEposta(t.email, sablon, veri)) ? 1 : 0;
+        }
+        return 0;
+      }
+      case 'veri.hazir': {
+        const e = await this.db.dataExport.findUnique({ where: { id: s('exportId') } });
+        if (!e?.expiresAt) return 0;
+        return this.notifications.notify({
+          userIds: [e.userId],
+          sablon: type,
+          veri: { tarih: tarih(e.expiresAt) },
+        });
+      }
+      case 'kvkk.yanitlandi': {
+        const k = await this.db.kvkkRequest.findUnique({ where: { id: s('requestId') } });
+        if (!k?.response) return 0;
+        const veri = { numara: `K-${k.no}`, yanit: k.response };
+        if (k.userId) return this.notifications.notify({ userIds: [k.userId], sablon: 'kvkk.yanit', veri });
+        if (k.applicantEmail && this.teslim) {
+          return (await this.teslim.dogrudanEposta(k.applicantEmail, 'kvkk.yanit', {
+            ...veri,
+            ad: k.applicantName ?? '',
+          }))
+            ? 1
+            : 0;
         }
         return 0;
       }
