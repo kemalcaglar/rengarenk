@@ -138,6 +138,20 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 19 · kullanıcı ve galeri kartı, kara liste (Aşama 8 ikinci bölüm, 8 Kasım 2026)
+
+- [x] Konsol › Pazar › Kullanıcılar ve galeriler (Karar 52): arama (ad, galeri adı, talep no, e-postanın ilk harfleri,
+  telefonun son haneleri), süzgeç (bireysel, galeri, askıda), kart: rozetler, maskeli telefon ve e-posta (gerekçe yazınca
+  açılır, işlem kaydına girer, 5 dakika sonra yeniden maskelenir), beş sayı, geçmiş (talepler, ödemeler, şikâyetler ve
+  kararlar, yıldızlar, notlar, çalışan işlemleri). Pazarlama ve izleyici kartı göremez (Karar 40)
+- [x] Karttan işlemler: uyar, 24 saat askı, kalıcı engelleme önerisi (moderasyon kaydı olarak açılır; bildirim ve itiraz
+  aynı akış), hak tanımlama (destek ayda hesap başına 10, üstü yönetici; kişiye bildirim), oturumları kapatma, not ekleme,
+  iade önerisi için Ödemeler ekranı
+- [x] Kara liste (Karar 43): telefon ve IP'ye giriş kodu gönderilmez; kara listedeki IBAN içeren mesaj gizlenir ve kritik
+  şikâyet açılır. Değerin kendisi değil anahtarlı özeti saklanır; çıkarma kaydı kapatır
+- [ ] Cihaz kara listesi: uygulama kurulum kimliği girişte gönderilince; "Giriş bağlantısı gönder" (e-postayla tek
+  kullanımlık giriş) güvenlik tasarımıyla birlikte; galeri müşteri yönetimi (sorumlu çalışan, yenileme takibi, ayrılma riski)
+
 ## Sprint 18 · şikâyet ve moderasyon (Aşama 8 ilk bölüm, 8 Kasım 2026)
 
 - [x] Şikâyet (Karar 13.2, 53): mesaj, talep ve portföy aracı; neden önceliği belirler (kritik 1 saat, yüksek 4 saat,

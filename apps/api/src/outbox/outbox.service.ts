@@ -90,6 +90,8 @@ export type EventType =
   | 'moderasyon.ajan_aski'
   | 'itiraz.acildi'
   | 'moderasyon.itiraz_sonuc'
+  // Kullanıcı kartından hak tanımlandı (Karar 52): kişiye bildirim
+  | 'hak.tanimlandi'
   | 'sohbet.numara_paylasildi'
   | 'sohbet.engellendi'
   // Güven (Karar 28, 55): yıldız ve takip edilen galerinin günlük özeti

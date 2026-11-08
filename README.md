@@ -173,6 +173,14 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Kullanıcı ve galeri kartı, kara liste (Sprint 19)
+
+- **Konsol:** `GET /staff/people?q=&tur=`, `GET /staff/people/:tip/:id` (`tip`: `kisi` | `galeri`), `POST …/reveal`
+  (`{ gerekce }`), `…/action` (`{ karar: uyari|aski|engel, gerekce }`), `…/grant` (`{ tur, adet, gerekce }`),
+  `…/sessions/revoke`, `…/notes`; kara liste `GET/POST /staff/blocklist`, `DELETE /staff/blocklist/:id`.
+- Kart görmek `kisisel_veri.gor` (maskeli de yeter), hak tanımlamak `hak.tanimla`, kara liste `sikayet.coz`. Servis
+  `apps/api/src/people/`, kurallar `packages/shared/src/people.ts`, kara liste özeti `apps/api/src/moderation/blocklist.ts`.
+
 ## Moderasyon (Sprint 18)
 
 - **Kullanıcı:** `POST /reports` (`{ hedef: mesaj|talep|arac, id, neden, aciklama? }`; mesajda mesaj kimliği, talep ve

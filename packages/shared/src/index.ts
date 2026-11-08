@@ -12,6 +12,7 @@ export * from './messages.js';
 export * from './moderation.js';
 export * from './notifications.js';
 export * from './payments.js';
+export * from './people.js';
 export * from './phone.js';
 export * from './portfolio.js';
 export * from './ratings.js';

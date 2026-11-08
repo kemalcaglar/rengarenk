@@ -78,6 +78,7 @@ const ORNEK: Record<string, unknown> = {
   gerekce: 'Mesajında kapora istendi.',
   rapor: 'ornek',
   sonuc: 'İnceledik ve gerekli işlemi yaptık.',
+  hak: '5 ek ilk mesaj',
 };
 const ornek = (t: NotifyTemplate) =>
   Object.fromEntries(templateVariables(t).map((v) => [v, ORNEK[v] ?? `örnek ${v}`]));

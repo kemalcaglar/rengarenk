@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Inject,
@@ -13,6 +14,7 @@ import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
 import { ConsentService, channelOf } from '../consents/consent.service.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
+import { karaListede } from '../moderation/blocklist.js';
 import { Metrics } from '../observability/metrics.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { RateLimiter } from '../ratelimit/rate-limiter.js';
@@ -57,6 +59,13 @@ export class AuthService {
   ): Promise<{ challengeId: string; expiresIn: number; devCode?: string }> {
     // Aynı IP'den saatte en fazla 20 kod: numara değiştirerek SMS bombardımanını engeller.
     if (ip) await this.limiter.hit(`otp:ip:${ip}`, 20, 3600);
+    // Kara liste (Karar 43): engellenen numara ya da IP'ye kod gönderilmez (neden açıklanmaz)
+    if (
+      (await karaListede(this.db, this.env.JWT_SECRET, 'telefon', [phone])) ||
+      (ip && (await karaListede(this.db, this.env.JWT_SECRET, 'ip', [ip.toLowerCase()])))
+    ) {
+      throw new ForbiddenException('Bu numarayla şu an giriş yapılamıyor. Destek ekibimize yazabilirsin.');
+    }
     const hourAgo = new Date(Date.now() - 3600_000);
     const recent = await this.db.otpChallenge.findMany({
       where: { phone, createdAt: { gt: hourAgo } },

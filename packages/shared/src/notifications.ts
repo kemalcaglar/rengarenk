@@ -528,6 +528,14 @@ export const NOTIFY_TEMPLATES = {
       dugme: { yazi: 'E-postamı doğrula', url: '/eposta-dogrula?kod={{kod}}' },
     },
   },
+  'hak.tanimlandi': {
+    ad: 'Hesabına hak tanımlandı',
+    konu: 'genel',
+    grup: 'odeme',
+    baslik: 'Hesabına hak tanımlandı',
+    metin: 'Destek ekibimiz hesabına {{hak}} tanımladı. Haklarım sayfasından görebilirsin.',
+    url: '/haklarim',
+  },
   'moderasyon.karar': {
     ad: 'Moderasyon kararı (hakkında)',
     konu: 'guvenlik',

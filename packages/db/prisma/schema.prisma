@@ -2000,3 +2000,37 @@ model ContentFilter {
 
   @@map("content_filters")
 }
+
+/// Çalışan notu (Karar 52): kullanıcı ya da galeri kartında; yalnızca çalışanlar görür
+model StaffNote {
+  id        String   @id @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  accountId String?  @map("account_id") @db.Uuid
+  staffId   String   @map("staff_id") @db.Uuid
+  /// @pii Not metni
+  text      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([userId, createdAt])
+  @@index([accountId, createdAt])
+  @@map("staff_notes")
+}
+
+/// Kara liste (Karar 43): telefon, IBAN, IP. Değerin kendisi saklanmaz; anahtarlı özeti ve maskeli gösterimi tutulur
+model Blocklist {
+  id        String    @id @db.Uuid
+  /// telefon | iban | ip
+  kind      String
+  /// Anahtarlı özet (HMAC); aynı değer ikinci kez eklenmez
+  valueHash String    @map("value_hash")
+  /// @pii Maskeli gösterim (05•• ••• •• 41, TR•• … 4410)
+  masked    String
+  note      String?
+  createdBy String    @map("created_by") @db.Uuid
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  removedAt DateTime? @map("removed_at") @db.Timestamptz(3)
+  removedBy String?   @map("removed_by") @db.Uuid
+
+  @@index([kind, valueHash])
+  @@map("blocklist")
+}

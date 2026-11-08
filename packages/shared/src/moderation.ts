@@ -8,10 +8,13 @@ import { z } from 'zod';
 
 export const REPORT_TARGETS = ['mesaj', 'talep', 'arac'] as const;
 export type ReportTarget = (typeof REPORT_TARGETS)[number];
-export const REPORT_TARGET_NAMES: Record<ReportTarget, string> = {
+/** Konsolda kullanıcı kartından verilen kararın hedefi hesaptır (Karar 52) */
+export type ModerationTarget = ReportTarget | 'kullanici';
+export const REPORT_TARGET_NAMES: Record<ModerationTarget, string> = {
   mesaj: 'Mesaj',
   talep: 'Talep',
   arac: 'Portföy aracı',
+  kullanici: 'Hesap',
 };
 
 export const REPORT_PRIORITIES = ['kritik', 'yuksek', 'normal'] as const;
@@ -51,7 +54,7 @@ export function reasonsFor(hedef: ReportTarget): ReportReasonKey[] {
 }
 
 /** Şikâyeti kim açtı */
-export const REPORT_SOURCES = ['kullanici', 'kural', 'ajan'] as const;
+export const REPORT_SOURCES = ['kullanici', 'kural', 'ajan', 'calisan'] as const;
 export type ReportSource = (typeof REPORT_SOURCES)[number];
 
 export const MODERATION_DECISIONS = ['uyari', 'gizle', 'aski', 'engel', 'red'] as const;
@@ -64,10 +67,11 @@ export const DECISION_NAMES: Record<ModerationDecision, string> = {
   red: 'Şikâyeti reddet',
 };
 /** Hedefe göre "gizle" düğmesinin adı */
-export const HIDE_NAMES: Record<ReportTarget, string> = {
+export const HIDE_NAMES: Record<ModerationTarget, string> = {
   mesaj: 'Mesajı gizle',
   talep: 'Talebi yayından kaldır',
   arac: 'Aracı yayından kaldır',
+  kullanici: 'Gizlenecek içerik yok',
 };
 /** Karar açıklaması (YonetimPazar.dc.html › KNOT) */
 export const DECISION_NOTES: Record<ModerationDecision, string> = {

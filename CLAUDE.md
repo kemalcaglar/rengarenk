@@ -202,7 +202,11 @@ pnpm format        # Biome ile biçimlendir
   itiraz, içerik filtreleri, yasaklı kelimeler), askı (`SanctionService.assertCanMessage`), gizleme (talepte
   `passive_reason = moderasyon`, araçta `moderated_at`, mesajda `hidden_at`), kalıcı engelleme PERMANENT_BAN onayıyla,
   ajanın kural tabanlı kapora kontrolü, web `/itiraz/[id]` ve mobil itiraz ekranı. API'de 137, ortak pakette 74 test.
-- **Sıradaki (Aşama 8 devamı):** kullanıcı ve galeri kartı + kara liste (Karar 52, 43), destek (Karar 54, Yardım),
+- **Sprint 19 (8 Kasım 2026):** kullanıcı ve galeri kartı (`apps/api/src/people/`, konsol `/kullanicilar`): maskeli
+  iletişim ve gerekçeyle açma, geçmiş, karttan uyarı/askı/engelleme (moderasyon kaydı `source = calisan`,
+  `target_type = kullanici`), hak tanımlama sınırı, oturum kapatma, not; kara liste (telefon, IBAN, IP; HMAC özeti).
+  API'de 141 test.
+- **Sıradaki (Aşama 8 devamı):** destek (Karar 54, Yardım),
   KVKK araçları (Karar 58, 59), Rengarenk Ajanı ve yapay zekâ bütçesi (Karar 41, 57), çalışan uyarılarının sahibe
   iletilmesi; ya da
   sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan

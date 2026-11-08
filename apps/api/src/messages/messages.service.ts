@@ -304,10 +304,11 @@ export class MessagesService {
           },
         });
         const mid = await this.yaz(tx, id, 'satici', userId, b.metin, flags);
-        await this.moderation.kuralSikayeti(
+        await this.moderation.mesajKurallari(
           tx,
           { targetType: 'mesaj', targetId: mid, targetUserId: userId, targetAccountId: s.accountId },
           kelimeler,
+          b.metin,
         );
         if (b.aracId) await this.kart(tx, id, 'satici', userId, b.aracId);
         await this.outbox.add(tx, 'mesaj.ilk', {
@@ -460,10 +461,11 @@ export class MessagesService {
         });
         await this.kart(tx, id, 'sistem', null, v.id);
         const mid = await this.yaz(tx, id, 'alici', userId, metin, flags);
-        await this.moderation.kuralSikayeti(
+        await this.moderation.mesajKurallari(
           tx,
           { targetType: 'mesaj', targetId: mid, targetUserId: userId, targetAccountId: null },
           kelimeler,
+          metin,
         );
         await this.outbox.add(tx, 'mesaj.geldi', { conversationId: id, origin: 'arac' });
       });
@@ -533,7 +535,7 @@ export class MessagesService {
         await this.sistem(tx, id, 'Sohbet açıldı. Artık iki taraf da serbestçe yazışabilir.');
       }
       const mid = await this.yaz(tx, id, taraf, userId, b.metin, flags);
-      await this.moderation.kuralSikayeti(
+      await this.moderation.mesajKurallari(
         tx,
         {
           targetType: 'mesaj',
@@ -542,6 +544,7 @@ export class MessagesService {
           targetAccountId: taraf === 'satici' ? c.sellerAccountId : null,
         },
         kelimeler,
+        b.metin,
       );
       if (b.aracId) await this.kart(tx, id, 'satici', userId, b.aracId);
       await tx.conversation.update({

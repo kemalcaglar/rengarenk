@@ -1,6 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   FLAG_TITLES,
+  GRANT_KINDS,
+  type GrantKind,
   type MessageFlag,
   REPORT_REASONS,
   type ReportReasonKey,
@@ -30,6 +32,11 @@ const KARAR_METNI: Record<string, Record<string, string>> = {
   arac: {
     uyari: 'Uyarı',
     gizle: 'Aracın yayından kaldırıldı',
+    aski: '24 saat askı: mesaj gönderemezsin',
+    engel: 'Hesabın incelemede: kalıcı engelleme önerildi',
+  },
+  kullanici: {
+    uyari: 'Uyarı',
     aski: '24 saat askı: mesaj gönderemezsin',
     engel: 'Hesabın incelemede: kalıcı engelleme önerildi',
   },
@@ -65,6 +72,7 @@ export const NOTIFY_EVENTS = [
   'moderasyon.karar',
   'moderasyon.ajan_aski',
   'moderasyon.itiraz_sonuc',
+  'hak.tanimlandi',
 ] as const;
 export type NotifyEvent = (typeof NOTIFY_EVENTS)[number];
 
@@ -324,6 +332,14 @@ export class NotificationEvents {
           });
         }
         return n;
+      }
+      case 'hak.tanimlandi': {
+        const tur = GRANT_KINDS[s('tur') as GrantKind] ?? 'Hak';
+        return this.notifications.notify({
+          userIds: [s('userId')],
+          sablon: type,
+          veri: { hak: `${Number(p.adet ?? 0)} ${tur.toLocaleLowerCase('tr-TR')}` },
+        });
       }
       case 'moderasyon.ajan_aski': {
         const r = await this.db.report.findUnique({

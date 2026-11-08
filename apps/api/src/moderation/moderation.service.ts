@@ -12,6 +12,7 @@ import { type Prisma, type Report, uuidv7 } from '@rengarenk/db';
 import {
   AGENT_DAILY_SUSPENSIONS,
   APPEAL_DAYS,
+  type BlockKind,
   CONTENT_FILTER_KEYS,
   CONTENT_FILTERS,
   DECISION_NAMES,
@@ -19,8 +20,10 @@ import {
   DECISION_PERMISSION,
   flagShort,
   HIDE_NAMES,
+  ibansIn,
   type MessageFlag,
   type ModerationDecision,
+  type ModerationTarget,
   maskEvidence,
   type PermissionGrants,
   PRIORITY_HOURS,
@@ -43,6 +46,7 @@ import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { SecretBox } from '../staff/secret-box.js';
+import { blockHash } from './blocklist.js';
 import { ContentRulesService } from './content-rules.service.js';
 import { SanctionService } from './sanctions.service.js';
 
@@ -86,6 +90,7 @@ const tarihSaat = (d: Date) =>
 export class ModerationService {
   private readonly box: SecretBox;
   private readonly web: string;
+  private readonly secret: string;
 
   constructor(
     @Inject(PRISMA) private readonly db: Db,
@@ -99,6 +104,7 @@ export class ModerationService {
   ) {
     this.box = SecretBox.forMessages(env);
     this.web = env.WEB_ORIGIN;
+    this.secret = env.JWT_SECRET;
     executor.register('PERMANENT_BAN', (a, tx) =>
       this.banApproved(a.payload as unknown as BanPayload, a.id, tx),
     );
@@ -215,6 +221,12 @@ export class ModerationService {
       targetUserId: v.assignedTo ?? v.createdBy,
       targetAccountId: v.accountId,
     };
+  }
+
+  /** Mesaj kuralları: yasaklı kelime ve kara listedeki IBAN; mesaj kaydıyla aynı işlemde */
+  async mesajKurallari(tx: Tx, h: Hedef, kelimeler: string[], metin: string) {
+    await this.kuralSikayeti(tx, h, kelimeler);
+    await this.karaListeIban(tx, h, ibansIn(metin));
   }
 
   /**
@@ -356,7 +368,7 @@ export class ModerationService {
       oncelik: r.priority as ReportPriority,
       oncelikAd: PRIORITY_NAMES[r.priority as ReportPriority],
       neden: REPORT_REASONS[r.reason as ReportReasonKey]?.ad ?? r.reason,
-      taraf: `${this.kaynakAd(r, n.kisi)} → ${n.hedef(r)} · ${REPORT_TARGET_NAMES[r.targetType as ReportTarget].toLocaleLowerCase('tr-TR')}`,
+      taraf: `${this.kaynakAd(r, n.kisi)} → ${n.hedef(r)} · ${REPORT_TARGET_NAMES[r.targetType as ModerationTarget].toLocaleLowerCase('tr-TR')}`,
       sonTarih: r.dueAt,
       durum: r.status,
       karar: r.decision ? DECISION_NAMES[r.decision as ModerationDecision] : null,
@@ -405,7 +417,7 @@ export class ModerationService {
       neden: REPORT_REASONS[r.reason as ReportReasonKey]?.ad ?? r.reason,
       oncelik: r.priority,
       hedefTur: r.targetType,
-      gizleAd: HIDE_NAMES[r.targetType as ReportTarget],
+      gizleAd: HIDE_NAMES[r.targetType as ModerationTarget],
       ozet: [
         `Şikâyet eden ${this.kaynakAd(r, n.kisi)}`,
         `şikâyet edilen ${n.hedef(r)}`,
@@ -439,6 +451,25 @@ export class ModerationService {
 
   /** Kanıt: mesajda öncesi ve sonrasıyla sohbet kesiti, talep ve araçta başlık ve açıklama; hepsi maskeli */
   private async kanit(r: Report) {
+    if (r.targetType === 'kullanici') {
+      return {
+        baslik: 'Kullanıcı kartından çalışan kararı',
+        link: null,
+        isaretler: [] as string[],
+        satirlar: r.note
+          ? [
+              {
+                kim: 'Çalışan',
+                yon: 'sol',
+                metin: maskEvidence(r.note),
+                hedef: true,
+                gizli: false,
+                zaman: r.createdAt,
+              },
+            ]
+          : [],
+      };
+    }
     if (r.targetType === 'mesaj') {
       const m = await this.db.message.findUnique({ where: { id: r.targetId } });
       if (!m) return { baslik: 'Mesaj bulunamadı', satirlar: [], isaretler: [] as string[], link: null };
@@ -554,7 +585,7 @@ export class ModerationService {
     if (r.reason === 'sahte' || r.reason === 'yanlis_kategori' || r.reason === 'spam')
       return {
         karar: 'gizle',
-        metin: `${HIDE_NAMES[r.targetType as ReportTarget]} · ${REPORT_REASONS[r.reason as ReportReasonKey].ad.toLocaleLowerCase('tr-TR')}.`,
+        metin: `${HIDE_NAMES[r.targetType as ModerationTarget]} · ${REPORT_REASONS[r.reason as ReportReasonKey].ad.toLocaleLowerCase('tr-TR')}.`,
       };
     if (r.reason === 'yasakli_kelime')
       return {
@@ -688,6 +719,76 @@ export class ModerationService {
     return this.detail(id);
   }
 
+  /**
+   * Kullanıcı ya da galeri kartından karar (Karar 52): çalışan kaynaklı bir moderasyon kaydı açılır ve aynı yetki
+   * kurallarıyla karara bağlanır; bildirim, itiraz ve geçmiş moderasyonla aynıdır.
+   */
+  async cardAction(
+    ctx: ModeratorCtx,
+    hedef: { userId: string; accountId: string | null },
+    b: { karar: 'uyari' | 'aski' | 'engel'; gerekce: string },
+    ip?: string,
+  ) {
+    const perm = DECISION_PERMISSION[b.karar];
+    const level = ctx.grants[perm];
+    if (b.karar === 'engel' ? level !== 'tam' && level !== 'oneri' : level !== 'tam') {
+      throw new ForbiddenException('Bu karar için yetkin yok');
+    }
+    const id = uuidv7();
+    await this.db.report.create({
+      data: {
+        id,
+        source: 'calisan',
+        targetType: 'kullanici',
+        targetId: hedef.userId,
+        targetUserId: hedef.userId,
+        targetAccountId: hedef.accountId,
+        reason: 'diger',
+        priority: 'normal',
+        note: b.gerekce,
+        dueAt: new Date(),
+      },
+    });
+    return this.decide(ctx, id, { karar: b.karar, not: b.gerekce }, ip);
+  }
+
+  /**
+   * Kara listedeki IBAN (Karar 43): mesajla aynı işlemde mesaj gizlenir ve kritik şikâyet açılır; karar insana kalır.
+   */
+  async karaListeIban(tx: Tx, h: Hedef, ibanlar: string[]) {
+    if (!ibanlar.length) return false;
+    const hashes = ibanlar.map((i) => this.blockHash('iban', i));
+    const hit = await tx.blocklist.findFirst({
+      where: { kind: 'iban', valueHash: { in: hashes }, removedAt: null },
+      select: { masked: true },
+    });
+    if (!hit) return false;
+    if (h.targetType === 'mesaj') {
+      await tx.message.update({ where: { id: h.targetId }, data: { hiddenAt: new Date() } });
+    }
+    const id = uuidv7();
+    await tx.report.create({
+      data: {
+        id,
+        source: 'kural',
+        ...h,
+        reason: 'dolandiricilik',
+        priority: 'kritik',
+        signals: ['kara_liste_iban'],
+        note: `Kara listedeki IBAN: ${hit.masked}`,
+        agentAction: h.targetType === 'mesaj' ? 'Kara listedeki IBAN: mesaj gizlendi' : null,
+        dueAt: new Date(Date.now() + PRIORITY_HOURS.kritik * HOUR),
+      },
+    });
+    await this.outbox.add(tx, 'sikayet.acildi', { reportId: id });
+    return true;
+  }
+
+  /** Kara liste özeti: değer saklanmaz, anahtarlı özeti tutulur */
+  blockHash(kind: BlockKind, value: string) {
+    return blockHash(this.secret, kind, value);
+  }
+
   /** İçeriği yayından kaldırır: mesaj gizlenir; talep ve araç pasife düşer, arama ve eşleşmeden çıkar */
   private async gizle(tx: Tx, r: Report) {
     const now = new Date();
@@ -808,10 +909,10 @@ export class ModerationService {
       id: r.id,
       no: r.no,
       karar,
-      kararAd: karar === 'gizle' ? HIDE_NAMES[r.targetType as ReportTarget] : DECISION_NAMES[karar],
+      kararAd: karar === 'gizle' ? HIDE_NAMES[r.targetType as ModerationTarget] : DECISION_NAMES[karar],
       aciklama: DECISION_NOTES[karar],
       gerekce: r.decisionNote ?? REPORT_REASONS[r.reason as ReportReasonKey]?.ad ?? '',
-      hedef: REPORT_TARGET_NAMES[r.targetType as ReportTarget],
+      hedef: REPORT_TARGET_NAMES[r.targetType as ModerationTarget],
       tarih: r.decidedAt,
       aski: aski ? { until: aski.until } : null,
       geriAlindi: r.reversedAt,
