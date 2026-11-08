@@ -26,6 +26,8 @@ import { sha256 } from '../auth/tokens.js';
 import { CatalogImageService } from '../catalog/catalog-image.service.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { EntitlementService } from '../entitlements/entitlement.service.js';
+import { ContentRulesService } from '../moderation/content-rules.service.js';
+import { ModerationService } from '../moderation/moderation.service.js';
 import { type EventType, OutboxService } from '../outbox/outbox.service.js';
 
 const DAY = 86_400_000;
@@ -75,6 +77,8 @@ export class DemandService {
     private readonly audit: AuditService,
     private readonly outbox: OutboxService,
     private readonly entitlements: EntitlementService,
+    private readonly icerik: ContentRulesService,
+    private readonly moderation: ModerationService,
   ) {}
 
   // ── Okuma ─────────────────────────────────────────────────────
@@ -440,6 +444,13 @@ export class DemandService {
     const galeri =
       (await this.db.account.findUniqueOrThrow({ where: { id: d.accountId } })).kind !== 'INDIVIDUAL';
     if (galeri) await this.galleryOf(userId, d.accountId);
+    // Yasaklı kelime (Karar 13.2): talep yayına girer, kural şikâyeti moderasyona düşer
+    const kelimeler = await this.icerik.yasakli(
+      [
+        d.headline ?? '',
+        String((data as unknown as { alanlar?: { aciklama?: unknown } }).alanlar?.aciklama ?? ''),
+      ].join(' '),
+    );
     return this.db.$transaction(async (tx) => {
       // İlk talep telefon numarası başına ücretsiz; yeni hesap açmak hakkı yenilemez (Karar 12). Galeri adına talepte
       // ücretsiz hak yoktur, paketin aylık talep hakkı (ya da galerinin aldığı ek hak) kullanılır.
@@ -480,8 +491,22 @@ export class DemandService {
         include: { category: { select: { slug: true, name: true } } },
       });
       await this.transition(tx, updated, userId, 'yayinlandi', 'talep.yayinlandi', ip);
+      await this.moderation.kuralSikayeti(
+        tx,
+        { targetType: 'talep', targetId: d.id, targetUserId: userId, targetAccountId: d.accountId },
+        kelimeler,
+      );
       return this.summary(updated);
     });
+  }
+
+  /** Moderasyonun kaldırdığı talebi sahibi yeniden yayına alamaz ya da uzatamaz; itiraz kabul edilirse geri gelir */
+  private moderasyonKontrol(d: { status: string; passiveReason: string | null }) {
+    if (d.status === 'PASSIVE' && d.passiveReason === 'moderasyon') {
+      throw new ConflictException(
+        'Talep moderasyon kararıyla yayından kaldırıldı; kararı bildirimlerden görüp itiraz edebilirsin',
+      );
+    }
   }
 
   /** Pasife al: talep silinmeden yayından kalkar, satıcılar yazamaz (Karar 09). */
@@ -502,6 +527,7 @@ export class DemandService {
   async activate(userId: string, id: string, ip?: string) {
     const d = await this.own(userId, id);
     this.expect(d, ['PASSIVE']);
+    this.moderasyonKontrol(d);
     if (!d.expiresAt || d.expiresAt <= new Date()) {
       throw new ConflictException('Talebin süresi doldu; yeniden yayına almak için uzat');
     }
@@ -522,6 +548,7 @@ export class DemandService {
   async extend(userId: string, id: string, ip?: string) {
     const d = await this.own(userId, id);
     this.expect(d, ['PUBLISHED', 'PASSIVE']);
+    this.moderasyonKontrol(d);
     const now = new Date();
     if (
       d.status === 'PUBLISHED' &&

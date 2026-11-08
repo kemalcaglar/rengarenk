@@ -84,6 +84,12 @@ export type EventType =
   | 'mesaj.ilk'
   | 'mesaj.geldi'
   | 'mesaj.uyari'
+  // Moderasyon (Karar 53): şikâyet açıldı, karar, ajanın askısı, itiraz ve sonucu
+  | 'sikayet.acildi'
+  | 'moderasyon.karar'
+  | 'moderasyon.ajan_aski'
+  | 'itiraz.acildi'
+  | 'moderasyon.itiraz_sonuc'
   | 'sohbet.numara_paylasildi'
   | 'sohbet.engellendi'
   // Güven (Karar 28, 55): yıldız ve takip edilen galerinin günlük özeti

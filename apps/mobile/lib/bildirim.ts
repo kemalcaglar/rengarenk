@@ -15,6 +15,8 @@ export function bildirimAc(url: string | null) {
   if (yol === '/favoriler') return router.push('/favoriler');
   if (yol === '/haklarim') return router.push('/haklarim');
   if (yol.startsWith('/galeri-paneli')) return router.push('/galeri-paneli');
+  const itiraz = yol.match(/^\/itiraz\/([\w-]+)$/);
+  if (itiraz) return router.push(`/itiraz/${itiraz[1]}`);
   const talep = yol.match(/^\/talep\/(\d+)$/);
   if (talep) return router.push(`/talep/${talep[1]}`);
   const galeri = yol.match(/^\/galeri\/([\w-]+)$/);

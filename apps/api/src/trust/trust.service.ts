@@ -193,6 +193,20 @@ export class TrustService {
 
   /** Satıcının göstergelerini hesaplar ve saklar */
   async recompute(accountId: string) {
+    // Şikâyet oranı (Karar 55): son 90 günde karara bağlanan ve geri alınmayan şikâyetler / açılan sohbetler
+    const gun90 = new Date(Date.now() - BADGE_RULES.guven.gun * DAY);
+    const [sikayet, sohbet] = await Promise.all([
+      this.db.report.count({
+        where: {
+          targetAccountId: accountId,
+          status: 'kapali',
+          decision: { in: ['uyari', 'gizle', 'aski', 'engel'] },
+          reversedAt: null,
+          decidedAt: { gte: gun90 },
+        },
+      }),
+      this.db.conversation.count({ where: { sellerAccountId: accountId, createdAt: { gte: gun90 } } }),
+    ]);
     const [yildizlar, acc, yanitlar] = await Promise.all([
       this.db.rating.findMany({
         where: { sellerAccountId: accountId, counted: true },
@@ -231,7 +245,7 @@ export class TrustService {
       yildizOrtalama: yildizlar.length ? toplam / yildizlar.length : null,
       yanitSohbet: olculen.length,
       ortancaDakika: ortanca === null ? null : Number.isFinite(ortanca) ? ortanca : 24 * 60 * 30,
-      sikayetOrani: 0,
+      sikayetOrani: sikayet ? sikayet / Math.max(sohbet, 1) : 0,
       onayliGaleri: !!acc.gallery && acc.status === 'ACTIVE',
     };
     const veri = {

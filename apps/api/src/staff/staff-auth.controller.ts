@@ -112,6 +112,10 @@ export class StaffMeController {
             where: { status: { in: ['IN_REVIEW', 'DOCS_REQUESTED'] } },
           })
         : 0,
+      /** Menüde Moderasyon rozeti: süresi aşan açık şikâyetler (Karar 53; tasarım "3 süre aştı") */
+      overdueReports: satisfies(req.staff.grants['sikayet.coz'], 'tam')
+        ? await this.db.report.count({ where: { status: 'acik', dueAt: { lt: new Date() } } })
+        : 0,
       idleMinutes: STAFF_IDLE_MINUTES,
     };
   }

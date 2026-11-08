@@ -197,7 +197,14 @@ pnpm format        # Biome ile biçimlendir
   Şablonlar (sürümlü, `notification_templates`), Bildirim merkezi, Teslim raporu, Otomatik akışlar (`notification_switches`,
   `automations.ts`). Yeni olay eklerken `notification-events.ts` eşlemesine ve `NOTIFY_TEMPLATES`'e ekle. E-postada açılma
   ve tıklama izlenmez. Çalışan olaylarının sahibe iletilmesi Aşama 8'de. API'de 134 test.
-- **Sıradaki:** Aşama 8 (yönetim ve güven: konsol modülleri, moderasyon, destek, Rengarenk Ajanı, KVKK araçları) ya da
+- **Sprint 18 (8 Kasım 2026, Aşama 8 ilk bölüm):** şikâyet ve moderasyon (`apps/api/src/moderation/`,
+  `packages/shared/src/moderation.ts`): şikâyet (mesaj, talep, araç), konsol Moderasyon (kuyruk, maskeli kanıt, karar,
+  itiraz, içerik filtreleri, yasaklı kelimeler), askı (`SanctionService.assertCanMessage`), gizleme (talepte
+  `passive_reason = moderasyon`, araçta `moderated_at`, mesajda `hidden_at`), kalıcı engelleme PERMANENT_BAN onayıyla,
+  ajanın kural tabanlı kapora kontrolü, web `/itiraz/[id]` ve mobil itiraz ekranı. API'de 137, ortak pakette 74 test.
+- **Sıradaki (Aşama 8 devamı):** kullanıcı ve galeri kartı + kara liste (Karar 52, 43), destek (Karar 54, Yardım),
+  KVKK araçları (Karar 58, 59), Rengarenk Ajanı ve yapay zekâ bütçesi (Karar 41, 57), çalışan uyarılarının sahibe
+  iletilmesi; ya da
   sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan
   kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google

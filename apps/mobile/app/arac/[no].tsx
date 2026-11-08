@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ikon } from '../../components/ikon';
+import { Sikayet } from '../../components/sikayet';
 import { T } from '../../components/t';
 import { API } from '../../lib/api';
 import { useOturum } from '../../lib/oturum';
@@ -67,6 +68,7 @@ const kart = {
  */
 export default function AracEkrani() {
   const { no } = useLocalSearchParams<{ no: string }>();
+  const [sikayet, setSikayet] = useState(false);
   const { durum, istek } = useOturum();
   const [a, setA] = useState<Arac | null | 'yok'>(null);
   const [foto, setFoto] = useState(0);
@@ -335,6 +337,21 @@ export default function AracEkrani() {
                 Aracı görmeden kapora veya ön ödeme gönderme. Ödemeyi noterde satış sırasında yap.
               </T>
             </View>
+            <T
+              accessibilityRole="button"
+              onPress={() => (durum === 'uye' ? setSikayet(true) : router.push('/giris'))}
+              style={{
+                marginTop: 12,
+                marginHorizontal: 16,
+                fontSize: 13.5,
+                fontWeight: '700',
+                color: '#A3271F',
+                paddingVertical: 6,
+              }}
+            >
+              Bu ilanı şikayet et
+            </T>
+            <Sikayet acik={sikayet} hedef="arac" id={String(arac.no)} kapat={() => setSikayet(false)} />
           </>
         ) : null}
       </ScrollView>

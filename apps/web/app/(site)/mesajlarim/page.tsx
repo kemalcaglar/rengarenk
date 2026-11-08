@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type CSSProperties, type FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { PuanVer } from '../../../components/puan-ver';
+import { Sikayet } from '../../../components/sikayet';
 import { useCanli } from '../../../lib/canli';
 import { API, binlik, istek, useGiris } from '../../../lib/istemci';
 
@@ -33,6 +34,8 @@ interface Mesaj {
   gonderen: string | null;
   kart: { no: number; ad: string; ozet: string; fiyat: number; foto: string | null; satista: boolean } | null;
   uyari: { baslik: string; metin: string } | null;
+  /** Moderasyon gizledi (Karar 53) */
+  gizli?: boolean;
 }
 interface Sohbet {
   id: string;
@@ -111,6 +114,7 @@ export default function Mesajlarim() {
   const [filtre, setFiltre] = useState<(typeof FILTRE)[number][0]>('tumu');
   const [aktif, setAktif] = useState<string | null>(null);
   const [s, setS] = useState<Sohbet | null>(null);
+  const [sikayet, setSikayet] = useState<string | null>(null);
   const [metin, setMetin] = useState('');
   const [yanitla, setYanitla] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
@@ -482,14 +486,28 @@ export default function Mesajlarim() {
                       {s.engelli ? 'Engeli kaldır' : 'Engelle'}
                     </button>
                   ) : null}
-                  <button
-                    type="button"
-                    disabled
-                    title="Şikâyet moderasyonla birlikte açılacak"
-                    style={{ ...kenarDugme, color: '#A3271F', opacity: 0.55, cursor: 'default' }}
-                  >
-                    Şikayet et
-                  </button>
+                  {(() => {
+                    // Karşı tarafın son mesajı şikâyet edilir; tek tek mesaj için mesajın altındaki bağlantı (Karar 53)
+                    const son = [...s.mesajlar]
+                      .reverse()
+                      .find((m) => m.yon === 'gelen' && m.tip === 'metin' && !m.gizli);
+                    return (
+                      <button
+                        type="button"
+                        disabled={!son}
+                        title={son ? undefined : 'Şikayet edilecek mesaj yok'}
+                        onClick={() => son && setSikayet(son.id)}
+                        style={{
+                          ...kenarDugme,
+                          color: '#A3271F',
+                          opacity: son ? 1 : 0.55,
+                          cursor: son ? 'pointer' : 'default',
+                        }}
+                      >
+                        Şikayet et
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
 
@@ -576,11 +594,12 @@ export default function Mesajlarim() {
                           {g}
                         </span>
                       ) : null}
-                      <MesajGorunumu m={m} />
+                      <MesajGorunumu m={m} sikayet={() => setSikayet(m.id)} />
                     </div>
                   );
                 })}
                 <div ref={alt} />
+                {sikayet ? <Sikayet hedef="mesaj" id={sikayet} kapat={() => setSikayet(null)} /> : null}
               </div>
 
               {s.ilkMesajBekliyor && !yanitla ? (
@@ -782,7 +801,7 @@ function rozet(bg: string, renk: string): CSSProperties {
   };
 }
 
-function MesajGorunumu({ m }: { m: Mesaj }) {
+function MesajGorunumu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
   if (m.tip === 'sistem') {
     return (
       <div
@@ -873,6 +892,24 @@ function MesajGorunumu({ m }: { m: Mesaj }) {
     );
   }
   const giden = m.yon === 'giden';
+  if (m.gizli) {
+    return (
+      <div
+        style={{
+          alignSelf: giden ? 'flex-end' : 'flex-start',
+          maxWidth: '72%',
+          border: '1px dashed #AEB5C4',
+          borderRadius: 16,
+          padding: '10px 14px',
+          fontSize: 13.5,
+          fontStyle: 'italic',
+          color: '#5A6073',
+        }}
+      >
+        Bu mesaj güvenlik kuralları nedeniyle moderasyon tarafından gizlendi.
+      </div>
+    );
+  }
   return (
     <>
       <div
@@ -899,6 +936,27 @@ function MesajGorunumu({ m }: { m: Mesaj }) {
         <span style={{ display: 'block', fontSize: 11.5, color: '#5A6073', marginTop: 4 }}>
           {saat(m.zaman)}
           {m.gonderen ? ` · ${m.gonderen}` : ''}
+          {!giden && m.tip === 'metin' ? (
+            <>
+              {' · '}
+              <button
+                type="button"
+                onClick={sikayet}
+                style={{
+                  border: 0,
+                  background: 'transparent',
+                  padding: 0,
+                  fontSize: 11.5,
+                  fontWeight: 700,
+                  color: '#A3271F',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Şikayet et
+              </button>
+            </>
+          ) : null}
         </span>
       </div>
       {m.uyari ? (
@@ -929,7 +987,24 @@ function MesajGorunumu({ m }: { m: Mesaj }) {
             <path d="M12 10v4M12 17h.01" />
           </svg>
           <div style={{ fontSize: 13.5, lineHeight: 1.5, color: '#6E1A15' }}>
-            <strong>{m.uyari.baslik}</strong> {m.uyari.metin}
+            <strong>{m.uyari.baslik}</strong> {m.uyari.metin}{' '}
+            <button
+              type="button"
+              onClick={sikayet}
+              style={{
+                border: 0,
+                background: 'transparent',
+                padding: 0,
+                fontSize: 13.5,
+                fontWeight: 800,
+                color: '#A3271F',
+                textDecoration: 'underline',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
+            >
+              Şikayet et
+            </button>
           </div>
         </div>
       ) : null}

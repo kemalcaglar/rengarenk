@@ -7,6 +7,7 @@ import { DatabaseModule } from './database/database.module.js';
 import { DemandsWorkerModule } from './demands/demands.module.js';
 import { GalleriesWorkerModule } from './galleries/galleries.module.js';
 import { MatchingWorkerModule } from './matching/matching.module.js';
+import { ModerationServiceModule } from './moderation/moderation.module.js';
 import { NotificationsWorkerModule } from './notifications/notifications.module.js';
 import { MetricsModule } from './observability/metrics.js';
 import { OutboxService } from './outbox/outbox.service.js';
@@ -44,6 +45,7 @@ import { TrustWorkerModule } from './trust/trust.module.js';
     PaymentsWorkerModule,
     SmsModule,
     NotificationsWorkerModule,
+    ModerationServiceModule,
   ],
   providers: [OutboxService, QueueService],
 })

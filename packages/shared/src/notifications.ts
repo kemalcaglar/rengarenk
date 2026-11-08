@@ -528,6 +528,68 @@ export const NOTIFY_TEMPLATES = {
       dugme: { yazi: 'E-postamı doğrula', url: '/eposta-dogrula?kod={{kod}}' },
     },
   },
+  'moderasyon.karar': {
+    ad: 'Moderasyon kararı (hakkında)',
+    konu: 'guvenlik',
+    grup: 'guvenlik',
+    baslik: 'Hesabınla ilgili moderasyon kararı',
+    metin: '{{karar}}. Gerekçeyi görebilir, 7 gün içinde itiraz edebilirsin.',
+    url: '/itiraz/{{rapor}}',
+    eposta: {
+      konu: 'Hesabınla ilgili moderasyon kararı',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        'Bir şikâyet üzerine içeriğini inceledik ve şu kararı verdik: {{karar}}.',
+        'Gerekçe: {{gerekce}}',
+        'Karara katılmıyorsan 7 gün içinde itiraz edebilirsin. İtirazını kararı veren dışında bir moderatör inceler.',
+      ],
+      dugme: { yazi: 'Kararı gör, itiraz et', url: '/itiraz/{{rapor}}' },
+    },
+  },
+  'moderasyon.aski': {
+    ad: 'Hesap incelemeye alındı (ajan)',
+    konu: 'guvenlik',
+    grup: 'guvenlik',
+    baslik: 'Hesabın incelemeye alındı',
+    metin: 'Bir mesajın güvenlik kurallarına takıldı; 24 saat mesaj gönderemezsin. Moderatör inceleyecek.',
+    url: '/mesajlarim',
+    eposta: {
+      konu: 'Hesabın incelemeye alındı',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        'Gönderdiğin bir mesaj kapora ya da ödeme isteği içerdiği için gizlendi ve hesabın 24 saat mesaj gönderemeyecek.',
+        'Bir moderatör durumu inceleyip karar verecek; karar sana bildirilecek ve 7 gün içinde itiraz edebileceksin.',
+      ],
+    },
+  },
+  'moderasyon.sikayet_sonuc': {
+    ad: 'Şikâyetin sonuçlandı',
+    konu: 'guvenlik',
+    grup: 'guvenlik',
+    baslik: 'Şikâyetin sonuçlandı',
+    metin: '{{sonuc}}',
+    eposta: {
+      konu: 'Şikâyetin sonuçlandı',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        'S-{{no}} numaralı şikâyetin için: {{sonuc}}',
+        'Bildirdiğin için teşekkür ederiz.',
+      ],
+    },
+  },
+  'moderasyon.itiraz_sonuc': {
+    ad: 'İtirazın sonuçlandı',
+    konu: 'guvenlik',
+    grup: 'guvenlik',
+    baslik: 'İtirazın sonuçlandı',
+    metin: '{{sonuc}}',
+    url: '/itiraz/{{rapor}}',
+    eposta: {
+      konu: 'İtirazın sonuçlandı',
+      paragraflar: ['Merhaba {{ad}},', '{{sonuc}}'],
+      dugme: { yazi: 'Ayrıntıyı gör', url: '/itiraz/{{rapor}}' },
+    },
+  },
 } as const satisfies Record<string, NotifyTemplate>;
 export type TemplateKey = keyof typeof NOTIFY_TEMPLATES;
 export const templateOf = (key: string): NotifyTemplate | undefined =>

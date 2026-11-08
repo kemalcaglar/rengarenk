@@ -173,6 +173,16 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Moderasyon (Sprint 18)
+
+- **Kullanıcı:** `POST /reports` (`{ hedef: mesaj|talep|arac, id, neden, aciklama? }`; mesajda mesaj kimliği, talep ve
+  araçta numara), `GET /moderation/decisions/:id`, `POST /moderation/decisions/:id/appeal` (`{ metin }`).
+- **Konsol:** `/staff/moderation/reports[/:id][/decide]`, `/appeals[/:id/decide]`, `/filters[/:key]`, `/words[/:kelime]`.
+  Görmek ve uyarı/gizle/red `sikayet.coz`, askı `hesap.askiya_al`, kalıcı engelleme önerisi `hesap.kalici_engelle`
+  (onay kuyruğunda PERMANENT_BAN; işçi yürütür).
+- **İşçi:** `mesaj.uyari` olayında ajan kontrolü (kapora ve IBAN/ödeme isteği). Kurallar `packages/shared/src/moderation.ts`,
+  servis `apps/api/src/moderation/`. Şikâyet, itiraz ve yaptırım kayıtları silinmez.
+
 ## Bildirimler (Sprint 17)
 
 - **Katman:** `apps/api/src/notifications/`; şablonlar ve konular `packages/shared/src/notifications.ts`. Olaylar işçide

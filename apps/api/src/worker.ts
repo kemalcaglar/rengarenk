@@ -9,6 +9,7 @@ import { DemandService } from './demands/demand.service.js';
 import { GalleryService } from './galleries/gallery.service.js';
 import { GalleryApplicationService } from './galleries/gallery-application.service.js';
 import { MatchingService } from './matching/matching.service.js';
+import { ModerationService } from './moderation/moderation.service.js';
 import { AutomationService } from './notifications/automations.js';
 import { CommercialService, IYS, type IysProvider } from './notifications/commercial.js';
 import { DeliveryService } from './notifications/delivery.service.js';
@@ -45,6 +46,7 @@ const bildirimOlaylari = app.get(NotificationEvents);
 const teslim = app.get(DeliveryService);
 const ticari = app.get(CommercialService);
 const akislar = app.get(AutomationService);
+const moderasyon = app.get(ModerationService);
 const itibar = app.get(ReputationService);
 const iys = app.get<IysProvider>(IYS);
 await queue.start();
@@ -106,6 +108,12 @@ for (const event of ['portfoy.yayinlandi', 'portfoy.guncellendi', 'portfoy.kalkt
 await queue.consume<{ orderId: string }>('odeme.alindi', 'odeme-fatura', ({ orderId }) =>
   orders.issueInvoice(orderId),
 );
+// Ajan (Karar 41): satıcı mesajında açık kapora ve ödeme isteği varsa mesajı gizler, 24 saat askı, karar insana
+await queue.consume<{ messageId?: string }>('mesaj.uyari', 'moderasyon-ajan', async ({ messageId }) => {
+  if (!messageId) return;
+  const r = await moderasyon.ajanMesajKontrolu(messageId);
+  if (r !== 'islem_yok') log.log(`ajan mesaj kontrolü: ${r}`);
+});
 // Bildirim katmanı (Karar 48): olaylar alıcı ve şablona çevrilir; teslimleri döngü gönderir
 for (const event of NOTIFY_EVENTS) {
   await queue.consume<Record<string, unknown>>(event, `bildirim-${event.replace('.', '-')}`, (payload) =>

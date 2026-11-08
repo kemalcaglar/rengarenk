@@ -3,6 +3,7 @@
 import { DEPOSIT_NOTE, MESSAGE_MAX } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { Sikayet } from '../../../../components/sikayet';
 import { API, istek, useGiris } from '../../../../lib/istemci';
 
 /** Fotoğraf gezgini (PortfoyArac.dc.html): büyük görsel, önceki/sonraki, küçük resimler */
@@ -303,5 +304,36 @@ export function TalebineUyuyor({ no }: { no: number }) {
         Talebimi aç
       </Link>
     </div>
+  );
+}
+
+/** "Bu ilanı şikayet et" (PortfoyArac.dc.html; Karar 53): girişsiz kullanıcı girişe yönlenir */
+export function IlanSikayet({ no }: { no: number }) {
+  const giris = useGiris();
+  const [acik, setAcik] = useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          if (!giris) window.location.href = `/giris?sonra=/arac/${no}`;
+          else setAcik(true);
+        }}
+        style={{
+          alignSelf: 'flex-start',
+          border: 0,
+          background: 'transparent',
+          fontSize: 13.5,
+          fontWeight: 700,
+          color: '#A3271F',
+          padding: '0 4px',
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+        }}
+      >
+        Bu ilanı şikayet et
+      </button>
+      {acik ? <Sikayet hedef="arac" id={String(no)} kapat={() => setAcik(false)} /> : null}
+    </>
   );
 }

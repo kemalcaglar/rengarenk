@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AracSemasiGorunum } from '../../../../components/arac-semasi';
 import { binlik } from '../../../../lib/talep-bicim';
-import { FotoGezgini, Iletisim, TalebineUyuyor } from './arac-istemci';
+import { FotoGezgini, IlanSikayet, Iletisim, TalebineUyuyor } from './arac-istemci';
 
 const API = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 const GENEL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
@@ -73,7 +73,7 @@ const DURUM_AD: Record<string, string> = {
 /**
  * Portföy aracı sayfası (tasarım: PortfoyArac.dc.html; Karar 07, 17). Yalnızca EİDS onaylı ve yayındaki araç görünür;
  * plakanın yalnızca il kodu yazılır. "Talebine uyuyor" bandı girişli alıcının yayındaki talepleriyle hesaplanır; mesaj
- * Aşama 5'in ikinci bölümünde, şikayet Aşama 8'de, araç favorisi sonra gelir.
+ * Aşama 5'in ikinci bölümünde, şikayet Aşama 8'de (Karar 53), araç favorisi sonra gelir.
  */
 export default async function AracSayfasi({ params }: { params: Promise<{ no: string }> }) {
   const a = await al((await params).no);
@@ -350,6 +350,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
             <strong style={{ display: 'block', marginBottom: 4 }}>Güvenli alışveriş</strong>
             Aracı görmeden kapora veya ön ödeme gönderme. Ödemeyi noterde satış sırasında yap.
           </section>
+          <IlanSikayet no={a.no} />
         </aside>
       </div>
     </div>

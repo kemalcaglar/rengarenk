@@ -65,9 +65,12 @@ const tarih = (iso: string | null) =>
     : '';
 const doldu = (t: Talep) =>
   t.status === 'PASSIVE' && (t.passiveReason === 'sure_doldu' || gun(t.expiresAt) === 0);
+/** Moderasyon kararıyla yayından kaldırıldı (Karar 53): yeniden yayınlanamaz, bildirimden itiraz edilir */
+const moderasyon = (t: Talep) => t.status === 'PASSIVE' && t.passiveReason === 'moderasyon';
 
 function sure(t: Talep) {
   if (t.status === 'PUBLISHED') return `${t.category.name} · ${gun(t.expiresAt)} gün kaldı`;
+  if (moderasyon(t)) return 'Moderasyon kararıyla yayından kaldırıldı';
   if (t.status === 'PASSIVE') return doldu(t) ? `Süresi ${tarih(t.expiresAt)}’da doldu` : 'Pasife alındı';
   if (t.status === 'DRAFT') return `Taslak · 6 adımın ${Math.max(0, t.step - 1)}’i tamam`;
   return `${t.status === 'COMPLETED' ? 'Tamamlandı' : 'Kapatıldı'} · ${tarih(t.closedAt)}`;
@@ -364,7 +367,22 @@ export default function Taleplerim() {
                   </Pressable>
                 </>
               ) : null}
-              {t.status === 'PASSIVE' ? (
+              {moderasyon(t) ? (
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => router.push('/bildirimler')}
+                  style={{
+                    flex: 1,
+                    borderWidth: 1,
+                    borderColor: '#D5DAE5',
+                    borderRadius: 10,
+                    paddingVertical: 11,
+                    alignItems: 'center',
+                  }}
+                >
+                  <T style={{ fontSize: 14, fontWeight: '700' }}>Kararı gör, itiraz et</T>
+                </Pressable>
+              ) : t.status === 'PASSIVE' ? (
                 <>
                   <Pressable
                     accessibilityRole="button"

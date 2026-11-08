@@ -30,6 +30,7 @@ export interface Me {
   pendingApprovals: number;
   integrationWarnings: number;
   pendingGalleryApplications: number;
+  overdueReports: number;
   idleMinutes: number;
 }
 

@@ -5,6 +5,7 @@ import { Image, Linking, Pressable, ScrollView, Share, View } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ikon } from '../../components/ikon';
 import { IlkMesaj } from '../../components/ilk-mesaj';
+import { Sikayet } from '../../components/sikayet';
 import { T } from '../../components/t';
 import { AracSemasi, Cip, kartStil } from '../../components/talep/ortak';
 import { API } from '../../lib/api';
@@ -62,6 +63,7 @@ export default function TalepDetay() {
   const [t, setT] = useState<Talep | null>(null);
   const [hata, setHata] = useState<string | null>(null);
   const [alt, setAlt] = useState(0);
+  const [sikayet, setSikayet] = useState(false);
   // İlk mesaj (Karar 08, 11): yazıldıysa sohbete gider
   const [mesaj, setMesaj] = useState<{
     kendi: boolean;
@@ -517,10 +519,17 @@ export default function TalepDetay() {
             {t.schema.rules.legalNotice}
           </T>
         ) : null}
-        <T style={{ marginTop: 14, fontSize: 13.5, fontWeight: '600', color: '#8A91A3' }}>
-          Bu talebi şikayet et (yakında)
-        </T>
+        {t.owner.isYou ? null : (
+          <T
+            accessibilityRole="button"
+            onPress={() => (durum === 'uye' ? setSikayet(true) : router.push('/giris'))}
+            style={{ marginTop: 14, fontSize: 13.5, fontWeight: '600', color: '#5A6073', paddingVertical: 6 }}
+          >
+            Bu talebi şikayet et
+          </T>
+        )}
       </ScrollView>
+      <Sikayet acik={sikayet} hedef="talep" id={String(t.no)} kapat={() => setSikayet(false)} />
 
       <View
         style={{

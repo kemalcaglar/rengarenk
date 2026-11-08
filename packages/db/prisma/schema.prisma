@@ -1250,6 +1250,8 @@ model PortfolioVehicle {
   externalId        String?         @map("external_id")
   status            PortfolioStatus @default(DRAFT)
   statusNote        String?         @map("status_note")
+  /// Moderasyon yayından kaldırdı: galeri yeniden yayına alamaz, itiraz kabul edilirse kalkar (Karar 53)
+  moderatedAt       DateTime?       @map("moderated_at") @db.Timestamptz(3)
   /// Aracı düzenleyebilen satış temsilcisi (Karar 20)
   assignedTo        String?         @map("assigned_to") @db.Uuid
   createdBy         String          @map("created_by") @db.Uuid
@@ -1440,6 +1442,8 @@ model Message {
   vehicleId      String?  @map("vehicle_id") @db.Uuid
   /// Güvenlik kuralları: kapora, odeme, iban, telefon, baglanti (Karar 25)
   flags          String[] @default([])
+  /// Moderasyon gizledi (Karar 53): karşı tarafa "Bu mesaj gizlendi" görünür
+  hiddenAt       DateTime? @map("hidden_at") @db.Timestamptz(3)
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
   conversation Conversation @relation(fields: [conversationId], references: [id])
@@ -1883,4 +1887,116 @@ model NotificationSwitch {
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   @@map("notification_switches")
+}
+
+/// Şikâyet (Karar 13.2, 53): kullanıcı, kural ya da ajan açar; öncelik nedenden, süre öncelikten gelir
+model Report {
+  id               String    @id @db.Uuid
+  /// Konsolda görünen numara ("S-1024")
+  no               Int       @unique @default(autoincrement())
+  /// kullanici | kural | ajan
+  source           String
+  reporterUserId   String?   @map("reporter_user_id") @db.Uuid
+  /// mesaj | talep | arac
+  targetType       String    @map("target_type")
+  targetId         String    @map("target_id") @db.Uuid
+  /// Şikâyet edilen kişi ve (galeri adına yazdıysa) hesap
+  targetUserId     String    @map("target_user_id") @db.Uuid
+  targetAccountId  String?   @map("target_account_id") @db.Uuid
+  reason           String
+  /// kritik | yuksek | normal
+  priority         String
+  /// @pii Şikâyet edenin açıklaması
+  note             String?
+  /// Kuralın yakaladığı kelimeler ya da işaretler
+  signals          String[]  @default([])
+  dueAt            DateTime  @map("due_at") @db.Timestamptz(3)
+  /// acik | kapali
+  status           String    @default("acik")
+  /// uyari | gizle | aski | engel | red
+  decision         String?
+  decisionNote     String?   @map("decision_note")
+  decidedByStaffId String?   @map("decided_by_staff_id") @db.Uuid
+  decidedByAgent   Boolean   @default(false) @map("decided_by_agent")
+  decidedAt        DateTime? @map("decided_at") @db.Timestamptz(3)
+  /// Ajanın kendiliğinden yaptığı (mesajı gizledi, 24 saat askı); karar insana kalır
+  agentAction      String?   @map("agent_action")
+  /// Kalıcı engelleme önerisinin onay isteği
+  approvalId       String?   @map("approval_id") @db.Uuid
+  /// İtiraz kabul edildi, karar geri alındı
+  reversedAt       DateTime? @map("reversed_at") @db.Timestamptz(3)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  appeals   ReportAppeal[]
+  sanctions UserSanction[]
+
+  @@index([status, dueAt])
+  @@index([targetUserId, createdAt])
+  @@index([targetAccountId, decidedAt])
+  @@index([reporterUserId, createdAt])
+  @@index([targetType, targetId])
+  @@map("reports")
+}
+
+/// İtiraz (Karar 53): karardan sonra 7 gün; ilk kararı veren dışında bir moderatör inceler
+model ReportAppeal {
+  id               String    @id @db.Uuid
+  reportId         String    @unique @map("report_id") @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  /// @pii İtiraz metni
+  text             String
+  /// acik | kabul | red
+  status           String    @default("acik")
+  decidedByStaffId String?   @map("decided_by_staff_id") @db.Uuid
+  decisionNote     String?   @map("decision_note")
+  decidedAt        DateTime? @map("decided_at") @db.Timestamptz(3)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  report Report @relation(fields: [reportId], references: [id])
+
+  @@index([status, createdAt])
+  @@map("report_appeals")
+}
+
+/// Yaptırım: uyarı, 24 saat askı (mesaj gönderemez), kalıcı engelleme (hesap kapanır)
+model UserSanction {
+  id             String    @id @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  /// Galeri adına yazdıysa hesap da askıda sayılır
+  accountId      String?   @map("account_id") @db.Uuid
+  /// uyari | aski | engel
+  kind           String
+  reportId       String?   @map("report_id") @db.Uuid
+  /// Askının bitişi; boşsa onay isteği (approvalId) sürdükçe geçerlidir
+  until          DateTime? @db.Timestamptz(3)
+  approvalId     String?   @map("approval_id") @db.Uuid
+  createdByStaff String?   @map("created_by_staff") @db.Uuid
+  byAgent        Boolean   @default(false) @map("by_agent")
+  liftedAt       DateTime? @map("lifted_at") @db.Timestamptz(3)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  report Report? @relation(fields: [reportId], references: [id])
+
+  @@index([userId, kind, createdAt])
+  @@index([accountId, kind, createdAt])
+  @@map("user_sanctions")
+}
+
+/// Yasaklı kelimeler (Karar 13.2): talep ve mesajlarda işaretlenir, moderasyona düşer
+model BannedWord {
+  word      String   @id
+  createdBy String?  @map("created_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("banned_words")
+}
+
+/// Otomatik içerik filtreleri: tel | kapora | link | kelime (satır yoksa açık)
+model ContentFilter {
+  key       String   @id
+  enabled   Boolean
+  updatedBy String?  @map("updated_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("content_filters")
 }

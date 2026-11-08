@@ -1,5 +1,11 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { FLAG_TITLES, type MessageFlag, tlYaz } from '@rengarenk/shared';
+import {
+  FLAG_TITLES,
+  type MessageFlag,
+  REPORT_REASONS,
+  type ReportReasonKey,
+  tlYaz,
+} from '@rengarenk/shared';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { kalemler } from '../payments/order-item.js';
 import { vehicleNames } from '../portfolio/vehicle-names.js';
@@ -7,6 +13,27 @@ import { DemandSearchService } from '../search/demand-search.service.js';
 import { NotificationService } from './notification.service.js';
 
 const DAY = 86_400_000;
+/** Moderasyon kararının kullanıcıya görünen adı (hedef türüne göre) */
+const KARAR_METNI: Record<string, Record<string, string>> = {
+  mesaj: {
+    uyari: 'Uyarı',
+    gizle: 'Mesajın gizlendi',
+    aski: '24 saat askı: mesaj gönderemezsin',
+    engel: 'Hesabın incelemede: kalıcı engelleme önerildi',
+  },
+  talep: {
+    uyari: 'Uyarı',
+    gizle: 'Talebin yayından kaldırıldı',
+    aski: '24 saat askı: mesaj gönderemezsin',
+    engel: 'Hesabın incelemede: kalıcı engelleme önerildi',
+  },
+  arac: {
+    uyari: 'Uyarı',
+    gizle: 'Aracın yayından kaldırıldı',
+    aski: '24 saat askı: mesaj gönderemezsin',
+    engel: 'Hesabın incelemede: kalıcı engelleme önerildi',
+  },
+};
 const kisa = (s: string, n = 30) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 const tarih = (d: Date | string) =>
   new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', timeZone: 'Europe/Istanbul' }).format(
@@ -35,6 +62,9 @@ export const NOTIFY_EVENTS = [
   'galeri.deneme_bitti',
   'portfoy.eids_reddedildi',
   'kullanici.kaydoldu',
+  'moderasyon.karar',
+  'moderasyon.ajan_aski',
+  'moderasyon.itiraz_sonuc',
 ] as const;
 export type NotifyEvent = (typeof NOTIFY_EVENTS)[number];
 
@@ -260,6 +290,62 @@ export class NotificationEvents {
           userIds: [a.userId],
           sablon: type,
           veri: { galeri: g?.displayName ?? veri.gorunenAd ?? veri.unvan ?? 'Galerin' },
+        });
+      }
+      case 'moderasyon.karar': {
+        const r = await this.db.report.findUnique({ where: { id: s('reportId') } });
+        if (!r?.decision) return 0;
+        let n = 0;
+        // Şikâyet edene sonuç (şikâyet edilenin adı ve kararın ayrıntısı verilmez)
+        if (r.source === 'kullanici' && r.reporterUserId) {
+          n += await this.notifications.notify({
+            userIds: [r.reporterUserId],
+            sablon: 'moderasyon.sikayet_sonuc',
+            veri: {
+              no: r.no,
+              sonuc:
+                r.decision === 'red'
+                  ? 'İnceledik; kurallarımıza aykırı bir durum bulmadık.'
+                  : 'İnceledik ve gerekli işlemi yaptık.',
+            },
+          });
+        }
+        // Şikâyet edilene karar ve itiraz bağlantısı; reddedilen şikâyet bildirilmez. Aynı içeriğin diğer şikâyetleri
+        // birlikte kapandığında şikâyet edilene tek bildirim gider
+        if (r.decision !== 'red' && !p.yalnizcaSikayetEden) {
+          n += await this.notifications.notify({
+            userIds: [r.targetUserId],
+            sablon: 'moderasyon.karar',
+            veri: {
+              rapor: r.id,
+              karar: KARAR_METNI[r.targetType]?.[r.decision] ?? 'Uyarı',
+              gerekce: r.decisionNote ?? REPORT_REASONS[r.reason as ReportReasonKey]?.ad ?? '',
+            },
+          });
+        }
+        return n;
+      }
+      case 'moderasyon.ajan_aski': {
+        const r = await this.db.report.findUnique({
+          where: { id: s('reportId') },
+          select: { targetUserId: true },
+        });
+        if (!r) return 0;
+        return this.notifications.notify({ userIds: [r.targetUserId], sablon: 'moderasyon.aski', veri: {} });
+      }
+      case 'moderasyon.itiraz_sonuc': {
+        const a = await this.db.reportAppeal.findUnique({ where: { id: s('appealId') } });
+        if (!a || a.status === 'acik') return 0;
+        return this.notifications.notify({
+          userIds: [a.userId],
+          sablon: type,
+          veri: {
+            rapor: a.reportId,
+            sonuc:
+              a.status === 'kabul'
+                ? 'İtirazını haklı bulduk; karar geri alındı.'
+                : `İtirazını inceledik; karar geçerli.${a.decisionNote ? ` ${a.decisionNote}` : ''}`,
+          },
         });
       }
       case 'kullanici.kaydoldu':

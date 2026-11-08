@@ -17,6 +17,7 @@ import {
   FUELS,
   GEARBOXES,
   galleryAccess,
+  hidePhones,
   MEMBER_ROLE_NAMES,
   type MessageFlag,
   SECURITY_WARNING,
@@ -26,6 +27,9 @@ import {
 import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { EntitlementService } from '../entitlements/entitlement.service.js';
+import { ContentRulesService } from '../moderation/content-rules.service.js';
+import { ModerationService } from '../moderation/moderation.service.js';
+import { SanctionService } from '../moderation/sanctions.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { vehicleNames } from '../portfolio/vehicle-names.js';
 import { SecretBox } from '../staff/secret-box.js';
@@ -85,6 +89,9 @@ export class MessagesService {
     private readonly outbox: OutboxService,
     private readonly realtime: RealtimeService,
     private readonly trust: TrustService,
+    private readonly sanctions: SanctionService,
+    private readonly moderation: ModerationService,
+    private readonly icerik: ContentRulesService,
   ) {
     this.box = SecretBox.forMessages(env);
   }
@@ -262,7 +269,9 @@ export class MessagesService {
       );
     }
     if (b.aracId) await this.kartKontrol(s, b.aracId, alanlar, def);
+    await this.sanctions.assertCanMessage(userId, s.accountId);
     const flags = scanMessage(b.metin);
+    const kelimeler = await this.icerik.yasakli(b.metin);
     const id = uuidv7();
     const now = new Date();
     try {
@@ -294,7 +303,12 @@ export class MessagesService {
             sellerReadAt: now,
           },
         });
-        await this.yaz(tx, id, 'satici', userId, b.metin, flags);
+        const mid = await this.yaz(tx, id, 'satici', userId, b.metin, flags);
+        await this.moderation.kuralSikayeti(
+          tx,
+          { targetType: 'mesaj', targetId: mid, targetUserId: userId, targetAccountId: s.accountId },
+          kelimeler,
+        );
         if (b.aracId) await this.kart(tx, id, 'satici', userId, b.aracId);
         await this.outbox.add(tx, 'mesaj.ilk', {
           conversationId: id,
@@ -302,7 +316,8 @@ export class MessagesService {
           sellerAccountId: s.accountId,
           entitlement,
         });
-        if (flags.length) await this.outbox.add(tx, 'mesaj.uyari', { conversationId: id, flags });
+        if (flags.length)
+          await this.outbox.add(tx, 'mesaj.uyari', { conversationId: id, messageId: mid, flags });
       });
     } catch (e) {
       throw tekrar(e, 'Bu talebe bu hesaptan zaten ilk mesaj atıldı');
@@ -352,9 +367,10 @@ export class MessagesService {
     metin: string,
     flags: MessageFlag[],
   ) {
+    const id = uuidv7();
     await tx.message.create({
       data: {
-        id: uuidv7(),
+        id,
         conversationId,
         side,
         senderUserId: userId,
@@ -363,6 +379,7 @@ export class MessagesService {
         flags,
       },
     });
+    return id;
   }
 
   private async kart(
@@ -410,7 +427,9 @@ export class MessagesService {
       await this.send(userId, var_.id, { metin });
       return { id: var_.id };
     }
+    await this.sanctions.assertCanMessage(userId);
     const flags = scanMessage(metin);
+    const kelimeler = await this.icerik.yasakli(metin);
     const id = uuidv7();
     const now = new Date();
     try {
@@ -440,7 +459,12 @@ export class MessagesService {
           },
         });
         await this.kart(tx, id, 'sistem', null, v.id);
-        await this.yaz(tx, id, 'alici', userId, metin, flags);
+        const mid = await this.yaz(tx, id, 'alici', userId, metin, flags);
+        await this.moderation.kuralSikayeti(
+          tx,
+          { targetType: 'mesaj', targetId: mid, targetUserId: userId, targetAccountId: null },
+          kelimeler,
+        );
         await this.outbox.add(tx, 'mesaj.geldi', { conversationId: id, origin: 'arac' });
       });
     } catch (e) {
@@ -499,14 +523,26 @@ export class MessagesService {
         d ? await this.rules(d.categoryId, d.schemaVersion) : null,
       );
     }
+    await this.sanctions.assertCanMessage(userId, taraf === 'satici' ? c.sellerAccountId : null);
     const flags = scanMessage(b.metin);
+    const kelimeler = await this.icerik.yasakli(b.metin);
     const now = new Date();
     await this.db.$transaction(async (tx) => {
       if (taraf === 'alici' && c.status === 'WAITING') {
         await tx.conversation.update({ where: { id }, data: { status: 'OPEN' } });
         await this.sistem(tx, id, 'Sohbet açıldı. Artık iki taraf da serbestçe yazışabilir.');
       }
-      await this.yaz(tx, id, taraf, userId, b.metin, flags);
+      const mid = await this.yaz(tx, id, taraf, userId, b.metin, flags);
+      await this.moderation.kuralSikayeti(
+        tx,
+        {
+          targetType: 'mesaj',
+          targetId: mid,
+          targetUserId: userId,
+          targetAccountId: taraf === 'satici' ? c.sellerAccountId : null,
+        },
+        kelimeler,
+      );
       if (b.aracId) await this.kart(tx, id, 'satici', userId, b.aracId);
       await tx.conversation.update({
         where: { id },
@@ -517,7 +553,8 @@ export class MessagesService {
         },
       });
       await this.outbox.add(tx, 'mesaj.geldi', { conversationId: id, side: taraf });
-      if (flags.length) await this.outbox.add(tx, 'mesaj.uyari', { conversationId: id, flags, side: taraf });
+      if (flags.length)
+        await this.outbox.add(tx, 'mesaj.uyari', { conversationId: id, messageId: mid, flags, side: taraf });
     });
     await this.bildir(id);
     return this.detail(userId, id);
@@ -619,9 +656,11 @@ export class MessagesService {
   }
 
   private async sonMesajlar(ids: string[]) {
-    if (!ids.length) return new Map<string, { kind: string; body: string; side: string }>();
-    const rows = await this.db.$queryRaw<{ id: string; kind: string; body: string; side: string }[]>`
-      SELECT DISTINCT ON (conversation_id) conversation_id AS id, kind, body, side
+    if (!ids.length) return new Map<string, { kind: string; body: string; side: string; gizli: boolean }>();
+    const rows = await this.db.$queryRaw<
+      { id: string; kind: string; body: string; side: string; gizli: boolean }[]
+    >`
+      SELECT DISTINCT ON (conversation_id) conversation_id AS id, kind, body, side, hidden_at IS NOT NULL AS gizli
       FROM messages WHERE conversation_id = ANY(${ids}::uuid[])
       ORDER BY conversation_id, created_at DESC, id DESC`;
     return new Map(rows.map((r) => [r.id, r]));
@@ -680,7 +719,13 @@ export class MessagesService {
     return cs.map((c) => {
       const taraf: Taraf = c.buyerUserId === userId ? 'alici' : 'satici';
       const s = son.get(c.id);
-      const sonMetin = !s ? '' : s.kind === 'kart' ? 'Araç kartı' : this.acik(s.body);
+      const sonMetin = !s
+        ? ''
+        : s.gizli
+          ? 'Bu mesaj gizlendi'
+          : s.kind === 'kart'
+            ? 'Araç kartı'
+            : this.acik(s.body);
       const karsi = this.karsiAd(c, taraf, satici.get(c.sellerUserId));
       return {
         id: c.id,
@@ -758,6 +803,7 @@ export class MessagesService {
             title: true,
             headline: true,
             nameMode: true,
+            phoneVisible: true,
             user: { select: { firstName: true, lastName: true } },
           },
         },
@@ -833,15 +879,25 @@ export class MessagesService {
       ]),
     );
 
+    // İçerik filtreleri (konsol › Moderasyon): uyarı bandı ve telefon izni kapalı alıcıda numara gizleme (Karar 13.2)
+    const { filtre } = await this.icerik.filtreler();
+    const acikMi = (k: string) => filtre.get(k) ?? true;
+    const bant = (f: MessageFlag) =>
+      f === 'baglanti' ? acikMi('link') : f === 'telefon' ? acikMi('tel') : acikMi('kapora');
+    const numaraGizle = taraf === 'alici' && !!c.demand && !c.demand.phoneVisible && acikMi('tel');
     const mesajlar = c.messages.map((m) => {
       const benim = m.side === taraf;
-      const flags = m.flags as MessageFlag[];
+      const flags = (m.flags as MessageFlag[]).filter(bant);
+      const gizli = !!m.hiddenAt;
+      const metin = m.kind === 'kart' || gizli ? '' : this.acik(m.body);
       const gonderen = m.senderUserId ? kisi.get(m.senderUserId) : null;
       return {
         id: m.id,
         tip: m.kind as 'metin' | 'kart' | 'sistem',
         yon: m.side === 'sistem' && m.kind === 'sistem' ? 'sistem' : benim ? 'giden' : 'gelen',
-        metin: m.kind === 'kart' ? '' : this.acik(m.body),
+        metin: numaraGizle && m.side === 'satici' ? hidePhones(metin) : metin,
+        // Moderasyon gizledi: iki tarafa da "Bu mesaj gizlendi" görünür (Karar 53)
+        gizli,
         zaman: m.createdAt,
         // Galeride kimin yazdığı (ekip içinde ve alıcıya "galeri adıyla birlikte kendi adı", Karar 20)
         gonderen:
@@ -851,7 +907,7 @@ export class MessagesService {
         kart: m.vehicleId ? (kartlar.get(m.vehicleId) ?? null) : null,
         // Uyarı bandı yalnızca alıcıya, satıcının mesajında (Karar 25)
         uyari:
-          taraf === 'alici' && m.side === 'satici' && flags.length
+          !gizli && taraf === 'alici' && m.side === 'satici' && flags.length
             ? { baslik: FLAG_TITLES[flags[0] as MessageFlag], metin: SECURITY_WARNING }
             : null,
       };

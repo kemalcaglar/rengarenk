@@ -74,6 +74,10 @@ const ORNEK: Record<string, unknown> = {
   url: '/haklarim',
   dugme: 'İncele',
   link: 'https://rengarenk.com.tr/taleplerim',
+  karar: '24 saat askı: mesaj gönderemezsin',
+  gerekce: 'Mesajında kapora istendi.',
+  rapor: 'ornek',
+  sonuc: 'İnceledik ve gerekli işlemi yaptık.',
 };
 const ornek = (t: NotifyTemplate) =>
   Object.fromEntries(templateVariables(t).map((v) => [v, ORNEK[v] ?? `örnek ${v}`]));

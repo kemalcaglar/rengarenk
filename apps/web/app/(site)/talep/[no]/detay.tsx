@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { type CSSProperties, useEffect, useState } from 'react';
 import { AracSemasiGorunum } from '../../../../components/arac-semasi';
 import { IlkMesaj } from '../../../../components/ilk-mesaj';
+import { Sikayet } from '../../../../components/sikayet';
 import { API, istek, useGiris } from '../../../../lib/istemci';
 import { butceAraligi, deger, etiket, uzunTarih } from '../../../../lib/talep-bicim';
 
@@ -120,6 +121,7 @@ export function TalepDetay({
     hesaplar: { galeri: boolean }[];
   } | null>(null);
   const [pencere, setPencere] = useState(false);
+  const [sikayet, setSikayet] = useState(false);
 
   // Favori (Karar 06.4): misafir önce giriş yapar; kendi talebi favoriye eklenmez
   async function favori() {
@@ -1202,32 +1204,43 @@ export function TalepDetay({
               {t.schema.rules.legalNotice}
             </p>
           ) : null}
-          <span
-            title="Şikâyet yakında açılacak"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              fontSize: 14,
-              fontWeight: 600,
-              color: '#8A91A3',
-              padding: '6px 4px',
-            }}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinejoin="round"
-              aria-hidden="true"
+          {sahip.isYou ? null : (
+            <button
+              type="button"
+              onClick={() => {
+                if (!giris) window.location.href = `/giris?sonra=/talep/${t.no}`;
+                else setSikayet(true);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                fontSize: 14,
+                fontWeight: 600,
+                color: '#5A6073',
+                padding: '6px 4px',
+                border: 0,
+                background: 'transparent',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
             >
-              <path d="M5 21V4h11l-2 4 2 4H5" />
-            </svg>
-            Bu talebi şikayet et
-          </span>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M5 21V4h11l-2 4 2 4H5" />
+              </svg>
+              Bu talebi şikayet et
+            </button>
+          )}
+          {sikayet ? <Sikayet hedef="talep" id={String(t.no)} kapat={() => setSikayet(false)} /> : null}
         </aside>
       </div>
     </div>

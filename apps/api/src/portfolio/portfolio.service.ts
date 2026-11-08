@@ -468,6 +468,11 @@ export class PortfolioService {
   async activate(c: Ctx, id: string, ip?: string) {
     const v = await this.own(c, id);
     if (v.status !== 'PASSIVE') throw new ConflictException('Yalnızca pasif araç yeniden yayına alınır');
+    if (v.moderatedAt) {
+      throw new ConflictException(
+        'Araç moderasyon kararıyla yayından kaldırıldı; kararı bildirimlerden görüp itiraz edebilirsin',
+      );
+    }
     return this.change(
       c,
       v,

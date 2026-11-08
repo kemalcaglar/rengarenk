@@ -138,7 +138,27 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
-## Sprint 17 · bildirim katmanı, şablonlar, otomatik akışlar (Aşama 7, 8 Kasım 2026)
+## Sprint 18 · şikâyet ve moderasyon (Aşama 8 ilk bölüm, 8 Kasım 2026)
+
+- [x] Şikâyet (Karar 13.2, 53): mesaj, talep ve portföy aracı; neden önceliği belirler (kritik 1 saat, yüksek 4 saat,
+  normal 24 saat); kişi başına günde 10; aynı hedefe açık şikâyet tekrar açılmaz. Web ve mobilde mesajın altında,
+  sohbet başlığında, talep ve araç sayfasında "Şikayet et"
+- [x] Konsol › Pazar › Moderasyon: kuyruk (süre sayacı, menüde "N süre aştı"), maskeli kanıt (telefon ve IBAN maskeli,
+  işaretler), kural önerisi, karar (uyarı, gizle, 24 saat askı, kalıcı engelleme önerisi, red), aynı içeriğin diğer
+  şikâyetleri birlikte kapanır; itirazlar; otomatik içerik filtreleri ve yasaklı kelimeler
+- [x] Yaptırımlar: uyarı (30 gün içinde ikincisi otomatik askı), askı (ilk mesaj ve mesaj gönderemez), gizleme
+  (mesaj "gizlendi" görünür; talep ve araç yayından kalkar, sahibi yeniden yayınlayamaz), kalıcı engelleme dört göz
+  onayıyla (hesap kapanır, oturumlar düşer, talepler kalkar, galeri sahibiyse galeri askıya alınır)
+- [x] Ajan (Karar 41, kural tabanlı): satıcı mesajında açık kapora ve IBAN ya da ödeme isteği varsa mesajı gizler,
+  24 saat askı (günde en çok 50), kararı insana bırakır; insan kararı geçici işlemin yerine geçer
+- [x] İtiraz: karar bildirimindeki bağlantı (web `/itiraz/[id]`, mobil), 7 gün içinde bir kez; ilk kararı veren
+  inceleyemez; kabulde yaptırım kalkar, içerik geri gelir. Karar iki tarafa şablonla bildirilir
+- [x] Yasaklı kelime kuralı mesaj ve talep yayınında moderasyona şikâyet açar; telefon izni kapalı alıcıda satıcı
+  mesajındaki numara gizlenir; satıcı puanında şikâyet oranı (90 gün, karara bağlanan ve geri alınmayan)
+- [ ] Yapay zekâ değerlendirmesi ve güven oranı (Rengarenk Ajanı, Vertex AI hesabı gelince); galerinin 1 yıldıza
+  itirazı; kara liste (telefon, IBAN, cihaz, IP) kullanıcı kartıyla
+
+, şablonlar, otomatik akışlar (Aşama 7, 8 Kasım 2026)
 
 - [x] Tek bildirim katmanı (Karar 48): olay → alıcı → tercih ve rıza → kanal sırası (uygulama içi ve push hemen,
   e-posta bildirim okunmadıysa gecikmeyle, SMS yalnızca kritik: talebin son günü, ödeme sorunu) → teslim kaydı

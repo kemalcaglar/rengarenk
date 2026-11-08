@@ -77,6 +77,8 @@ const gunKaldi = (iso: string | null) =>
   Math.max(0, Math.ceil(((iso ? new Date(iso).getTime() : 0) - Date.now()) / 86_400_000));
 const sureDoldu = (t: Talep) =>
   t.status === 'PASSIVE' && (t.passiveReason === 'sure_doldu' || gunKaldi(t.expiresAt) === 0);
+/** Moderasyon kararıyla yayından kaldırıldı (Karar 53): sahibi yeniden yayınlayamaz, itiraz eder */
+const moderasyon = (t: Talep) => t.status === 'PASSIVE' && t.passiveReason === 'moderasyon';
 
 function ozet(t: Talep) {
   const yil =
@@ -97,6 +99,7 @@ function ozet(t: Talep) {
 
 function sure(t: Talep) {
   if (t.status === 'PUBLISHED') return `Yayında · ${gunKaldi(t.expiresAt)} gün kaldı`;
+  if (moderasyon(t)) return 'Moderasyon kararıyla yayından kaldırıldı · bildirimlerden itiraz edebilirsin';
   if (t.status === 'PASSIVE')
     return sureDoldu(t)
       ? `Süresi ${tarih(t.expiresAt)}’da doldu`
@@ -521,7 +524,11 @@ export default function Taleplerim() {
                     ) : null}
                     {t.status === 'PASSIVE' ? (
                       <>
-                        {sureDoldu(t) ? (
+                        {moderasyon(t) ? (
+                          <Link href="/bildirimler" style={cizgili}>
+                            Kararı gör
+                          </Link>
+                        ) : sureDoldu(t) ? (
                           <button
                             type="button"
                             disabled={busy === t.id || (!ucretsiz && (haklar?.uzatma ?? 0) < 1)}

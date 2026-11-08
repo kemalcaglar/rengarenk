@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module.js';
 import { EntitlementsModule } from '../entitlements/entitlements.module.js';
+import { ModerationCoreModule, ModerationServiceModule } from '../moderation/moderation.module.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { TrustModule } from '../trust/trust.module.js';
 import { ConversationsController, FirstMessageController } from './messages.controller.js';
@@ -9,7 +10,7 @@ import { RealtimeService } from './realtime.service.js';
 
 /** Mesajlaşma (Aşama 5): ilk mesaj ve haklar, sohbet, araç kartı, numara paylaşımı, engelleme, anlık iletim. */
 @Module({
-  imports: [AuthModule, EntitlementsModule, TrustModule],
+  imports: [AuthModule, EntitlementsModule, TrustModule, ModerationCoreModule, ModerationServiceModule],
   controllers: [FirstMessageController, ConversationsController],
   providers: [MessagesService, RealtimeService, OutboxService],
   exports: [MessagesService, RealtimeService],

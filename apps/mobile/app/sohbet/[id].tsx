@@ -14,6 +14,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { PuanVer } from '../../components/puan-ver';
+import { Sikayet } from '../../components/sikayet';
 import { T } from '../../components/t';
 import { API } from '../../lib/api';
 import { useCanli } from '../../lib/canli';
@@ -28,6 +29,8 @@ interface Mesaj {
   gonderen: string | null;
   kart: { no: number; ad: string; ozet: string; fiyat: number; foto: string | null; satista: boolean } | null;
   uyari: { baslik: string; metin: string } | null;
+  /** Moderasyon gizledi (Karar 53) */
+  gizli?: boolean;
 }
 interface Sohbet {
   id: string;
@@ -83,6 +86,7 @@ export default function SohbetEkrani() {
   const [mesgul, setMesgul] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
   const [puanAcik, setPuanAcik] = useState(false);
+  const [sikayet, setSikayet] = useState<string | null>(null);
   const kaydir = useRef<ComponentRef<typeof ScrollView>>(null);
 
   const yukle = useCallback(() => {
@@ -135,10 +139,10 @@ export default function SohbetEkrani() {
         !s.engelli,
       ]);
     }
-    if (!secenekler.length) {
-      Alert.alert('Şikayet', 'Şikayet moderasyonla birlikte açılacak.');
-      return;
-    }
+    // Şikayet (Karar 53): karşı tarafın son mesajı; tek tek mesaj için mesajın altındaki "Şikayet et"
+    const son = [...s.mesajlar].reverse().find((m) => m.yon === 'gelen' && m.tip === 'metin' && !m.gizli);
+    if (son) secenekler.push(['Şikayet et', () => setSikayet(son.id), true]);
+    if (!secenekler.length) return;
     Alert.alert(s.karsi.ad, undefined, [
       ...secenekler.map(([t, f, d]) => ({
         text: t,
@@ -320,7 +324,7 @@ export default function SohbetEkrani() {
                     {g}
                   </T>
                 ) : null}
-                <MesajBalonu m={m} />
+                <MesajBalonu m={m} sikayet={() => setSikayet(m.id)} />
               </View>
             );
           })}
@@ -475,11 +479,12 @@ export default function SohbetEkrani() {
           verildi={(n) => setS((x) => (x ? { ...x, puan: { uygun: false, verilen: n } } : x))}
         />
       ) : null}
+      <Sikayet acik={!!sikayet} hedef="mesaj" id={sikayet ?? ''} kapat={() => setSikayet(null)} />
     </SafeAreaView>
   );
 }
 
-function MesajBalonu({ m }: { m: Mesaj }) {
+function MesajBalonu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
   if (m.tip === 'sistem') {
     return (
       <T
@@ -570,6 +575,26 @@ function MesajBalonu({ m }: { m: Mesaj }) {
     );
   }
   const giden = m.yon === 'giden';
+  if (m.gizli) {
+    return (
+      <View
+        style={{
+          alignSelf: giden ? 'flex-end' : 'flex-start',
+          maxWidth: '82%',
+          borderWidth: 1,
+          borderStyle: 'dashed',
+          borderColor: '#AEB5C4',
+          borderRadius: 16,
+          paddingVertical: 10,
+          paddingHorizontal: 13,
+        }}
+      >
+        <T style={{ fontSize: 13, color: colors.muted, fontStyle: 'italic' }}>
+          Bu mesaj güvenlik kuralları nedeniyle moderasyon tarafından gizlendi.
+        </T>
+      </View>
+    );
+  }
   return (
     <View style={{ gap: 10 }}>
       <View style={{ alignSelf: giden ? 'flex-end' : 'flex-start', maxWidth: '82%' }}>
@@ -589,6 +614,18 @@ function MesajBalonu({ m }: { m: Mesaj }) {
         <T style={{ fontSize: 11, color: colors.muted, marginTop: 3, textAlign: giden ? 'right' : 'left' }}>
           {saat(m.zaman)}
           {m.gonderen ? ` · ${m.gonderen}` : ''}
+          {!giden && m.tip === 'metin' ? (
+            <>
+              {' · '}
+              <T
+                accessibilityRole="button"
+                onPress={sikayet}
+                style={{ fontSize: 11, fontWeight: '700', color: '#A3271F' }}
+              >
+                Şikayet et
+              </T>
+            </>
+          ) : null}
         </T>
       </View>
       {m.uyari ? (
@@ -615,7 +652,14 @@ function MesajBalonu({ m }: { m: Mesaj }) {
           </Svg>
           <T style={{ flex: 1, fontSize: 13, lineHeight: 19, color: '#6E1A15' }}>
             <T style={{ fontSize: 13, fontWeight: '800', color: '#6E1A15' }}>{m.uyari.baslik}</T>{' '}
-            {m.uyari.metin}
+            {m.uyari.metin}{' '}
+            <T
+              accessibilityRole="button"
+              onPress={sikayet}
+              style={{ fontSize: 13, fontWeight: '800', color: '#A3271F', textDecorationLine: 'underline' }}
+            >
+              Şikayet et
+            </T>
           </T>
         </View>
       ) : null}

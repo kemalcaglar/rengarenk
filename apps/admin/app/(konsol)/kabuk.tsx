@@ -16,7 +16,7 @@ export function useKonsol() {
 }
 
 type Item =
-  | { href: string; ad: string; izin?: Permission; rozet?: 'onay' | 'entegrasyon' | 'basvuru' }
+  | { href: string; ad: string; izin?: Permission; rozet?: 'onay' | 'entegrasyon' | 'basvuru' | 'moderasyon' }
   | { ad: string; sonra: true };
 
 /**
@@ -50,7 +50,7 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
         izin: 'galeri_basvuru.onayla',
         rozet: 'basvuru',
       },
-      { ad: 'Moderasyon', sonra: true },
+      { href: '/moderasyon', ad: 'Moderasyon', izin: 'sikayet.coz', rozet: 'moderasyon' },
       { ad: 'Destek', sonra: true },
       { ad: 'Talepler ve portföy', sonra: true },
       { href: '/puan', ad: 'Satıcı puanı ve rozetler', izin: 'rapor.gor' },
@@ -220,6 +220,11 @@ export function Kabuk({ me: initial, logo, children }: { me: Me; logo: ReactNode
                         {i.rozet === 'basvuru' && me.pendingGalleryApplications > 0 ? (
                           <span style={{ fontSize: 11.5, fontWeight: 800, color: '#7A5300' }}>
                             {me.pendingGalleryApplications}
+                          </span>
+                        ) : null}
+                        {i.rozet === 'moderasyon' && me.overdueReports > 0 ? (
+                          <span style={{ fontSize: 11.5, fontWeight: 800, color: '#A3271F' }}>
+                            {me.overdueReports} süre aştı
                           </span>
                         ) : null}
                         {i.rozet === 'entegrasyon' && me.integrationWarnings > 0 ? (
