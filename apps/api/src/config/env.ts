@@ -63,6 +63,15 @@ const schema = z.object({
   SMTP_PASS: z.string().optional(),
   EPOSTA_GONDEREN: z.string().default('Rengarenk <bildirim@bildirim.rengarenk.com.tr>'),
   EPOSTA_GONDEREN_TICARI: z.string().default('Rengarenk <bulten@bulten.rengarenk.com.tr>'),
+  /** Ticari e-posta IP ısınmasının başladığı gün (YYYY-AA-GG); boşsa ticari e-posta gönderilmez (Karar 50) */
+  EPOSTA_ISINMA_BASLANGIC: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+  /** E-posta sunucusunun geri bildirim imzası (Postal webhook) */
+  EPOSTA_WEBHOOK_SECRET: z.string().min(24).optional(),
+  /** İYS (İleti Yönetim Sistemi): none (hesap açılana kadar), fake (geliştirme ve test) */
+  IYS_PROVIDER: z.enum(['none', 'fake']).default('none'),
   /** Push (FCM HTTP v1): none, fake (geliştirme ve test), fcm (hizmet hesabı JSON'u base64) */
   PUSH_PROVIDER: z.enum(['none', 'fake', 'fcm']).default('none'),
   FCM_SERVICE_ACCOUNT: z.string().optional(),

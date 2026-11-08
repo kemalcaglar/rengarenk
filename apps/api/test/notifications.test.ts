@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ENV, type Env } from '../src/config/env.js';
 import type { Db } from '../src/database/prisma.js';
 import { FakePush, MemoryEmail } from '../src/notifications/channels.js';
+import { isinmaLimiti } from '../src/notifications/commercial.js';
 import { DeliveryService } from '../src/notifications/delivery.service.js';
 import { NotificationService, sessizSaatSonu } from '../src/notifications/notification.service.js';
 import { NotificationEvents } from '../src/notifications/notification-events.js';
@@ -290,5 +291,89 @@ describe('bildirim katmanı (Karar 30, 48, 49, 50)', () => {
     expect(sessizSaatSonu(new Date('2026-11-09T19:30:00Z')).toISOString()).toBe('2026-11-10T06:00:00.000Z');
     expect(sessizSaatSonu(new Date('2026-11-09T11:00:00Z')).toISOString()).toBe('2026-11-09T11:00:00.000Z');
     expect(sessizSaatSonu(new Date('2026-11-09T03:00:00Z')).toISOString()).toBe('2026-11-09T06:00:00.000Z');
+  });
+
+  it('ticari ileti: onay, haftada 2, ısınma sınırı, tek tıkla ayrılma', async () => {
+    const u = await login('+905339994001');
+    await db.user.update({
+      where: { id: u.userId },
+      data: { email: 'kampanya@ornek.com', emailVerifiedAt: new Date() },
+    });
+    const ns = app.get(NotificationService);
+    const kampanya = {
+      baslik: 'Hafta sonu: talebini öne çıkar',
+      metin: 'Üst sıra %20 indirimli.',
+      url: '/haklarim',
+      dugme: 'İncele',
+    };
+    // Onay yoksa hiçbir kanaldan gitmez
+    expect(await ns.notify({ userIds: [u.userId], sablon: 'kampanya.duyuru', veri: kampanya })).toBe(0);
+    await call(
+      app,
+      'PUT',
+      '/me/notification-preferences',
+      {
+        tercihler: [
+          { konu: 'kampanya', kanal: 'uygulama', acik: true },
+          { konu: 'kampanya', kanal: 'eposta', acik: true },
+        ],
+      },
+      u.token,
+    );
+    expect(await db.outboxEvent.count({ where: { type: 'iys.izin_degisti' } })).toBeGreaterThan(0);
+    expect(await ns.notify({ userIds: [u.userId], sablon: 'kampanya.duyuru', veri: kampanya })).toBe(1);
+    expect(await ns.notify({ userIds: [u.userId], sablon: 'kampanya.duyuru', veri: kampanya })).toBe(1);
+    expect(await ns.notify({ userIds: [u.userId], sablon: 'kampanya.duyuru', veri: kampanya })).toBe(0); // haftada 2
+    const b = (await call(app, 'GET', '/notifications', undefined, u.token)).body.bildirimler[0];
+    expect(b).toMatchObject({ grup: 'kampanya', ticari: true });
+
+    // Isınma başlamadıysa ticari e-posta ertelenir; 10. haftada gider, ayrılma başlığıyla
+    const ilk = await db.delivery.findFirstOrThrow({
+      where: { userId: u.userId, kanal: 'eposta', ticari: true },
+    });
+    await db.delivery.updateMany({
+      where: { userId: u.userId, ticari: true },
+      data: { dueAt: new Date(Date.now() - 1000) },
+    });
+    await teslim.dispatchDue();
+    expect((await db.delivery.findUniqueOrThrow({ where: { id: ilk.id } })).neden).toContain('Isınma');
+    const env = app.get<Env>(ENV);
+    const isinmis = new DeliveryService(
+      db,
+      { ...env, EPOSTA_ISINMA_BASLANGIC: new Date(Date.now() - 70 * 86_400_000).toISOString().slice(0, 10) },
+      eposta,
+      push,
+      sms,
+      app.get(TemplatesService),
+    );
+    await db.delivery.updateMany({
+      where: { userId: u.userId, ticari: true },
+      data: { dueAt: new Date(Date.now() - 1000) },
+    });
+    await isinmis.dispatchDue();
+    const giden = eposta.sent.find((m) => m.to === 'kampanya@ornek.com');
+    expect(giden?.from).toContain('bulten@');
+    expect(giden?.headers?.['List-Unsubscribe-Post']).toBe('List-Unsubscribe=One-Click');
+    const k = giden?.headers?.['List-Unsubscribe']?.match(/k=([^>]+)/)?.[1] as string;
+
+    // Tek tıkla ayrılma: imzasız kod reddedilir; ayrılınca onay geri alınır, adres ticari gönderimden çıkar
+    expect((await app.inject({ method: 'POST', url: `/iletisim/ayril?k=${ilk.id}.sahte` })).statusCode).toBe(
+      404,
+    );
+    expect((await app.inject({ method: 'POST', url: `/iletisim/ayril?k=${k}` })).statusCode).toBe(200);
+    expect((await call(app, 'GET', '/me/notification-preferences', undefined, u.token)).body.ticariOnay).toBe(
+      false,
+    );
+    expect(await db.emailSuppression.findUnique({ where: { email: 'kampanya@ornek.com' } })).toMatchObject({
+      reason: 'ayrildi',
+      onlyCommercial: true,
+    });
+
+    expect(isinmaLimiti(null, new Date())).toBe(0);
+    const bas = new Date('2026-11-01');
+    expect(isinmaLimiti(bas, new Date('2026-11-05'))).toBe(0);
+    expect(isinmaLimiti(bas, new Date('2026-11-09'))).toBe(200);
+    expect(isinmaLimiti(bas, new Date('2026-11-23'))).toBe(800);
+    expect(isinmaLimiti(bas, new Date('2026-12-20'))).toBe(Number.POSITIVE_INFINITY);
   });
 });

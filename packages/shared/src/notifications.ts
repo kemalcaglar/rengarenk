@@ -444,6 +444,19 @@ export const NOTIFY_TEMPLATES = {
     url: '/galeri-paneli?bolum=portfoy',
     ekip: true,
   },
+  'kampanya.duyuru': {
+    ad: 'Kampanya ve duyuru (ticari)',
+    konu: 'kampanya',
+    grup: 'kampanya',
+    baslik: '{{baslik}}',
+    metin: '{{metin}}',
+    url: '{{url}}',
+    eposta: {
+      konu: '{{baslik}}',
+      paragraflar: ['Merhaba {{ad}},', '{{metin}}'],
+      dugme: { yazi: '{{dugme}}', url: '{{url}}' },
+    },
+  },
   'eposta.dogrulama': {
     ad: 'E-posta doğrulama',
     konu: 'guvenlik',

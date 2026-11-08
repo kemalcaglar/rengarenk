@@ -4,6 +4,8 @@ import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { SMS_SENDER, type SmsSender } from '../sms/sms.js';
 import { EMAIL_SENDER, type EmailSender, PUSH_SENDER, type PushSender } from './channels.js';
+import { ayrilmaKodu, isinmaLimiti } from './commercial.js';
+import { sessizSaatSonu } from './notification.service.js';
 import { TemplatesService } from './templates.service.js';
 
 const DENEME = 3;
@@ -108,7 +110,25 @@ export class DeliveryService {
       ) {
         return this.sonuc(d, { durum: 'atlandi', neden: `Adres gönderim dışı (${engel.reason})` });
       }
-      const ayrilma = d.ticari ? this.templates.link(`/iletisim/ayril?k=${d.id}`) : undefined;
+      // Isınma (Karar 50): ticari e-postanın günlük sınırı dolduysa ertesi sabaha kalır
+      if (d.ticari) {
+        const gunBasi = new Date(new Date().setHours(0, 0, 0, 0));
+        const bugun = await this.db.delivery.count({
+          where: { kanal: 'eposta', ticari: true, durum: 'gonderildi', sentAt: { gte: gunBasi } },
+        });
+        const bas = this.env.EPOSTA_ISINMA_BASLANGIC ? new Date(this.env.EPOSTA_ISINMA_BASLANGIC) : null;
+        if (bugun >= isinmaLimiti(bas, new Date())) {
+          return this.db.delivery.update({
+            where: { id: d.id },
+            data: {
+              neden: 'Isınma sınırı: yarına ertelendi',
+              dueAt: sessizSaatSonu(new Date(gunBasi.getTime() + 86_400_000)),
+            },
+          });
+        }
+      }
+      const kod = ayrilmaKodu(this.env.JWT_SECRET, d.id);
+      const ayrilma = d.ticari ? this.templates.link(`/iletisim/ayril?k=${kod}`) : undefined;
       const e = await this.templates.email(sablon, veri, ayrilma);
       if (!e) return this.sonuc(d, { durum: 'atlandi', neden: 'Şablonda e-posta yok' });
       const r = await this.email.send({
@@ -118,7 +138,10 @@ export class DeliveryService {
         html: e.html,
         text: e.text,
         headers: ayrilma
-          ? { 'List-Unsubscribe': `<${ayrilma}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' }
+          ? {
+              'List-Unsubscribe': `<${this.env.API_PUBLIC_URL}/iletisim/ayril?k=${kod}>`,
+              'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+            }
           : undefined,
       });
       if (r.status === 'permanent') {

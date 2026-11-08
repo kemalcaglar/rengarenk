@@ -163,8 +163,12 @@ export class NotificationService implements OnModuleDestroy {
         });
         const simdi = await this.ticariOnay(userId);
         const istenen = kampanya.length > 0;
-        if (simdi !== istenen)
+        if (simdi !== istenen) {
           await this.consents.recordCommercial(tx, userId, istenen, meta.kanal ?? 'web', meta.ip);
+          await tx.outboxEvent.create({
+            data: { type: 'iys.izin_degisti', payload: { userId, onay: istenen } },
+          });
+        }
       }
     });
     return this.prefs(userId);
@@ -195,6 +199,7 @@ export class NotificationService implements OnModuleDestroy {
     const veri: Record<string, unknown> = { ad: user.firstName || 'değerli üyemiz', ...veriTaban };
     const ticari = sablon.konu === 'kampanya';
     const kanal = await this.kanallar(userId, sablon);
+    if (!kanal.uygulama && !kanal.eposta && !kanal.sms) return false;
     const now = new Date();
     let due = now;
     if (ticari) {

@@ -20,6 +20,7 @@ import { ZodPipe } from '../common/zod.pipe.js';
 import { ENV, type Env } from '../config/env.js';
 import { SearchModule } from '../search/search.module.js';
 import { createEmailSender, createPushSender, EMAIL_SENDER, PUSH_SENDER } from './channels.js';
+import { CommercialController, CommercialService, FakeIys, IYS, NoIys } from './commercial.js';
 import { DeliveryService } from './delivery.service.js';
 import { NotificationService } from './notification.service.js';
 import { NotificationEvents } from './notification-events.js';
@@ -108,8 +109,8 @@ const KANALLAR = [
 /** API: uçlar ve bildirim üretimi (e-posta doğrulama) */
 @Module({
   imports: [AuthModule],
-  controllers: [NotificationsController],
-  providers: [NotificationService, TemplatesService],
+  controllers: [NotificationsController, CommercialController],
+  providers: [NotificationService, TemplatesService, CommercialService],
   exports: [NotificationService],
 })
 export class NotificationsModule {}
@@ -117,7 +118,19 @@ export class NotificationsModule {}
 /** İşçi: olay eşlemesi, teslim (e-posta, SMS, push), günlük özet */
 @Module({
   imports: [SearchModule],
-  providers: [NotificationService, TemplatesService, DeliveryService, NotificationEvents, ...KANALLAR],
-  exports: [NotificationService, DeliveryService, NotificationEvents],
+  providers: [
+    NotificationService,
+    TemplatesService,
+    DeliveryService,
+    NotificationEvents,
+    CommercialService,
+    ...KANALLAR,
+    {
+      provide: IYS,
+      inject: [ENV],
+      useFactory: (env: Env) => (env.IYS_PROVIDER === 'fake' ? new FakeIys() : new NoIys()),
+    },
+  ],
+  exports: [NotificationService, DeliveryService, NotificationEvents, CommercialService, IYS],
 })
 export class NotificationsWorkerModule {}

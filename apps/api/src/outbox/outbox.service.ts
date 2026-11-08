@@ -31,6 +31,8 @@ export type EventType =
   // Mağaza ödemeleri (Karar 38): iade bildirimi ve tanınmayan satış sahibe ve desteğe iletilir
   | 'magaza.iade_bildirimi'
   | 'magaza.inceleme'
+  // Ticari ileti onayı değişti: İYS'ye bildirilir (Karar 49)
+  | 'iys.izin_degisti'
   | 'iade.onaylandi'
   // İade yürütücü (Teknik tasarım §7): sonuç sahibe iletilir; yürütülen iadenin faturası işçide kesilir
   | 'iade.yurutuldu'

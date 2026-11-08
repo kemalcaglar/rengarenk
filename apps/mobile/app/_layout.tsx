@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { T } from '../components/t';
 import { useClientFlags } from '../lib/bakim';
 import { OturumProvider } from '../lib/oturum';
+import { PushKaydi } from '../lib/push';
 
 /** Kök düzen: tasarımın yazı tipi (Plus Jakarta Sans), oturum, bakım duyurusu ve tam bakım ekranı. */
 export default function RootLayout() {
@@ -29,6 +30,7 @@ export default function RootLayout() {
   if (!fontlar) return <View style={{ flex: 1, backgroundColor: colors.background }} />;
   return (
     <OturumProvider>
+      <PushKaydi />
       <StatusBar style="dark" />
       {durum?.duyuru ? (
         <SafeAreaView edges={['top']} style={{ backgroundColor: '#FFF6DF' }}>

@@ -5,7 +5,17 @@ import { FeatureFlagService } from './feature-flag.service.js';
  * Bakımdayken de çalışan yollar: yönetim konsolu, sağlık, ölçüm, anahtar durumu, API belgeleri ve ödeme kuruluşunun
  * bildirimi (bakımda gelen ödeme kaybolmasın).
  */
-const ALWAYS_OPEN = ['/staff', '/health', '/metrics', '/flags', '/docs', '/odeme/bildirim', '/odeme/magaza'];
+const ALWAYS_OPEN = [
+  '/staff',
+  '/health',
+  '/metrics',
+  '/flags',
+  '/docs',
+  '/odeme/bildirim',
+  '/odeme/magaza',
+  '/eposta/geri-bildirim',
+  '/iletisim/ayril',
+];
 
 /**
  * "Tüm site" bakımdayken kullanıcıya dönük her uç nokta 503 ve duyuru metniyle yanıt verir

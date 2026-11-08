@@ -9,6 +9,7 @@ import { DemandService } from './demands/demand.service.js';
 import { GalleryService } from './galleries/gallery.service.js';
 import { GalleryApplicationService } from './galleries/gallery-application.service.js';
 import { MatchingService } from './matching/matching.service.js';
+import { CommercialService, IYS, type IysProvider } from './notifications/commercial.js';
 import { DeliveryService } from './notifications/delivery.service.js';
 import { NOTIFY_EVENTS, NotificationEvents } from './notifications/notification-events.js';
 import { OutboxService } from './outbox/outbox.service.js';
@@ -40,6 +41,8 @@ const orders = app.get(OrdersService);
 const subscriptions = app.get(SubscriptionsService);
 const bildirimOlaylari = app.get(NotificationEvents);
 const teslim = app.get(DeliveryService);
+const ticari = app.get(CommercialService);
+const iys = app.get<IysProvider>(IYS);
 await queue.start();
 
 await queue.consume<{ approvalId: string }>('onay.onaylandi', 'onay-yurut', async ({ approvalId }) => {
@@ -105,6 +108,10 @@ for (const event of NOTIFY_EVENTS) {
     bildirimOlaylari.handle(event, payload),
   );
 }
+// Ticari ileti onayı değişti: İYS'ye bildirilir (bağlantı yoksa rıza kaydında bekler)
+await queue.consume<{ userId: string; onay: boolean }>('iys.izin_degisti', 'iys-esitle', ({ userId, onay }) =>
+  ticari.iysEsitle(iys, userId, onay),
+);
 // İade yürütüldü (iade yürütücü süreci): iade faturası kesilir; entegratör yoksa kuyrukta bekler
 await queue.consume<{ refundId: string }>('iade.yurutuldu', 'iade-fatura', ({ refundId }) =>
   orders.issueRefundInvoice(refundId),
