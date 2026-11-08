@@ -155,7 +155,7 @@ importers:
   apps/mobile:
     dependencies:
       '@expo-google-fonts/plus-jakarta-sans':
-        specifier: ^0.4.2
+        specifier: 0.4.2
         version: 0.4.2
       '@expo/metro-runtime':
         specifier: ~58.0.17
