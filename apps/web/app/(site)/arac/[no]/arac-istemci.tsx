@@ -1,5 +1,6 @@
 'use client';
 
+import { DEPOSIT_NOTE, MESSAGE_MAX } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { API, istek, useGiris } from '../../../../lib/istemci';
@@ -135,6 +136,22 @@ const telefon = (e164: string) => e164.replace(/^\+90(\d{3})(\d{3})(\d{2})(\d{2}
 export function Iletisim({ no }: { no: number }) {
   const giris = useGiris();
   const [t, setT] = useState<{ ad: string | null; phone: string | null } | null>(null);
+  // Karar 27: alıcı galeriye ilk mesajı kendisi atar; sohbet araç kartıyla başlar, alıcı için ücretsiz
+  const [yaz, setYaz] = useState(false);
+  const [metin, setMetin] = useState('');
+  const [hata, setHata] = useState<string | null>(null);
+  const [mesgul, setMesgul] = useState(false);
+  const gonder = async () => {
+    setHata(null);
+    setMesgul(true);
+    try {
+      const r = await istek<{ id: string }>(`/araclar/${no}/mesaj`, { method: 'POST', body: { metin } });
+      window.location.href = `/mesajlarim?sohbet=${r.id}`;
+    } catch (e) {
+      setHata((e as Error).message);
+      setMesgul(false);
+    }
+  };
   const goster = async () => {
     if (!giris) {
       window.location.href = `/giris?sonra=/arac/${no}`;
@@ -160,14 +177,65 @@ export function Iletisim({ no }: { no: number }) {
   } as const;
   return (
     <>
-      <button
-        type="button"
-        disabled
-        title="Mesajlaşma yakında açılacak"
-        style={{ ...kutu, border: 0, background: '#C9D7FF', color: '#5A6073', cursor: 'default' }}
-      >
-        Bu araç için mesaj gönder
-      </button>
+      {yaz ? (
+        <div style={{ display: 'grid', gap: 8 }}>
+          <label htmlFor="arac-mesaj" style={{ fontSize: 13.5, fontWeight: 700 }}>
+            Galeriye mesajın
+          </label>
+          <textarea
+            id="arac-mesaj"
+            rows={4}
+            maxLength={MESSAGE_MAX}
+            value={metin}
+            onChange={(e) => setMetin(e.target.value)}
+            placeholder="Merhaba, araç hâlâ satışta mı? Görmeye gelebilir miyim?"
+            style={{
+              width: '100%',
+              boxSizing: 'border-box',
+              border: '1px solid #D5DAE5',
+              borderRadius: 12,
+              padding: 10,
+              fontSize: 14.5,
+              lineHeight: 1.5,
+              resize: 'vertical',
+              fontFamily: 'inherit',
+            }}
+          />
+          <span style={{ fontSize: 12, color: '#5A6073' }}>
+            Sohbet bu aracın kartıyla başlar. {DEPOSIT_NOTE}
+          </span>
+          {hata ? (
+            <span role="alert" style={{ fontSize: 13, color: '#A3271F' }}>
+              {hata}
+            </span>
+          ) : null}
+          <button
+            type="button"
+            disabled={mesgul || !metin.trim()}
+            onClick={gonder}
+            style={{
+              ...kutu,
+              border: 0,
+              background: '#5B8CFF',
+              color: '#1E2333',
+              opacity: mesgul || !metin.trim() ? 0.6 : 1,
+            }}
+          >
+            {mesgul ? 'Gönderiliyor…' : 'Gönder'}
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            if (!giris) window.location.href = `/giris?sonra=/arac/${no}`;
+            else setYaz(true);
+          }}
+          style={{ ...kutu, border: 0, background: '#5B8CFF', color: '#1E2333' }}
+        >
+          Bu araç için mesaj gönder
+        </button>
+      )}
       {t?.phone ? (
         <a
           href={`tel:${t.phone}`}

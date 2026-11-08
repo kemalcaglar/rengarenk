@@ -4,6 +4,7 @@ import { type CategoryField, type CategoryRules, PAINT_PARTS, PAINT_STATES } fro
 import Link from 'next/link';
 import { type CSSProperties, useEffect, useState } from 'react';
 import { AracSemasiGorunum } from '../../../../components/arac-semasi';
+import { IlkMesaj } from '../../../../components/ilk-mesaj';
 import { API, istek, useGiris } from '../../../../lib/istemci';
 import { butceAraligi, deger, etiket, uzunTarih } from '../../../../lib/talep-bicim';
 
@@ -111,6 +112,14 @@ export function TalepDetay({
   const [goster, setGoster] = useState(false);
   const [paylasildi, setPaylasildi] = useState(false);
   const [favBusy, setFavBusy] = useState(false);
+  // İlk mesaj (Karar 08, 11): yazıldıysa sohbete gider; kalan günlük hak iletişim kutusunda yazar
+  const [mesaj, setMesaj] = useState<{
+    kendi: boolean;
+    yazildi: string | null;
+    gunluk: { toplam: number; kalan: number } | null;
+    hesaplar: { galeri: boolean }[];
+  } | null>(null);
+  const [pencere, setPencere] = useState(false);
 
   // Favori (Karar 06.4): misafir önce giriş yapar; kendi talebi favoriye eklenmez
   async function favori() {
@@ -135,6 +144,12 @@ export function TalepDetay({
     if (giris)
       istek<TalepVeri>(`/talepler/${t.no}`)
         .then((x) => setSahip(x.owner))
+        .catch(() => undefined);
+  }, [giris, t.no]);
+  useEffect(() => {
+    if (giris)
+      istek<NonNullable<typeof mesaj>>(`/talepler/${t.no}/mesaj`)
+        .then(setMesaj)
         .catch(() => undefined);
   }, [giris, t.no]);
 
@@ -987,8 +1002,12 @@ export function TalepDetay({
             ) : (
               <button
                 type="button"
-                disabled
-                title="Mesajlaşma yakında açılacak"
+                disabled={giris && (!yayinda || !mesaj) ? true : undefined}
+                onClick={() => {
+                  if (!giris) window.location.href = `/giris?sonra=/talep/${t.no}`;
+                  else if (mesaj?.yazildi) window.location.href = `/mesajlarim?sohbet=${mesaj.yazildi}`;
+                  else setPencere(true);
+                }}
                 style={{
                   width: '100%',
                   display: 'flex',
@@ -1003,8 +1022,8 @@ export function TalepDetay({
                   padding: 15,
                   borderRadius: 14,
                   border: 0,
-                  opacity: 0.55,
-                  cursor: 'default',
+                  opacity: giris && (!yayinda || !mesaj) && !mesaj?.yazildi ? 0.55 : 1,
+                  cursor: 'pointer',
                   fontFamily: 'inherit',
                 }}
               >
@@ -1020,7 +1039,7 @@ export function TalepDetay({
                 >
                   <path d="M4 5h16v11H9l-5 4z" />
                 </svg>
-                Mesaj at
+                {mesaj?.yazildi ? 'Sohbete git' : 'Mesaj at'}
               </button>
             )}
             {yayinda && (sahip.phone || sahip.phoneHidden) ? (
@@ -1129,7 +1148,30 @@ export function TalepDetay({
               {yayinda
                 ? 'Bu talebe yalnızca bir ilk mesaj atabilirsiniz.'
                 : 'Bu talep şu an yayında değil; satıcılar mesaj atamaz.'}
+              {yayinda && mesaj?.gunluk && !mesaj.yazildi ? (
+                <>
+                  {' '}
+                  {mesaj.hesaplar.length === 1 && !mesaj.hesaplar[0]?.galeri
+                    ? 'Bugün kalan ücretsiz mesaj hakkınız: '
+                    : 'Bugün kalan mesaj hakkınız: '}
+                  <strong style={{ color: '#1E2333' }}>
+                    {mesaj.gunluk.kalan} / {mesaj.gunluk.toplam}
+                  </strong>
+                </>
+              ) : null}
             </p>
+            {pencere ? (
+              <IlkMesaj
+                talepNo={t.no}
+                talepBaslik={t.baslik}
+                sahip={sahip.name}
+                yasalUyari={t.schema.rules.legalNotice}
+                kapat={() => setPencere(false)}
+                gonderildi={(id) => {
+                  window.location.href = `/mesajlarim?sohbet=${id}`;
+                }}
+              />
+            ) : null}
           </section>
 
           <section

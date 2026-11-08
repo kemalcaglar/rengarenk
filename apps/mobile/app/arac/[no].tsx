@@ -1,7 +1,19 @@
-import { colors, PAINT_STATES } from '@rengarenk/shared';
+import { colors, MESSAGE_MAX, PAINT_STATES } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Dimensions, FlatList, Image, Linking, Pressable, ScrollView, View } from 'react-native';
+import {
+  Dimensions,
+  FlatList,
+  Image,
+  KeyboardAvoidingView,
+  Linking,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ikon } from '../../components/ikon';
 import { T } from '../../components/t';
@@ -49,14 +61,33 @@ const kart = {
 } as const;
 
 /**
- * Portföy aracı (tasarım: GaleriProfilMobil.dc.html › araç; Karar 07, 17): yalnızca yayındaki araç. Mesaj Aşama
- * 5'te; WhatsApp ve telefon girişli kullanıcıya temsilcinin numarasıyla açılır. Şikayet Aşama 8'de.
+ * Portföy aracı (tasarım: GaleriProfilMobil.dc.html › araç; Karar 07, 17, 27): yalnızca yayındaki araç. "Bu araç
+ * için mesaj gönder" galeriyle araç kartıyla başlayan sohbet açar (alıcıya ücretsiz); WhatsApp ve telefon girişli
+ * kullanıcıya temsilcinin numarasıyla açılır. Şikayet Aşama 8'de.
  */
 export default function AracEkrani() {
   const { no } = useLocalSearchParams<{ no: string }>();
   const { durum, istek } = useOturum();
   const [a, setA] = useState<Arac | null | 'yok'>(null);
   const [foto, setFoto] = useState(0);
+  const [yaz, setYaz] = useState(false);
+  const [metin, setMetin] = useState('');
+  const [hata, setHata] = useState<string | null>(null);
+  const [mesgul, setMesgul] = useState(false);
+  async function gonder() {
+    setMesgul(true);
+    setHata(null);
+    try {
+      const r = await istek<{ id: string }>(`/araclar/${no}/mesaj`, { method: 'POST', body: { metin } });
+      setYaz(false);
+      setMetin('');
+      router.push(`/sohbet/${r.id}`);
+    } catch (e) {
+      setHata((e as Error).message);
+    } finally {
+      setMesgul(false);
+    }
+  }
   const genislik = Dimensions.get('window').width;
 
   useEffect(() => {
@@ -334,20 +365,93 @@ export default function AracEkrani() {
           >
             <T style={{ fontSize: 14.5, fontWeight: '700' }}>WhatsApp</T>
           </Pressable>
-          <View
-            accessibilityState={{ disabled: true }}
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => (durum === 'uye' ? setYaz(true) : router.push('/giris'))}
             style={{
               flex: 2,
-              backgroundColor: '#C9D7FF',
+              backgroundColor: '#5B8CFF',
               borderRadius: 14,
               paddingVertical: 15,
+              paddingHorizontal: 8,
               alignItems: 'center',
             }}
           >
-            <T style={{ fontSize: 15, fontWeight: '800', color: colors.muted }}>Mesaj yakında</T>
-          </View>
+            <T style={{ fontSize: 15, fontWeight: '800' }}>Bu araç için mesaj gönder</T>
+          </Pressable>
         </View>
       ) : null}
+      <Modal visible={yaz} transparent animationType="slide" onRequestClose={() => setYaz(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+          <Pressable
+            accessibilityLabel="Kapat"
+            onPress={() => setYaz(false)}
+            style={{ flex: 1, backgroundColor: 'rgba(30,35,51,0.45)' }}
+          />
+          <View
+            accessibilityViewIsModal
+            style={{
+              backgroundColor: colors.surface,
+              borderTopLeftRadius: 24,
+              borderTopRightRadius: 24,
+              paddingTop: 16,
+              paddingHorizontal: 18,
+              paddingBottom: 26,
+            }}
+          >
+            <T accessibilityRole="header" style={{ fontSize: 18, fontWeight: '800' }}>
+              Galeriye mesaj
+            </T>
+            <T style={{ fontSize: 13, color: colors.muted, marginTop: 2 }}>
+              {arac ? `${arac.ad} · ${arac.galeri.ad}` : ''}
+            </T>
+            <TextInput
+              accessibilityLabel="Mesajın"
+              multiline
+              maxLength={MESSAGE_MAX}
+              value={metin}
+              onChangeText={setMetin}
+              placeholder="Merhaba, araç hâlâ satışta mı? Görmeye gelebilir miyim?"
+              placeholderTextColor={colors.muted}
+              style={{
+                minHeight: 110,
+                marginTop: 12,
+                borderWidth: 1,
+                borderColor: '#D5DAE5',
+                borderRadius: 14,
+                padding: 12,
+                fontSize: 14.5,
+                textAlignVertical: 'top',
+                fontFamily: 'PlusJakartaSans_400Regular',
+                color: colors.ink,
+              }}
+            />
+            <T style={{ fontSize: 12, color: colors.muted, lineHeight: 17, marginTop: 6 }}>
+              Sohbet bu aracın kartıyla başlar. Yalnızca metin. Kapora istemeyin ve vermeyin.
+            </T>
+            {hata ? (
+              <T accessibilityRole="alert" style={{ fontSize: 13, color: '#A3271F', marginTop: 6 }}>
+                {hata}
+              </T>
+            ) : null}
+            <Pressable
+              accessibilityRole="button"
+              disabled={mesgul || !metin.trim()}
+              onPress={gonder}
+              style={{
+                marginTop: 14,
+                backgroundColor: '#5B8CFF',
+                borderRadius: 14,
+                paddingVertical: 14,
+                alignItems: 'center',
+                opacity: mesgul || !metin.trim() ? 0.55 : 1,
+              }}
+            >
+              <T style={{ fontSize: 15, fontWeight: '800' }}>{mesgul ? 'Gönderiliyor…' : 'Gönder'}</T>
+            </Pressable>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }

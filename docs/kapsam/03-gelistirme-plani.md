@@ -138,6 +138,40 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 12 · ilk mesaj, haklar ve sohbet (Aşama 5 ikinci bölüm, 8 Kasım 2026)
+
+- [x] Veri modeli: conversations (talebe bir satıcı hesabından tek ilk mesaj, araç için alıcı başına tek sohbet; ikisi de
+  veritabanı kısıtı), messages (gövde AES-256-GCM ile şifreli, `MESSAGE_SECRET_KEY` canlıda zorunlu), user_blocks
+- [x] İlk mesaj (Karar 08, 11.1): satıcı bir talebe hesabı adına tek ilk mesaj atar; alıcı yanıtlarsa sohbet açılır,
+  "İlgilenmiyorum" derse satıcı yeniden yazamaz; yanıt gelmeden ikinci mesaj yok. Talep yayında değilse, alıcı
+  engellediyse ya da "Kimden" uymuyorsa yazılamaz; kendi talebine ve galerinin çalışanının talebine yazılmaz
+- [x] Haklar (Karar 11.2, 12; Teknik tasarım §7): önce günlük hak (bireyselde kategorinin ücretsiz hakkı, başlangıç 5;
+  galeride paketin günlük ilk mesajı), sonra hak defterindeki ek hak; hakkın düşmesi ve mesaj aynı işlemde, hesap
+  başına kilitle. Açık sohbette yazışmak hak tüketmez. Günlük haklar İstanbul saatiyle 00.00'da yenilenir
+- [x] Araç kartı (Karar 26): yalnızca galerinin yayındaki (EİDS onaylı) aracı; alıcının kabul etmediği işlem (şasi,
+  podye, airbag, ağır hasar) varsa kartla yazılamaz; satılan araç kartı "Bu araç artık satışta değil" olur; bireysel
+  satıcı kart gönderemez
+- [x] Alıcı portföy aracına yazar (Karar 27): sohbet araç kartıyla açık başlar, alıcıya ücretsiz, günde en çok 10 farklı
+  araç; aynı araç için ikinci yazış aynı sohbete gider; galerinin yanıtı hak tüketmez
+- [x] Mesaj güvenliği (Karar 25): kapora, ödeme isteği, IBAN, telefon ve bağlantı kalıpları; satıcının mesajı işaretlenirse
+  alıcıya kırmızı bant, sohbet "Güvenlik uyarısı" ve "Uyarılı" süzgeci, `mesaj.uyari` olayı (moderasyon sinyali, Aşama 8)
+- [x] Numara paylaşımı: satıcı alıcının numarasını yalnızca alıcı "Numaramı paylaş" deyince görür; olay kaydedilir.
+  Engelle / engeli kaldır (Karar 11.3)
+- [x] Anlık iletim: `/ws` WebSocket; jeton ilk iletide (adres satırında değil), süresi dolunca yeniden bağlanma; birden
+  çok API sürecinde Redis yayını. Çevrimdışı kullanıcıya `mesaj.geldi` olayı bildirim katmanında (Aşama 7) iletilecek
+- [x] Web: Mesajlarım (Mesajlar.dc.html), talep sayfasında "Mesaj at" ve kalan hak, ilk mesaj penceresi (galeri adına,
+  araç kartıyla), Eşleşmeler'den "Araç kartıyla mesaj at" ve "İlk mesaj gönderildi", araç sayfasında "Bu araç için mesaj
+  gönder", galeri Özet'te okunmamış mesaj ve bugünkü ilk mesaj
+- [x] Mobil: Mesajlar sekmesi talebe göre gruplu (MesajlarMobil.dc.html), sohbet ekranı (MesajMobil.dc.html), ilk mesaj
+  penceresi (GaleriMobil.dc.html), galeri panelinde "İlk mesaj at" ve Mesajlar sekmesi, araç ekranından mesaj
+- [ ] Şikayet et (Aşama 8, moderasyon); yapay zekâ sınıflandırması ve "Taslağı yeniden yaz" (Karar 41, 42); ek mesaj paketi
+  satın alma (Aşama 6); çalışan başına günlük mesaj sınırı (Karar 20); mesajların 1 yıl sonra silinmesi (Karar 59)
+- [ ] Yıldız ve rozetler (Karar 55), galeri takibi (Karar 28): sonraki bölüm
+- Kararlar: talep pasife düşünce yeni ilk mesaj atılamaz, açılmış sohbet sürer (geçmiş korunur, Karar 10.5); alıcının
+  araç için günlük sınırı şimdilik sabit 10 (konsoldan ayarı yönetim modülüyle)
+- Tasarıma ek: web sohbette "Numaramı paylaş" düğmesi (mobil tasarımdaki açıklamadan), ilk mesaj penceresinde "Kimin
+  adına" seçimi (bireysel ve galeri hesabı olanlar için), sohbette galeri için araç kartı seçimi
+
 ## Sprint 11 · eşleştirme motoru ve skor (Aşama 5 ilk bölüm, 8 Kasım 2026)
 
 - [x] Skor (Teknik tasarım §6): `evaluateMatch` ortak pakette; motor, galeri ekranları ve konsoldaki deneme alanı aynı

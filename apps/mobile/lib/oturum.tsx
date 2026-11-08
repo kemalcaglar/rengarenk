@@ -19,6 +19,8 @@ interface Oturum {
   basla: (pair: { accessToken: string; refreshToken: string }) => Promise<void>;
   cikis: () => Promise<void>;
   yenileProfil: () => Promise<void>;
+  /** Geçerli erişim jetonu (WebSocket girişi); `yeni` ise yenilenir */
+  jeton: (yeni?: boolean) => Promise<string | null>;
   /** Oturumlu API isteği; erişim jetonunun süresi dolduysa bir kez yeniler ve tekrar dener */
   istek: <T>(
     path: string,
@@ -183,8 +185,15 @@ export function OturumProvider({ children }: { children: ReactNode }) {
     [yenile],
   );
 
+  const jeton = useCallback(
+    async (yeni = false) => (!yeni && accessRef.current ? accessRef.current : yenile()),
+    [yenile],
+  );
+
   return (
-    <Ctx.Provider value={{ durum, me, access, basla, cikis, yenileProfil, istek }}>{children}</Ctx.Provider>
+    <Ctx.Provider value={{ durum, me, access, basla, cikis, yenileProfil, istek, jeton }}>
+      {children}
+    </Ctx.Provider>
   );
 }
 

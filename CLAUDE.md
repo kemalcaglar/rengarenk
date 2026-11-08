@@ -162,9 +162,13 @@ pnpm format        # Biome ile biçimlendir
   `matches` tablosu, `eslesme.bulundu` olayı (günde 20 anlık), galeri Eşleşmeler (web, mobil), ana sayfa "Portföyünüze
   uyan talepler", araç sayfası "talebine uyuyor", konsol deneme alanı. Skor talebin şema sürümüyle; marka sert koşul.
   API'de 106, ortak pakette 58 test.
-- **Sıradaki:** Aşama 5'in kalanı: ilk mesaj ve haklar (günlük ücretsiz, paket, ek; Karar 11, 12), sohbet (WebSocket),
-  araç kartı (Karar 26), alıcının portföy aracına yazması (Karar 27), numara paylaşımı, mesaj güvenliği (Karar 25),
-  engelle, yıldız ve rozetler (Karar 55) (liste: `docs/kapsam/03-gelistirme-plani.md`). Sunucular gelince Radore'ye ilk dağıtım,
+- **Sprint 12 (8 Kasım 2026, Aşama 5 ikinci bölüm):** mesajlaşma (`apps/api/src/messages/`, `packages/shared/src/messages.ts`):
+  talebe tek ilk mesaj, haklar (günlük → ek, hak defteri), sohbet, araç kartı, alıcıdan araca mesaj (Karar 27), numara
+  paylaşımı, engelle, mesaj güvenliği kuralları, `/ws` anlık iletim (Redis yayını). Mesaj gövdesi `MESSAGE_SECRET_KEY` ile
+  şifreli (canlıda zorunlu). Web `/mesajlarim`, mobil Mesajlar sekmesi ve `app/sohbet/[id].tsx`. API'de 109, ortak pakette 61 test.
+  Telefon başına yeni SMS kodu için kısa bekleme var; ekran görüntüsünde aynı numarayla art arda giriş 429 verir.
+- **Sıradaki:** Aşama 5'in kalanı: yıldız ve rozetler (Karar 55), galeri takibi (Karar 28), çalışan başına günlük mesaj
+  sınırı (Karar 20) (liste: `docs/kapsam/03-gelistirme-plani.md`). Sonra Aşama 6: ödemeler. Sunucular gelince Radore'ye ilk dağıtım,
   yedek, izleme, SOPS. Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

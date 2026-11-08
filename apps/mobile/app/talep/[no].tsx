@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Image, Linking, Pressable, ScrollView, Share, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ikon } from '../../components/ikon';
+import { IlkMesaj } from '../../components/ilk-mesaj';
 import { T } from '../../components/t';
 import { AracSemasi, Cip, kartStil } from '../../components/talep/ortak';
 import { API } from '../../lib/api';
@@ -61,6 +62,19 @@ export default function TalepDetay() {
   const [t, setT] = useState<Talep | null>(null);
   const [hata, setHata] = useState<string | null>(null);
   const [alt, setAlt] = useState(0);
+  // İlk mesaj (Karar 08, 11): yazıldıysa sohbete gider
+  const [mesaj, setMesaj] = useState<{
+    kendi: boolean;
+    yazildi: string | null;
+    gunluk: { toplam: number; kalan: number } | null;
+  } | null>(null);
+  const [pencere, setPencere] = useState(false);
+  useEffect(() => {
+    if (durum === 'uye')
+      istek<NonNullable<typeof mesaj>>(`/talepler/${no}/mesaj`)
+        .then(setMesaj)
+        .catch(() => undefined);
+  }, [no, durum, istek]);
 
   useEffect(() => {
     if (durum === 'yukleniyor') return;
@@ -538,21 +552,32 @@ export default function TalepDetay() {
               {yayinda
                 ? 'Bu talebe yalnızca bir ilk mesaj atabilirsiniz.'
                 : 'Talep yayında değil; satıcılar yazamaz.'}
+              {yayinda && mesaj?.gunluk && !mesaj.yazildi
+                ? ` Bugün kalan hakkın: ${mesaj.gunluk.kalan} / ${mesaj.gunluk.toplam}`
+                : ''}
             </T>
             <View style={{ flexDirection: 'row', gap: 8 }}>
-              <View
+              <Pressable
+                accessibilityRole="button"
+                disabled={durum === 'uye' && !yayinda && !mesaj?.yazildi}
+                onPress={() => {
+                  if (durum !== 'uye') router.push('/giris');
+                  else if (mesaj?.yazildi) router.push(`/sohbet/${mesaj.yazildi}`);
+                  else setPencere(true);
+                }}
                 style={{
                   flex: 2,
                   backgroundColor: colors.blue,
                   borderRadius: 14,
                   paddingVertical: 14,
                   alignItems: 'center',
-                  opacity: 0.55,
+                  opacity: durum === 'uye' && !yayinda && !mesaj?.yazildi ? 0.55 : 1,
                 }}
-                accessibilityLabel="Mesajlaşma yakında açılacak"
               >
-                <T style={{ fontSize: 15.5, fontWeight: '800' }}>Mesaj at</T>
-              </View>
+                <T style={{ fontSize: 15.5, fontWeight: '800' }}>
+                  {mesaj?.yazildi ? 'Sohbete git' : 'Mesaj at'}
+                </T>
+              </Pressable>
               {yayinda && (t.owner.phone || t.owner.phoneHidden) ? (
                 <Pressable
                   accessibilityRole="button"
@@ -590,6 +615,19 @@ export default function TalepDetay() {
           </>
         )}
       </View>
+      {t ? (
+        <IlkMesaj
+          acik={pencere}
+          talepNo={t.no}
+          talepBaslik={t.baslik}
+          sahip={t.owner.name}
+          kapat={() => setPencere(false)}
+          gonderildi={(id) => {
+            setPencere(false);
+            router.push(`/sohbet/${id}`);
+          }}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }

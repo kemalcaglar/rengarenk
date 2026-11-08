@@ -173,6 +173,16 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Mesajlaşma (Sprint 12)
+
+- **İlk mesaj:** `GET/POST /talepler/:no/mesaj` (durum, kalan hak; gönderim `{ metin, hesap?, aracId? }`),
+  `POST /araclar/:no/mesaj` (alıcıdan galeriye). Sohbet: `GET /conversations`, `GET /conversations/unread`,
+  `GET /conversations/:id`, `POST …/messages`, `…/decline`, `…/share-phone`, `POST/DELETE …/block`, `…/read`.
+- **Anlık iletim:** `ws://…/ws`; bağlanınca `{"tip":"giris","jeton":"<erişim jetonu>"}` gönderilir, sunucu sohbet
+  değişince `{"tip":"sohbet","id":"…"}` yollar. Birden çok API sürecinde Redis yayınıyla dağıtılır.
+- **Şifreleme:** mesaj gövdesi `MESSAGE_SECRET_KEY` ile (AES-256-GCM); canlıda zorunlu, değiştirilirse eski mesajlar
+  açılamaz. Geliştirmede boşsa `JWT_SECRET`'ten türetilir.
+
 ## Eşleştirme (Sprint 11)
 
 - **Skor:** `evaluateMatch` (`packages/shared/src/matching.ts`); motor `apps/api/src/matching/`. Talep ve araç olaylarında

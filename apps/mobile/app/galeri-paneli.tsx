@@ -12,6 +12,7 @@ import { useCallback, useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
+import { IlkMesaj } from '../components/ilk-mesaj';
 import { T } from '../components/t';
 import { API } from '../lib/api';
 import { basHarf, useOturum } from '../lib/oturum';
@@ -55,6 +56,7 @@ const DURUM_RENK: Record<string, [string, string]> = {
 interface Eslesmeler {
   eslesme: boolean;
   gunlukMesaj: number;
+  kalanMesaj: number;
   yeni: number;
   toplam: number;
   araclar: { id: string; ad: string; sayi: number }[];
@@ -63,6 +65,7 @@ interface Eslesmeler {
     skor: number;
     uyum: string;
     zaman: string;
+    sohbet: string | null;
     arac: { id: string; no: number; ad: string; foto: string | null };
     talep: {
       no: number;
@@ -91,13 +94,13 @@ interface Davet {
   rolAd: string;
 }
 
-/** Alt sekmeler (GaleriMobil.dc.html); mesajlar Aşama 5'in ikinci bölümünde açılır */
+/** Alt sekmeler (GaleriMobil.dc.html); Mesajlar ortak mesaj ekranına gider (galeri sohbetleri dahil) */
 const SEKME: { ad: string; key: string; d: string; orta?: true; acik?: true }[] = [
   { ad: 'Panel', key: 'panel', d: 'M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 4v3h6V4z', acik: true },
   { ad: 'Eşleşmeler', key: 'eslesme', d: 'M7 7h10l-3-3M17 17H7l3 3', acik: true },
   { ad: 'Araç ekle', key: 'ekle', d: 'M12 5v14M5 12h14', orta: true, acik: true },
   { ad: 'Portföy', key: 'portfoy', d: 'M3 13l2-6h14l2 6v5H3zM7 18v2M17 18v2M6 13h12', acik: true },
-  { ad: 'Mesajlar', key: 'mesaj', d: 'M4 5h16v11H9l-5 4z' },
+  { ad: 'Mesajlar', key: 'mesaj', d: 'M4 5h16v11H9l-5 4z', acik: true },
 ];
 
 const kart = { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line } as const;
@@ -115,6 +118,8 @@ export default function GaleriPaneli() {
   const [portfoy, setPortfoy] = useState<Portfoy | null>(null);
   const [eslesme, setEslesme] = useState<Eslesmeler | null>(null);
   const [aracFiltre, setAracFiltre] = useState<string | null>(null);
+  const [yaz, setYaz] = useState<Eslesmeler['eslesmeler'][number] | null>(null);
+  const [gonderilen, setGonderilen] = useState<Record<string, string>>({});
 
   const yukle = useCallback(async () => {
     const g = await istek<{ accountId: string }[]>('/gallery/mine');
@@ -178,7 +183,12 @@ export default function GaleriPaneli() {
               ? 'Sınırsız'
               : `${Math.max(0, p.paket.portfoy - (portfoy?.aktif ?? 0))} araç daha`,
         },
-        { ad: 'Bugünkü ilk mesaj', max: String(p.paket.gunlukMesaj), not: "Her gece 00:00'da yenilenir" },
+        {
+          ad: 'Bugünkü ilk mesaj',
+          deger: eslesme ? eslesme.gunlukMesaj - eslesme.kalanMesaj : 0,
+          max: String(p.paket.gunlukMesaj),
+          not: "Her gece 00:00'da yenilenir",
+        },
         {
           ad: deneme ? 'Deneme talep hakkı' : 'Bu ay açılan talep',
           max: String(deneme ? GALLERY_TRIAL.talep : (plan?.aylikTalep ?? 0)),
@@ -368,7 +378,7 @@ export default function GaleriPaneli() {
             >
               <T style={{ fontSize: 13, color: '#3A4052' }}>Bugün kalan ilk mesaj</T>
               <T style={{ fontSize: 15, fontWeight: '800' }}>
-                {eslesme?.gunlukMesaj ?? p.paket.gunlukMesaj} / {eslesme?.gunlukMesaj ?? p.paket.gunlukMesaj}
+                {eslesme?.kalanMesaj ?? p.paket.gunlukMesaj} / {eslesme?.gunlukMesaj ?? p.paket.gunlukMesaj}
               </T>
             </View>
             {eslesme?.eslesme && eslesme.araclar.length > 1 ? (
@@ -483,20 +493,28 @@ export default function GaleriPaneli() {
                   <T numberOfLines={2} style={{ flex: 1, minWidth: 0, fontSize: 12.5, fontWeight: '700' }}>
                     {e.arac.ad}
                   </T>
-                  <View
-                    accessibilityRole="button"
-                    accessibilityState={{ disabled: true }}
-                    accessibilityLabel="İlk mesaj at, yakında"
-                    style={{
-                      backgroundColor: '#5B8CFF',
-                      borderRadius: 12,
-                      paddingVertical: 10,
-                      paddingHorizontal: 12,
-                      opacity: 0.55,
-                    }}
-                  >
-                    <T style={{ fontSize: 13.5, fontWeight: '800' }}>İlk mesaj at</T>
-                  </View>
+                  {e.sohbet || gonderilen[e.id] ? (
+                    <T
+                      accessibilityRole="link"
+                      onPress={() => router.push(`/sohbet/${e.sohbet ?? gonderilen[e.id]}`)}
+                      style={{ fontSize: 12.5, fontWeight: '800', color: '#11683F', paddingVertical: 10 }}
+                    >
+                      ✓ Gönderildi
+                    </T>
+                  ) : (
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={() => setYaz(e)}
+                      style={{
+                        backgroundColor: '#5B8CFF',
+                        borderRadius: 12,
+                        paddingVertical: 10,
+                        paddingHorizontal: 12,
+                      }}
+                    >
+                      <T style={{ fontSize: 13.5, fontWeight: '800' }}>İlk mesaj at</T>
+                    </Pressable>
+                  )}
                 </View>
               </View>
             ))}
@@ -807,6 +825,7 @@ export default function GaleriPaneli() {
               if (s.key === 'ekle')
                 router.push({ pathname: '/galeri-arac', params: { accountId: p.accountId } });
               else if (s.key === 'eslesme') eslesmeAc();
+              else if (s.key === 'mesaj') router.push('/mesajlar');
               else setGorunum(s.key as 'panel' | 'portfoy');
             }}
             style={{
@@ -876,6 +895,22 @@ export default function GaleriPaneli() {
           </Pressable>
         ))}
       </View>
+      {yaz && p ? (
+        <IlkMesaj
+          acik
+          talepNo={yaz.talep.no}
+          talepBaslik={yaz.talep.baslik}
+          sahip={yaz.talep.sahip}
+          hesap={p.accountId}
+          arac={{ id: yaz.arac.id, ad: yaz.arac.ad }}
+          kapat={() => setYaz(null)}
+          gonderildi={(id) => {
+            setGonderilen((g) => ({ ...g, [yaz.id]: id }));
+            setYaz(null);
+            yukle().catch(() => undefined);
+          }}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }

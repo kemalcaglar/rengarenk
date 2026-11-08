@@ -128,6 +128,7 @@ export function GaleriPaneli() {
   const [kategoriler, setKategoriler] = useState<PublicCategory[]>([]);
   const [portfoy, setPortfoy] = useState<PortfoyListesi | null>(null);
   const [eslesme, setEslesme] = useState<EslesmeVerisi | null>(null);
+  const [okunmamis, setOkunmamis] = useState(0);
   const setGorunum = (g: Gorunum) => {
     setDuzenle(null);
     setGorunumHam(g);
@@ -174,6 +175,9 @@ export function GaleriPaneli() {
     setP(x);
     setPortfoy(l);
     setEslesme(e);
+    istek<{ okunmamis: number }>(`/conversations/unread?hesap=${secili}`)
+      .then((u) => setOkunmamis(u.okunmamis))
+      .catch(() => undefined);
   }, [secili]);
 
   useEffect(() => {
@@ -465,10 +469,23 @@ export function GaleriPaneli() {
           ) : null}
           {!p && !davetler ? <p style={{ color: '#5A6073' }}>Yükleniyor…</p> : null}
           {p && gorunum === 'ozet' ? (
-            <Ozet p={p} portfoy={portfoy} yeniEslesme={eslesme?.yeni ?? 0} git={setGorunum} islem={islem} />
+            <Ozet
+              p={p}
+              portfoy={portfoy}
+              yeniEslesme={eslesme?.yeni ?? 0}
+              kullanilanMesaj={eslesme ? eslesme.gunlukMesaj - eslesme.kalanMesaj : 0}
+              okunmamis={okunmamis}
+              git={setGorunum}
+              islem={islem}
+            />
           ) : null}
           {p && gorunum === 'eslesme' ? (
-            <Eslesmeler accountId={p.accountId} veri={eslesme} gorundu={eslesmeGoruldu} />
+            <Eslesmeler
+              accountId={p.accountId}
+              veri={eslesme}
+              gorundu={eslesmeGoruldu}
+              yenile={() => yukle().catch(() => undefined)}
+            />
           ) : null}
           {p && gorunum === 'portfoy' && !duzenle ? (
             <Portfoy
@@ -510,12 +527,16 @@ function Ozet({
   p,
   portfoy,
   yeniEslesme,
+  kullanilanMesaj,
+  okunmamis,
   git,
   islem,
 }: {
   p: Panel;
   portfoy: PortfoyListesi | null;
   yeniEslesme: number;
+  kullanilanMesaj: number;
+  okunmamis: number;
   git: (g: Gorunum) => void;
   islem: Islem;
 }) {
@@ -536,7 +557,7 @@ function Ozet({
     },
     {
       label: 'Bugünkü ilk mesaj',
-      value: 0,
+      value: kullanilanMesaj,
       max: String(p.paket.gunlukMesaj),
       not: "Her gece 00:00'da yenilenir",
     },
@@ -613,7 +634,7 @@ function Ozet({
             'Doğrulanana kadar alıcılara görünmez',
             'portfoy',
           ],
-          ['0', '#9B1C5B', 'Okunmamış mesaj', 'Ekip üyelerine gelen sohbetler dahil', ''],
+          [String(okunmamis), '#9B1C5B', 'Okunmamış mesaj', 'Ekip üyelerine gelen sohbetler dahil', 'mesaj'],
         ].map(([n, renk, ad, alt, hedef]) => {
           const ic = (
             <>
@@ -626,7 +647,9 @@ function Ozet({
             <button
               key={ad}
               type="button"
-              onClick={() => git(hedef as Gorunum)}
+              onClick={() =>
+                hedef === 'mesaj' ? window.location.assign('/mesajlarim') : git(hedef as Gorunum)
+              }
               style={{ ...kart, padding: 18, textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit' }}
             >
               {ic}

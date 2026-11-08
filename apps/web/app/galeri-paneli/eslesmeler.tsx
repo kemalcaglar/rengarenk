@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { IlkMesaj } from '../../components/ilk-mesaj';
 import { istek } from '../../lib/istemci';
 import { zaman } from '../../lib/talep-bicim';
 
@@ -9,6 +10,8 @@ export interface EslesmeVerisi {
   /** Pakette otomatik eşleşme var mı (Profesyonel, Kurumsal, deneme; Karar 12.2) */
   eslesme: boolean;
   gunlukMesaj: number;
+  /** Bugün kalan ilk mesaj (paketin günlük hakkı) */
+  kalanMesaj: number;
   yeni: number;
   toplam: number;
   araclar: { id: string; ad: string; sayi: number }[];
@@ -18,6 +21,8 @@ export interface EslesmeVerisi {
     uyum: string;
     yeni: boolean;
     zaman: string;
+    /** Bu galerinin bu talebe attığı ilk mesajın sohbeti */
+    sohbet: string | null;
     arac: { id: string; no: number; ad: string; foto: string | null };
     talep: {
       no: number;
@@ -33,18 +38,22 @@ export interface EslesmeVerisi {
 
 /**
  * Galeri paneli › Eşleşmeler (GaleriPanel.dc.html): portföydeki araçlara uyan alıcı talepleri. Ekran açılınca
- * eşleşmeler görüldü sayılır. "Araç kartıyla mesaj at" ilk mesaj ve haklar (Aşama 5 ikinci bölüm) gelince açılır.
+ * eşleşmeler görüldü sayılır. "Araç kartıyla mesaj at" ilk mesaj penceresini galeri adına ve araç kartıyla açar.
  */
 export function Eslesmeler({
   accountId,
   veri,
   gorundu,
+  yenile,
 }: {
   accountId: string;
   veri: EslesmeVerisi | null;
   gorundu: () => void;
+  yenile: () => void;
 }) {
   const yeni = veri?.yeni ?? 0;
+  const [pencere, setPencere] = useState<EslesmeVerisi['eslesmeler'][number] | null>(null);
+  const [gonderilen, setGonderilen] = useState<Record<string, string>>({});
   useEffect(() => {
     if (!yeni) return;
     istek(`/gallery/${accountId}/matches/seen`, { method: 'POST' })
@@ -58,7 +67,7 @@ export function Eslesmeler({
       <p style={{ margin: '0 0 18px', fontSize: 14.5, color: '#5A6073' }}>
         Portföyündeki araçlara uyan alıcı talepleri. Bugün kalan ilk mesaj hakkın:{' '}
         <strong style={{ color: '#1E2333' }}>
-          {veri?.gunlukMesaj ?? 0} / {veri?.gunlukMesaj ?? 0}
+          {veri?.kalanMesaj ?? 0} / {veri?.gunlukMesaj ?? 0}
         </strong>
       </p>
       {!veri ? <p style={{ color: '#5A6073' }}>Yükleniyor…</p> : null}
@@ -173,30 +182,52 @@ export function Eslesmeler({
                     {e.uyum}
                   </span>
                 </div>
-                <button
-                  type="button"
-                  disabled
-                  title="İlk mesaj ve haklar bir sonraki bölümde açılacak"
-                  style={{
-                    flex: 'none',
-                    border: 0,
-                    background: '#5B8CFF',
-                    borderRadius: 12,
-                    padding: '12px 16px',
-                    fontSize: 14,
-                    fontWeight: 800,
-                    color: '#1E2333',
-                    cursor: 'default',
-                    opacity: 0.55,
-                    fontFamily: 'inherit',
-                  }}
-                >
-                  Araç kartıyla mesaj at
-                </button>
+                {e.sohbet || gonderilen[e.id] ? (
+                  <Link
+                    href={`/mesajlarim?sohbet=${e.sohbet ?? gonderilen[e.id]}`}
+                    style={{ flex: 'none', fontSize: 14, fontWeight: 700, color: '#11683F' }}
+                  >
+                    İlk mesaj gönderildi
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setPencere(e)}
+                    style={{
+                      flex: 'none',
+                      border: 0,
+                      background: '#5B8CFF',
+                      borderRadius: 12,
+                      padding: '12px 16px',
+                      fontSize: 14,
+                      fontWeight: 800,
+                      color: '#1E2333',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    Araç kartıyla mesaj at
+                  </button>
+                )}
               </div>
             ))
           : null}
       </div>
+      {pencere ? (
+        <IlkMesaj
+          talepNo={pencere.talep.no}
+          talepBaslik={pencere.talep.baslik}
+          sahip={pencere.talep.sahip}
+          hesap={accountId}
+          arac={{ id: pencere.arac.id, ad: pencere.arac.ad }}
+          kapat={() => setPencere(null)}
+          gonderildi={(id) => {
+            setGonderilen((g) => ({ ...g, [pencere.id]: id }));
+            setPencere(null);
+            yenile();
+          }}
+        />
+      ) : null}
     </>
   );
 }
