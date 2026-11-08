@@ -138,6 +138,33 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 14 · web ödemeleri, haklar ve öne çıkarma (Aşama 6 ilk bölüm, 8 Kasım 2026)
+
+- [x] Veri modeli: orders (sepet, fatura bilgileri, onaylar, doldurulmuş ön bilgilendirme formu), payments (yalnızca
+  ekleme), invoices, demand_promotions; sipariş, fatura ve öne çıkarma silinmez (10 yıl saklama, Karar 59). İade tablosuna
+  ve iade kilidine dokunulmadı
+- [x] Ürünler ve fiyatlar (Karar 12.8; mobil fiyatlar Karar 38): ek talep, talep paketi, uzatma, 10/30 ilk mesaj, üst sıra
+  7/30 gün, acil arıyorum, ana sayfa vitrini
+- [x] Ödeme onayları (Karar 39): sözleşme onayı her zaman, hemen başlayan hizmette ayrı ikinci onay; onaylar metin
+  sürümüyle rıza kaydına, doldurulmuş ön bilgilendirme formu siparişe yazılır. Kurumsal fatura (vergi no) seçeneği
+- [x] PayTR iFrame API bağdaştırıcısı (dev.paytr.com: token isteği, çerçeve, bildirim özeti HMAC-SHA256). Bildirim
+  imzayla doğrulanır, sipariş satırı kilitlenir, yalnızca ilk bildirim işlenir; tutar uyuşmazsa hak tanımlanmaz ve
+  `odeme.uyusmazlik` olayı. Bildirim ucu bakım modunda da açık
+- [x] Ödeme onaylanınca haklar hak defterine, öne çıkarmalar hemen başlar (aynı türden süren varsa ardına eklenir);
+  işlem kaydı ve olaylar aynı işlemde. Ödenmeyen sipariş 45 dakika sonra iptal
+- [x] Öne çıkarmanın etkisi: üst sıra listede ve galeri eşleşmelerinde önce ("Öne çıkan"), "Acil arıyorum" etiketi,
+  ücretli vitrin ana sayfada önce (web ve mobil liste)
+- [x] e-Arşiv: sağlayıcı arayüzü, işçi ödeme alınınca keser, başarısızsa yeniden dener; "Faturayı indir"
+- [x] Web: Haklarım ve ödemeler (Haklarim.dc.html: haklar, aktif öne çıkarma, sepet, ödeme, sonuç, ödeme geçmişi),
+  sihirbazın 6. adımında öne çıkarma seçimi yayından sonra sepete gelir, ön bilgilendirme ve mesafeli sözleşme sayfaları
+- [ ] Gerçek PayTR ve e-Arşiv: sözleşme ve entegratör gelene kadar canlıda `PAYMENT_PROVIDER=none` (satın alma kapalı),
+  `EARSIV_PROVIDER=none` (faturalar kuyrukta); `fake` canlıda açılamaz
+- [ ] Sonraki bölümler: galeri abonelikleri (tekrarlı tahsil, Karar 12.2, 12.7), mağaza ödemeleri ve RevenueCat (Karar 38),
+  mobil Haklarım ekranı, konsolda Ödemeler ve faturalar; iade akışı (4 kilit) sahibe sorulduktan sonra
+- [ ] Ön bilgilendirme formu ve sözleşmenin PDF olarak e-postayla gönderilmesi (bildirim katmanıyla, Aşama 7)
+- Tasarımdan farklar: ödeme çerçevesi "Siparişi onayla ve öde" düğmesinden sonra açılır (PayTR çerçevesi siparişin
+  tutarıyla oluşturulur); fatura il ve ilçesi listeden seçilir
+
 ## Sprint 13 · yıldız, rozetler, galeri takibi, çalışan sınırı (Aşama 5 son bölüm, 8 Kasım 2026)
 
 - [x] Veri modeli: ratings (sohbet başına bir), seller_stats (göstergeler ve rozetler), gallery_follows,

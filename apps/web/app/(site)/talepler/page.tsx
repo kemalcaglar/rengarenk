@@ -30,6 +30,9 @@ interface Sonuc {
   ilce: string | null;
   yayin: string;
   foto: string | null;
+  /** Öne çıkarmalar (Karar 12.6) */
+  acil: boolean;
+  ustSira: boolean;
 }
 interface Yanit {
   toplam: number;
@@ -524,7 +527,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                   gap: '10px 16px',
                   padding: '14px 18px',
                   borderTop: '1px solid #EEF0F5',
-                  background: '#FFFFFF',
+                  background: t.ustSira ? '#FFF9FC' : '#FFFFFF',
                 }}
               >
                 <Link
@@ -597,6 +600,34 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                     {t.arac || t.kategori.name}
                   </span>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
+                    {t.acil ? (
+                      <span
+                        style={{
+                          background: '#FFF6DF',
+                          color: '#7A5300',
+                          fontSize: 12,
+                          fontWeight: 700,
+                          padding: '3px 9px',
+                          borderRadius: 999,
+                        }}
+                      >
+                        Acil arıyorum
+                      </span>
+                    ) : null}
+                    {t.ustSira ? (
+                      <span
+                        style={{
+                          background: '#FFEEF6',
+                          color: '#9B1C5B',
+                          fontSize: 12,
+                          fontWeight: 700,
+                          padding: '3px 9px',
+                          borderRadius: 999,
+                        }}
+                      >
+                        Öne çıkan
+                      </span>
+                    ) : null}
                     <span style={{ fontSize: 12.5, color: '#5A6073', padding: '3px 0' }}>
                       {zaman(t.yayin)}
                     </span>

@@ -5,7 +5,7 @@ const OGELER: { ad: string; href?: string }[] = [
   { ad: 'Taleplerim', href: '/taleplerim' },
   { ad: 'Mesajlarım', href: '/mesajlarim' },
   { ad: 'Favoriler ve aramalar', href: '/favoriler' },
-  { ad: 'Haklarım ve ödemeler' },
+  { ad: 'Haklarım ve ödemeler', href: '/haklarim' },
   { ad: 'Ayarlar' },
   { ad: 'Yardım' },
   // Tasarımda yok: galeri paneline ya da kurumsal başvuruya giriş (Karar 03)

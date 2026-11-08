@@ -173,6 +173,15 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Web ödemeleri (Sprint 14)
+
+- **Uçlar:** `GET /orders/overview`, `POST /orders` (`{ kalemler, fatura, onay }`), `GET /orders/:no`,
+  `GET /orders/:id/invoice`, `GET /orders/:id/contract`; PayTR bildirimi `POST /odeme/bildirim` (yanıt düz "OK").
+- **Sağlayıcı:** `PAYMENT_PROVIDER` — `none` (canlıda sözleşmeye kadar), `paytr` (`PAYTR_MERCHANT_ID/KEY/SALT`,
+  `PAYTR_TEST_MODE`), `fake` (geliştirme: `/odeme/sahte/:no` sayfası PayTR'yle aynı biçimde bildirim gönderir).
+  PayTR panelinde bildirim adresi `https://<api>/odeme/bildirim` olarak tanımlanır.
+- **e-Arşiv:** `EARSIV_PROVIDER` — `none` ya da `fake` (sahte PDF). İşçi `odeme.alindi` olayında keser.
+
 ## Yıldız, rozetler, takip (Sprint 13)
 
 - **Uçlar:** `GET/POST /conversations/:id/rating` (`{ yildiz }`), `GET /ratings/pending`, `GET /gallery/:hesap/trust`,

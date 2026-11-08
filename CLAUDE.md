@@ -172,8 +172,13 @@ pnpm format        # Biome ile biçimlendir
   mesaj sınırı, konsol `/puan`. API'de 111, ortak pakette 63 test. Şikâyet oranı moderasyona kadar 0.
 - **Ekran görüntüsü betikleri** (scratchpad `betik/`): Edge başsız açılır; Windows'ta `p.kill()` yetmez, betik sonunda
   profil klasörünü kullanan bütün `msedge.exe` süreçleri kapatılır. Çekimden sonra Edge sayısını kontrol et.
-- **Sıradaki:** Aşama 6: ödemeler (PayTR, abonelik, mağaza ödemeleri ve RevenueCat, e-Arşiv, iade akışı ve 4 kilit,
-  ön bilgilendirme ve sözleşmeler). Gerçek anahtar yok: sahte sağlayıcıyla. İade akışına dokunmadan önce sahibe sor. Sunucular gelince Radore'ye ilk dağıtım,
+- **Sprint 14 (8 Kasım 2026, Aşama 6 ilk bölüm):** web ödemeleri (`apps/api/src/payments/`, `packages/shared/src/payments.ts`):
+  sipariş, Karar 39 onayları, PayTR bağdaştırıcısı ve sahte sağlayıcı (`PAYMENT_PROVIDER`), bildirim bir kez işlenir,
+  haklar ve öne çıkarma (`demand_promotions`), e-Arşiv sağlayıcısı (`EARSIV_PROVIDER`), web `/haklarim`. API'de 113,
+  ortak pakette 66 test. İade tablosu ve kilidine dokunulmadı. Ekran görüntüsünde sahte ödeme çerçevedeki sayfaya
+  `fetch(src, {method:'POST', body:'durum=success'})` ile onaylanır.
+- **Sıradaki:** Aşama 6'nın kalanı: galeri abonelikleri, mağaza ödemeleri (RevenueCat), mobil Haklarım, konsolda Ödemeler
+  ve faturalar; iade akışı (4 kilit) en son ve başlamadan önce sahibe sorulur. Sunucular gelince Radore'ye ilk dağıtım,
   yedek, izleme, SOPS. Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

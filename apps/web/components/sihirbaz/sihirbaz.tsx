@@ -110,6 +110,8 @@ export function Sihirbaz() {
   const [uyari, setUyari] = useState<string | null>(null);
   const [haklar, setHaklar] = useState<Haklar | null>(null);
   const [busy, setBusy] = useState(false);
+  // 6. adımda seçilen öne çıkarmalar: yayından sonra Haklarım'da sepete eklenir (Karar 12.6)
+  const [oneCikar, setOneCikar] = useState<string[]>([]);
   const kirli = useRef(false);
 
   useEffect(() => {
@@ -299,7 +301,11 @@ export function Sihirbaz() {
         return;
       }
       const r = await istek<{ no: number }>(`/demands/${taslak.id}/publish`, { method: 'POST' });
-      router.push(`/taleplerim?yayinlandi=${r.no}`);
+      router.push(
+        oneCikar.length
+          ? `/haklarim?talep=${r.no}&sepet=${oneCikar.map((k) => `${k}_7`).join(',')}`
+          : `/taleplerim?yayinlandi=${r.no}`,
+      );
     } catch (e) {
       const h = e as ApiHatasi;
       if (h.body?.issues?.length) {
@@ -853,6 +859,8 @@ export function Sihirbaz() {
               iletisim={iletisim}
               haklar={duzenle ? null : haklar}
               duzenle={duzenle}
+              oneCikar={oneCikar}
+              setOneCikar={setOneCikar}
             />
           ) : null}
 
@@ -1385,6 +1393,8 @@ function Onizleme({
   iletisim,
   haklar,
   duzenle,
+  oneCikar,
+  setOneCikar,
 }: {
   duzenle?: boolean;
   taslak: Taslak;
@@ -1392,6 +1402,8 @@ function Onizleme({
   baslik: string;
   iletisim: Iletisim;
   haklar: Haklar | null;
+  oneCikar: string[];
+  setOneCikar: (v: string[]) => void;
 }) {
   const konum = veri.alanlar.konum as { il?: string; ilce?: string } | undefined;
   const boya = veri.alanlar.boya as BoyaDegeri | undefined;
@@ -1505,35 +1517,49 @@ function Onizleme({
           <div
             style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}
           >
-            {ONE_CIKARMA.map((b) => (
-              <div
-                key={b.key}
-                aria-disabled="true"
-                style={{
-                  textAlign: 'left',
-                  border: '1px solid #E3E6EF',
-                  background: '#FFFFFF',
-                  borderRadius: 14,
-                  padding: 15,
-                  opacity: 0.7,
-                }}
-              >
-                <span style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#1E2333' }}>
-                  {b.ad}
-                </span>
-                <span style={{ display: 'block', fontSize: 13, color: '#5A6073', marginTop: 3 }}>
-                  {b.aciklama}
-                </span>
-                <span
-                  style={{ display: 'block', fontSize: 15, fontWeight: 800, color: '#1E2333', marginTop: 8 }}
+            {ONE_CIKARMA.map((b) => {
+              const on = oneCikar.includes(b.key);
+              return (
+                <button
+                  key={b.key}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => setOneCikar(on ? oneCikar.filter((k) => k !== b.key) : [...oneCikar, b.key])}
+                  style={{
+                    textAlign: 'left',
+                    border: on ? '2px solid #5B8CFF' : '1px solid #E3E6EF',
+                    background: on ? '#EEF3FF' : '#FFFFFF',
+                    borderRadius: 14,
+                    padding: on ? 14 : 15,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
                 >
-                  {b.tl} TL
-                </span>
-              </div>
-            ))}
+                  <span style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#1E2333' }}>
+                    {b.ad}
+                  </span>
+                  <span style={{ display: 'block', fontSize: 13, color: '#5A6073', marginTop: 3 }}>
+                    {b.aciklama}
+                  </span>
+                  <span
+                    style={{
+                      display: 'block',
+                      fontSize: 15,
+                      fontWeight: 800,
+                      color: '#1E2333',
+                      marginTop: 8,
+                    }}
+                  >
+                    {b.tl} TL
+                  </span>
+                </button>
+              );
+            })}
           </div>
           <p style={{ margin: '8px 0 0', fontSize: 12.5, color: '#5A6073' }}>
-            Öne çıkarma, ödeme altyapısı açılınca talebin yayındayken Taleplerim'den de alınabilecek.
+            {oneCikar.length
+              ? 'Talebin yayınlanınca seçtiklerin ödeme sayfasında sepetine eklenir; ödeyince hemen başlar.'
+              : 'İstersen talebin yayındayken Haklarım ve ödemeler sayfasından da öne çıkarabilirsin.'}
           </p>
         </>
       )}
@@ -1583,8 +1609,11 @@ function Onizleme({
             }}
           >
             Ücretsiz talep hakkını kullandın. Ek talep {BIREYSEL_FIYATLAR.ekTalep.tl} TL, 3'lü paket{' '}
-            {BIREYSEL_FIYATLAR.talepPaketi.tl} TL; ödeme altyapısı açılınca buradan satın alabileceksin.
-            Talebin taslak olarak saklanıyor.
+            {BIREYSEL_FIYATLAR.talepPaketi.tl} TL.{' '}
+            <a href="/haklarim?sepet=ek_talep" style={{ fontWeight: 800 }}>
+              Ek talep hakkı al
+            </a>
+            ; talebin taslak olarak saklanıyor, hakkı alınca buradan yayınlayabilirsin.
           </div>
         )
       ) : null}

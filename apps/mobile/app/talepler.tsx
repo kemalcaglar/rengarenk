@@ -32,6 +32,8 @@ interface Sonuc {
   il: string | null;
   ilce: string | null;
   yayin: string;
+  acil?: boolean;
+  ustSira?: boolean;
 }
 type Q = Record<string, string | undefined>;
 
@@ -322,7 +324,43 @@ export default function Talepler() {
               <T style={{ fontSize: 14.5, fontWeight: '800', color: colors.link, marginTop: 6 }}>
                 {butceAraligi(t.butceMin, t.butceMax)}
               </T>
-              <T style={{ fontSize: 11.5, color: colors.muted, marginTop: 6 }}>{zaman(t.yayin)}</T>
+              <View
+                style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 5, marginTop: 6 }}
+              >
+                {t.acil ? (
+                  <T
+                    style={{
+                      backgroundColor: '#FFF6DF',
+                      color: '#7A5300',
+                      fontSize: 11.5,
+                      fontWeight: '700',
+                      paddingVertical: 3,
+                      paddingHorizontal: 8,
+                      borderRadius: 999,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    Acil
+                  </T>
+                ) : null}
+                {t.ustSira ? (
+                  <T
+                    style={{
+                      backgroundColor: '#FFEEF6',
+                      color: '#9B1C5B',
+                      fontSize: 11.5,
+                      fontWeight: '700',
+                      paddingVertical: 3,
+                      paddingHorizontal: 8,
+                      borderRadius: 999,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    Öne çıkan
+                  </T>
+                ) : null}
+                <T style={{ fontSize: 11.5, color: colors.muted }}>{zaman(t.yayin)}</T>
+              </View>
             </View>
           </Pressable>
         )}
