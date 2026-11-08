@@ -155,7 +155,8 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   paket karşılaştırma, ek paket, ödeme (kart çerçevesi), faturalar; ekip ve portföy paket sınırını aşarsa uyarı
 - [x] Mağaza ödemeleri (Karar 38): satın alma niyeti, RevenueCat bildirimi (Authorization ile doğrulanır, bakımda da
   açık), aynı bildirim ve aynı satış bir kez, `store_events` (yalnızca ekleme). Mağaza satışının faturasını mağaza keser.
-  Mağaza iadesi yalnızca kaydedilir ve sahibe iletilir (hak düşülmez)
+  Mağaza iadesinde o satıştan kalan kullanılmamış hak düşülür, öne çıkarma biter (sahip kararı, 8 Kasım 2026); para
+  iadesini mağaza yapar
 - [x] Mobil Haklarım (HaklarimMobil.dc.html): haklar, mobil fiyatlarla ürünler, öne çıkarmada talep seçimi, App Store /
   Google Play düğmesi, uygulama içinde ödeme geçmişi
 - [x] Konsol › Ödemeler ve faturalar (Yonetim.dc.html › Ödemeler): tahsilat özeti, sipariş tablosu (durum ve kanal
@@ -164,7 +165,8 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   adıyla mağazalarda; canlıda `STORE_PROVIDER=none` (uygulamada satın alma kapalı)
 - [ ] Galeri adına talep açma: paketin aylık talep ve öne çıkarma hakları galeri hesabında birikir; kullanım ekranı
   (sihirbazda "kimin adına") sonraki bölümde. Galeri ek paketinde talep ve üst sıra o zaman açılır
-- [ ] Mağaza iadesinde hak düşme ve web iadeleri: iade akışı (4 kilit), sahibe sorulduktan sonra
+- [x] Mağaza iadesinde kullanılmamış hak düşme (sahip onayladı)
+- [ ] Web iadeleri: iade akışı (4 kilit), sahibe sorulduktan sonra
 - Tasarımdan farklar: mobilde "Ödeme geçmişi ve faturalar" web sayfasına gitmez (mağaza kuralı), aynı ekranda açılır;
   konsolda "Ödemeler ve faturalar" Pazar grubunda (eski konsol tasarımındaki ekran), özet kutuları ve abonelik tablosu ek
 

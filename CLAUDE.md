@@ -181,7 +181,7 @@ pnpm format        # Biome ile biçimlendir
   `subscription-billing.ts`, `packages/shared/src/subscriptions.ts`; PayTR Kart Saklama, otomatik yenileme, üst pakete
   geçiş, iptal, askı ve "pasif" paket; erişim kuralı `galleryAccess`), web galeri paneli `paket.tsx`, mağaza ödemeleri
   (`store.service.ts`, `STORE_PROVIDER`, `store_events`), mobil `app/haklarim.tsx`, konsol `/odemeler`. API'de 118,
-  ortak pakette 71 test. Mağaza iadesi yalnızca kaydedilir. Test ve ekranda abonelik dönem sonu, aboneliğin
+  ortak pakette 71 test. Mağaza iadesinde kullanılmamış hak düşülür (sahip kararı). Test ve ekranda abonelik dönem sonu, aboneliğin
   `current_period_end` alanı geçmişe çekilerek denenir (başlangıç da geriye alınmalı: dönem kısıtı).
 - **Sıradaki:** galeri adına talep açma (paketin talep ve öne çıkarma haklarının kullanımı), sonra iade akışı (4 kilit):
   başlamadan önce sahibe sorulur. Sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS. Bir sprint bitince plan

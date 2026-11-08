@@ -295,7 +295,7 @@ export default function Odemeler() {
             İncelenecek mağaza bildirimleri
           </h2>
           <p style={{ margin: '0 0 10px', fontSize: 13.5, color: '#5A6073' }}>
-            Mağaza iadelerinde hak düşülmez; karar sahibindir. Tanınmayan satışlar destek tarafından eşlenir.
+            Eşleşmeyen satış ve iadeler; destek ilgili kullanıcıyla eşler.
           </p>
           <div style={{ ...kart, overflow: 'hidden' }}>
             {v.magaza.map((m) => (

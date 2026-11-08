@@ -2,6 +2,7 @@ import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { uuidv7 } from '@rengarenk/db';
 import { storeProductId } from '@rengarenk/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { AuditService } from '../src/audit/audit.service.js';
 import { ENV, type Env } from '../src/config/env.js';
 import type { Db } from '../src/database/prisma.js';
 import { EntitlementService } from '../src/entitlements/entitlement.service.js';
@@ -104,7 +105,7 @@ describe('mağaza ödemeleri (Karar 38)', () => {
     expect((await call(app, 'POST', '/store/fake-purchase', { no: n3.body.no }, b.token)).status).toBe(404);
   });
 
-  it('RevenueCat bildirimi: imza, aynı olay ve aynı satış bir kez; niyetsiz satış; iade yalnızca kayda geçer', async () => {
+  it('RevenueCat bildirimi: imza, aynı olay ve aynı satış bir kez; niyetsiz satış; mağaza iadesinde kullanılmamış hak düşer', async () => {
     const u = await login('+905336661001');
     const hesap = await app.get(OrdersService).personal(u.userId);
     const env = app.get<Env>(ENV);
@@ -114,6 +115,7 @@ describe('mağaza ödemeleri (Karar 38)', () => {
       app.get(OrdersService),
       app.get(FeatureFlagService),
       app.get(OutboxService),
+      app.get(AuditService),
     );
     const olay = (ek: Record<string, unknown> = {}) => ({
       id: uuidv7(),
@@ -150,17 +152,32 @@ describe('mağaza ödemeleri (Karar 38)', () => {
       result: 'inceleme',
     });
 
-    // Mağaza iadesi: yalnızca kaydedilir ve sahibe iletilir; hak düşülmez
+    // Mağaza iadesi: kullanılmamış hak düşülür, kullanılan düşülmez; para iadesi bizde yapılmaz
+    await db.$transaction((tx) =>
+      hak.consume(tx, hesap, 'talep', { sourceType: 'test', sourceId: uuidv7(), createdBy: u.userId }),
+    );
     const iade = olay({
       type: 'CANCELLATION',
       cancel_reason: 'CUSTOMER_SUPPORT',
       transaction_id: e1.transaction_id,
     });
-    expect(await rc.handle('revenuecat', iade)).toMatchObject({ result: 'inceleme' });
-    expect(await hak.balance(hesap, 'talep')).toBe(3);
+    expect(await rc.handle('revenuecat', iade)).toMatchObject({ result: 'islendi' });
+    expect(await hak.balance(hesap, 'talep')).toBe(0);
     const kayit = await db.storeEvent.findUniqueOrThrow({ where: { eventId: iade.id } });
-    expect(kayit).toMatchObject({ result: 'inceleme', orderId: satis.id });
-    expect(await db.outboxEvent.count({ where: { type: 'magaza.iade_bildirimi' } })).toBe(1);
+    expect(kayit).toMatchObject({ result: 'islendi', orderId: satis.id });
+    expect(kayit.note).toContain('2 / 3 hak düşüldü');
+    // Aynı iade ikinci kez (farklı olay kimliği): yeniden düşülmez
+    await rc.handle('revenuecat', { ...iade, id: uuidv7() });
+    expect(await hak.balance(hesap, 'talep')).toBe(0);
+    // Talep seçilmeden alınmış öne çıkarma hakkı da düşer
+    await rc.handle('revenuecat', olay({ type: 'REFUND', transaction_id: e2.transaction_id }));
+    expect(await hak.balance(hesap, 'acil')).toBe(0);
+    // Bilinmeyen satışın iadesi incelemeye düşer
+    expect(await rc.handle('revenuecat', olay({ type: 'REFUND', transaction_id: 'yok' }))).toMatchObject({
+      result: 'inceleme',
+    });
+    expect(await db.outboxEvent.count({ where: { type: 'magaza.iade_bildirimi' } })).toBe(4);
+    expect(await db.auditLog.count({ where: { action: 'magaza_iadesi' } })).toBe(3);
     expect(await db.refund.count()).toBe(0);
     // Mağaza bildirimi değiştirilemez
     await expect(

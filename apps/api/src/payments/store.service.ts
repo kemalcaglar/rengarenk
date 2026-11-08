@@ -17,8 +17,9 @@ import {
   storeProductId,
   vatOfGross,
 } from '@rengarenk/shared';
+import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
-import { type Db, PRISMA } from '../database/prisma.js';
+import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { FeatureFlagService } from '../flags/feature-flag.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { type Kalem, kalemler } from './order-item.js';
@@ -57,7 +58,8 @@ const magazaAdi = (kanal: string) => (kanal === 'ios' ? 'App Store' : 'Google Pl
  * Mağaza ödemeleri (Karar 38; Teknik tasarım §7). Uygulama satın almadan önce bir niyet kaydı açar (ürün, öne çıkarmada
  * talep); App Store ya da Google Play satışı RevenueCat bildirimiyle gelir, niyete bağlanır ve hak defterine düşer. Haklar
  * tek sunucu hesabında tutulur, web ve uygulamada geçerlidir. Aynı satış (işlem no) ve aynı bildirim bir kez işlenir.
- * Mağaza iadeleri yalnızca kaydedilir ve sahibe iletilir; bu serviste hak düşülmez (iade akışı sahibin kararıyla).
+ * Mağaza iadesinde (parayı mağaza iade eder) o satıştan kalan kullanılmamış hak düşülür ve öne çıkarma biter (sahip kararı,
+ * 8 Kasım 2026). Bu serviste para iadesi yoktur; iade tablosuna ve kilidine dokunulmaz.
  */
 @Injectable()
 export class StoreService {
@@ -69,7 +71,80 @@ export class StoreService {
     private readonly orders: OrdersService,
     private readonly flags: FeatureFlagService,
     private readonly outbox: OutboxService,
+    private readonly audit: AuditService,
   ) {}
+
+  /**
+   * Mağazanın iade ettiği satış: o satıştan kalan kullanılmamış hak düşülür (kullanılmış kısım düşülmez), süren ya da
+   * sırada bekleyen öne çıkarma bitirilir. Aynı satış için ikinci kez düşülmez.
+   */
+  private async storeRefund(tx: Tx, o: Order): Promise<{ result: Sonuc; not: string }> {
+    const now = new Date();
+    const yapilan: string[] = [];
+    const talepler = new Set<string>();
+    for (const [i, k] of kalemler(o.items).entries()) {
+      const p = productByKey(k.urun);
+      if (!p) continue;
+      const hak = p.hak
+        ? { kind: p.hak.kind as string, adet: p.hak.adet }
+        : p.oneCikarma && !k.talepId
+          ? { kind: p.oneCikarma.tur as string, adet: 1 }
+          : null;
+      if (hak) {
+        const b = await tx.entitlementLedger.aggregate({
+          where: { accountId: o.accountId, kind: hak.kind },
+          _sum: { delta: true },
+        });
+        const dus = Math.min(hak.adet, Math.max(0, b._sum.delta ?? 0));
+        if (dus > 0) {
+          await tx.entitlementLedger.createMany({
+            data: [
+              {
+                accountId: o.accountId,
+                kind: hak.kind,
+                delta: -dus,
+                reason: 'magaza_iadesi',
+                sourceType: 'store_refund',
+                sourceId: `${o.id}:${i}`,
+                createdBy: 'magaza',
+              },
+            ],
+            skipDuplicates: true,
+          });
+        }
+        yapilan.push(
+          dus === hak.adet
+            ? `${k.ad}: ${dus} hak düşüldü`
+            : `${k.ad}: ${dus} / ${hak.adet} hak düşüldü (kalanı kullanılmıştı)`,
+        );
+      }
+      if (p.oneCikarma && k.talepId) {
+        const suren = await tx.demandPromotion.findMany({ where: { orderId: o.id, endsAt: { gt: now } } });
+        for (const pr of suren) {
+          await tx.demandPromotion.update({
+            where: { id: pr.id },
+            data: { endsAt: pr.startsAt < now ? now : new Date(pr.startsAt.getTime() + 1) },
+          });
+        }
+        talepler.add(k.talepId);
+        yapilan.push(suren.length ? `${k.ad}: öne çıkarma bitirildi` : `${k.ad}: süresi zaten dolmuştu`);
+      }
+    }
+    for (const demandId of talepler) await this.outbox.add(tx, 'talep.guncellendi', { demandId });
+    const not = `Mağaza iadesi: ${yapilan.join('; ') || 'düşülecek hak yoktu'}`;
+    await this.audit.record(
+      {
+        actorType: 'SYSTEM',
+        actorId: 'magaza',
+        action: 'magaza_iadesi',
+        entityType: 'order',
+        entityId: o.id,
+        after: { no: o.no, sonuc: not },
+      },
+      tx,
+    );
+    return { result: 'islendi', not };
+  }
 
   private kalem(p: Product): Kalem {
     const kurus = Math.round(p.mobil * 100);
@@ -180,18 +255,24 @@ export class StoreService {
           },
         });
 
-      // Mağaza iadesi: kayda geçer ve sahibe iletilir; hak düşme kararı sahibin (Karar 38, değişmez kural 1)
+      // Mağaza iadesi (Karar 38; sahip kararı 8 Kasım 2026): parayı mağaza iade eder, biz yalnızca o satıştan kalan
+      // kullanılmamış hakkı düşer, süren öne çıkarmayı bitiririz. Para iadesi yapılmaz, iade tablosuna yazılmaz.
       if (ev.type === 'REFUND' || (ev.type === 'CANCELLATION' && ev.cancel_reason === 'CUSTOMER_SUPPORT')) {
         const satis = ev.transaction_id
-          ? await tx.order.findUnique({ where: { externalId: ev.transaction_id }, select: { id: true } })
+          ? await tx.order.findUnique({ where: { externalId: ev.transaction_id } })
           : null;
-        await kaydet('inceleme', 'Mağaza iadesi bildirildi; sahibin kararı bekleniyor', satis?.id);
+        const sonuc =
+          satis?.status === 'PAID'
+            ? await this.storeRefund(tx, satis)
+            : { result: 'inceleme' as const, not: 'Mağaza iadesi: satış bulunamadı; destek eşleyecek' };
+        await kaydet(sonuc.result, sonuc.not, satis?.id);
         await this.outbox.add(tx, 'magaza.iade_bildirimi', {
           eventId: ev.id,
           orderId: satis?.id ?? null,
           store: ev.store ?? null,
+          sonuc: sonuc.not,
         });
-        return { result: 'inceleme', no: null };
+        return { result: sonuc.result, no: satis?.no ?? null };
       }
       if (!SATIN_ALMA.has(ev.type)) {
         await kaydet('yok_sayildi', null);
