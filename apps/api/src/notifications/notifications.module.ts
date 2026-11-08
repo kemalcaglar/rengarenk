@@ -22,6 +22,7 @@ import { ENV, type Env } from '../config/env.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { SearchModule } from '../search/search.module.js';
 import { StaffModule } from '../staff/staff.module.js';
+import { SupportServiceModule } from '../support/support.module.js';
 import { AutomationService } from './automations.js';
 import { createEmailSender, createPushSender, EMAIL_SENDER, PUSH_SENDER } from './channels.js';
 import { CommercialController, CommercialService, FakeIys, IYS, NoIys } from './commercial.js';
@@ -133,7 +134,7 @@ export class NotificationsModule {}
 
 /** İşçi: olay eşlemesi, teslim (e-posta, SMS, push), günlük özet */
 @Module({
-  imports: [SearchModule],
+  imports: [SearchModule, SupportServiceModule],
   providers: [
     NotificationService,
     TemplatesService,

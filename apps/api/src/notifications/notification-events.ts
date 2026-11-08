@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import {
   FLAG_TITLES,
   GRANT_KINDS,
@@ -12,6 +12,8 @@ import { type Db, PRISMA } from '../database/prisma.js';
 import { kalemler } from '../payments/order-item.js';
 import { vehicleNames } from '../portfolio/vehicle-names.js';
 import { DemandSearchService } from '../search/demand-search.service.js';
+import { SupportService } from '../support/support.service.js';
+import { DeliveryService } from './delivery.service.js';
 import { NotificationService } from './notification.service.js';
 
 const DAY = 86_400_000;
@@ -73,6 +75,8 @@ export const NOTIFY_EVENTS = [
   'moderasyon.ajan_aski',
   'moderasyon.itiraz_sonuc',
   'hak.tanimlandi',
+  'destek.yanitlandi',
+  'destek.memnuniyet',
 ] as const;
 export type NotifyEvent = (typeof NOTIFY_EVENTS)[number];
 
@@ -88,6 +92,8 @@ export class NotificationEvents {
     @Inject(PRISMA) private readonly db: Db,
     private readonly notifications: NotificationService,
     private readonly search: DemandSearchService,
+    @Optional() private readonly support?: SupportService,
+    @Optional() private readonly teslim?: DeliveryService,
   ) {}
 
   private async ekip(accountId: string, satisDahil = false) {
@@ -332,6 +338,25 @@ export class NotificationEvents {
           });
         }
         return n;
+      }
+      case 'destek.yanitlandi':
+      case 'destek.memnuniyet': {
+        const t = await this.db.supportTicket.findUnique({ where: { id: s('ticketId') } });
+        if (!t) return 0;
+        const sablon = type === 'destek.yanitlandi' ? 'destek.yanit' : 'destek.memnuniyet';
+        const veri = {
+          no: t.no,
+          numara: `D-${t.no}`,
+          konu: kisa(t.subject, 60),
+          yanit:
+            type === 'destek.yanitlandi' && this.support ? await this.support.replyText(s('messageId')) : '',
+        };
+        if (t.userId) return this.notifications.notify({ userIds: [t.userId], sablon, veri });
+        // E-postayla gelen ve kullanıcıyla eşleşmeyen talep: yanıt doğrudan adrese gider
+        if (t.email && this.teslim && type === 'destek.yanitlandi') {
+          return (await this.teslim.dogrudanEposta(t.email, sablon, veri)) ? 1 : 0;
+        }
+        return 0;
       }
       case 'hak.tanimlandi': {
         const tur = GRANT_KINDS[s('tur') as GrantKind] ?? 'Hak';

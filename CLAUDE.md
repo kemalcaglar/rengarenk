@@ -206,7 +206,10 @@ pnpm format        # Biome ile biçimlendir
   iletişim ve gerekçeyle açma, geçmiş, karttan uyarı/askı/engelleme (moderasyon kaydı `source = calisan`,
   `target_type = kullanici`), hak tanımlama sınırı, oturum kapatma, not; kara liste (telefon, IBAN, IP; HMAC özeti).
   API'de 141 test.
-- **Sıradaki (Aşama 8 devamı):** destek (Karar 54, Yardım),
+- **Sprint 20 (8 Kasım 2026):** destek ve yardım merkezi (`apps/api/src/support/`, `packages/shared/src/support.ts`):
+  web `/yardim` ve `/destek`, Mesajlarım'da sabit destek satırı, konsol `/destek`, mobil yardım ve destek ekranları,
+  ilk yanıt süresi, memnuniyet sorusu, imzalı destek e-postası ucu. API'de 144 test.
+- **Sıradaki (Aşama 8 devamı):**
   KVKK araçları (Karar 58, 59), Rengarenk Ajanı ve yapay zekâ bütçesi (Karar 41, 57), çalışan uyarılarının sahibe
   iletilmesi; ya da
   sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan

@@ -12,6 +12,8 @@ export function bildirimAc(url: string | null) {
     return s ? router.push(`/sohbet/${s}`) : router.push('/(sekmeler)/mesajlar');
   }
   if (yol === '/taleplerim') return router.push('/(sekmeler)/taleplerim');
+  if (yol === '/destek') return q.get('no') ? router.push(`/destek/${q.get('no')}`) : router.push('/yardim');
+  if (yol === '/yardim') return router.push('/yardim');
   if (yol === '/favoriler') return router.push('/favoriler');
   if (yol === '/haklarim') return router.push('/haklarim');
   if (yol.startsWith('/galeri-paneli')) return router.push('/galeri-paneli');

@@ -173,6 +173,16 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Destek (Sprint 20)
+
+- **Kullanıcı:** `POST /support/tickets` (`{ konu, referans?, metin }`), `GET /support/tickets`, `GET /support/tickets/:no`,
+  `POST …/:no/messages`, `POST …/:no/rating` (`{ puan }`). Web `/yardim` ve `/destek`, mobil `app/yardim.tsx` ve
+  `app/destek/[no].tsx`.
+- **Konsol:** `GET /staff/support/tickets[/:id]`, `POST …/:id/reply` (`{ metin, coz? }`), `POST …/:id/resolve`; izin
+  `destek.yanitla`.
+- **E-posta:** `POST /destek/eposta` (`{ kimden, konu, metin }`, `x-rr-eposta-imza` = `EPOSTA_WEBHOOK_SECRET` ile HMAC).
+  Konu satırında `D-12345` varsa o talebe eklenir. Kurallar ve sık sorulanlar `packages/shared/src/support.ts`.
+
 ## Kullanıcı ve galeri kartı, kara liste (Sprint 19)
 
 - **Konsol:** `GET /staff/people?q=&tur=`, `GET /staff/people/:tip/:id` (`tip`: `kisi` | `galeri`), `POST …/reveal`

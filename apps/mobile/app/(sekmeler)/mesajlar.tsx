@@ -68,6 +68,13 @@ export default function Mesajlar() {
     temsilci: string | null;
   } | null>(null);
   const [puanAcik, setPuanAcik] = useState(false);
+  // Destek talebi varsa listenin başında sabit "Rengarenk Destek" satırı (Karar 54)
+  const [destek, setDestek] = useState<{
+    no: number;
+    ozet: string;
+    okunmamis: boolean;
+    durumAd: string;
+  } | null>(null);
 
   const yukle = useCallback(() => {
     istek<Satir[]>('/conversations')
@@ -76,6 +83,9 @@ export default function Mesajlar() {
     istek<typeof bekleyen>('/ratings/pending')
       .then(setBekleyen)
       .catch(() => setBekleyen(null));
+    istek<{ no: number; ozet: string; okunmamis: boolean; durumAd: string }[]>('/support/tickets')
+      .then((l) => setDestek(l[0] ?? null))
+      .catch(() => setDestek(null));
   }, [istek]);
   useFocusEffect(
     useCallback(() => {
@@ -173,7 +183,47 @@ export default function Mesajlar() {
         style={{ flex: 1, backgroundColor: colors.background }}
         contentContainerStyle={{ paddingTop: 10, paddingHorizontal: 12, paddingBottom: 24 }}
       >
-        {liste && !gruplar.length ? (
+        {destek ? (
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push(`/destek/${destek.no}`)}
+            style={{
+              flexDirection: 'row',
+              gap: 12,
+              alignItems: 'center',
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.line,
+              borderRadius: 16,
+              padding: 12,
+              marginBottom: 6,
+            }}
+          >
+            <View
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 22,
+                backgroundColor: '#E7FAF0',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <T style={{ fontSize: 14, fontWeight: '800', color: '#11683F' }}>RD</T>
+            </View>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
+                <T style={{ fontSize: 15, fontWeight: destek.okunmamis ? '800' : '700' }}>Rengarenk Destek</T>
+                <T style={{ fontSize: 12, color: colors.muted }}>{destek.durumAd}</T>
+              </View>
+              <T numberOfLines={1} style={{ fontSize: 13, color: '#3A4052', marginTop: 2 }}>
+                {destek.okunmamis ? 'Yeni yanıt · ' : ''}
+                {destek.ozet}
+              </T>
+            </View>
+          </Pressable>
+        ) : null}
+        {liste && !gruplar.length && !destek ? (
           <BosDurum
             baslik={liste.length ? 'Bu süzgeçte sohbet yok' : 'Henüz mesajın yok'}
             metin="Talebine satıcılar yazdığında sohbetler burada görünür."

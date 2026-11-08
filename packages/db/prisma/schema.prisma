@@ -2034,3 +2034,59 @@ model Blocklist {
   @@index([kind, valueHash])
   @@map("blocklist")
 }
+
+/// Destek talebi (Karar 54): uygulama içi sohbet ve e-posta tek kuyrukta
+model SupportTicket {
+  id              String    @id @db.Uuid
+  /// Görünen numara ("D-20931")
+  no              Int       @unique @default(autoincrement())
+  /// Girişli kullanıcı; e-postayla gelen ve eşleşmeyen talepte boş
+  userId          String?   @map("user_id") @db.Uuid
+  /// @pii E-postayla gelen talebin adresi (kullanıcıyla eşleşmediyse)
+  email           String?
+  /// uygulama | eposta
+  channel         String
+  /// odeme | talep | dolandiricilik | hesap | diger
+  topic           String
+  /// Talep ya da ödeme no (kullanıcının yazdığı)
+  reference       String?
+  /// @pii Konu satırı (e-postada) ya da ilk mesajın başı
+  subject         String
+  /// acik | yanitlandi | cozuldu
+  status          String    @default("acik")
+  /// Ödeme ve hesap güvenliği öne alınır
+  priority        Boolean   @default(false)
+  dueAt           DateTime  @map("due_at") @db.Timestamptz(3)
+  firstResponseAt DateTime? @map("first_response_at") @db.Timestamptz(3)
+  resolvedAt      DateTime? @map("resolved_at") @db.Timestamptz(3)
+  resolvedBy      String?   @map("resolved_by") @db.Uuid
+  /// 1–5, çözümden sonra
+  rating          Int?
+  ratingAskedAt   DateTime? @map("rating_asked_at") @db.Timestamptz(3)
+  lastMessageAt   DateTime  @map("last_message_at") @db.Timestamptz(3)
+  /// Kullanıcının son okuduğu
+  userReadAt      DateTime? @map("user_read_at") @db.Timestamptz(3)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  messages SupportMessage[]
+
+  @@index([status, dueAt])
+  @@index([userId, lastMessageAt])
+  @@map("support_tickets")
+}
+
+model SupportMessage {
+  id        String   @id @db.Uuid
+  ticketId  String   @map("ticket_id") @db.Uuid
+  /// kullanici | destek
+  side      String
+  staffId   String?  @map("staff_id") @db.Uuid
+  /// @pii Şifreli metin (AES-256-GCM, mesajlarla aynı anahtar)
+  body      String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id])
+
+  @@index([ticketId, createdAt])
+  @@map("support_messages")
+}

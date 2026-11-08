@@ -116,6 +116,10 @@ export class StaffMeController {
       overdueReports: satisfies(req.staff.grants['sikayet.coz'], 'tam')
         ? await this.db.report.count({ where: { status: 'acik', dueAt: { lt: new Date() } } })
         : 0,
+      /** Menüde Destek rozeti: yanıt bekleyen talepler (Karar 54) */
+      openSupport: satisfies(req.staff.grants['destek.yanitla'], 'tam')
+        ? await this.db.supportTicket.count({ where: { status: 'acik' } })
+        : 0,
       idleMinutes: STAFF_IDLE_MINUTES,
     };
   }

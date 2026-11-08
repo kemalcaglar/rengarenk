@@ -92,6 +92,10 @@ export type EventType =
   | 'moderasyon.itiraz_sonuc'
   // Kullanıcı kartından hak tanımlandı (Karar 52): kişiye bildirim
   | 'hak.tanimlandi'
+  // Destek (Karar 54): talep açıldı, destek yanıtladı (kullanıcıya bildirim), memnuniyet sorusu
+  | 'destek.acildi'
+  | 'destek.yanitlandi'
+  | 'destek.memnuniyet'
   | 'sohbet.numara_paylasildi'
   | 'sohbet.engellendi'
   // Güven (Karar 28, 55): yıldız ve takip edilen galerinin günlük özeti

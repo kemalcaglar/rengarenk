@@ -65,7 +65,13 @@ const MENU: {
         git: () => router.push('/ayarlar'),
       },
       { ikon: '🔒', tint: '#F3F5FA', ad: 'Kişisel verilerim', alt: 'Verilerimi indir, KVKK başvurusu' },
-      { ikon: '💬', tint: '#F3F5FA', ad: 'Yardım ve destek', alt: 'Asistan ve destek kaydı' },
+      {
+        ikon: '💬',
+        tint: '#F3F5FA',
+        ad: 'Yardım ve destek',
+        alt: 'Asistan ve destek kaydı',
+        git: () => router.push('/yardim'),
+      },
       {
         ikon: '📚',
         tint: '#F3F5FA',

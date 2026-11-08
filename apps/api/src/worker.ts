@@ -21,6 +21,7 @@ import { SubscriptionsService } from './payments/subscriptions.service.js';
 import { PortfolioService } from './portfolio/portfolio.service.js';
 import { QueueService } from './queue/queue.service.js';
 import { DemandSearchService } from './search/demand-search.service.js';
+import { SupportService } from './support/support.service.js';
 import { TrustService } from './trust/trust.service.js';
 import { WorkerModule } from './worker.module.js';
 
@@ -48,6 +49,7 @@ const ticari = app.get(CommercialService);
 const akislar = app.get(AutomationService);
 const moderasyon = app.get(ModerationService);
 const itibar = app.get(ReputationService);
+const destek = app.get(SupportService);
 const iys = app.get<IysProvider>(IYS);
 await queue.start();
 
@@ -228,6 +230,11 @@ while (!stopping) {
   if (Date.now() - lastItibar > ITIBAR_MS) {
     lastItibar = Date.now();
     await itibar.denetle().catch((err: Error) => log.error(`itibar: ${err.message}`));
+    // Destek: çözümden 24 saat sonra memnuniyet sorusu (Karar 54)
+    await destek
+      .askRatings()
+      .then((n) => n && log.log(`destek memnuniyet sorusu: ${n}`))
+      .catch((err: Error) => log.error(`destek memnuniyet: ${err.message}`));
   }
   // Kayıtlı aramaların günlük özeti: İstanbul saatiyle 09.00'dan sonra günde bir (Karar 30)
   const trSaat = new Date(Date.now() + 3 * 3600_000);

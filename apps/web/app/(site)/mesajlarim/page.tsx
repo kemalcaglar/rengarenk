@@ -105,7 +105,8 @@ const FILTRE = [
 /**
  * Mesajlarım (tasarım: Mesajlar.dc.html; Karar 08, 11, 25, 26, 27). Alıcı ve satıcı olarak bütün sohbetler; galeri
  * sohbetlerini galerinin bütün çalışanları görür. Yeni mesajlar WebSocket ile anında gelir. Tasarıma ek: "Numaramı
- * paylaş" (MesajlarMobil.dc.html) ve galeride sohbete araç kartı ekleme. Şikayet moderasyonla (Aşama 8) açılır.
+ * paylaş" (MesajlarMobil.dc.html) ve galeride sohbete araç kartı ekleme. Şikayet moderasyonla açılır (Karar 53).
+ * Destek talebi varsa listenin başında sabit "Rengarenk Destek" satırı (Yardim.dc.html; Karar 54).
  */
 export default function Mesajlarim() {
   const giris = useGiris();
@@ -115,6 +116,12 @@ export default function Mesajlarim() {
   const [aktif, setAktif] = useState<string | null>(null);
   const [s, setS] = useState<Sohbet | null>(null);
   const [sikayet, setSikayet] = useState<string | null>(null);
+  const [destek, setDestek] = useState<{
+    no: number;
+    ozet: string;
+    okunmamis: boolean;
+    durumAd: string;
+  } | null>(null);
   const [metin, setMetin] = useState('');
   const [yanitla, setYanitla] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
@@ -141,6 +148,10 @@ export default function Mesajlarim() {
 
   useEffect(() => {
     if (giris) listeYukle().catch((e: Error) => setHata(e.message));
+    if (giris)
+      istek<{ no: number; ozet: string; okunmamis: boolean; durumAd: string }[]>('/support/tickets')
+        .then((l) => setDestek(l[0] ?? null))
+        .catch(() => undefined);
   }, [giris, listeYukle]);
   useEffect(() => {
     if (!aktif) return;
@@ -276,6 +287,64 @@ export default function Mesajlarim() {
             </p>
           ) : null}
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            {destek ? (
+              <li>
+                <Link
+                  href={`/destek?no=${destek.no}`}
+                  style={{
+                    display: 'flex',
+                    gap: 12,
+                    borderTop: '1px solid #EEF0F5',
+                    background: '#FFFFFF',
+                    padding: '14px 18px',
+                    color: '#1E2333',
+                    textDecoration: 'none',
+                  }}
+                >
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      flex: 'none',
+                      width: 44,
+                      height: 44,
+                      borderRadius: '50%',
+                      background: '#E7FAF0',
+                      color: '#11683F',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontWeight: 800,
+                      fontSize: 14,
+                    }}
+                  >
+                    RD
+                  </span>
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                      <span style={{ fontSize: 15, fontWeight: destek.okunmamis ? 800 : 700 }}>
+                        Rengarenk Destek
+                      </span>
+                      <span style={{ fontSize: 12, color: '#5A6073' }}>{destek.durumAd}</span>
+                    </span>
+                    <span
+                      style={{
+                        display: 'block',
+                        fontSize: 13.5,
+                        color: '#3A4052',
+                        marginTop: 3,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        fontWeight: destek.okunmamis ? 700 : 400,
+                      }}
+                    >
+                      {destek.okunmamis ? 'Yeni yanıt · ' : ''}
+                      {destek.ozet}
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ) : null}
             {gorunen.map((x) => {
               const on = x.id === aktif;
               return (

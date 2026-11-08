@@ -16,7 +16,12 @@ export function useKonsol() {
 }
 
 type Item =
-  | { href: string; ad: string; izin?: Permission; rozet?: 'onay' | 'entegrasyon' | 'basvuru' | 'moderasyon' }
+  | {
+      href: string;
+      ad: string;
+      izin?: Permission;
+      rozet?: 'onay' | 'entegrasyon' | 'basvuru' | 'moderasyon' | 'destek';
+    }
   | { ad: string; sonra: true };
 
 /**
@@ -51,7 +56,7 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
         rozet: 'basvuru',
       },
       { href: '/moderasyon', ad: 'Moderasyon', izin: 'sikayet.coz', rozet: 'moderasyon' },
-      { ad: 'Destek', sonra: true },
+      { href: '/destek', ad: 'Destek', izin: 'destek.yanitla', rozet: 'destek' },
       { ad: 'Talepler ve portföy', sonra: true },
       { href: '/puan', ad: 'Satıcı puanı ve rozetler', izin: 'rapor.gor' },
       { href: '/odemeler', ad: 'Ödemeler ve faturalar', izin: 'rapor.gor' },
@@ -220,6 +225,11 @@ export function Kabuk({ me: initial, logo, children }: { me: Me; logo: ReactNode
                         {i.rozet === 'basvuru' && me.pendingGalleryApplications > 0 ? (
                           <span style={{ fontSize: 11.5, fontWeight: 800, color: '#7A5300' }}>
                             {me.pendingGalleryApplications}
+                          </span>
+                        ) : null}
+                        {i.rozet === 'destek' && me.openSupport > 0 ? (
+                          <span style={{ fontSize: 11.5, fontWeight: 800, color: '#5A6073' }}>
+                            {me.openSupport}
                           </span>
                         ) : null}
                         {i.rozet === 'moderasyon' && me.overdueReports > 0 ? (

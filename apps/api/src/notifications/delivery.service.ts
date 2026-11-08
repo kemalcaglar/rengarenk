@@ -30,6 +30,29 @@ export class DeliveryService {
     private readonly switches: SwitchService,
   ) {}
 
+  /**
+   * Kullanıcı hesabı olmayan adrese işlemsel e-posta (ör. e-postayla gelen destek talebinin yanıtı). Gönderim dışı
+   * listedeki adrese gitmez; teslim kaydı kişiye bağlı olmadığı için tutulmaz, sonuç döner.
+   */
+  async dogrudanEposta(adres: string, sablon: string, veri: Record<string, unknown>) {
+    const a = adres.toLowerCase();
+    const engel = await this.db.emailSuppression.findUnique({ where: { email: a } });
+    if (engel && !engel.onlyCommercial && (engel.reason !== 'gecici_hata' || engel.count >= DENEME))
+      return false;
+    const { sablon: t } = await this.templates.get(sablon);
+    const e = await this.templates.email(t, veri);
+    if (!e) return false;
+    const r = await this.email.send({
+      to: a,
+      from: this.env.EPOSTA_GONDEREN,
+      subject: e.konu,
+      html: e.html,
+      text: e.text,
+    });
+    if (r.status !== 'sent') this.log.warn(`doğrudan e-posta gönderilemedi: ${r.message ?? r.status}`);
+    return r.status === 'sent';
+  }
+
   async dispatchDue(now = new Date(), limit = 200) {
     const due = await this.db.delivery.findMany({
       where: { durum: 'bekliyor', dueAt: { lte: now } },

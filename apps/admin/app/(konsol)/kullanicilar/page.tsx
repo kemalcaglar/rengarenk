@@ -120,7 +120,14 @@ export default function Kullanicilar() {
     try {
       const r = await yonetim<Sonuc[]>(`people?q=${encodeURIComponent(aranan)}&tur=${t}`);
       setListe(r);
-      setSec((s) => s ?? (r[0] ? { tip: r[0].tip, id: r[0].id } : null));
+      // Destek ekranından gelen bağlantı: ?kisi=<id> ya da ?galeri=<id>
+      const u = new URLSearchParams(window.location.search);
+      const dis = u.get('kisi')
+        ? { tip: 'kisi' as Tip, id: u.get('kisi') as string }
+        : u.get('galeri')
+          ? { tip: 'galeri' as Tip, id: u.get('galeri') as string }
+          : null;
+      setSec((s) => s ?? dis ?? (r[0] ? { tip: r[0].tip, id: r[0].id } : null));
     } catch (e) {
       setHata((e as Error).message);
     }

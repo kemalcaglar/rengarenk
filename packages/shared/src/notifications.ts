@@ -528,6 +528,32 @@ export const NOTIFY_TEMPLATES = {
       dugme: { yazi: 'E-postamı doğrula', url: '/eposta-dogrula?kod={{kod}}' },
     },
   },
+  'destek.yanit': {
+    ad: 'Destek yanıtı',
+    konu: 'guvenlik',
+    grup: 'mesaj',
+    baslik: 'Rengarenk Destek yanıtladı',
+    metin: '{{numara}} · {{konu}}',
+    url: '/destek?no={{no}}',
+    tekil: 'destek:{{no}}',
+    eposta: {
+      konu: 'Destek talebin yanıtlandı · {{numara}}',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        '{{yanit}}',
+        'Yanıt vermek için bu e-postayı yanıtlayabilir ya da talebini açabilirsin.',
+      ],
+      dugme: { yazi: 'Talebimi aç', url: '/destek?no={{no}}' },
+    },
+  },
+  'destek.memnuniyet': {
+    ad: 'Destek memnuniyet sorusu',
+    konu: 'genel',
+    grup: 'mesaj',
+    baslik: 'Destek talebin nasıl çözüldü?',
+    metin: '{{numara}} için 1–5 arası puan verir misin?',
+    url: '/destek?no={{no}}',
+  },
   'hak.tanimlandi': {
     ad: 'Hesabına hak tanımlandı',
     konu: 'genel',

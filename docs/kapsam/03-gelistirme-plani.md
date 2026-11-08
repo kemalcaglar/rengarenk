@@ -138,6 +138,22 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 20 · destek ve yardım merkezi (Aşama 8 üçüncü bölüm, 8 Kasım 2026)
+
+- [x] Yardım merkezi (Yardim.dc.html): web `/yardim` (konular, sık sorulanlar, arama, güvenli alışveriş, destek talebi
+  formu), mobil Yardım ve destek ekranı (Hesabım menüsünden)
+- [x] Destek talebi (Karar 54): uygulama içi ve e-posta tek kuyrukta; ilk yanıt hedefi mesai içinde 2 saat, mesai dışında
+  ertesi iş günü 11.00; ödeme ve hesap güvenliği öne alınır. Destek taleplerim (web `/destek`, mobil), Mesajlarım'da
+  sabit "Rengarenk Destek" satırı; yazışma şifreli saklanır
+- [x] Konsol › Destek: dört sayı (açık ve süre aşan, ortalama ilk yanıt, ajanın çözdüğü, memnuniyet), kuyruk ve süre
+  sayacı, telefon maskeli yazışma, sık sorulanlardan ve hazır yanıtlardan önerilen yanıt, hazır yanıtlar, "Gönder ve
+  çözüldü say", kullanıcı kartına geçiş; menüde açık talep sayısı
+- [x] Yanıt kullanıcıya uygulama içi ve e-postayla; çözümden 24 saat sonra 1–5 memnuniyet sorusu (işçi); kullanıcı yazınca
+  çözülen talep yeniden açılır
+- [x] Destek e-postası için imzalı uç `POST /destek/eposta`; eşleşmeyen adrese yanıt doğrudan e-postayla
+- [ ] Gelen e-postanın posta sunucusundan iletilmesi (kendi posta sunucumuz kurulunca); yapay zekâ taslağı ve güven oranı,
+  %90 üstünde ajanın kendi yanıtı (Rengarenk Ajanı, Vertex AI); hazır yanıtların konsoldan düzenlenmesi
+
 ## Sprint 19 · kullanıcı ve galeri kartı, kara liste (Aşama 8 ikinci bölüm, 8 Kasım 2026)
 
 - [x] Konsol › Pazar › Kullanıcılar ve galeriler (Karar 52): arama (ad, galeri adı, talep no, e-postanın ilk harfleri,

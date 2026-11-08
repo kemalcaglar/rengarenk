@@ -28,6 +28,7 @@ import { RefundsModule } from './refunds/refunds.module.js';
 import { SmsModule } from './sms/sms.module.js';
 import { StaffModule } from './staff/staff.module.js';
 import { StorageModule } from './storage/storage.service.js';
+import { SupportModule } from './support/support.module.js';
 import { TrustModule } from './trust/trust.module.js';
 
 @Module({
@@ -49,6 +50,7 @@ import { TrustModule } from './trust/trust.module.js';
     MessagesModule,
     ModerationModule,
     PeopleModule,
+    SupportModule,
     TrustModule,
     PaymentsModule,
     RefundsModule,

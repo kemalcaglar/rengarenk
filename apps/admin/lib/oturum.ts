@@ -31,6 +31,7 @@ export interface Me {
   integrationWarnings: number;
   pendingGalleryApplications: number;
   overdueReports: number;
+  openSupport: number;
   idleMinutes: number;
 }
 

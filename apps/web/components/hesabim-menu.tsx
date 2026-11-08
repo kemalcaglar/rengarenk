@@ -8,7 +8,7 @@ const OGELER: { ad: string; href?: string }[] = [
   { ad: 'Haklarım ve ödemeler', href: '/haklarim' },
   { ad: 'Bildirimler', href: '/bildirimler' },
   { ad: 'Ayarlar', href: '/ayarlar' },
-  { ad: 'Yardım' },
+  { ad: 'Yardım', href: '/yardim' },
   // Tasarımda yok: galeri paneline ya da kurumsal başvuruya giriş (Karar 03)
   { ad: 'Kurumsal hesap', href: '/galeri-paneli' },
 ];
