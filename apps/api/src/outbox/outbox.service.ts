@@ -56,7 +56,13 @@ export type EventType =
   | 'portfoy.guncellendi'
   | 'portfoy.kalkti'
   // Eşleştirme (Karar 06.2, Teknik tasarım §6): eşiği geçen yeni eşleşme; anlık ya da günlük özet (Aşama 7)
-  | 'eslesme.bulundu';
+  | 'eslesme.bulundu'
+  // Mesajlaşma (Karar 11, 25, 27): bildirim katmanı (Aşama 7) ve moderasyon sinyali (Aşama 8)
+  | 'mesaj.ilk'
+  | 'mesaj.geldi'
+  | 'mesaj.uyari'
+  | 'sohbet.numara_paylasildi'
+  | 'sohbet.engellendi';
 
 @Injectable()
 export class OutboxService {

@@ -373,10 +373,21 @@ export class MatchingService {
     const plan = g.plan as GalleryPlanKey;
     const ozellik = plan === 'deneme' ? GALLERY_TRIAL : GALLERY_PLANS[plan];
     const acik = matchingEnabled(g, status);
+    // Bugün kullanılan paket hakkı (ilk mesaj; Karar 11.2, 12.2)
+    const kullanilan = await this.db.conversation.count({
+      where: {
+        sellerAccountId: accountId,
+        origin: 'talep',
+        entitlement: 'paket',
+        createdAt: { gte: bugun() },
+      },
+    });
+    const kalanMesaj = Math.max(0, ozellik.gunlukMesaj - kullanilan);
     if (!acik) {
       return {
         eslesme: false,
         gunlukMesaj: ozellik.gunlukMesaj,
+        kalanMesaj,
         yeni: 0,
         toplam: 0,
         araclar: [],
@@ -407,9 +418,23 @@ export class MatchingService {
     const n = await vehicleNames(this.db, [...araclar, ...rows.map((r) => r.vehicle)]);
     const talepler = await this.demandCards([...new Set(rows.map((r) => r.demandId))]);
     const sayi = new Map(sayilar.map((s) => [s.vehicleId, s._count._all]));
+    // Bu galerinin ilk mesaj attığı talepler ("İlk mesaj gönderildi")
+    const yazilan = new Map(
+      (
+        await this.db.conversation.findMany({
+          where: {
+            sellerAccountId: accountId,
+            origin: 'talep',
+            demandId: { in: rows.map((r) => r.demandId) },
+          },
+          select: { id: true, demandId: true },
+        })
+      ).map((c) => [c.demandId, c.id]),
+    );
     return {
       eslesme: true,
       gunlukMesaj: ozellik.gunlukMesaj,
+      kalanMesaj,
       yeni,
       toplam: sayilar.reduce((t, s) => t + s._count._all, 0),
       araclar: araclar
@@ -426,6 +451,7 @@ export class MatchingService {
             uyum: matchSummary(criteria),
             yeni: r.seenAt === null,
             zaman: r.createdAt,
+            sohbet: yazilan.get(r.demandId) ?? null,
             arac: {
               id: r.vehicleId,
               no: Number(r.vehicle.no),

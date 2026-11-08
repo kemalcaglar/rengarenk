@@ -77,6 +77,8 @@ model User {
   favorites           Favorite[]
   savedSearches       SavedSearch[]
   galleryApplications GalleryApplication[]
+  buyerConversations  Conversation[]       @relation("alici")
+  blocks              UserBlock[]
 
   @@map("users")
 }
@@ -90,14 +92,16 @@ model Account {
   createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  members  AccountMember[]
-  ledger   EntitlementLedger[]
-  demands  Demand[]
-  gallery  Gallery?
-  invites  AccountInvite[]
-  vehicles PortfolioVehicle[]
-  apiKeys  ApiKey[]
-  matches  Match[]
+  members             AccountMember[]
+  ledger              EntitlementLedger[]
+  demands             Demand[]
+  gallery             Gallery?
+  invites             AccountInvite[]
+  vehicles            PortfolioVehicle[]
+  apiKeys             ApiKey[]
+  matches             Match[]
+  sellerConversations Conversation[]      @relation("satici")
+  blockedBy           UserBlock[]
 
   @@map("accounts")
 }
@@ -960,12 +964,13 @@ model Demand {
   createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt         DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  account   Account       @relation(fields: [accountId], references: [id], onDelete: Restrict)
-  user      User          @relation(fields: [userId], references: [id], onDelete: Restrict)
-  category  Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  events    DemandEvent[]
-  favorites Favorite[]
-  matches   Match[]
+  account       Account        @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  category      Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  events        DemandEvent[]
+  favorites     Favorite[]
+  matches       Match[]
+  conversations Conversation[]
 
   @@index([accountId, status])
   @@index([status, categoryId, publishedAt])
@@ -1214,11 +1219,12 @@ model PortfolioVehicle {
   createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt         DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  account    Account          @relation(fields: [accountId], references: [id])
-  category   Category         @relation(fields: [categoryId], references: [id])
-  photos     PortfolioPhoto[]
-  eidsChecks EidsCheck[]
-  matches    Match[]
+  account       Account          @relation(fields: [accountId], references: [id])
+  category      Category         @relation(fields: [categoryId], references: [id])
+  photos        PortfolioPhoto[]
+  eidsChecks    EidsCheck[]
+  matches       Match[]
+  conversations Conversation[]
 
   @@unique([accountId, externalId])
   @@index([accountId, status])
@@ -1324,4 +1330,88 @@ model Match {
   @@index([vehicleId, active])
   @@index([accountId, notifiedAt])
   @@map("matches")
+}
+
+enum ConversationStatus {
+  /// Satıcı ilk mesajı attı, alıcı yanıtlamadı; satıcı ikinci mesaj atamaz (Karar 11.1)
+  WAITING
+  /// Alıcı yanıtladı ya da sohbeti alıcı başlattı (Karar 27); iki taraf serbestçe yazar
+  OPEN
+  /// Alıcı "İlgilenmiyorum" dedi; satıcı bu talebe yeniden yazamaz
+  DECLINED
+}
+
+/// Sohbet (Karar 08, 11, 27): bir talebe bir satıcı hesabından tek ilk mesaj ya da alıcının bir portföy aracı için
+/// galeriye yazması. Galeri sohbetini hesabın bütün çalışanları görür (Karar 20).
+model Conversation {
+  id              String             @id @db.Uuid
+  /// talep | arac
+  origin          String
+  demandId        String?            @map("demand_id") @db.Uuid
+  /// Araç sohbetinde aracın kendisi (Karar 27)
+  vehicleId       String?            @map("vehicle_id") @db.Uuid
+  buyerUserId     String             @map("buyer_user_id") @db.Uuid
+  /// Satıcı hesabı: galeri ya da bireysel satıcının kişisel hesabı
+  sellerAccountId String             @map("seller_account_id") @db.Uuid
+  /// İlk mesajı yazan kişi (galeride çalışan)
+  sellerUserId    String             @map("seller_user_id") @db.Uuid
+  status          ConversationStatus
+  /// İlk mesaj hangi hakla: gunluk | paket | ek | alici (alıcı başlattı, hak düşmez)
+  entitlement     String
+  /// Satıcı mesajlarından biri güvenlik uyarısı aldı (Karar 25: "Uyarılı" süzgeci)
+  warned          Boolean            @default(false)
+  /// Alıcı numarasını bu sohbette paylaştı (Teknik tasarım §8)
+  phoneSharedAt   DateTime?          @map("phone_shared_at") @db.Timestamptz(3)
+  lastMessageAt   DateTime           @map("last_message_at") @db.Timestamptz(3)
+  buyerReadAt     DateTime?          @map("buyer_read_at") @db.Timestamptz(3)
+  sellerReadAt    DateTime?          @map("seller_read_at") @db.Timestamptz(3)
+  createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime           @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  demand        Demand?           @relation(fields: [demandId], references: [id])
+  vehicle       PortfolioVehicle? @relation(fields: [vehicleId], references: [id])
+  buyer         User              @relation("alici", fields: [buyerUserId], references: [id])
+  sellerAccount Account           @relation("satici", fields: [sellerAccountId], references: [id])
+  messages      Message[]
+
+  @@index([buyerUserId, lastMessageAt])
+  @@index([sellerAccountId, lastMessageAt])
+  @@index([sellerAccountId, createdAt])
+  @@map("conversations")
+}
+
+/// Mesaj: gövde şifreli saklanır (Teknik tasarım §8). Sistem mesajı ve araç kartı da satırdır.
+model Message {
+  id             String   @id @db.Uuid
+  conversationId String   @map("conversation_id") @db.Uuid
+  /// alici | satici | sistem
+  side           String
+  senderUserId   String?  @map("sender_user_id") @db.Uuid
+  /// metin | kart | sistem
+  kind           String
+  /// @pii Şifreli metin (AES-256-GCM); kartta ve sistem mesajında da şifreli
+  body           String
+  /// Araç kartı (Karar 26)
+  vehicleId      String?  @map("vehicle_id") @db.Uuid
+  /// Güvenlik kuralları: kapora, odeme, iban, telefon, baglanti (Karar 25)
+  flags          String[] @default([])
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+/// Alıcının engellediği satıcı hesabı (Karar 11.3): engellenen hesap o alıcıya yazamaz.
+model UserBlock {
+  userId    String   @map("user_id") @db.Uuid
+  accountId String   @map("account_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user    User    @relation(fields: [userId], references: [id])
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@id([userId, accountId])
+  @@map("user_blocks")
 }

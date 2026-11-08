@@ -269,6 +269,7 @@ describe('yönetim girişi ayarları', () => {
     GOOGLE_CLIENT_ID: 'id',
     GOOGLE_CLIENT_SECRET: 's',
     STAFF_SECRET_KEY: 'y'.repeat(32),
+    MESSAGE_SECRET_KEY: 'm'.repeat(32),
     CATALOG_SIGNING_KEY: 'imza',
     CATALOG_VERIFY_KEY: 'dogrulama',
     S3_ACCESS_KEY: 'canli-erisim',
@@ -279,6 +280,7 @@ describe('yönetim girişi ayarları', () => {
     expect(() => loadEnv(prod)).not.toThrow();
     expect(() => loadEnv({ ...prod, STAFF_AUTH_PROVIDER: 'fake' })).toThrow('Google Workspace');
     expect(() => loadEnv({ ...prod, STAFF_SECRET_KEY: '' })).toThrow('STAFF_SECRET_KEY');
+    expect(() => loadEnv({ ...prod, MESSAGE_SECRET_KEY: '' })).toThrow('MESSAGE_SECRET_KEY');
     expect(() => loadEnv({ ...prod, STAFF_REQUIRE_WORKSPACE: 'false' })).toThrow('Workspace şartı');
     expect(() => loadEnv({ ...prod, CATALOG_VERIFY_KEY: '' })).toThrow('CATALOG_');
     expect(() => loadEnv({ ...prod, S3_SECRET_KEY: '' })).toThrow('S3_SECRET_KEY');

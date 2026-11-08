@@ -12,6 +12,7 @@ import { GalleriesModule } from './galleries/galleries.module.js';
 import { HealthController } from './health/health.controller.js';
 import { MatchingModule } from './matching/matching.module.js';
 import { MeModule } from './me/me.module.js';
+import { MessagesModule } from './messages/messages.module.js';
 import { HttpMetricsInterceptor } from './observability/http-metrics.interceptor.js';
 import { loggingModule } from './observability/logging.js';
 import { MetricsController } from './observability/metrics.controller.js';
@@ -39,6 +40,7 @@ import { StorageModule } from './storage/storage.service.js';
     GalleriesModule,
     PortfolioModule,
     MatchingModule,
+    MessagesModule,
     StorageModule,
     ConsentModule,
     CatalogModule,

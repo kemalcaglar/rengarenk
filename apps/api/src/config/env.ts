@@ -56,6 +56,8 @@ const schema = z.object({
     ),
   /** Doğrulama uygulaması sırlarını şifreleyen anahtar (en az 32 karakter). Canlıda zorunlu. */
   STAFF_SECRET_KEY: z.string().min(32, 'STAFF_SECRET_KEY en az 32 karakter olmalı').optional(),
+  /** Mesaj gövdelerinin şifreleme anahtarı (Teknik tasarım §8); geliştirmede JWT_SECRET'ten türetilir */
+  MESSAGE_SECRET_KEY: z.string().min(32, 'MESSAGE_SECRET_KEY en az 32 karakter olmalı').optional(),
   /**
    * Google Workspace hesabı şartı (Google'ın `hd` bilgisi). Yalnızca geliştirmede, kişisel Google
    * hesabıyla gerçek giriş denemek için `false` yapılabilir; canlıda kapatılamaz.
@@ -101,6 +103,7 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (e.EIDS_PROVIDER === 'fake') throw new Error('Canlıda sahte EİDS kullanılamaz');
     if (e.STAFF_AUTH_PROVIDER !== 'google') throw new Error('Canlıda yönetim girişi Google Workspace olmalı');
     if (!e.STAFF_SECRET_KEY) throw new Error('Canlıda STAFF_SECRET_KEY gerekli');
+    if (!e.MESSAGE_SECRET_KEY) throw new Error('Canlıda MESSAGE_SECRET_KEY gerekli');
     if (!e.STAFF_REQUIRE_WORKSPACE) throw new Error('Canlıda Google Workspace şartı kapatılamaz');
     if (e.S3_SECRET_KEY === 'rengarenk-dev-secret' || e.S3_SECRET_KEY === 'CHANGE_ME') {
       throw new Error('Canlıda S3_SECRET_KEY geliştirme değeri olamaz');

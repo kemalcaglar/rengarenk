@@ -8,6 +8,7 @@ export * from './flags.js';
 export * from './gallery.js';
 export * from './iller.js';
 export * from './matching.js';
+export * from './messages.js';
 export * from './phone.js';
 export * from './portfolio.js';
 export * from './staff.js';

@@ -17,13 +17,18 @@ export class SecretBox {
   private readonly key: Buffer;
   private readonly macKey: Buffer;
 
-  constructor(secret: string) {
-    this.key = createHash('sha256').update(`rengarenk:yonetim:sifre:${secret}`).digest();
-    this.macKey = createHash('sha256').update(`rengarenk:yonetim:ozet:${secret}`).digest();
+  constructor(secret: string, alan = 'yonetim') {
+    this.key = createHash('sha256').update(`rengarenk:${alan}:sifre:${secret}`).digest();
+    this.macKey = createHash('sha256').update(`rengarenk:${alan}:ozet:${secret}`).digest();
   }
 
   static fromEnv(env: Env) {
     return new SecretBox(env.STAFF_SECRET_KEY ?? `gelistirme:${env.JWT_SECRET}`);
+  }
+
+  /** Mesaj gövdeleri için ayrı anahtar (Teknik tasarım §8) */
+  static forMessages(env: Env) {
+    return new SecretBox(env.MESSAGE_SECRET_KEY ?? `gelistirme:${env.JWT_SECRET}`, 'mesaj');
   }
 
   seal(plain: string): string {
