@@ -13,17 +13,24 @@ import {
 } from '@nestjs/common';
 import { emailSetSchema, notifyPrefsSchema, pushTokenSchema } from '@rengarenk/shared';
 import { z } from 'zod';
+import { AuditService } from '../audit/audit.service.js';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { AuthModule } from '../auth/auth.module.js';
 import type { AccessClaims } from '../auth/auth.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
 import { ENV, type Env } from '../config/env.js';
+import { OutboxService } from '../outbox/outbox.service.js';
 import { SearchModule } from '../search/search.module.js';
+import { StaffModule } from '../staff/staff.module.js';
+import { AutomationService } from './automations.js';
 import { createEmailSender, createPushSender, EMAIL_SENDER, PUSH_SENDER } from './channels.js';
 import { CommercialController, CommercialService, FakeIys, IYS, NoIys } from './commercial.js';
 import { DeliveryService } from './delivery.service.js';
 import { NotificationService } from './notification.service.js';
 import { NotificationEvents } from './notification-events.js';
+import { NotificationsStaffController, NotificationsStaffService } from './notifications-staff.js';
+import { ReputationService } from './reputation.js';
+import { SwitchService } from './switches.js';
 import { TemplatesService } from './templates.service.js';
 
 type AuthedRequest = { user: AccessClaims; ip?: string };
@@ -108,9 +115,18 @@ const KANALLAR = [
 
 /** API: uçlar ve bildirim üretimi (e-posta doğrulama) */
 @Module({
-  imports: [AuthModule],
-  controllers: [NotificationsController, CommercialController],
-  providers: [NotificationService, TemplatesService, CommercialService],
+  imports: [AuthModule, StaffModule],
+  controllers: [NotificationsController, CommercialController, NotificationsStaffController],
+  providers: [
+    NotificationService,
+    TemplatesService,
+    CommercialService,
+    SwitchService,
+    NotificationsStaffService,
+    ReputationService,
+    AuditService,
+    OutboxService,
+  ],
   exports: [NotificationService],
 })
 export class NotificationsModule {}
@@ -124,6 +140,11 @@ export class NotificationsModule {}
     DeliveryService,
     NotificationEvents,
     CommercialService,
+    SwitchService,
+    AutomationService,
+    ReputationService,
+    AuditService,
+    OutboxService,
     ...KANALLAR,
     {
       provide: IYS,
@@ -131,6 +152,14 @@ export class NotificationsModule {}
       useFactory: (env: Env) => (env.IYS_PROVIDER === 'fake' ? new FakeIys() : new NoIys()),
     },
   ],
-  exports: [NotificationService, DeliveryService, NotificationEvents, CommercialService, IYS],
+  exports: [
+    NotificationService,
+    DeliveryService,
+    NotificationEvents,
+    CommercialService,
+    AutomationService,
+    ReputationService,
+    IYS,
+  ],
 })
 export class NotificationsWorkerModule {}

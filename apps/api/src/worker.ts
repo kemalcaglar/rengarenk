@@ -9,9 +9,11 @@ import { DemandService } from './demands/demand.service.js';
 import { GalleryService } from './galleries/gallery.service.js';
 import { GalleryApplicationService } from './galleries/gallery-application.service.js';
 import { MatchingService } from './matching/matching.service.js';
+import { AutomationService } from './notifications/automations.js';
 import { CommercialService, IYS, type IysProvider } from './notifications/commercial.js';
 import { DeliveryService } from './notifications/delivery.service.js';
 import { NOTIFY_EVENTS, NotificationEvents } from './notifications/notification-events.js';
+import { ReputationService } from './notifications/reputation.js';
 import { OutboxService } from './outbox/outbox.service.js';
 import { OrdersService } from './payments/orders.service.js';
 import { SubscriptionsService } from './payments/subscriptions.service.js';
@@ -42,6 +44,8 @@ const subscriptions = app.get(SubscriptionsService);
 const bildirimOlaylari = app.get(NotificationEvents);
 const teslim = app.get(DeliveryService);
 const ticari = app.get(CommercialService);
+const akislar = app.get(AutomationService);
+const itibar = app.get(ReputationService);
 const iys = app.get<IysProvider>(IYS);
 await queue.start();
 
@@ -136,7 +140,10 @@ const CATALOG_CHECK_MS = 6 * 3600_000;
 let lastCatalogCheck = 0;
 const TESLIM_MS = 5_000;
 let lastTeslim = 0;
+const ITIBAR_MS = 3_600_000;
+let lastItibar = 0;
 let sonOzetGunu = '';
+let sonAkisGunu = '';
 
 log.log('outbox aktarıcısı çalışıyor');
 while (!stopping) {
@@ -209,6 +216,11 @@ while (!stopping) {
     lastTeslim = Date.now();
     await teslim.dispatchDue().catch((err: Error) => log.error(`teslim: ${err.message}`));
   }
+  // E-posta itibarı: sınır aşılırsa ticari e-posta kendiliğinden durur (saatte bir)
+  if (Date.now() - lastItibar > ITIBAR_MS) {
+    lastItibar = Date.now();
+    await itibar.denetle().catch((err: Error) => log.error(`itibar: ${err.message}`));
+  }
   // Kayıtlı aramaların günlük özeti: İstanbul saatiyle 09.00'dan sonra günde bir (Karar 30)
   const trSaat = new Date(Date.now() + 3 * 3600_000);
   const gun = trSaat.toISOString().slice(0, 10);
@@ -218,6 +230,17 @@ while (!stopping) {
       .dailyDigest()
       .then((n) => n && log.log(`kayıtlı arama özeti: ${n} kişi`))
       .catch((err: Error) => log.error(`kayıtlı arama özeti: ${err.message}`));
+  }
+  // Zamanlı akışlar (Karar 51): İstanbul saatiyle 09.30'dan sonra günde bir
+  if (
+    (trSaat.getUTCHours() > 9 || (trSaat.getUTCHours() === 9 && trSaat.getUTCMinutes() >= 30)) &&
+    sonAkisGunu !== gun
+  ) {
+    sonAkisGunu = gun;
+    await akislar
+      .runDaily()
+      .then((r) => log.log(`otomatik akışlar: ${JSON.stringify(r)}`))
+      .catch((err: Error) => log.error(`otomatik akışlar: ${err.message}`));
   }
   if (sent === 0) await new Promise((r) => setTimeout(r, 500));
 }

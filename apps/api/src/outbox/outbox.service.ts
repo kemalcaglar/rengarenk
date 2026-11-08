@@ -33,6 +33,8 @@ export type EventType =
   | 'magaza.inceleme'
   // Ticari ileti onayı değişti: İYS'ye bildirilir (Karar 49)
   | 'iys.izin_degisti'
+  // E-posta itibarı sınırı aşıldı, ticari e-posta kendiliğinden durdu: sahibe iletilir
+  | 'bildirim.ticari_durduruldu'
   | 'iade.onaylandi'
   // İade yürütücü (Teknik tasarım §7): sonuç sahibe iletilir; yürütülen iadenin faturası işçide kesilir
   | 'iade.yurutuldu'

@@ -24,6 +24,7 @@ import { Redis } from 'ioredis';
 import { ENV, type Env } from '../config/env.js';
 import { ConsentService } from '../consents/consent.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
+import { SwitchService } from './switches.js';
 import { TemplatesService } from './templates.service.js';
 
 const DAY = 86_400_000;
@@ -60,6 +61,7 @@ export class NotificationService implements OnModuleDestroy {
     @Inject(ENV) private readonly env: Env,
     private readonly templates: TemplatesService,
     private readonly consents: ConsentService,
+    private readonly switches: SwitchService,
   ) {}
 
   onModuleDestroy() {
@@ -190,6 +192,8 @@ export class NotificationService implements OnModuleDestroy {
   }
 
   private async one(userId: string, key: string, veriTaban: Record<string, unknown>) {
+    // Konsolda kapatılan otomatik akışın iletisi gönderilmez (Karar 51)
+    if (!(await this.switches.sablonAcik(key))) return false;
     const { surum, sablon } = await this.templates.get(key);
     const user = await this.db.user.findUnique({
       where: { id: userId },

@@ -34,6 +34,7 @@ export const NOTIFY_EVENTS = [
   'galeri.deneme_bitiyor',
   'galeri.deneme_bitti',
   'portfoy.eids_reddedildi',
+  'kullanici.kaydoldu',
 ] as const;
 export type NotifyEvent = (typeof NOTIFY_EVENTS)[number];
 
@@ -261,6 +262,8 @@ export class NotificationEvents {
           veri: { galeri: g?.displayName ?? veri.gorunenAd ?? veri.unvan ?? 'Galerin' },
         });
       }
+      case 'kullanici.kaydoldu':
+        return this.notifications.notify({ userIds: [s('userId')], sablon: 'akis.hosgeldin', veri: {} });
       case 'portfoy.eids_reddedildi': {
         const v = await this.db.portfolioVehicle.findUnique({ where: { id: s('vehicleId') } });
         if (!v) return 0;

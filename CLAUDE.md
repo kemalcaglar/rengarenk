@@ -189,8 +189,16 @@ pnpm format        # Biome ile biçimlendir
   Sahip Onay kuyruğundan onaylar (tutarı düşürebilir), yürütme yalnızca `src/refund-executor.ts` sürecinde
   (`refunds/executor/`; API ve işçi içe aktarmaz, test denetler). Kilit tetikleyicileri değişmedi. API'de 124 test.
   İade akışında yeni bir değişiklik yine önce sahibe sorulur.
-- **Sıradaki:** Aşama 7 (bildirim katmanı: e-posta, SMS, anlık bildirim; outbox olaylarının kullanıcıya iletilmesi) ya da
-  sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS. Bir sprint bitince plan
+- **Sprint 17 (8 Kasım 2026, Aşama 7 bitti):** bildirim katmanı (`apps/api/src/notifications/`,
+  `packages/shared/src/notifications.ts`): olay → tercih ve rıza → kanal sırası → teslim kaydı (`deliveries` silinmez).
+  Uygulama içi, push (FCM), e-posta (SMTP, yerelde Mailpit :8025), SMS yalnızca kritik. Ticari iletide onay, haftada 2,
+  sessiz saat, tek tıkla ayrılma, İYS olayı, ısınma, itibar denetimi (sınır aşılırsa ajan ticari e-postayı durdurur).
+  Web zil, `/bildirimler`, `/ayarlar`; mobil bildirimler, ayarlar, push kaydı (`lib/push.tsx`). Konsol › Büyüme:
+  Şablonlar (sürümlü, `notification_templates`), Bildirim merkezi, Teslim raporu, Otomatik akışlar (`notification_switches`,
+  `automations.ts`). Yeni olay eklerken `notification-events.ts` eşlemesine ve `NOTIFY_TEMPLATES`'e ekle. E-postada açılma
+  ve tıklama izlenmez. Çalışan olaylarının sahibe iletilmesi Aşama 8'de. API'de 134 test.
+- **Sıradaki:** Aşama 8 (yönetim ve güven: konsol modülleri, moderasyon, destek, Rengarenk Ajanı, KVKK araçları) ya da
+  sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan
   kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

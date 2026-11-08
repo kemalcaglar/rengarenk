@@ -173,6 +173,23 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Bildirimler (Sprint 17)
+
+- **Katman:** `apps/api/src/notifications/`; şablonlar ve konular `packages/shared/src/notifications.ts`. Olaylar işçide
+  bildirime çevrilir (`notification-events.ts`), teslimi işçi 5 saniyede bir yapar (`delivery.service.ts`). Yerelde
+  e-postalar Mailpit'e düşer (http://localhost:8025), push sahte, SMS kodları API günlüğüne yazılır.
+- **Uçlar:** `GET /notifications`, `GET /notifications/unread`, `POST /notifications/read`, `GET/PUT /me/notification-preferences`,
+  `POST/DELETE /me/push-tokens`, `POST /me/email`, `POST /eposta/dogrula`, `POST /iletisim/ayril`, e-posta sunucusu
+  geri bildirimi `POST /eposta/geri-bildirim` (`x-rr-eposta-imza` = `EPOSTA_WEBHOOK_SECRET` ile HMAC).
+- **Sağlayıcılar:** `EMAIL_PROVIDER` (`none` | `smtp` | `memory`), `PUSH_PROVIDER` (`none` | `fcm` hizmet hesabıyla
+  `FCM_SERVICE_ACCOUNT` | `fake`), `IYS_PROVIDER` (`none` | `fake`). Ticari e-posta `EPOSTA_ISINMA_BASLANGIC` tarihinden bir hafta sonra başlar.
+- **Konsol › Büyüme:** Şablonlar (`/staff/notifications/templates`), Bildirim merkezi (`/center`, ticari gönderim
+  `POST /commercial`), Teslim raporu (`/report`), Otomatik akışlar (`/automations`). Görmek `rapor.gor`, şablon ve akış
+  değiştirmek `kampanya.hazirla`, ticari gönderimi durdurmak `sistem.ayarla` ister. Şablonun yeni sürümü bir dakika
+  içinde gönderimlere yansır.
+- **İşçi:** her gün 09.00'dan sonra kayıtlı arama özeti, 09.30'dan sonra zamanlı akışlar; saatte bir e-posta itibarı
+  denetimi (sınır aşılırsa ticari e-posta durur, konsoldan yeniden başlatılır).
+
 ## İadeler (Sprint 16)
 
 - **Konsol:** `GET /staff/refunds/quote/:siparisId`, `POST /staff/refunds` (`{ siparis, tutarKurus, neden }`, izin `iade`

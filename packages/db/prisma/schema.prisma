@@ -1873,3 +1873,14 @@ model EmailChallenge {
   @@index([userId])
   @@map("email_challenges")
 }
+
+/// Bildirim anahtarları (konsol): otomatik akışlar (`akis.<anahtar>`) ve ticari gönderim (`ticari`). Satır yoksa
+/// varsayılan geçerlidir (akışta tanımlı; ticari açık).
+model NotificationSwitch {
+  key       String   @id
+  enabled   Boolean
+  updatedBy String?  @map("updated_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("notification_switches")
+}

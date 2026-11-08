@@ -457,6 +457,60 @@ export const NOTIFY_TEMPLATES = {
       dugme: { yazi: '{{dugme}}', url: '{{url}}' },
     },
   },
+  'akis.hosgeldin': {
+    ad: 'Akış: hoş geldin',
+    konu: 'genel',
+    grup: 'talep',
+    baslik: 'Rengarenk’e hoş geldin',
+    metin: 'Aradığın aracı yaz, uygun aracı olan satıcılar sana gelsin. İlk talebin ücretsiz.',
+    url: '/talep-olustur',
+  },
+  'akis.ilk_talep': {
+    ad: 'Akış: ilk talebini oluştur',
+    konu: 'kampanya',
+    grup: 'kampanya',
+    baslik: 'İlk talebin ücretsiz',
+    metin: 'Aradığın aracı 2 dakikada yaz; satıcılar sana gelsin.',
+    url: '/talep-olustur',
+    eposta: {
+      konu: 'İlk talebin ücretsiz',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        'Aradığın aracı birkaç adımda yazarsan uygun aracı olan galeriler ve satıcılar sana yazar. İlk talebin ücretsiz.',
+      ],
+      dugme: { yazi: 'Talep oluştur', url: '/talep-olustur' },
+    },
+  },
+  'akis.okumadin': {
+    ad: 'Akış: ilk mesajı okumadın',
+    konu: 'mesaj',
+    grup: 'mesaj',
+    baslik: '{{satici}} mesajı hâlâ okunmadı',
+    metin: '{{talep}} · satıcı yanıtını bekliyor.',
+    url: '/mesajlarim?sohbet={{conversationId}}',
+    eposta: {
+      konu: '{{satici}} mesajı hâlâ okunmadı',
+      paragraflar: ['Merhaba {{ad}},', '{{satici}} dün “{{talep}}” talebine yazdı; mesaj henüz okunmadı.'],
+      dugme: { yazi: 'Mesajı oku', url: '/mesajlarim?sohbet={{conversationId}}' },
+    },
+  },
+  'akis.galeri_sessiz': {
+    ad: 'Akış: galeri 7 gündür mesaj göndermedi',
+    konu: 'galeri',
+    grup: 'galeri',
+    baslik: 'Portföyüne uyan {{sayi}} talep seni bekliyor',
+    metin: '7 gündür ilk mesaj göndermedin. Araç kartıyla alıcılara ulaş.',
+    url: '/galeri-paneli?bolum=eslesme',
+    ekip: true,
+    eposta: {
+      konu: 'Portföyüne uyan {{sayi}} talep seni bekliyor',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        '{{galeri}} 7 gündür ilk mesaj göndermedi. Bu sürede portföyüne uyan {{sayi}} talep yayınlandı.',
+      ],
+      dugme: { yazi: 'Eşleşmeleri gör', url: '/galeri-paneli?bolum=eslesme' },
+    },
+  },
   'eposta.dogrulama': {
     ad: 'E-posta doğrulama',
     konu: 'guvenlik',
@@ -510,3 +564,180 @@ export const maskEposta = (e: string) => {
   const [u = '', d = ''] = e.split('@');
   return `${u.slice(0, 2)}***@${d}`;
 };
+
+/**
+ * Otomatik akışlar (Karar 51; YonetimKampanya.dc.html › akışlar). Adımlar kodda tanımlıdır; konsoldan açılıp kapanır.
+ * Tetikleyici olaysa olayla, zamanlıysa işçinin günlük denetimiyle çalışır.
+ */
+export interface Automation {
+  ad: string;
+  tur: 'İşlemsel' | 'Ticari';
+  /** Gönderdiği şablonlar (istatistik bunlardan) */
+  sablonlar: readonly string[];
+  varsayilan: boolean;
+  adimlar: readonly { tip: string; baslik: string; detay: string }[];
+}
+
+export const AUTOMATIONS = {
+  hosgeldin: {
+    ad: 'Hoş geldin',
+    tur: 'İşlemsel',
+    sablonlar: ['akis.hosgeldin'],
+    varsayilan: true,
+    adimlar: [
+      { tip: 'Tetikleyici', baslik: 'Yeni üyelik', detay: 'Telefonla kayıt tamamlanınca' },
+      { tip: 'İleti', baslik: 'Uygulama içi: “Rengarenk’e hoş geldin”', detay: 'İlk talebin ücretsiz' },
+      { tip: 'Hedef', baslik: 'İlk talep yayınlandı', detay: 'Akıştan çıkış' },
+    ],
+  },
+  ilk_talep: {
+    ad: 'İlk talebini oluştur',
+    tur: 'Ticari',
+    sablonlar: ['akis.ilk_talep'],
+    varsayilan: true,
+    adimlar: [
+      { tip: 'Tetikleyici', baslik: 'Üyeliğin 3. günü, talep yok', detay: 'Her gün 09.30’da kontrol edilir' },
+      { tip: 'Koşul', baslik: 'Ticari ileti onayı var mı?', detay: 'Yoksa akış durur (Karar 49)' },
+      {
+        tip: 'İleti',
+        baslik: 'Uygulama içi ve e-posta: “İlk talebin ücretsiz”',
+        detay: 'Haftada 2 ve sessiz saat kuralıyla',
+      },
+      { tip: 'Hedef', baslik: 'Talep yayınlandı', detay: 'Akıştan çıkış' },
+    ],
+  },
+  doluyor: {
+    ad: 'Talebin 3 gün sonra doluyor',
+    tur: 'İşlemsel',
+    sablonlar: ['talep.suresi_doluyor'],
+    varsayilan: true,
+    adimlar: [
+      {
+        tip: 'Tetikleyici',
+        baslik: 'Talebin bitmesine 7, 3 ve 1 gün kaldı',
+        detay: 'İşçi süre dolumlarıyla birlikte kontrol eder',
+      },
+      {
+        tip: 'İleti',
+        baslik: 'Uygulama içi ve push: “Talebin N gün sonra doluyor”',
+        detay: 'Satıcı sayısıyla',
+      },
+      {
+        tip: 'Koşul ve ileti',
+        baslik: 'E-posta; son gün SMS',
+        detay: 'Kişinin tercihine göre (Ayarlar › Bildirimler)',
+      },
+      { tip: 'Hedef', baslik: 'Talep uzatıldı', detay: 'Akıştan çıkış' },
+    ],
+  },
+  okumadin: {
+    ad: 'İlk mesajı okumadın',
+    tur: 'İşlemsel',
+    sablonlar: ['akis.okumadin'],
+    varsayilan: false,
+    adimlar: [
+      {
+        tip: 'Tetikleyici',
+        baslik: 'Talebe gelen ilk mesaj 24 saattir okunmadı',
+        detay: 'Her gün 09.30’da kontrol edilir',
+      },
+      { tip: 'İleti', baslik: 'Uygulama içi ve e-posta hatırlatması', detay: 'Sohbet başına bir kez' },
+      { tip: 'Hedef', baslik: 'Mesaj okundu', detay: 'Akıştan çıkış' },
+    ],
+  },
+  galeri7: {
+    ad: 'Galeri 7 gündür mesaj göndermedi',
+    tur: 'İşlemsel',
+    sablonlar: ['akis.galeri_sessiz'],
+    varsayilan: true,
+    adimlar: [
+      {
+        tip: 'Tetikleyici',
+        baslik: 'Paketli galeri 7 gündür ilk mesaj göndermedi',
+        detay: 'Portföyüne uyan yeni talep varsa',
+      },
+      {
+        tip: 'İleti',
+        baslik: 'Uygulama içi ve e-posta: “Portföyüne uyan N talep”',
+        detay: 'Galeri sahibi ve yöneticilerine',
+      },
+      { tip: 'Hedef', baslik: 'İlk mesaj gönderildi', detay: 'Akıştan çıkış · 7 gün sonra yeniden' },
+    ],
+  },
+  deneme: {
+    ad: 'Deneme bitiyor',
+    tur: 'İşlemsel',
+    sablonlar: ['galeri.deneme_bitiyor', 'galeri.deneme_bitti'],
+    varsayilan: true,
+    adimlar: [
+      { tip: 'Tetikleyici', baslik: 'Denemenin bitmesine 7, 3 ve 1 gün kaldı', detay: 'Karar 12.5' },
+      {
+        tip: 'İleti',
+        baslik: 'Uygulama içi ve e-posta: paket seç',
+        detay: 'Kart istenmez, kendiliğinden ücretliye geçmez',
+      },
+      { tip: 'Hedef', baslik: 'Paket alındı', detay: 'Akıştan çıkış' },
+    ],
+  },
+  odeme: {
+    ad: 'Ödeme başarısız',
+    tur: 'İşlemsel',
+    sablonlar: ['abonelik.odeme_basarisiz'],
+    varsayilan: true,
+    adimlar: [
+      {
+        tip: 'Tetikleyici',
+        baslik: 'Abonelik yenileme ödemesi alınamadı',
+        detay: '3 gün günde bir yeniden denenir',
+      },
+      {
+        tip: 'İleti',
+        baslik: 'Uygulama içi, e-posta ve SMS: kartı güncelle',
+        detay: 'Ödeme sorunu kritik sayılır (Karar 49)',
+      },
+      { tip: 'Hedef', baslik: 'Ödeme alındı', detay: 'Akıştan çıkış; alınamazsa paket askıya alınır' },
+    ],
+  },
+} as const satisfies Record<string, Automation>;
+export type AutomationKey = keyof typeof AUTOMATIONS;
+export const AUTOMATION_KEYS = Object.keys(AUTOMATIONS) as AutomationKey[];
+
+/** Şablonu gönderen akış (kapalıysa gönderilmez) */
+export const automationOf = (sablon: string): AutomationKey | undefined =>
+  AUTOMATION_KEYS.find((k) => (AUTOMATIONS[k].sablonlar as readonly string[]).includes(sablon));
+
+/** Şablon metnindeki değişkenler: {{ad}}, {{talep}} … */
+export function templateVariables(t: NotifyTemplate): string[] {
+  const metinler = [
+    t.baslik,
+    t.metin,
+    t.url ?? '',
+    t.sms ?? '',
+    t.eposta?.konu ?? '',
+    ...(t.eposta?.paragraflar ?? []),
+    t.eposta?.dugme?.yazi ?? '',
+    t.eposta?.dugme?.url ?? '',
+  ];
+  return [
+    ...new Set(metinler.flatMap((m) => [...m.matchAll(/\{\{\s*(\w+)\s*\}\}/g)].map((x) => x[1] as string))),
+  ];
+}
+
+/** Konsolda şablonun yeni sürümü: yalnızca metinler değişir; konu, kanal kuralları ve akış kodda */
+export const templateEditSchema = z
+  .object({
+    baslik: z.string().trim().min(2).max(120),
+    metin: z.string().trim().max(400),
+    sms: z.string().trim().max(320).optional(),
+    eposta: z
+      .object({
+        konu: z.string().trim().min(2).max(160),
+        paragraflar: z.array(z.string().trim().min(1).max(1000)).min(1).max(8),
+        dugme: z
+          .object({ yazi: z.string().trim().min(2).max(60), url: z.string().trim().min(1).max(300) })
+          .optional(),
+      })
+      .optional(),
+  })
+  .strict();
+export type TemplateEdit = z.infer<typeof templateEditSchema>;

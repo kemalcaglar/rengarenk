@@ -8,6 +8,7 @@ import { isinmaLimiti } from '../src/notifications/commercial.js';
 import { DeliveryService } from '../src/notifications/delivery.service.js';
 import { NotificationService, sessizSaatSonu } from '../src/notifications/notification.service.js';
 import { NotificationEvents } from '../src/notifications/notification-events.js';
+import { SwitchService } from '../src/notifications/switches.js';
 import { TemplatesService } from '../src/notifications/templates.service.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
@@ -25,7 +26,15 @@ beforeAll(async () => {
   ({ app, sms, db } = await createTestApp());
   eposta = new MemoryEmail();
   push = new FakePush();
-  teslim = new DeliveryService(db, app.get<Env>(ENV), eposta, push, sms, app.get(TemplatesService));
+  teslim = new DeliveryService(
+    db,
+    app.get<Env>(ENV),
+    eposta,
+    push,
+    sms,
+    app.get(TemplatesService),
+    app.get(SwitchService),
+  );
   olaylar = new NotificationEvents(db, app.get(NotificationService), app.get(DemandSearchService));
   const bmw = await db.catalogMake.create({ data: { id: uuidv7(), key: 'bmw', name: 'BMW' } });
   const s = await db.catalogSeries.create({
@@ -345,6 +354,7 @@ describe('bildirim katmanı (Karar 30, 48, 49, 50)', () => {
       push,
       sms,
       app.get(TemplatesService),
+      app.get(SwitchService),
     );
     await db.delivery.updateMany({
       where: { userId: u.userId, ticari: true },

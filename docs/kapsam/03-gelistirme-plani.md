@@ -138,6 +138,37 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 17 · bildirim katmanı, şablonlar, otomatik akışlar (Aşama 7, 8 Kasım 2026)
+
+- [x] Tek bildirim katmanı (Karar 48): olay → alıcı → tercih ve rıza → kanal sırası (uygulama içi ve push hemen,
+  e-posta bildirim okunmadıysa gecikmeyle, SMS yalnızca kritik: talebin son günü, ödeme sorunu) → teslim kaydı
+  (`deliveries`, silinmez). Olay eşlemesi: talep süresi 7/3/1 gün, talep yayında, ilk ve yeni mesaj, güvenlik uyarısı,
+  eşleşme, takip özeti, kayıtlı arama (anlık ve günlük özet), ödeme, abonelik, iade, galeri başvurusu, deneme, EİDS
+- [x] Kanallar: SMTP (yerelde Mailpit; işlemsel ve ticari ayrı gönderen), FCM HTTP v1, mevcut SMS ana ve yedek; kalıcı
+  hata ve 3 geçici hata gönderim dışı listesine, geçersiz cihaz anahtarı kapanır
+- [x] Tercihler (Karar 30): konu × kanal tablosu; ödeme bildirimleri uygulama içi ve e-postada kapatılamaz; kampanya
+  tercihi ticari ileti onayını rıza kaydına yazar
+- [x] Ticari ileti (Karar 49, 50): onay, kişi başına haftada 2, 21.00–09.00 sessiz saat; tek tıkla ayrılma (imzalı
+  bağlantı, List-Unsubscribe-Post); İYS bildirimi `iys.izin_degisti` olayıyla (bağlantı yokken bekler)
+- [x] E-posta ısınması (ilk hafta ticari yok, sonra günde 200 ve haftada iki katı, 6. haftadan sonra sınırsız), sunucu
+  geri bildirimi (kalıcı/geçici hata, spam şikâyeti), itibar denetimi: son 7 günde geri dönme %2'yi ya da şikâyet %0,1'i
+  aşarsa ajan ticari e-postayı durdurur (işlem kaydı ve `bildirim.ticari_durduruldu` olayı)
+- [x] Web: başlıkta zil, `/bildirimler`, `/ayarlar` (profil ve e-posta doğrulama, bildirim tercihleri, oturumlar),
+  `/eposta-dogrula`, `/iletisim/ayril`. Mobil: zil rozeti, bildirimler, ayarlar, push izni ve cihaz kaydı
+- [x] Konsol › Büyüme: Şablonlar (kanal sekmeleri, değişkenler, "Ayşe için" önizleme, kendime test, yeni sürüm olarak
+  kaydet; bilinmeyen değişken reddedilir), Bildirim merkezi (kanal sağlığı, SMS ana/yedek, gönderen kimlikleri, ısınma
+  planı, gönderim dışı adresler, itibar, kurallar, ticari gönderimi durdur/başlat), Teslim raporu (kanallar, şablonlara
+  göre okunma), Otomatik akışlar (yedi akış, aç/kapat, adımlar, son 30 gün)
+- [x] Zamanlı akışlar (Karar 51) her gün 09.30'dan sonra: ilk talebini oluştur (üyeliğin 3. günü, ticari), ilk mesajı
+  okumadın (varsayılan kapalı), galeri 7 gündür mesaj göndermedi; hoş geldin kayıt olayıyla
+- [ ] Gerçek hesaplar: Firebase projesi (iOS'ta FCM için Firebase SDK), kendi posta sunucusu (Radore, SPF/DKIM/DMARC,
+  ters DNS, kara liste denetimi), İYS bağdaştırıcısı, SMS fiyatları ve yedek sağlayıcı (Netgsm)
+- [ ] E-postada açılma ve tıklama ölçülmüyor (izleme pikseli ve yönlendirme yok); raporda uygulama içi okunma var
+- [ ] Akış düzenleyicisi ("Adım ekle"), kampanyalar ve segmentler: Aşama 9. Çalışan olaylarının (yeni cihaz, iade sonucu,
+  ticari gönderim durdu) sahibe iletilmesi: Aşama 8 (yönetim bildirimleri)
+- [ ] Ön bilgilendirme formu ve sözleşmenin PDF olarak e-postayla gönderilmesi
+- [ ] Ayarlar'da İletişim ve Hesap sekmeleri (hesabı kapatma KVKK araçlarıyla, Aşama 8)
+
 ## Sprint 16 · iade akışı ve dört kilit (Aşama 6 son bölüm, 8 Kasım 2026)
 
 - [x] İade önerisi (konsol › Ödemeler ve faturalar › "İade öner"): iade yetkisi öneri ya da tam olan çalışan (Finans,

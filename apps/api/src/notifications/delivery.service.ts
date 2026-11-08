@@ -6,6 +6,7 @@ import { SMS_SENDER, type SmsSender } from '../sms/sms.js';
 import { EMAIL_SENDER, type EmailSender, PUSH_SENDER, type PushSender } from './channels.js';
 import { ayrilmaKodu, isinmaLimiti } from './commercial.js';
 import { sessizSaatSonu } from './notification.service.js';
+import { SwitchService } from './switches.js';
 import { TemplatesService } from './templates.service.js';
 
 const DENEME = 3;
@@ -26,6 +27,7 @@ export class DeliveryService {
     @Inject(PUSH_SENDER) private readonly push: PushSender,
     @Inject(SMS_SENDER) private readonly sms: SmsSender,
     private readonly templates: TemplatesService,
+    private readonly switches: SwitchService,
   ) {}
 
   async dispatchDue(now = new Date(), limit = 200) {
@@ -86,8 +88,34 @@ export class DeliveryService {
     if (d.kosul === 'okunmadiysa' && d.notification?.readAt) {
       return this.sonuc(d, { durum: 'atlandi', neden: 'Bildirim uygulamada okundu' });
     }
+    // Ticari gönderim konsoldan durdurulduysa ticari iletiler bekletilir (Bildirim merkezi; işlemsel sürer)
+    if (d.ticari && !(await this.switches.ticariAcik())) {
+      return this.db.delivery.update({
+        where: { id: d.id },
+        data: { neden: 'Ticari gönderim durduruldu; bekletiliyor', dueAt: new Date(Date.now() + 3600_000) },
+      });
+    }
     const { sablon } = await this.templates.get(d.sablon);
     const veri = d.veri as Record<string, unknown>;
+    // Çalışana giden e-posta (konsolda "Kendime test gönder")
+    if (d.staffId) {
+      const st = await this.db.staffMember.findUnique({ where: { id: d.staffId }, select: { email: true } });
+      const e = st ? await this.templates.email(sablon, veri) : null;
+      if (!st || !e) return this.sonuc(d, { durum: 'atlandi', neden: 'Çalışan ya da e-posta şablonu yok' });
+      const r = await this.email.send({
+        to: st.email,
+        from: this.env.EPOSTA_GONDEREN,
+        subject: `[Test] ${e.konu}`,
+        html: e.html,
+        text: e.text,
+      });
+      return this.sonuc(d, {
+        durum: r.status === 'sent' ? 'gonderildi' : 'hata',
+        neden: r.message,
+        saglayici: this.email.ad,
+        no: r.id,
+      });
+    }
     const user = d.userId
       ? await this.db.user.findUnique({
           where: { id: d.userId },
