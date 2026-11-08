@@ -2,6 +2,7 @@ import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fa
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module.js';
 import { registerXlsxBody } from '../src/catalog/xlsx-body.js';
+import { registerUploadBodies } from '../src/common/upload-body.js';
 import { type Db, PRISMA } from '../src/database/prisma.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
 import { SMS_SENDER } from '../src/sms/sms.js';
@@ -10,6 +11,7 @@ export async function createTestApp() {
   const mod = await Test.createTestingModule({ imports: [AppModule] }).compile();
   const app = mod.createNestApplication<NestFastifyApplication>(new FastifyAdapter(), { logger: ['error'] });
   registerXlsxBody(app);
+  registerUploadBodies(app);
   await app.init();
   await app.getHttpAdapter().getInstance().ready();
   return { app, sms: app.get<MemorySmsSender>(SMS_SENDER), db: app.get<Db>(PRISMA) };

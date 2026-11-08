@@ -6,6 +6,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module.js';
 import { registerXlsxBody } from './catalog/xlsx-body.js';
+import { registerUploadBodies } from './common/upload-body.js';
 import { loadEnv } from './config/env.js';
 import { initSentry, ReportingExceptionFilter } from './observability/sentry.js';
 
@@ -21,6 +22,7 @@ export async function createApp(): Promise<NestFastifyApplication> {
   );
   app.useLogger(app.get(Logger));
   registerXlsxBody(app);
+  registerUploadBodies(app);
   if (reporting) app.useGlobalFilters(new ReportingExceptionFilter(app.get(HttpAdapterHost).httpAdapter));
   await app.register(helmet);
   // Fastify'ın varsayılanı yalnızca GET, HEAD, POST; tarayıcıdan PATCH (profil, talep taslağı) ve DELETE de gelir.

@@ -12,6 +12,11 @@ const schema = z.object({
     .regex(/^[a-z0-9_]+$/)
     .default('rr'),
   JWT_SECRET: z.string().min(32, 'JWT_SECRET en az 32 karakter olmalı'),
+  /**
+   * Galeri başvurusu kontrolleri (Karar 03, 17): yetki belgesi (Ticaret Bakanlığı), vergi (GİB), MERSİS. none: bağlantı
+   * yok, kontroller "yapılamadı" sayılır ve başvuru insana düşer. fake: geliştirme ve test; canlıda kullanılamaz.
+   */
+  GALLERY_VERIFY_PROVIDER: z.enum(['none', 'fake']).default('none'),
   SMS_PROVIDER: z.enum(['console', 'test', 'iletimerkezi']).default('console'),
   /** Ana sağlayıcı arızalanınca kullanılacak yedek (Teknik tasarım §9). */
   SMS_FALLBACK_PROVIDER: z.enum(['console', 'test', 'iletimerkezi']).optional(),
@@ -86,6 +91,8 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (e.SMS_PROVIDER === 'console' || e.SMS_PROVIDER === 'test')
       throw new Error('Canlıda gerçek bir SMS sağlayıcısı gerekli');
     if (!e.METRICS_TOKEN) throw new Error('Canlıda METRICS_TOKEN gerekli');
+    if (e.GALLERY_VERIFY_PROVIDER === 'fake')
+      throw new Error('Canlıda sahte galeri doğrulaması kullanılamaz');
     if (e.STAFF_AUTH_PROVIDER !== 'google') throw new Error('Canlıda yönetim girişi Google Workspace olmalı');
     if (!e.STAFF_SECRET_KEY) throw new Error('Canlıda STAFF_SECRET_KEY gerekli');
     if (!e.STAFF_REQUIRE_WORKSPACE) throw new Error('Canlıda Google Workspace şartı kapatılamaz');

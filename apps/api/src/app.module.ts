@@ -8,6 +8,7 @@ import { DatabaseModule } from './database/database.module.js';
 import { DemandsModule } from './demands/demands.module.js';
 import { EntitlementsModule } from './entitlements/entitlements.module.js';
 import { FlagsModule } from './flags/flags.module.js';
+import { GalleriesModule } from './galleries/galleries.module.js';
 import { HealthController } from './health/health.controller.js';
 import { MeModule } from './me/me.module.js';
 import { HttpMetricsInterceptor } from './observability/http-metrics.interceptor.js';
@@ -33,6 +34,7 @@ import { StorageModule } from './storage/storage.service.js';
     EntitlementsModule,
     StaffModule,
     FlagsModule,
+    GalleriesModule,
     StorageModule,
     ConsentModule,
     CatalogModule,

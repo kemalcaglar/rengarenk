@@ -37,7 +37,18 @@ export type EventType =
   | 'katalog.ad_esleme'
   // Kategori şeması (Karar 45): yeni sürüm yayına girdi; arama eşlemesi ve önbellekler yenilenir
   | 'kategori.yayinlandi'
-  | 'kategori.degisti';
+  | 'kategori.degisti'
+  // Galeri hesapları (Karar 03, 12.5, 20): kontroller işçide, bildirimler bildirim katmanında (Aşama 7)
+  | 'galeri.basvuru_alindi'
+  | 'galeri.onaylandi'
+  | 'galeri.reddedildi'
+  | 'galeri.belge_istendi'
+  | 'galeri.onay_geri_alindi'
+  | 'galeri.davet_edildi'
+  | 'galeri.calisan_eklendi'
+  | 'galeri.calisan_cikarildi'
+  | 'galeri.deneme_bitiyor'
+  | 'galeri.deneme_bitti';
 
 @Injectable()
 export class OutboxService {

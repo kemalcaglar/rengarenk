@@ -69,13 +69,14 @@ model User {
   createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  memberships   AccountMember[]
-  devices       Device[]
-  sessions      Session[]
-  featureTester FeatureTester?
-  demands       Demand[]
-  favorites     Favorite[]
-  savedSearches SavedSearch[]
+  memberships         AccountMember[]
+  devices             Device[]
+  sessions            Session[]
+  featureTester       FeatureTester?
+  demands             Demand[]
+  favorites           Favorite[]
+  savedSearches       SavedSearch[]
+  galleryApplications GalleryApplication[]
 
   @@map("users")
 }
@@ -92,6 +93,8 @@ model Account {
   members AccountMember[]
   ledger  EntitlementLedger[]
   demands Demand[]
+  gallery Gallery?
+  invites AccountInvite[]
 
   @@map("accounts")
 }
@@ -1012,4 +1015,129 @@ model SavedSearch {
 
   @@index([userId])
   @@map("saved_searches")
+}
+
+// ── Galeri hesapları (Karar 03, 12.5, 17, 20) ─────────────────
+
+enum GalleryApplicationStatus {
+  DRAFT
+  SUBMITTED
+  IN_REVIEW
+  DOCS_REQUESTED
+  APPROVED
+  REJECTED
+  REVOKED
+}
+
+/// Kurumsal hesap başvurusu (Basvuru.dc.html). Kontrollerin hepsi geçerse ajan onaylar; biri bile geçmezse
+/// başvuru insan incelemesine düşer. Onayda galeri hesabı (accounts, galleries) açılır. Kullanıcı başına tek açık
+/// başvuru olur (veritabanı kısıtı). Silinmez.
+model GalleryApplication {
+  id             String                   @id @db.Uuid
+  userId         String                   @map("user_id") @db.Uuid
+  businessKind   BusinessKind?            @map("business_kind")
+  status         GalleryApplicationStatus @default(DRAFT)
+  /// @pii Form: ticari unvan, vergi no, MERSİS, adres, yetki belgesi no, hesap sahibinin adı ve e-postası
+  data           Json                     @default("{}")
+  /// Otomatik kontrol sonuçları: [{ key, sonuc, not }]
+  checks         Json?
+  /// Kontrollerin özeti (konsolda "Ajan:" satırı)
+  agentNote      String?                  @map("agent_note")
+  submittedAt    DateTime?                @map("submitted_at") @db.Timestamptz(3)
+  checkedAt      DateTime?                @map("checked_at") @db.Timestamptz(3)
+  decidedAt      DateTime?                @map("decided_at") @db.Timestamptz(3)
+  /// Karar veren çalışan; ajan onayında boş
+  decidedBy      String?                  @map("decided_by") @db.Uuid
+  decidedByAgent Boolean                  @default(false) @map("decided_by_agent")
+  /// Ret gerekçesi ya da istenen belge açıklaması (başvurana gösterilir)
+  decisionNote   String?                  @map("decision_note")
+  /// Onayda açılan galeri hesabı
+  accountId      String?                  @unique @map("account_id") @db.Uuid
+  createdAt      DateTime                 @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime                 @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user      User              @relation(fields: [userId], references: [id])
+  documents GalleryDocument[]
+
+  @@index([userId])
+  @@index([status, submittedAt])
+  @@map("gallery_applications")
+}
+
+/// Başvuru belgesi: dosya özel depoda (SeaweedFS, Türkiye), yalnızca çalışanlar görür.
+model GalleryDocument {
+  id            String   @id @db.Uuid
+  applicationId String   @map("application_id") @db.Uuid
+  /// vergi_levhasi, sicil_gazetesi, oda_kayit, sube_adresleri, turizm_belgesi
+  kind          String
+  /// @pii Yüklenen dosyanın adı
+  fileName      String   @map("file_name")
+  mime          String
+  size          Int
+  sha256        String
+  storageKey    String   @map("storage_key")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  application GalleryApplication @relation(fields: [applicationId], references: [id])
+
+  @@index([applicationId, kind])
+  @@map("gallery_documents")
+}
+
+/// Galeri profili (GaleriProfil.dc.html): galeri hesabıyla bire bir. Yetki belgesi no ve işletme adı profilde ve
+/// portföy araçlarında görünür (yönetmelik m.21).
+model Gallery {
+  accountId         String       @id @map("account_id") @db.Uuid
+  slug              String       @unique
+  businessKind      BusinessKind @map("business_kind")
+  displayName       String       @map("display_name")
+  /// @pii Ticari unvan (şahıs işletmesinde kişinin adı geçer)
+  legalName         String       @map("legal_name")
+  /// @pii Vergi no (şahıs işletmesinde T.C. kimlik no)
+  taxNo             String       @map("tax_no")
+  taxOffice         String       @map("tax_office")
+  /// @pii
+  mersisNo          String       @map("mersis_no")
+  il                String
+  ilce              String
+  /// @pii
+  address           String
+  /// Bakanlık yetki belgesi numarası (vasıta galerisi ve kiralama)
+  authorityNo       String?      @map("authority_no")
+  about             String?
+  workingHours      String?      @map("working_hours")
+  /// deneme | baslangic | profesyonel | kurumsal (abonelik ödeme modülüyle, Aşama 6)
+  plan              String       @default("deneme")
+  trialEndsAt       DateTime?    @map("trial_ends_at") @db.Timestamptz(3)
+  /// Deneme bitişi için gönderilen hatırlatmalar (7, 3, 1 gün)
+  trialReminderDays Int[]        @default([]) @map("trial_reminder_days")
+  applicationId     String       @unique @map("application_id") @db.Uuid
+  approvedAt        DateTime     @map("approved_at") @db.Timestamptz(3)
+  createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@index([il])
+  @@map("galleries")
+}
+
+/// Galeri çalışan daveti (Karar 20): davet edilen numara giriş yapınca kabul eder. 7 gün geçerlidir.
+model AccountInvite {
+  id         String     @id @db.Uuid
+  accountId  String     @map("account_id") @db.Uuid
+  /// @pii E.164
+  phone      String
+  role       MemberRole
+  invitedBy  String     @map("invited_by") @db.Uuid
+  createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt  DateTime   @map("expires_at") @db.Timestamptz(3)
+  acceptedAt DateTime?  @map("accepted_at") @db.Timestamptz(3)
+  revokedAt  DateTime?  @map("revoked_at") @db.Timestamptz(3)
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@index([phone])
+  @@index([accountId])
+  @@map("account_invites")
 }

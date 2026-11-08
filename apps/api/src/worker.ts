@@ -11,6 +11,9 @@ import { DatabaseModule } from './database/database.module.js';
 import { type Db, PRISMA } from './database/prisma.js';
 import { DemandService } from './demands/demand.service.js';
 import { DemandsWorkerModule } from './demands/demands.module.js';
+import { GalleriesWorkerModule } from './galleries/galleries.module.js';
+import { GalleryService } from './galleries/gallery.service.js';
+import { GalleryApplicationService } from './galleries/gallery-application.service.js';
 import { OutboxService } from './outbox/outbox.service.js';
 import { QueueService } from './queue/queue.service.js';
 import { DemandSearchService } from './search/demand-search.service.js';
@@ -30,6 +33,7 @@ import { StorageModule } from './storage/storage.service.js';
     CatalogPipelineModule,
     CategoriesWorkerModule,
     DemandsWorkerModule,
+    GalleriesWorkerModule,
   ],
   providers: [OutboxService, QueueService],
 })
@@ -46,12 +50,24 @@ const db = app.get<Db>(PRISMA);
 const catalog = app.get(CatalogPipelineService);
 const demands = app.get(DemandService);
 const search = app.get(DemandSearchService);
+const galleryApps = app.get(GalleryApplicationService);
+const galleries = app.get(GalleryService);
 await queue.start();
 
 await queue.consume<{ approvalId: string }>('onay.onaylandi', 'onay-yurut', async ({ approvalId }) => {
   const r = await executor.execute(approvalId);
   log.log(`onay ${approvalId}: ${r}`);
 });
+
+// Galeri başvurusu (Karar 03): beş kontrol; hepsi geçerse ajan onaylar, değilse konsoldaki kuyruğa düşer
+await queue.consume<{ applicationId: string }>(
+  'galeri.basvuru_alindi',
+  'galeri-kontrol',
+  async ({ applicationId }) => {
+    const r = await galleryApps.runChecks(applicationId);
+    if (r) log.log(`galeri başvurusu ${applicationId}: ${r.hepsi ? 'ajan onayladı' : 'incelemeye düştü'}`);
+  },
+);
 
 // Talep araması: talep olaylarında indeks güncellenir (Teknik tasarım §12)
 for (const event of [
@@ -94,6 +110,9 @@ while (!stopping) {
       const passive = await demands.expireDue();
       const reminded = await demands.remindDue();
       if (passive || reminded) log.log(`talepler: ${passive} süresi doldu, ${reminded} hatırlatma`);
+      // Galeri denemesi (Karar 12.5): bitişe 7/3/1 gün kala ve bitince olay
+      const trials = await galleries.remindTrials();
+      if (trials) log.log(`galeri denemesi: ${trials} hatırlatma`);
       // Yarım kalmış yönetim girişi adımları bir gün sonra silinir.
       await db.staffLoginChallenge.deleteMany({
         where: { expiresAt: { lt: new Date(Date.now() - 86_400_000) } },
