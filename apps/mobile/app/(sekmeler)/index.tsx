@@ -103,6 +103,9 @@ export default function Home() {
             accessibilityLabel="Talep ara"
             placeholder="Marka, model veya talep no ile ara"
             returnKeyType="search"
+            onSubmitEditing={(e) =>
+              router.push({ pathname: '/talepler', params: { q: e.nativeEvent.text.trim() } })
+            }
             style={{ flex: 1, fontSize: 15, paddingVertical: 12 }}
           />
         </View>

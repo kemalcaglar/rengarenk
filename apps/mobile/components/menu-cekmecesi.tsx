@@ -148,7 +148,12 @@ export function MenuCekmecesi({ acik, kapat }: { acik: boolean; kapat: () => voi
           </Pressable>
           {vasita ? (
             <>
-              <View
+              <Pressable
+                accessibilityRole="link"
+                onPress={() => {
+                  kapat();
+                  router.push('/talepler');
+                }}
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -157,10 +162,15 @@ export function MenuCekmecesi({ acik, kapat }: { acik: boolean; kapat: () => voi
                 }}
               >
                 <T style={{ fontSize: 14.5, fontWeight: '800' }}>Tüm vasıta talepleri</T>
-              </View>
+              </Pressable>
               {kategoriler.map((c, i) => (
-                <View
+                <Pressable
                   key={c.slug}
+                  accessibilityRole="link"
+                  onPress={() => {
+                    kapat();
+                    router.push({ pathname: '/talepler', params: { kategori: c.slug } });
+                  }}
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -184,7 +194,7 @@ export function MenuCekmecesi({ acik, kapat }: { acik: boolean; kapat: () => voi
                     <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: c.color }} />
                   </View>
                   <T style={{ flex: 1, fontSize: 14.5, fontWeight: '600' }}>{c.name}</T>
-                </View>
+                </Pressable>
               ))}
             </>
           ) : null}

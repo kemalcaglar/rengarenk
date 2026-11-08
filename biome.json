@@ -51,7 +51,7 @@
             "noReactNativeRawText": {
               "level": "error",
               "options": {
-                "skip": ["T"]
+                "skip": ["T", "Cip", "SvgText"]
               }
             }
           }

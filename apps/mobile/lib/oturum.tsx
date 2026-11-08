@@ -1,4 +1,4 @@
-import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { API, tokens } from './api';
 
 export interface Me {
@@ -19,6 +19,22 @@ interface Oturum {
   basla: (pair: { accessToken: string; refreshToken: string }) => Promise<void>;
   cikis: () => Promise<void>;
   yenileProfil: () => Promise<void>;
+  /** Oturumlu API isteği; erişim jetonunun süresi dolduysa bir kez yeniler ve tekrar dener */
+  istek: <T>(
+    path: string,
+    init?: { method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'; body?: unknown },
+  ) => Promise<T>;
+}
+
+/** API hatası: ileti, durum kodu ve alan hataları */
+export class IstekHatasi extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly body: { code?: string; issues?: { path: string; message: string }[] } & Record<string, unknown>,
+  ) {
+    super(message);
+  }
 }
 
 const Ctx = createContext<Oturum | null>(null);
@@ -91,7 +107,68 @@ export function OturumProvider({ children }: { children: ReactNode }) {
     if (access) await profil(access);
   }, [access, profil]);
 
-  return <Ctx.Provider value={{ durum, me, access, basla, cikis, yenileProfil }}>{children}</Ctx.Provider>;
+  // Jeton yenileme tek seferde yapılır: eş zamanlı iki istek aynı yenileme jetonunu iki kez kullanırsa
+  // sunucu çalıntı sayıp bütün oturumları kapatır (T09).
+  const accessRef = useRef<string | null>(null);
+  accessRef.current = access;
+  const bekleyen = useRef<Promise<string | null> | null>(null);
+  const yenile = useCallback(() => {
+    if (bekleyen.current) return bekleyen.current;
+    bekleyen.current = (async () => {
+      const refresh = await tokens.get();
+      if (!refresh) return null;
+      try {
+        const pair = await json<{ accessToken: string; refreshToken: string }>('/auth/refresh', {
+          method: 'POST',
+          body: JSON.stringify({ refreshToken: refresh }),
+        });
+        await tokens.save(pair.refreshToken);
+        setAccess(pair.accessToken);
+        accessRef.current = pair.accessToken;
+        return pair.accessToken;
+      } catch {
+        await tokens.clear();
+        setAccess(null);
+        setMe(null);
+        setDurum('misafir');
+        return null;
+      }
+    })().finally(() => {
+      bekleyen.current = null;
+    });
+    return bekleyen.current;
+  }, []);
+
+  const istek = useCallback(
+    async <T,>(
+      path: string,
+      init: { method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'; body?: unknown } = {},
+    ): Promise<T> => {
+      const send = (token: string | null) =>
+        fetch(`${API}${path}`, {
+          method: init.method ?? 'GET',
+          headers: {
+            ...(init.body !== undefined ? { 'content-type': 'application/json' } : {}),
+            ...(token ? { authorization: `Bearer ${token}` } : {}),
+          },
+          body: init.body === undefined ? undefined : JSON.stringify(init.body),
+        });
+      let r = await send(accessRef.current);
+      if (r.status === 401) r = await send(await yenile());
+      const data = r.status === 204 ? null : await r.json().catch(() => null);
+      if (!r.ok) {
+        const b = (data ?? {}) as IstekHatasi['body'] & { message?: string | string[] };
+        const msg = b.issues?.[0]?.message ?? (Array.isArray(b.message) ? b.message[0] : b.message);
+        throw new IstekHatasi(msg ?? 'İşlem yapılamadı', r.status, b);
+      }
+      return data as T;
+    },
+    [yenile],
+  );
+
+  return (
+    <Ctx.Provider value={{ durum, me, access, basla, cikis, yenileProfil, istek }}>{children}</Ctx.Provider>
+  );
 }
 
 export function useOturum(): Oturum {
