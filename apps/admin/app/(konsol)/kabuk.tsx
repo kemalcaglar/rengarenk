@@ -15,15 +15,20 @@ export function useKonsol() {
   return c;
 }
 
-type Item = { href: string; ad: string; izin?: Permission } | { ad: string; sonra: true };
+type Item =
+  | { href: string; ad: string; izin?: Permission; rozet?: 'onay' | 'entegrasyon' }
+  | { ad: string; sonra: true };
 
-/** Menü tasarımdaki gruplarla aynı; henüz yazılmamış ekranlar "yakında" olarak görünür. */
+/**
+ * Menü tasarımla birebir (YonetimEkip.dc.html, MENU): sekiz grup, aynı sırayla. Henüz yazılmamış ekranlar
+ * tasarımın "sonra" biçiminde soluk ve tıklanmaz görünür (sahip kararı, 8 Kasım 2026).
+ */
 const MENU: { grup: string; ogeler: Item[] }[] = [
   {
     grup: 'Genel',
     ogeler: [
       { ad: 'Rengarenk Ajanı', sonra: true },
-      { href: '/onaylar', ad: 'Onay kuyruğu' },
+      { href: '/onaylar', ad: 'Onay kuyruğu', rozet: 'onay' },
       { ad: 'Kontrol paneli', sonra: true },
     ],
   },
@@ -42,6 +47,21 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
       { ad: 'Galeri başvuruları', sonra: true },
       { ad: 'Moderasyon', sonra: true },
       { ad: 'Destek', sonra: true },
+      { ad: 'Talepler ve portföy', sonra: true },
+      { ad: 'Satıcı puanı ve rozetler', sonra: true },
+    ],
+  },
+  {
+    grup: 'Büyüme',
+    ogeler: [
+      { ad: 'Raporlar', sonra: true },
+      { ad: 'Zamanlanmış raporlar', sonra: true },
+      { ad: 'Kampanyalar', sonra: true },
+      { ad: 'Otomatik akışlar', sonra: true },
+      { ad: 'Segmentler', sonra: true },
+      { ad: 'Şablonlar', sonra: true },
+      { ad: 'Bildirim merkezi', sonra: true },
+      { ad: 'Teslim raporu', sonra: true },
     ],
   },
   {
@@ -49,17 +69,35 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
     ogeler: [
       { ad: 'Kategoriler ve alanlar', sonra: true },
       { ad: 'Eşleştirme ayarı', sonra: true },
-      { href: '/katalog', ad: 'Katalog kaynakları', izin: 'kategori.ayarla' },
-      { href: '/katalog/ad-esleme', ad: 'Ad eşleme', izin: 'kategori.ayarla' },
-      { href: '/katalog/fotograflar', ad: 'Nesil fotoğrafları', izin: 'kategori.ayarla' },
+    ],
+  },
+  {
+    grup: 'Görünüm',
+    ogeler: [
+      { ad: 'Ana sayfa düzeni', sonra: true },
+      { ad: 'Banner ve vitrin', sonra: true },
+      { ad: 'Açılış sayfaları', sonra: true },
+      { ad: 'Tasarım değerleri', sonra: true },
+      { ad: 'Yardım ve yasal metinler', sonra: true },
     ],
   },
   {
     grup: 'Sistem',
     ogeler: [
-      { ad: 'Entegrasyonlar', sonra: true },
+      { ad: 'Kurallar ve fiyatlar', sonra: true },
+      { href: '/entegrasyonlar', ad: 'Entegrasyonlar', izin: 'kategori.ayarla', rozet: 'entegrasyon' },
       { href: '/sistem', ad: 'Özellik anahtarları ve bakım', izin: 'sistem.ayarla' },
       { ad: 'Yapay zekâ ve bütçe', sonra: true },
+      { ad: 'Sistem sağlığı ve yedek', sonra: true },
+    ],
+  },
+  {
+    grup: 'Uyum ve KVKK',
+    ogeler: [
+      { ad: 'KVKK başvuruları', sonra: true },
+      { ad: 'Saklama, imha ve VERBİS', sonra: true },
+      { ad: 'Rıza ve çerez kayıtları', sonra: true },
+      { ad: 'İhlal ve resmi talepler', sonra: true },
     ],
   },
 ];
@@ -120,17 +158,15 @@ export function Kabuk({ me: initial, logo, children }: { me: Me; logo: ReactNode
           <div className="k-top-in">
             {logo}
             <span className="k-user">
-              {me.pendingApprovals > 0 ? (
-                <Link className="k-pending" href="/onaylar">
-                  Onayını bekleyen {me.pendingApprovals}
-                </Link>
-              ) : null}
+              <Link className="k-pending" href="/onaylar">
+                Onayını bekleyen {me.pendingApprovals}
+              </Link>
               <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <span className="k-avatar" aria-hidden="true">
                   {bas(me.name)}
                 </span>
                 <span>
-                  <strong>{me.name}</strong> · {me.roleName}
+                  <strong>Sen</strong> · {me.roleName}
                 </span>
               </span>
               <button className="k-link" type="button" onClick={logout}>
@@ -164,11 +200,20 @@ export function Kabuk({ me: initial, logo, children }: { me: Me; logo: ReactNode
                         <span>yakında</span>
                       </span>
                     ) : (
-                      <Link key={i.href} href={i.href} aria-current={path === i.href ? 'page' : undefined}>
+                      <Link
+                        key={i.href}
+                        href={i.href}
+                        aria-current={path === i.href || path.startsWith(`${i.href}/`) ? 'page' : undefined}
+                      >
                         {i.ad}
-                        {i.href === '/onaylar' && me.pendingApprovals > 0 ? (
+                        {i.rozet === 'onay' ? (
                           <span style={{ fontSize: 11.5, fontWeight: 800, color: '#7A5300' }}>
                             {me.pendingApprovals}
+                          </span>
+                        ) : null}
+                        {i.rozet === 'entegrasyon' && me.integrationWarnings > 0 ? (
+                          <span style={{ fontSize: 11.5, fontWeight: 800, color: '#7A5300' }}>
+                            {me.integrationWarnings} uyarı
                           </span>
                         ) : null}
                       </Link>

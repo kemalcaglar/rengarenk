@@ -28,6 +28,7 @@ export interface Me {
   permissions: PermissionGrants;
   approverOf: string[];
   pendingApprovals: number;
+  integrationWarnings: number;
   idleMinutes: number;
 }
 

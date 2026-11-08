@@ -169,13 +169,13 @@ export const APPROVAL_POLICIES: Record<ApprovalKindKey, ApprovalPolicy> = {
     ad: 'Kupon',
     permission: 'kampanya.hazirla',
     approvers: ['OWNER', 'ADMIN'],
-    kural: 'Kupon oluşturma sahip veya yönetici onayı ister.',
+    kural: 'Kupon oluşturma onay ister.',
   },
   PERMANENT_BAN: {
     ad: 'Kalıcı engelleme',
     permission: 'hesap.kalici_engelle',
     approvers: ['OWNER', 'ADMIN', 'MODERATOR'],
-    kural: 'Kalıcı engelleme, isteyenden başka bir yetkilinin onayıyla yapılır.',
+    kural: 'Kalıcı engelleme ajan önerisiyle, insan onayıyla yapılır.',
   },
   ACCOUNT_DELETE: {
     ad: 'Hesap silme',
@@ -217,7 +217,8 @@ export const staffInviteSchema = z
       .email('Geçerli bir e-posta gir')
       .max(254)
       .transform((v) => v.toLowerCase()),
-    name: z.string().trim().min(2, 'En az 2 karakter').max(80),
+    /** İsteğe bağlı: verilmezse ilk Google girişinde hesaptaki ad yazılır (tasarımdaki davet: e-posta ve rol) */
+    name: z.string().trim().min(2, 'En az 2 karakter').max(80).optional(),
     role: z.enum([...INVITABLE_ROLES, 'CUSTOM']),
     customRoleId: z.uuid().optional(),
   })

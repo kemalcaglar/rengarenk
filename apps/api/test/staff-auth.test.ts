@@ -395,6 +395,22 @@ describe('çalışanlar ve izin matrisi (Karar 40)', () => {
       'Moderatör',
     );
 
+    // Tasarımdaki davet yalnızca e-posta ve rol: ad ilk Google girişinde hesaptan gelir
+    const adsiz = await staffCall(
+      app,
+      'POST',
+      '/staff/members',
+      { email: 'mert.aydin@rengarenk.com.tr', role: 'MODERATOR' },
+      owner.token,
+    );
+    expect(adsiz.status).toBe(201);
+    expect(adsiz.body.name).toBe('mert.aydin@rengarenk.com.tr');
+    const g = await googleStep(app, { email: 'mert.aydin@rengarenk.com.tr', name: 'Mert Aydın' });
+    expect(g.cb.body.name).toBe('Mert Aydın');
+    expect((await db.staffMember.findUniqueOrThrow({ where: { id: adsiz.body.id } })).name).toBe(
+      'Mert Aydın',
+    );
+
     const off = await staffCall(app, 'POST', `/staff/members/${inv.body.id}/disable`, undefined, owner.token);
     expect(off.status).toBe(200);
     expect((await staffCall(app, 'GET', '/staff/me', undefined, selin.token)).status).toBe(401);

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { tarih, yonetim } from '../../../../lib/istemci';
 
@@ -94,6 +95,12 @@ export default function AdEsleme() {
 
   return (
     <>
+      <Link
+        href="/entegrasyonlar"
+        style={{ display: 'inline-block', marginBottom: 8, fontSize: 13.5, fontWeight: 700 }}
+      >
+        ‹ Entegrasyonlar
+      </Link>
       <div style={{ marginBottom: 16 }}>
         <h1 className="k-h1">Ad eşleme</h1>
         <p className="k-sub">
@@ -108,27 +115,26 @@ export default function AdEsleme() {
         </p>
       ) : null}
       {notice ? (
-        <p className="k-note" role="status">
+        <p className="k-ok" role="status">
           {notice}
         </p>
       ) : null}
 
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-        <div role="tablist" aria-label="Durum" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        <fieldset className="k-chips" style={{ margin: 0 }}>
+          <legend className="sr-only">Durum</legend>
           {TABS.map((t) => (
             <button
               key={t.key}
               type="button"
-              role="tab"
-              aria-selected={tab === t.key}
-              className={tab === t.key ? 'k-btn' : 'k-btn-line'}
-              style={{ fontSize: 14, padding: '8px 14px' }}
+              className="k-chip"
+              aria-pressed={tab === t.key}
               onClick={() => setTab(t.key)}
             >
               {t.ad}
             </button>
           ))}
-        </div>
+        </fieldset>
         <input
           aria-label="Ara"
           placeholder="Marka ya da seri ara"
@@ -137,10 +143,10 @@ export default function AdEsleme() {
           style={{
             flex: '1 1 200px',
             border: '1px solid #D5DAE5',
-            borderRadius: 10,
-            padding: 10,
-            font: 'inherit',
-            fontSize: 14,
+            borderRadius: 999,
+            padding: '8px 14px',
+            fontFamily: 'inherit',
+            fontSize: 13.5,
           }}
         />
         {tab === 'onerildi' ? (
@@ -202,6 +208,19 @@ export default function AdEsleme() {
                 <span style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   <button
                     type="button"
+                    className="k-btn-line"
+                    disabled={busy !== null}
+                    onClick={() =>
+                      act(r.id, async () => {
+                        await yonetim(`catalog/aliases/${r.id}/reject`, { method: 'POST', body: {} });
+                        return `${r.fromName} ayrı seri olarak kalacak.`;
+                      })
+                    }
+                  >
+                    Ayrı kalsın
+                  </button>
+                  <button
+                    type="button"
                     className="k-btn-ok"
                     disabled={busy !== null}
                     onClick={() =>
@@ -215,19 +234,6 @@ export default function AdEsleme() {
                     }
                   >
                     {busy === r.id ? 'İşleniyor…' : 'Onayla'}
-                  </button>
-                  <button
-                    type="button"
-                    className="k-btn-line"
-                    disabled={busy !== null}
-                    onClick={() =>
-                      act(r.id, async () => {
-                        await yonetim(`catalog/aliases/${r.id}/reject`, { method: 'POST', body: {} });
-                        return `${r.fromName} ayrı seri olarak kalacak.`;
-                      })
-                    }
-                  >
-                    Ayrı kalsın
                   </button>
                 </span>
               ) : (

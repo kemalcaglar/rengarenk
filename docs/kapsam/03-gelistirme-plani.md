@@ -137,3 +137,28 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] İçe aktarma tek veritabanı işleminde (katalog, kayıt, işlem kaydı, olay) ve kaynak başına kilitli
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
+
+## Tasarım uyum geçişi (8 Kasım 2026, Sprint 7 öncesi)
+
+Sahip isteği: yapılmış her ekran `docs/tasarim/*.dc.html`, kapsam dokümanındaki (PDF) ekran görüntüleri ve tasarım
+tuvaliyle karşılaştırıldı; eksik ve farklı olan her şey düzeltildi.
+
+- [x] Web: ana sayfa (kategori yanındaki renkli noktalar, Vasıta ve Yakında grupları, karşılama ve üç adım), giriş
+  (telefon, dört rıza kutusu, kod adımında geri sayım ve "Numarayı değiştir", ad soyad adımı), üst ve alt bilgi, çerez
+  bandı, yasal metin sayfaları, bulunamadı sayfası. Rıza kayıtları ve sürümlü yasal metinler (Karar 29, 46, 59)
+- [x] Mobil: Plus Jakarta Sans, alt sekme çubuğu, ana sayfa, menü ve kategoriler çekmecesi, giriş, Hesabım, Taleplerim,
+  Mesajlar, Bildirimler, boş durumlar
+- [x] Konsol: menüde tasarımdaki 8 grup (yapılmamış ekranlar "yakında" ile pasif), Onay kuyruğu (tek liste, türe göre
+  onay düğmesi, göreli zaman, karar sonrası yalnızca sonuç), Çalışanlar ("Bu hafta" sütunu, durum rozetleri, davet
+  yalnızca e-posta ve rolle; ad ilk Google girişinde hesaptan gelir), İşlem kaydı (Bugün/Dün saatleri, okunur
+  değişim özeti, kişi ve işlem adıyla arama), Özellik anahtarları ve bakım (kapalıyken "Kapalı", duyuru metni yalnızca
+  bakım açıkken), Entegrasyonlar (tasarımdaki 15 kart; katalog, ad eşleme ve nesil fotoğrafları buraya taşındı)
+- Sahip kararları (8 Kasım 2026): web'de zorunlu rıza kutuları boş başlar, mobilde edilgen cümle; katalog sayfaları
+  Sistem › Entegrasyonlar kartlarında; ad eşleme onaylı kalır (Karar 33); konsol menüsünde bütün gruplar görünür,
+  yapılmamışlar pasif
+- Tasarımda olup ilgili modülü gelince eklenecekler: ana sayfada vitrin, son talepler ve galeri ana sayfası; girişli web
+  üst bilgisi; mobil sihirbazın 2. adımdan sonrası ve "Kaydet"; arama kutularının çalışması; Hesabım sayıları;
+  Çalışanlar'da Rengarenk Ajanı satırı ve ajan performansı; İşlem kaydında tarayıcı ve şehir (şimdilik IP)
+- Tasarımda olmayıp bilerek eklenenler: alt bilgide "Veri kaynakları" ve VehiclesDB atfı (lisans şartı), çıkış
+  bağlantısı, Onay kuyruğunda kendi isteğini "Geri çek", Çalışanlar'da rol seçimi, "Daveti yenile", "2 adımı sıfırla",
+  Sistem'de çalışanların kullanıcı hesapları listesi ("Yalnızca çalışanlar" kapsamı için)

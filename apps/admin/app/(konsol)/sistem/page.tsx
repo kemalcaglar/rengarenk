@@ -32,8 +32,9 @@ interface Tester {
 
 const PLATFORM_NAMES: Record<FlagPlatform, string> = { WEB: 'Web', IOS: 'iOS', ANDROID: 'Android' };
 
-/** "Web · %50 · Kurumsal hesaplar" gibi kapsam özeti (tasarımdaki sağ sütun). */
+/** "Web · %50 · Kurumsal galeriler" gibi kapsam özeti (tasarımdaki sağ sütun); kapalıysa "Kapalı". */
 function scope(f: Flag) {
+  if (!f.enabled) return 'Kapalı';
   const parts = [
     f.platforms.length === 0 || f.platforms.length === 3
       ? null
@@ -144,6 +145,7 @@ export default function Sistem() {
                 <button
                   type="button"
                   className="k-link"
+                  title="Kapsamı değiştir"
                   style={{
                     flex: '1 1 200px',
                     minWidth: 0,
@@ -152,9 +154,10 @@ export default function Sistem() {
                     color: '#3A4052',
                   }}
                   aria-expanded={open === f.key}
+                  aria-label={`${f.ad} kapsamı: ${scope(f)}. Değiştir`}
                   onClick={() => setOpen(open === f.key ? null : f.key)}
                 >
-                  {scope(f)} <span style={{ color: '#2450C8' }}>· kapsamı değiştir</span>
+                  {scope(f)}
                 </button>
                 <Switch
                   on={f.enabled}
@@ -245,49 +248,6 @@ export default function Sistem() {
         )}
       </section>
 
-      <section className="k-panel" style={{ marginTop: 16 }} aria-labelledby="deneme">
-        <div style={{ padding: '16px 18px', borderBottom: '1px solid #EEF0F5' }}>
-          <h2 id="deneme" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
-            Deneme kullanıcıları
-          </h2>
-          <p style={{ margin: '3px 0 0', fontSize: 12.5, color: '#5A6073' }}>
-            Kitlesi "Yalnızca deneme kullanıcıları" olan özellikler yalnızca bu kişilere açılır. Çalışanların
-            kendi kullanıcı hesaplarını ekle; kişinin uygulamaya bir kez giriş yapmış olması gerekir.
-          </p>
-        </div>
-        {testers.map((t) => (
-          <div key={t.userId} className="k-row" style={{ borderTop: 0, borderBottom: '1px solid #EEF0F5' }}>
-            <span style={{ flex: '999 1 200px', fontWeight: 700 }}>{t.name ?? 'Adsız kullanıcı'}</span>
-            <span style={{ flex: '1 1 160px', fontSize: 13, color: '#3A4052' }}>{t.phone}</span>
-            <button
-              className="k-btn-danger"
-              type="button"
-              disabled={busy}
-              onClick={() => run(() => yonetim(`flags/testers/${t.userId}`, { method: 'DELETE' }))}
-            >
-              Çıkar
-            </button>
-          </div>
-        ))}
-        <form
-          onSubmit={addTester}
-          style={{ display: 'flex', flexWrap: 'wrap', gap: 10, padding: '12px 18px', alignItems: 'flex-end' }}
-        >
-          <label className="k-field" style={{ flex: '1 1 220px' }}>
-            Cep telefonu
-            <input
-              inputMode="tel"
-              placeholder="0532 123 45 67"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </label>
-          <button className="k-btn-line" type="submit" disabled={busy || phone.trim().length < 10}>
-            Listeye ekle
-          </button>
-        </form>
-      </section>
-
       <section className="k-panel" style={{ marginTop: 16 }} aria-labelledby="bakim">
         <div style={{ padding: '16px 18px', borderBottom: '1px solid #EEF0F5' }}>
           <h2 id="bakim" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
@@ -343,28 +303,72 @@ export default function Sistem() {
                   }}
                 />
               </div>
-              <label className="k-field" style={{ display: 'block', marginTop: 8 }}>
-                <span className="sr-only">{b.ad} duyuru metni</span>
-                <input
-                  placeholder="Duyuru metni (boşsa: Rengarenk kısa bir bakımda. Birazdan yeniden deneyebilirsin.)"
-                  value={notes[area] ?? ''}
-                  maxLength={200}
-                  onChange={(e) => setNotes({ ...notes, [area]: e.target.value })}
-                  onBlur={() => {
-                    if (b.enabled && (notes[area] ?? '') !== (b.note ?? ''))
-                      run(() =>
-                        yonetim(`flags/bakim/${area}`, {
-                          method: 'PUT',
-                          body: { enabled: true, note: notes[area] ?? '' },
-                        }),
-                      );
-                  }}
-                  style={{ fontSize: 13.5, padding: 9 }}
-                />
-              </label>
+              {b.enabled ? (
+                <label className="k-field" style={{ display: 'block', marginTop: 8 }}>
+                  <span className="sr-only">{b.ad} duyuru metni</span>
+                  <input
+                    placeholder="Duyuru metni: Rengarenk kısa bir bakımda. Birazdan yeniden deneyebilirsin."
+                    value={notes[area] ?? ''}
+                    maxLength={200}
+                    onChange={(e) => setNotes({ ...notes, [area]: e.target.value })}
+                    onBlur={() => {
+                      if (b.enabled && (notes[area] ?? '') !== (b.note ?? ''))
+                        run(() =>
+                          yonetim(`flags/bakim/${area}`, {
+                            method: 'PUT',
+                            body: { enabled: true, note: notes[area] ?? '' },
+                          }),
+                        );
+                    }}
+                    style={{ fontSize: 13.5, padding: 9 }}
+                  />
+                </label>
+              ) : null}
             </div>
           );
         })}
+      </section>
+      <section className="k-panel" style={{ marginTop: 16 }} aria-labelledby="deneme">
+        <div style={{ padding: '16px 18px', borderBottom: '1px solid #EEF0F5' }}>
+          <h2 id="deneme" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+            Çalışanların kullanıcı hesapları
+          </h2>
+          <p style={{ margin: '3px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+            Kapsamı "Yalnızca çalışanlar" olan özellikler bu hesaplara açılır. Çalışanın uygulamaya kendi
+            telefonuyla bir kez giriş yapmış olması gerekir.
+          </p>
+        </div>
+        {testers.map((t) => (
+          <div key={t.userId} className="k-row" style={{ borderTop: 0, borderBottom: '1px solid #EEF0F5' }}>
+            <span style={{ flex: '999 1 200px', fontWeight: 700 }}>{t.name ?? 'Adsız kullanıcı'}</span>
+            <span style={{ flex: '1 1 160px', fontSize: 13, color: '#3A4052' }}>{t.phone}</span>
+            <button
+              className="k-btn-danger"
+              type="button"
+              disabled={busy}
+              onClick={() => run(() => yonetim(`flags/testers/${t.userId}`, { method: 'DELETE' }))}
+            >
+              Çıkar
+            </button>
+          </div>
+        ))}
+        <form
+          onSubmit={addTester}
+          style={{ display: 'flex', flexWrap: 'wrap', gap: 10, padding: '12px 18px', alignItems: 'flex-end' }}
+        >
+          <label className="k-field" style={{ flex: '1 1 220px' }}>
+            Cep telefonu
+            <input
+              inputMode="tel"
+              placeholder="0532 123 45 67"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </label>
+          <button className="k-btn-line" type="submit" disabled={busy || phone.trim().length < 10}>
+            Listeye ekle
+          </button>
+        </form>
       </section>
     </>
   );

@@ -22,6 +22,14 @@ a {
   color: var(--link);
   text-decoration: none;
 }
+/* Tasarımdaki bağlantı davranışı (Yonetim*.dc.html ortak stili) */
+a:hover {
+  color: #1a3c99;
+  text-decoration: underline;
+}
+.k-nav a:hover {
+  text-decoration: none;
+}
 .bar {
   background: #fff;
   border-bottom: 1px solid var(--line);
@@ -390,6 +398,16 @@ a {
   padding: 10px 14px;
   font-size: 14px;
   font-weight: 600;
+}
+.k-ok {
+  /* Başarı bildirimi (tasarım: YonetimSistem, ana alanın üstü) */
+  background: #e7faf0;
+  color: #11683f;
+  border: 1px solid #b9ebd1;
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-size: 13.5px;
+  font-weight: 700;
 }
 .k-empty {
   padding: 28px 18px;

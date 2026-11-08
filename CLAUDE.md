@@ -122,6 +122,11 @@ pnpm format        # Biome ile biçimlendir
 - **Sprint 6 ikinci bölüm (8 Kasım 2026):** VehiclesDB kaynağı ve Veri kaynakları sayfası (web, mobil), nesil
   fotoğrafları (`catalog_images`, `catalog-image.service.ts`, depolama `apps/api/src/storage/`, konsolda Katalog ›
   Nesil fotoğrafları). İçe aktarma tek işlem ve kaynak başına kilitli. API'de 79, katalogda 36 test.
+- **Tasarım uyum geçişi (8 Kasım 2026):** web, mobil ve konsoldaki her ekran tasarım dosyaları, PDF görselleri ve
+  tasarım tuvaliyle eşitlendi (liste: `docs/kapsam/03-gelistirme-plani.md` sonu). Sahip "eksik ya da farklı bir şey
+  olmasın" dedi: yeni ekranda `.dc.html` ile birlikte PDF'deki görüntüye de bak, renk noktaları gibi ayrıntıları atlama.
+  Katalog sayfaları konsolda Sistem › Entegrasyonlar altında (`/entegrasyonlar/katalog`, `/ad-esleme`, `/fotograflar`).
+  Konsol ekran görüntüsü için oturum: yerelde sahibe geçici `staff_sessions` satırı + `rr_yonetim` çerezi, işten sonra iptal.
 - **EEA bekliyor (sahip kararı, 8 Kasım 2026: EEA'dan erişim istenecek):** Discodata ağ geçidi sütun seçen,
   toplulaştıran ve birden çok koşullu sorguları 403 ile reddediyor; ayrı toplu dosya yok. Engeli dolanmaya
   çalışma. Erişim biçimi (toplu dosya ya da sorgu izni) gelince hat yazılacak.

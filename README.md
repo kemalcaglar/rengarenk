@@ -121,7 +121,7 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 ## Özellik anahtarları ve bakım (Sprint 4)
 
 - Anahtarlar `packages/shared/src/flags.ts` içinde tanımlı; konsolda Sistem › Özellik anahtarları ve bakım'dan
-  açılır. Kapsam: kitle (herkes, kurumsal, deneme kullanıcıları), yüzde, platform. Yeni özellik yazarken API'de
+  açılır. Kapsam: kitle (herkes, kurumsal galeriler, yalnızca çalışanlar), yüzde, platform. Yeni özellik yazarken API'de
   `FeatureFlagService.isOn('anahtar', { userId, platform })`, istemcide `GET /flags` kullanılır.
 - Bakım: tüm site (API kullanıcı uçları 503), ödemeler, mesajlaşma, talep. Bir modül yazma işleminden önce
   `assertAvailable('odeme')` çağırır. Web ve mobilde duyuru üst şeritte çıkar.
@@ -130,7 +130,7 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 
 - `packages/catalog`: veritabanına dokunmayan hat (Excel okuyucu, TSB ayrıştırıcı, kalite kontrolü, imzalı paket).
   GCP gelince Cloud Run'a taşınacak; şimdilik API ve işçide çalışır.
-- TSB dosyası: konsol › Katalog › Katalog kaynakları'ndan yükleme ya da otomatik çekme (6 saatte bir, konsoldan açılır).
+- TSB dosyası: konsol › Sistem › Entegrasyonlar › TSB kartı › Katalog ayrıntıları'ndan yükleme ya da otomatik çekme (6 saatte bir, konsoldan açılır).
   Komut satırından: `pnpm --filter @rengarenk/api katalog:yukle <dosya.xlsx>` (dosya verilmezse TSB'den en son dosya).
 - Yıllar: 2006 ve sonrası TSB (güncel liste + arşiv: `katalog:yukle --arsiv`), 1985–2005 vehicle-makes-models
   (`katalog:yukle --vmm`; ODbL, avukat teyidine kadar yalnızca eski yıllar, konsoldan kapatılabilir).
@@ -146,13 +146,13 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   kuşaklarını, kodlarını ve makyaj seçeneklerini döndürür; kodsuz yıllarda TSB'nin "LCI/FL" işareti kullanılır.
   Wikidata haftada bir çekilir: `katalog:yukle --wikidata`.
 - **Ad eşleme:** aynı serinin farklı yazımları (TSB "Touraeg", vehicle-makes-models "Focus CC") kurala göre önerilir;
-  konsol › Katalog › Ad eşleme'den onaylanınca tipler hedef seriye taşınır. Önerileri yeniden üretmek için
+  konsol › Sistem › Entegrasyonlar › Açık veri setleri › Ad eşleme'den onaylanınca tipler hedef seriye taşınır. Önerileri yeniden üretmek için
   `katalog:yukle --oneri`. Kayıtlar silinmez.
 - TSB ayrıştırıcısının sürümü var (`TSB_PARSER`); kurallar değişince sürümü artır, aynı dosya yeniden işlenir.
 - **VehiclesDB** (CC BY 4.0): motosiklet, moped, kamyon, otobüs, van (`katalog:yukle --vehiclesdb`). Atıf zorunlu:
   sitede `/veri-kaynaklari` ve alt bilgideki bağlantı, mobilde Hesabım › Veri kaynakları. Atıf metni
   `GET /catalog/attributions`.
-- **Nesil fotoğrafları** (Karar 34): `katalog:yukle --commons` Commons'tan aday toplar; seçim konsol › Katalog ›
+- **Nesil fotoğrafları** (Karar 34): `katalog:yukle --commons` Commons'tan aday toplar; seçim konsol › Sistem › Entegrasyonlar ›
   Nesil fotoğrafları. Seçilen dosya SeaweedFS'e (`S3_*` ayarları) kopyalanır, `GET /catalog/images/:id` ile sunulur;
   atfı seri ayrıntısında `photo.caption`.
 

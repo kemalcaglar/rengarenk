@@ -96,6 +96,10 @@ export class StaffMeController {
         .filter(([, p]) => (p.approvers as string[]).includes(staff.role))
         .map(([k]) => k),
       pendingApprovals: await this.approvals.pendingCount(req.staff),
+      /** Menüde Entegrasyonlar rozeti: son denemesi hata veren etkin kaynaklar (tasarım: "1 uyarı") */
+      integrationWarnings: await this.db.catalogSource.count({
+        where: { active: true, lastError: { not: null } },
+      }),
       idleMinutes: STAFF_IDLE_MINUTES,
     };
   }

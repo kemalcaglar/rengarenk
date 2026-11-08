@@ -1,12 +1,15 @@
 'use client';
 
+import { AUDIT_ACTIONS } from '@rengarenk/shared';
 import { useCallback, useEffect, useState } from 'react';
-import { tarih, yonetim } from '../../../lib/istemci';
+import { gunSaat, yonetim } from '../../../lib/istemci';
+import { useKonsol } from '../kabuk';
 
 interface Entry {
   id: string;
   createdAt: string;
   actorType: string;
+  actorId: string | null;
   actorName: string;
   action: string;
   entityType: string;
@@ -24,43 +27,32 @@ const FILTERS = [
   ['yetki', 'Yetki ve ayar'],
 ] as const;
 
-/** İşlem adlarının okunur karşılığı; listede olmayan ad olduğu gibi gösterilir. */
-const ACTIONS: Record<string, string> = {
-  giris: 'Kullanıcı girişi',
-  profil_guncelle: 'Profil güncellendi',
-  oturum_kapat: 'Oturum kapatıldı',
-  yonetim_giris: 'Yönetim girişi',
-  yonetim_cikis: 'Yönetimden çıkış',
-  yonetim_giris_reddedildi: 'Yönetim girişi reddedildi',
-  yonetim_kod_hatali: 'Hatalı doğrulama kodu',
-  calisan_davet: 'Çalışan davet edildi',
-  calisan_davet_yenilendi: 'Davet yenilendi',
-  calisan_rol_degisti: 'Çalışan rolü değişti',
-  calisan_kapatildi: 'Çalışan hesabı kapatıldı',
-  calisan_2fa_sifirlandi: 'İki adımlı doğrulama sıfırlandı',
-  sahip_hesabi_acildi: 'Sahip hesabı açıldı',
-  ozel_rol_olustur: 'Özel rol oluşturuldu',
-  ozel_rol_degisti: 'Özel rol değişti',
-  onay_istendi: 'Onay istendi',
-  onay_onaylandi: 'Onaylandı',
-  onay_reddedildi: 'Reddedildi',
-  onay_geri_cekildi: 'İstek geri çekildi',
-  onay_suresi_doldu: 'Onay isteğinin süresi doldu',
-  onay_yurutuldu: 'Onaylanan işlem yürütüldü',
-};
+const yaz = (x: unknown) =>
+  x === null || x === undefined ? '—' : typeof x === 'object' ? JSON.stringify(x) : String(x);
 
-const summary = (v: unknown) => {
-  if (v === null || v === undefined) return '';
-  if (Array.isArray(v)) return v.join(', ');
-  if (typeof v === 'object')
-    return Object.entries(v as Record<string, unknown>)
-      .map(([k, x]) => `${k}: ${typeof x === 'object' ? JSON.stringify(x) : String(x)}`)
-      .join(' · ');
-  return String(v);
-};
+/** Değişimin okunur özeti: "durum: başvuru → aktif · rol: Destek"; değer yoksa kaydın kendisi. */
+function degisim(k: Entry) {
+  // Dizi değerleri (ör. değişen alan adları) olduğu gibi sıralanır
+  if (Array.isArray(k.after) || Array.isArray(k.before)) {
+    const list = (Array.isArray(k.after) ? k.after : k.before) as unknown[];
+    return list.map(yaz).join(', ') || `${k.entityType} · ${k.entityId}`;
+  }
+  const once = (k.before && typeof k.before === 'object' ? k.before : {}) as Record<string, unknown>;
+  const sonra = (k.after && typeof k.after === 'object' ? k.after : {}) as Record<string, unknown>;
+  const keys = [...new Set([...Object.keys(once), ...Object.keys(sonra)])];
+  const parts = keys.map((key) =>
+    key in once && key in sonra
+      ? `${key}: ${yaz(once[key])} → ${yaz(sonra[key])}`
+      : key in sonra
+        ? `${key}: ${yaz(sonra[key])}`
+        : `${key}: ${yaz(once[key])} → —`,
+  );
+  return parts.length ? parts.join(' · ') : `${k.entityType} · ${k.entityId}`;
+}
 
 /** İşlem kaydı (tasarım: YonetimEkip › İşlem kaydı). Kayıtlar silinemez ve 2 yıl saklanır. */
 export default function IslemKaydi() {
+  const { me } = useKonsol();
   const [filter, setFilter] = useState<(typeof FILTERS)[number][0]>('hepsi');
   const [q, setQ] = useState('');
   const [query, setQuery] = useState('');
@@ -116,15 +108,15 @@ export default function IslemKaydi() {
           type="search"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="İşlem adı, kişi ya da kayıt kimliği"
+          placeholder="Kişi, kullanıcı veya işlem ara"
           style={{
             flex: '1 1 240px',
             minWidth: 0,
             border: '1px solid #D5DAE5',
             borderRadius: 999,
             padding: '8px 14px',
+            fontFamily: 'inherit',
             fontSize: 13.5,
-            font: 'inherit',
           }}
         />
       </form>
@@ -142,15 +134,26 @@ export default function IslemKaydi() {
           items.map((k) => (
             <div
               key={k.id}
-              className="k-row"
-              style={{ fontSize: 13.5, alignItems: 'flex-start', gap: '6px 16px' }}
+              title={`${k.entityType} · ${k.entityId}`}
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '6px 16px',
+                padding: '12px 18px',
+                borderBottom: '1px solid #EEF0F5',
+                fontSize: 13.5,
+              }}
             >
-              <span style={{ flex: '0 0 130px', color: '#5A6073', fontWeight: 600 }}>
-                {tarih(k.createdAt)}
+              <span style={{ flex: '0 0 96px', color: '#5A6073', fontWeight: 600 }}>
+                {gunSaat(k.createdAt)}
               </span>
-              <span style={{ flex: '0 0 150px', fontWeight: 800 }}>{k.actorName}</span>
+              <span style={{ flex: '0 0 150px', fontWeight: 800 }}>
+                {k.actorId === me.id ? 'Sen' : k.actorName}
+              </span>
               <span style={{ flex: '999 1 300px', minWidth: 0 }}>
-                <span style={{ display: 'block', fontWeight: 700 }}>{ACTIONS[k.action] ?? k.action}</span>
+                <span style={{ display: 'block', fontWeight: 700 }}>
+                  {AUDIT_ACTIONS[k.action] ?? k.action}
+                </span>
                 <span
                   style={{
                     display: 'block',
@@ -160,12 +163,12 @@ export default function IslemKaydi() {
                     overflowWrap: 'anywhere',
                   }}
                 >
-                  {k.entityType} · {k.entityId}
-                  {k.before ? ` · önce: ${summary(k.before)}` : ''}
-                  {k.after ? ` · sonra: ${summary(k.after)}` : ''}
+                  {degisim(k)}
                 </span>
               </span>
-              <span style={{ flex: '0 0 120px', fontSize: 12.5, color: '#5A6073' }}>{k.ip ?? 'Sistem'}</span>
+              <span style={{ flex: '0 0 150px', fontSize: 12.5, color: '#5A6073' }}>
+                {k.actorType === 'SYSTEM' || k.actorType === 'AGENT' || !k.ip ? 'Sistem' : k.ip}
+              </span>
             </div>
           ))
         )}

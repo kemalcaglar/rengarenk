@@ -1,6 +1,6 @@
 import { Controller, Get, Inject, Query, Req, UseGuards } from '@nestjs/common';
 import type { Prisma } from '@rengarenk/db';
-import { maskIp } from '@rengarenk/shared';
+import { auditActionsMatching, maskIp } from '@rengarenk/shared';
 import { z } from 'zod';
 import { ZodPipe } from '../common/zod.pipe.js';
 import { type Db, PRISMA } from '../database/prisma.js';
@@ -37,10 +37,27 @@ export class StaffAuditController {
   @RequirePermission('islem_kaydi.gor')
   async list(@Req() req: StaffRequest, @Query(new ZodPipe(querySchema)) query: z.output<typeof querySchema>) {
     const q = query.q;
+    // Kişi adıyla, işlemin okunur adıyla, işlem koduyla ya da kayıt kimliğiyle aranır
+    const people = q
+      ? await this.db.staffMember.findMany({
+          where: { name: { contains: q, mode: 'insensitive' } },
+          select: { id: true },
+          take: 50,
+        })
+      : [];
     const where: Prisma.AuditLogWhereInput = {
       ...FILTERS[query.filtre],
       ...(query.once ? { id: { lt: BigInt(query.once) } } : {}),
-      ...(q ? { OR: [{ action: { contains: q } }, { entityId: q }, { actorId: q }] } : {}),
+      ...(q
+        ? {
+            OR: [
+              { action: { contains: q } },
+              { action: { in: auditActionsMatching(q) } },
+              { entityId: q },
+              { actorId: { in: [q, ...people.map((p) => p.id)] } },
+            ],
+          }
+        : {}),
     };
     const rows = await this.db.auditLog.findMany({ where, orderBy: { id: 'desc' }, take: PAGE });
 

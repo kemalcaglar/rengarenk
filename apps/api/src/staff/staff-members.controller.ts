@@ -54,12 +54,34 @@ export class StaffMembersController {
 
   @Get()
   @RequirePermission('ekip.yonet')
-  list() {
-    return this.db.staffMember.findMany({
-      where: { role: { not: 'AGENT' } },
-      orderBy: [{ status: 'asc' }, { createdAt: 'asc' }],
-      select,
-    });
+  async list() {
+    const since = new Date(Date.now() - 7 * 86_400_000);
+    const [rows, decided, actions] = await Promise.all([
+      this.db.staffMember.findMany({
+        where: { role: { not: 'AGENT' } },
+        orderBy: [{ status: 'asc' }, { createdAt: 'asc' }],
+        select,
+      }),
+      this.db.approval.groupBy({
+        by: ['decidedBy'],
+        where: { decidedAt: { gte: since }, status: { in: ['APPROVED', 'REJECTED'] } },
+        _count: { _all: true },
+      }),
+      this.db.auditLog.groupBy({
+        by: ['actorId'],
+        where: {
+          actorType: 'STAFF',
+          createdAt: { gte: since },
+          // giriş, çıkış ve hatalı kod işlem sayılmaz
+          NOT: { action: { startsWith: 'yonetim_' } },
+        },
+        _count: { _all: true },
+      }),
+    ]);
+    // Tasarımdaki "Bu hafta" sütunu: son 7 günde verilen onay kararı ve işlem kaydına giren işlem sayısı
+    const onay = new Map(decided.map((d) => [d.decidedBy, d._count._all]));
+    const islem = new Map(actions.map((a) => [a.actorId, a._count._all]));
+    return rows.map((m) => ({ ...m, week: { onay: onay.get(m.id) ?? 0, islem: islem.get(m.id) ?? 0 } }));
   }
 
   @Post()
@@ -81,7 +103,8 @@ export class StaffMembersController {
         data: {
           id: uuidv7(),
           email: body.email,
-          name: body.name,
+          // Ad verilmediyse geçici olarak e-posta; ilk Google girişinde hesaptaki adla değişir
+          name: body.name ?? body.email,
           role: body.role,
           customRoleId: body.customRoleId ?? null,
           status: 'INVITED',

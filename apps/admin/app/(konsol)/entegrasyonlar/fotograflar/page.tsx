@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { yonetim } from '../../../../lib/istemci';
 
@@ -66,6 +67,12 @@ export default function Fotograflar() {
 
   return (
     <>
+      <Link
+        href="/entegrasyonlar"
+        style={{ display: 'inline-block', marginBottom: 8, fontSize: 13.5, fontWeight: 700 }}
+      >
+        ‹ Entegrasyonlar
+      </Link>
       <div style={{ marginBottom: 16 }}>
         <h1 className="k-h1">Nesil fotoğrafları</h1>
         <p className="k-sub">
@@ -80,13 +87,14 @@ export default function Fotograflar() {
         </p>
       ) : null}
       {notice ? (
-        <p className="k-note" role="status">
+        <p className="k-ok" role="status">
           {notice}
         </p>
       ) : null}
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
-        <div role="tablist" aria-label="Durum" style={{ display: 'flex', gap: 8 }}>
+        <fieldset className="k-chips" style={{ margin: 0 }}>
+          <legend className="sr-only">Durum</legend>
           {(
             [
               ['bekleyen', 'Seçim bekleyen'],
@@ -96,16 +104,14 @@ export default function Fotograflar() {
             <button
               key={key}
               type="button"
-              role="tab"
-              aria-selected={tab === key}
-              className={tab === key ? 'k-btn' : 'k-btn-line'}
-              style={{ fontSize: 14, padding: '8px 14px' }}
+              className="k-chip"
+              aria-pressed={tab === key}
               onClick={() => setTab(key)}
             >
               {ad}
             </button>
           ))}
-        </div>
+        </fieldset>
         <button
           type="button"
           className="k-btn-line"
@@ -165,7 +171,7 @@ export default function Fotograflar() {
                   key={i.id}
                   style={{
                     margin: 0,
-                    border: i.status === 'secildi' ? '2px solid #11683F' : '1px solid #EEF0F5',
+                    border: i.status === 'secildi' ? '1.5px solid #5B8CFF' : '1px solid #E3E6EF',
                     borderRadius: 12,
                     overflow: 'hidden',
                     background: '#fff',
@@ -198,21 +204,6 @@ export default function Fotograflar() {
                       <span style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
                         <button
                           type="button"
-                          className="k-btn-ok"
-                          style={{ fontSize: 13, padding: '6px 10px' }}
-                          disabled={busy !== null}
-                          onClick={() =>
-                            act(i.id, async () => {
-                              await yonetim(`catalog/images/${i.id}/select`, { method: 'POST', body: {} });
-                              setRows((rs) => rs?.filter((x) => x.id !== g.id) ?? null);
-                              return `${title(g)} için fotoğraf seçildi ve depoya alındı.`;
-                            })
-                          }
-                        >
-                          {busy === i.id ? 'Alınıyor…' : 'Bunu seç'}
-                        </button>
-                        <button
-                          type="button"
                           className="k-btn-line"
                           style={{ fontSize: 13, padding: '6px 10px' }}
                           disabled={busy !== null}
@@ -232,6 +223,21 @@ export default function Fotograflar() {
                           }
                         >
                           Ele
+                        </button>
+                        <button
+                          type="button"
+                          className="k-btn-ok"
+                          style={{ fontSize: 13, padding: '6px 10px' }}
+                          disabled={busy !== null}
+                          onClick={() =>
+                            act(i.id, async () => {
+                              await yonetim(`catalog/images/${i.id}/select`, { method: 'POST', body: {} });
+                              setRows((rs) => rs?.filter((x) => x.id !== g.id) ?? null);
+                              return `${title(g)} için fotoğraf seçildi ve depoya alındı.`;
+                            })
+                          }
+                        >
+                          {busy === i.id ? 'Alınıyor…' : 'Bunu seç'}
                         </button>
                       </span>
                     )}

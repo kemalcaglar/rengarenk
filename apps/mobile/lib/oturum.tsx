@@ -104,7 +104,8 @@ export function useOturum(): Oturum {
 export const basHarf = (ad?: string | null) =>
   (ad ?? '')
     .split(/\s+/)
-    .filter(Boolean)
+    // yalnızca harfle başlayan sözcükler: "Sahip (geliştirme)" → "S"
+    .filter((p) => /^\p{L}/u.test(p))
     .slice(0, 2)
     .map((p) => p.charAt(0).toLocaleUpperCase('tr-TR'))
     .join('') || '?';

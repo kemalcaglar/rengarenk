@@ -56,7 +56,7 @@ describe('dört göz onay motoru (Teknik tasarım §11, Karar 40)', () => {
     const queue = await staffCall(app, 'GET', '/staff/approvals', undefined, admin.token);
     const item = queue.body.find((x: { id: string }) => x.id === a.id);
     expect(item.canDecide).toBe(true);
-    expect(item.rule).toContain('yönetici');
+    expect(item.rule).toBe('Kupon oluşturma onay ister.');
 
     const ok = await staffCall(
       app,

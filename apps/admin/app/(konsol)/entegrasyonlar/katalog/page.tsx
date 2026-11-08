@@ -1,9 +1,10 @@
 'use client';
 
 import { VEHICLE_CATEGORIES } from '@rengarenk/shared';
+import Link from 'next/link';
 import { type ChangeEvent, useCallback, useEffect, useState } from 'react';
-import { tarih, yonetim } from '../../../lib/istemci';
-import { Switch } from '../switch';
+import { tarih, yonetim } from '../../../../lib/istemci';
+import { Switch } from '../../switch';
 
 interface Source {
   key: string;
@@ -156,6 +157,12 @@ export default function Katalog() {
 
   return (
     <>
+      <Link
+        href="/entegrasyonlar"
+        style={{ display: 'inline-block', marginBottom: 8, fontSize: 13.5, fontWeight: 700 }}
+      >
+        ‹ Entegrasyonlar
+      </Link>
       <div style={{ marginBottom: 16 }}>
         <h1 className="k-h1">Katalog kaynakları</h1>
         <p className="k-sub">
@@ -169,7 +176,7 @@ export default function Katalog() {
         </p>
       ) : null}
       {notice ? (
-        <p className="k-note" role="status">
+        <p className="k-ok" role="status">
           {notice}
         </p>
       ) : null}

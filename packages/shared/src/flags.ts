@@ -37,8 +37,9 @@ export const FLAG_AUDIENCES = ['ALL', 'BUSINESS', 'TESTERS'] as const;
 export type FlagAudience = (typeof FLAG_AUDIENCES)[number];
 export const FLAG_AUDIENCE_NAMES: Record<FlagAudience, string> = {
   ALL: 'Herkes',
-  BUSINESS: 'Kurumsal hesaplar',
-  TESTERS: 'Yalnızca deneme kullanıcıları',
+  BUSINESS: 'Kurumsal galeriler',
+  /** Çalışanların kendi kullanıcı hesapları (konsoldaki liste) */
+  TESTERS: 'Yalnızca çalışanlar',
 };
 
 export const FLAG_PLATFORMS = ['WEB', 'IOS', 'ANDROID'] as const;

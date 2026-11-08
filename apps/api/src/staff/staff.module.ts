@@ -4,6 +4,7 @@ import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { createIdentityProvider, IDENTITY_PROVIDER } from './identity.js';
+import { IntegrationsController } from './integrations.controller.js';
 import { SecretBox } from './secret-box.js';
 import { StaffGuard } from './staff.guard.js';
 import { StaffApprovalsController } from './staff-approvals.controller.js';
@@ -17,6 +18,7 @@ import { StaffRolesController } from './staff-roles.controller.js';
 @Module({
   imports: [ApprovalsModule],
   controllers: [
+    IntegrationsController,
     StaffAuthController,
     StaffMeController,
     StaffMembersController,

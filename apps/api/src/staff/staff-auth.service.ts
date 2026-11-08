@@ -149,6 +149,13 @@ export class StaffAuthService {
       return reject('google_hesabi_farkli', 'Bu e-posta başka bir Google hesabına bağlı');
     }
 
+    // Davette ad verilmediyse (ad = e-posta) ilk girişte Google hesabındaki ad yazılır
+    let name = staff.name;
+    if (staff.status === 'INVITED' && staff.name === staff.email && identity.name?.trim()) {
+      name = identity.name.trim().slice(0, 80);
+      await this.db.staffMember.update({ where: { id: staff.id }, data: { name } });
+    }
+
     const ticket = randomToken(32);
     await this.db.staffLoginChallenge.update({
       where: { id: ch.id },
@@ -159,7 +166,7 @@ export class StaffAuthService {
         expiresAt: new Date(Date.now() + LOGIN_STEP_MINUTES * 60_000),
       },
     });
-    return { ticket, needsSetup: !hasTotp(staff), name: staff.name };
+    return { ticket, needsSetup: !hasTotp(staff), name };
   }
 
   /** İlk girişte doğrulama uygulaması kurulumu: sır ve karekod. Sır, ilk doğru kodla kalıcı olur. */

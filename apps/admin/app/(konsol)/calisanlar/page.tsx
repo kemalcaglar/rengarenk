@@ -1,8 +1,8 @@
 'use client';
 
-import { BUILTIN_ROLES, INVITABLE_ROLES, STAFF_INVITE_HOURS } from '@rengarenk/shared';
+import { BUILTIN_ROLES, STAFF_INVITE_HOURS } from '@rengarenk/shared';
 import { type FormEvent, useCallback, useEffect, useState } from 'react';
-import { bas, tarih, yonetim } from '../../../lib/istemci';
+import { bas, gunSaat, once, yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
 
 interface Member {
@@ -15,6 +15,7 @@ interface Member {
   inviteExpiresAt: string | null;
   lastLoginAt: string | null;
   customRole: { id: string; name: string } | null;
+  week: { onay: number; islem: number };
 }
 
 interface CustomRole {
@@ -22,9 +23,48 @@ interface CustomRole {
   name: string;
 }
 
-const AVATAR = ['#EEF3FF', '#FFE8F3', '#FFF6DF', '#E7FAF0', '#F3EFFF'];
-const roleName = (m: Member) =>
-  m.customRole?.name ?? BUILTIN_ROLES.find((r) => r.key === m.role)?.ad ?? m.role;
+/** Baş harf yuvarlakları: tasarımdaki sıra (YonetimEkip › Çalışanlar) */
+const AVATAR = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0', '#F3EFFF', '#FFF0EA'];
+/** Davet rol listesi tasarımdaki sırayla */
+const DAVET_ROLLERI = [
+  'SUPPORT',
+  'MODERATOR',
+  'OPERATIONS',
+  'MARKETING',
+  'FINANCE',
+  'VIEWER',
+  'ADMIN',
+] as const;
+const rolAdi = (k: string) => BUILTIN_ROLES.find((r) => r.key === k)?.ad ?? k;
+const roleName = (m: Member) => m.customRole?.name ?? rolAdi(m.role);
+const SIRA: Record<Member['status'], number> = { ACTIVE: 0, INVITED: 1, DISABLED: 2 };
+
+/** Son giriş tasarımdaki gibi: "Bugün 11:42", "Dün 18:20", "3 gün önce" */
+function sonGiris(iso: string | null) {
+  if (!iso) return '—';
+  const g = gunSaat(iso);
+  return g.startsWith('Bugün') || g.startsWith('Dün') ? g : once(iso);
+}
+
+/** "Bu hafta": son 7 günde verilen onay kararı ve işlem kaydına giren işlem */
+function buHafta(w: Member['week'], self: boolean) {
+  const p: string[] = [];
+  if (w.onay) p.push(`${w.onay} onay${self ? ' verdin' : ''}`);
+  if (w.islem) p.push(`${w.islem} işlem`);
+  return p.length ? p.join(', ') : '—';
+}
+
+const satirDugme = (renk: string) =>
+  ({
+    border: 0,
+    background: 'transparent',
+    padding: 0,
+    fontFamily: 'inherit',
+    fontSize: 12.5,
+    fontWeight: 700,
+    color: renk,
+    cursor: 'pointer',
+  }) as const;
 
 /** Çalışanlar (tasarım: YonetimEkip › Çalışanlar). Davet, rol değişikliği, hesap kapatma. */
 export default function Calisanlar() {
@@ -34,21 +74,27 @@ export default function Calisanlar() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [invite, setInvite] = useState(false);
-  const [form, setForm] = useState({ email: '', name: '', role: 'SUPPORT' as string });
+  const [form, setForm] = useState({ email: '', role: 'SUPPORT' as string });
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(() => {
     yonetim<Member[]>('members')
-      .then(setRows)
+      .then((r) =>
+        setRows(
+          [...r].sort(
+            (a, b) => Number(b.id === me.id) - Number(a.id === me.id) || SIRA[a.status] - SIRA[b.status],
+          ),
+        ),
+      )
       .catch((e: Error) => setError(e.message));
     yonetim<{ custom: CustomRole[] }>('roles')
       .then((r) => setCustom(r.custom))
       .catch(() => undefined);
-  }, []);
+  }, [me.id]);
   useEffect(load, [load]);
 
   const roleOptions = [
-    ...INVITABLE_ROLES.map((k) => ({ value: k, label: BUILTIN_ROLES.find((r) => r.key === k)?.ad ?? k })),
+    ...DAVET_ROLLERI.map((k) => ({ value: k as string, label: rolAdi(k) })),
     ...custom.map((c) => ({ value: `CUSTOM:${c.id}`, label: `${c.name} (özel)` })),
   ];
   const roleBody = (v: string) =>
@@ -72,13 +118,10 @@ export default function Calisanlar() {
   function submitInvite(e: FormEvent) {
     e.preventDefault();
     act(async () => {
-      await yonetim('members', {
-        method: 'POST',
-        body: { email: form.email, name: form.name, ...roleBody(form.role) },
-      });
+      await yonetim('members', { method: 'POST', body: { email: form.email, ...roleBody(form.role) } });
       setInvite(false);
-      setForm({ email: '', name: '', role: 'SUPPORT' });
-    }, 'Davet oluşturuldu. Çalışan şirket Google hesabıyla girip doğrulama uygulamasını kurduğunda hesabı açılır.');
+      setForm({ email: '', role: 'SUPPORT' });
+    }, 'Davet gönderildi. Çalışan şirket Google hesabıyla girip doğrulama uygulamasını kurduğunda hesabı açılır.');
   }
 
   return (
@@ -96,12 +139,17 @@ export default function Calisanlar() {
       {invite ? (
         <form
           onSubmit={submitInvite}
-          className="k-panel"
-          style={{ border: '1.5px solid #5B8CFF', padding: 18, marginBottom: 16, overflow: 'visible' }}
           aria-label="Davet"
+          style={{
+            background: '#FFFFFF',
+            border: '1.5px solid #5B8CFF',
+            borderRadius: 18,
+            padding: 18,
+            marginBottom: 16,
+          }}
         >
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 12 }}>
-            <label className="k-field" style={{ flex: '2 1 240px' }}>
+            <label className="k-field" style={{ flex: '2 1 260px' }}>
               Şirket e-postası
               <input
                 type="email"
@@ -109,15 +157,6 @@ export default function Calisanlar() {
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 placeholder="ad.soyad@rengarenk.com.tr"
-              />
-            </label>
-            <label className="k-field" style={{ flex: '2 1 200px' }}>
-              Ad soyad
-              <input
-                required
-                minLength={2}
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
               />
             </label>
             <label className="k-field" style={{ flex: '1 1 180px' }}>
@@ -147,7 +186,7 @@ export default function Calisanlar() {
         </p>
       ) : null}
       {notice ? (
-        <p className="k-note" role="status">
+        <p className="k-ok" role="status">
           {notice}
         </p>
       ) : null}
@@ -155,24 +194,29 @@ export default function Calisanlar() {
       <div className="k-panel">
         <div className="k-thead">
           <span style={{ flex: '999 1 220px' }}>Çalışan</span>
-          <span style={{ flex: '1 1 150px' }}>Rol</span>
-          <span style={{ flex: '1 1 140px' }}>Son giriş</span>
-          <span style={{ flex: '1 1 220px' }}>Durum</span>
+          <span style={{ flex: '1 1 110px' }}>Rol</span>
+          <span style={{ flex: '1 1 120px' }}>Son giriş</span>
+          <span style={{ flex: '1 1 180px' }}>Bu hafta</span>
+          <span style={{ flex: '1 1 140px' }}>Durum</span>
         </div>
         {rows === null ? (
           <div className="k-empty">Yükleniyor…</div>
         ) : (
           rows.map((m, i) => {
             const self = m.id === me.id;
+            const davetli = m.status === 'INVITED';
             const editable = !self && m.role !== 'OWNER' && m.status !== 'DISABLED';
-            const invitedExpired =
-              m.status === 'INVITED' && m.inviteExpiresAt && new Date(m.inviteExpiresAt) < new Date();
+            const kalanSaat = m.inviteExpiresAt
+              ? Math.ceil((new Date(m.inviteExpiresAt).getTime() - Date.now()) / 3600_000)
+              : 0;
             const [durum, bg, fg] =
               m.status === 'DISABLED'
-                ? ['Kapalı', '#F3F5FA', '#5A6073']
-                : m.status === 'INVITED'
-                  ? [invitedExpired ? 'Davet süresi doldu' : 'Davet edildi', '#FFF6DF', '#7A5300']
-                  : ['Aktif', '#E7FAF0', '#11683F'];
+                ? ['Kapatıldı', '#F3F5FA', '#5A6073']
+                : davetli
+                  ? [kalanSaat > 0 ? 'Davet bekliyor' : 'Davet süresi doldu', '#FFF6DF', '#7A5300']
+                  : m.twoFactorEnabled
+                    ? ['Aktif · 2 adımlı', '#E7FAF0', '#11683F']
+                    : ['2 adım kurulmadı', '#FFF6DF', '#7A5300'];
             return (
               <div key={m.id} className="k-row">
                 <span
@@ -180,24 +224,31 @@ export default function Calisanlar() {
                 >
                   <span
                     className="k-avatar"
-                    style={{ background: AVATAR[i % AVATAR.length], color: '#1E2333' }}
+                    style={{
+                      background: davetli ? '#F3F5FA' : AVATAR[i % AVATAR.length],
+                      color: '#1E2333',
+                      fontSize: 12.5,
+                    }}
                     aria-hidden="true"
                   >
-                    {bas(m.name)}
+                    {davetli && m.name === m.email ? '?' : bas(m.name)}
                   </span>
                   <span style={{ minWidth: 0 }}>
-                    <span style={{ display: 'block', fontWeight: 800 }}>
-                      {m.name}
-                      {self ? ' (sen)' : ''}
+                    <span style={{ display: 'block', fontWeight: 800, overflowWrap: 'anywhere' }}>
+                      {self ? 'Sen' : m.name}
                     </span>
                     <span
                       style={{ display: 'block', fontSize: 12.5, color: '#5A6073', overflowWrap: 'anywhere' }}
                     >
-                      {m.email}
+                      {davetli && m.name === m.email
+                        ? kalanSaat > 0
+                          ? `Davet gönderildi · ${kalanSaat} saat geçerli`
+                          : 'Davetin süresi doldu'
+                        : m.email}
                     </span>
                   </span>
                 </span>
-                <span style={{ flex: '1 1 150px', fontWeight: 700 }}>
+                <span style={{ flex: '1 1 110px', fontWeight: 700 }}>
                   {editable ? (
                     <select
                       aria-label={`${m.name} rolü`}
@@ -214,11 +265,15 @@ export default function Calisanlar() {
                         )
                       }
                       style={{
-                        border: '1px solid #D5DAE5',
-                        borderRadius: 8,
-                        padding: '6px 8px',
-                        font: 'inherit',
+                        border: 0,
+                        background: 'transparent',
+                        padding: 0,
+                        fontFamily: 'inherit',
+                        fontSize: 14,
                         fontWeight: 700,
+                        color: '#1E2333',
+                        cursor: 'pointer',
+                        maxWidth: '100%',
                       }}
                     >
                       {roleOptions.map((o) => (
@@ -231,12 +286,15 @@ export default function Calisanlar() {
                     roleName(m)
                   )}
                 </span>
-                <span style={{ flex: '1 1 140px', fontSize: 13, color: '#3A4052' }}>
-                  {tarih(m.lastLoginAt)}
+                <span style={{ flex: '1 1 120px', fontSize: 13, color: '#3A4052' }}>
+                  {self ? 'Şimdi · bu cihaz' : sonGiris(m.lastLoginAt)}
+                </span>
+                <span style={{ flex: '1 1 180px', fontSize: 13, color: '#3A4052' }}>
+                  {davetli ? '—' : buHafta(m.week, self)}
                 </span>
                 <span
                   style={{
-                    flex: '1 1 220px',
+                    flex: '1 1 140px',
                     display: 'flex',
                     flexWrap: 'wrap',
                     alignItems: 'center',
@@ -246,10 +304,10 @@ export default function Calisanlar() {
                   <span className="k-pill" style={{ background: bg, color: fg }}>
                     {durum}
                   </span>
-                  {editable && m.status === 'INVITED' ? (
+                  {editable && davetli ? (
                     <button
-                      className="k-link"
                       type="button"
+                      style={satirDugme('#2450C8')}
                       disabled={busy}
                       onClick={() =>
                         act(() => yonetim(`members/${m.id}/reinvite`, { method: 'POST' }), 'Davet yenilendi.')
@@ -260,8 +318,8 @@ export default function Calisanlar() {
                   ) : null}
                   {editable && m.twoFactorEnabled ? (
                     <button
-                      className="k-link"
                       type="button"
+                      style={satirDugme('#2450C8')}
                       disabled={busy}
                       onClick={() => {
                         if (
@@ -275,13 +333,13 @@ export default function Calisanlar() {
                           );
                       }}
                     >
-                      2FA sıfırla
+                      2 adımı sıfırla
                     </button>
                   ) : null}
                   {editable ? (
                     <button
-                      className="k-btn-danger"
                       type="button"
+                      style={satirDugme('#A3271F')}
                       disabled={busy}
                       onClick={() => {
                         if (confirm(`${m.name} hesabı ve açık oturumları kapatılsın mı?`))

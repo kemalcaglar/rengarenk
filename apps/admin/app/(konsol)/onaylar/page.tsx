@@ -1,7 +1,8 @@
 'use client';
 
+import { BUILTIN_ROLES } from '@rengarenk/shared';
 import { useCallback, useEffect, useState } from 'react';
-import { tarih, yonetim } from '../../../lib/istemci';
+import { once, tarih, yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
 
 interface ApprovalRow {
@@ -23,47 +24,64 @@ interface ApprovalRow {
   result: { outcome: 'SUCCEEDED' | 'FAILED'; createdAt: string } | null;
 }
 
-/** Tür rozet renkleri tasarımdaki onay kuyruğundan. */
-const KIND_COLORS: Record<string, [string, string]> = {
-  REFUND: ['#FDECEC', '#A3271F'],
-  BULK_SEND: ['#EEF3FF', '#2450C8'],
-  COUPON: ['#F3EFFF', '#4B2FA6'],
-  PERMANENT_BAN: ['#FFF6DF', '#7A5300'],
-  PRICE_CHANGE: ['#E7FAF0', '#11683F'],
-  ACCOUNT_DELETE: ['#FDECEC', '#A3271F'],
+/** Tür rozeti, rozet renkleri ve onay düğmesinin yazısı tasarımdaki onay kuyruğundan (YonetimEkip). */
+const KIND: Record<string, { tur?: string; bg: string; fg: string; onay: string }> = {
+  REFUND: { tur: 'İade önerisi', bg: '#FDECEC', fg: '#A3271F', onay: 'İadeyi onayla' },
+  BULK_SEND: { bg: '#EEF3FF', fg: '#2450C8', onay: 'Gönderimi onayla' },
+  COUPON: { bg: '#F3EFFF', fg: '#4B2FA6', onay: 'Kuponu onayla' },
+  PERMANENT_BAN: { bg: '#FFF6DF', fg: '#7A5300', onay: 'Engellemeyi onayla' },
+  PRICE_CHANGE: { bg: '#E7FAF0', fg: '#11683F', onay: 'Değişikliği onayla' },
+  ACCOUNT_DELETE: { bg: '#FDECEC', fg: '#A3271F', onay: 'Silmeyi onayla' },
 };
 
-const STATUS: Record<ApprovalRow['status'], [string, string]> = {
-  PENDING: ['Bekliyor', '#7A5300'],
+const SONUC: Record<Exclude<ApprovalRow['status'], 'PENDING'>, [string, string]> = {
   APPROVED: ['Onaylandı', '#11683F'],
   REJECTED: ['Reddedildi', '#A3271F'],
   EXPIRED: ['Süresi doldu', '#5A6073'],
   CANCELLED: ['Geri çekildi', '#5A6073'],
 };
 
-const SCOPES = [
-  ['bekleyen', 'Onayımı bekleyen'],
-  ['benim', 'Benim isteklerim'],
-  ['gecmis', 'Geçmiş kararlar'],
-] as const;
+const ROL = Object.fromEntries(BUILTIN_ROLES.map((r) => [r.key, r.ad])) as Record<string, string>;
 
-const tl = (kurus: string) =>
-  new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(Number(kurus) / 100);
+/** Tutar tasarımdaki gibi: "99 TL", "39,60 TL" */
+const tl = (kurus: string) => {
+  const n = Number(kurus) / 100;
+  return `${new Intl.NumberFormat('tr-TR', {
+    minimumFractionDigits: Number.isInteger(n) ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(n)} TL`;
+};
 
-/** Onay kuyruğu (tasarım: YonetimEkip › Onay kuyruğu). Dört göz kuralına bağlı işlemler. */
+/** Gösterilecek geçmiş karar sayısı: bekleyenlerin altında son kararlar */
+const GECMIS = 20;
+
+/**
+ * Onay kuyruğu (tasarım: YonetimEkip › Onay kuyruğu): tek liste. Önce onayını bekleyenler ve kendi açık
+ * isteklerin, altında son kararlar. Karar verilen satırda yalnızca sonuç yazar.
+ */
 export default function Onaylar() {
   const { me, refresh } = useKonsol();
-  const [scope, setScope] = useState<(typeof SCOPES)[number][0]>('bekleyen');
   const [rows, setRows] = useState<ApprovalRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
   const load = useCallback(() => {
     setError(null);
-    yonetim<ApprovalRow[]>(`approvals?kapsam=${scope}`)
-      .then(setRows)
+    Promise.all(
+      (['bekleyen', 'benim', 'gecmis'] as const).map((k) => yonetim<ApprovalRow[]>(`approvals?kapsam=${k}`)),
+    )
+      .then(([bekleyen, benim, gecmis]) => {
+        const acik = [...bekleyen, ...benim.filter((o) => o.status === 'PENDING')];
+        const gorulen = new Set<string>();
+        const tek = (o: ApprovalRow) => !gorulen.has(o.id) && Boolean(gorulen.add(o.id));
+        const kapali = [...benim.filter((o) => o.status !== 'PENDING'), ...gecmis]
+          .filter(tek)
+          .sort((a, b) => (b.decidedAt ?? b.createdAt).localeCompare(a.decidedAt ?? a.createdAt))
+          .slice(0, GECMIS);
+        setRows([...acik.filter(tek).sort((a, b) => a.createdAt.localeCompare(b.createdAt)), ...kapali]);
+      })
       .catch((e: Error) => setError(e.message));
-  }, [scope]);
+  }, []);
   useEffect(load, [load]);
 
   async function decide(id: string, action: 'approve' | 'reject' | 'cancel') {
@@ -83,26 +101,26 @@ export default function Onaylar() {
     }
   }
 
+  const ikincil = {
+    border: '1px solid #D5DAE5',
+    background: '#FFFFFF',
+    borderRadius: 10,
+    padding: '10px 14px',
+    fontSize: 14,
+    fontWeight: 700,
+    color: '#1E2333',
+    cursor: 'pointer',
+  } as const;
+
   return (
     <>
-      <h1 className="k-h1">Onay kuyruğu</h1>
-      <p className="k-sub" style={{ marginBottom: 16 }}>
-        Dört göz kuralına bağlı işlemler. İsteyen kendi isteğini onaylayamaz; iadeleri yalnızca sahip onaylar.
+      <h1 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 800 }}>Onay kuyruğu</h1>
+      <p style={{ margin: '0 0 16px', fontSize: 14, color: '#5A6073' }}>
+        Dört göz kuralına bağlı işlemler.{' '}
+        {me.role === 'OWNER'
+          ? 'İadeleri yalnızca sen onaylayabilirsin.'
+          : 'İadeleri yalnızca sahip onaylayabilir.'}
       </p>
-      <fieldset className="k-chips">
-        <legend className="sr-only">Kapsam</legend>
-        {SCOPES.map(([k, ad]) => (
-          <button
-            key={k}
-            type="button"
-            className="k-chip"
-            aria-pressed={scope === k}
-            onClick={() => setScope(k)}
-          >
-            {ad}
-          </button>
-        ))}
-      </fieldset>
       {error ? (
         <p className="k-error" role="alert">
           {error}
@@ -111,23 +129,20 @@ export default function Onaylar() {
       {rows === null ? (
         <p className="muted">Yükleniyor…</p>
       ) : rows.length === 0 ? (
-        <div className="k-panel k-empty">
-          {scope === 'bekleyen'
-            ? me.approverOf.length === 0
-              ? 'Rolün onay vermiyor; açtığın istekleri "Benim isteklerim"de izleyebilirsin.'
-              : 'Onayını bekleyen istek yok.'
-            : 'Kayıt yok.'}
-        </div>
+        <div className="k-panel k-empty">Onay bekleyen işlem yok.</div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {rows.map((o) => {
-            const [bg, fg] = KIND_COLORS[o.kind] ?? ['#F3F5FA', '#3A4052'];
-            const [durum, durumRenk] = STATUS[o.status];
+            const k = KIND[o.kind] ?? { bg: '#F3F5FA', fg: '#3A4052', onay: 'Onayla' };
+            const rol = ROL[o.requester.role];
+            const geriCek = o.status === 'PENDING' && !o.canDecide && o.requester.id === me.id;
             return (
               <article
                 key={o.id}
-                className="k-panel"
                 style={{
+                  background: '#FFFFFF',
+                  border: '1px solid #E3E6EF',
+                  borderRadius: 18,
                   padding: '16px 18px',
                   display: 'flex',
                   flexWrap: 'wrap',
@@ -137,11 +152,21 @@ export default function Onaylar() {
               >
                 <span style={{ flex: '999 1 360px', minWidth: 0 }}>
                   <span style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 8px' }}>
-                    <span className="k-pill" style={{ background: bg, color: fg }}>
-                      {o.kindName}
+                    <span
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 800,
+                        padding: '3px 9px',
+                        borderRadius: 999,
+                        background: k.bg,
+                        color: k.fg,
+                      }}
+                    >
+                      {k.tur ?? o.kindName}
                     </span>
                     <span style={{ fontSize: 12.5, color: '#5A6073' }}>
-                      {o.requester.name} · {tarih(o.createdAt)}
+                      {o.requester.id === me.id ? 'Sen' : o.requester.name}
+                      {rol && o.requester.id !== me.id ? ` (${rol})` : ''} · {once(o.createdAt)}
                     </span>
                   </span>
                   <span style={{ display: 'block', fontSize: 15.5, fontWeight: 800, marginTop: 6 }}>
@@ -155,51 +180,61 @@ export default function Onaylar() {
                   ) : null}
                   <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 4 }}>
                     {o.rule}
-                    {o.status === 'PENDING' && o.expiresAt ? ` Son karar: ${tarih(o.expiresAt)}.` : ''}
                   </span>
-                  {o.decider ? (
-                    <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 4 }}>
-                      Karar: {o.decider.name} · {tarih(o.decidedAt)}
-                      {o.decisionNote ? ` · “${o.decisionNote}”` : ''}
-                      {o.result
-                        ? ` · Yürütme: ${o.result.outcome === 'SUCCEEDED' ? 'tamam' : 'hata, yeniden denenecek'}`
-                        : ''}
-                    </span>
-                  ) : null}
                 </span>
                 {o.canDecide ? (
                   <span style={{ flex: 'none', display: 'flex', gap: 8 }}>
                     <button
-                      className="k-btn-line"
                       type="button"
+                      style={ikincil}
                       disabled={busy === o.id}
                       onClick={() => decide(o.id, 'reject')}
                     >
                       Reddet
                     </button>
                     <button
-                      className="k-btn-ok"
                       type="button"
+                      style={{
+                        border: 0,
+                        background: '#3DD68C',
+                        borderRadius: 10,
+                        padding: '10px 16px',
+                        fontSize: 14,
+                        fontWeight: 800,
+                        color: '#1E2333',
+                        cursor: 'pointer',
+                      }}
                       disabled={busy === o.id}
                       onClick={() => decide(o.id, 'approve')}
                     >
-                      Onayla
+                      {k.onay}
                     </button>
                   </span>
-                ) : o.status === 'PENDING' && o.requester.id === me.id ? (
+                ) : geriCek ? (
                   <button
-                    className="k-btn-line"
                     type="button"
+                    style={ikincil}
+                    title={o.expiresAt ? `Karar verilmezse ${tarih(o.expiresAt)} tarihinde düşer` : undefined}
                     disabled={busy === o.id}
                     onClick={() => decide(o.id, 'cancel')}
                   >
                     Geri çek
                   </button>
-                ) : (
-                  <span style={{ flex: 'none', fontSize: 14, fontWeight: 800, color: durumRenk }}>
-                    {durum}
+                ) : o.status !== 'PENDING' ? (
+                  <span
+                    style={{ flex: 'none', fontSize: 14, fontWeight: 800, color: SONUC[o.status][1] }}
+                    title={
+                      o.decider
+                        ? `${o.decider.name} · ${tarih(o.decidedAt)}${o.decisionNote ? ` · ${o.decisionNote}` : ''}`
+                        : undefined
+                    }
+                  >
+                    {SONUC[o.status][0]}
+                    {o.status === 'APPROVED' && o.result?.outcome === 'FAILED'
+                      ? ' · yürütme yeniden denenecek'
+                      : ''}
                   </span>
-                )}
+                ) : null}
               </article>
             );
           })}
