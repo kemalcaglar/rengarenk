@@ -1,0 +1,352 @@
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { FLAG_TITLES, type MessageFlag, tlYaz } from '@rengarenk/shared';
+import { type Db, PRISMA } from '../database/prisma.js';
+import { kalemler } from '../payments/order-item.js';
+import { vehicleNames } from '../portfolio/vehicle-names.js';
+import { DemandSearchService } from '../search/demand-search.service.js';
+import { NotificationService } from './notification.service.js';
+
+const DAY = 86_400_000;
+const kisa = (s: string, n = 30) => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
+const tarih = (d: Date | string) =>
+  new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', timeZone: 'Europe/Istanbul' }).format(
+    new Date(d),
+  );
+
+/** Bildirime dönüşen olaylar (outbox → kuyruk → bu eşleme → bildirim katmanı) */
+export const NOTIFY_EVENTS = [
+  'talep.suresi_doluyor',
+  'talep.suresi_doldu',
+  'talep.yayinlandi',
+  'mesaj.ilk',
+  'mesaj.geldi',
+  'mesaj.uyari',
+  'eslesme.bulundu',
+  'takip.ozet',
+  'odeme.alindi',
+  'abonelik.odeme_basarisiz',
+  'abonelik.yenileme_yaklasti',
+  'abonelik.bitti',
+  'iade.yurutuldu',
+  'galeri.onaylandi',
+  'galeri.reddedildi',
+  'galeri.belge_istendi',
+  'galeri.deneme_bitiyor',
+  'galeri.deneme_bitti',
+  'portfoy.eids_reddedildi',
+] as const;
+export type NotifyEvent = (typeof NOTIFY_EVENTS)[number];
+
+/**
+ * Olay → alıcılar ve şablon değişkenleri (Karar 48). Kişisel veri olay yükünde taşınmaz; burada veritabanından okunur.
+ * Galeri olayları hesabın sahip ve yöneticilerine gider (eşleşme bildirimi satış temsilcilerine de).
+ */
+@Injectable()
+export class NotificationEvents {
+  private readonly log = new Logger(NotificationEvents.name);
+
+  constructor(
+    @Inject(PRISMA) private readonly db: Db,
+    private readonly notifications: NotificationService,
+    private readonly search: DemandSearchService,
+  ) {}
+
+  private async ekip(accountId: string, satisDahil = false) {
+    const m = await this.db.accountMember.findMany({
+      where: { accountId, role: { in: satisDahil ? ['OWNER', 'MANAGER', 'SALES'] : ['OWNER', 'MANAGER'] } },
+      select: { userId: true },
+    });
+    return m.map((x) => x.userId);
+  }
+
+  /** "Ayşe Y." */
+  private async kisi(userId: string) {
+    const u = await this.db.user.findUnique({
+      where: { id: userId },
+      select: { firstName: true, lastName: true },
+    });
+    return (
+      [u?.firstName, u?.lastName ? `${u.lastName.slice(0, 1)}.` : null].filter(Boolean).join(' ') ||
+      'Bir kullanıcı'
+    );
+  }
+
+  private async galeriAdi(accountId: string) {
+    const g = await this.db.gallery.findUnique({
+      where: { accountId },
+      select: { displayName: true, slug: true },
+    });
+    return g ?? { displayName: 'Galerin', slug: '' };
+  }
+
+  private async talep(demandId: string) {
+    const d = await this.db.demand.findUnique({
+      where: { id: demandId },
+      select: {
+        id: true,
+        no: true,
+        userId: true,
+        title: true,
+        headline: true,
+        il: true,
+        ilce: true,
+        publishedAt: true,
+      },
+    });
+    return d ? { ...d, ad: d.headline || d.title || 'Talebin' } : null;
+  }
+
+  async handle(type: NotifyEvent, p: Record<string, unknown>) {
+    const s = (k: string) => String(p[k] ?? '');
+    switch (type) {
+      case 'talep.suresi_doluyor':
+      case 'talep.suresi_doldu': {
+        const d = await this.talep(s('demandId'));
+        if (!d) return 0;
+        const yazan = await this.db.conversation.count({ where: { demandId: d.id, origin: 'talep' } });
+        return this.notifications.notify({
+          userIds: [d.userId],
+          sablon: type,
+          veri: { talep: d.ad, talepKisa: kisa(d.ad, 40), gun: p.gun ?? 0, yazan },
+        });
+      }
+      case 'talep.yayinlandi': {
+        const d = await this.talep(s('demandId'));
+        if (!d) return 0;
+        const n = await this.notifications.notify({
+          userIds: [d.userId],
+          sablon: type,
+          veri: { talep: d.ad },
+        });
+        return n + (await this.kayitliAramalar(d));
+      }
+      case 'mesaj.ilk': {
+        const c = await this.db.conversation.findUnique({
+          where: { id: s('conversationId') },
+          include: {
+            demand: { select: { title: true, headline: true } },
+            sellerAccount: { select: { kind: true, gallery: { select: { displayName: true } } } },
+          },
+        });
+        if (!c) return 0;
+        const seller = await this.kisi(c.sellerUserId);
+        return this.notifications.notify({
+          userIds: [c.buyerUserId],
+          sablon: type,
+          veri: {
+            conversationId: c.id,
+            satici: c.sellerAccount.gallery?.displayName ?? seller,
+            talep: c.demand?.headline || c.demand?.title || 'Talebin',
+          },
+        });
+      }
+      case 'mesaj.geldi':
+      case 'mesaj.uyari': {
+        const c = await this.db.conversation.findUnique({
+          where: { id: s('conversationId') },
+          include: {
+            demand: { select: { title: true, headline: true } },
+            sellerAccount: { select: { gallery: { select: { displayName: true } } } },
+          },
+        });
+        if (!c) return 0;
+        // Gönderen: alıcıdan araca mesaj (origin arac, ilk) ya da `side`; alıcıya satıcı yazdıysa
+        const side = s('side') || (s('origin') === 'arac' ? 'alici' : '');
+        if (side === 'sistem' || !side) return 0;
+        const aliciya = side === 'satici';
+        const gonderen = aliciya
+          ? (c.sellerAccount.gallery?.displayName ?? (await this.kisi(c.sellerUserId)))
+          : await this.kisi(c.buyerUserId);
+        const flags = (p.flags as MessageFlag[] | undefined) ?? [];
+        return this.notifications.notify({
+          userIds: [aliciya ? c.buyerUserId : c.sellerUserId],
+          sablon: type,
+          veri: {
+            conversationId: c.id,
+            gonderen,
+            konu: c.demand?.headline || c.demand?.title || 'Araç',
+            neden: flags
+              .map((f) => FLAG_TITLES[f]?.replace('Dikkat: bu mesajda ', '').replace(' var.', ''))
+              .join(', '),
+          },
+        });
+      }
+      case 'eslesme.bulundu': {
+        if (!p.anlik) return 0; // fazlası günlük özete (galeri paneli)
+        const [d, v, g] = await Promise.all([
+          this.talep(s('demandId')),
+          this.db.portfolioVehicle.findUnique({ where: { id: s('vehicleId') } }),
+          this.galeriAdi(s('accountId')),
+        ]);
+        if (!d || !v) return 0;
+        const ad = (await vehicleNames(this.db, [v]))(v).ad;
+        return this.notifications.notify({
+          userIds: await this.ekip(s('accountId'), true),
+          sablon: type,
+          veri: { arac: ad, talep: d.ad, skor: Math.round(Number(p.score ?? 0)), galeri: g.displayName },
+        });
+      }
+      case 'takip.ozet': {
+        const g = await this.galeriAdi(s('accountId'));
+        return this.notifications.notify({
+          userIds: [s('userId')],
+          sablon: type,
+          veri: {
+            galeri: g.displayName,
+            slug: g.slug,
+            sayi: (p.araclar as unknown[] | undefined)?.length ?? 1,
+          },
+        });
+      }
+      case 'odeme.alindi': {
+        const o = await this.db.order.findUnique({ where: { id: s('orderId') } });
+        if (!o) return 0;
+        // Galeri siparişi ekibe değil, ödemeyi yapana; otomatik yenilemede abonelik sahibine
+        return this.notifications.notify({
+          userIds: [o.userId],
+          sablon: type,
+          veri: {
+            siparis: o.no,
+            tutar: tlYaz(Number(o.totalKurus)),
+            kalem: kalemler(o.items)
+              .map((k) => k.ad)
+              .join(', '),
+          },
+        });
+      }
+      case 'abonelik.odeme_basarisiz':
+      case 'abonelik.yenileme_yaklasti':
+      case 'abonelik.bitti':
+      case 'galeri.deneme_bitiyor':
+      case 'galeri.deneme_bitti': {
+        const g = await this.galeriAdi(s('accountId'));
+        return this.notifications.notify({
+          userIds: await this.ekip(s('accountId')),
+          sablon: type,
+          veri: {
+            galeri: g.displayName,
+            galeriKisa: kisa(g.displayName, 24),
+            neden: s('neden') || 'Kart reddedildi',
+            tarih: p.tarih ? tarih(s('tarih')) : '',
+            tutar: p.tutarKurus ? tlYaz(Number(p.tutarKurus)) : '',
+            gun: p.kalanGun ?? '',
+          },
+        });
+      }
+      case 'iade.yurutuldu': {
+        const r = await this.db.refund.findUnique({
+          where: { id: s('refundId') },
+          include: { order: { select: { userId: true, no: true } } },
+        });
+        if (!r?.order) return 0;
+        return this.notifications.notify({
+          userIds: [r.order.userId],
+          sablon: type,
+          veri: { siparis: r.order.no, tutar: tlYaz(Number(r.amountKurus)) },
+        });
+      }
+      case 'galeri.onaylandi':
+      case 'galeri.reddedildi':
+      case 'galeri.belge_istendi': {
+        const a = await this.db.galleryApplication.findUnique({
+          where: { id: s('applicationId') },
+          select: { userId: true, accountId: true, data: true },
+        });
+        if (!a) return 0;
+        const g = a.accountId ? await this.galeriAdi(a.accountId) : null;
+        const veri = a.data as { gorunenAd?: string; unvan?: string };
+        return this.notifications.notify({
+          userIds: [a.userId],
+          sablon: type,
+          veri: { galeri: g?.displayName ?? veri.gorunenAd ?? veri.unvan ?? 'Galerin' },
+        });
+      }
+      case 'portfoy.eids_reddedildi': {
+        const v = await this.db.portfolioVehicle.findUnique({ where: { id: s('vehicleId') } });
+        if (!v) return 0;
+        return this.notifications.notify({
+          userIds: await this.ekip(v.accountId),
+          sablon: type,
+          veri: { arac: (await vehicleNames(this.db, [v]))(v).ad },
+        });
+      }
+    }
+  }
+
+  /** Kayıtlı aramalar (Karar 30): yeni talep "anlık" seçili aramalara uyuyorsa sahibine bildirim */
+  private async kayitliAramalar(d: {
+    id: string;
+    no: bigint;
+    userId: string;
+    ad: string;
+    il: string | null;
+    ilce: string | null;
+    publishedAt: Date | null;
+  }) {
+    if (!d.publishedAt) return 0;
+    const aramalar = await this.db.savedSearch.findMany({
+      where: { notify: 'anlik', userId: { not: d.userId } },
+    });
+    let n = 0;
+    for (const a of aramalar) {
+      try {
+        const r = await this.search.search({
+          ...(a.query as Record<string, unknown>),
+          boyut: 50,
+          yayinSonra: new Date(d.publishedAt.getTime() - 1000),
+        } as Parameters<DemandSearchService['search']>[0]);
+        if (!r.sonuclar.some((x: { no: number }) => x.no === Number(d.no))) continue;
+        n += await this.notifications.notify({
+          userIds: [a.userId],
+          sablon: 'arama.yeni_talep',
+          veri: {
+            arama: a.name,
+            talep: d.ad,
+            no: Number(d.no),
+            yer: [d.ilce, d.il].filter(Boolean).join(', '),
+          },
+        });
+      } catch (e) {
+        this.log.warn(`kayıtlı arama ${a.id}: ${(e as Error).message}`);
+      }
+    }
+    return n;
+  }
+
+  /** Günlük özet (Karar 30): "günlük" seçili aramalara son 24 saatte uyan talepler; kişi başına günde bir */
+  async dailyDigest(now = new Date()) {
+    const aramalar = await this.db.savedSearch.findMany({ where: { notify: 'gunluk' } });
+    const kisi = new Map<string, { ad: string; sayi: number }[]>();
+    for (const a of aramalar) {
+      const r = await this.search
+        .search({
+          ...(a.query as Record<string, unknown>),
+          boyut: 1,
+          yayinSonra: new Date(now.getTime() - DAY),
+        } as Parameters<DemandSearchService['search']>[0])
+        .catch(() => null);
+      if (!r?.toplam) continue;
+      kisi.set(a.userId, [...(kisi.get(a.userId) ?? []), { ad: a.name, sayi: r.toplam }]);
+    }
+    let n = 0;
+    for (const [userId, liste] of kisi) {
+      const bugun = await this.db.notification.count({
+        where: {
+          userId,
+          sablon: 'arama.gunluk_ozet',
+          createdAt: { gte: new Date(now.getTime() - 20 * 3600_000) },
+        },
+      });
+      if (bugun) continue;
+      n += await this.notifications.notify({
+        userIds: [userId],
+        sablon: 'arama.gunluk_ozet',
+        veri: {
+          sayi: liste.reduce((t, x) => t + x.sayi, 0),
+          aramalar: liste.map((x) => `${x.ad} (${x.sayi})`).join(', '),
+        },
+      });
+    }
+    return n;
+  }
+}

@@ -16,6 +16,9 @@ import { GalleryService } from './galleries/gallery.service.js';
 import { GalleryApplicationService } from './galleries/gallery-application.service.js';
 import { MatchingWorkerModule } from './matching/matching.module.js';
 import { MatchingService } from './matching/matching.service.js';
+import { DeliveryService } from './notifications/delivery.service.js';
+import { NOTIFY_EVENTS, NotificationEvents } from './notifications/notification-events.js';
+import { NotificationsWorkerModule } from './notifications/notifications.module.js';
 import { OutboxService } from './outbox/outbox.service.js';
 import { OrdersService } from './payments/orders.service.js';
 import { PaymentsWorkerModule } from './payments/payments.module.js';
@@ -24,6 +27,7 @@ import { PortfolioWorkerModule } from './portfolio/portfolio.module.js';
 import { PortfolioService } from './portfolio/portfolio.service.js';
 import { QueueService } from './queue/queue.service.js';
 import { DemandSearchService } from './search/demand-search.service.js';
+import { SmsModule } from './sms/sms.module.js';
 import { StorageModule } from './storage/storage.service.js';
 import { TrustWorkerModule } from './trust/trust.module.js';
 import { TrustService } from './trust/trust.service.js';
@@ -47,6 +51,8 @@ import { TrustService } from './trust/trust.service.js';
     MatchingWorkerModule,
     TrustWorkerModule,
     PaymentsWorkerModule,
+    SmsModule,
+    NotificationsWorkerModule,
   ],
   providers: [OutboxService, QueueService],
 })
@@ -70,6 +76,8 @@ const matching = app.get(MatchingService);
 const trust = app.get(TrustService);
 const orders = app.get(OrdersService);
 const subscriptions = app.get(SubscriptionsService);
+const bildirimOlaylari = app.get(NotificationEvents);
+const teslim = app.get(DeliveryService);
 await queue.start();
 
 await queue.consume<{ approvalId: string }>('onay.onaylandi', 'onay-yurut', async ({ approvalId }) => {
@@ -129,6 +137,12 @@ for (const event of ['portfoy.yayinlandi', 'portfoy.guncellendi', 'portfoy.kalkt
 await queue.consume<{ orderId: string }>('odeme.alindi', 'odeme-fatura', ({ orderId }) =>
   orders.issueInvoice(orderId),
 );
+// Bildirim katmanı (Karar 48): olaylar alıcı ve şablona çevrilir; teslimleri döngü gönderir
+for (const event of NOTIFY_EVENTS) {
+  await queue.consume<Record<string, unknown>>(event, `bildirim-${event.replace('.', '-')}`, (payload) =>
+    bildirimOlaylari.handle(event, payload),
+  );
+}
 // İade yürütüldü (iade yürütücü süreci): iade faturası kesilir; entegratör yoksa kuyrukta bekler
 await queue.consume<{ refundId: string }>('iade.yurutuldu', 'iade-fatura', ({ refundId }) =>
   orders.issueRefundInvoice(refundId),
@@ -151,6 +165,9 @@ let lastHousekeeping = 0;
 /** TSB ayda birkaç kez (revizyonlarla) dosya yayımlar; 6 saatte bir bakılır. Otomatik çekme konsoldan açılır. */
 const CATALOG_CHECK_MS = 6 * 3600_000;
 let lastCatalogCheck = 0;
+const TESLIM_MS = 5_000;
+let lastTeslim = 0;
+let sonOzetGunu = '';
 
 log.log('outbox aktarıcısı çalışıyor');
 while (!stopping) {
@@ -217,6 +234,21 @@ while (!stopping) {
       if (r.durum !== 'kapali' && r.durum !== 'yeni_dosya_yok') log.log(`${key} kontrolü: ${r.durum}`);
     }
     await catalog.reportStaleSources().catch((err: Error) => log.error(err));
+  }
+  // Teslim: zamanı gelen push, e-posta ve SMS (gecikmeli e-posta, ticari iletide sessiz saat)
+  if (Date.now() - lastTeslim > TESLIM_MS) {
+    lastTeslim = Date.now();
+    await teslim.dispatchDue().catch((err: Error) => log.error(`teslim: ${err.message}`));
+  }
+  // Kayıtlı aramaların günlük özeti: İstanbul saatiyle 09.00'dan sonra günde bir (Karar 30)
+  const trSaat = new Date(Date.now() + 3 * 3600_000);
+  const gun = trSaat.toISOString().slice(0, 10);
+  if (trSaat.getUTCHours() >= 9 && sonOzetGunu !== gun) {
+    sonOzetGunu = gun;
+    await bildirimOlaylari
+      .dailyDigest()
+      .then((n) => n && log.log(`kayıtlı arama özeti: ${n} kişi`))
+      .catch((err: Error) => log.error(`kayıtlı arama özeti: ${err.message}`));
   }
   if (sent === 0) await new Promise((r) => setTimeout(r, 500));
 }

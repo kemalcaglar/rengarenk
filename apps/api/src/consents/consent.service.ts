@@ -154,6 +154,23 @@ export class ConsentService {
     return surumler;
   }
 
+  /** Ticari elektronik ileti onayı ya da geri alınması (Ayarlar › Bildirimler › Kampanya; Karar 49, İYS) */
+  async recordCommercial(tx: Tx, userId: string, granted: boolean, channel: Channel, ip?: string) {
+    const text = await this.current('ticari_ileti', tx);
+    await tx.consent.create({
+      data: {
+        id: uuidv7(),
+        userId,
+        kind: 'ticari_ileti',
+        granted,
+        textKey: 'ticari_ileti',
+        textVersion: text?.version ?? null,
+        channel,
+        ip: ip ?? null,
+      },
+    });
+  }
+
   /** Çerez tercihi: üye için kullanıcıya, ziyaretçi için rastgele ziyaretçi kimliğine bağlanır. */
   async recordCookie(
     subject: { userId?: string; visitorId?: string },

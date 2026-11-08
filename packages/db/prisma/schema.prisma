@@ -65,11 +65,16 @@ model User {
   lastName        String?    @map("last_name")
   /// @pii
   email           String?
+  /// E-posta doğrulandıysa zamanı (bildirim e-postası yalnızca doğrulanmış adrese gider)
+  emailVerifiedAt DateTime?  @map("email_verified_at") @db.Timestamptz(3)
   status          UserStatus @default(ACTIVE)
   createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   memberships         AccountMember[]
+  notifications       Notification[]
+  notificationPrefs   NotificationPref[]
+  pushTokens          PushToken[]
   devices             Device[]
   sessions            Session[]
   featureTester       FeatureTester?
@@ -1725,4 +1730,146 @@ model StoreEvent {
   @@index([userId, createdAt])
   @@index([result, createdAt])
   @@map("store_events")
+}
+
+// ── Bildirim katmanı (Karar 48–51; Teknik tasarım §9) ─────────
+
+/// Uygulama içi bildirim (zil). `tekil` aynı konudaki okunmamış bildirimi günceller (ör. aynı sohbette yeni mesaj).
+model Notification {
+  id        String    @id @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  /// Şablon anahtarı (ör. talep.suresi_doluyor)
+  sablon    String
+  /// Süzgeç ve simge: mesaj | talep | guvenlik | kampanya | odeme | galeri
+  grup      String
+  /// @pii Başlık ve metin kişi ve talep adı içerebilir
+  baslik    String
+  /// @pii
+  metin     String
+  url       String?
+  ticari    Boolean   @default(false)
+  tekil     String?
+  readAt    DateTime? @map("read_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user       User       @relation(fields: [userId], references: [id])
+  deliveries Delivery[]
+
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+/// Kullanıcının konu ve kanal tercihi (Ayarlar › Bildirimler). Satır yoksa varsayılan geçerlidir.
+model NotificationPref {
+  userId    String   @map("user_id") @db.Uuid
+  /// mesaj | arama | sure | odeme | kampanya | galeri
+  konu      String
+  /// uygulama | eposta | sms
+  kanal     String
+  acik      Boolean
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@id([userId, konu, kanal])
+  @@map("notification_prefs")
+}
+
+/// Teslim kaydı (Karar 48): her kanal gönderimi; zamanı gelince işçi gönderir. Sonuç güncellenir, kayıt silinmez.
+model Delivery {
+  id             String    @id @db.Uuid
+  notificationId String?   @map("notification_id") @db.Uuid
+  userId         String?   @map("user_id") @db.Uuid
+  /// Çalışana giden (yönetim bildirimi)
+  staffId        String?   @map("staff_id") @db.Uuid
+  /// push | eposta | sms
+  kanal          String
+  sablon         String
+  sablonSurum    Int       @map("sablon_surum")
+  ticari         Boolean   @default(false)
+  /// bekliyor | gonderildi | atlandi | hata
+  durum          String    @default("bekliyor")
+  /// Atlama ya da hata nedeni (ör. bildirim okundu, adres engelli, sessiz saat)
+  neden          String?
+  /// okunmadiysa: uygulama içi bildirim okunduysa gönderilmez (kanal sırası, Karar 48)
+  kosul          String?
+  /// @pii Şablon değişkenleri (ad, talep, galeri, tutar)
+  veri           Json      @default("{}")
+  saglayici      String?
+  saglayiciNo    String?   @map("saglayici_no")
+  /// @pii Gösterim için maskeli hedef (a***@ornek.com, +90 5XX … 67)
+  hedef          String?
+  dueAt          DateTime  @default(now()) @map("due_at") @db.Timestamptz(3)
+  sentAt         DateTime? @map("sent_at") @db.Timestamptz(3)
+  attempts       Int       @default(0)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  notification Notification? @relation(fields: [notificationId], references: [id])
+
+  @@index([durum, dueAt])
+  @@index([userId, createdAt])
+  @@index([kanal, createdAt])
+  @@map("deliveries")
+}
+
+/// Push cihaz anahtarı (FCM; Karar 48). Kapanan anahtar silinmez, `disabledAt` alır.
+model PushToken {
+  id         String    @id @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  /// ios | android | web
+  platform   String
+  /// @pii Cihaz anahtarı
+  token      String    @unique
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  lastSeenAt DateTime  @default(now()) @map("last_seen_at") @db.Timestamptz(3)
+  disabledAt DateTime? @map("disabled_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("push_tokens")
+}
+
+/// E-posta gönderim dışı listesi (Karar 50): kalıcı hata, 3 geçici hata, şikâyet ya da ticari iletiden ayrılma
+model EmailSuppression {
+  /// @pii Küçük harfli adres
+  email          String   @id
+  /// kalici_hata | gecici_hata | sikayet | ayrildi
+  reason         String
+  /// Geçici hata sayısı (3'te listeye alınır)
+  count          Int      @default(1)
+  /// Yalnızca ticari iletiyi mi durdurur (ayrılma, şikâyet) yoksa hepsini mi (kalıcı hata)
+  onlyCommercial Boolean  @default(false) @map("only_commercial")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("email_suppressions")
+}
+
+/// Şablon sürümü (Karar 48): konsolda düzenlenen şablon yeni sürüm olarak eklenir; kod içindeki varsayılan sürüm 0
+model NotificationTemplate {
+  key       String
+  version   Int
+  icerik    Json
+  createdBy String?  @map("created_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@id([key, version])
+  @@map("notification_templates")
+}
+
+/// E-posta doğrulama bağlantısı (tek kullanımlık, 24 saat)
+model EmailChallenge {
+  id        String    @id @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  /// @pii
+  email     String
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(3)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([userId])
+  @@map("email_challenges")
 }

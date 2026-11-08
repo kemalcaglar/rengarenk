@@ -13,6 +13,7 @@ import { HealthController } from './health/health.controller.js';
 import { MatchingModule } from './matching/matching.module.js';
 import { MeModule } from './me/me.module.js';
 import { MessagesModule } from './messages/messages.module.js';
+import { NotificationsModule } from './notifications/notifications.module.js';
 import { HttpMetricsInterceptor } from './observability/http-metrics.interceptor.js';
 import { loggingModule } from './observability/logging.js';
 import { MetricsController } from './observability/metrics.controller.js';
@@ -47,6 +48,7 @@ import { TrustModule } from './trust/trust.module.js';
     TrustModule,
     PaymentsModule,
     RefundsModule,
+    NotificationsModule,
     StorageModule,
     ConsentModule,
     CatalogModule,

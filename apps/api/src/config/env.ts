@@ -51,6 +51,21 @@ const schema = z.object({
   IADE_PAYTR_MERCHANT_SALT: z.string().optional(),
   /** RevenueCat panelinde bildirim (webhook) için tanımlanan Authorization değeri */
   REVENUECAT_WEBHOOK_AUTH: z.string().min(24).optional(),
+  /**
+   * Bildirim kanalları (Karar 48, 50). E-posta: smtp (kendi sunucumuz; yerelde Mailpit :1025), memory (test), none.
+   * İşlemsel ve ticari e-posta ayrı gönderen adresinden (ve canlıda ayrı IP'den) çıkar.
+   */
+  EMAIL_PROVIDER: z.enum(['none', 'smtp', 'memory']).default('none'),
+  SMTP_HOST: z.string().default('localhost'),
+  SMTP_PORT: z.coerce.number().int().default(1025),
+  SMTP_SECURE: z.enum(['0', '1']).default('0'),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  EPOSTA_GONDEREN: z.string().default('Rengarenk <bildirim@bildirim.rengarenk.com.tr>'),
+  EPOSTA_GONDEREN_TICARI: z.string().default('Rengarenk <bulten@bulten.rengarenk.com.tr>'),
+  /** Push (FCM HTTP v1): none, fake (geliştirme ve test), fcm (hizmet hesabı JSON'u base64) */
+  PUSH_PROVIDER: z.enum(['none', 'fake', 'fcm']).default('none'),
+  FCM_SERVICE_ACCOUNT: z.string().optional(),
   /** API'nin dışarıdan görünen adresi (sahte ödeme sayfası, bildirim adresi) */
   API_PUBLIC_URL: z.string().default('http://localhost:4000'),
   SMS_PROVIDER: z.enum(['console', 'test', 'iletimerkezi']).default('console'),
@@ -136,6 +151,8 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (e.EARSIV_PROVIDER === 'fake') throw new Error('Canlıda sahte e-Arşiv kullanılamaz');
     if (e.STORE_PROVIDER === 'fake') throw new Error('Canlıda sahte mağaza kullanılamaz');
     if (e.REFUND_PROVIDER === 'fake') throw new Error('Canlıda sahte iade kullanılamaz');
+    if (e.PUSH_PROVIDER === 'fake') throw new Error('Canlıda sahte push kullanılamaz');
+    if (e.EMAIL_PROVIDER === 'memory') throw new Error('Canlıda bellek içi e-posta kullanılamaz');
     if (e.STAFF_AUTH_PROVIDER !== 'google') throw new Error('Canlıda yönetim girişi Google Workspace olmalı');
     if (!e.STAFF_SECRET_KEY) throw new Error('Canlıda STAFF_SECRET_KEY gerekli');
     if (!e.MESSAGE_SECRET_KEY) throw new Error('Canlıda MESSAGE_SECRET_KEY gerekli');
@@ -156,6 +173,8 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
   ) {
     throw new Error('PayTR için PAYTR_MERCHANT_ID, PAYTR_MERCHANT_KEY ve PAYTR_MERCHANT_SALT gerekli');
   }
+  if (e.PUSH_PROVIDER === 'fcm' && !e.FCM_SERVICE_ACCOUNT)
+    throw new Error('FCM için FCM_SERVICE_ACCOUNT gerekli');
   if (e.STORE_PROVIDER === 'revenuecat' && !e.REVENUECAT_WEBHOOK_AUTH) {
     throw new Error('RevenueCat için REVENUECAT_WEBHOOK_AUTH gerekli');
   }

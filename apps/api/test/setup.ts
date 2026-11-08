@@ -24,6 +24,8 @@ Object.assign(process.env, {
   PAYMENT_PROVIDER: 'fake',
   EARSIV_PROVIDER: 'fake',
   STORE_PROVIDER: 'fake',
+  EMAIL_PROVIDER: 'memory',
+  PUSH_PROVIDER: 'fake',
 });
 
 const migrations = join(dirname(fileURLToPath(import.meta.url)), '../../../packages/db/prisma/migrations');
