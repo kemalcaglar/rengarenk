@@ -353,18 +353,8 @@ export class StoreService {
       // Talep seçilmemiş öne çıkarma: kullanılmamış hak olarak tanımlanır, destek inceler
       let not: string | null = null;
       if (p.oneCikarma && !kalemler(o.items)[0]?.talepId) {
+        // Hak, siparişin işlenmesinde tanımlandı (Taleplerim'den talebe uygulanır)
         not = 'Öne çıkarılacak talep seçilmemişti; hak hesaba tanımlandı';
-        await tx.entitlementLedger.create({
-          data: {
-            accountId: o.accountId,
-            kind: p.oneCikarma.tur,
-            delta: 1,
-            reason: 'satin_alma',
-            sourceType: 'order',
-            sourceId: `${o.id}:0`,
-            createdBy: userId,
-          },
-        });
         await this.outbox.add(tx, 'magaza.inceleme', { eventId: ev.id, orderId: o.id });
       }
       await kaydet(not ? 'inceleme' : 'islendi', not, o.id);

@@ -16,6 +16,7 @@ import {
 import {
   demandCompleteSchema,
   demandCreateSchema,
+  demandPromoteSchema,
   demandSearchQuerySchema,
   demandUpdateSchema,
 } from '@rengarenk/shared';
@@ -79,8 +80,8 @@ export class DemandsController {
   }
 
   @Get('rights')
-  rights(@Req() req: AuthedRequest) {
-    return this.demands.rights(req.user.sub);
+  rights(@Req() req: AuthedRequest, @Query('hesap') hesap?: string) {
+    return this.demands.rights(req.user.sub, hesap && /^[0-9a-f-]{36}$/i.test(hesap) ? hesap : undefined);
   }
 
   @Post()
@@ -88,7 +89,17 @@ export class DemandsController {
     @Req() req: AuthedRequest,
     @Body(new ZodPipe(demandCreateSchema)) body: z.output<typeof demandCreateSchema>,
   ) {
-    return this.demands.create(req.user.sub, body.kategori);
+    return this.demands.create(req.user.sub, body.kategori, body.hesap);
+  }
+
+  /** Hakla öne çıkarma (paketin aylık hakkı ya da talep seçilmeden alınmış hak) */
+  @Post(':id/promote')
+  promote(
+    @Req() req: AuthedRequest,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodPipe(demandPromoteSchema)) body: z.output<typeof demandPromoteSchema>,
+  ) {
+    return this.demands.promote(req.user.sub, id, body.tur, req.ip);
   }
 
   @Get(':id')

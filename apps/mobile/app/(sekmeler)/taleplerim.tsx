@@ -1,4 +1,12 @@
-import { BIREYSEL_FIYATLAR, colors, DOTS, FOUND_VIA, type FoundViaKey, fiyatYaz } from '@rengarenk/shared';
+import {
+  BIREYSEL_FIYATLAR,
+  colors,
+  DOTS,
+  FOUND_VIA,
+  type FoundViaKey,
+  fiyatYaz,
+  PROMOTION_NAMES,
+} from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, View } from 'react-native';
@@ -31,6 +39,10 @@ interface Talep {
   closedAt: string | null;
   freeExtensionUsed: boolean;
   updatedAt: string;
+  /** Galeri adına açılmış talep (Karar 12.2) */
+  galeri: { ad: string; slug: string } | null;
+  /** Hesabın kullanılmamış öne çıkarma hakları (galeri paketi ya da talep seçmeden alınmış hak) */
+  oneCikarmaHakki: Partial<Record<'ust_sira' | 'acil' | 'vitrin', number>>;
 }
 
 const sekmeOf = (t: Talep): Sekme | null =>
@@ -296,6 +308,11 @@ export default function Taleplerim() {
                     }
                   </T>
                 </View>
+                {t.galeri ? (
+                  <T style={{ marginTop: 4, fontSize: 12, fontWeight: '800', color: '#7A5300' }}>
+                    {t.galeri.ad} adına
+                  </T>
+                ) : null}
                 <T
                   style={{ marginTop: 5, marginBottom: 2, fontSize: 15.5, fontWeight: '800', lineHeight: 20 }}
                 >
@@ -443,6 +460,19 @@ export default function Taleplerim() {
                     ? (['Uzat', 'extend', 'yayinda'] as const)
                     : null,
                   islemler.status === 'PASSIVE' ? (['Düzenle', 'duzenle', null] as const) : null,
+                  // Hakla öne çıkarma (7 gün): paketin aylık hakkı ya da talep seçmeden alınmış hak
+                  ...(['ust_sira', 'acil', 'vitrin'] as const)
+                    .filter(
+                      (k) => islemler.status === 'PUBLISHED' && (islemler.oneCikarmaHakki?.[k] ?? 0) > 0,
+                    )
+                    .map(
+                      (k) =>
+                        [
+                          `${PROMOTION_NAMES[k]} · hakkını kullan (${islemler.oneCikarmaHakki[k]})`,
+                          `promote:${k}`,
+                          null,
+                        ] as const,
+                    ),
                   ['Talebi kapat', 'close', 'bitti'] as const,
                 ]
                   .filter((x): x is NonNullable<typeof x> => x !== null)
@@ -470,6 +500,9 @@ export default function Taleplerim() {
                               },
                             ],
                           );
+                        }
+                        if (yol.startsWith('promote:')) {
+                          return yap(t, 'promote', { tur: yol.slice(8) });
                         }
                         yap(t, yol, undefined, sonraki ?? undefined);
                       }}

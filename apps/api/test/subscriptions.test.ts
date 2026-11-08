@@ -262,7 +262,7 @@ describe('galeri abonelikleri (Karar 12.2, 12.3, 12.7, 39; Teknik tasarım §7)'
           app,
           'POST',
           '/orders',
-          { hesap: g.accountId, kalemler: [{ urun: 'ek_talep' }], fatura, onay: { sozlesme: true } },
+          { hesap: g.accountId, kalemler: [{ urun: 'acil_7' }], fatura, onay: { sozlesme: true } },
           g.token,
         )
       ).status,

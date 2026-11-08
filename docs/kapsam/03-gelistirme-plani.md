@@ -163,8 +163,10 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   süzgeci), galeri abonelikleri, incelenecek mağaza bildirimleri; kişisel veri yetkisi yoksa ad kısaltılır
 - [ ] Gerçek mağaza: Apple ve Google hesapları açılınca RevenueCat SDK (`react-native-purchases`), ürünler `rr_<ürün>`
   adıyla mağazalarda; canlıda `STORE_PROVIDER=none` (uygulamada satın alma kapalı)
-- [ ] Galeri adına talep açma: paketin aylık talep ve öne çıkarma hakları galeri hesabında birikir; kullanım ekranı
-  (sihirbazda "kimin adına") sonraki bölümde. Galeri ek paketinde talep ve üst sıra o zaman açılır
+- [x] Galeri adına talep (Karar 12.2, 20): sihirbazda "Kimin adına?" (sahip ve yönetici; web ve mobil), yayında paketin
+  talep hakkı düşer (kişinin ücretsiz hakkı kullanılmaz), talep sayfasında alıcı olarak galeri adı; Taleplerim'de rozet
+  ve "hakkını kullan" (paketin üst sıra hakkı ya da talepsiz alınmış hak, 7 gün, sıradakinin ardına); galeri ek paketinde
+  talep ve üst sıra (hak olarak); galeri paneli özetinde bu dönem açılan talep ve "Galerin adına talep aç"
 - [x] Mağaza iadesinde kullanılmamış hak düşme (sahip onayladı)
 - [ ] Web iadeleri: iade akışı (4 kilit), sahibe sorulduktan sonra
 - Tasarımdan farklar: mobilde "Ödeme geçmişi ve faturalar" web sayfasına gitmez (mağaza kuralı), aynı ekranda açılır;

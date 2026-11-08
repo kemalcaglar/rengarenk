@@ -56,6 +56,7 @@ interface Panel {
     sen: boolean;
   }[];
   davetler: { id: string; telefon: string; rol: MemberRoleKey; rolAd: string; bitis: string }[];
+  haklar: { talep: number; ustSira: number; buDonemTalep: number };
 }
 type Gorunum = 'ozet' | 'portfoy' | 'ekle' | 'toplu' | 'eslesme' | 'ekip' | 'paket';
 
@@ -585,15 +586,22 @@ function Ozet({
     },
     {
       label: deneme ? 'Deneme talep hakkı' : 'Bu ay açılan talep',
-      value: 0,
+      value: p.haklar.buDonemTalep,
       max: String(deneme ? GALLERY_TRIAL.talep : (plan?.aylikTalep ?? 0)),
-      not: 'Galerinin kendi araç arayışları için',
+      not:
+        p.haklar.talep > 0
+          ? `${p.haklar.talep} talep hakkın var · galerin adına talep aç`
+          : 'Galerinin kendi araç arayışları için',
     },
     {
       label: 'Öne çıkarma',
-      value: 0,
+      value: Math.max(0, (plan?.oneCikarma ?? 0) - p.haklar.ustSira),
       max: String(plan?.oneCikarma ?? 0),
-      not: deneme ? 'Denemede öne çıkarma yok' : 'Bu ay kullanılabilir',
+      not: deneme
+        ? 'Denemede öne çıkarma yok'
+        : p.haklar.ustSira > 0
+          ? `${p.haklar.ustSira} hak kaldı · Taleplerim'den uygulanır`
+          : 'Bu ay kullanılabilir',
     },
   ];
   const duzenleyebilir = p.rol !== 'SALES';
@@ -662,6 +670,17 @@ function Ozet({
           </div>
         ))}
       </div>
+      {p.rol !== 'SALES' && !p.paket.saltOkunur ? (
+        <p style={{ margin: '12px 0 0', fontSize: 14 }}>
+          <Link href={`/talep-olustur?hesap=${p.accountId}`} style={{ fontWeight: 800 }}>
+            Galerin adına talep aç
+          </Link>{' '}
+          <span style={{ color: '#5A6073' }}>
+            · aradığın aracı satıcılar bulsun; paketin talep hakkı kullanılır, alıcı olarak galerinin adı
+            görünür
+          </span>
+        </p>
+      ) : null}
       <div className="rr-uc-sutun" style={{ marginTop: 16 }}>
         {[
           [String(yeniEslesme), '#11683F', 'Yeni eşleşme', 'Portföyündeki araçlara uyan talepler', 'eslesme'],

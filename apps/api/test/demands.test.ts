@@ -100,6 +100,7 @@ describe('talepler (Karar 04, 05, 09, 10, 12, 21)', () => {
       talep: 1,
       uzatma: 0,
       telefonMaske: '0 (5XX) XXX XX 01',
+      galeri: null,
     });
     expect((await call(app, 'PATCH', `/demands/${d.body.id}`, { headline: 'Kısa' }, t)).status).toBe(400);
     await call(

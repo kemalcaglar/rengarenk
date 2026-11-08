@@ -92,11 +92,14 @@ interface Taslak {
   contact: Iletisim;
   headline: string | null;
   schema: { fields: CategoryField[]; rules: CategoryRules } | null;
+  hesap: { id: string; ad: string } | null;
 }
 interface Haklar {
   ucretsizTalep: boolean;
   talep: number;
-  telefonMaske: string;
+  telefonMaske: string | null;
+  /** Galeri adına talepte galerinin adı (paketin talep hakkı) */
+  galeri: string | null;
 }
 
 /** Hazır boya ve hasar seçimleri (SihirbazMobilAkis, 4. adım) */
@@ -149,7 +152,7 @@ function hazirOf(alanlar: Values) {
  */
 export default function TalepOlustur() {
   const { durum, istek } = useOturum();
-  const params = useLocalSearchParams<{ id?: string }>();
+  const params = useLocalSearchParams<{ id?: string; hesap?: string }>();
   const kategoriler = useKategoriler();
   const [taslak, setTaslak] = useState<Taslak | null>(null);
   const [veri, setVeri] = useState<Veri>({ alanlar: {}, alternatifler: [{}] });
@@ -167,6 +170,9 @@ export default function TalepOlustur() {
   const [uyari, setUyari] = useState<string | null>(null);
   const [hatalar, setHatalar] = useState<{ path: string; message: string }[]>([]);
   const [haklar, setHaklar] = useState<Haklar | null>(null);
+  // Galeri adına talep (Karar 12.2, 20): sahip ya da yönetici olduğu galeriler
+  const [galeriler, setGaleriler] = useState<{ accountId: string; ad: string }[]>([]);
+  const [hesap, setHesap] = useState<string | null>(params.hesap ?? null);
   const [busy, setBusy] = useState(false);
   const kirli = useRef(false);
   const kaydirma = useRef<ComponentRef<typeof ScrollView>>(null);
@@ -199,11 +205,20 @@ export default function TalepOlustur() {
 
   useEffect(() => {
     if (durum !== 'uye') return;
-    istek<Haklar>('/demands/rights')
-      .then(setHaklar)
+    istek<{ accountId: string; ad: string; rol: string; durum: string }[]>('/gallery/mine')
+      .then((g) => setGaleriler(g.filter((x) => x.rol !== 'SALES' && x.durum === 'ACTIVE')))
       .catch(() => undefined);
     if (params.id) yukle(params.id).catch((e: Error) => setUyari(e.message));
   }, [durum, istek, params.id, yukle]);
+
+  // Haklar seçili hesaba göre: taslak açıldıysa taslağın hesabı, değilse "Kimin adına" seçimi
+  const etkinHesap = taslak ? (taslak.hesap?.id ?? null) : hesap;
+  useEffect(() => {
+    if (durum !== 'uye') return;
+    istek<Haklar>(`/demands/rights${etkinHesap ? `?hesap=${etkinHesap}` : ''}`)
+      .then(setHaklar)
+      .catch(() => setHaklar(null));
+  }, [durum, istek, etkinHesap]);
 
   const duzenle = Boolean(taslak && taslak.status !== 'DRAFT');
   const alanlar = taslak?.schema?.fields ?? [];
@@ -293,7 +308,10 @@ export default function TalepOlustur() {
             method: 'PATCH',
             body: { kategori: slug, step: 2 },
           })
-        : await istek<{ id: string }>('/demands', { method: 'POST', body: { kategori: slug } });
+        : await istek<{ id: string }>('/demands', {
+            method: 'POST',
+            body: { kategori: slug, ...(hesap ? { hesap } : {}) },
+          });
       router.setParams({ id: t.id });
       await yukle(t.id);
       if (segment) {
@@ -454,6 +472,45 @@ export default function TalepOlustur() {
 
         {adim === 'kategori' ? (
           <>
+            {galeriler.length && (!taslak || taslak.hesap) ? (
+              <View style={{ marginBottom: 14 }}>
+                <T style={{ fontSize: 14, fontWeight: '700', marginBottom: 8 }}>Kimin adına?</T>
+                <View
+                  accessibilityRole="radiogroup"
+                  style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}
+                >
+                  {[{ accountId: null as string | null, ad: 'Kendi adıma' }, ...galeriler].map((g) => {
+                    const on = etkinHesap === g.accountId;
+                    return (
+                      <Pressable
+                        key={g.accountId ?? 'ben'}
+                        accessibilityRole="radio"
+                        accessibilityState={{ checked: on, disabled: !!taslak }}
+                        disabled={!!taslak}
+                        onPress={() => setHesap(g.accountId)}
+                        style={{
+                          borderWidth: on ? 2 : 1,
+                          borderColor: on ? colors.blue : colors.line,
+                          backgroundColor: on ? '#EEF3FF' : colors.surface,
+                          borderRadius: 999,
+                          paddingVertical: on ? 8 : 9,
+                          paddingHorizontal: on ? 13 : 14,
+                        }}
+                      >
+                        <T style={{ fontSize: 14, fontWeight: '700' }}>
+                          {g.accountId ? `${g.ad} adına` : g.ad}
+                        </T>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+                <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 6 }}>
+                  {taslak
+                    ? 'Taslak açıldıktan sonra hesap değişmez.'
+                    : 'Galeri adına talepte paketin talep hakkı kullanılır, alıcı olarak galerinin adı görünür.'}
+                </T>
+              </View>
+            ) : null}
             <View
               accessibilityRole="radiogroup"
               accessibilityLabel="İşlem"
@@ -1112,7 +1169,7 @@ export default function TalepOlustur() {
                 ? 'Devam et'
                 : duzenle
                   ? 'Değişiklikleri kaydet'
-                  : haklar?.ucretsizTalep
+                  : haklar?.ucretsizTalep && !haklar.galeri
                     ? 'Ücretsiz yayınla'
                     : 'Yayınla'}
           </T>
@@ -1258,12 +1315,16 @@ function Onizleme({
                   <T style={{ fontSize: 14.5, fontWeight: '800' }}>{b.ad} · 7 gün</T>
                   <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 2 }}>{b.aciklama}</T>
                 </View>
-                <T style={{ fontSize: 13, fontWeight: '700', color: colors.muted }}>Yakında</T>
+                {haklar?.galeri ? null : (
+                  <T style={{ fontSize: 13, fontWeight: '700', color: colors.muted }}>₺{fiyatYaz(b.mobil)}</T>
+                )}
               </View>
             ))}
           </View>
           <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 8 }}>
-            Öne çıkarma, mağaza ödemesi açılınca Taleplerim'den de alınabilecek.
+            {haklar?.galeri
+              ? `Talep ${haklar.galeri} adına yayınlanır. Paketindeki öne çıkarma hakkını yayından sonra Taleplerim'den kullanabilirsin.`
+              : 'Öne çıkarmayı talebin yayındayken Hesabım › Haklarım ve ödemeler’den alabilirsin.'}
           </T>
         </>
       )}
@@ -1281,7 +1342,11 @@ function Onizleme({
           >
             <Ikon d="onay" size={20} color="#11683F" />
             <T style={{ flex: 1, fontSize: 13.5, color: '#11683F', fontWeight: '600', lineHeight: 19 }}>
-              {haklar.ucretsizTalep ? 'İlk talebin ücretsiz.' : `${haklar.talep} talep hakkın var.`}{' '}
+              {haklar.galeri
+                ? `${haklar.galeri} galerisinin ${haklar.talep} talep hakkı var.`
+                : haklar.ucretsizTalep
+                  ? 'İlk talebin ücretsiz.'
+                  : `${haklar.talep} talep hakkın var.`}{' '}
               {rules?.listingNote ?? `${rules?.listingDays ?? 30} gün yayında kalır`}; 7, 3 ve 1 gün önce
               hatırlatırız.
             </T>
@@ -1289,8 +1354,10 @@ function Onizleme({
         ) : (
           <View style={{ marginTop: 14, backgroundColor: '#FFF6DF', borderRadius: 14, padding: 13 }}>
             <T style={{ fontSize: 13.5, color: '#7A5300', fontWeight: '600', lineHeight: 19 }}>
-              Ücretsiz talep hakkını kullandın. Ek talep {fiyatYaz(BIREYSEL_FIYATLAR.ekTalep.mobil)} TL;
-              mağaza ödemesi açılınca buradan alabileceksin. Talebin taslak olarak saklanıyor.
+              {/* Karar 38: galeri hesabında uygulamada satın alma yönlendirmesi yok */}
+              {haklar.galeri
+                ? `${haklar.galeri} galerisinin bu ayki talep hakkı bitti. Talebin taslak olarak saklanıyor.`
+                : `Ücretsiz talep hakkını kullandın. Ek talep ₺${fiyatYaz(BIREYSEL_FIYATLAR.ekTalep.mobil)}; Hesabım › Haklarım ve ödemeler'den alabilirsin. Talebin taslak olarak saklanıyor.`}
             </T>
           </View>
         )

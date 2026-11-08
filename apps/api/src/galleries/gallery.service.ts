@@ -73,6 +73,24 @@ export class GalleryService {
     };
   }
 
+  /** Paketin talep ve öne çıkarma hakları; bu hak döngüsünde (denemede onaydan beri) açılan talep sayısı */
+  private async rights(accountId: string, approvedAt: Date) {
+    const toplam = async (kind: string) =>
+      (await this.db.entitlementLedger.aggregate({ where: { accountId, kind }, _sum: { delta: true } }))._sum
+        .delta ?? 0;
+    const sub = await this.db.subscription.findUnique({
+      where: { accountId },
+      select: { status: true, quotaCycleStart: true },
+    });
+    const basi = sub && sub.status !== 'ENDED' ? sub.quotaCycleStart : approvedAt;
+    const [talep, ustSira, buDonemTalep] = await Promise.all([
+      toplam('talep'),
+      toplam('ust_sira'),
+      this.db.demand.count({ where: { accountId, publishedAt: { gte: basi } } }),
+    ]);
+    return { talep, ustSira, buDonemTalep };
+  }
+
   /** Galeri paneli özeti (GaleriPanel.dc.html): galeri, paket ve deneme, ekip */
   async panel(userId: string, accountId: string) {
     const { role, account, gallery: g } = await this.membership(userId, accountId);
@@ -104,6 +122,7 @@ export class GalleryService {
               adres: g.address,
             },
       paket: this.planOf(g),
+      haklar: await this.rights(accountId, g.approvedAt),
       ekip: members.map((m) => ({
         userId: m.userId,
         ad: [m.user.firstName, m.user.lastName].filter(Boolean).join(' ') || 'Adsız üye',

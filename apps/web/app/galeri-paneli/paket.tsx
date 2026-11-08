@@ -115,6 +115,14 @@ const tarih = (iso: string | null) =>
       }).format(new Date(iso))
     : '';
 const tl = (kurus: number) => tlYaz(kurus).replace(' TL', '');
+/** Ek paket adları (GaleriPanel.dc.html › Ek paket al) */
+const EK_AD: Record<string, string> = {
+  mesaj_30: '30 ilk mesaj',
+  mesaj_10: '10 ilk mesaj',
+  talep_paketi: '3 talep hakkı',
+  ek_talep: '1 talep hakkı',
+  ust_sira_7: 'Üst sıra, 7 gün',
+};
 
 function ozellikler(p: PaketSecenek) {
   return [
@@ -279,7 +287,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
       urun: e.key,
       ad: e.ad,
       tutarKurus: e.brutKurus,
-      not: `${tl(e.netKurus)} TL + KDV. Haklar galeri hesabının ortak havuzuna eklenir, süresi dolmaz.`,
+      not: `${tl(e.netKurus)} TL + KDV. Haklar galeri hesabının ortak havuzuna eklenir, süresi dolmaz${e.key === 'ust_sira_7' ? '; Taleplerim’den galerinin talebine uygulanır' : ''}.`,
     });
   const paketSecim = (p: PaketSecenek, donem: 'aylik' | 'yillik') => {
     if (p.degisim === 'yukseltme' && a) {
@@ -578,7 +586,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                 fontSize: 14,
               }}
             >
-              <span>{e.ad.replace('Ek ilk mesaj · ', '').replace(' adet', ' ilk mesaj')}</span>
+              <span>{EK_AD[e.key] ?? e.ad}</span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <strong>
                   {tl(e.netKurus)} TL{' '}
@@ -593,7 +601,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
             </div>
           ))}
           <p style={{ margin: '8px 0 0', fontSize: 12.5, color: '#5A6073' }}>
-            Talep hakkı ve üst sıra, galeri adına talep açma geldiğinde buradan alınacak.
+            Üst sıra hak olarak eklenir; Taleplerim'den galerinin talebine uygulanır.
           </p>
         </section>
       </div>

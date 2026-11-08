@@ -48,7 +48,7 @@ const DAY = 86_400_000;
 const PENDING_MINUTES = 45;
 
 /** Galeri hesabının satın alabildiği ek paketler (GaleriPanel.dc.html "Ek paket al"; Karar 12.4) */
-export const GALLERY_EXTRAS = ['mesaj_30', 'mesaj_10'] as const;
+export const GALLERY_EXTRAS = ['mesaj_30', 'mesaj_10', 'talep_paketi', 'ek_talep', 'ust_sira_7'] as const;
 
 /** Sipariş no: PayTR'nin istediği harf ve rakamdan; "RG" + zaman + rastgele */
 const siparisNo = () =>
@@ -239,9 +239,13 @@ export class OrdersService {
         tutarKurus: brut,
         ...(galeri ? { netKurus: net } : {}),
       };
-      if (p.oneCikarma) {
+      if (p.oneCikarma && !(galeri && !k.talepNo)) {
         const d = await this.db.demand.findFirst({
-          where: { no: BigInt(k.talepNo as number), userId, status: 'PUBLISHED' },
+          where: {
+            no: BigInt(k.talepNo as number),
+            ...(galeri ? { accountId: galeri.accountId } : { userId }),
+            status: 'PUBLISHED',
+          },
           select: { id: true, no: true, title: true, headline: true },
         });
         if (!d) throw new BadRequestException('Öne çıkarılacak talep yayında değil');
@@ -250,7 +254,7 @@ export class OrdersService {
       kalemler.push(kalem);
     }
     const toplam = kalemler.reduce((t, k) => t + k.tutarKurus, 0);
-    const hemen = kalemler.some((k) => productByKey(k.urun)?.hemenBaslar);
+    const hemen = !galeri && kalemler.some((k) => productByKey(k.urun)?.hemenBaslar);
     const no = siparisNo();
     const id = uuidv7();
 
@@ -466,6 +470,11 @@ export class OrdersService {
           },
         });
         yenidenIndeks.add(k.talepId);
+      } else if (p.oneCikarma) {
+        // Talep seçilmeden alınan öne çıkarma (galeri ek paketi): hak olarak tanımlanır, talebe sonra uygulanır
+        await tx.entitlementLedger.create({
+          data: { accountId: o.accountId, kind: p.oneCikarma.tur, delta: 1, reason: 'satin_alma', ...kaynak },
+        });
       }
     }
     await tx.order.update({ where: { id: o.id }, data: { status: 'PAID', paidAt: now, failReason: null } });

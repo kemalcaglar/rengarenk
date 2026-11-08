@@ -1,6 +1,6 @@
 'use client';
 
-import { BIREYSEL_FIYATLAR, DOTS, FOUND_VIA, type FoundViaKey } from '@rengarenk/shared';
+import { BIREYSEL_FIYATLAR, DOTS, FOUND_VIA, type FoundViaKey, PROMOTION_NAMES } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
@@ -27,6 +27,10 @@ interface Talep {
   closedAt: string | null;
   freeExtensionUsed: boolean;
   updatedAt: string;
+  /** Galeri adına açılmış talep (Karar 12.2) */
+  galeri: { ad: string; slug: string } | null;
+  /** Talebin hesabındaki kullanılmamış öne çıkarma hakları (galeri paketi ya da talep seçmeden alınmış hak) */
+  oneCikarmaHakki: Partial<Record<'ust_sira' | 'acil' | 'vitrin', number>>;
 }
 interface Haklar {
   ucretsizTalep: boolean;
@@ -410,6 +414,20 @@ export default function Taleplerim() {
                       <span style={{ fontSize: 12.5, color: '#5A6073' }}>
                         {t.category.name} · {t.status === 'DRAFT' ? 'Taslak' : `No ${t.no}`}
                       </span>
+                      {t.galeri ? (
+                        <span
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 800,
+                            padding: '3px 9px',
+                            borderRadius: 999,
+                            background: '#FFF6DF',
+                            color: '#7A5300',
+                          }}
+                        >
+                          {t.galeri.ad} adına
+                        </span>
+                      ) : null}
                     </div>
                     <h2 style={{ margin: '6px 0 2px', fontSize: 18, fontWeight: 800 }}>
                       {t.status === 'DRAFT' ? (
@@ -458,6 +476,21 @@ export default function Taleplerim() {
                         <Link href={`/talep-olustur?id=${t.id}`} style={cizgili}>
                           Düzenle
                         </Link>
+                        {(['ust_sira', 'acil', 'vitrin'] as const)
+                          .filter((k) => (t.oneCikarmaHakki[k] ?? 0) > 0)
+                          .map((k) => (
+                            <button
+                              key={k}
+                              type="button"
+                              disabled={busy === t.id}
+                              onClick={() =>
+                                islem(t, 'promote', `${PROMOTION_NAMES[k]} 7 gün uygulandı.`, { tur: k })
+                              }
+                              style={yalin('#2450C8')}
+                            >
+                              {PROMOTION_NAMES[k]} · hakkını kullan ({t.oneCikarmaHakki[k]})
+                            </button>
+                          ))}
                         {gunKaldi(t.expiresAt) <= 7 ? (
                           <button
                             type="button"

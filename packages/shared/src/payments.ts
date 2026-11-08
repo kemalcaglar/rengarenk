@@ -204,7 +204,7 @@ export const orderCreateSchema = z
   .superRefine((v, ctx) => {
     v.kalemler.forEach((k, i) => {
       const p = productByKey(k.urun);
-      if (p?.oneCikarma && !k.talepNo) {
+      if (p?.oneCikarma && !k.talepNo && !v.hesap) {
         ctx.addIssue({
           code: 'custom',
           path: ['kalemler', i, 'talepNo'],
@@ -212,7 +212,8 @@ export const orderCreateSchema = z
         });
       }
     });
-    const hemen = v.kalemler.some((k) => productByKey(k.urun)?.hemenBaslar);
+    // Galeri (kurumsal) alımında öne çıkarma hak olarak alınır, talebe sonra uygulanır; tüketici cayma onayı aranmaz
+    const hemen = !v.hesap && v.kalemler.some((k) => productByKey(k.urun)?.hemenBaslar);
     if (hemen && !v.onay.cayma) {
       ctx.addIssue({
         code: 'custom',

@@ -76,11 +76,14 @@ interface Taslak {
   contact: Iletisim;
   headline: string | null;
   schema: { version: number; fields: CategoryField[]; rules: CategoryRules } | null;
+  hesap: { id: string; ad: string } | null;
 }
 interface Haklar {
   ucretsizTalep: boolean;
   talep: number;
-  telefonMaske: string;
+  telefonMaske: string | null;
+  /** Galeri adına talepte galerinin adı (paketin talep hakkı) */
+  galeri: string | null;
 }
 
 const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 20 };
@@ -112,6 +115,9 @@ export function Sihirbaz() {
   const [busy, setBusy] = useState(false);
   // 6. adımda seçilen öne çıkarmalar: yayından sonra Haklarım'da sepete eklenir (Karar 12.6)
   const [oneCikar, setOneCikar] = useState<string[]>([]);
+  // Galeri adına talep (Karar 12.2, 20): sahip ya da yönetici olduğu galeriler; seçim yalnızca taslak açılmadan
+  const [galeriler, setGaleriler] = useState<{ accountId: string; ad: string }[]>([]);
+  const [hesap, setHesap] = useState<string | null>(null);
   const kirli = useRef(false);
 
   useEffect(() => {
@@ -144,12 +150,23 @@ export function Sihirbaz() {
       .then((r) => r.json())
       .then((c: PublicCategory[]) => setKategoriler(c.filter((x) => x.vertical === 'vasita')))
       .catch(() => setKategoriler([]));
-    istek<Haklar>('/demands/rights')
-      .then(setHaklar)
+    istek<{ accountId: string; ad: string; rol: string; durum: string }[]>('/gallery/mine')
+      .then((g) => setGaleriler(g.filter((x) => x.rol !== 'SALES' && x.durum === 'ACTIVE')))
       .catch(() => undefined);
-    const id = new URLSearchParams(window.location.search).get('id');
+    const q = new URLSearchParams(window.location.search);
+    if (q.get('hesap')) setHesap(q.get('hesap'));
+    const id = q.get('id');
     if (id) yukle(id).catch((e: Error) => setUyari(e.message));
   }, [giris, yukle]);
+
+  // Haklar seçili hesaba göre: taslak açıldıysa taslağın hesabı, değilse "Kimin adına" seçimi
+  const etkinHesap = taslak ? (taslak.hesap?.id ?? null) : hesap;
+  useEffect(() => {
+    if (!giris) return;
+    istek<Haklar>(`/demands/rights${etkinHesap ? `?hesap=${etkinHesap}` : ''}`)
+      .then(setHaklar)
+      .catch(() => setHaklar(null));
+  }, [giris, etkinHesap]);
 
   /** Yayındaki talebin düzenlenmesi: otomatik kayıt yok, kategori değişmez, son adımda "Değişiklikleri kaydet" */
   const duzenle = Boolean(taslak && taslak.status !== 'DRAFT');
@@ -262,7 +279,10 @@ export function Sihirbaz() {
             method: 'PATCH',
             body: { kategori: slug, step: 2 },
           })
-        : await istek<{ id: string }>('/demands', { method: 'POST', body: { kategori: slug } });
+        : await istek<{ id: string }>('/demands', {
+            method: 'POST',
+            body: { kategori: slug, ...(hesap ? { hesap } : {}) },
+          });
       window.history.replaceState(null, '', `/talep-olustur?id=${t.id}`);
       await yukle(t.id);
       setAdim('ana_arac');
@@ -302,7 +322,7 @@ export function Sihirbaz() {
       }
       const r = await istek<{ no: number }>(`/demands/${taslak.id}/publish`, { method: 'POST' });
       router.push(
-        oneCikar.length
+        oneCikar.length && !taslak.hesap
           ? `/haklarim?talep=${r.no}&sepet=${oneCikar.map((k) => `${k}_7`).join(',')}`
           : `/taleplerim?yayinlandi=${r.no}`,
       );
@@ -531,6 +551,43 @@ export function Sihirbaz() {
 
           {adim === 'kategori' ? (
             <>
+              {galeriler.length && (!taslak || taslak.hesap) ? (
+                <fieldset style={{ border: 0, padding: 0, margin: '0 0 18px' }}>
+                  <legend style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>Kimin adına?</legend>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {[{ accountId: null as string | null, ad: 'Kendi adıma' }, ...galeriler].map((g) => {
+                      const on = (taslak ? (taslak.hesap?.id ?? null) : hesap) === g.accountId;
+                      return (
+                        <button
+                          key={g.accountId ?? 'ben'}
+                          type="button"
+                          aria-pressed={on}
+                          disabled={!!taslak}
+                          onClick={() => setHesap(g.accountId)}
+                          style={{
+                            border: on ? '2px solid #5B8CFF' : '1px solid #D5DAE5',
+                            background: on ? '#EEF3FF' : '#FFFFFF',
+                            borderRadius: 999,
+                            padding: on ? '8px 14px' : '9px 15px',
+                            fontSize: 14,
+                            fontWeight: 700,
+                            color: '#1E2333',
+                            cursor: taslak ? 'default' : 'pointer',
+                            fontFamily: 'inherit',
+                          }}
+                        >
+                          {g.accountId ? `${g.ad} adına` : g.ad}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p style={{ margin: '8px 0 0', fontSize: 13, color: '#5A6073' }}>
+                    {taslak
+                      ? 'Taslak açıldıktan sonra hesap değişmez.'
+                      : 'Galeri adına talepte paketin talep hakkı kullanılır ve alıcı olarak galerinin adı görünür.'}
+                  </p>
+                </fieldset>
+              ) : null}
               <div
                 style={{
                   display: 'grid',
@@ -1509,7 +1566,21 @@ function Onizleme({
           {rules.legalNotice}
         </p>
       ) : null}
-      {duzenle ? null : (
+      {duzenle ? null : haklar?.galeri ? (
+        <p
+          style={{
+            margin: '24px 0 0',
+            fontSize: 14,
+            color: '#3A4052',
+            background: '#EEF3FF',
+            borderRadius: 12,
+            padding: '12px 14px',
+          }}
+        >
+          Talep {haklar.galeri} adına yayınlanır; alıcı olarak galerinin adı görünür. Paketindeki öne çıkarma
+          hakkını yayından sonra Taleplerim'den kullanabilirsin.
+        </p>
+      ) : (
         <>
           <h2 style={{ margin: '24px 0 12px', fontSize: 18, fontWeight: 700 }}>
             Talebini öne çıkar (isteğe bağlı)
@@ -1591,10 +1662,30 @@ function Onizleme({
               <path d="M5 12l5 5 9-10" />
             </svg>
             <span style={{ fontSize: 14.5, color: '#11683F', fontWeight: 600 }}>
-              {haklar.ucretsizTalep
-                ? 'Bu telefon numarasıyla 1 ücretsiz talep hakkın var; bu talep ücretsiz yayınlanır.'
-                : `${haklar.talep} talep hakkın var; bu talep bir hakkını kullanır.`}
+              {haklar.galeri
+                ? `${haklar.galeri} galerisinin ${haklar.talep} talep hakkı var; bu talep paketin bir hakkını kullanır.`
+                : haklar.ucretsizTalep
+                  ? 'Bu telefon numarasıyla 1 ücretsiz talep hakkın var; bu talep ücretsiz yayınlanır.'
+                  : `${haklar.talep} talep hakkın var; bu talep bir hakkını kullanır.`}
             </span>
+          </div>
+        ) : haklar.galeri ? (
+          <div
+            style={{
+              marginTop: 18,
+              background: '#FFF6DF',
+              borderRadius: 14,
+              padding: '14px 16px',
+              fontSize: 14.5,
+              color: '#7A5300',
+              fontWeight: 600,
+            }}
+          >
+            {haklar.galeri} galerisinin bu ayki talep hakkı bitti.{' '}
+            <a href="/galeri-paneli?bolum=paket" style={{ fontWeight: 800 }}>
+              Galeri paneli › Paket ve faturalar
+            </a>
+            'dan ek talep alabilirsin; talebin taslak olarak saklanıyor.
           </div>
         ) : (
           <div

@@ -183,8 +183,9 @@ pnpm format        # Biome ile biçimlendir
   (`store.service.ts`, `STORE_PROVIDER`, `store_events`), mobil `app/haklarim.tsx`, konsol `/odemeler`. API'de 118,
   ortak pakette 71 test. Mağaza iadesinde kullanılmamış hak düşülür (sahip kararı). Test ve ekranda abonelik dönem sonu, aboneliğin
   `current_period_end` alanı geçmişe çekilerek denenir (başlangıç da geriye alınmalı: dönem kısıtı).
-- **Sıradaki:** galeri adına talep açma (paketin talep ve öne çıkarma haklarının kullanımı), sonra iade akışı (4 kilit):
-  başlamadan önce sahibe sorulur. Sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS. Bir sprint bitince plan
+- **Galeri adına talep (8 Kasım 2026):** `POST /demands { kategori, hesap }`, `GET /demands/rights?hesap=`, hakla öne
+  çıkarma `POST /demands/:id/promote { tur }`; web ve mobil sihirbazda "Kimin adına?". API'de 120 test.
+- **Sıradaki:** iade akışı (4 kilit, web iadeleri): başlamadan önce sahibe sorulur. Sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS. Bir sprint bitince plan
   kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

@@ -63,7 +63,17 @@ export const demandContactSchema = z
     path: ['whatsappVisible'],
   });
 
-export const demandCreateSchema = z.object({ kategori: z.string().min(1).max(60) }).strict();
+export const demandCreateSchema = z
+  .object({
+    kategori: z.string().min(1).max(60),
+    /** Galeri adına talep (sahip ya da yönetici; paketin talep hakkı kullanılır) */
+    hesap: z.uuid().optional(),
+  })
+  .strict();
+
+/** Hakla öne çıkarma (paketin aylık hakkı ya da talep seçilmeden alınmış hak): 7 gün */
+export const demandPromoteSchema = z.object({ tur: z.enum(['ust_sira', 'acil', 'vitrin']) }).strict();
+export const PROMOTE_DAYS = 7;
 
 export const demandUpdateSchema = z
   .object({

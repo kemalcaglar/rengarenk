@@ -17,6 +17,8 @@ import {
   EXTEND_WINDOW_DAYS,
   effectiveFields,
   type FoundViaKey,
+  galleryAccess,
+  PROMOTE_DAYS,
   REMINDER_DAYS,
 } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
@@ -83,15 +85,38 @@ export class DemandService {
       where: { userId },
       orderBy: [{ updatedAt: 'desc' }],
       take: 200,
-      include: { category: { select: { slug: true, name: true } } },
+      include: {
+        category: { select: { slug: true, name: true } },
+        account: { select: { kind: true, gallery: { select: { displayName: true, slug: true } } } },
+      },
     });
+    // Hesap başına öne çıkarma hakları (paketin aylık hakkı, talep seçilmeden alınan hak): Taleplerim'de "Öne çıkar"
+    const hesaplar = [...new Set(rows.map((r) => r.accountId))];
+    const haklar: Record<string, Record<string, number>> = {};
+    for (const h of hesaplar) {
+      const r = await this.db.entitlementLedger.groupBy({
+        by: ['kind'],
+        where: { accountId: h, kind: { in: ['ust_sira', 'acil', 'vitrin'] } },
+        _sum: { delta: true },
+      });
+      haklar[h] = Object.fromEntries(r.map((x) => [x.kind, x._sum.delta ?? 0]));
+    }
     const counts = Object.fromEntries(
       (Object.keys(DEMAND_STATUS_NAMES) as DemandStatusKey[]).map((k) => [
         k,
         rows.filter((r) => r.status === k).length,
       ]),
     );
-    return { counts, items: rows.map((d) => this.summary(d)) };
+    return {
+      counts,
+      items: rows.map((d) => ({
+        ...this.summary(d),
+        galeri: d.account.gallery
+          ? { ad: d.account.gallery.displayName, slug: d.account.gallery.slug }
+          : null,
+        oneCikarmaHakki: haklar[d.accountId] ?? {},
+      })),
+    };
   }
 
   /** Sahibin gördüğü talep: taslağın verisi, şeması ve yapılabilecek işler. */
@@ -100,8 +125,14 @@ export class DemandService {
     const category = await this.db.category.findUniqueOrThrow({ where: { id: d.categoryId } });
     const version = d.schemaVersion ?? category.publishedVersion;
     const def = version ? await this.definition(d.categoryId, version) : null;
+    const g = await this.db.gallery.findUnique({
+      where: { accountId: d.accountId },
+      select: { displayName: true },
+    });
     return {
       ...this.summary({ ...d, category }),
+      /** Galeri adına talep: hangi galeri (hak galerinin paketinden düşer) */
+      hesap: g ? { id: d.accountId, ad: g.displayName } : null,
       data: d.data,
       step: d.step,
       contact: { phoneVisible: d.phoneVisible, whatsappVisible: d.whatsappVisible, nameMode: d.nameMode },
@@ -117,9 +148,11 @@ export class DemandService {
       include: {
         category: { select: { slug: true, name: true } },
         user: { select: { firstName: true, lastName: true, phone: true, createdAt: true } },
+        account: { select: { gallery: { select: { displayName: true, slug: true } } } },
       },
     });
     if (!d || d.status === 'DRAFT') throw new NotFoundException('Talep bulunamadı');
+    const galeri = d.account.gallery;
     const def = await this.definition(d.categoryId, d.schemaVersion as number);
     const data = d.data as unknown as DemandData;
     const showPhone = d.status === 'PUBLISHED' && d.phoneVisible && Boolean(viewerUserId);
@@ -129,7 +162,11 @@ export class DemandService {
       gorunum: await this.gorunum(d, data),
       schema: { version: d.schemaVersion, fields: effectiveFields(def), rules: def.rules },
       owner: {
-        name: demandOwnerName(d.user.firstName, d.user.lastName, d.nameMode as 'tam' | 'kisa'),
+        name: galeri
+          ? galeri.displayName
+          : demandOwnerName(d.user.firstName, d.user.lastName, d.nameMode as 'tam' | 'kisa'),
+        /** Galeri adına açılmış talep (Karar 12.2): alıcı galeri */
+        galeri: galeri ? { ad: galeri.displayName, slug: galeri.slug } : null,
         /** "Kasım 2025'ten beri üye" */
         memberSince: d.user.createdAt,
         isYou: viewerUserId === d.userId,
@@ -280,7 +317,15 @@ export class DemandService {
   }
 
   /** Kalan haklar (Sihirbaz 6. adım: "Bu telefon numarasıyla 1 ücretsiz talep hakkın var"). */
-  async rights(userId: string) {
+  async rights(userId: string, hesap?: string) {
+    if (hesap) {
+      const g = await this.galleryOf(userId, hesap);
+      const [talep, uzatma] = await Promise.all([
+        this.entitlements.balance(hesap, 'talep'),
+        this.entitlements.balance(hesap, 'uzatma'),
+      ]);
+      return { ucretsizTalep: false, talep, uzatma, telefonMaske: null, galeri: g.ad };
+    }
     const accountId = await this.accountOf(userId);
     const user = await this.db.user.findUniqueOrThrow({ where: { id: userId }, select: { phone: true } });
     const freeUsed = await this.db.entitlementLedger.findUnique({
@@ -304,13 +349,14 @@ export class DemandService {
       uzatma,
       /** "0 (5XX) XXX XX 67" */
       telefonMaske: `0 (5XX) XXX XX ${phone.slice(-2)}`,
+      galeri: null,
     };
   }
 
   // ── Taslak ────────────────────────────────────────────────────
 
-  async create(userId: string, kategori: string) {
-    const accountId = await this.accountOf(userId);
+  async create(userId: string, kategori: string, hesap?: string) {
+    const accountId = hesap ? (await this.galleryOf(userId, hesap)).accountId : await this.accountOf(userId);
     const category = await this.leafCategory(kategori);
     return this.db.$transaction(async (tx) => {
       const d = await tx.demand.create({
@@ -391,22 +437,28 @@ export class DemandService {
     if (this.expiry(def, data, new Date()).getTime() - Date.now() < 3600_000) {
       throw new BadRequestException('Alış tarihi en az bir saat sonrası olmalı');
     }
+    const galeri =
+      (await this.db.account.findUniqueOrThrow({ where: { id: d.accountId } })).kind !== 'INDIVIDUAL';
+    if (galeri) await this.galleryOf(userId, d.accountId);
     return this.db.$transaction(async (tx) => {
-      // İlk talep telefon numarası başına ücretsiz; yeni hesap açmak hakkı yenilemez (Karar 12).
-      const free = await tx.entitlementLedger.createMany({
-        data: [
-          {
-            accountId: d.accountId,
-            kind: 'talep',
-            delta: 1,
-            reason: 'tanimlama',
-            sourceType: 'ucretsiz_talep',
-            sourceId: sha256(`rr-ucretsiz-talep:${user.phone}`),
-            createdBy: userId,
-          },
-        ],
-        skipDuplicates: true,
-      });
+      // İlk talep telefon numarası başına ücretsiz; yeni hesap açmak hakkı yenilemez (Karar 12). Galeri adına talepte
+      // ücretsiz hak yoktur, paketin aylık talep hakkı (ya da galerinin aldığı ek hak) kullanılır.
+      const free = galeri
+        ? { count: 0 }
+        : await tx.entitlementLedger.createMany({
+            data: [
+              {
+                accountId: d.accountId,
+                kind: 'talep',
+                delta: 1,
+                reason: 'tanimlama',
+                sourceType: 'ucretsiz_talep',
+                sourceId: sha256(`rr-ucretsiz-talep:${user.phone}`),
+                createdBy: userId,
+              },
+            ],
+            skipDuplicates: true,
+          });
       await this.entitlements.consume(tx, d.accountId, 'talep', {
         sourceType: 'demand',
         sourceId: d.id,
@@ -420,7 +472,7 @@ export class DemandService {
           data: data as unknown as Prisma.InputJsonValue,
           schemaVersion: category.publishedVersion,
           status: 'PUBLISHED',
-          entitlement: free.count === 1 ? 'ucretsiz' : 'ek',
+          entitlement: galeri ? 'paket' : free.count === 1 ? 'ucretsiz' : 'ek',
           publishedAt: now,
           expiresAt: this.expiry(def, data, now),
           step: 6,
@@ -670,6 +722,68 @@ export class DemandService {
         `Talep "${DEMAND_STATUS_NAMES[d.status as DemandStatusKey]}" durumunda; bu işlem yapılamaz`,
       );
     }
+  }
+
+  /** Galeri adına talep: sahip ya da yönetici, hesap etkin ve paketi açık (Karar 12.2, 20) */
+  private async galleryOf(userId: string, accountId: string) {
+    const m = await this.db.accountMember.findUnique({
+      where: { accountId_userId: { accountId, userId } },
+      include: { account: { include: { gallery: true } } },
+    });
+    const g = m?.account.gallery;
+    if (!m || !g) throw new NotFoundException('Galeri bulunamadı');
+    if (m.role === 'SALES') throw new ForbiddenException('Galeri adına talebi sahip ya da yönetici açar');
+    if (m.account.status !== 'ACTIVE') throw new ForbiddenException('Galeri hesabı askıda');
+    if (galleryAccess(g).saltOkunur) {
+      throw new ForbiddenException('Galeri adına talep için paket gerekli');
+    }
+    return { accountId, ad: g.displayName };
+  }
+
+  /**
+   * Hakla öne çıkarma: hesabın kullanılmamış öne çıkarma hakkı (galeri paketinin aylık hakkı ya da talep seçilmeden
+   * alınmış hak) yayındaki talebe 7 gün uygulanır; aynı türden süren varsa ardına eklenir. Hak ve öne çıkarma aynı işlemde.
+   */
+  async promote(userId: string, id: string, tur: 'ust_sira' | 'acil' | 'vitrin', ip?: string) {
+    const d = await this.own(userId, id);
+    this.expect(d, ['PUBLISHED']);
+    return this.db.$transaction(async (tx) => {
+      const pid = uuidv7();
+      await this.entitlements.consume(tx, d.accountId, tur, {
+        sourceType: 'promotion',
+        sourceId: pid,
+        createdBy: userId,
+      });
+      const now = new Date();
+      const son = await tx.demandPromotion.findFirst({
+        where: { demandId: d.id, kind: tur, endsAt: { gt: now } },
+        orderBy: { endsAt: 'desc' },
+      });
+      const baslangic = son ? son.endsAt : now;
+      const p = await tx.demandPromotion.create({
+        data: {
+          id: pid,
+          demandId: d.id,
+          kind: tur,
+          startsAt: baslangic,
+          endsAt: new Date(baslangic.getTime() + PROMOTE_DAYS * DAY),
+        },
+      });
+      await this.audit.record(
+        {
+          actorType: 'USER',
+          actorId: userId,
+          action: 'talep_one_cikarildi',
+          entityType: 'demand',
+          entityId: d.id,
+          after: { tur, bitis: p.endsAt.toISOString() },
+          ip: ip ?? null,
+        },
+        tx,
+      );
+      await this.outbox.add(tx, 'talep.guncellendi', { demandId: d.id });
+      return { tur, baslangic: p.startsAt, bitis: p.endsAt };
+    });
   }
 
   private async accountOf(userId: string) {
