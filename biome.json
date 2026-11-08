@@ -39,17 +39,24 @@
       "preset": "recommended",
       "style": {
         "useImportType": "off"
-      },
-      "correctness": {
-        "noReactNativeRawText": {
-          "level": "error",
-          "options": {
-            "skip": [
-              "T"
-            ]
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["apps/mobile/**"],
+      "linter": {
+        "rules": {
+          "correctness": {
+            "noReactNativeRawText": {
+              "level": "error",
+              "options": {
+                "skip": ["T"]
+              }
+            }
           }
         }
       }
     }
-  }
+  ]
 }
