@@ -138,6 +138,21 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 22 · saklama, imha, VERBİS; ihlal ve resmi talepler (Aşama 8 beşinci bölüm, 9 Kasım 2026)
+
+- [x] Konsol › Saklama, imha ve VERBİS (Karar 59): saklama süreleri tablosu; ajan her gün süresi dolan kayıtları sayar
+  (sohbet mesajları 1 yıl, kapatılan hesabın kimlik kaydı 5 yıl, erişim kayıtları 2 yıl, çözülmüş destek talebi 1 yıl,
+  KVKK başvurusu 3 yıl, fatura bilgisi 10 yıl); liste yalnızca Sahip onayıyla 1 Ocak / 1 Temmuz 03.00'te imha edilir,
+  tutanak (`disposal_runs`) indirilir. Şikâyetli sohbet ve resmi talebi süren kişinin kaydı bekletilir. İşlem kaydı, hak
+  defteri ve rıza kayıtları yalnızca ekleme yapılan tablolar olduğu için imha dışında (ayrı sahip kararı)
+- [x] VERBİS kartı: çalışan sayısı ve son 12 ay satış toplamı (bilanço tahmini) eşiklere göre; envanter şemadaki `@pii`
+- [x] Veri ihlali prosedürü: tatbikat ya da gerçek kayıt, 72 saat sayacı, beş adım (işlem kaydında), Kurul formu
+  başlıkları ve kişilere bildirim taslağı; gerçek ihlal Kurul adımı olmadan kapanmaz; sorumlu ve yedek, son tatbikat
+- [x] Resmi makam talepleri: yalnız sahip ve yönetici; resmi yazı yüklenmeden veri verilmez, verilen her veri kaydedilir;
+  yazı yasaklamıyorsa kullanıcıya bildirim (`resmi.bilgi`)
+- [x] Süresi dolan veri kopyası dosyaları ve kapatılan hesabın kopyaları depodan silinir (işçi, saatte bir)
+- [ ] Çalışan uyarıları (gerçek ihlal başladı, imha yapıldı, VERBİS eşiği) sahibe iletilecek (sonraki bölüm)
+
 ## Sprint 21 · KVKK başvuruları, verilerimi indir, rıza kayıtları (Aşama 8 dördüncü bölüm, 9 Kasım 2026)
 
 - [x] Verilerimi indir (Karar 58): SMS koduyla istenir; işçi profil, talepler, mesajlar, ödemeler, rızalar, destek ve
@@ -149,9 +164,15 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Konsol › Rıza ve çerez kayıtları: reklam ölçümü, analitik çerez ve ticari ileti oranları, kişinin rıza geçmişi
   (metin sürümü, tarih, kanal)
 - [x] Ayarlar › Gizlilik ve güvenlik: Engellediklerin (engeli kaldır)
-- [ ] Hesap kapatma ve anonimleştirme (Karar 31, 59): kullanılmamış hakların iadesine dokunduğu için sahibe sorulacak
-- [ ] Saklama, imha ve VERBİS; veri ihlali prosedürü ve resmi makam talepleri (sonraki bölüm); 7 gün kala ajan uyarısı
-  (çalışan bildirimleriyle); süresi dolan kopya dosyasının silinmesi (imha süreciyle)
+- [x] Hesap kapatma ve anonimleştirme (Karar 31, 39, 59; sahip onayı 9 Kasım 2026): SMS koduyla; talepler kapanır,
+  araçlar kalkar, sohbetler karşı tarafta "Kapatılmış hesap" ve yalnızca okunur; ad, e-posta, telefon, cihaz anahtarları,
+  favoriler, kayıtlı aramalar, takipler, engeller ve bildirim metinleri silinir; kimlik ve telefon doğrulaması 5 yıl şifreli
+  (`account_closures`), mesajlar 1 yıl sonra imha listesine. Web'den alınıp kullanılmamış hakların iadesi yalnızca öneri:
+  ajan her sipariş için Onay kuyruğunda REFUND açar, yalnızca Sahip onaylar, yürütücü yapar (iade kilidi değişmedi).
+  Galeri sahibi ve askıdaki hesap buradan kapatamaz. Web Ayarlar › Hesap, mobil Kişisel verilerim › Hesabı kapat
+- [x] Saklama, imha ve VERBİS; veri ihlali prosedürü ve resmi makam talepleri; süresi dolan kopya dosyasının silinmesi
+  (Sprint 22)
+- [ ] KVKK başvurusunda 7 gün kala ajan uyarısı: çalışan uyarılarının sahibe iletilmesiyle birlikte
 
 ## Sprint 20 · destek ve yardım merkezi (Aşama 8 üçüncü bölüm, 8 Kasım 2026)
 

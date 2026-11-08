@@ -21,6 +21,9 @@ export function memoryStorage(): Storage {
       if (!f) throw new Error(`depoda yok: ${key}`);
       return { body: Readable.from([Buffer.from(f.body)]), contentType: f.type, length: f.body.byteLength };
     },
+    delete: async (key) => {
+      files.delete(key);
+    },
   };
 }
 

@@ -172,6 +172,11 @@ Bu değerler başlangıç içindir ve ayardadır; gerçek taleplerle ayarlanacak
 
   Apple ve Google'ın kendi iade kararları bizim kontrolümüzde değildir; yalnızca kayda geçer.
 
+- **Hesap kapatmada iade (Karar 31, 39; sahip onayı 9 Kasım 2026):** kapatma iade yapmaz. Web'den alınıp kullanılmamış
+  haklar (kalan hak en yeni satın almadan geriye dağıtılır, satın alınan adetle sınırlı) için ajan servis hesabı her
+  sipariş adına Onay kuyruğunda bir iade isteği açar; istek yukarıdaki dört kilitten geçer, yalnızca Sahip onaylar.
+  Kimlik ve telefon doğrulama kaydı `account_closures` tablosunda 5 yıl şifreli saklanır (Karar 59).
+
 ## 8. Mesajlaşma ve güvenlik
 
 - Mesajlar WebSocket ile anında iletilir; alıcı çevrimdışıysa bildirim katmanına düşer.

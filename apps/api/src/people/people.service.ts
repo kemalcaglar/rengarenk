@@ -13,6 +13,7 @@ import {
   DECISION_NAMES,
   GRANT_MONTHLY_LIMIT,
   type GrantKind,
+  isClosedPhone,
   type ModerationDecision,
   maskEposta,
   normalizeBlockValue,
@@ -59,7 +60,7 @@ const kisaTarih = (d: Date) => {
   });
   return gun.format(d) === gun.format(new Date()) ? `Bugün ${saat.format(d)}` : gun.format(d);
 };
-const maskTel = (e164: string) => `05•• ••• •• ${e164.slice(-2)}`;
+const maskTel = (e164: string) => (isClosedPhone(e164) ? 'Hesap kapatıldı' : `05•• ••• •• ${e164.slice(-2)}`);
 const PLAN_AD: Record<string, string> = {
   deneme: 'Deneme',
   baslangic: 'Başlangıç paketi',
@@ -205,7 +206,10 @@ export class PeopleService {
           g.account.status === 'SUSPENDED' ? 'Askıda' : g.account.status === 'CLOSED' ? 'Kapalı' : 'Aktif',
       })),
       ...kisiler.map((u) => {
-        const ad = [u.firstName, u.lastName].filter(Boolean).join(' ') || 'Adsız kullanıcı';
+        const ad =
+          u.status === 'CLOSED'
+            ? 'Kapatılmış hesap'
+            : [u.firstName, u.lastName].filter(Boolean).join(' ') || 'Adsız kullanıcı';
         const galeriUyesi = u.memberships.some((m) => m.account.kind === 'BUSINESS');
         return {
           tip: 'kisi' as Tip,
@@ -270,7 +274,10 @@ export class PeopleService {
 
   private async kisiKarti(id: string) {
     const u = await this.kisiOf(id);
-    const ad = [u.firstName, u.lastName].filter(Boolean).join(' ') || 'Adsız kullanıcı';
+    const ad =
+      u.status === 'CLOSED'
+        ? 'Kapatılmış hesap'
+        : [u.firstName, u.lastName].filter(Boolean).join(' ') || 'Adsız kullanıcı';
     const hesaplar = u.memberships.map((m) => m.accountId);
     const [talepler, aktifTalep, ilkMesaj, odeme, sikayetAldi, sikayetYapti, yildiz, reklam, aski, sonTalep] =
       await Promise.all([
@@ -296,6 +303,7 @@ export class PeopleService {
     const cihaz = u.devices[0];
     const rozet = [
       ...(u.status === 'SUSPENDED' ? [{ t: 'Kalıcı engelli', bg: '#FDECEC', fg: '#A3271F' }] : []),
+      ...(u.status === 'CLOSED' ? [{ t: 'Hesap kapatıldı', bg: '#F3F5FA', fg: '#3A4052' }] : []),
       ...(aski
         ? [{ t: aski.until ? 'Askıda · 24 saat' : 'Askıda · onay bekliyor', bg: '#FDECEC', fg: '#A3271F' }]
         : []),
@@ -323,6 +331,8 @@ export class PeopleService {
         .filter(Boolean)
         .join(' · '),
       rozetler: rozet,
+      // Kapatılan hesapta karar ve hak işlemleri yapılmaz; not ve iade önerisi kalır (Karar 31)
+      kapali: u.status === 'CLOSED',
       telefon: maskTel(u.phone),
       eposta: u.email ? maskEposta(u.email) : '—',
       sayilar: [
@@ -567,7 +577,8 @@ export class PeopleService {
       after: { gerekce, alanlar: ['telefon', 'eposta'] },
       ip,
     });
-    return { telefon: u.phone, eposta: u.email ?? '—' };
+    // Kapatılan hesabın kimlik kaydı yalnızca resmi talep sürecinde açılır (Karar 59)
+    return { telefon: isClosedPhone(u.phone) ? 'Hesap kapatıldı' : u.phone, eposta: u.email ?? '—' };
   }
 
   async action(
@@ -596,6 +607,12 @@ export class PeopleService {
     const h = await this.hedef(tip, id);
     const accountId = tip === 'galeri' ? id : (h as { kisiselHesap: string | null }).kisiselHesap;
     if (!accountId) throw new BadRequestException('Kişinin bireysel hesabı yok');
+    if (
+      (await this.db.account.findUnique({ where: { id: accountId }, select: { status: true } }))?.status ===
+      'CLOSED'
+    ) {
+      throw new ConflictException('Kapatılan hesaba hak tanımlanamaz');
+    }
     const yonetici = ctx.staff.role === 'OWNER' || ctx.staff.role === 'ADMIN';
     await this.db.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`hak-tanimla:${accountId}`}))`;

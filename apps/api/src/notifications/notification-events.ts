@@ -79,6 +79,7 @@ export const NOTIFY_EVENTS = [
   'destek.memnuniyet',
   'veri.hazir',
   'kvkk.yanitlandi',
+  'resmi.yanitlandi',
 ] as const;
 export type NotifyEvent = (typeof NOTIFY_EVENTS)[number];
 
@@ -367,6 +368,15 @@ export class NotificationEvents {
           userIds: [e.userId],
           sablon: type,
           veri: { tarih: tarih(e.expiresAt) },
+        });
+      }
+      case 'resmi.yanitlandi': {
+        const r = await this.db.officialRequest.findUnique({ where: { id: s('requestId') } });
+        if (!r?.userId || r.noNotify) return 0;
+        return this.notifications.notify({
+          userIds: [r.userId],
+          sablon: 'resmi.bilgi',
+          veri: { makam: r.authority },
         });
       }
       case 'kvkk.yanitlandi': {

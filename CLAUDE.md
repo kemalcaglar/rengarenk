@@ -212,10 +212,18 @@ pnpm format        # Biome ile biçimlendir
 - **Sprint 21 (9 Kasım 2026):** KVKK araçları (`apps/api/src/privacy/`, `packages/shared/src/kvkk.ts`): verilerimi indir
   (SMS kodu `AuthService.confirmCode`, işçi hazırlar), KVKK başvuruları (konsol `/kvkk`), rıza kayıtları (konsol
   `/riza`), Ayarlar › Gizlilik'te engellediklerin ve kişisel verilerim, mobil `app/kisisel-verilerim.tsx`. Hesap kapatma
-  iadeye dokunduğu için sahibe sorulacak. API'de 147 test.
-- **Sıradaki (Aşama 8 devamı):** saklama/imha/VERBİS ve ihlal/resmi talepler (Karar 59),
-  Rengarenk Ajanı ve yapay zekâ bütçesi (Karar 41, 57), çalışan uyarılarının sahibe
-  iletilmesi; ya da
+  iadeye dokunduğu için sahibe soruldu ve onaylandı (aşağıda).
+- **Hesap kapatma (9 Kasım 2026, sahip onayıyla):** `apps/api/src/privacy/account-closure.service.ts`, `POST /me/close`.
+  Kişisel veri hemen anonimleşir (telefon alanı `kapali:<id>`, numara serbest kalır), kimlik kaydı `account_closures`'ta
+  5 yıl şifreli. Kullanılmamış web haklarının iadesi yalnızca öneri: ajan servis hesabı (`approvals/agent-actor.ts`,
+  rol AGENT, giriş yapamaz) Onay kuyruğunda REFUND açar, yalnızca Sahip onaylar. Galeri sahibi buradan kapatamaz.
+  API'de 149 test.
+- **Sprint 22 (9 Kasım 2026):** saklama, imha, VERBİS, ihlal ve resmi talepler (`apps/api/src/privacy/retention.service.ts`,
+  `compliance.service.ts`, `packages/shared/src/retention.ts`; konsol `/imha`, `/ihlal`). İmha listesini yalnızca Sahip
+  onaylar, işçi 1 Ocak / 1 Temmuz'da yapar; yalnızca ekleme yapılan tablolar (işlem kaydı, hak defteri, rıza) imha
+  dışında. Depoya `Storage.delete` eklendi. API'de 152, ortak pakette 76 test.
+- **Sıradaki (Aşama 8 devamı):** Rengarenk Ajanı ve yapay zekâ bütçesi (Karar 41, 57), çalışan uyarılarının sahibe
+  iletilmesi (gerçek ihlal, imha, VERBİS eşiği, KVKK 7 gün, yeni cihaz, iade sonucu); ya da
   sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan
   kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import type { Order } from '@rengarenk/db';
 import {
+  CLOSE_UNIT_NAMES,
   productByKey,
   REFUND_STATUS_NAMES,
   REFUND_WINDOW_DAYS,
@@ -14,10 +15,19 @@ import {
   tlYaz,
 } from '@rengarenk/shared';
 import { type Actor, ApprovalService } from '../approvals/approval.service.js';
-import { type Db, PRISMA } from '../database/prisma.js';
+import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { kalemler } from '../payments/order-item.js';
 
 const DAY = 86_400_000;
+
+/** Hesap kapatmada bir siparişin iade önerisi (Karar 31, 39) */
+export interface ClosureRefund {
+  orderId: string;
+  no: string;
+  odemeId: string;
+  kurus: number;
+  kalemler: { ad: string; adet: number; tutarKurus: number }[];
+}
 
 export interface QuoteLine {
   ad: string;
@@ -178,6 +188,124 @@ export class RefundsService {
       kalemler: satirlar,
       onerilenKurus: onerilen,
     };
+  }
+
+  /** Ödemede bekleyen ya da onaylanıp yürütülmemiş iade isteği var mı */
+  private bekleyenIade(odemeId: string) {
+    return this.db.approval.count({
+      where: {
+        kind: 'REFUND',
+        subjectType: 'payment',
+        subjectId: odemeId,
+        OR: [{ status: 'PENDING' }, { status: 'APPROVED', refunds: { none: {} } }],
+      },
+    });
+  }
+
+  /**
+   * Hesap kapatma (Karar 31, 39): web'den alınıp kullanılmamış hakların iade önerisi. Kalan hak en yeni satın almadan
+   * geriye doğru siparişlere dağıtılır (kullanıcının lehine: önce ücretsiz ve tanımlanan haklar kullanılmış sayılır);
+   * iade satın alınan adetle sınırlıdır, satın alınmamış hak iade edilmez. Mağaza
+   * satışından kalan hak iade edilmez, iadesi mağazadan yapılır. Başlamış öne çıkarma hak değildir, iade edilmez.
+   * Bekleyen iade isteği olan siparişin hakları o istekle düşüleceği için burada sayılmaz. Para iadesi yapılmaz.
+   */
+  async closureQuote(accountId: string) {
+    const siparisler = await this.db.order.findMany({
+      where: { accountId, kind: 'urun', status: 'PAID' },
+      orderBy: [{ paidAt: 'desc' }, { id: 'desc' }],
+      include: {
+        payments: { where: { status: 'success' }, orderBy: { createdAt: 'asc' }, take: 1 },
+        refunds: { select: { amountKurus: true, status: true } },
+      },
+    });
+    const kalan = new Map<string, number>();
+    const iadeler: ClosureRefund[] = [];
+    let magaza = false;
+    for (const o of siparisler) {
+      const odeme = o.payments[0];
+      const web = o.channel === 'web';
+      const bekleyen = web && odeme ? (await this.bekleyenIade(odeme.id)) > 0 : false;
+      const satirlar: ClosureRefund['kalemler'] = [];
+      for (const k of kalemler(o.items)) {
+        const p = productByKey(k.urun);
+        const hak = p?.hak
+          ? { kind: p.hak.kind as string, adet: p.hak.adet }
+          : p?.oneCikarma && !k.talepId
+            ? { kind: p.oneCikarma.tur as string, adet: 1 }
+            : null;
+        if (!hak) continue;
+        if (!kalan.has(hak.kind)) kalan.set(hak.kind, Math.max(0, await this.bakiye(accountId, hak.kind)));
+        const b = kalan.get(hak.kind) ?? 0;
+        const adet = Math.min(hak.adet, b);
+        if (!adet) continue;
+        kalan.set(hak.kind, b - adet);
+        if (!web) {
+          magaza ||= o.channel === 'ios' || o.channel === 'android';
+          continue;
+        }
+        if (bekleyen || !odeme) continue;
+        satirlar.push({
+          ad: `${adet} ${CLOSE_UNIT_NAMES[hak.kind] ?? k.ad}`,
+          adet,
+          tutarKurus: Math.round((k.tutarKurus * adet) / hak.adet),
+        });
+      }
+      if (!satirlar.length || !odeme) continue;
+      const iadeEdilen = o.refunds
+        .filter((r) => r.status !== 'FAILED')
+        .reduce((t, r) => t + Number(r.amountKurus), 0);
+      const kurus = Math.min(
+        Math.max(0, Number(o.totalKurus) - iadeEdilen),
+        satirlar.reduce((t, s) => t + s.tutarKurus, 0),
+      );
+      if (kurus > 0) iadeler.push({ orderId: o.id, no: o.no, odemeId: odeme.id, kurus, kalemler: satirlar });
+    }
+    // Aynı hak türleri tek satırda: "4 ek ilk mesaj · 39,60 TL"
+    const ozet = new Map<string, { adet: number; tutarKurus: number; birim: string }>();
+    for (const i of iadeler) {
+      for (const s of i.kalemler) {
+        const birim = s.ad.replace(/^\d+ /, '');
+        const o = ozet.get(birim) ?? { adet: 0, tutarKurus: 0, birim };
+        o.adet += s.adet;
+        o.tutarKurus += s.tutarKurus;
+        ozet.set(birim, o);
+      }
+    }
+    return {
+      iadeler,
+      satirlar: [...ozet.values()].map((o) => ({ ad: `${o.adet} ${o.birim}`, tutarKurus: o.tutarKurus })),
+      toplamKurus: iadeler.reduce((t, i) => t + i.kurus, 0),
+      magaza,
+    };
+  }
+
+  /** Hesap kapatmanın iade önerileri: ajan her sipariş için onay kuyruğunda REFUND açar; yalnızca Sahip onaylar. */
+  async requestForClosure(tx: Tx, actor: Actor, musteri: string, iadeler: ClosureRefund[], ip?: string) {
+    const out: { siparis: string; onayId: string; kurus: number }[] = [];
+    for (const i of iadeler) {
+      const a = await this.approvals.request(
+        actor,
+        {
+          kind: 'REFUND',
+          subjectType: 'payment',
+          subjectId: i.odemeId,
+          amountKurus: BigInt(i.kurus),
+          title: `Hesap kapatma iadesi · ${musteri} · ${i.no}`,
+          reason: 'Hesap kapatıldı: web’den alınıp kullanılmamış haklar (Karar 31, 39)',
+          payload: {
+            orderId: i.orderId,
+            no: i.no,
+            kapanis: true,
+            onerilenKurus: i.kurus,
+            kalemler: i.kalemler.map((k) => `${k.ad}: ${tlYaz(k.tutarKurus)}`),
+          },
+        },
+        tx,
+        ip,
+      );
+      out.push({ siparis: i.no, onayId: a.id, kurus: i.kurus });
+    }
+    return out;
   }
 
   /** İade isteği: onay motorunda REFUND (yalnızca Sahip onaylar). Para iadesi burada yapılmaz. */

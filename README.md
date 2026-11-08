@@ -173,7 +173,20 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Saklama, imha ve ihlal (Sprint 22)
+
+- **Konsol:** `GET /staff/retention` (süreler, sıradaki dönem listesi, VERBİS), `POST /staff/retention/:id/approve`
+  (yalnızca Sahip), `GET /staff/retention/:id/report` (tutanak); `GET/POST /staff/breach`,
+  `POST /staff/breach/:id/steps/:adim`, `POST /staff/breach/:id/close`; `GET/POST /staff/official`,
+  `POST /staff/official/:id/document` (PDF ya da görsel, ham gövde), `POST /staff/official/:id/give`,
+  `POST /staff/official/:id/reply`.
+- İşçi: günde bir sayım (`RetentionService.countDue`), saatte bir günü gelmiş onaylı imha (`runDue`) ve süresi dolan veri
+  kopyası dosyalarının silinmesi. Kurallar `packages/shared/src/retention.ts`.
+
 ## KVKK araçları (Sprint 21)
+
+- **Hesap kapatma:** `GET /me/close` (ne olacağı, iade önerisi, engel), `POST /me/close` (`{ challengeId, code, neden? }`).
+  Kişisel veri anonimleşir; iade yalnızca ajanın açtığı REFUND isteğidir, Sahip onaylar (`RefundsService.closureQuote`).
 
 - **Kullanıcı:** `POST /me/data-exports` (`{ challengeId, code }` kişinin kendi numarasına `/auth/otp/request` ile alınan
   kod), `GET /me/data-exports`, `GET /me/data-exports/:id/download`; `POST /me/kvkk` (`{ tur, metin, challengeId, code }`),

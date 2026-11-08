@@ -24,6 +24,8 @@ interface Sonuc {
   durum: string;
 }
 interface Kart {
+  /** Hesap kapatıldı (Karar 31) */
+  kapali?: boolean;
   tip: Tip;
   id: string;
   ad: string;
@@ -207,14 +209,16 @@ export default function Kullanicilar() {
     }
   }
 
+  // Kapatılan hesapta yalnızca not ve iade önerisi (Karar 31)
+  const kapali = !!k?.kapali;
   const dugmeler: [string, Form | 'oturum' | 'iade', boolean, string, string][] = [
-    ['Uyar', 'uyari', izin.uyari, '#D5DAE5', '#1E2333'],
-    ['24 saat askıya al', 'aski', izin.aski, '#D5DAE5', '#1E2333'],
-    ['Hak tanımla', 'hak', izin.hak, '#D5DAE5', '#1E2333'],
-    ['Oturumları kapat', 'oturum', izin.oturum, '#D5DAE5', '#1E2333'],
+    ['Uyar', 'uyari', izin.uyari && !kapali, '#D5DAE5', '#1E2333'],
+    ['24 saat askıya al', 'aski', izin.aski && !kapali, '#D5DAE5', '#1E2333'],
+    ['Hak tanımla', 'hak', izin.hak && !kapali, '#D5DAE5', '#1E2333'],
+    ['Oturumları kapat', 'oturum', izin.oturum && !kapali, '#D5DAE5', '#1E2333'],
     ['Not ekle', 'not', true, '#D5DAE5', '#1E2333'],
     ['İade öner', 'iade', izin.iade, '#F4DC9A', '#7A5300'],
-    ['Kalıcı engelleme öner', 'engel', izin.engel, '#E5A6A1', '#A3271F'],
+    ['Kalıcı engelleme öner', 'engel', izin.engel && !kapali, '#E5A6A1', '#A3271F'],
   ];
 
   return (

@@ -97,6 +97,10 @@ export type EventType =
   | 'destek.yanitlandi'
   | 'destek.memnuniyet'
   // KVKK (Karar 58): veri kopyası istendi (işçi hazırlar) ve hazır; başvuru ve yanıtı
+  | 'hesap.kapatildi'
+  | 'imha.yapildi'
+  | 'ihlal.basladi'
+  | 'resmi.yanitlandi'
   | 'veri.indirme_istendi'
   | 'veri.hazir'
   | 'kvkk.basvuru'

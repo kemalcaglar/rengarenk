@@ -20,6 +20,7 @@ import { OrdersService } from './payments/orders.service.js';
 import { SubscriptionsService } from './payments/subscriptions.service.js';
 import { PortfolioService } from './portfolio/portfolio.service.js';
 import { PrivacyService } from './privacy/privacy.service.js';
+import { RetentionService } from './privacy/retention.service.js';
 import { QueueService } from './queue/queue.service.js';
 import { DemandSearchService } from './search/demand-search.service.js';
 import { SupportService } from './support/support.service.js';
@@ -52,6 +53,7 @@ const moderasyon = app.get(ModerationService);
 const itibar = app.get(ReputationService);
 const destek = app.get(SupportService);
 const gizlilik = app.get(PrivacyService);
+const imha = app.get(RetentionService);
 const iys = app.get<IysProvider>(IYS);
 await queue.start();
 
@@ -160,6 +162,7 @@ const ITIBAR_MS = 3_600_000;
 let lastItibar = 0;
 let sonOzetGunu = '';
 let sonAkisGunu = '';
+let sonImhaSayimi = '';
 
 log.log('outbox aktarıcısı çalışıyor');
 while (!stopping) {
@@ -241,6 +244,12 @@ while (!stopping) {
       .askRatings()
       .then((n) => n && log.log(`destek memnuniyet sorusu: ${n}`))
       .catch((err: Error) => log.error(`destek memnuniyet: ${err.message}`));
+    // Periyodik imha (Karar 59): günü gelmiş onaylı liste imha edilir; süresi dolan veri kopyası dosyaları silinir
+    await imha
+      .runDue()
+      .then((r) => r && log.log(`imha ${r.no} yapıldı`))
+      .catch((err: Error) => log.error(`imha: ${err.message}`));
+    await imha.expireExports().catch((err: Error) => log.error(`veri kopyası süresi: ${err.message}`));
   }
   // Kayıtlı aramaların günlük özeti: İstanbul saatiyle 09.00'dan sonra günde bir (Karar 30)
   const trSaat = new Date(Date.now() + 3 * 3600_000);
@@ -251,6 +260,11 @@ while (!stopping) {
       .dailyDigest()
       .then((n) => n && log.log(`kayıtlı arama özeti: ${n} kişi`))
       .catch((err: Error) => log.error(`kayıtlı arama özeti: ${err.message}`));
+  }
+  // Ajanın imha sayımı (Karar 59): günde bir, İstanbul saatiyle 04.00'ten sonra
+  if (trSaat.getUTCHours() >= 4 && sonImhaSayimi !== gun) {
+    sonImhaSayimi = gun;
+    await imha.countDue().catch((err: Error) => log.error(`imha sayımı: ${err.message}`));
   }
   // Zamanlı akışlar (Karar 51): İstanbul saatiyle 09.30'dan sonra günde bir
   if (

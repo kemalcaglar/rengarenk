@@ -37,6 +37,8 @@ import { rozetler } from '../trust/badges.js';
 import { TrustService } from '../trust/trust.service.js';
 import { RealtimeService } from './realtime.service.js';
 
+/** Hesabını kapatan karşı taraf (Karar 31) */
+const KAPALI_HESAP = 'Kapatılmış hesap';
 /** Bireysel satıcının günlük ücretsiz ilk mesajı; kategori kuralı yoksa (Karar 11.2) */
 const VARSAYILAN_UCRETSIZ = 5;
 
@@ -495,10 +497,25 @@ export class MessagesService {
     return { c, taraf: 'satici' };
   }
 
+  /** Karşı taraf hesabını kapattı mı: alıcı kişi ya da bireysel satıcının hesabı (Karar 31) */
+  private async karsiKapali(c: Conversation, taraf: Taraf) {
+    if (taraf === 'satici') {
+      const u = await this.db.user.findUnique({ where: { id: c.buyerUserId }, select: { status: true } });
+      return u?.status === 'CLOSED';
+    }
+    const a = await this.db.account.findUnique({
+      where: { id: c.sellerAccountId },
+      select: { status: true },
+    });
+    return a?.status === 'CLOSED';
+  }
+
   /** Sohbete mesaj. Alıcının ilk yanıtı sohbeti açar; satıcı alıcı yanıtlamadan ikinci mesaj atamaz (Karar 11.1). */
   async send(userId: string, id: string, b: { metin: string; aracId?: string }) {
     const { c, taraf } = await this.erisim(userId, id);
     if (c.status === 'DECLINED') throw new ConflictException('Bu sohbet kapandı');
+    if (await this.karsiKapali(c, taraf))
+      throw new ConflictException('Bu hesap kapatıldı; mesaj gönderilemez');
     if (taraf === 'satici') {
       if (c.status === 'WAITING')
         throw new ConflictException('Alıcı yanıt verene kadar ikinci mesaj atılamaz');
@@ -695,7 +712,7 @@ export class MessagesService {
           },
         },
         vehicle: true,
-        buyer: { select: { firstName: true, lastName: true } },
+        buyer: { select: { firstName: true, lastName: true, status: true } },
         sellerAccount: { select: { kind: true, gallery: { select: { displayName: true } } } },
       },
     });
@@ -705,7 +722,7 @@ export class MessagesService {
       this.sonMesajlar(ids),
       this.db.user.findMany({
         where: { id: { in: [...new Set(cs.map((c) => c.sellerUserId))] } },
-        select: { id: true, firstName: true, lastName: true },
+        select: { id: true, firstName: true, lastName: true, status: true },
       }),
       this.db.userBlock.findMany({ where: { userId }, select: { accountId: true } }),
     ]);
@@ -777,12 +794,17 @@ export class MessagesService {
   private karsiAd(
     c: Conversation & {
       demand: { nameMode: string; user: { firstName: string | null; lastName: string | null } } | null;
-      buyer: { firstName: string | null; lastName: string | null };
+      buyer: { firstName: string | null; lastName: string | null; status: string };
       sellerAccount: { kind: string; gallery: { displayName: string } | null };
     },
     taraf: Taraf,
-    saticiKisi?: { firstName: string | null; lastName: string | null },
+    saticiKisi?: { firstName: string | null; lastName: string | null; status: string },
   ) {
+    // Kapatılan hesap karşı tarafta "Kapatılmış hesap" görünür (Karar 31)
+    if (taraf === 'satici' && c.buyer.status === 'CLOSED') return { ad: KAPALI_HESAP, galeri: false };
+    if (taraf === 'alici' && !c.sellerAccount.gallery && saticiKisi?.status === 'CLOSED') {
+      return { ad: KAPALI_HESAP, galeri: false };
+    }
     if (taraf === 'satici') {
       const mod = (c.demand?.nameMode as 'tam' | 'kisa' | undefined) ?? 'kisa';
       return { ad: demandOwnerName(c.buyer.firstName, c.buyer.lastName, mod), galeri: false };
@@ -811,7 +833,7 @@ export class MessagesService {
           },
         },
         vehicle: true,
-        buyer: { select: { firstName: true, lastName: true, phone: true } },
+        buyer: { select: { firstName: true, lastName: true, phone: true, status: true } },
         sellerAccount: {
           select: { kind: true, gallery: { select: { displayName: true, slug: true, authorityNo: true } } },
         },
@@ -824,7 +846,7 @@ export class MessagesService {
     const [kisiler, uyelik, blok] = await Promise.all([
       this.db.user.findMany({
         where: { id: { in: kisiIds } },
-        select: { id: true, firstName: true, lastName: true },
+        select: { id: true, firstName: true, lastName: true, status: true },
       }),
       this.db.accountMember.findUnique({
         where: { accountId_userId: { accountId: c.sellerAccountId, userId: c.sellerUserId } },
@@ -837,6 +859,7 @@ export class MessagesService {
     const kisi = new Map(kisiler.map((k) => [k.id, k]));
     const satici = kisi.get(c.sellerUserId);
     const karsi = this.karsiAd(c, taraf, satici);
+    const kapali = await this.karsiKapali(c, taraf);
     const saticiAd = [satici?.firstName, satici?.lastName].filter(Boolean).join(' ');
     const g = c.sellerAccount.gallery;
     const alt =
@@ -943,8 +966,15 @@ export class MessagesService {
       engelli: !!blok,
       // Alıcıya: "Bu satıcı sana ilk mesajını gönderdi. Yanıtlarsan sohbet açılır."
       ilkMesajBekliyor: taraf === 'alici' && c.status === 'WAITING',
+      // Karşı taraf hesabını kapattıysa sohbet yalnızca okunur
+      kapali,
       yazabilir:
-        c.status === 'OPEN' ? taraf === 'alici' || !blok : c.status === 'WAITING' ? taraf === 'alici' : false,
+        !kapali &&
+        (c.status === 'OPEN'
+          ? taraf === 'alici' || !blok
+          : c.status === 'WAITING'
+            ? taraf === 'alici'
+            : false),
       kartEkleyebilir: taraf === 'satici' && !!g,
       saticiHesap: taraf === 'satici' ? c.sellerAccountId : null,
       mesajlar,

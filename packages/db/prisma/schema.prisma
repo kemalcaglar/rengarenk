@@ -1429,22 +1429,22 @@ model Conversation {
 
 /// Mesaj: gövde şifreli saklanır (Teknik tasarım §8). Sistem mesajı ve araç kartı da satırdır.
 model Message {
-  id             String   @id @db.Uuid
-  conversationId String   @map("conversation_id") @db.Uuid
+  id             String    @id @db.Uuid
+  conversationId String    @map("conversation_id") @db.Uuid
   /// alici | satici | sistem
   side           String
-  senderUserId   String?  @map("sender_user_id") @db.Uuid
+  senderUserId   String?   @map("sender_user_id") @db.Uuid
   /// metin | kart | sistem
   kind           String
   /// @pii Şifreli metin (AES-256-GCM); kartta ve sistem mesajında da şifreli
   body           String
   /// Araç kartı (Karar 26)
-  vehicleId      String?  @map("vehicle_id") @db.Uuid
+  vehicleId      String?   @map("vehicle_id") @db.Uuid
   /// Güvenlik kuralları: kapora, odeme, iban, telefon, baglanti (Karar 25)
-  flags          String[] @default([])
+  flags          String[]  @default([])
   /// Moderasyon gizledi (Karar 53): karşı tarafa "Bu mesaj gizlendi" görünür
   hiddenAt       DateTime? @map("hidden_at") @db.Timestamptz(3)
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
   conversation Conversation @relation(fields: [conversationId], references: [id])
 
@@ -2066,6 +2066,8 @@ model SupportTicket {
   lastMessageAt   DateTime  @map("last_message_at") @db.Timestamptz(3)
   /// Kullanıcının son okuduğu
   userReadAt      DateTime? @map("user_read_at") @db.Timestamptz(3)
+  /// İmha edildiyse zamanı (Karar 59): metinler silinir, satır kalır
+  purgedAt        DateTime? @map("purged_at") @db.Timestamptz(3)
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
   messages SupportMessage[]
@@ -2093,17 +2095,17 @@ model SupportMessage {
 
 /// Kendi verini indir (Karar 58): SMS koduyla istenir, işçi hazırlar, bağlantı 7 gün geçerli
 model DataExport {
-  id          String    @id @db.Uuid
-  userId      String    @map("user_id") @db.Uuid
+  id           String    @id @db.Uuid
+  userId       String    @map("user_id") @db.Uuid
   /// hazirlaniyor | hazir | hata | suresi_doldu
-  status      String    @default("hazirlaniyor")
+  status       String    @default("hazirlaniyor")
   /// Depolamadaki dosya anahtarı
-  storageKey  String?   @map("storage_key")
-  sizeBytes   Int?      @map("size_bytes")
-  readyAt     DateTime? @map("ready_at") @db.Timestamptz(3)
-  expiresAt   DateTime? @map("expires_at") @db.Timestamptz(3)
+  storageKey   String?   @map("storage_key")
+  sizeBytes    Int?      @map("size_bytes")
+  readyAt      DateTime? @map("ready_at") @db.Timestamptz(3)
+  expiresAt    DateTime? @map("expires_at") @db.Timestamptz(3)
   downloadedAt DateTime? @map("downloaded_at") @db.Timestamptz(3)
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
   @@index([userId, createdAt])
   @@index([status, createdAt])
@@ -2112,33 +2114,142 @@ model DataExport {
 
 /// KVKK m.11 başvurusu (Karar 58): en geç 30 gün içinde yanıt; ajan taslak hazırlar, yanıtı çalışan gönderir
 model KvkkRequest {
-  id           String    @id @db.Uuid
+  id             String    @id @db.Uuid
   /// Görünen numara ("K-1001")
-  no           Int       @unique @default(autoincrement())
-  userId       String?   @map("user_id") @db.Uuid
+  no             Int       @unique @default(autoincrement())
+  userId         String?   @map("user_id") @db.Uuid
   /// @pii Dışarıdan gelen başvuruda başvuranın adı
-  applicantName  String? @map("applicant_name")
+  applicantName  String?   @map("applicant_name")
   /// @pii Dışarıdan gelen başvuruda yanıt adresi
-  applicantEmail String? @map("applicant_email")
+  applicantEmail String?   @map("applicant_email")
   /// bilgi | duzeltme | silme | itiraz
-  kind         String
+  kind           String
   /// @pii Başvuru metni
-  text         String
+  text           String
   /// hesap_kodu | kimlik
-  verification String
+  verification   String
   /// uygulama | eposta | posta
-  channel      String
+  channel        String
   /// acik | yanitlandi
-  status       String    @default("acik")
-  dueAt        DateTime  @map("due_at") @db.Timestamptz(3)
+  status         String    @default("acik")
+  dueAt          DateTime  @map("due_at") @db.Timestamptz(3)
   /// @pii Gönderilen yanıt
-  response     String?
-  respondedBy  String?   @map("responded_by") @db.Uuid
-  respondedAt  DateTime? @map("responded_at") @db.Timestamptz(3)
-  createdBy    String?   @map("created_by") @db.Uuid
-  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  response       String?
+  respondedBy    String?   @map("responded_by") @db.Uuid
+  respondedAt    DateTime? @map("responded_at") @db.Timestamptz(3)
+  createdBy      String?   @map("created_by") @db.Uuid
+  /// İmha edildiyse zamanı (Karar 59): metinler silinir, satır kalır
+  purgedAt       DateTime? @map("purged_at") @db.Timestamptz(3)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
   @@index([status, dueAt])
   @@index([userId, createdAt])
   @@map("kvkk_requests")
+}
+
+/// Kapatılan hesap (Karar 31, 59). Kişisel veri `users` satırında anonimleşir; kimlik ve telefon doğrulama kaydı
+/// MKTTY m.22 gereği 5 yıl şifreli burada kalır, yalnızca resmi talep ve imha sürecinde açılır. Mesajlar 1 yıl sonra
+/// imha listesine girer. İade önerileri onay kuyruğundadır (`iadeler`), para iadesi burada yapılmaz.
+model AccountClosure {
+  id                String    @id @db.Uuid
+  userId            String    @unique @map("user_id") @db.Uuid
+  /// buldum | cok_mesaj | baska_platform | diger
+  reason            String?
+  /// @pii Doğrulanmış telefon, AES-256-GCM ile şifreli
+  phoneEnc          String?   @map("phone_enc")
+  /// Telefonun anahtarlı özeti (kara liste ve resmi talepte arama)
+  phoneHash         String    @map("phone_hash")
+  phoneVerifiedAt   DateTime? @map("phone_verified_at") @db.Timestamptz(3)
+  /// Önerilen iade toplamı (kuruş) ve onay istekleri: [{ siparis, onayId, kurus }]
+  refundKurus       BigInt    @default(0) @map("refund_kurus")
+  refunds           Json      @default("[]")
+  /// Kimlik kaydının imha tarihi (5 yıl) ve mesajların imha tarihi (1 yıl)
+  keepIdentityUntil DateTime  @map("keep_identity_until") @db.Timestamptz(3)
+  purgeMessagesAt   DateTime  @map("purge_messages_at") @db.Timestamptz(3)
+  /// Kimlik kaydı imha edildiyse zamanı (şifreli telefon silinir)
+  identityPurgedAt  DateTime? @map("identity_purged_at") @db.Timestamptz(3)
+  messagesPurgedAt  DateTime? @map("messages_purged_at") @db.Timestamptz(3)
+  closedAt          DateTime  @default(now()) @map("closed_at") @db.Timestamptz(3)
+
+  @@index([phoneHash])
+  @@index([keepIdentityUntil])
+  @@index([purgeMessagesAt])
+  @@map("account_closures")
+}
+
+/// Periyodik imha dönemi (Karar 59): ajan süresi dolan kayıtları sayar, Sahip listeyi onaylar, işçi dönem gününde
+/// (1 Ocak ve 1 Temmuz, 03.00) imha eder ve tutanağı yazar. Satırlar silinmez.
+model DisposalRun {
+  id             String    @id @db.Uuid
+  /// Tutanak numarası: İ-2027-01
+  no             String    @unique
+  scheduledFor   DateTime  @map("scheduled_for") @db.Timestamptz(3)
+  /// liste | onaylandi | calisti
+  status         String    @default("liste")
+  /// Ajanın son sayımı: { sohbet: 12, hesap: 3, ... }
+  counts         Json      @default("{}")
+  countedAt      DateTime? @map("counted_at") @db.Timestamptz(3)
+  approvedBy     String?   @map("approved_by") @db.Uuid
+  approvedAt     DateTime? @map("approved_at") @db.Timestamptz(3)
+  /// Onay anındaki liste (tutanağa girer)
+  approvedCounts Json?     @map("approved_counts")
+  ranAt          DateTime? @map("ran_at") @db.Timestamptz(3)
+  /// İmha tutanağı: kalem başına imha edilen ve bekletilen sayı, yöntem
+  report         Json?
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([status, scheduledFor])
+  @@map("disposal_runs")
+}
+
+/// Veri ihlali ya da tatbikatı (Karar 59): öğrenildiği andan 72 saat içinde Kurul'a bildirim. Satırlar silinmez.
+model BreachIncident {
+  id        String    @id @db.Uuid
+  no        Int       @unique @default(autoincrement())
+  drill     Boolean
+  /// Ne oldu (kısa); kişisel veri yazılmaz
+  summary   String
+  learnedAt DateTime  @map("learned_at") @db.Timestamptz(3)
+  deadline  DateTime  @db.Timestamptz(3)
+  /// Tamamlanan adımlar: { durdur: { zaman, calisan, not } }
+  steps     Json      @default("{}")
+  openedBy  String    @map("opened_by") @db.Uuid
+  closedAt  DateTime? @map("closed_at") @db.Timestamptz(3)
+  closedBy  String?   @map("closed_by") @db.Uuid
+  report    String?
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([closedAt])
+  @@map("breach_incidents")
+}
+
+/// Resmi makam talebi (mahkeme, savcılık, kolluk; Karar 59): yalnız sahip ve yönetici görür, verilen her veri kaydedilir.
+/// İlgili kişinin verisi talep sürdükçe imhada bekletilir. Satırlar silinmez.
+model OfficialRequest {
+  id           String    @id @db.Uuid
+  no           Int       @unique @default(autoincrement())
+  authority    String
+  /// @pii Talep konusu (kişi adı geçebilir)
+  subject      String
+  userId       String?   @map("user_id") @db.Uuid
+  accountId    String?   @map("account_id") @db.Uuid
+  /// Talep yazısı kullanıcıya bildirimi yasaklıyor
+  noNotify     Boolean   @default(false) @map("no_notify")
+  /// belge_bekleniyor | inceleniyor | yanitlandi | reddedildi
+  status       String    @default("belge_bekleniyor")
+  /// Resmi yazı (depolamada)
+  documentKey  String?   @map("document_key")
+  documentType String?   @map("document_type")
+  /// Verilen veriler: [{ ne, zaman, calisan }]
+  given        Json      @default("[]")
+  note         String?
+  createdBy    String    @map("created_by") @db.Uuid
+  respondedBy  String?   @map("responded_by") @db.Uuid
+  respondedAt  DateTime? @map("responded_at") @db.Timestamptz(3)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([userId])
+  @@index([accountId])
+  @@index([status, createdAt])
+  @@map("official_requests")
 }

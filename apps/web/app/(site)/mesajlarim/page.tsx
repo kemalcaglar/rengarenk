@@ -56,6 +56,8 @@ interface Sohbet {
   engelli: boolean;
   ilkMesajBekliyor: boolean;
   yazabilir: boolean;
+  /** Karşı taraf hesabını kapattı (Karar 31) */
+  kapali?: boolean;
   kartEkleyebilir: boolean;
   saticiHesap: string | null;
   mesajlar: Mesaj[];
@@ -736,11 +738,13 @@ export default function Mesajlarim() {
                     color: '#5A6073',
                   }}
                 >
-                  {s.durum === 'DECLINED'
-                    ? 'Bu sohbet kapandı; alıcı ilgilenmediğini belirtti.'
-                    : s.durum === 'WAITING'
-                      ? 'İlk mesajın gönderildi. Alıcı yanıt verene kadar ikinci mesaj atamazsın.'
-                      : 'Alıcı bu hesaptan mesaj almak istemiyor.'}
+                  {s.kapali
+                    ? 'Bu hesap kapatıldı; sohbet yalnızca okunabilir.'
+                    : s.durum === 'DECLINED'
+                      ? 'Bu sohbet kapandı; alıcı ilgilenmediğini belirtti.'
+                      : s.durum === 'WAITING'
+                        ? 'İlk mesajın gönderildi. Alıcı yanıt verene kadar ikinci mesaj atamazsın.'
+                        : 'Alıcı bu hesaptan mesaj almak istemiyor.'}
                 </p>
               ) : null}
               {hata ? (

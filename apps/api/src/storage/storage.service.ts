@@ -1,6 +1,7 @@
 import type { Readable } from 'node:stream';
 import {
   CreateBucketCommand,
+  DeleteObjectCommand,
   GetObjectCommand,
   HeadBucketCommand,
   PutObjectCommand,
@@ -16,6 +17,8 @@ import { ENV, type Env } from '../config/env.js';
 export interface Storage {
   put(key: string, body: Uint8Array, contentType: string): Promise<void>;
   get(key: string): Promise<{ body: Readable; contentType: string | undefined; length: number | undefined }>;
+  /** Dosyayı siler (imha, süresi dolan veri kopyası); dosya yoksa hata vermez */
+  delete(key: string): Promise<void>;
 }
 
 export const STORAGE = Symbol('STORAGE');
@@ -61,6 +64,10 @@ export class S3Storage implements Storage {
   async get(key: string) {
     const r = await this.s3.send(new GetObjectCommand({ Bucket: this.bucket, Key: key }));
     return { body: r.Body as Readable, contentType: r.ContentType, length: r.ContentLength };
+  }
+
+  async delete(key: string) {
+    await this.s3.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: key }));
   }
 }
 

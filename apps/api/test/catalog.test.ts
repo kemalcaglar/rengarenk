@@ -223,6 +223,9 @@ const fakeStorage: Storage = {
     const b = stored.get(key) as Uint8Array;
     return { body: Readable.from([Buffer.from(b)]), contentType: 'image/jpeg', length: b.byteLength };
   },
+  delete: async (key) => {
+    stored.delete(key);
+  },
 };
 
 beforeAll(async () => {

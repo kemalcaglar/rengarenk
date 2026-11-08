@@ -106,9 +106,9 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
     grup: 'Uyum ve KVKK',
     ogeler: [
       { href: '/kvkk', ad: 'KVKK başvuruları', izin: 'kvkk.yanitla', rozet: 'kvkk' },
-      { ad: 'Saklama, imha ve VERBİS', sonra: true },
+      { href: '/imha', ad: 'Saklama, imha ve VERBİS', izin: 'kvkk.yanitla' },
       { href: '/riza', ad: 'Rıza ve çerez kayıtları', izin: 'kvkk.yanitla' },
-      { ad: 'İhlal ve resmi talepler', sonra: true },
+      { href: '/ihlal', ad: 'İhlal ve resmi talepler', izin: 'sistem.ayarla' },
     ],
   },
 ];

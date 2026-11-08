@@ -546,6 +546,24 @@ export const NOTIFY_TEMPLATES = {
       dugme: { yazi: 'Verilerimi indir', url: '/ayarlar?bolum=gizlilik' },
     },
   },
+  'resmi.bilgi': {
+    ad: 'Resmi makam talebi bilgisi',
+    konu: 'guvenlik',
+    grup: 'guvenlik',
+    baslik: 'Hesabınla ilgili resmi bir talep yanıtlandı',
+    metin:
+      '{{makam}} tarafından iletilen resmi talep üzerine hesabına ait bazı bilgiler yasal zorunluluk gereği paylaşıldı.',
+    url: '/yardim',
+    eposta: {
+      konu: 'Hesabınla ilgili resmi talep',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        '{{makam}} tarafından iletilen resmi talep üzerine hesabına ait bazı bilgiler yasal zorunluluk gereği paylaşıldı.',
+        'Bu konuda bilgi almak için Yardım › Destek’ten bize yazabilir ya da KVKK başvurusu yapabilirsin.',
+        'Rengarenk · Veri sorumlusu',
+      ],
+    },
+  },
   'kvkk.yanit': {
     ad: 'KVKK başvurusu yanıtı',
     konu: 'guvenlik',

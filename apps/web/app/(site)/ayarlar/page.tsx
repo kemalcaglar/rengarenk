@@ -5,6 +5,7 @@ import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { HesabimMenu } from '../../../components/hesabim-menu';
 import { istek, useGiris } from '../../../lib/istemci';
 import { Engellediklerin, KisiselVerilerim } from './gizlilik';
+import { HesabiKapat } from './hesap';
 
 interface Kanal {
   kanal: 'uygulama' | 'eposta' | 'sms';
@@ -28,12 +29,13 @@ interface Oturum {
   device: { platform: string; lastSeenAt: string } | null;
 }
 
-type Bolum = 'profil' | 'bildirim' | 'gizlilik';
-/** Ayar bölümleri (Ayarlar.dc.html). İletişim ve Hesap bölümleri ilgili modüllerle eklenecek. */
+type Bolum = 'profil' | 'bildirim' | 'gizlilik' | 'hesap';
+/** Ayar bölümleri (Ayarlar.dc.html). İletişim bölümü varsayılan iletişim izniyle eklenecek. */
 const BOLUMLER: [Bolum, string][] = [
   ['profil', 'Profil'],
   ['bildirim', 'Bildirimler'],
   ['gizlilik', 'Gizlilik ve güvenlik'],
+  ['hesap', 'Hesap'],
 ];
 
 const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 };
@@ -481,6 +483,16 @@ export default function Ayarlar() {
               />
             ) : null}
           </div>
+        ) : null}
+
+        {bolum === 'hesap' && ben ? (
+          <HesabiKapat
+            telefon={ben.phone}
+            bildir={(m, h) => {
+              setBilgi(m);
+              setHata(h ?? null);
+            }}
+          />
         ) : null}
       </main>
     </div>

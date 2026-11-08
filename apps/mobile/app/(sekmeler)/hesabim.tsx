@@ -68,7 +68,7 @@ const MENU: {
         ikon: '🔒',
         tint: '#F3F5FA',
         ad: 'Kişisel verilerim',
-        alt: 'Verilerimi indir, KVKK başvurusu',
+        alt: 'Verilerimi indir, KVKK başvurusu, hesabı kapat',
         git: () => router.push('/kisisel-verilerim'),
       },
       {

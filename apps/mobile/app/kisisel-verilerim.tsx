@@ -1,4 +1,13 @@
-import { colors, KVKK_KIND_KEYS, KVKK_KINDS, type KvkkKind } from '@rengarenk/shared';
+import {
+  CLOSE_REASON_KEYS,
+  CLOSE_REASONS,
+  type CloseReason,
+  colors,
+  KVKK_KIND_KEYS,
+  KVKK_KINDS,
+  type KvkkKind,
+  tlYaz,
+} from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
@@ -12,6 +21,10 @@ interface Kopya {
   durum: 'hazirlaniyor' | 'hazir' | 'hata' | 'suresi_doldu';
   istendi: string;
   gecerlilik: string | null;
+}
+interface Kapanis {
+  engel: string | null;
+  iade: { satirlar: { ad: string; tutarKurus: number }[]; toplamKurus: number };
 }
 interface Basvuru {
   numara: string;
@@ -34,14 +47,17 @@ const tarih = (iso: string) =>
   );
 
 /**
- * Kişisel verilerim (HesapMobil.dc.html › Hesap; Karar 58): verilerimi indir ve KVKK başvurusu, ikisi de SMS koduyla.
+ * Kişisel verilerim (HesapMobil.dc.html › Hesap; Karar 31, 58): verilerimi indir, KVKK başvurusu ve hesabı kapat,
+ * üçü de SMS koduyla. Kapatmada kullanılmamış hakların iadesi Sahip'in onayına gider.
  * Hazır kopya güvenlik için hesaba girilerek web'den (Ayarlar › Gizlilik ve güvenlik) indirilir.
  */
 export default function KisiselVerilerim() {
-  const { durum, me, istek } = useOturum();
+  const { durum, me, istek, cikis } = useOturum();
+  const [kapanis, setKapanis] = useState<Kapanis | null>(null);
+  const [neden, setNeden] = useState<CloseReason>('buldum');
   const [kopya, setKopya] = useState<Kopya | null>(null);
   const [basvurular, setBasvurular] = useState<Basvuru[]>([]);
-  const [adim, setAdim] = useState<null | 'indir' | 'kvkk'>(null);
+  const [adim, setAdim] = useState<null | 'indir' | 'kvkk' | 'kapat'>(null);
   const [challengeId, setChallengeId] = useState<string | null>(null);
   const [kod, setKod] = useState('');
   const [tur, setTur] = useState<KvkkKind>('bilgi');
@@ -63,7 +79,16 @@ export default function KisiselVerilerim() {
     }, [durum, yukle]),
   );
 
-  async function kodIste(ne: 'indir' | 'kvkk') {
+  async function kapatAc() {
+    setHata(null);
+    try {
+      setKapanis(await istek<Kapanis>('/me/close'));
+    } catch (e) {
+      setHata((e as Error).message);
+    }
+  }
+
+  async function kodIste(ne: 'indir' | 'kvkk' | 'kapat') {
     setHata(null);
     try {
       const r = await istek<{ challengeId: string; devCode?: string }>('/auth/otp/request', {
@@ -82,6 +107,13 @@ export default function KisiselVerilerim() {
     if (!challengeId) return;
     setHata(null);
     try {
+      if (adim === 'kapat') {
+        await istek('/me/close', { method: 'POST', body: { challengeId, code: kod, neden } });
+        // Oturumlar API'de kapandı; cihazdaki jetonlar da silinir
+        await cikis().catch(() => undefined);
+        router.replace('/');
+        return;
+      }
       if (adim === 'indir') {
         const k = await istek<Kopya[]>('/me/data-exports', {
           method: 'POST',
@@ -307,6 +339,106 @@ export default function KisiselVerilerim() {
             </View>
           ))}
         </View>
+
+        {!kapanis ? (
+          <Pressable
+            accessibilityRole="button"
+            onPress={kapatAc}
+            style={{
+              borderWidth: 1,
+              borderColor: '#F3C5C5',
+              backgroundColor: colors.surface,
+              borderRadius: 16,
+              padding: 14,
+            }}
+          >
+            <T style={{ fontSize: 14.5, fontWeight: '800', color: '#A11B1B' }}>Hesabı kapat</T>
+            <T style={{ fontSize: 12, color: colors.muted, marginTop: 2, lineHeight: 17 }}>
+              Talepler kapanır, sohbetler “Kapatılmış hesap” görünür. Fatura kayıtları yasal süre boyunca
+              saklanır.
+            </T>
+          </Pressable>
+        ) : (
+          <View style={{ ...kart, borderColor: '#F3C5C5' }}>
+            <T accessibilityRole="header" style={{ fontSize: 16, fontWeight: '800', color: '#A11B1B' }}>
+              Hesabı kapat
+            </T>
+            {[
+              'Yayındaki taleplerin kapanır, satıcılar artık sana yazamaz.',
+              'Sohbetlerin karşı tarafta “Kapatılmış hesap” olarak görünür.',
+              kapanis.iade.toplamKurus > 0
+                ? `Web’den aldığın ve kullanmadığın haklar kartına iade edilir: ${kapanis.iade.satirlar.map((x) => `${x.ad} · ${tlYaz(x.tutarKurus)}`).join(', ')}. Başlamış öne çıkarmalar iade edilmez.`
+                : 'Web’den aldığın ve kullanmadığın haklar kartına iade edilir; şu an kullanılmamış hakkın yok.',
+              'App Store veya Google Play’den aldığın hakların iadesi mağaza üzerinden yapılır.',
+              'Fatura ve ödeme kayıtları yasal saklama süresi boyunca tutulur; diğer verilerin silinir.',
+            ].map((m) => (
+              <T key={m} style={{ fontSize: 13.5, color: '#3A4052', marginTop: 8, lineHeight: 19 }}>
+                • {m}
+              </T>
+            ))}
+            {kapanis.engel ? (
+              <T
+                accessibilityRole="alert"
+                style={{ marginTop: 10, fontSize: 13.5, fontWeight: '700', color: '#A3271F' }}
+              >
+                {kapanis.engel}
+              </T>
+            ) : (
+              <View style={{ backgroundColor: '#FDECEC', borderRadius: 14, padding: 12, marginTop: 12 }}>
+                <T style={{ fontSize: 13, fontWeight: '700' }}>Neden ayrılıyorsun? (isteğe bağlı)</T>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                  {CLOSE_REASON_KEYS.map((k) => {
+                    const on = neden === k;
+                    return (
+                      <Pressable
+                        key={k}
+                        accessibilityRole="radio"
+                        accessibilityState={{ checked: on }}
+                        onPress={() => setNeden(k)}
+                        style={{
+                          borderWidth: 1.5,
+                          borderColor: on ? '#A3271F' : '#E5A6A1',
+                          backgroundColor: colors.surface,
+                          borderRadius: 999,
+                          paddingVertical: 7,
+                          paddingHorizontal: 11,
+                        }}
+                      >
+                        <T style={{ fontSize: 12.5, fontWeight: '700' }}>{CLOSE_REASONS[k]}</T>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+                {adim === 'kapat' ? (
+                  kodAlani
+                ) : (
+                  <>
+                    <T style={{ fontSize: 12.5, color: '#A3271F', marginTop: 10 }}>
+                      Onaylamak için telefonuna bir SMS kodu göndereceğiz.
+                    </T>
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={() => kodIste('kapat')}
+                      style={{
+                        marginTop: 10,
+                        borderWidth: 1,
+                        borderColor: '#E5A6A1',
+                        backgroundColor: colors.surface,
+                        borderRadius: 12,
+                        paddingVertical: 12,
+                        alignItems: 'center',
+                      }}
+                    >
+                      <T style={{ fontSize: 14.5, fontWeight: '800', color: '#A3271F' }}>
+                        SMS kodu gönder ve hesabı kapat
+                      </T>
+                    </Pressable>
+                  </>
+                )}
+              </View>
+            )}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

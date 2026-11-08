@@ -62,3 +62,39 @@ export function kvkkDraft(kind: KvkkKind, ad: string, veriler: string[]): string
       return `${hitap} itirazınızı aldık. Hakkınızdaki işlem bir çalışanımız tarafından yeniden incelenmektedir; sonuç size en geç yasal süre içinde bildirilecektir.`;
   }
 }
+
+/**
+ * Hesap kapatma (Karar 31, 39, 59; Ayarlar.dc.html › Hesap). SMS koduyla onaylanır; kişisel veri hemen anonimleşir.
+ * Web'den alınıp kullanılmamış hakların iadesi yalnızca öneri olarak Sahip'in onay kuyruğuna düşer (sahip kararı,
+ * 9 Kasım 2026); iadeyi Sahip onaylar, iade yürütücü yapar. Başlamış öne çıkarma iade edilmez, mağaza satışının
+ * iadesi mağazadan yapılır.
+ */
+export const CLOSE_REASONS = {
+  buldum: 'Aradığım aracı buldum',
+  cok_mesaj: 'Çok fazla mesaj aldım',
+  baska_platform: 'Başka bir platform kullanıyorum',
+  diger: 'Diğer',
+} as const;
+export type CloseReason = keyof typeof CLOSE_REASONS;
+export const CLOSE_REASON_KEYS = Object.keys(CLOSE_REASONS) as CloseReason[];
+
+/** Kapatmadan sonra saklama (Karar 59): kimlik ve telefon doğrulaması 5 yıl (MKTTY m.22), mesajlar 1 yıl, fatura 10 yıl */
+export const CLOSED_KEEP = { kimlikYil: 5, mesajYil: 1, faturaYil: 10 } as const;
+
+/** Kapatmada iade önerisindeki hak adları ("4 ek ilk mesaj") */
+export const CLOSE_UNIT_NAMES: Record<string, string> = {
+  talep: 'ek talep hakkı',
+  ilk_mesaj: 'ek ilk mesaj',
+  uzatma: 'talep uzatma hakkı',
+  ust_sira: 'üst sıra hakkı',
+  acil: 'acil etiketi hakkı',
+  vitrin: 'vitrin hakkı',
+};
+
+export const accountCloseSchema = kod
+  .extend({ neden: z.enum(CLOSE_REASON_KEYS as [CloseReason, ...CloseReason[]]).optional() })
+  .strict();
+
+/** Kapatılan hesabın telefon alanına yazılan yer tutucu: numara serbest kalır, aynı kişi yeniden üye olabilir */
+export const closedPhone = (userId: string) => `kapali:${userId}`;
+export const isClosedPhone = (phone: string) => phone.startsWith('kapali:');
