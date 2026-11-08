@@ -10,6 +10,8 @@
     "dev:worker": "node --watch --env-file-if-exists=../../.env --import @swc-node/register/esm-register src/worker.ts",
     "start": "node dist/main.js",
     "start:worker": "node dist/worker.js",
+    "dev:iade": "node --watch --env-file-if-exists=../../.env --import @swc-node/register/esm-register src/refund-executor.ts",
+    "start:iade": "node dist/refund-executor.js",
     "test": "node --env-file-if-exists=../../.env ./node_modules/vitest/vitest.mjs run",
     "sahip": "node --env-file-if-exists=../../.env --import @swc-node/register/esm-register src/cli/sahip.ts",
     "yasal:yukle": "node --env-file-if-exists=../../.env --import @swc-node/register/esm-register src/cli/yasal-yukle.ts",

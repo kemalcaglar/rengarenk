@@ -32,6 +32,15 @@ services:
     image: ghcr.io/kemalcaglar/rengarenk-api:${TAG}
     command: ["node", "dist/worker.js"]
 
+  # İade yürütücü (Teknik tasarım §7, kilit 2): yalnızca Sahibin onayladığı iadeleri yürütür. PayTR iade bilgileri
+  # (IADE_PAYTR_*) yalnızca bu kapsayıcının ayrı ortam dosyasındadır; API ve işçi bu dosyayı okumaz.
+  iade-yurutucu:
+    <<: *app
+    image: ghcr.io/kemalcaglar/rengarenk-api:${TAG}
+    command: ["node", "dist/refund-executor.js"]
+    env_file: [.env.prod, .env.iade]
+    environment: { APP_VERSION: "${TAG}", IADE_YURUTUCU: "1" }
+
   web:
     <<: *app
     image: ghcr.io/kemalcaglar/rengarenk-web:${TAG}

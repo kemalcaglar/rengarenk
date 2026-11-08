@@ -48,7 +48,15 @@ export interface AbonelikVerisi {
   haklar: { talep: number; ustSira: number; ekMesaj: number };
   kullanim: { calisan: number; arac: number };
   ekPaketler: { key: string; ad: string; netKurus: number; brutKurus: number }[];
-  faturalar: { id: string; no: string; ad: string; tarih: string; tutarKurus: number; fatura: boolean }[];
+  faturalar: {
+    id: string;
+    no: string;
+    ad: string;
+    tarih: string;
+    tutarKurus: number;
+    fatura: boolean;
+    iadeKurus: number;
+  }[];
   eposta: string | null;
   odeme: { acik: boolean; not: string | null };
 }
@@ -885,7 +893,14 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
             >
               <span style={{ fontWeight: 700, flex: '1 1 260px' }}>{f.ad}</span>
               <span style={{ color: '#5A6073' }}>{tarih(f.tarih)}</span>
-              <span style={{ fontWeight: 800 }}>{tlYaz(f.tutarKurus)}</span>
+              <span style={{ fontWeight: 800 }}>
+                {tlYaz(f.tutarKurus)}
+                {f.iadeKurus ? (
+                  <span style={{ marginLeft: 6, fontSize: 12.5, color: '#11683F' }}>
+                    İade: {tlYaz(f.iadeKurus)}
+                  </span>
+                ) : null}
+              </span>
               {f.fatura ? (
                 <button type="button" style={baglanti} onClick={() => faturaIndir(f.id)}>
                   E-arşiv faturayı indir

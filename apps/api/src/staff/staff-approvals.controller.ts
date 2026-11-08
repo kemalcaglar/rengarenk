@@ -46,7 +46,9 @@ export class StaffApprovalsController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodPipe(approvalDecisionSchema)) body: z.output<typeof approvalDecisionSchema>,
   ) {
-    return this.approvals.decide(req.staff, id, 'approve', body.note, req.ip).then(serialize);
+    return this.approvals
+      .decide(req.staff, id, 'approve', body.note, req.ip, body.tutarKurus)
+      .then(serialize);
   }
 
   @Post(':id/reject')

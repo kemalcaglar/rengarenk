@@ -132,7 +132,10 @@ export class OrdersService {
           where: { accountId, status: 'PAID' },
           orderBy: { paidAt: 'desc' },
           take: 50,
-          include: { invoice: { select: { status: true } } },
+          include: {
+            invoice: { select: { status: true } },
+            refunds: { where: { status: 'EXECUTED' }, select: { amountKurus: true } },
+          },
         }),
         this.flags.maintenance('odeme'),
       ]);
@@ -181,6 +184,8 @@ export class OrdersService {
           .join(', '),
         tutarKurus: Number(o.totalKurus),
         fatura: o.invoice?.status === 'ISSUED',
+        /** Yürütülen iadeler toplamı (Karar 39) */
+        iadeKurus: o.refunds.reduce((t, r) => t + Number(r.amountKurus), 0),
       })),
     };
   }
@@ -590,6 +595,48 @@ ${
     }
   }
 
+  /** İşçi: yürütülen iadenin faturası; entegratör yoksa kuyrukta bekler, sonra yeniden denenir */
+  async issueRefundInvoice(refundId: string) {
+    const ri = await this.db.refundInvoice.findUnique({
+      where: { refundId },
+      include: { refund: { include: { order: { include: { invoice: { select: { no: true } } } } } } },
+    });
+    if (!ri || ri.status === 'ISSUED' || ri.refund.status !== 'EXECUTED' || !ri.refund.order) return null;
+    const o = ri.refund.order;
+    const tutar = Number(ri.refund.amountKurus);
+    try {
+      const r = await this.earsiv.issueRefund({
+        orderNo: o.no,
+        invoiceNo: o.invoice?.no ?? null,
+        date: ri.refund.executedAt ?? new Date(),
+        billing: o.billing as unknown as Billing,
+        amountKurus: tutar,
+        vatKurus: vatOfGross(tutar),
+      });
+      const key = `faturalar/iade-${ri.refundId}.pdf`;
+      await this.storage.put(key, r.pdf, 'application/pdf');
+      await this.db.refundInvoice.update({
+        where: { id: ri.id },
+        data: {
+          status: 'ISSUED',
+          no: r.no,
+          pdfKey: key,
+          provider: this.earsiv.ad,
+          issuedAt: new Date(),
+          attempts: { increment: 1 },
+          lastError: null,
+        },
+      });
+      return r.no;
+    } catch (e) {
+      await this.db.refundInvoice.update({
+        where: { id: ri.id },
+        data: { attempts: { increment: 1 }, lastError: (e as Error).message.slice(0, 300) },
+      });
+      return null;
+    }
+  }
+
   /** İşçi: bekleyen faturalar (entegratör gelince sırayla kesilir) ve süresi geçen ödenmemiş siparişler */
   async housekeeping() {
     const bekleyen = await this.db.invoice.findMany({
@@ -598,6 +645,12 @@ ${
       take: 100,
     });
     for (const b of bekleyen) await this.issueInvoice(b.orderId);
+    const iadeler = await this.db.refundInvoice.findMany({
+      where: { status: 'PENDING', attempts: { lt: 50 } },
+      select: { refundId: true },
+      take: 100,
+    });
+    for (const b of iadeler) await this.issueRefundInvoice(b.refundId);
     const iptal = await this.db.order.updateMany({
       where: {
         status: 'PENDING',

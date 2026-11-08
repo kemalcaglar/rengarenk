@@ -185,7 +185,12 @@ pnpm format        # Biome ile biçimlendir
   `current_period_end` alanı geçmişe çekilerek denenir (başlangıç da geriye alınmalı: dönem kısıtı).
 - **Galeri adına talep (8 Kasım 2026):** `POST /demands { kategori, hesap }`, `GET /demands/rights?hesap=`, hakla öne
   çıkarma `POST /demands/:id/promote { tur }`; web ve mobil sihirbazda "Kimin adına?". API'de 120 test.
-- **Sıradaki:** iade akışı (4 kilit, web iadeleri): başlamadan önce sahibe sorulur. Sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS. Bir sprint bitince plan
+- **İade akışı (8 Kasım 2026, sahip onayıyla):** öneri `apps/api/src/refunds/` (konsol › Ödemeler › "İade öner"),
+  Sahip Onay kuyruğundan onaylar (tutarı düşürebilir), yürütme yalnızca `src/refund-executor.ts` sürecinde
+  (`refunds/executor/`; API ve işçi içe aktarmaz, test denetler). Kilit tetikleyicileri değişmedi. API'de 124 test.
+  İade akışında yeni bir değişiklik yine önce sahibe sorulur.
+- **Sıradaki:** Aşama 7 (bildirim katmanı: e-posta, SMS, anlık bildirim; outbox olaylarının kullanıcıya iletilmesi) ya da
+  sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS. Bir sprint bitince plan
   kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

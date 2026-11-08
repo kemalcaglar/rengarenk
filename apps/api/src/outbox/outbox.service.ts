@@ -32,6 +32,10 @@ export type EventType =
   | 'magaza.iade_bildirimi'
   | 'magaza.inceleme'
   | 'iade.onaylandi'
+  // İade yürütücü (Teknik tasarım §7): sonuç sahibe iletilir; yürütülen iadenin faturası işçide kesilir
+  | 'iade.yurutuldu'
+  | 'iade.basarisiz'
+  | 'iade.belirsiz'
   // Yönetim (Karar 40): bildirim katmanı bunları sahibe iletir.
   | 'calisan.giris'
   | 'calisan.yeni_cihaz'

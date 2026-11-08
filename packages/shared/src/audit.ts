@@ -77,6 +77,9 @@ export const AUDIT_ACTIONS: Record<string, string> = {
   abonelik_bitti: 'Galeri aboneliği sona erdi',
   magaza_iadesi: 'Mağaza iadesi: kullanılmamış hak düşüldü',
   talep_one_cikarildi: 'Talep hakla öne çıkarıldı',
+  iade_yurutuluyor: 'İade yürütülüyor',
+  iade_yurutuldu: 'İade yürütüldü',
+  iade_basarisiz: 'İade yapılamadı',
   galeri_calisan_cikarildi: 'Galeri çalışanı çıkarıldı',
 };
 

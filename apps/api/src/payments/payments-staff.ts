@@ -8,6 +8,7 @@ import {
   SUB_PERIODS,
   SUB_STATUS_NAMES,
   type SubPeriod,
+  tlYaz,
   withVat,
 } from '@rengarenk/shared';
 import { type Db, PRISMA } from '../database/prisma.js';
@@ -71,6 +72,7 @@ export class PaymentsStaffService {
           take: 100,
           include: {
             invoice: { select: { status: true, attempts: true, lastError: true } },
+            refunds: { select: { amountKurus: true, status: true } },
             account: { select: { kind: true, gallery: { select: { displayName: true } } } },
             user: { select: { firstName: true, lastName: true } },
             subscription: { select: { status: true, nextRetryAt: true, failCount: true } },
@@ -127,6 +129,9 @@ export class PaymentsStaffService {
         const galeri = o.account.gallery?.displayName ?? null;
         const k = kalemler(o.items);
         const magaza = o.channel === 'ios' || o.channel === 'android';
+        const iade = o.refunds
+          .filter((r) => r.status === 'EXECUTED')
+          .reduce((t, r) => t + Number(r.amountKurus), 0);
         let fatura: string;
         if (o.status !== 'PAID') {
           if (o.kind === 'yenileme' && o.status === 'FAILED' && o.subscription) {
@@ -138,6 +143,7 @@ export class PaymentsStaffService {
                   : (o.failReason ?? 'Ödeme alınamadı');
           } else fatura = o.failReason ?? '—';
         } else if (magaza) fatura = `Faturayı ${o.channel === 'ios' ? 'Apple' : 'Google Play'} keser`;
+        else if (iade > 0) fatura = `${tlYaz(iade)} iade edildi`;
         else if (o.invoice?.status === 'ISSUED') fatura = 'E-arşiv kesildi';
         else fatura = o.invoice?.lastError ? 'Fatura kuyrukta · entegratör bekleniyor' : 'Fatura kuyrukta';
         return {
@@ -153,8 +159,16 @@ export class PaymentsStaffService {
           kalem: k.map((x) => (x.talepBaslik ? `${x.ad} · ${x.talepBaslik}` : x.ad)).join(', '),
           tarih: o.paidAt ?? o.createdAt,
           tutarKurus: Number(o.totalKurus),
-          durum: o.status,
-          durumAd: ORDER_STATUS_NAMES[o.status],
+          durum: iade > 0 ? 'REFUNDED' : o.status,
+          durumAd:
+            iade >= Number(o.totalKurus)
+              ? 'İade edildi'
+              : iade > 0
+                ? 'Kısmi iade'
+                : ORDER_STATUS_NAMES[o.status],
+          iadeKurus: iade,
+          // İade önerisi: web ve abonelik satışında, ödenmiş ve tamamı iade edilmemiş sipariş
+          iadeEdilebilir: o.status === 'PAID' && !magaza && iade < Number(o.totalKurus),
           fatura,
         };
       }),

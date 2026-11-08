@@ -113,9 +113,28 @@ export class ApprovalService {
     return actor.staff.id !== a.requestedBy || actor.staff.role === 'OWNER';
   }
 
-  async decide(actor: Actor, id: string, decision: 'approve' | 'reject', note?: string, ip?: string) {
+  /**
+   * Karar. İade onayında Sahip istenen tutarı düşürebilir (`tutarKurus`); artıramaz. Tutar karar anında, karar
+   * bekleyen satırda yazılır; karardan sonra onay değiştirilemez (rr_approval_immutable).
+   */
+  async decide(
+    actor: Actor,
+    id: string,
+    decision: 'approve' | 'reject',
+    note?: string,
+    ip?: string,
+    tutarKurus?: number,
+  ) {
     const a = await this.db.approval.findUnique({ where: { id } });
     if (!a) throw new NotFoundException('İstek bulunamadı');
+    if (tutarKurus !== undefined) {
+      if (a.kind !== 'REFUND' || decision !== 'approve') {
+        throw new BadRequestException('Tutar yalnızca iade onayında değiştirilebilir');
+      }
+      if (!a.amountKurus || tutarKurus <= 0 || BigInt(tutarKurus) > a.amountKurus) {
+        throw new BadRequestException('Onaylanan iade tutarı istenenden fazla olamaz');
+      }
+    }
     if (!this.canDecide(actor, a)) throw new ForbiddenException('Bu isteği karara bağlama yetkin yok');
     if (a.status !== 'PENDING') throw new ConflictException('Bu istek zaten karara bağlandı');
     if (a.expiresAt && a.expiresAt < new Date()) {
@@ -126,7 +145,13 @@ export class ApprovalService {
     return this.db.$transaction(async (tx) => {
       const r = await tx.approval.updateMany({
         where: { id, status: 'PENDING' },
-        data: { status, decidedBy: actor.staff.id, decidedAt: new Date(), decisionNote: note ?? null },
+        data: {
+          status,
+          decidedBy: actor.staff.id,
+          decidedAt: new Date(),
+          decisionNote: note ?? null,
+          ...(tutarKurus !== undefined ? { amountKurus: BigInt(tutarKurus) } : {}),
+        },
       });
       if (r.count !== 1) throw new ConflictException('Bu istek zaten karara bağlandı');
       await this.audit.record(
@@ -137,7 +162,14 @@ export class ApprovalService {
           entityType: 'approval',
           entityId: id,
           before: { durum: 'PENDING' },
-          after: { durum: status, tur: a.kind, isteyen: a.requestedBy },
+          after: {
+            durum: status,
+            tur: a.kind,
+            isteyen: a.requestedBy,
+            ...(tutarKurus !== undefined
+              ? { istenenKurus: a.amountKurus?.toString(), onaylananKurus: String(tutarKurus) }
+              : {}),
+          },
           ip,
         },
         tx,

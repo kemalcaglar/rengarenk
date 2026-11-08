@@ -13,6 +13,7 @@ export * from './payments.js';
 export * from './phone.js';
 export * from './portfolio.js';
 export * from './ratings.js';
+export * from './refunds.js';
 export * from './staff.js';
 export * from './subscriptions.js';
 export * from './tokens.js';

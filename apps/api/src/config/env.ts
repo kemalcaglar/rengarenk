@@ -39,6 +39,16 @@ const schema = z.object({
    * (RevenueCat bildirimi), fake geliştirme ve test için sahte mağaza (canlıda kullanılamaz).
    */
   STORE_PROVIDER: z.enum(['none', 'fake', 'revenuecat']).default('none'),
+  /**
+   * İade yürütücü (Teknik tasarım §7, kilit 2): yalnızca ayrı `refund-executor` sürecinde okunur. none iade kapalı,
+   * paytr gerçek (PayTR iade API), fake geliştirme ve test (canlıda kullanılamaz). PayTR mağaza bilgileri bu süreç için
+   * ayrı adla (`IADE_PAYTR_*`) ve ayrı ortam dosyasıyla verilir; API ve işçi bu değişkenleri okumaz.
+   */
+  REFUND_PROVIDER: z.enum(['none', 'fake', 'paytr']).default('none'),
+  IADE_YURUTUCU: z.enum(['0', '1']).default('0'),
+  IADE_PAYTR_MERCHANT_ID: z.string().optional(),
+  IADE_PAYTR_MERCHANT_KEY: z.string().optional(),
+  IADE_PAYTR_MERCHANT_SALT: z.string().optional(),
   /** RevenueCat panelinde bildirim (webhook) için tanımlanan Authorization değeri */
   REVENUECAT_WEBHOOK_AUTH: z.string().min(24).optional(),
   /** API'nin dışarıdan görünen adresi (sahte ödeme sayfası, bildirim adresi) */
@@ -125,6 +135,7 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (e.PAYMENT_PROVIDER === 'fake') throw new Error('Canlıda sahte ödeme kullanılamaz');
     if (e.EARSIV_PROVIDER === 'fake') throw new Error('Canlıda sahte e-Arşiv kullanılamaz');
     if (e.STORE_PROVIDER === 'fake') throw new Error('Canlıda sahte mağaza kullanılamaz');
+    if (e.REFUND_PROVIDER === 'fake') throw new Error('Canlıda sahte iade kullanılamaz');
     if (e.STAFF_AUTH_PROVIDER !== 'google') throw new Error('Canlıda yönetim girişi Google Workspace olmalı');
     if (!e.STAFF_SECRET_KEY) throw new Error('Canlıda STAFF_SECRET_KEY gerekli');
     if (!e.MESSAGE_SECRET_KEY) throw new Error('Canlıda MESSAGE_SECRET_KEY gerekli');

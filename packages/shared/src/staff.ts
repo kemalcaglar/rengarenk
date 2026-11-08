@@ -257,7 +257,13 @@ export const customRoleSchema = z
     path: ['permissions'],
   });
 
-export const approvalDecisionSchema = z.object({ note: z.string().trim().max(500).optional() }).strict();
+export const approvalDecisionSchema = z
+  .object({
+    note: z.string().trim().max(500).optional(),
+    /** Yalnızca iade onayında: Sahip istenen tutarı düşürebilir (artıramaz) */
+    tutarKurus: z.number().int().positive().optional(),
+  })
+  .strict();
 
 /** Konsolda e-posta ve IP gibi kişisel verinin maskeli gösterimi. */
 export function maskEmail(email: string): string {

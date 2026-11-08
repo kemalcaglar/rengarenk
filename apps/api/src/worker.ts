@@ -129,6 +129,10 @@ for (const event of ['portfoy.yayinlandi', 'portfoy.guncellendi', 'portfoy.kalkt
 await queue.consume<{ orderId: string }>('odeme.alindi', 'odeme-fatura', ({ orderId }) =>
   orders.issueInvoice(orderId),
 );
+// İade yürütüldü (iade yürütücü süreci): iade faturası kesilir; entegratör yoksa kuyrukta bekler
+await queue.consume<{ refundId: string }>('iade.yurutuldu', 'iade-fatura', ({ refundId }) =>
+  orders.issueRefundInvoice(refundId),
+);
 // Abonelik kartı kaydedildi: kartın gösterim adı ödeme kuruluşundan alınır
 await queue.consume<{ accountId: string }>('abonelik.kart_kaydedildi', 'abonelik-kart', ({ accountId }) =>
   subscriptions.refreshCard(accountId),

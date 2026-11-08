@@ -138,6 +138,27 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 16 · iade akışı ve dört kilit (Aşama 6 son bölüm, 8 Kasım 2026)
+
+- [x] İade önerisi (konsol › Ödemeler ve faturalar › "İade öner"): iade yetkisi öneri ya da tam olan çalışan (Finans,
+  Destek, ajan); sistem tutarı önerir (Karar 39: 14 gün içinde kullanılmayan hak tam, kısmen kullanılan oranlı; başlamış
+  öne çıkarma 0; yıllık paket 14 gün içinde ve kullanılmadıysa tam; aylık pakette kısmi iade yok), en çok ödenen eksi
+  önceki iadeler. Mağaza satışları buradan iade edilmez
+- [x] Onay kuyruğu: iadeyi yalnızca Sahip onaylar; onaylarken tutarı düşürebilir, artıramaz (karar anında yazılır)
+- [x] Kilit 1 değişmedi (rr_refund_guard, rr_approval_immutable); onay başına tek iade kaydı (tekil dizin)
+- [x] Kilit 2: iade kodu yalnızca ayrı `iade-yurutucu` sürecinde (`src/refund-executor.ts`, `IADE_YURUTUCU=1`), PayTR
+  iade bilgileri ayrı ortam dosyasında (`.env.iade`, `IADE_PAYTR_*`); API ve işçinin iade kodunu içe aktarmadığını test
+  denetler. Not: PayTR iadeyi ödemeyle aynı mağaza anahtarıyla imzalar; PayTR'den iade API'sinin yalnızca yürütücünün
+  IP adresine açılması istenecek
+- [x] Kilit 3: yürütücü iadeden hemen önce onayı kilitleyip yeniden doğrular (Sahip, etkin, 72 saat, tutar ödemeyi
+  aşmıyor), iade kaydı ve işlem kaydı aynı işlemde; sonucu belirsiz iade yeniden denenmez, sahibe iletilir
+- [x] Kilit 4: ajan yalnızca öneri açabilir (onay motoru), iade kaydını yalnızca yürütücü açar
+- [x] İadenin etkisi: siparişten kalan kullanılmamış hak düşer, süren öne çıkarma biter; aboneliğin güncel dönemi
+  tamamen iade edilirse abonelik biter ve galeri "paket yok" durumuna düşer. İade faturası kuyruğa girer (e-Arşiv)
+- [x] Web Haklarım ve galeri faturalarında "İade: X TL"; konsolda "İade edildi / Kısmi iade" ve İadeler tablosu
+- [ ] Kullanıcının kendisinin "İade talep et" demesi (şimdilik destek üzerinden; sahip önerisiyle yapılmadı)
+- [ ] Gerçek PayTR iadesi ve iade faturası: sözleşme ve entegratör gelince (`REFUND_PROVIDER=paytr`)
+
 ## Sprint 15 · galeri abonelikleri, mağaza ödemeleri, konsolda ödemeler (Aşama 6 ikinci bölüm, 8 Kasım 2026)
 
 - [x] Galeri abonelikleri (Karar 12.2, 12.3, 12.7, 39): `subscriptions` (galeri başına tek satır, silinmez), paket alma
@@ -168,7 +189,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   ve "hakkını kullan" (paketin üst sıra hakkı ya da talepsiz alınmış hak, 7 gün, sıradakinin ardına); galeri ek paketinde
   talep ve üst sıra (hak olarak); galeri paneli özetinde bu dönem açılan talep ve "Galerin adına talep aç"
 - [x] Mağaza iadesinde kullanılmamış hak düşme (sahip onayladı)
-- [ ] Web iadeleri: iade akışı (4 kilit), sahibe sorulduktan sonra
+- [x] Web iadeleri: iade akışı (4 kilit), sahip onayıyla (Sprint 16)
 - Tasarımdan farklar: mobilde "Ödeme geçmişi ve faturalar" web sayfasına gitmez (mağaza kuralı), aynı ekranda açılır;
   konsolda "Ödemeler ve faturalar" Pazar grubunda (eski konsol tasarımındaki ekran), özet kutuları ve abonelik tablosu ek
 

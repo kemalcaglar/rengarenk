@@ -173,6 +173,13 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## İadeler (Sprint 16)
+
+- **Konsol:** `GET /staff/refunds/quote/:siparisId`, `POST /staff/refunds` (`{ siparis, tutarKurus, neden }`, izin `iade`
+  öneri), `GET /staff/refunds`; onay `POST /staff/approvals/:id/approve` (`{ tutarKurus }` yalnızca düşürmek için).
+- **İade yürütücü:** ayrı süreç `node dist/refund-executor.js` (`IADE_YURUTUCU=1`, `REFUND_PROVIDER`, `IADE_PAYTR_*`
+  yalnızca `.env.iade`'de). Geliştirmede: `IADE_YURUTUCU=1 pnpm --filter @rengarenk/api dev:iade`.
+
 ## Galeri abonelikleri ve mağaza ödemeleri (Sprint 15)
 
 - **Abonelik uçları:** `GET /gallery/:id/subscription`, `POST …/checkout` (`{ plan, donem, eposta, onay }`),

@@ -86,13 +86,22 @@ export default function Onaylar() {
   }, []);
   useEffect(load, [load]);
 
+  // İade onayında Sahip istenen tutarı düşürebilir (TL; boşsa istenen tutar)
+  const [iadeTutar, setIadeTutar] = useState<Record<string, string>>({});
+
   async function decide(id: string, action: 'approve' | 'reject' | 'cancel') {
     setBusy(id);
     setError(null);
     try {
+      const yazilan = iadeTutar[id]?.trim();
+      const tutarKurus =
+        action === 'approve' && yazilan
+          ? Math.round(Number(yazilan.replace(/\./g, '').replace(',', '.')) * 100)
+          : null;
+      if (tutarKurus !== null && !(tutarKurus > 0)) throw new Error('Geçerli bir iade tutarı yaz');
       await yonetim(`approvals/${id}/${action}`, {
         method: 'POST',
-        body: action === 'cancel' ? undefined : {},
+        body: action === 'cancel' ? undefined : tutarKurus ? { tutarKurus } : {},
       });
       load();
       refresh();
@@ -185,7 +194,34 @@ export default function Onaylar() {
                   </span>
                 </span>
                 {o.canDecide ? (
-                  <span style={{ flex: 'none', display: 'flex', gap: 8 }}>
+                  <span
+                    style={{ flex: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}
+                  >
+                    {o.kind === 'REFUND' && o.amountKurus ? (
+                      <label style={{ fontSize: 12.5, fontWeight: 700, color: '#5A6073' }}>
+                        Onaylanacak tutar (TL)
+                        <input
+                          inputMode="decimal"
+                          placeholder={String(Number(o.amountKurus) / 100).replace('.', ',')}
+                          value={iadeTutar[o.id] ?? ''}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setIadeTutar((x) => ({ ...x, [o.id]: v }));
+                          }}
+                          title="Boş bırakırsan istenen tutar onaylanır; yalnızca düşürülebilir"
+                          style={{
+                            display: 'block',
+                            width: 110,
+                            marginTop: 4,
+                            border: '1px solid #D5DAE5',
+                            borderRadius: 10,
+                            padding: '8px 10px',
+                            fontSize: 14,
+                            fontFamily: 'inherit',
+                          }}
+                        />
+                      </label>
+                    ) : null}
                     <button
                       type="button"
                       style={ikincil}

@@ -26,7 +26,15 @@ interface Ozet {
   urunler: Urun[];
   talepler: { no: number; baslik: string }[];
   aktifOneCikarma: { tur: string; ad: string; talep: { no: number; baslik: string }; bitis: string }[];
-  gecmis: { id: string; no: string; tarih: string; kalem: string; tutarKurus: number; fatura: boolean }[];
+  gecmis: {
+    id: string;
+    no: string;
+    tarih: string;
+    kalem: string;
+    tutarKurus: number;
+    fatura: boolean;
+    iadeKurus: number;
+  }[];
 }
 type Adim = 'magaza' | 'odeme' | 'tamam';
 
@@ -528,7 +536,14 @@ export default function Haklarim() {
                 >
                   <span style={{ flex: '1 1 120px', color: '#5A6073' }}>{tarih(g.tarih)}</span>
                   <span style={{ flex: '999 1 240px', fontWeight: 700 }}>{g.kalem}</span>
-                  <span style={{ flex: '1 1 90px', fontWeight: 800 }}>{tlYaz(g.tutarKurus)}</span>
+                  <span style={{ flex: '1 1 90px', fontWeight: 800 }}>
+                    {tlYaz(g.tutarKurus)}
+                    {g.iadeKurus ? (
+                      <span style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#11683F' }}>
+                        İade: {tlYaz(g.iadeKurus)}
+                      </span>
+                    ) : null}
+                  </span>
                   {g.fatura ? (
                     <button
                       type="button"

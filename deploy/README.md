@@ -21,7 +21,7 @@ bilgisayarda **canlı provasıyla** denenebilir (aşağıda).
 1. **Sunucu:** Docker Engine ve compose eklentisi. `deploy` adında bir kullanıcı, `/srv/rengarenk` klasörü.
 2. **DNS:** `rengarenk.com.tr`, `www`, `api`, `yonetim` kayıtları uygulama sunucusunun IP adresine.
 3. **Dosyalar:** bu klasördeki `compose.prod.yml` ve `Caddyfile` → `/srv/rengarenk/`.
-4. **Ortam değişkenleri:** `.env.prod.example`'dan `/srv/rengarenk/.env.prod`. Değerler depoda SOPS ile
+4. **Ortam değişkenleri:** `.env.prod.example`'dan `/srv/rengarenk/.env.prod`. İade yürütücü için ayrıca `.env.iade.example`'dan `/srv/rengarenk/.env.iade` (yalnızca `iade-yurutucu` kapsayıcısı okur; PayTR iade bilgileri yalnızca burada). Değerler depoda SOPS ile
    şifreli tutulur (`deploy/secrets.prod.enc.env`, kurulumu Sprint 4'te sunucuyla birlikte). Canlı kipte API
    eksik değerle açılmaz; neyin eksik olduğunu günlüğe yazar.
 5. **Dosya deposu anahtarları:** `seaweedfs.s3.example.json`'dan `/srv/rengarenk/seaweedfs.s3.json`.

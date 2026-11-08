@@ -165,7 +165,7 @@ export class SubscriptionBilling {
   }
 
   /** Abonelik sona erer: iptal dönem sonunda ya da ödeme alınamadığı için askıya alınır; galeri salt okunur olur */
-  async end(tx: Tx, sub: Subscription, neden: 'iptal' | 'odeme_alinamadi') {
+  async end(tx: Tx, sub: Subscription, neden: 'iptal' | 'odeme_alinamadi' | 'iade') {
     await this.expireCycle(tx, sub);
     await tx.subscription.update({
       where: { id: sub.id },

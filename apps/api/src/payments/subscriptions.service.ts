@@ -116,7 +116,10 @@ export class SubscriptionsService {
         where: { accountId, status: 'PAID' },
         orderBy: { paidAt: 'desc' },
         take: 50,
-        include: { invoice: { select: { status: true } } },
+        include: {
+          invoice: { select: { status: true } },
+          refunds: { where: { status: 'EXECUTED' }, select: { amountKurus: true } },
+        },
       }),
       this.entitlements.balance(accountId, 'talep'),
       this.entitlements.balance(accountId, 'ust_sira'),
@@ -223,6 +226,8 @@ export class SubscriptionsService {
         tarih: o.paidAt,
         tutarKurus: Number(o.totalKurus),
         fatura: o.invoice?.status === 'ISSUED',
+        /** Yürütülen iadeler toplamı (Karar 39) */
+        iadeKurus: o.refunds.reduce((t, r) => t + Number(r.amountKurus), 0),
       })),
       eposta:
         sub?.billingEmail ??

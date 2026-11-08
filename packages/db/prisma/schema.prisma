@@ -479,15 +479,43 @@ model Refund {
   id          String       @id @db.Uuid
   paymentId   String       @map("payment_id")
   amountKurus BigInt       @map("amount_kurus")
-  approvalId  String       @map("approval_id") @db.Uuid
+  approvalId  String       @unique @map("approval_id") @db.Uuid
   status      RefundStatus @default(PENDING_EXECUTION)
   executedAt  DateTime?    @map("executed_at") @db.Timestamptz(3)
   createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  /// İade edilen sipariş (ödeme bildirimi bu siparişin)
+  orderId     String?      @map("order_id") @db.Uuid
+  /// paytr | fake
+  provider    String?
+  /// Ödeme kuruluşuna giden iade referansı (PayTR reference_no)
+  referenceNo String?      @map("reference_no")
+  /// Başarısız ya da sonucu belirsiz iadede açıklama
+  failReason  String?      @map("fail_reason")
 
-  approval Approval @relation(fields: [approvalId], references: [id])
+  approval Approval       @relation(fields: [approvalId], references: [id])
+  order    Order?         @relation(fields: [orderId], references: [id])
+  invoice  RefundInvoice?
 
-  @@index([approvalId])
+  @@index([orderId])
   @@map("refunds")
+}
+
+/// İade faturası (e-Arşiv; Karar 12.7): iade yürütülünce kuyruğa girer, entegratör gelince kesilir. Silinmez.
+model RefundInvoice {
+  id        String        @id @db.Uuid
+  refundId  String        @unique @map("refund_id") @db.Uuid
+  provider  String
+  status    InvoiceStatus @default(PENDING)
+  no        String?
+  pdfKey    String?       @map("pdf_key")
+  attempts  Int           @default(0)
+  lastError String?       @map("last_error")
+  issuedAt  DateTime?     @map("issued_at") @db.Timestamptz(3)
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  refund Refund @relation(fields: [refundId], references: [id])
+
+  @@map("refund_invoices")
 }
 
 // ── Ayarlar: özellik anahtarları ve bakım (T13, Karar 47) ─────
@@ -1535,6 +1563,7 @@ model Order {
   invoice      Invoice?
   promotions   DemandPromotion[]
   subscription Subscription?     @relation(fields: [subscriptionId], references: [id])
+  refunds      Refund[]
 
   @@index([userId, createdAt])
   @@index([status, createdAt])

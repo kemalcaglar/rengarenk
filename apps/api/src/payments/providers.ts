@@ -353,16 +353,30 @@ export interface InvoiceInput {
   vatKurus: number;
 }
 
+/** İade faturası: iade edilen tutar ve asıl faturanın no'su */
+export interface RefundInvoiceInput {
+  orderNo: string;
+  invoiceNo: string | null;
+  date: Date;
+  billing: InvoiceInput['billing'];
+  amountKurus: number;
+  vatKurus: number;
+}
+
 /** e-Arşiv entegratörü (Karar 12.7): fatura no ve PDF döner. Entegratör seçilince bu arayüzü uygular. */
 export interface EArsivProvider {
   readonly ad: string;
   issue(i: InvoiceInput): Promise<{ no: string; pdf: Uint8Array }>;
+  issueRefund(i: RefundInvoiceInput): Promise<{ no: string; pdf: Uint8Array }>;
 }
 
 /** Entegratör yok: fatura kesilemez, kuyrukta bekler */
 export class NoEArsiv implements EArsivProvider {
   readonly ad = 'none';
   async issue(): Promise<{ no: string; pdf: Uint8Array }> {
+    throw new Error('e-Arşiv entegratörü henüz bağlanmadı');
+  }
+  async issueRefund(): Promise<{ no: string; pdf: Uint8Array }> {
     throw new Error('e-Arşiv entegratörü henüz bağlanmadı');
   }
 }
@@ -373,6 +387,20 @@ export class FakeEArsiv implements EArsivProvider {
   async issue(i: InvoiceInput) {
     const no = `RGS${i.date.getFullYear()}${String(Date.now()).slice(-9)}`;
     return { no, pdf: basitPdf(no, i) };
+  }
+  async issueRefund(i: RefundInvoiceInput) {
+    const no = `RGI${i.date.getFullYear()}${String(Date.now()).slice(-9)}`;
+    return {
+      no,
+      pdf: basitPdf(no, {
+        orderNo: `${i.orderNo} (IADE${i.invoiceNo ? `, asil fatura ${i.invoiceNo}` : ''})`,
+        date: i.date,
+        billing: i.billing,
+        lines: [{ ad: 'Hizmet bedeli iadesi', adet: 1, tutarKurus: i.amountKurus }],
+        totalKurus: i.amountKurus,
+        vatKurus: i.vatKurus,
+      }),
+    };
   }
 }
 

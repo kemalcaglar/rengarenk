@@ -21,6 +21,7 @@ import { PaymentsModule } from './payments/payments.module.js';
 import { PortfolioModule } from './portfolio/portfolio.module.js';
 import { RateLimitModule } from './ratelimit/ratelimit.module.js';
 import { RedisModule } from './redis/redis.module.js';
+import { RefundsModule } from './refunds/refunds.module.js';
 import { SmsModule } from './sms/sms.module.js';
 import { StaffModule } from './staff/staff.module.js';
 import { StorageModule } from './storage/storage.service.js';
@@ -45,6 +46,7 @@ import { TrustModule } from './trust/trust.module.js';
     MessagesModule,
     TrustModule,
     PaymentsModule,
+    RefundsModule,
     StorageModule,
     ConsentModule,
     CatalogModule,
