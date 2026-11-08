@@ -696,6 +696,28 @@ export function AracFormu({
               </span>
             </div>
           </div>
+          {/* GaleriMobil.dc.html'deki izin; web tasarımında yok, aynı biçimle eklendi */}
+          <label
+            style={{
+              display: 'flex',
+              gap: 10,
+              alignItems: 'flex-start',
+              marginTop: 12,
+              fontSize: 13.5,
+              color: '#3A4052',
+            }}
+          >
+            <input
+              type="checkbox"
+              className="rr-isaret"
+              checked={Boolean(v.fotoKatalogIzni)}
+              onChange={(e) => set('fotoKatalogIzni', e.target.checked)}
+            />
+            <span>
+              Fotoğraflarım katalogda bu kasa ve paket için temsilî görsel olarak kullanılabilir (galeri
+              adıyla gösterilir).
+            </span>
+          </label>
           {d?.fotolar.length ? (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
               {d.fotolar.map((f, i) => (

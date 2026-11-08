@@ -143,6 +143,8 @@ export const portfolioVehicleSchema = z
     fiyatBeyani: z.boolean().default(false),
     /** Bilinen üretici tavsiye fiyatı; yazılırsa fiyat bununla karşılaştırılır */
     ureticiFiyati: z.coerce.number().int().min(0).max(10_000_000_000).optional(),
+    /** Fotoğrafların katalogda temsilî görsel olarak kullanılma izni (galeri adıyla) */
+    fotoKatalogIzni: z.boolean().default(false),
     /** Toplu yükleme ve API: galerinin kendi stok numarası */
     disNo: z.string().trim().max(60).optional(),
   })

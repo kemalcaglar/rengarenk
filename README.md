@@ -173,6 +173,16 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Galeri portföyü (Sprint 10)
+
+- **Panel:** `/gallery/:hesap/portfolio` (liste, ekle, `PUT :id`, `photos`, `report?tarih=`, `submit`, `passivate`,
+  `activate`, `sold`, `template`, `bulk?onizle=1`, `bulk`, `api-keys`). Herkese açık: `GET /araclar/:no`,
+  `/araclar/:no/iletisim` (girişli), `/portfoy/fotolar/:id`, `/galeriler/:slug/araclar`.
+- **EİDS:** `EIDS_PROVIDER` — `none` (varsayılan, canlı) araç doğrulama bekler ve görünmez; `fake` yerel ve test içindir:
+  "0" ile biten plaka reddedilir, "9" ile biten bekler. İşçi `portfoy.eids_istendi` olayında ve 5 dakikada bir sorar.
+- **Entegrasyon (Kurumsal):** `Authorization: Bearer rgk_…` ile `GET/PUT /entegrasyon/v1/araclar/:stokNo`,
+  `POST …/satildi`, `POST …/pasif`.
+
 ## Galeri hesapları (Sprint 9)
 
 - **Başvuru:** web `/kurumsal-basvuru`, mobilde Hesabım › Kurumsal hesap başvurusu. Uçlar `/gallery-applications/me`

@@ -8,10 +8,11 @@ import {
 } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { Alert, Image, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { T } from '../components/t';
+import { API } from '../lib/api';
 import { basHarf, useOturum } from '../lib/oturum';
 
 interface Panel {
@@ -30,6 +31,26 @@ interface Panel {
   };
   ekip: { userId: string }[];
 }
+interface Portfoy {
+  aktif: number;
+  sinir: number | null;
+  araclar: {
+    id: string;
+    ad: string;
+    detay: string;
+    fiyat: number;
+    durum: string;
+    durumAd: string;
+    foto: string | null;
+    duzenlenebilir: boolean;
+  }[];
+}
+const DURUM_RENK: Record<string, [string, string]> = {
+  PUBLISHED: ['#E7FAF0', '#11683F'],
+  PENDING_EIDS: ['#FFF6DF', '#7A5300'],
+  REJECTED: ['#FDECEC', '#A3271F'],
+};
+
 interface Davet {
   id: string;
   galeri: string;
@@ -37,12 +58,12 @@ interface Davet {
 }
 
 /** Alt sekmeler (GaleriMobil.dc.html); eşleşme ve mesaj Aşama 5, portföy Sprint 10 */
-const SEKME: { ad: string; d: string; orta?: true; acik?: true }[] = [
-  { ad: 'Panel', d: 'M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 4v3h6V4z', acik: true },
-  { ad: 'Eşleşmeler', d: 'M7 7h10l-3-3M17 17H7l3 3' },
-  { ad: 'Araç ekle', d: 'M12 5v14M5 12h14', orta: true },
-  { ad: 'Portföy', d: 'M3 13l2-6h14l2 6v5H3zM7 18v2M17 18v2M6 13h12' },
-  { ad: 'Mesajlar', d: 'M4 5h16v11H9l-5 4z' },
+const SEKME: { ad: string; key: string; d: string; orta?: true; acik?: true }[] = [
+  { ad: 'Panel', key: 'panel', d: 'M4 13h6V4H4zM14 20h6v-9h-6zM4 20h6v-3H4zM14 4v3h6V4z', acik: true },
+  { ad: 'Eşleşmeler', key: 'eslesme', d: 'M7 7h10l-3-3M17 17H7l3 3' },
+  { ad: 'Araç ekle', key: 'ekle', d: 'M12 5v14M5 12h14', orta: true, acik: true },
+  { ad: 'Portföy', key: 'portfoy', d: 'M3 13l2-6h14l2 6v5H3zM7 18v2M17 18v2M6 13h12', acik: true },
+  { ad: 'Mesajlar', key: 'mesaj', d: 'M4 5h16v11H9l-5 4z' },
 ];
 
 const kart = { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line } as const;
@@ -56,6 +77,8 @@ export default function GaleriPaneli() {
   const [p, setP] = useState<Panel | null>(null);
   const [davetler, setDavetler] = useState<Davet[] | null>(null);
   const [hata, setHata] = useState<string | null>(null);
+  const [gorunum, setGorunum] = useState<'panel' | 'portfoy'>('panel');
+  const [portfoy, setPortfoy] = useState<Portfoy | null>(null);
 
   const yukle = useCallback(async () => {
     const g = await istek<{ accountId: string }[]>('/gallery/mine');
@@ -70,7 +93,12 @@ export default function GaleriPaneli() {
       return;
     }
     setDavetler(null);
-    setP(await istek<Panel>(`/gallery/${ilk.accountId}`));
+    const [x, l] = await Promise.all([
+      istek<Panel>(`/gallery/${ilk.accountId}`),
+      istek<Portfoy>(`/gallery/${ilk.accountId}/portfolio`).catch(() => null),
+    ]);
+    setP(x);
+    setPortfoy(l);
   }, [istek]);
 
   useFocusEffect(
@@ -95,8 +123,12 @@ export default function GaleriPaneli() {
     ? [
         {
           ad: 'Portföy',
+          deger: portfoy?.aktif ?? 0,
           max: p.paket.portfoy === null ? '∞' : String(p.paket.portfoy),
-          not: 'Araç ekleme yakında',
+          not:
+            p.paket.portfoy === null
+              ? 'Sınırsız'
+              : `${Math.max(0, p.paket.portfoy - (portfoy?.aktif ?? 0))} araç daha`,
         },
         { ad: 'Bugünkü ilk mesaj', max: String(p.paket.gunlukMesaj), not: "Her gece 00:00'da yenilenir" },
         {
@@ -143,7 +175,7 @@ export default function GaleriPaneli() {
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>
           <T accessibilityRole="header" style={{ fontSize: 16, fontWeight: '800' }}>
-            {davetler ? 'Galeri davetlerin' : 'Panel'}
+            {davetler ? 'Galeri davetlerin' : gorunum === 'portfoy' ? 'Portföy' : 'Panel'}
           </T>
           {p ? (
             <T numberOfLines={1} style={{ fontSize: 12, color: colors.muted, marginTop: 1 }}>
@@ -267,14 +299,140 @@ export default function GaleriPaneli() {
           </T>
         ) : null}
 
-        {p ? (
+        {p && gorunum === 'portfoy' ? (
+          <>
+            <T style={{ marginHorizontal: 4, marginBottom: 10, fontSize: 13, color: '#3A4052' }}>
+              <T style={{ fontSize: 13, fontWeight: '800' }}>
+                {portfoy?.aktif ?? 0} / {portfoy?.sinir ?? '∞'}
+              </T>{' '}
+              araç · yalnızca doğrulanmış araçlar görünür
+            </T>
+            {(portfoy?.araclar ?? []).map((a) => {
+              const [bg, fg] = DURUM_RENK[a.durum] ?? ['#F3F5FA', '#3A4052'];
+              return (
+                <Pressable
+                  key={a.id}
+                  accessibilityRole="button"
+                  disabled={!a.duzenlenebilir || a.durum === 'SOLD'}
+                  onPress={() =>
+                    router.push({ pathname: '/galeri-arac', params: { accountId: p.accountId, id: a.id } })
+                  }
+                  style={{
+                    ...kart,
+                    flexDirection: 'row',
+                    gap: 12,
+                    borderRadius: 16,
+                    padding: 10,
+                    marginBottom: 8,
+                    opacity: a.durum === 'SOLD' ? 0.6 : 1,
+                  }}
+                >
+                  <View
+                    style={{
+                      width: 88,
+                      height: 66,
+                      borderRadius: 10,
+                      overflow: 'hidden',
+                      backgroundColor: '#DCE3F0',
+                    }}
+                  >
+                    {a.foto ? (
+                      <Image source={{ uri: `${API}${a.foto}` }} style={{ width: '100%', height: '100%' }} />
+                    ) : null}
+                  </View>
+                  <View style={{ flex: 1, minWidth: 0 }}>
+                    <T numberOfLines={1} style={{ fontSize: 14, fontWeight: '800' }}>
+                      {a.ad}
+                    </T>
+                    <T style={{ fontSize: 12, color: colors.muted, marginTop: 2 }}>{a.detay}</T>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 6,
+                        marginTop: 6,
+                      }}
+                    >
+                      <T style={{ fontSize: 14, fontWeight: '800', color: colors.link }}>
+                        {new Intl.NumberFormat('tr-TR').format(a.fiyat)} TL
+                      </T>
+                      <T
+                        style={{
+                          fontSize: 11,
+                          fontWeight: '800',
+                          paddingVertical: 3,
+                          paddingHorizontal: 8,
+                          borderRadius: 999,
+                          overflow: 'hidden',
+                          backgroundColor: bg,
+                          color: fg,
+                        }}
+                      >
+                        {a.durumAd}
+                      </T>
+                    </View>
+                  </View>
+                </Pressable>
+              );
+            })}
+            <View
+              style={{
+                borderWidth: 1,
+                borderStyle: 'dashed',
+                borderColor: '#A9B6D6',
+                borderRadius: 14,
+                padding: 13,
+                alignItems: 'center',
+              }}
+            >
+              <T style={{ fontSize: 14, fontWeight: '700', color: colors.link }}>
+                Excel/CSV ile toplu yükleme web panelde
+              </T>
+            </View>
+          </>
+        ) : null}
+
+        {p &&
+        gorunum === 'panel' &&
+        (portfoy?.araclar.filter((a) => a.durum === 'PENDING_EIDS').length ?? 0) > 0 ? (
+          <View
+            style={{
+              marginBottom: 10,
+              flexDirection: 'row',
+              gap: 10,
+              alignItems: 'center',
+              backgroundColor: '#FFF6DF',
+              borderRadius: 14,
+              paddingVertical: 12,
+              paddingHorizontal: 14,
+            }}
+          >
+            <T style={{ fontSize: 18 }}>⏳</T>
+            <T style={{ flex: 1, fontSize: 13, color: '#5A3D00', lineHeight: 19 }}>
+              <T style={{ fontSize: 13, fontWeight: '800', color: '#5A3D00' }}>
+                {portfoy?.araclar.filter((a) => a.durum === 'PENDING_EIDS').length} araç EİDS doğrulaması
+                bekliyor.
+              </T>{' '}
+              Doğrulanana kadar alıcılara görünmez.
+            </T>
+            <T
+              onPress={() => setGorunum('portfoy')}
+              style={{ fontSize: 13, fontWeight: '800', color: '#7A5300' }}
+            >
+              Gör
+            </T>
+          </View>
+        ) : null}
+
+        {p && gorunum === 'panel' ? (
           <>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {haklar.map((h, i) => (
                 <View key={h.ad} style={{ ...kart, borderRadius: 16, padding: 12, width: '48.5%' }}>
                   <T style={{ fontSize: 12, fontWeight: '700', color: colors.muted }}>{h.ad}</T>
                   <T style={{ marginTop: 4 }}>
-                    <T style={{ fontSize: 22, fontWeight: '800' }}>0</T>
+                    <T style={{ fontSize: 22, fontWeight: '800' }}>{'deger' in h ? h.deger : 0}</T>
                     <T style={{ fontSize: 13, color: colors.muted, fontWeight: '700' }}> / {h.max}</T>
                   </T>
                   <View
@@ -372,8 +530,14 @@ export default function GaleriPaneli() {
             key={s.ad}
             accessibilityRole="tab"
             accessibilityLabel={s.acik ? s.ad : `${s.ad}, yakında`}
-            accessibilityState={{ selected: Boolean(s.acik), disabled: !s.acik }}
-            disabled={!s.acik}
+            accessibilityState={{ selected: s.key === gorunum, disabled: !s.acik || !p }}
+            disabled={!s.acik || !p}
+            onPress={() => {
+              if (!p) return;
+              if (s.key === 'ekle')
+                router.push({ pathname: '/galeri-arac', params: { accountId: p.accountId } });
+              else setGorunum(s.key as 'panel' | 'portfoy');
+            }}
             style={{
               flex: 1,
               alignItems: 'center',
@@ -392,7 +556,6 @@ export default function GaleriPaneli() {
                   backgroundColor: colors.green,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  opacity: 0.55,
                 }}
               >
                 <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
@@ -403,8 +566,8 @@ export default function GaleriPaneli() {
               <Svg width={23} height={23} viewBox="0 0 24 24" fill="none">
                 <Path
                   d={s.d}
-                  stroke={s.acik ? colors.ink : colors.muted}
-                  strokeWidth={s.acik ? 2.4 : 1.9}
+                  stroke={s.key === gorunum ? colors.ink : colors.muted}
+                  strokeWidth={s.key === gorunum ? 2.4 : 1.9}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -413,8 +576,8 @@ export default function GaleriPaneli() {
             <T
               style={{
                 fontSize: 11,
-                fontWeight: s.acik ? '800' : '600',
-                color: s.acik ? colors.ink : colors.muted,
+                fontWeight: s.key === gorunum ? '800' : '600',
+                color: s.key === gorunum ? colors.ink : colors.muted,
               }}
             >
               {s.ad}

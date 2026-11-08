@@ -1193,6 +1193,8 @@ model PortfolioVehicle {
   /// Fiyatın üretici tavsiye fiyatını aşmadığı beyanı ve bilinen üretici fiyatı (geçici m.2)
   priceDeclared     Boolean         @default(false) @map("price_declared")
   manufacturerPrice BigInt?         @map("manufacturer_price")
+  /// Galerinin fotoğraflarını katalogda temsilî görsel olarak kullanma izni (GaleriMobil.dc.html; galeri adıyla)
+  photoCatalogOk    Boolean         @default(false) @map("photo_catalog_ok")
   /// Galerinin stok numarası (toplu yükleme ve API); galeri içinde tekil
   externalId        String?         @map("external_id")
   status            PortfolioStatus @default(DRAFT)

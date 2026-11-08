@@ -138,6 +138,31 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 10 · galeri portföyü (Aşama 4 ikinci bölüm, 8 Kasım 2026)
+
+- [x] Veri modeli: portfolio_vehicles (portföy no 77100001'den, silinmez), portfolio_photos, eids_checks, api_keys;
+  aynı plaka aynı anda tek açık ilanda (veritabanı kısıtı); yakıt, vites, renk ve hasar anahtarları talep şemasıyla aynı
+- [x] Elle ekleme web (GaleriPanel.dc.html › Araç ekle) ve mobil (GaleriMobil.dc.html): katalogdan seçim, yasal
+  bilgiler, parça parça boya beyanı, en az 6 fotoğraf (kapak seçimi), ekspertiz raporu; taslak ve düzenleme
+- [x] Kurallar (Karar 17): 6 ay / 6.000 km (ilk tescil; 1 Ocak 2027'ye kadar) ve üretici fiyatı (beyan ya da yazılan
+  üretici fiyatı) engel; ekspertiz (m.16, son 10 gün) uyarı; satış temsilcisi yalnızca kendine atanan aracı düzenler
+- [x] EİDS: "Kaydet ve EİDS'e gönder" → işçi sorar → onayda yayın, retle geri döner; plaka değişince yeniden doğrulama;
+  deniz, hava ve kiralıkta EİDS yok; satılan araç alıcılardan hemen kalkar (m.21)
+- [ ] Gerçek EİDS bağlantısı (Ticaret Bakanlığı): erişim gelene kadar canlıda `EIDS_PROVIDER=none` ve araçlar alıcılara
+  görünmez; `fake` canlıda açılamaz
+- [x] Toplu yükleme (Profesyonel, Kurumsal, deneme): Excel şablonu, Excel/CSV (noktalı virgül dahil) önizleme, katalog
+  adlarıyla eşleşme, satır hataları ve hata raporu, içe aktarma, stok no ile güncelleme, paket sınırı
+- [x] API (Kurumsal): anahtar (yalnızca özeti saklanır, bir kez gösterilir), `/entegrasyon/v1/araclar` ile stok no
+  üzerinden ekle, güncelle, satıldı, pasif
+- [x] Herkese açık araç sayfası web (PortfoyArac.dc.html) ve mobil (GaleriProfilMobil.dc.html): fotoğraflar, bilgiler,
+  boya şeması ve hasar, ekspertiz, doğrulamalar; plakanın yalnızca il kodu; telefon ve WhatsApp girişli kullanıcıya;
+  galeri profilinde yayındaki araçlar
+- [ ] Araç kartında "Talebine uyuyor", eşleşme sayısı ve mesaj (Aşama 5); araç favorisi; şikayet (Aşama 8); fotoğraf
+  kopya tespiti (özet saklanıyor); galeri fotoğrafının katalogda temsilî görsel olması (izin kaydediliyor)
+- Tasarımdan farklar: araç formunda ilk tescil, vites, üretici fiyatı beyanı ve stok no; web formunda mobildeki
+  "fotoğraflarım katalogda kullanılabilir" izni; motor ve şanzıman bilgisi katalogdan sonra gösterilecek; toplu
+  yüklemede satır düzeltmesi dosyada yapılıp yeniden yüklenir; API anahtarı bölümü toplu yükleme ekranında
+
 ## Sprint 9 · kurumsal başvuru, galeri hesabı ve ekip (Aşama 4 ilk bölüm, 8 Kasım 2026)
 
 - [x] Başvuru veri modeli: gallery_applications, gallery_documents (silinmez), galleries, account_invites; kullanıcı

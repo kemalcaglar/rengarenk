@@ -185,6 +185,7 @@ export class PortfolioService {
       priceDeclared: d.fiyatBeyani,
       manufacturerPrice: d.ureticiFiyati ? BigInt(d.ureticiFiyati) : null,
       externalId: d.disNo || null,
+      photoCatalogOk: d.fotoKatalogIzni,
     };
   }
 
@@ -711,6 +712,7 @@ export class PortfolioService {
         fiyatBeyani: v.priceDeclared,
         ureticiFiyati: v.manufacturerPrice === null ? undefined : Number(v.manufacturerPrice),
         disNo: v.externalId ?? undefined,
+        fotoKatalogIzni: v.photoCatalogOk,
       },
       fotolar: v.photos.map((p) => ({ id: p.id, url: `/portfoy/fotolar/${p.id}` })),
       ekspertiz: v.reportKey ? { ad: v.reportName, tarih: v.reportDate } : null,

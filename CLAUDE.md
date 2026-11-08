@@ -152,8 +152,13 @@ pnpm format        # Biome ile biçimlendir
   `apps/api/src/galleries/`, `packages/shared/src/gallery.ts`. Bakanlık/GİB/MERSİS erişimi yok: sağlayıcı arayüzü
   `verification.ts`, canlıda `none` (her başvuru insana). İşçiye yeni hizmet eklerken işçi modülüne de sağlayıcı ekle
   (`GalleriesWorkerModule` testi bunu yakalar). API'de 99 test, ortak pakette 46.
-- **Sıradaki:** Aşama 4'ün kalanı (Sprint 10): portföy (elle, Excel/CSV, API), EİDS, fotoğraflar, ekspertiz, 6 ay /
-  6.000 km ve üretici fiyatı kontrolleri, portföy aracı sayfası (liste: `docs/kapsam/03-gelistirme-plani.md`). Sunucular gelince Radore'ye ilk dağıtım,
+- **Sprint 10 (8 Kasım 2026, Aşama 4 bitti):** portföy (`apps/api/src/portfolio/`, `packages/shared/src/portfolio.ts`):
+  elle ekleme, fotoğraf, ekspertiz, kurallar (6 ay / 6.000 km `RULE_6M_6000KM_UNTIL`, üretici fiyatı, m.16), EİDS
+  sağlayıcısı (`eids.ts`, canlıda `none`), toplu yükleme (Excel/CSV), Kurumsal API anahtarı, araç sayfası (web, mobil).
+  API testleri bellek içi depo kullanır (`test/helpers.ts`), CI'da SeaweedFS yok. API'de 104 test, ortak pakette 52.
+  Yerelde OTP IP hız sınırı dolarsa Redis'te `rl:otp:ip:*` anahtarı silinebilir (yalnızca yerel).
+- **Sıradaki:** Aşama 5: eşleştirme motoru ve skor, ilk mesaj ve haklar, sohbet (WebSocket), numara paylaşımı, mesaj
+  güvenliği, yıldız ve rozetler (liste: `docs/kapsam/03-gelistirme-plani.md`). Sunucular gelince Radore'ye ilk dağıtım,
   yedek, izleme, SOPS. Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

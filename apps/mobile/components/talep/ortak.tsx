@@ -516,9 +516,12 @@ export function AracSemasi({
 export function ParcaSecimi({
   value,
   onChange,
+  beyan,
 }: {
   value?: { limit: number; parts: Record<string, string> };
   onChange: (v: { limit: number; parts: Record<string, string> }) => void;
+  /** Portföy aracı: her parçanın gerçek durumu girilir; "kabul" düğmeleri ve parça sınırı yoktur */
+  beyan?: boolean;
 }) {
   const v = value ?? { limit: 0, parts: {} };
   const hepsi = (k: string) =>
@@ -526,11 +529,14 @@ export function ParcaSecimi({
   return (
     <View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-        {[
-          ['orijinal', 'Tümü orijinal olsun'],
-          ['lokal', 'Tümünde lokal boya kabul'],
-          ['boya', 'Tümünde boya kabul'],
-        ].map(([k, ad]) => (
+        {(beyan
+          ? [['orijinal', 'Tümü orijinal']]
+          : [
+              ['orijinal', 'Tümü orijinal olsun'],
+              ['lokal', 'Tümünde lokal boya kabul'],
+              ['boya', 'Tümünde boya kabul'],
+            ]
+        ).map(([k, ad]) => (
           <Cip key={k} on={false} onPress={() => hepsi(k as string)}>
             {ad}
           </Cip>
@@ -595,50 +601,54 @@ export function ParcaSecimi({
           </View>
         ))}
       </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginTop: 12,
-          backgroundColor: '#F3F5FA',
-          borderRadius: 12,
-          padding: 12,
-        }}
-      >
-        <T style={{ flex: 1, fontSize: 14, fontWeight: '600' }}>
-          Toplamda en fazla kaç parça işlem görmüş olabilir?
-        </T>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-          {(['−', '+'] as const).map((x) => (
-            <Pressable
-              key={x}
-              accessibilityRole="button"
-              accessibilityLabel={x === '+' ? 'Artır' : 'Azalt'}
-              onPress={() =>
-                onChange({
-                  ...v,
-                  limit: Math.max(0, Math.min(PAINT_PARTS.length, v.limit + (x === '+' ? 1 : -1))),
-                })
-              }
-              style={{
-                width: 36,
-                height: 36,
-                borderWidth: 1,
-                borderColor: '#D5DAE5',
-                backgroundColor: colors.surface,
-                borderRadius: 10,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <T style={{ fontSize: 18, fontWeight: '700' }}>{x}</T>
-            </Pressable>
-          ))}
-        </View>
-      </View>
-      <T style={{ textAlign: 'right', fontSize: 15, fontWeight: '800', marginTop: 6 }}>{v.limit} parça</T>
+      {beyan ? null : (
+        <>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+              marginTop: 12,
+              backgroundColor: '#F3F5FA',
+              borderRadius: 12,
+              padding: 12,
+            }}
+          >
+            <T style={{ flex: 1, fontSize: 14, fontWeight: '600' }}>
+              Toplamda en fazla kaç parça işlem görmüş olabilir?
+            </T>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              {(['−', '+'] as const).map((x) => (
+                <Pressable
+                  key={x}
+                  accessibilityRole="button"
+                  accessibilityLabel={x === '+' ? 'Artır' : 'Azalt'}
+                  onPress={() =>
+                    onChange({
+                      ...v,
+                      limit: Math.max(0, Math.min(PAINT_PARTS.length, v.limit + (x === '+' ? 1 : -1))),
+                    })
+                  }
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderWidth: 1,
+                    borderColor: '#D5DAE5',
+                    backgroundColor: colors.surface,
+                    borderRadius: 10,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <T style={{ fontSize: 18, fontWeight: '700' }}>{x}</T>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+          <T style={{ textAlign: 'right', fontSize: 15, fontWeight: '800', marginTop: 6 }}>{v.limit} parça</T>
+        </>
+      )}
     </View>
   );
 }

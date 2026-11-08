@@ -1,7 +1,7 @@
 import { colors } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Linking, Pressable, ScrollView, Share, View } from 'react-native';
+import { Image, Linking, Pressable, ScrollView, Share, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { Ikon } from '../../components/ikon';
@@ -39,6 +39,15 @@ function yilEki(yil: number) {
 export default function GaleriProfili() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const [p, setP] = useState<Profil | null | 'yok'>(null);
+  const [araclar, setAraclar] = useState<
+    { no: number; ad: string; ozellik: string; fiyat: number; foto: string | null }[]
+  >([]);
+  useEffect(() => {
+    fetch(`${API}/galeriler/${encodeURIComponent(slug)}/araclar`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setAraclar)
+      .catch(() => undefined);
+  }, [slug]);
   useEffect(() => {
     fetch(`${API}/galeriler/${encodeURIComponent(slug)}`)
       .then((r): Promise<Profil | 'yok'> => (r.ok ? (r.json() as Promise<Profil>) : Promise.resolve('yok')))
@@ -205,20 +214,60 @@ export default function GaleriProfili() {
             >
               Portföy · {profil.portfoy.toplam} araç
             </T>
-            <View
-              style={{
-                marginHorizontal: 12,
-                backgroundColor: colors.surface,
-                borderWidth: 1,
-                borderStyle: 'dashed',
-                borderColor: '#C9CFDB',
-                borderRadius: 16,
-                padding: 20,
-                alignItems: 'center',
-              }}
-            >
-              <T style={{ fontSize: 13.5, color: colors.muted }}>Bu galerinin henüz yayında aracı yok.</T>
-            </View>
+            {araclar.length ? (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 12 }}>
+                {araclar.map((a) => (
+                  <Pressable
+                    key={a.no}
+                    accessibilityRole="link"
+                    onPress={() => router.push(`/arac/${a.no}`)}
+                    style={{
+                      width: '48.5%',
+                      backgroundColor: colors.surface,
+                      borderWidth: 1,
+                      borderColor: colors.line,
+                      borderRadius: 16,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <View style={{ height: 96, backgroundColor: '#DCE3F0' }}>
+                      {a.foto ? (
+                        <Image
+                          source={{ uri: `${API}${a.foto}` }}
+                          style={{ width: '100%', height: '100%' }}
+                        />
+                      ) : null}
+                    </View>
+                    <View style={{ paddingTop: 8, paddingHorizontal: 10, paddingBottom: 10 }}>
+                      <T numberOfLines={2} style={{ fontSize: 13, fontWeight: '800', lineHeight: 17 }}>
+                        {a.ad}
+                      </T>
+                      <T numberOfLines={1} style={{ fontSize: 11.5, color: colors.muted, marginTop: 3 }}>
+                        {a.ozellik}
+                      </T>
+                      <T style={{ fontSize: 13.5, fontWeight: '800', color: colors.link, marginTop: 5 }}>
+                        {new Intl.NumberFormat('tr-TR').format(a.fiyat)} TL
+                      </T>
+                    </View>
+                  </Pressable>
+                ))}
+              </View>
+            ) : (
+              <View
+                style={{
+                  marginHorizontal: 12,
+                  backgroundColor: colors.surface,
+                  borderWidth: 1,
+                  borderStyle: 'dashed',
+                  borderColor: '#C9CFDB',
+                  borderRadius: 16,
+                  padding: 20,
+                  alignItems: 'center',
+                }}
+              >
+                <T style={{ fontSize: 13.5, color: colors.muted }}>Bu galerinin henüz yayında aracı yok.</T>
+              </View>
+            )}
 
             <View
               style={{
