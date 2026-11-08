@@ -27,6 +27,9 @@ export function yenile(): Promise<string | null> {
   return pending;
 }
 
+/** Geçerli erişim jetonu; yoksa yeniler (ham gövdeli istekler için) */
+export const erisim = (): Promise<string | null> => (access ? Promise.resolve(access) : yenile());
+
 export class ApiHatasi extends Error {
   constructor(
     message: string,

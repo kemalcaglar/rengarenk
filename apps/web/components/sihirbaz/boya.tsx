@@ -8,8 +8,19 @@ type Durum = (typeof PAINT_STATES)[number]['key'];
 const renk = (k: string | undefined) =>
   PAINT_STATES.find((s) => s.key === (k ?? 'orijinal'))?.renk ?? '#EEF0F5';
 
-/** Boya ve değişen tercihi (Sihirbaz.dc.html 4. adım): şema seçimlere göre renklenir. */
-export function BoyaSemasi({ value, onChange }: { value?: BoyaDegeri; onChange: (v: BoyaDegeri) => void }) {
+/**
+ * Boya ve değişen tercihi (Sihirbaz.dc.html 4. adım): şema seçimlere göre renklenir. Portföy aracında (`beyan`) her
+ * parçanın gerçek durumu girilir; "en fazla kaç parça" sorusu yoktur.
+ */
+export function BoyaSemasi({
+  value,
+  onChange,
+  beyan,
+}: {
+  value?: BoyaDegeri;
+  onChange: (v: BoyaDegeri) => void;
+  beyan?: boolean;
+}) {
   const v: BoyaDegeri = value ?? { limit: 0, parts: {} };
   const bd = (k: string) => renk(v.parts[k]);
   const hepsi = (k: Durum) =>
@@ -39,14 +50,18 @@ export function BoyaSemasi({ value, onChange }: { value?: BoyaDegeri; onChange: 
     <>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 18 }}>
         <button type="button" onClick={() => hepsi('orijinal')} style={ikincil}>
-          Tümü orijinal olsun
+          {beyan ? 'Tümü orijinal' : 'Tümü orijinal olsun'}
         </button>
-        <button type="button" onClick={() => hepsi('lokal')} style={ikincil}>
-          Tümünde lokal boya kabul
-        </button>
-        <button type="button" onClick={() => hepsi('boya')} style={ikincil}>
-          Tümünde boya kabul
-        </button>
+        {beyan ? null : (
+          <>
+            <button type="button" onClick={() => hepsi('lokal')} style={ikincil}>
+              Tümünde lokal boya kabul
+            </button>
+            <button type="button" onClick={() => hepsi('boya')} style={ikincil}>
+              Tümünde boya kabul
+            </button>
+          </>
+        )}
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 28 }}>
         <div
@@ -234,43 +249,45 @@ export function BoyaSemasi({ value, onChange }: { value?: BoyaDegeri; onChange: 
               </div>
             ))}
           </div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 12,
-              marginTop: 14,
-              background: '#F3F5FA',
-              borderRadius: 12,
-              padding: '12px 14px',
-            }}
-          >
-            <span style={{ fontSize: 14, fontWeight: 600 }}>
-              Toplamda en fazla kaç parça işlem görmüş olabilir?
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <button
-                type="button"
-                aria-label="Azalt"
-                onClick={() => onChange({ ...v, limit: Math.max(0, v.limit - 1) })}
-                style={sayac}
-              >
-                −
-              </button>
-              <span style={{ minWidth: 24, textAlign: 'center', fontSize: 17, fontWeight: 800 }}>
-                {v.limit}
+          {beyan ? null : (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
+                marginTop: 14,
+                background: '#F3F5FA',
+                borderRadius: 12,
+                padding: '12px 14px',
+              }}
+            >
+              <span style={{ fontSize: 14, fontWeight: 600 }}>
+                Toplamda en fazla kaç parça işlem görmüş olabilir?
               </span>
-              <button
-                type="button"
-                aria-label="Artır"
-                onClick={() => onChange({ ...v, limit: Math.min(PAINT_PARTS.length, v.limit + 1) })}
-                style={sayac}
-              >
-                +
-              </button>
-            </span>
-          </div>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button
+                  type="button"
+                  aria-label="Azalt"
+                  onClick={() => onChange({ ...v, limit: Math.max(0, v.limit - 1) })}
+                  style={sayac}
+                >
+                  −
+                </button>
+                <span style={{ minWidth: 24, textAlign: 'center', fontSize: 17, fontWeight: 800 }}>
+                  {v.limit}
+                </span>
+                <button
+                  type="button"
+                  aria-label="Artır"
+                  onClick={() => onChange({ ...v, limit: Math.min(PAINT_PARTS.length, v.limit + 1) })}
+                  style={sayac}
+                >
+                  +
+                </button>
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </>

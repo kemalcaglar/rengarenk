@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { binlik } from '../../../../lib/talep-bicim';
 
 const API = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
@@ -19,6 +21,34 @@ interface Profil {
   satisTemsilcisi: number;
   portfoy: { toplam: number; araclar: unknown[] };
 }
+
+interface Kart {
+  no: number;
+  ad: string;
+  ozellik: string;
+  fiyat: number;
+  foto: string | null;
+  fotoSayisi: number;
+  yayin: string;
+}
+const GENEL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+
+async function araclar(slug: string): Promise<Kart[]> {
+  try {
+    const r = await fetch(`${API}/galeriler/${encodeURIComponent(slug)}/araclar`, {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(3000),
+    });
+    return r.ok ? ((await r.json()) as Kart[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+const gun = (iso: string) => {
+  const n = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+  return n <= 0 ? 'Bugün' : n === 1 ? 'Dün' : `${n} gün önce`;
+};
 
 async function profil(slug: string): Promise<Profil | null> {
   try {
@@ -57,7 +87,8 @@ const basHarf = (ad: string) =>
  * görünür (yönetmelik m.21). Portföy Sprint 10'da, takip (Karar 28) ve rozetler (Karar 55) kendi modülleriyle gelir.
  */
 export default async function GaleriProfili({ params }: { params: Promise<{ slug: string }> }) {
-  const p = await profil((await params).slug);
+  const slug = (await params).slug;
+  const [p, liste] = await Promise.all([profil(slug), araclar(slug)]);
   if (!p) notFound();
   const uyelik = new Intl.DateTimeFormat('tr-TR', {
     timeZone: 'Europe/Istanbul',
@@ -200,20 +231,103 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
         </div>
       </section>
 
-      <div
-        style={{
-          margin: '22px 0 14px',
-          background: '#FFFFFF',
-          border: '1px dashed #C9CFDB',
-          borderRadius: 18,
-          padding: '36px 20px',
-          textAlign: 'center',
-          fontSize: 15,
-          color: '#5A6073',
-        }}
-      >
-        Bu galerinin henüz yayında aracı yok.
-      </div>
+      {liste.length ? (
+        <div className="rr-uc-sutun" style={{ gap: 14, marginTop: 22 }}>
+          {liste.map((a, i) => (
+            <Link
+              key={a.no}
+              href={`/arac/${a.no}`}
+              style={{
+                display: 'block',
+                background: '#FFFFFF',
+                border: '1px solid #E3E6EF',
+                borderRadius: 18,
+                overflow: 'hidden',
+                color: '#1E2333',
+                textDecoration: 'none',
+              }}
+            >
+              <div
+                style={{
+                  position: 'relative',
+                  height: 170,
+                  background: ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0', '#F3EFFF', '#FFF0EA'][i % 6],
+                }}
+              >
+                {a.foto ? (
+                  // biome-ignore lint/performance/noImgElement: galeri fotoğrafı API'den akar
+                  <img
+                    src={`${GENEL}${a.foto}`}
+                    alt=""
+                    loading="lazy"
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  />
+                ) : null}
+                <span
+                  style={{
+                    position: 'absolute',
+                    left: 12,
+                    top: 12,
+                    fontSize: 12,
+                    fontWeight: 800,
+                    padding: '4px 9px',
+                    borderRadius: 999,
+                    background: '#FFFFFF',
+                    color: '#11683F',
+                  }}
+                >
+                  EİDS doğrulandı
+                </span>
+                <span
+                  style={{
+                    position: 'absolute',
+                    right: 12,
+                    bottom: 10,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    padding: '3px 8px',
+                    borderRadius: 8,
+                    background: 'rgba(255,255,255,0.9)',
+                    color: '#3A4052',
+                  }}
+                >
+                  {a.fotoSayisi} fotoğraf
+                </span>
+              </div>
+              <div style={{ padding: '14px 16px 16px' }}>
+                <div style={{ fontSize: 16, fontWeight: 800 }}>{a.ad}</div>
+                <div style={{ fontSize: 13.5, color: '#5A6073', marginTop: 4 }}>{a.ozellik}</div>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'baseline',
+                    marginTop: 10,
+                  }}
+                >
+                  <span style={{ fontSize: 19, fontWeight: 800 }}>{binlik(a.fiyat)} TL</span>
+                  <span style={{ fontSize: 12.5, color: '#5A6073' }}>{gun(a.yayin)}</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <div
+          style={{
+            margin: '22px 0 14px',
+            background: '#FFFFFF',
+            border: '1px dashed #C9CFDB',
+            borderRadius: 18,
+            padding: '36px 20px',
+            textAlign: 'center',
+            fontSize: 15,
+            color: '#5A6073',
+          }}
+        >
+          Bu galerinin henüz yayında aracı yok.
+        </div>
+      )}
 
       <section
         aria-labelledby="hk"

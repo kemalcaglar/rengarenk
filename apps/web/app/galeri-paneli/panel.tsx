@@ -8,11 +8,14 @@ import {
   MEMBER_ROLE_NAMES,
   MEMBER_ROLE_NOTES,
   type MemberRoleKey,
+  type PublicCategory,
 } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
-import { binlik, istek, useGiris } from '../../lib/istemci';
+import { API, binlik, istek, useGiris } from '../../lib/istemci';
+import { AracFormu } from './arac-formu';
+import { Portfoy, type PortfoyListesi, TopluYukleme } from './portfoy';
 
 interface Panel {
   accountId: string;
@@ -48,9 +51,9 @@ type Gorunum = 'ozet' | 'portfoy' | 'ekle' | 'toplu' | 'eslesme' | 'ekip' | 'pak
 /** Menü (GaleriPanel.dc.html); portföy Sprint 10'da, eşleşmeler Aşama 5'te açılır */
 const MENU: { key: Gorunum; ad: string; sonra?: true }[] = [
   { key: 'ozet', ad: 'Özet' },
-  { key: 'portfoy', ad: 'Portföy', sonra: true },
-  { key: 'ekle', ad: 'Araç ekle', sonra: true },
-  { key: 'toplu', ad: 'Toplu yükleme', sonra: true },
+  { key: 'portfoy', ad: 'Portföy' },
+  { key: 'ekle', ad: 'Araç ekle' },
+  { key: 'toplu', ad: 'Toplu yükleme' },
   { key: 'eslesme', ad: 'Eşleşmeler', sonra: true },
   { key: 'ekip', ad: 'Ekip' },
   { key: 'paket', ad: 'Paket ve faturalar' },
@@ -119,7 +122,14 @@ export function GaleriPaneli() {
   const [secili, setSecili] = useState<string | null>(null);
   const [p, setP] = useState<Panel | null>(null);
   const [me, setMe] = useState<{ firstName: string | null; lastName: string | null } | null>(null);
-  const [gorunum, setGorunum] = useState<Gorunum>('ozet');
+  const [gorunum, setGorunumHam] = useState<Gorunum>('ozet');
+  const [duzenle, setDuzenle] = useState<string | null>(null);
+  const [kategoriler, setKategoriler] = useState<PublicCategory[]>([]);
+  const [portfoy, setPortfoy] = useState<PortfoyListesi | null>(null);
+  const setGorunum = (g: Gorunum) => {
+    setDuzenle(null);
+    setGorunumHam(g);
+  };
   const [hata, setHata] = useState<string | null>(null);
   const [bilgi, setBilgi] = useState<string | null>(null);
   const [davetler, setDavetler] = useState<
@@ -148,8 +158,26 @@ export function GaleriPaneli() {
 
   const yukle = useCallback(async () => {
     if (!secili) return;
-    setP(await istek<Panel>(`/gallery/${secili}`));
+    const [x, l] = await Promise.all([
+      istek<Panel>(`/gallery/${secili}`),
+      istek<PortfoyListesi>(`/gallery/${secili}/portfolio`).catch(() => null),
+    ]);
+    setP(x);
+    setPortfoy(l);
   }, [secili]);
+
+  useEffect(() => {
+    fetch(`${API}/categories`)
+      .then((r) => r.json() as Promise<PublicCategory[]>)
+      .then((c) => setKategoriler(c.filter((x) => x.vertical === 'vasita')))
+      .catch(() => undefined);
+  }, []);
+
+  const portfoyBitti = (m: string) => {
+    if (m) setBilgi(m);
+    setGorunum('portfoy');
+    yukle().catch(() => undefined);
+  };
   useEffect(() => {
     yukle().catch((e: Error) => setHata(e.message));
   }, [yukle]);
@@ -417,7 +445,33 @@ export function GaleriPaneli() {
             />
           ) : null}
           {!p && !davetler ? <p style={{ color: '#5A6073' }}>Yükleniyor…</p> : null}
-          {p && gorunum === 'ozet' ? <Ozet p={p} git={setGorunum} islem={islem} /> : null}
+          {p && gorunum === 'ozet' ? <Ozet p={p} portfoy={portfoy} git={setGorunum} islem={islem} /> : null}
+          {p && gorunum === 'portfoy' && !duzenle ? (
+            <Portfoy
+              key={String(portfoy?.aktif)}
+              accountId={p.accountId}
+              ekle={() => setGorunum('ekle')}
+              duzenle={(id) => setDuzenle(id)}
+              toplu={() => setGorunum('toplu')}
+              bildir={setBilgi}
+            />
+          ) : null}
+          {p && (gorunum === 'ekle' || duzenle) ? (
+            <AracFormu
+              key={duzenle ?? 'yeni'}
+              accountId={p.accountId}
+              id={duzenle}
+              kategoriler={kategoriler}
+              bitti={portfoyBitti}
+            />
+          ) : null}
+          {p && gorunum === 'toplu' ? (
+            portfoy?.toplu ? (
+              <TopluYukleme accountId={p.accountId} api={portfoy.api} bitti={portfoyBitti} />
+            ) : (
+              <p style={{ color: '#5A6073' }}>Toplu yükleme Profesyonel ve Kurumsal paketlerdedir.</p>
+            )
+          ) : null}
           {p && gorunum === 'ekip' ? <Ekip p={p} islem={islem} /> : null}
           {p && gorunum === 'paket' ? <Paket p={p} /> : null}
         </main>
@@ -428,19 +482,31 @@ export function GaleriPaneli() {
 
 type Islem = (fn: () => Promise<Panel | null | undefined>, mesaj: string) => Promise<void>;
 
-function Ozet({ p, git, islem }: { p: Panel; git: (g: Gorunum) => void; islem: Islem }) {
+function Ozet({
+  p,
+  portfoy,
+  git,
+  islem,
+}: {
+  p: Panel;
+  portfoy: PortfoyListesi | null;
+  git: (g: Gorunum) => void;
+  islem: Islem;
+}) {
+  const aktif = portfoy?.aktif ?? 0;
+  const bekleyen = portfoy?.araclar.filter((a) => a.durum === 'PENDING_EIDS').length ?? 0;
   const [hakkinda, setHakkinda] = useState(p.galeri.hakkinda ?? '');
   const [saatler, setSaatler] = useState(p.galeri.calismaSaatleri ?? '');
   const deneme = p.paket.key === 'deneme';
   const kotalar = [
     {
       label: 'Portföy',
-      value: 0,
+      value: aktif,
       max: p.paket.portfoy === null ? 'sınırsız' : `${p.paket.portfoy} araç`,
       not:
         p.paket.portfoy === null
           ? 'Sınırsız araç ekleyebilirsin'
-          : `${p.paket.portfoy} araç daha ekleyebilirsin`,
+          : `${Math.max(0, p.paket.portfoy - aktif)} araç daha ekleyebilirsin`,
     },
     {
       label: 'Bugünkü ilk mesaj',
@@ -498,7 +564,14 @@ function Ozet({ p, git, islem }: { p: Panel; git: (g: Gorunum) => void; islem: I
             <div
               style={{ height: 8, borderRadius: 4, background: '#EEF0F5', marginTop: 10, overflow: 'hidden' }}
             >
-              <div style={{ height: 8, borderRadius: 4, background: DOTS[i], width: '0%' }} />
+              <div
+                style={{
+                  height: 8,
+                  borderRadius: 4,
+                  background: DOTS[i],
+                  width: `${k.max === 'sınırsız' || !Number.parseInt(k.max, 10) ? 0 : Math.min(100, (k.value / Number.parseInt(k.max, 10)) * 100)}%`,
+                }}
+              />
             </div>
             <div style={{ fontSize: 12.5, color: '#5A6073', marginTop: 8 }}>{k.not}</div>
           </div>
@@ -507,7 +580,13 @@ function Ozet({ p, git, islem }: { p: Panel; git: (g: Gorunum) => void; islem: I
       <div className="rr-uc-sutun" style={{ marginTop: 16 }}>
         {[
           ['0', '#11683F', 'Yeni eşleşme', 'Portföyündeki araçlara uyan talepler', 'eslesme'],
-          ['0', '#7A5300', 'EİDS doğrulaması bekleyen', 'Doğrulanana kadar alıcılara görünmez', 'portfoy'],
+          [
+            String(bekleyen),
+            '#7A5300',
+            'EİDS doğrulaması bekleyen',
+            'Doğrulanana kadar alıcılara görünmez',
+            'portfoy',
+          ],
           ['0', '#9B1C5B', 'Okunmamış mesaj', 'Ekip üyelerine gelen sohbetler dahil', ''],
         ].map(([n, renk, ad, alt]) => (
           <div key={ad} style={{ ...kart, padding: 18 }}>
