@@ -22,6 +22,7 @@ import {
   galleryApplicationDraftSchema,
   galleryInviteSchema,
   galleryProfileSchema,
+  memberLimitSchema,
 } from '@rengarenk/shared';
 import { z } from 'zod';
 import { AuthGuard } from '../auth/auth.guard.js';
@@ -141,6 +142,16 @@ export class GalleryController {
     @Body(new ZodPipe(roleSchema)) body: z.output<typeof roleSchema>,
   ) {
     return this.galleries.changeRole(req.user.sub, accountId, userId, body.rol, req.ip);
+  }
+
+  @Patch(':accountId/members/:userId/limit')
+  limit(
+    @Req() req: AuthedRequest,
+    @Param('accountId', new ParseUUIDPipe()) accountId: string,
+    @Param('userId', new ParseUUIDPipe()) userId: string,
+    @Body(new ZodPipe(memberLimitSchema)) body: z.output<typeof memberLimitSchema>,
+  ) {
+    return this.galleries.changeLimit(req.user.sub, accountId, userId, body.gunlukSinir, req.ip);
   }
 
   @Delete(':accountId/members/:userId')

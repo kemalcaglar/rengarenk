@@ -11,5 +11,6 @@ export * from './matching.js';
 export * from './messages.js';
 export * from './phone.js';
 export * from './portfolio.js';
+export * from './ratings.js';
 export * from './staff.js';
 export * from './tokens.js';

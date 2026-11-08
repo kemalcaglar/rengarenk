@@ -78,6 +78,8 @@ model User {
   savedSearches       SavedSearch[]
   galleryApplications GalleryApplication[]
   buyerConversations  Conversation[]       @relation("alici")
+  ratings             Rating[]
+  follows             GalleryFollow[]
   blocks              UserBlock[]
 
   @@map("users")
@@ -101,16 +103,21 @@ model Account {
   apiKeys             ApiKey[]
   matches             Match[]
   sellerConversations Conversation[]      @relation("satici")
+  ratingsReceived     Rating[]
+  followers           GalleryFollow[]
+  sellerStats         SellerStats?
   blockedBy           UserBlock[]
 
   @@map("accounts")
 }
 
 model AccountMember {
-  accountId String     @map("account_id") @db.Uuid
-  userId    String     @map("user_id") @db.Uuid
-  role      MemberRole
-  createdAt DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  accountId         String     @map("account_id") @db.Uuid
+  userId            String     @map("user_id") @db.Uuid
+  role              MemberRole
+  /// Sahibin koyduğu günlük ilk mesaj sınırı (Karar 20); boşsa sınır yok
+  dailyMessageLimit Int?       @map("daily_message_limit")
+  createdAt         DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
 
   account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -1373,6 +1380,7 @@ model Conversation {
   buyer         User              @relation("alici", fields: [buyerUserId], references: [id])
   sellerAccount Account           @relation("satici", fields: [sellerAccountId], references: [id])
   messages      Message[]
+  rating        Rating?
 
   @@index([buyerUserId, lastMessageAt])
   @@index([sellerAccountId, lastMessageAt])
@@ -1414,4 +1422,63 @@ model UserBlock {
 
   @@id([userId, accountId])
   @@map("user_blocks")
+}
+
+/// Alıcının satıcıya verdiği yıldız (Karar 55): sohbet başına bir kez, yorum yok. Şüpheli yıldız hesaba katılmaz.
+model Rating {
+  id              String   @id @db.Uuid
+  conversationId  String   @unique @map("conversation_id") @db.Uuid
+  buyerUserId     String   @map("buyer_user_id") @db.Uuid
+  sellerAccountId String   @map("seller_account_id") @db.Uuid
+  stars           Int
+  /// yeni_hesap | ayni_cihaz | bagli_hesap: hesaba katılmaz
+  flag            String?
+  counted         Boolean  @default(true)
+  /// @pii IP ve tarayıcının anahtarlı özeti (aynı cihazdan çok hesap tespiti); kendisi saklanmaz
+  fingerprint     String?
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  conversation  Conversation @relation(fields: [conversationId], references: [id])
+  buyer         User         @relation(fields: [buyerUserId], references: [id])
+  sellerAccount Account      @relation(fields: [sellerAccountId], references: [id])
+
+  @@index([sellerAccountId, createdAt])
+  @@index([sellerAccountId, fingerprint])
+  @@map("ratings")
+}
+
+/// Satıcının hesaplanmış göstergeleri ve rozetleri (Karar 55); işçi her gece ve yeni yıldızda yeniler
+model SellerStats {
+  accountId      String   @id @map("account_id") @db.Uuid
+  ratingCount    Int      @default(0) @map("rating_count")
+  ratingAvg      Float?   @map("rating_avg")
+  /// 1'den 5'e yıldız sayıları
+  ratingDist     Int[]    @default([0, 0, 0, 0, 0]) @map("rating_dist")
+  responseConvs  Int      @default(0) @map("response_convs")
+  responseMedian Int?     @map("response_median")
+  responseAvg    Int?     @map("response_avg")
+  complaintRate  Float    @default(0) @map("complaint_rate")
+  score          Int      @default(0)
+  badges         String[] @default([])
+  computedAt     DateTime @default(now()) @map("computed_at") @db.Timestamptz(3)
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@map("seller_stats")
+}
+
+/// Galeriyi takip et (Karar 28): galeri takipçilerini tek tek görmez, yalnızca sayısını
+model GalleryFollow {
+  userId    String    @map("user_id") @db.Uuid
+  accountId String    @map("account_id") @db.Uuid
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  /// Son günlük özetin gönderildiği an
+  digestAt  DateTime? @map("digest_at") @db.Timestamptz(3)
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@id([userId, accountId])
+  @@index([accountId])
+  @@map("gallery_follows")
 }

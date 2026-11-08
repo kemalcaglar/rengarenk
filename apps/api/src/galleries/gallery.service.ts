@@ -15,6 +15,7 @@ import {
 import { AuditService } from '../audit/audit.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
+import { rozetler } from '../trust/badges.js';
 
 const DAY = 86_400_000;
 
@@ -110,6 +111,7 @@ export class GalleryService {
         telefon: maskTrMobile(m.user.phone),
         rol: m.role,
         rolAd: MEMBER_ROLE_NAMES[m.role],
+        gunlukSinir: m.dailyMessageLimit,
         sen: m.userId === userId,
         eklendi: m.createdAt,
       })),
@@ -161,9 +163,11 @@ export class GalleryService {
       include: { account: { select: { status: true } } },
     });
     if (g?.account.status !== 'ACTIVE') throw new NotFoundException('Galeri bulunamadı');
-    const [satis, yayinda] = await Promise.all([
+    const [satis, yayinda, rz, st] = await Promise.all([
       this.db.accountMember.count({ where: { accountId: g.accountId, role: 'SALES' } }),
       this.db.portfolioVehicle.count({ where: { accountId: g.accountId, status: 'PUBLISHED' } }),
+      rozetler(this.db, [g.accountId]),
+      this.db.sellerStats.findUnique({ where: { accountId: g.accountId }, select: { responseAvg: true } }),
     ]);
     return {
       ...this.publicView(g),
@@ -171,6 +175,9 @@ export class GalleryService {
       adres: g.address,
       satisTemsilcisi: satis,
       portfoy: { toplam: yayinda },
+      // Alıcı puanı sayı olarak görmez, yalnızca rozetleri (Karar 55)
+      rozetler: rz.get(g.accountId) ?? [],
+      ortalamaYanitDakika: st?.responseAvg ?? null,
     };
   }
 
@@ -318,6 +325,36 @@ export class GalleryService {
           entityId: `${accountId}:${memberId}`,
           before: { role: m.role },
           after: { role },
+          ip,
+        },
+        tx,
+      );
+    });
+    return this.panel(userId, accountId);
+  }
+
+  /** Çalışan başına günlük ilk mesaj sınırı (Karar 20): yalnızca sahip koyar; boş bırakılırsa sınır yok */
+  async changeLimit(userId: string, accountId: string, memberId: string, limit: number | null, ip?: string) {
+    const { role: by } = await this.membership(userId, accountId);
+    if (by !== 'OWNER') throw new ForbiddenException('Mesaj sınırını yalnızca hesap sahibi koyabilir');
+    const m = await this.db.accountMember.findUnique({
+      where: { accountId_userId: { accountId, userId: memberId } },
+    });
+    if (!m) throw new NotFoundException('Çalışan bulunamadı');
+    await this.db.$transaction(async (tx) => {
+      await tx.accountMember.update({
+        where: { accountId_userId: { accountId, userId: memberId } },
+        data: { dailyMessageLimit: limit },
+      });
+      await this.audit.record(
+        {
+          actorType: 'USER',
+          actorId: userId,
+          action: 'galeri_mesaj_siniri',
+          entityType: 'account_member',
+          entityId: `${accountId}:${memberId}`,
+          before: { dailyMessageLimit: m.dailyMessageLimit },
+          after: { dailyMessageLimit: limit },
           ip,
         },
         tx,

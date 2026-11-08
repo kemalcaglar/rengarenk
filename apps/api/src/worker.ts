@@ -22,6 +22,8 @@ import { PortfolioService } from './portfolio/portfolio.service.js';
 import { QueueService } from './queue/queue.service.js';
 import { DemandSearchService } from './search/demand-search.service.js';
 import { StorageModule } from './storage/storage.service.js';
+import { TrustWorkerModule } from './trust/trust.module.js';
+import { TrustService } from './trust/trust.service.js';
 
 /**
  * Arka plan işçisi: API ile aynı kod tabanı, ayrı süreç (Teknik tasarım §2).
@@ -40,6 +42,7 @@ import { StorageModule } from './storage/storage.service.js';
     GalleriesWorkerModule,
     PortfolioWorkerModule,
     MatchingWorkerModule,
+    TrustWorkerModule,
   ],
   providers: [OutboxService, QueueService],
 })
@@ -60,6 +63,7 @@ const galleryApps = app.get(GalleryApplicationService);
 const galleries = app.get(GalleryService);
 const portfolio = app.get(PortfolioService);
 const matching = app.get(MatchingService);
+const trust = app.get(TrustService);
 await queue.start();
 
 await queue.consume<{ approvalId: string }>('onay.onaylandi', 'onay-yurut', async ({ approvalId }) => {
@@ -165,6 +169,15 @@ while (!stopping) {
       .rebuildAll()
       .then((r) => log.log(`eşleştirme yenilendi: ${r.arac} araç, ${r.talep} talep`))
       .catch((err: Error) => log.error(`eşleştirme: ${err.message}`));
+    // Satıcı göstergeleri ve rozetler her gece (Karar 55); takip edilen galerilerin günlük özeti (Karar 28)
+    await trust
+      .recomputeAll()
+      .then((n) => log.log(`satıcı göstergeleri yenilendi: ${n} hesap`))
+      .catch((err: Error) => log.error(`satıcı göstergeleri: ${err.message}`));
+    await trust
+      .followDigest()
+      .then((n) => log.log(`takip özeti: ${n} kişi`))
+      .catch((err: Error) => log.error(`takip özeti: ${err.message}`));
   }
   if (Date.now() - lastCatalogCheck > CATALOG_CHECK_MS) {
     lastCatalogCheck = Date.now();

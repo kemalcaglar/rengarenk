@@ -31,6 +31,8 @@ import { EntitlementService } from '../entitlements/entitlement.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { vehicleNames } from '../portfolio/vehicle-names.js';
 import { SecretBox } from '../staff/secret-box.js';
+import { rozetler } from '../trust/badges.js';
+import { TrustService } from '../trust/trust.service.js';
 import { RealtimeService } from './realtime.service.js';
 
 /** Bireysel satıcının günlük ücretsiz ilk mesajı; kategori kuralı yoksa (Karar 11.2) */
@@ -62,7 +64,7 @@ const tekrar = (e: unknown, mesaj: string) =>
 interface Satici {
   userId: string;
   accountId: string;
-  galeri: { ad: string; gunlukMesaj: number } | null;
+  galeri: { ad: string; gunlukMesaj: number; kisiSiniri: number | null } | null;
 }
 
 type Taraf = 'alici' | 'satici';
@@ -84,6 +86,7 @@ export class MessagesService {
     private readonly entitlements: EntitlementService,
     private readonly outbox: OutboxService,
     private readonly realtime: RealtimeService,
+    private readonly trust: TrustService,
   ) {
     this.box = SecretBox.forMessages(env);
   }
@@ -116,7 +119,11 @@ export class MessagesService {
       throw new ForbiddenException('Deneme süren bitti; paket seçene kadar mesaj gönderemezsin');
     }
     const ozellik = plan === 'deneme' ? GALLERY_TRIAL : GALLERY_PLANS[plan];
-    return { userId, accountId: hesap, galeri: { ad: g.displayName, gunlukMesaj: ozellik.gunlukMesaj } };
+    return {
+      userId,
+      accountId: hesap,
+      galeri: { ad: g.displayName, gunlukMesaj: ozellik.gunlukMesaj, kisiSiniri: m.dailyMessageLimit },
+    };
   }
 
   private async rules(categoryId: string, version: number | null) {
@@ -140,6 +147,25 @@ export class MessagesService {
       },
     });
     return { toplam, kalan: Math.max(0, toplam - kullanilan) };
+  }
+
+  /** Sahibin çalışana koyduğu günlük ilk mesaj sınırı (Karar 20); paket hakkı ortak havuzdur */
+  private async kisiSiniri(s: Satici, tx: Tx | Db = this.db) {
+    const sinir = s.galeri?.kisiSiniri;
+    if (!sinir) return;
+    const bugunku = await tx.conversation.count({
+      where: {
+        sellerAccountId: s.accountId,
+        sellerUserId: s.userId,
+        origin: 'talep',
+        createdAt: { gte: bugun() },
+      },
+    });
+    if (bugunku >= sinir) {
+      throw new ForbiddenException(
+        `Bugünkü kişisel ilk mesaj sınırın (${sinir}) doldu; sınırı galeri sahibi değiştirebilir`,
+      );
+    }
   }
 
   /**
@@ -181,6 +207,7 @@ export class MessagesService {
     try {
       const s = await this.satici(userId, secili.galeri ? secili.id : undefined);
       gunluk = await this.gunluk(s, def?.rules.freeFirstMessages ?? VARSAYILAN_UCRETSIZ);
+      await this.kisiSiniri(s);
     } catch (e) {
       engel ??= (e as Error).message;
     }
@@ -240,6 +267,7 @@ export class MessagesService {
     try {
       await this.db.$transaction(async (tx) => {
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`ilkmesaj:${s.accountId}`}))`;
+        await this.kisiSiniri(s, tx);
         const g = await this.gunluk(s, def?.rules.freeFirstMessages ?? VARSAYILAN_UCRETSIZ, tx);
         let entitlement: 'gunluk' | 'paket' | 'ek' = s.galeri ? 'paket' : 'gunluk';
         if (g.kalan < 1) {
@@ -644,6 +672,10 @@ export class MessagesService {
     );
     const satici = new Map(saticilar.map((u) => [u.id, u]));
     const engelli = new Set(engeller.map((e) => e.accountId));
+    const rz = await rozetler(
+      this.db,
+      cs.filter((c) => c.buyerUserId === userId).map((c) => c.sellerAccountId),
+    );
     return cs.map((c) => {
       const taraf: Taraf = c.buyerUserId === userId ? 'alici' : 'satici';
       const s = son.get(c.id);
@@ -665,6 +697,8 @@ export class MessagesService {
         uyari: taraf === 'alici' && c.warned,
         numara: !!c.phoneSharedAt,
         engelli: taraf === 'alici' && engelli.has(c.sellerAccountId),
+        // Alıcı satıcının rozetlerini görür (Karar 55)
+        rozetler: taraf === 'alici' ? (rz.get(c.sellerAccountId) ?? []) : [],
         okunmamis: okunmamis.get(c.id) ?? 0,
       };
     });
@@ -822,6 +856,12 @@ export class MessagesService {
       };
     });
     if (okundu) await this.read(userId, id);
+    const [rz, puan] = await Promise.all([
+      taraf === 'alici' ? rozetler(this.db, [c.sellerAccountId]) : Promise.resolve(new Map()),
+      taraf === 'alici'
+        ? this.trust.eligibility(userId, id)
+        : Promise.resolve({ uygun: false, verilen: null }),
+    ]);
     return {
       id: c.id,
       taraf,
@@ -833,7 +873,10 @@ export class MessagesService {
         galeri: g ? { slug: g.slug } : null,
         // Satıcı numarayı yalnızca alıcı paylaşınca görür
         telefon: taraf === 'satici' && c.phoneSharedAt ? telefonYaz(c.buyer.phone) : null,
+        rozetler: rz.get(c.sellerAccountId) ?? [],
       },
+      // Yıldız (Karar 55): uygunsa alıcıya "Puan ver"
+      puan: puan,
       talep: c.demand ? { no: Number(c.demand.no), baslik: c.demand.headline ?? c.demand.title } : null,
       arac: c.vehicle ? { no: Number(c.vehicle.no), ad: n(c.vehicle).ad } : null,
       numaraPaylasildi: !!c.phoneSharedAt,

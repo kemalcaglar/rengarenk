@@ -66,6 +66,7 @@ export const AUDIT_ACTIONS: Record<string, string> = {
   galeri_davet_kabul: 'Galeri daveti kabul edildi',
   galeri_davet_ret: 'Galeri daveti reddedildi',
   galeri_rol_degisti: 'Galeri çalışanının rolü değişti',
+  galeri_mesaj_siniri: 'Galeri çalışanının günlük mesaj sınırı değişti',
   galeri_calisan_cikarildi: 'Galeri çalışanı çıkarıldı',
 };
 

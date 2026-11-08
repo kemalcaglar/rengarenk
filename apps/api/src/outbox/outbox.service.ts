@@ -62,7 +62,10 @@ export type EventType =
   | 'mesaj.geldi'
   | 'mesaj.uyari'
   | 'sohbet.numara_paylasildi'
-  | 'sohbet.engellendi';
+  | 'sohbet.engellendi'
+  // Güven (Karar 28, 55): yıldız ve takip edilen galerinin günlük özeti
+  | 'puan.verildi'
+  | 'takip.ozet';
 
 @Injectable()
 export class OutboxService {
