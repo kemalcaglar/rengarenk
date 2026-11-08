@@ -73,6 +73,30 @@ export class ConsentService {
     }
   }
 
+  /**
+   * Galeri başvurusu (Karar 39): galeri hizmet sözleşmesi onayı ve isteğe bağlı ticari ileti onayı, metin sürümüyle.
+   * Ticari ileti işaretlenmezse var olan tercih değişmez.
+   */
+  async recordGallery(tx: Tx, userId: string, ticariIleti: boolean, channel: Channel, ip?: string) {
+    const rows: { kind: string; key: LegalKey }[] = [{ kind: 'galeri_sozlesmesi', key: 'galeri_sozlesmesi' }];
+    if (ticariIleti) rows.push({ kind: 'ticari_ileti', key: 'ticari_ileti' });
+    for (const r of rows) {
+      const text = await this.current(r.key, tx);
+      await tx.consent.create({
+        data: {
+          id: uuidv7(),
+          userId,
+          kind: r.kind,
+          granted: true,
+          textKey: r.key,
+          textVersion: text?.version ?? null,
+          channel,
+          ip: ip ?? null,
+        },
+      });
+    }
+  }
+
   /** Çerez tercihi: üye için kullanıcıya, ziyaretçi için rastgele ziyaretçi kimliğine bağlanır. */
   async recordCookie(
     subject: { userId?: string; visitorId?: string },

@@ -18,6 +18,7 @@ import {
 import {
   applicationDocsRequestSchema,
   applicationRejectSchema,
+  applicationSubmitSchema,
   galleryApplicationDraftSchema,
   galleryInviteSchema,
   galleryProfileSchema,
@@ -81,8 +82,11 @@ export class GalleryApplicationController {
 
   @Post('submit')
   @HttpCode(200)
-  submit(@Req() req: AuthedRequest) {
-    return this.apps.submit(req.user.sub, req.ip);
+  submit(
+    @Req() req: AuthedRequest,
+    @Body(new ZodPipe(applicationSubmitSchema)) body: z.output<typeof applicationSubmitSchema>,
+  ) {
+    return this.apps.submit(req.user.sub, body, req.ip);
   }
 }
 

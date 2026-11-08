@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuditService } from '../audit/audit.service.js';
 import { AuthModule } from '../auth/auth.module.js';
+import { ConsentService } from '../consents/consent.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { StaffModule } from '../staff/staff.module.js';
 import {
@@ -29,9 +30,16 @@ import { VerifierFactory } from './verification.js';
 })
 export class GalleriesModule {}
 
-/** İşçi için: başvuru kontrolleri ve deneme hatırlatmaları. */
+/** İşçi için: başvuru kontrolleri ve deneme hatırlatmaları (rıza modülü işçide yüklü değil; hizmet burada). */
 @Module({
-  providers: [GalleryApplicationService, GalleryService, VerifierFactory, AuditService, OutboxService],
+  providers: [
+    GalleryApplicationService,
+    GalleryService,
+    VerifierFactory,
+    AuditService,
+    OutboxService,
+    ConsentService,
+  ],
   exports: [GalleryApplicationService, GalleryService],
 })
 export class GalleriesWorkerModule {}

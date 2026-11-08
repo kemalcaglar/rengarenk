@@ -147,8 +147,13 @@ pnpm format        # Biome ile biçimlendir
 - **Ana sayfa vitrini ve son talepler (8 Kasım 2026):** `GET /talepler/vitrin`, arama belgesinde `foto`, web ve mobil
   ana sayfa, ana sayfada "Kayıtlı aramalarınız". Vitrin boş yerlerini yayındaki talepler doldurur (ücretli vitrin
   Aşama 6). Mobil fiyatlar `mobil` alanında (Karar 38), `fiyatYaz` ile "359,99". Aşama 3 tamam.
-- **Sıradaki:** Aşama 4 (galeri): kurumsal başvuru ve onay, yetki belgesi, portföy, EİDS, galeri profili, çalışanlar
-  (liste: `docs/kapsam/03-gelistirme-plani.md`). Sunucular gelince Radore'ye ilk dağıtım,
+- **Sprint 9 (8 Kasım 2026, Aşama 4 ilk bölüm):** kurumsal başvuru, kontroller ve ajan onayı, konsolda Galeri
+  başvuruları, galeri hesabı ve 30 gün deneme, ekip ve davetler, galeri paneli ve profili (web, mobil).
+  `apps/api/src/galleries/`, `packages/shared/src/gallery.ts`. Bakanlık/GİB/MERSİS erişimi yok: sağlayıcı arayüzü
+  `verification.ts`, canlıda `none` (her başvuru insana). İşçiye yeni hizmet eklerken işçi modülüne de sağlayıcı ekle
+  (`GalleriesWorkerModule` testi bunu yakalar). API'de 99 test, ortak pakette 46.
+- **Sıradaki:** Aşama 4'ün kalanı (Sprint 10): portföy (elle, Excel/CSV, API), EİDS, fotoğraflar, ekspertiz, 6 ay /
+  6.000 km ve üretici fiyatı kontrolleri, portföy aracı sayfası (liste: `docs/kapsam/03-gelistirme-plani.md`). Sunucular gelince Radore'ye ilk dağıtım,
   yedek, izleme, SOPS. Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

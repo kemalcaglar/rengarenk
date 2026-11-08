@@ -1,9 +1,13 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
+import { Test } from '@nestjs/testing';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { DatabaseModule } from '../src/database/database.module.js';
 import type { Db } from '../src/database/prisma.js';
+import { GalleriesWorkerModule } from '../src/galleries/galleries.module.js';
 import { GalleryService } from '../src/galleries/gallery.service.js';
 import { GalleryApplicationService } from '../src/galleries/gallery-application.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
+import { StorageModule } from '../src/storage/storage.service.js';
 import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
@@ -68,7 +72,13 @@ async function basvur(token: string, yetkiNo: string, ad: string) {
   expect((await call(app, 'PATCH', '/gallery-applications/me', form(yetkiNo, ad), token)).status).toBe(200);
   for (const k of ['vergi_levhasi', 'sicil_gazetesi', 'oda_kayit'])
     expect((await upload(token, k)).status).toBe(201);
-  const s = await call(app, 'POST', '/gallery-applications/me/submit', undefined, token);
+  const s = await call(
+    app,
+    'POST',
+    '/gallery-applications/me/submit',
+    { sozlesme: true, ticariIleti: true },
+    token,
+  );
   expect(s.status).toBe(200);
   expect(s.body.durum).toBe('SUBMITTED');
   return s.body.id as string;
@@ -102,11 +112,10 @@ describe('kurumsal hesap başvurusu (Karar 03, 12.5, 17)', () => {
       expect.objectContaining({ kind: 'vergi_levhasi', ad: 'vergi levhası.pdf' }),
     ]);
 
-    // Eksik belgeyle gönderilemez
+    // Sözleşme onayı olmadan gönderilemez
+    expect((await call(app, 'POST', '/gallery-applications/me/submit', {}, t)).status).toBe(400);
+
     await call(app, 'PATCH', '/gallery-applications/me', form('34-2021-001', 'Yıldız Otomotiv'), t);
-    const eksik = await call(app, 'POST', '/gallery-applications/me/submit', undefined, t);
-    expect(eksik.status).toBe(422);
-    expect(eksik.body.message).toContain('Ticaret sicil gazetesi');
 
     // "Bakanlık sisteminden doğrula"
     const v = await call(app, 'POST', '/gallery-applications/me/verify-authority', undefined, t);
@@ -115,6 +124,12 @@ describe('kurumsal hesap başvurusu (Karar 03, 12.5, 17)', () => {
     const id = await basvur(t, '34-2021-001', 'Yıldız Otomotiv');
     // Gönderilen başvuru değiştirilemez; ikinci açık başvuru da açılamaz
     expect((await call(app, 'PATCH', '/gallery-applications/me', { gorunenAd: 'X' }, t)).status).toBe(409);
+
+    // Sözleşme onayı ve ticari ileti onayı rıza kaydında, metin sürümüyle
+    const rizalar = await db.consent.findMany({
+      where: { kind: { in: ['galeri_sozlesmesi', 'ticari_ileti'] }, granted: true, textKey: { not: null } },
+    });
+    expect(rizalar.map((r) => r.kind)).toEqual(expect.arrayContaining(['galeri_sozlesmesi', 'ticari_ileti']));
 
     const r = await apps.runChecks(id);
     expect(r?.hepsi).toBe(true);
@@ -216,9 +231,9 @@ describe('kurumsal hesap başvurusu (Karar 03, 12.5, 17)', () => {
     const bekle = (await call(app, 'GET', '/gallery-applications/me', undefined, t)).body;
     expect(bekle).toMatchObject({ durum: 'DOCS_REQUESTED', not: 'Yetki belgesinin güncel halini yükle' });
     await call(app, 'PATCH', '/gallery-applications/me', { yetkiNo: '34-2022-777' }, t);
-    expect((await call(app, 'POST', '/gallery-applications/me/submit', undefined, t)).body.durum).toBe(
-      'SUBMITTED',
-    );
+    expect(
+      (await call(app, 'POST', '/gallery-applications/me/submit', { sozlesme: true }, t)).body.durum,
+    ).toBe('SUBMITTED');
 
     // Çalışan onayı
     const ok = await staffCall(
@@ -256,6 +271,34 @@ describe('kurumsal hesap başvurusu (Karar 03, 12.5, 17)', () => {
     );
     // Kayıtlar silinmez
     await expect(db.galleryApplication.delete({ where: { id: id3 } })).rejects.toThrow();
+  });
+});
+
+describe('işçi modülü', () => {
+  it('işçinin galeri modülü kendi başına kurulur (bağımlılık eksiği işçiyi sessizce durdurmasın)', async () => {
+    const m = await Test.createTestingModule({
+      imports: [DatabaseModule, StorageModule, GalleriesWorkerModule],
+    }).compile();
+    expect(m.get(GalleryApplicationService)).toBeDefined();
+    await m.close();
+  });
+});
+
+describe('eksik belgeyle gönderim (BasvuruMobil.dc.html)', () => {
+  it('başvuru belge bekler, ajan onaylamaz; belge yüklenip yeniden gönderilince kontrol edilir', async () => {
+    const t = await login('+905328880004');
+    await call(app, 'PATCH', '/gallery-applications/me', form('34-2021-004', 'Eksik Oto'), t);
+    await upload(t, 'vergi_levhasi');
+    const s = await call(app, 'POST', '/gallery-applications/me/submit', { sozlesme: true }, t);
+    expect(s.body.durum).toBe('SUBMITTED');
+    expect((await apps.runChecks(s.body.id))?.hepsi).toBe(false);
+    const m = (await call(app, 'GET', '/gallery-applications/me', undefined, t)).body;
+    expect(m.durum).toBe('DOCS_REQUESTED');
+    expect(m.not).toContain('Ticaret sicil gazetesi');
+    await upload(t, 'sicil_gazetesi');
+    await upload(t, 'oda_kayit');
+    await call(app, 'POST', '/gallery-applications/me/submit', { sozlesme: true }, t);
+    expect((await apps.runChecks(s.body.id))?.hepsi).toBe(true);
   });
 });
 

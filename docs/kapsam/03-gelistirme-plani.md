@@ -138,6 +138,30 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 9 · kurumsal başvuru, galeri hesabı ve ekip (Aşama 4 ilk bölüm, 8 Kasım 2026)
+
+- [x] Başvuru veri modeli: gallery_applications, gallery_documents (silinmez), galleries, account_invites; kullanıcı
+  başına tek açık başvuru (veritabanı kısıtı)
+- [x] Başvuru sihirbazı web (Basvuru.dc.html) ve mobil (BasvuruMobil.dc.html): dört işletme türü, türüne göre belgeler,
+  belgeler özel depoda (Türkiye), türü dosyanın baytlarından denetlenir; "Bakanlık sisteminden doğrula"; galeri
+  hizmet sözleşmesi onayı ve isteğe bağlı ticari ileti rıza kaydına sürümüyle girer
+- [x] Beş kontrol (yetki belgesi, vergi, MERSİS, adres, telefon) işçide; hepsi geçerse ajan onaylar ve sahibe olay
+  gider, biri bile geçmezse insan incelemesi (Karar 03, 41). Eksik belgeyle gönderilen başvuru belge bekler
+- [ ] Gerçek kurum bağlantıları: Ticaret Bakanlığı yetki belgesi (m.22/a), GİB vergi, MERSİS. Erişim gelene kadar
+  canlıda `GALLERY_VERIFY_PROVIDER=none` (kontroller "yapılamadı", her başvuru insana düşer); `fake` canlıda açılamaz
+- [x] Konsol › Galeri başvuruları (YonetimPazar.dc.html): kontrol çipleri, ajan notu, onayla, reddet, belge iste,
+  ajanın onayladıkları ve onayı geri alma (hesap askıya alınır); belge görüntüleme işlem kaydına girer
+- [x] Onayda galeri hesabı, sahip üyeliği, profil, 30 gün deneme (Profesyonel özellikleri, sınırlı haklar) ve deneme
+  talep hakkı; bitişe 7/3/1 gün kala ve bitince olay (Karar 12.5)
+- [x] Ekip (Karar 20): davet (7 gün), kabul, rol değişimi yalnızca sahipte, yönetici yalnızca satış temsilcisi ekler,
+  paket kullanıcı sınırı; web galeri panelinde Ekip, mobilde bekleyen davetler
+- [x] Galeri paneli web (GaleriPanel.dc.html: Özet, Ekip, Paket ve faturalar) ve mobil (GaleriMobil.dc.html: Panel);
+  herkese açık galeri profili web ve mobil (işletme adı ve yetki belgesi no, m.21)
+- [ ] Galeri takibi (Karar 28), rozetler (Karar 55), çalışan başına günlük mesaj sınırı (Aşama 5)
+- Tasarımdan farklar: web sihirbazında adres il, ilçe ve açık adres olarak üç alan; mobildeki sözleşme onayı web'e de
+  eklendi; mobil özetteki "Paketler aylık 1.490 TL’den başlar" cümlesi Karar 38 gereği yazılmadı; mobil panelde ekip
+  yalnızca özet (yönetim web panelde); konsolda "Ayrıntılar ve belgeler" ve ret/belge isteğinde gerekçe kutusu
+
 ## Sprint 8 · talep sihirbazı, yaşam döngüsü, liste ve arama (Aşama 3, 8 Kasım 2026'da başladı)
 
 - [x] Talep veri modeli: demands (sık filtrelenen alanlar ayrı sütun, gerisi JSONB) ve yalnızca ekleme yapılan

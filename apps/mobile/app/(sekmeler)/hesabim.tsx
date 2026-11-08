@@ -39,7 +39,13 @@ const MENU: {
   {
     ad: 'Satıcı',
     ogeler: [
-      { ikon: '🏢', tint: '#E7FAF0', ad: 'Kurumsal hesap başvurusu', alt: 'Galeriysen 30 gün ücretsiz dene' },
+      {
+        ikon: '🏢',
+        tint: '#E7FAF0',
+        ad: 'Kurumsal hesap başvurusu',
+        alt: 'Galeriysen 30 gün ücretsiz dene',
+        git: () => router.push('/galeri-paneli'),
+      },
     ],
   },
   {
@@ -189,41 +195,49 @@ export default function Hesabim() {
               {g.ad}
             </T>
             <View style={{ ...kart, borderRadius: 16, overflow: 'hidden' }}>
-              {g.ogeler.map((o, i) => (
-                <Pressable
-                  key={o.ad}
-                  accessibilityRole="link"
-                  accessibilityState={{ disabled: !o.git }}
-                  onPress={o.git}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    gap: 12,
-                    paddingVertical: 13,
-                    paddingHorizontal: 14,
-                    borderTopWidth: i ? 1 : 0,
-                    borderTopColor: '#EEF0F5',
-                  }}
-                >
-                  <View
+              {g.ogeler.map((ham, i) => {
+                // Galeri üyesine başvuru yerine panel (Karar 20)
+                const galeri = me?.memberships.find((m) => m.account.kind === 'BUSINESS');
+                const o =
+                  ham.ad === 'Kurumsal hesap başvurusu' && galeri
+                    ? { ...ham, ad: 'Galeri paneli', alt: galeri.account.name }
+                    : ham;
+                return (
+                  <Pressable
+                    key={o.ad}
+                    accessibilityRole="link"
+                    accessibilityState={{ disabled: !o.git }}
+                    onPress={o.git}
                     style={{
-                      width: 34,
-                      height: 34,
-                      borderRadius: 10,
-                      backgroundColor: o.tint,
+                      flexDirection: 'row',
                       alignItems: 'center',
-                      justifyContent: 'center',
+                      gap: 12,
+                      paddingVertical: 13,
+                      paddingHorizontal: 14,
+                      borderTopWidth: i ? 1 : 0,
+                      borderTopColor: '#EEF0F5',
                     }}
                   >
-                    <T style={{ fontSize: 15 }}>{o.ikon}</T>
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <T style={{ fontSize: 14.5, fontWeight: '700' }}>{o.ad}</T>
-                    <T style={{ fontSize: 12, color: colors.muted, marginTop: 1 }}>{o.alt}</T>
-                  </View>
-                  <T style={{ fontSize: 18, color: '#AEB5C4' }}>›</T>
-                </Pressable>
-              ))}
+                    <View
+                      style={{
+                        width: 34,
+                        height: 34,
+                        borderRadius: 10,
+                        backgroundColor: o.tint,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <T style={{ fontSize: 15 }}>{o.ikon}</T>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <T style={{ fontSize: 14.5, fontWeight: '700' }}>{o.ad}</T>
+                      <T style={{ fontSize: 12, color: colors.muted, marginTop: 1 }}>{o.alt}</T>
+                    </View>
+                    <T style={{ fontSize: 18, color: '#AEB5C4' }}>›</T>
+                  </Pressable>
+                );
+              })}
             </View>
           </View>
         ))}

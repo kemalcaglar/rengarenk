@@ -173,6 +173,16 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Galeri hesapları (Sprint 9)
+
+- **Başvuru:** web `/kurumsal-basvuru`, mobilde Hesabım › Kurumsal hesap başvurusu. Uçlar `/gallery-applications/me`
+  (taslak, `documents/:tür` ham gövdeyle belge, `verify-authority`, `submit`). Kontroller işçide `galeri.basvuru_alindi`
+  olayıyla çalışır.
+- **Doğrulama sağlayıcısı:** `GALLERY_VERIFY_PROVIDER` — `none` (varsayılan, canlı) her başvuruyu insana bırakır;
+  `fake` yerel ve test içindir: "0" ile başlayan yetki belgesi bulunamaz, "9" ile biten uyarı verir.
+- **Konsol:** Galeri başvuruları (`galeri_basvuru.onayla` izni). **Galeri:** web `/galeri-paneli`, mobil Galeri paneli,
+  herkese açık profil `/galeri/:slug` (API `GET /galeriler/:slug`).
+
 ## Talepler, liste ve arama (Sprint 8)
 
 - **Sihirbaz:** web `/talep-olustur`, mobilde "Talep oluştur". Alanlar kategorinin yayındaki şemasından gelir; taslak

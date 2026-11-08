@@ -814,7 +814,7 @@ model Consent {
   userId      String?  @map("user_id") @db.Uuid
   /// Ziyaretçi kimliği (çerez tercihi, rastgele; kişiyi tanımlamaz)
   visitorId   String?  @map("visitor_id")
-  /// kullanim_kosullari | kvkk_aydinlatma | ticari_ileti | reklam_olcum | cerez_analiz | cerez_reklam
+  /// kullanim_kosullari | kvkk_aydinlatma | ticari_ileti | reklam_olcum | cerez_analiz | cerez_reklam | galeri_sozlesmesi
   kind        String
   granted     Boolean
   textKey     String?  @map("text_key")

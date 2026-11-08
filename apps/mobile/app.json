@@ -13,7 +13,20 @@
     "android": {
       "package": "tr.com.rengarenk.app"
     },
-    "plugins": ["expo-router", "expo-secure-store", "expo-font"],
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Kurumsal başvuru belgelerini ve araç fotoğraflarını çekmek için kamerana erişmemiz gerekiyor.",
+          "photosPermission": "Kurumsal başvuru belgelerini ve araç fotoğraflarını seçmek için fotoğraflarına erişmemiz gerekiyor.",
+          "microphonePermission": false
+        }
+      ],
+      "expo-document-picker"
+    ],
     "experiments": {
       "typedRoutes": true
     }

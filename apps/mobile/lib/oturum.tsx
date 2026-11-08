@@ -22,7 +22,12 @@ interface Oturum {
   /** Oturumlu API isteği; erişim jetonunun süresi dolduysa bir kez yeniler ve tekrar dener */
   istek: <T>(
     path: string,
-    init?: { method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'; body?: unknown },
+    init?: {
+      method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+      body?: unknown;
+      /** Dosya yüklemesi: gövde ham bayt, ad `x-file-name` başlığında (galeri belgeleri) */
+      dosya?: { blob: Blob; tur: string; ad: string };
+    },
   ) => Promise<T>;
 }
 
@@ -142,16 +147,28 @@ export function OturumProvider({ children }: { children: ReactNode }) {
   const istek = useCallback(
     async <T,>(
       path: string,
-      init: { method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'; body?: unknown } = {},
+      init: {
+        method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+        body?: unknown;
+        dosya?: { blob: Blob; tur: string; ad: string };
+      } = {},
     ): Promise<T> => {
       const send = (token: string | null) =>
         fetch(`${API}${path}`, {
-          method: init.method ?? 'GET',
+          method: init.method ?? (init.dosya ? 'POST' : 'GET'),
           headers: {
-            ...(init.body !== undefined ? { 'content-type': 'application/json' } : {}),
+            ...(init.dosya
+              ? { 'content-type': init.dosya.tur, 'x-file-name': encodeURIComponent(init.dosya.ad) }
+              : init.body !== undefined
+                ? { 'content-type': 'application/json' }
+                : {}),
             ...(token ? { authorization: `Bearer ${token}` } : {}),
           },
-          body: init.body === undefined ? undefined : JSON.stringify(init.body),
+          body: init.dosya
+            ? init.dosya.blob
+            : init.body === undefined
+              ? undefined
+              : JSON.stringify(init.body),
         });
       let r = await send(accessRef.current);
       if (r.status === 401) r = await send(await yenile());

@@ -11,6 +11,7 @@ import { type GalleryApplication, type Prisma, uuidv7 } from '@rengarenk/db';
 import {
   APPLICATION_CHECKS,
   type ApplicationCheck,
+  type ApplicationSubmit,
   BUSINESS_KIND_DEFS,
   type BusinessKindKey,
   DOCUMENT_MAX_BYTES,
@@ -23,6 +24,7 @@ import {
   ilBul,
 } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
+import { ConsentService } from '../consents/consent.service.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { STORAGE, type Storage } from '../storage/storage.service.js';
@@ -59,6 +61,7 @@ export class GalleryApplicationService {
     @Inject(STORAGE) private readonly storage: Storage,
     private readonly audit: AuditService,
     private readonly outbox: OutboxService,
+    private readonly consents: ConsentService,
     verifiers: VerifierFactory,
   ) {
     this.verifier = verifiers.create();
@@ -183,7 +186,7 @@ export class GalleryApplicationService {
   }
 
   /** Başvuruyu gönderir; kontroller işçide çalışır. */
-  async submit(userId: string, ip?: string) {
+  async submit(userId: string, onay: ApplicationSubmit, ip?: string) {
     const a = await this.editable(userId);
     if (!a) throw new NotFoundException('Gönderilecek başvuru yok');
     const parsed = galleryApplicationSchema.safeParse(a.data);
@@ -194,14 +197,7 @@ export class GalleryApplicationService {
         issues: parsed.error.issues.map((x) => ({ path: x.path.join('.'), message: x.message })),
       });
     }
-    const kinds = new Set(
-      (
-        await this.db.galleryDocument.findMany({ where: { applicationId: a.id }, select: { kind: true } })
-      ).map((d) => d.kind),
-    );
-    const eksik = BUSINESS_KIND_DEFS[parsed.data.tur].belgeler.filter((b) => b.zorunlu && !kinds.has(b.key));
-    if (eksik.length)
-      throw new UnprocessableEntityException(`Eksik belge: ${eksik.map((b) => b.ad).join(', ')}`);
+    // Eksik belgeyle gönderilebilir (BasvuruMobil.dc.html): kontrol başvuruyu belge beklemeye alır, ajan onaylamaz
     await this.db.$transaction(async (tx) => {
       await tx.galleryApplication.update({
         where: { id: a.id },
@@ -225,9 +221,19 @@ export class GalleryApplicationService {
         },
         tx,
       );
+      await this.consents.recordGallery(tx, userId, Boolean(onay.ticariIleti), onay.kanal, ip);
       await this.outbox.add(tx, 'galeri.basvuru_alindi', { applicationId: a.id });
     });
     return this.mine(userId);
+  }
+
+  private async missingDocs(applicationId: string, tur: BusinessKindKey) {
+    const kinds = new Set(
+      (await this.db.galleryDocument.findMany({ where: { applicationId }, select: { kind: true } })).map(
+        (x) => x.kind,
+      ),
+    );
+    return BUSINESS_KIND_DEFS[tur].belgeler.filter((b) => b.zorunlu && !kinds.has(b.key)).map((b) => b.ad);
   }
 
   // ── Kontroller ve ajan kararı ─────────────────────────────────
@@ -244,6 +250,20 @@ export class GalleryApplicationService {
     if (a?.status !== 'SUBMITTED') return null;
     const d = a.data as unknown as GalleryApplicationData;
     const def = BUSINESS_KIND_DEFS[d.tur];
+    const eksik = await this.missingDocs(a.id, d.tur);
+    if (eksik.length) {
+      const not = `Eksik belge: ${eksik.join(', ')}`;
+      await this.db.galleryApplication.update({
+        where: { id: a.id },
+        data: {
+          status: 'DOCS_REQUESTED',
+          decisionNote: not,
+          agentNote: `${not}. Belge yüklenince yeniden kontrol edilir.`,
+          checkedAt: new Date(),
+        },
+      });
+      return { hepsi: false, checks: [] as ApplicationCheck[] };
+    }
     const guvenli = <T>(p: Promise<T>, yedek: T) => p.catch(() => yedek);
     const hata = { sonuc: 'yapilamadi' as const, not: 'Kurum sistemi yanıt vermedi' };
     const [yetki, vergi, mersis] = await Promise.all([

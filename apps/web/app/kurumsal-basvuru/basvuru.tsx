@@ -88,6 +88,8 @@ export function KurumsalBasvuru() {
   const [veri, setVeri] = useState<GalleryApplicationDraft>({});
   const [adSoyad, setAdSoyad] = useState('');
   const [telefon, setTelefon] = useState('');
+  const [sozlesme, setSozlesme] = useState(false);
+  const [ticariIleti, setTicariIleti] = useState(false);
   const [hata, setHata] = useState<string | null>(null);
   const [kaydedildi, setKaydedildi] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
@@ -160,7 +162,9 @@ export function KurumsalBasvuru() {
     }
     if (n === 4) {
       if (!adBol(adSoyad).soyad) return 'Adını ve soyadını yaz';
-      return ilk(['sahip']);
+      const s = ilk(['sahip']);
+      if (s) return s;
+      return sozlesme ? null : 'Galeri hizmet sözleşmesini ve aydınlatma metnini onayla';
     }
     return null;
   }
@@ -179,7 +183,10 @@ export function KurumsalBasvuru() {
         setAdim(adim + 1);
         window.scrollTo({ top: 0 });
       } else {
-        const r = await istek<Basvuru>('/gallery-applications/me/submit', { method: 'POST' });
+        const r = await istek<Basvuru>('/gallery-applications/me/submit', {
+          method: 'POST',
+          body: { sozlesme, ticariIleti, kanal: 'web' },
+        });
         setB(r);
       }
     } catch (err) {
@@ -767,6 +774,52 @@ export function KurumsalBasvuru() {
                     style={girdi}
                   />
                 </div>
+              </div>
+              {/* BasvuruMobil.dc.html'deki onaylar; web tasarımında yok, sözleşme onayı zorunlu olduğu için eklendi */}
+              <div style={{ display: 'grid', gap: 10, marginTop: 18 }}>
+                <label
+                  style={{
+                    display: 'flex',
+                    gap: 10,
+                    alignItems: 'flex-start',
+                    fontSize: 14,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    className="rr-isaret"
+                    checked={sozlesme}
+                    onChange={(e) => setSozlesme(e.target.checked)}
+                  />
+                  <span>
+                    <Link href="/galeri-sozlesmesi" target="_blank">
+                      Galeri hizmet sözleşmesini
+                    </Link>{' '}
+                    ve{' '}
+                    <Link href="/kvkk" target="_blank">
+                      aydınlatma metnini
+                    </Link>{' '}
+                    okudum.
+                  </span>
+                </label>
+                <label
+                  style={{
+                    display: 'flex',
+                    gap: 10,
+                    alignItems: 'flex-start',
+                    fontSize: 14,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    className="rr-isaret"
+                    checked={ticariIleti}
+                    onChange={(e) => setTicariIleti(e.target.checked)}
+                  />
+                  <span>Kampanya ve duyuru iletileri almak istiyorum (isteğe bağlı, İYS’ye kaydedilir).</span>
+                </label>
               </div>
             </>
           ) : null}

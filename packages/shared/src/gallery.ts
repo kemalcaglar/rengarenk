@@ -191,7 +191,8 @@ const metin = (min: number, max: number, ad: string) =>
 export const galleryOwnerSchema = z.object({
   ad: metin(2, 40, 'Ad'),
   soyad: metin(2, 40, 'Soyad'),
-  gorev: metin(2, 60, 'Görev'),
+  /** Mobil tasarımda yok; isteğe bağlı */
+  gorev: metin(2, 60, 'Görev').optional(),
   eposta: z.string().trim().toLowerCase().email('Geçerli bir e-posta adresi gir').max(120),
 });
 
@@ -245,6 +246,14 @@ export const galleryApplicationSchema = z
     }
   });
 export type GalleryApplicationData = z.output<typeof galleryApplicationSchema>;
+
+/** Gönderim: galeri hizmet sözleşmesi onayı zorunlu, ticari ileti isteğe bağlı (BasvuruMobil.dc.html; Karar 39, 49) */
+export const applicationSubmitSchema = z.object({
+  sozlesme: z.literal(true, { message: 'Galeri hizmet sözleşmesini ve aydınlatma metnini onayla' }),
+  ticariIleti: z.boolean().optional(),
+  kanal: z.enum(['web', 'ios', 'android']).default('web'),
+});
+export type ApplicationSubmit = z.output<typeof applicationSubmitSchema>;
 
 export const applicationRejectSchema = z.object({ gerekce: metin(10, 500, 'Gerekçe') });
 export const applicationDocsRequestSchema = z.object({ not: metin(10, 500, 'Açıklama') });
