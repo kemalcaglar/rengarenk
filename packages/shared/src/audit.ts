@@ -45,6 +45,14 @@ export const AUDIT_ACTIONS: Record<string, string> = {
   kategori_surume_donuldu: 'Eski sürüm taslağa alındı',
   kategori_yayina_gonderildi: 'Kategori şeması onaya gönderildi',
   kategori_yayinlandi: 'Kategori şeması yayınlandı',
+  talep_yayinlandi: 'Talep yayınlandı',
+  talep_duzenlendi: 'Talep düzenlendi',
+  talep_pasife_alindi: 'Talep pasife alındı',
+  talep_aktif_edildi: 'Talep yeniden yayında',
+  talep_uzatildi: 'Talep uzatıldı',
+  talep_kapatildi: 'Talep kapatıldı',
+  talep_tamamlandi: 'Aracı buldu (talep tamamlandı)',
+  talep_suresi_doldu: 'Talebin süresi doldu',
 };
 
 /** Aranan metnin geçtiği işlem adları (Türkçe büyük-küçük harf duyarsız) */

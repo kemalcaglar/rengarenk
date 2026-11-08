@@ -50,7 +50,19 @@ export class EntitlementService {
     });
     if (already) return;
     if ((await this.balance(accountId, kind, tx)) < 1) {
-      throw new ConflictException({ code: 'hak_yetersiz', kind });
+      const ad: Record<EntitlementKind, string> = {
+        talep: 'talep',
+        ilk_mesaj: 'ilk mesaj',
+        uzatma: 'uzatma',
+        ust_sira: 'üst sıra',
+        acil: '"acil arıyorum"',
+        vitrin: 'vitrin',
+      };
+      throw new ConflictException({
+        code: 'hak_yetersiz',
+        kind,
+        message: `Kullanılabilir ${ad[kind]} hakkın yok`,
+      });
     }
     await tx.entitlementLedger.create({ data: { accountId, kind, delta: -1, reason: 'kullanim', ...src } });
   }

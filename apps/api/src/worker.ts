@@ -9,6 +9,8 @@ import { CatalogPipelineService } from './catalog/catalog-pipeline.service.js';
 import { CategoriesWorkerModule } from './categories/categories.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { type Db, PRISMA } from './database/prisma.js';
+import { DemandService } from './demands/demand.service.js';
+import { DemandsWorkerModule } from './demands/demands.module.js';
 import { OutboxService } from './outbox/outbox.service.js';
 import { QueueService } from './queue/queue.service.js';
 import { StorageModule } from './storage/storage.service.js';
@@ -20,7 +22,14 @@ import { StorageModule } from './storage/storage.service.js';
  * orada bulunacak (kilit 2); bu işçi iade yürütmez.
  */
 @Module({
-  imports: [DatabaseModule, StorageModule, ApprovalsModule, CatalogPipelineModule, CategoriesWorkerModule],
+  imports: [
+    DatabaseModule,
+    StorageModule,
+    ApprovalsModule,
+    CatalogPipelineModule,
+    CategoriesWorkerModule,
+    DemandsWorkerModule,
+  ],
   providers: [OutboxService, QueueService],
 })
 class WorkerModule {}
@@ -34,6 +43,7 @@ const approvals = app.get(ApprovalService);
 const executor = app.get(ApprovalExecutor);
 const db = app.get<Db>(PRISMA);
 const catalog = app.get(CatalogPipelineService);
+const demands = app.get(DemandService);
 await queue.start();
 
 await queue.consume<{ approvalId: string }>('onay.onaylandi', 'onay-yurut', async ({ approvalId }) => {
@@ -60,6 +70,10 @@ while (!stopping) {
     try {
       const expired = await approvals.expireDue();
       if (expired) log.log(`${expired} onay isteğinin süresi doldu`);
+      // Talep süreleri (Karar 10): dolanlar pasife düşer, 7/3/1 gün kala hatırlatma olayı
+      const passive = await demands.expireDue();
+      const reminded = await demands.remindDue();
+      if (passive || reminded) log.log(`talepler: ${passive} süresi doldu, ${reminded} hatırlatma`);
       // Yarım kalmış yönetim girişi adımları bir gün sonra silinir.
       await db.staffLoginChallenge.deleteMany({
         where: { expiresAt: { lt: new Date(Date.now() - 86_400_000) } },

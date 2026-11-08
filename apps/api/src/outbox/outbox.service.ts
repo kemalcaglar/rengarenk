@@ -8,6 +8,13 @@ export type EventType =
   | 'kullanici.kaydoldu'
   | 'talep.yayinlandi'
   | 'talep.suresi_doluyor'
+  // Talep yaşam döngüsü (Karar 09, 10): favoriye ekleyenlere ve arama indeksine
+  | 'talep.guncellendi'
+  | 'talep.pasife_alindi'
+  | 'talep.suresi_doldu'
+  | 'talep.uzatildi'
+  | 'talep.kapandi'
+  | 'arac.bulundu'
   | 'odeme.alindi'
   | 'iade.onaylandi'
   // Yönetim (Karar 40): bildirim katmanı bunları sahibe iletir.

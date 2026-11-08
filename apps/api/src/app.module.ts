@@ -5,6 +5,7 @@ import { CatalogModule } from './catalog/catalog.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
 import { ConsentModule } from './consents/consent.module.js';
 import { DatabaseModule } from './database/database.module.js';
+import { DemandsModule } from './demands/demands.module.js';
 import { EntitlementsModule } from './entitlements/entitlements.module.js';
 import { FlagsModule } from './flags/flags.module.js';
 import { HealthController } from './health/health.controller.js';
@@ -36,6 +37,7 @@ import { StorageModule } from './storage/storage.service.js';
     ConsentModule,
     CatalogModule,
     CategoriesModule,
+    DemandsModule,
   ],
   controllers: [HealthController, MetricsController],
   providers: [{ provide: APP_INTERCEPTOR, useClass: HttpMetricsInterceptor }],

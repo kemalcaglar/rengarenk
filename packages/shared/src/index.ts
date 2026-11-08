@@ -3,6 +3,7 @@ export * from './auth.js';
 export * from './categories.js';
 export * from './category-defaults.js';
 export * from './category-schema.js';
+export * from './demand.js';
 export * from './flags.js';
 export * from './matching.js';
 export * from './phone.js';

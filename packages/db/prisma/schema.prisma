@@ -73,6 +73,7 @@ model User {
   devices       Device[]
   sessions      Session[]
   featureTester FeatureTester?
+  demands       Demand[]
 
   @@map("users")
 }
@@ -88,6 +89,7 @@ model Account {
 
   members AccountMember[]
   ledger  EntitlementLedger[]
+  demands Demand[]
 
   @@map("accounts")
 }
@@ -633,11 +635,11 @@ model CatalogTrim {
 
 /// Kasa kuşağı (nesil): ör. BMW 3 Serisi Sedan 1998–2002. Kaynağıyla tutulur; açık kaynaklardan gelir (Karar 32–33).
 model CatalogGeneration {
-  id        String   @id @db.Uuid
-  key       String   @unique
-  seriesId  String   @map("series_id") @db.Uuid
-  source    String
-  name      String
+  id              String   @id @db.Uuid
+  key             String   @unique
+  seriesId        String   @map("series_id") @db.Uuid
+  source          String
+  name            String
   /// Nesil kodu (ör. E46, G20); açık kaynaklardan (Wikidata) gelince dolar
   code            String?
   startYear       Int      @map("start_year")
@@ -667,32 +669,32 @@ model CatalogGeneration {
 /// kategorisinden aday bulur, katalog sorumlusu seçer; seçilen fotoğrafın kopyası atfıyla SeaweedFS'e alınır.
 /// Yalnızca ticari kullanıma izin veren lisanslar (kamu malı, CC0, CC BY, CC BY-SA); NC ve ND alınmaz.
 model CatalogImage {
-  id            String    @id @db.Uuid
+  id           String    @id @db.Uuid
   /// Nesil kodu satırı (Wikidata kaynağı; kasa kuşakları kodla bu fotoğrafı paylaşır)
-  generationId  String    @map("generation_id") @db.Uuid
+  generationId String    @map("generation_id") @db.Uuid
   /// Commons dosya adı (File:… olmadan)
-  commonsFile   String    @map("commons_file")
+  commonsFile  String    @map("commons_file")
   /// Commons dosya sayfası
-  pageUrl       String    @map("page_url")
+  pageUrl      String    @map("page_url")
   /// Özgün dosya adresi ve ölçüleri
-  sourceUrl     String    @map("source_url")
-  width         Int
-  height        Int
-  mime          String
+  sourceUrl    String    @map("source_url")
+  width        Int
+  height       Int
+  mime         String
   /// Yazar (düz metin, HTML ayıklanmış) ve lisans
-  author        String
-  license       String
-  licenseUrl    String?   @map("license_url")
+  author       String
+  license      String
+  licenseUrl   String?   @map("license_url")
   /// Sıralama puanı: büyüklük, yatay kadraj, dosya adındaki ipuçları (ön, iç mekân, motor …)
-  score         Int       @default(0)
+  score        Int       @default(0)
   /// aday | secildi | reddedildi
-  status        String    @default("aday")
+  status       String    @default("aday")
   /// Seçilince depodaki kopyanın anahtarı ve özeti
-  storageKey    String?   @map("storage_key")
-  sha256        String?
-  decidedBy     String?   @map("decided_by") @db.Uuid
-  decidedAt     DateTime? @map("decided_at") @db.Timestamptz(3)
-  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  storageKey   String?   @map("storage_key")
+  sha256       String?
+  decidedBy    String?   @map("decided_by") @db.Uuid
+  decidedAt    DateTime? @map("decided_at") @db.Timestamptz(3)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
   generation CatalogGeneration @relation(fields: [generationId], references: [id])
 
@@ -705,27 +707,27 @@ model CatalogImage {
 /// (vehicle-makes-models "Focus CC" → Ford Focus, TSB "Touraeg" → Touareg). Kural önerir, katalog sorumlusu onaylar.
 /// Onaylanan eşleme içe aktarmada uygulanır ve var olan tipler hedef seriye taşınır. Kayıtlar silinmez.
 model CatalogAlias {
-  id         String    @id @db.Uuid
+  id        String    @id @db.Uuid
   /// Kaynak anahtarı (tsb, vmm, wikidata); "*" bütün kaynaklar
-  source     String
+  source    String
   /// Kaynaktaki seri anahtarı (ör. ford/focus-cc)
-  fromKey    String    @map("from_key")
+  fromKey   String    @map("from_key")
   /// Kaynaktaki yazım, olduğu gibi
-  fromName   String    @map("from_name")
+  fromName  String    @map("from_name")
   /// Hedef seri anahtarı (ör. ford/focus)
-  toKey      String    @map("to_key")
+  toKey     String    @map("to_key")
   /// onerildi | onaylandi | reddedildi
-  status     String    @default("onerildi")
+  status    String    @default("onerildi")
   /// kural (sistem önerdi) | elle (çalışan ekledi) | ajan
-  method     String
+  method    String
   /// Önerinin gerekçesi: "önek", "yazım farkı", "bitişik yazım" …
-  reason     String?
+  reason    String?
   /// Kaynak seride kaç tip var (önceliklendirme için)
-  variants   Int       @default(0)
-  createdBy  String?   @map("created_by") @db.Uuid
-  decidedBy  String?   @map("decided_by") @db.Uuid
-  decidedAt  DateTime? @map("decided_at") @db.Timestamptz(3)
-  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  variants  Int       @default(0)
+  createdBy String?   @map("created_by") @db.Uuid
+  decidedBy String?   @map("decided_by") @db.Uuid
+  decidedAt DateTime? @map("decided_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
   @@unique([source, fromKey])
   @@index([status])
@@ -847,6 +849,7 @@ model Category {
   parent   Category?               @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
   children Category[]              @relation("CategoryTree")
   versions CategorySchemaVersion[]
+  demands  Demand[]
 
   @@index([parentId, sort])
   @@map("categories")
@@ -862,25 +865,113 @@ enum CategoryVersionStatus {
 /// Kategori şemasının sürümleri: taslak → dört göz onayı → yayında; yerine yenisi gelince "eski" olur.
 /// Taslak dışındaki sürümün tanımı değişmez ve hiçbir sürüm silinmez (rr_category_version_guard).
 model CategorySchemaVersion {
-  id          String                @id @db.Uuid
-  categoryId  String                @map("category_id") @db.Uuid
-  version     Int
-  status      CategoryVersionStatus @default(DRAFT)
+  id           String                @id @db.Uuid
+  categoryId   String                @map("category_id") @db.Uuid
+  version      Int
+  status       CategoryVersionStatus @default(DRAFT)
   /// Kategori alanları, kurallar ve ağırlıklar (CategoryDefinition)
-  definition  Json
+  definition   Json
   /// Önceki yayına göre değişiklikler (konsoldaki Sürümler)
-  changes     String[]              @default([])
+  changes      String[]              @default([])
   /// Geri dönüşte hangi sürümden kopyalandığı
-  restoredFrom Int?                 @map("restored_from")
-  createdBy   String?               @map("created_by") @db.Uuid
-  approvalId  String?               @unique @map("approval_id") @db.Uuid
-  publishedBy String?               @map("published_by") @db.Uuid
-  publishedAt DateTime?             @map("published_at") @db.Timestamptz(3)
-  createdAt   DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime              @updatedAt @map("updated_at") @db.Timestamptz(3)
+  restoredFrom Int?                  @map("restored_from")
+  createdBy    String?               @map("created_by") @db.Uuid
+  approvalId   String?               @unique @map("approval_id") @db.Uuid
+  publishedBy  String?               @map("published_by") @db.Uuid
+  publishedAt  DateTime?             @map("published_at") @db.Timestamptz(3)
+  createdAt    DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime              @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   category Category @relation(fields: [categoryId], references: [id])
 
   @@unique([categoryId, version])
   @@map("category_schema_versions")
+}
+
+// ── Talepler (Aşama 3; Karar 04, 05, 09, 10, 21; Teknik tasarım §4) ─────
+// Talep oluşturulduğu kategori şeması sürümünü taşır. Sık filtrelenen alanlar ayrı sütunda, gerisi `data` içinde
+// (`{ alanlar, alternatifler }`, packages/shared demandSchema). Talep silinmez; kapatılır.
+
+enum DemandStatus {
+  DRAFT
+  PUBLISHED
+  PASSIVE
+  CLOSED
+  COMPLETED
+}
+
+model Demand {
+  id                String       @id @db.Uuid
+  /// Kullanıcıya görünen talep numarası ("Talep No 1052187")
+  no                BigInt       @unique @default(autoincrement())
+  accountId         String       @map("account_id") @db.Uuid
+  userId            String       @map("user_id") @db.Uuid
+  categoryId        String       @map("category_id") @db.Uuid
+  /// Yayına girdiği şema sürümü; eski talepler bu sürümle okunur (Karar 45)
+  schemaVersion     Int?         @map("schema_version")
+  status            DemandStatus @default(DRAFT)
+  /// Katalogdan üretilen başlık ("BMW 3 Serisi 320i")
+  title             String       @default("")
+  /// @pii Talep alanları ve alternatifler; açıklama serbest metindir
+  data              Json         @default("{}")
+  /// Taslakta kalınan sihirbaz adımı (Karar 21)
+  step              Int          @default(1)
+  makeKey           String?      @map("make_key")
+  seriesKey         String?      @map("series_key")
+  modelKey          String?      @map("model_key")
+  il                String?
+  ilce              String?
+  /// Alternatiflerin en düşük ve en yüksek bütçesi (TL)
+  budgetMin         BigInt?      @map("budget_min")
+  budgetMax         BigInt?      @map("budget_max")
+  yearMin           Int?         @map("year_min")
+  yearMax           Int?         @map("year_max")
+  /// İletişim izni (Karar 11.4, 29): telefon ve WhatsApp görünsün mü, ad tam mı "Ayşe Y." mi
+  phoneVisible      Boolean      @default(false) @map("phone_visible")
+  whatsappVisible   Boolean      @default(false) @map("whatsapp_visible")
+  /// tam | kisa
+  nameMode          String       @default("tam") @map("name_mode")
+  /// Hangi hakla yayına girdi: ucretsiz | ek | paket
+  entitlement       String?
+  publishedAt       DateTime?    @map("published_at") @db.Timestamptz(3)
+  expiresAt         DateTime?    @map("expires_at") @db.Timestamptz(3)
+  /// Son gönderilen bitiş hatırlatması (7, 3, 1 gün kala)
+  reminderDays      Int?         @map("reminder_days")
+  passiveAt         DateTime?    @map("passive_at") @db.Timestamptz(3)
+  /// sure_doldu | kullanici
+  passiveReason     String?      @map("passive_reason")
+  closedAt          DateTime?    @map("closed_at") @db.Timestamptz(3)
+  /// Aracı buldum: rengarenk | baska_site | tanidik | vazgectim (Karar 31; satıcıya gösterilmez)
+  foundVia          String?      @map("found_via")
+  /// Ücretsiz uzatma kullanıldı mı (Karar 10, 12.1)
+  freeExtensionUsed Boolean      @default(false) @map("free_extension_used")
+  extensionCount    Int          @default(0) @map("extension_count")
+  createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  account  Account       @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  user     User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  category Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  events   DemandEvent[]
+
+  @@index([accountId, status])
+  @@index([status, categoryId, publishedAt])
+  @@index([status, expiresAt])
+  @@map("demands")
+}
+
+/// Talebin geçmişi: oluşturma, yayın, düzenleme, pasife alma, uzatma, kapanış. Yalnızca ekleme.
+model DemandEvent {
+  id        BigInt   @id @default(autoincrement())
+  demandId  String   @map("demand_id") @db.Uuid
+  type      String
+  /// Kullanıcı; sistem işlerinde (süre dolumu) boş
+  userId    String?  @map("user_id") @db.Uuid
+  data      Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  demand Demand @relation(fields: [demandId], references: [id])
+
+  @@index([demandId, id])
+  @@map("demand_events")
 }
