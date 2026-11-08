@@ -4,6 +4,7 @@ import {
   type CategoryRules,
   colors,
   DOTS,
+  fiyatYaz,
   MAX_ALTERNATIVES,
   ONE_CIKARMA,
   PAINT_PARTS,
@@ -1288,8 +1289,8 @@ function Onizleme({
         ) : (
           <View style={{ marginTop: 14, backgroundColor: '#FFF6DF', borderRadius: 14, padding: 13 }}>
             <T style={{ fontSize: 13.5, color: '#7A5300', fontWeight: '600', lineHeight: 19 }}>
-              Ücretsiz talep hakkını kullandın. Ek talep {BIREYSEL_FIYATLAR.ekTalep.tl} TL; mağaza ödemesi
-              açılınca buradan alabileceksin. Talebin taslak olarak saklanıyor.
+              Ücretsiz talep hakkını kullandın. Ek talep {fiyatYaz(BIREYSEL_FIYATLAR.ekTalep.mobil)} TL;
+              mağaza ödemesi açılınca buradan alabileceksin. Talebin taslak olarak saklanıyor.
             </T>
           </View>
         )

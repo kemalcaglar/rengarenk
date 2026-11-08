@@ -144,8 +144,11 @@ pnpm format        # Biome ile biçimlendir
   `apps/api/src/demands/favorites.*`, web `/favoriler`, listede "Aramayı kaydet", talep sayfasında kalp, mobil
   `app/favoriler.tsx`. Aynı aramanın kayıtlı olup olmadığı `searchQueryKey` (ortak paket) ile bulunur. API'de 94 test.
   Web'de `<body suppressHydrationWarning>`: bu bilgisayardaki ColorZilla eklentisi body'ye nitelik ekliyor.
-- **Sıradaki:** Aşama 3'ün kalanı: ana sayfada vitrin ve son talepler (liste:
-  `docs/kapsam/03-gelistirme-plani.md` Sprint 8). Sonra Aşama 4 (galeri). Sunucular gelince Radore'ye ilk dağıtım,
+- **Ana sayfa vitrini ve son talepler (8 Kasım 2026):** `GET /talepler/vitrin`, arama belgesinde `foto`, web ve mobil
+  ana sayfa, ana sayfada "Kayıtlı aramalarınız". Vitrin boş yerlerini yayındaki talepler doldurur (ücretli vitrin
+  Aşama 6). Mobil fiyatlar `mobil` alanında (Karar 38), `fiyatYaz` ile "359,99". Aşama 3 tamam.
+- **Sıradaki:** Aşama 4 (galeri): kurumsal başvuru ve onay, yetki belgesi, portföy, EİDS, galeri profili, çalışanlar
+  (liste: `docs/kapsam/03-gelistirme-plani.md`). Sunucular gelince Radore'ye ilk dağıtım,
   yedek, izleme, SOPS. Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

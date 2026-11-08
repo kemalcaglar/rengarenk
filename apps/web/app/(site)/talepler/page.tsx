@@ -10,6 +10,8 @@ import { SiralamaSecimi } from './siralama';
 
 const API = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 const TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0', '#F3EFFF', '#FFF0EA'];
+/** Görseller tarayıcıdan istenir: genel API adresi */
+const GORSEL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
 export const metadata: Metadata = { title: 'Talepler · Rengarenk' };
 
@@ -27,6 +29,7 @@ interface Sonuc {
   il: string | null;
   ilce: string | null;
   yayin: string;
+  foto: string | null;
 }
 interface Yanit {
   toplam: number;
@@ -535,36 +538,47 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    overflow: 'hidden',
                   }}
                 >
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flex: 'none',
-                      width: 84,
-                      maxWidth: '100%',
-                      aspectRatio: '84 / 31',
-                      borderRadius: 10,
-                      background: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)',
-                    }}
-                  >
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="#8C95AA"
-                      strokeWidth="1.6"
-                      strokeLinejoin="round"
+                  {t.foto ? (
+                    // biome-ignore lint/performance/noImgElement: katalog görseli API'den akar; Next görüntü iyileştirmesi gerekmez
+                    <img
+                      src={`${GORSEL}${t.foto}`}
+                      alt=""
+                      loading="lazy"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    />
+                  ) : (
+                    <span
                       aria-hidden="true"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flex: 'none',
+                        width: 84,
+                        maxWidth: '100%',
+                        aspectRatio: '84 / 31',
+                        borderRadius: 10,
+                        background: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)',
+                      }}
                     >
-                      <path d="M4 7h3l2-2h6l2 2h3v12H4z" />
-                      <circle cx="12" cy="13" r="3.5" />
-                    </svg>
-                  </span>
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#8C95AA"
+                        strokeWidth="1.6"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M4 7h3l2-2h6l2 2h3v12H4z" />
+                        <circle cx="12" cy="13" r="3.5" />
+                      </svg>
+                    </span>
+                  )}
                 </Link>
                 <div style={{ flex: '999 1 240px', minWidth: 0 }}>
                   <Link

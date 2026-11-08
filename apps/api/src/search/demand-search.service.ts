@@ -43,6 +43,8 @@ export interface DemandHit {
   alternatifler: number;
   telefon: boolean;
   yayin: string;
+  /** Temsilî nesil fotoğrafı (Karar 24, 34): API'deki yolu */
+  foto: string | null;
 }
 
 /** İndeks belgesinin alanları ve Türkçe çözümleyici (Teknik tasarım §12) */
@@ -79,9 +81,30 @@ const MAPPING = {
       telefon: { type: 'boolean' },
       yayin: { type: 'date' },
       bitis: { type: 'date' },
+      /** Seçilmiş nesil fotoğrafının kimliği (vitrin ve liste kartları) */
+      foto: { type: 'keyword' },
     },
   },
 } as const;
+
+const hit = (s: Record<string, unknown>): DemandHit =>
+  ({
+    no: s.no,
+    baslik: s.baslik,
+    arac: s.arac,
+    kategori: { slug: s.kategori, name: s.kategoriAd },
+    yilMin: s.yilMin,
+    yilMax: s.yilMax,
+    kmMax: s.kmMax,
+    butceMin: s.butceMin,
+    butceMax: s.butceMax,
+    il: s.il,
+    ilce: s.ilce,
+    alternatifler: s.alternatifler,
+    telefon: s.telefon,
+    yayin: s.yayin,
+    foto: s.foto ? `/catalog/images/${s.foto}` : null,
+  }) as DemandHit;
 
 /**
  * Talep araması (Karar 06.1, 06.3; Teknik tasarım §12). Yalnızca yayındaki talepler indekstedir; indeks talep
@@ -217,6 +240,32 @@ export class DemandSearchService {
     ]
       .filter(Boolean)
       .join(' · ');
+    // Temsilî fotoğraf: alternatiflerdeki ilk kasa kodunun seçilmiş Commons fotoğrafı (talep sayfasıyla aynı kural)
+    const kodlar = [
+      ...new Set(
+        alts.flatMap((a) =>
+          ((a.kasa as string[] | undefined) ?? [])
+            .map((k) => /^([^:/]+):\d+$/.exec(k)?.[1])
+            .filter((x): x is string => x !== undefined),
+        ),
+      ),
+    ];
+    const fotolar =
+      d.seriesKey && kodlar.length
+        ? await this.db.catalogImage.findMany({
+            where: {
+              status: 'secildi',
+              generation: { source: 'wikidata', code: { in: kodlar }, series: { key: d.seriesKey } },
+            },
+            select: { id: true, generation: { select: { code: true } } },
+          })
+        : [];
+    const wikidataAcik = fotolar.length
+      ? Boolean(await this.db.catalogSource.findFirst({ where: { key: 'wikidata', active: true } }))
+      : false;
+    const foto = wikidataAcik
+      ? (kodlar.map((k) => fotolar.find((f) => f.generation.code === k)).find(Boolean)?.id ?? null)
+      : null;
     return {
       no: Number(d.no),
       baslik: d.headline || d.title || d.category.name,
@@ -246,6 +295,7 @@ export class DemandSearchService {
       telefon: d.phoneVisible,
       yayin: d.publishedAt?.toISOString(),
       bitis: d.expiresAt?.toISOString(),
+      foto,
     };
   }
 
@@ -357,22 +407,7 @@ export class DemandSearchService {
       toplam: r.hits.total.value,
       sayfa: Math.floor(from / size) + 1,
       boyut: size,
-      sonuclar: r.hits.hits.map(({ _source: s }) => ({
-        no: s.no,
-        baslik: s.baslik,
-        arac: s.arac,
-        kategori: { slug: s.kategori, name: s.kategoriAd },
-        yilMin: s.yilMin,
-        yilMax: s.yilMax,
-        kmMax: s.kmMax,
-        butceMin: s.butceMin,
-        butceMax: s.butceMax,
-        il: s.il,
-        ilce: s.ilce,
-        alternatifler: s.alternatifler,
-        telefon: s.telefon,
-        yayin: s.yayin,
-      })) as DemandHit[],
+      sonuclar: r.hits.hits.map(({ _source: s }) => hit(s)),
       filtreler: {
         marka: buckets('marka').map((b) => ({
           key: b.key,
@@ -389,6 +424,32 @@ export class DemandSearchService {
         il: buckets('il').map((b) => ({ ad: b.key, n: b.doc_count })),
       },
     };
+  }
+
+  /**
+   * Ana sayfa vitrini (Karar 12.6, 46): sıra her açılışta karışır. Ücretli vitrin ödeme modülüyle (Aşama 6) gelince
+   * önce o talepler gösterilecek; boş yerler yayındaki taleplerle dolar, fotoğraflı olanlar önce.
+   */
+  async vitrin(boyut: number) {
+    await this.ensureIndex();
+    const r = await this.os<{
+      hits: { total: { value: number }; hits: { _source: Record<string, unknown> }[] };
+    }>('POST', '/_search', {
+      size: Math.min(boyut, 50),
+      track_total_hits: true,
+      query: {
+        function_score: {
+          query: { match_all: {} },
+          functions: [
+            { random_score: { seed: Date.now(), field: '_seq_no' } },
+            { filter: { exists: { field: 'foto' } }, weight: 2 },
+          ],
+          score_mode: 'sum',
+          boost_mode: 'replace',
+        },
+      },
+    });
+    return { toplam: r.hits.total.value, sonuclar: r.hits.hits.map(({ _source: s }) => hit(s)) };
   }
 
   /** İndeks erişilemiyorsa listeyi düşürmemek için günlüğe yazılır (işçi yeniden dener). */

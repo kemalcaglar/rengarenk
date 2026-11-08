@@ -187,6 +187,9 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Favoriler ve kayıtlı aramalar:** `PUT/DELETE /favorites/:no`, `GET /favorites`; `GET/POST /saved-searches`,
   `PATCH/DELETE /saved-searches/:id` (en fazla 10; bildirim `anlik`/`gunluk`/`kapali`; `gordum: true` "yeni" sayacını
   sıfırlar). Web `/favoriler`, mobilde Hesabım › Favoriler ve aramalar. Bildirimlerin iletimi Aşama 7'de.
+- **Ana sayfa:** `GET /talepler/vitrin?boyut=17` (karışık sıra, fotoğraflı talepler önce) ve son talepler
+  (`/talepler?sira=yeni`). Talep kartlarındaki temsilî fotoğraf arama belgesindeki `foto` alanından gelir; yeni alan
+  işçinin ilk turunda ya da gece eşitlemesinde indekse yazılır.
 
 ## Canlıya alma
 

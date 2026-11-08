@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { HesabimMenu } from '../../../components/hesabim-menu';
 import { istek, useGiris } from '../../../lib/istemci';
-import { binlik, butceAraligi, uzunTarih, yilAraligi, zaman } from '../../../lib/talep-bicim';
+import { aramaAdresi, binlik, butceAraligi, uzunTarih, yilAraligi, zaman } from '../../../lib/talep-bicim';
 
 /** Favoriler ve kayıtlı aramalar (Karar 06.4, 30) · Favoriler.dc.html */
 
@@ -51,17 +51,6 @@ const KAPALI_NOT: Partial<Record<Durum, string>> = {
   bulundu: 'Talep sahibi aracını buldu; yeni mesaj gönderilemez.',
   kapandi: 'Talep kapandı; yeni mesaj gönderilemez.',
 };
-
-/** Kayıtlı sorgu → /talepler adresi */
-function listeAdresi(q: DemandSearchQuery) {
-  const p = new URLSearchParams();
-  for (const [k, v] of Object.entries(q)) {
-    for (const x of Array.isArray(v) ? v : [v])
-      if (x !== undefined && x !== null && x !== '') p.append(k, String(x));
-  }
-  const s = p.toString();
-  return s ? `/talepler?${s}` : '/talepler';
-}
 
 const ozet = (f: Favori) =>
   [
@@ -126,7 +115,7 @@ export default function Favoriler() {
   const gor = (a: Arama) =>
     dene(async () => {
       await istek(`/saved-searches/${a.id}`, { method: 'PATCH', body: { gordum: true } });
-      router.push(listeAdresi(a.sorgu));
+      router.push(aramaAdresi(a.sorgu));
     });
 
   const adKaydet = () =>
@@ -528,7 +517,7 @@ export default function Favoriler() {
                   </div>
                   <div style={{ display: 'flex', gap: 14, marginTop: 10, fontSize: 13.5 }}>
                     <a
-                      href={listeAdresi(a.sorgu)}
+                      href={aramaAdresi(a.sorgu)}
                       onClick={(e) => {
                         e.preventDefault();
                         gor(a);

@@ -1,4 +1,4 @@
-import { BIREYSEL_FIYATLAR, colors, DOTS, FOUND_VIA, type FoundViaKey } from '@rengarenk/shared';
+import { BIREYSEL_FIYATLAR, colors, DOTS, FOUND_VIA, type FoundViaKey, fiyatYaz } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert, Modal, Pressable, ScrollView, View } from 'react-native';
@@ -366,7 +366,7 @@ export default function Taleplerim() {
                       {!doldu(t)
                         ? 'Yeniden yayınla'
                         : t.freeExtensionUsed
-                          ? `Uzat · ${BIREYSEL_FIYATLAR.uzatma.tl} TL`
+                          ? `Uzat · ${fiyatYaz(BIREYSEL_FIYATLAR.uzatma.mobil)} TL`
                           : 'Ücretsiz uzat · 30 gün'}
                     </T>
                   </Pressable>

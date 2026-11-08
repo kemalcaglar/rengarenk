@@ -100,3 +100,14 @@ export function deger(f: CategoryField, v: unknown): string | null {
 
 /** Alan adı kriter tablosunda: "Kilometre (en çok)" → "Kilometre" */
 export const etiket = (f: CategoryField) => f.matchName ?? f.label.replace(/\s*\((en çok|en az)\)$/, '');
+
+/** Kayıtlı arama sorgusu → /talepler adresi (çoklu değerler tekrarlanır) */
+export function aramaAdresi(q: Record<string, unknown>) {
+  const p = new URLSearchParams();
+  for (const [k, v] of Object.entries(q)) {
+    for (const x of Array.isArray(v) ? v : [v])
+      if (x !== undefined && x !== null && x !== '') p.append(k, String(x));
+  }
+  const s = p.toString();
+  return s ? `/talepler?${s}` : '/talepler';
+}

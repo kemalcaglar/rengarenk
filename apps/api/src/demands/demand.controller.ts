@@ -45,6 +45,13 @@ export class PublicDemandsController {
     return this.search.search(q);
   }
 
+  /** Ana sayfa vitrini (Karar 46): karışık sıra */
+  @Get('vitrin')
+  vitrin(@Query('boyut') boyut?: string) {
+    const n = Number(boyut);
+    return this.search.vitrin(Number.isInteger(n) && n > 0 ? n : 17);
+  }
+
   @Get(':no')
   async detail(
     @Param('no', new ParseIntPipe()) no: number,

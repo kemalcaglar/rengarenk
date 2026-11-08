@@ -160,7 +160,12 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   anlık / günlük özet / kapalı; "N yeni talep" son bakıştan sonra yayınlananları sayar. Kendi talebi favoriye eklenmez
 - [ ] Favori ve kayıtlı arama bildirimlerinin iletimi: olaylar yazılıyor (talep güncellendi, pasife alındı, kapandı,
   yeni talep), uygulama/e-posta/SMS iletimi bildirim katmanıyla (Aşama 7)
-- [ ] Ana sayfada vitrin ve son talepler, galeri ana sayfası (Karar 22)
+- [x] Ana sayfada vitrin, son talepler ve girişli kullanıcıya "Kayıtlı aramalarınız" (Karar 22, 46; Anasayfa,
+  AnasayfaMobil): vitrin her açılışta karışır, fotoğraflı talepler önce; ücretli vitrin ödeme modülüyle (Aşama 6)
+  önce gelecek, boş yerleri yayındaki talepler doldurur (editör seçimi konsolla, Karar 46). Liste ve vitrin kartlarında
+  temsilî nesil fotoğrafı arama indeksinden gelir
+- [ ] Galeri ana sayfası ("Portföyünüze uyan talepler"): portföy ve eşleştirmeyle (Aşama 4–5)
+- [x] Mobilde uygulama içi fiyatlar (Karar 38: ,99 ile biten mobil fiyat; web fiyatından söz edilmez)
 - [ ] Öne çıkarma ve ek talep/uzatma satın alma: ödeme modülüyle (Aşama 6); şimdilik seçenekler görünür ama pasif
 - [ ] Talep sayfasında "Mesaj at" (Aşama 5) ve "Şikayet et" (Aşama 8): şimdilik pasif
 - [ ] Talep kartlarında görüntülenme, favori, mesaj ve uyan portföy sayıları (ilgili modüllerle)

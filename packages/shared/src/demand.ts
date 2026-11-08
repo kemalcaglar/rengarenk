@@ -96,20 +96,31 @@ export function demandOwnerName(
 
 /**
  * Bireysel hizmet fiyatları, KDV dahil (Karar 12.8). Başlangıç değerleridir; ödeme modülüyle birlikte
- * konsoldaki "Kurallar ve fiyatlar" ekranından yönetilecek (Karar 13.3, 47).
+ * konsoldaki "Kurallar ve fiyatlar" ekranından yönetilecek (Karar 13.3, 47). `mobil`: uygulama içi satın alma
+ * fiyatı (Karar 38; mağaza komisyonu nedeniyle yaklaşık %20 yüksek, ,99 ile biter). Uygulamada web fiyatı gösterilmez.
  */
 export const BIREYSEL_FIYATLAR = {
-  ekTalep: { ad: 'Ek talep', sure: '1 talep, 30 gün', tl: 199 },
-  talepPaketi: { ad: 'Talep paketi', sure: '3 talep', tl: 499 },
-  uzatma: { ad: 'Ücretli uzatma', sure: '30 gün', tl: 99 },
+  ekTalep: { ad: 'Ek talep', sure: '1 talep, 30 gün', tl: 199, mobil: 239.99 },
+  talepPaketi: { ad: 'Talep paketi', sure: '3 talep', tl: 499, mobil: 599.99 },
+  uzatma: { ad: 'Ücretli uzatma', sure: '30 gün', tl: 99, mobil: 119.99 },
 } as const;
 
-/** Öne çıkarma seçenekleri (Karar 12.6, 12.8; Sihirbaz 6. adım) */
+/** Öne çıkarma seçenekleri (Karar 12.6, 12.8, 38; Sihirbaz 6. adım) */
 export const ONE_CIKARMA = [
-  { key: 'ust_sira', ad: 'Üst sıra', aciklama: 'Satıcıların listelerinde 7 gün üstte', tl: 149 },
-  { key: 'acil', ad: 'Acil arıyorum', aciklama: '7 gün dikkat çeken etiket', tl: 79 },
-  { key: 'vitrin', ad: 'Ana sayfa vitrini', aciklama: '7 gün ana sayfada', tl: 299 },
+  {
+    key: 'ust_sira',
+    ad: 'Üst sıra',
+    aciklama: 'Satıcıların listelerinde 7 gün üstte',
+    tl: 149,
+    mobil: 179.99,
+  },
+  { key: 'acil', ad: 'Acil arıyorum', aciklama: '7 gün dikkat çeken etiket', tl: 79, mobil: 94.99 },
+  { key: 'vitrin', ad: 'Ana sayfa vitrini', aciklama: '7 gün ana sayfada', tl: 299, mobil: 359.99 },
 ] as const;
+
+/** "359,99" · "299" */
+export const fiyatYaz = (n: number) =>
+  new Intl.NumberFormat('tr-TR', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2 }).format(n);
 
 // ── Liste, arama ve kayıtlı arama ─────────────────────────────
 
@@ -169,6 +180,30 @@ export function searchQueryKey(input: Record<string, unknown>): string {
       .filter(([, v]) => v.length > 0)
       .sort(([a], [b]) => (a < b ? -1 : 1)),
   );
+}
+
+/**
+ * Kartların kısa bütçesi (Anasayfa.dc.html): "1,35 – 1,6 mn TL", "850 bin – 1 mn TL", "700 – 850 bin TL".
+ * Mobil son talepler milyonu açık yazar (AnasayfaMobil.dc.html: "850 bin – 1 milyon TL").
+ */
+export function compactBudget(
+  min?: number | null,
+  max?: number | null,
+  milyon: 'mn' | 'milyon' = 'mn',
+): string {
+  const birim = (n: number) => (n >= 1_000_000 ? milyon : n >= 1_000 ? 'bin' : '');
+  const sayi = (n: number) => {
+    const b = birim(n);
+    const v = b === milyon ? n / 1_000_000 : b === 'bin' ? n / 1_000 : n;
+    return new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 2 }).format(v);
+  };
+  const tam = (n: number) => [sayi(n), birim(n)].filter(Boolean).join(' ');
+  if (min && max && min !== max) {
+    return birim(min) === birim(max) ? `${sayi(min)} – ${tam(max)} TL` : `${tam(min)} – ${tam(max)} TL`;
+  }
+  if (max) return min === max ? `${tam(max)} TL` : `En çok ${tam(max)} TL`;
+  if (min) return `En az ${tam(min)} TL`;
+  return '';
 }
 
 /** Kayıtlı arama en fazla 10 (Karar 30) */

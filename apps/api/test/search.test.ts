@@ -156,6 +156,13 @@ describe('talep araması (Karar 06.1, 06.3)', () => {
     // Gece eşitlemesi: indeks veritabanıyla aynı
     expect(await search.reindexAll()).toBe(2);
     expect((await call(app, 'GET', '/talepler')).body.toplam).toBe(2);
+
+    // Ana sayfa vitrini (Karar 46): yayındaki talepler, karışık sırada; fotoğraf alanı her kartta
+    const vitrin = await call(app, 'GET', '/talepler/vitrin?boyut=5');
+    expect(vitrin.status).toBe(200);
+    expect(vitrin.body.toplam).toBe(2);
+    expect(vitrin.body.sonuclar).toHaveLength(2);
+    expect(vitrin.body.sonuclar[0]).toHaveProperty('foto');
   });
 });
 

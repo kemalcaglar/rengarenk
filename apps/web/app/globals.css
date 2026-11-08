@@ -154,3 +154,34 @@ textarea {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Üç sütunlu kart ızgarası (Anasayfa.dc.html, kayıtlı aramalar); dar ekranda tek sütun */
+.rr-uc-sutun {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 900px) {
+  .rr-uc-sutun {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Ana sayfa vitrini: altı sütun, aralarda 1 piksel çizgi; dar ekranda üç sütun */
+.rr-vitrin {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1px;
+  background: #e3e6ef;
+  border: 1px solid #e3e6ef;
+  border-radius: 14px;
+  overflow: hidden;
+}
+@media (max-width: 900px) {
+  .rr-vitrin {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .rr-vitrin .rr-genis {
+    display: none;
+  }
+}
