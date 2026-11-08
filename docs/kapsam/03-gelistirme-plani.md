@@ -138,6 +138,36 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 15 · galeri abonelikleri, mağaza ödemeleri, konsolda ödemeler (Aşama 6 ikinci bölüm, 8 Kasım 2026)
+
+- [x] Galeri abonelikleri (Karar 12.2, 12.3, 12.7, 39): `subscriptions` (galeri başına tek satır, silinmez), paket alma
+  yalnızca web'den ve yalnızca galeri sahibi; sözleşme ve otomatik yenileme onayı ayrı. Fiyat KDV hariç, faturaya %20 KDV
+- [x] PayTR Kart Saklama: ilk ödemede kart PayTR'de saklanır (Direkt API `store_card`, kart formu doğrudan PayTR'ye
+  gönderilir), sonraki dönemler saklı karttan (CAPI LIST + `recurring_payment`); kart anahtarı şifreli
+- [x] Üst pakete geçiş hemen (kalan sürenin farkı, bu ayın hak farkı); alt paket ve aylık/yıllık değişikliği sonraki
+  dönemde; iptal dönem sonunda ve geri alınabilir; başarısız yenileme 3 gün günde bir, sonra askı ("pasif" paket, salt
+  okunur); "Kartı güncelle ve öde"
+- [x] Aylık paket hakları (talep, üst sıra) devretmez; yıllıkta da her ay yenilenir; denemenin hakkı paketle düşer.
+  Hatırlatma aylıkta 7, yıllıkta 30 gün önce. Bildirimi gelmeyen otomatik çekim yeniden çekilmez, incelemeye düşer
+- [x] Galeri ek paketi (10/30 ilk mesaj): KDV hariç fiyat + KDV, galerinin ticari bilgileriyle fatura
+- [x] Erişim kuralı tek yerde (`galleryAccess`): mesaj, portföy, eşleşme ve panel aynı kuralı kullanır
+- [x] Web galeri paneli › Paket ve faturalar (GaleriPanel.dc.html): mevcut paket, üst pakete geç, yıllık ödemeye geç,
+  paket karşılaştırma, ek paket, ödeme (kart çerçevesi), faturalar; ekip ve portföy paket sınırını aşarsa uyarı
+- [x] Mağaza ödemeleri (Karar 38): satın alma niyeti, RevenueCat bildirimi (Authorization ile doğrulanır, bakımda da
+  açık), aynı bildirim ve aynı satış bir kez, `store_events` (yalnızca ekleme). Mağaza satışının faturasını mağaza keser.
+  Mağaza iadesi yalnızca kaydedilir ve sahibe iletilir (hak düşülmez)
+- [x] Mobil Haklarım (HaklarimMobil.dc.html): haklar, mobil fiyatlarla ürünler, öne çıkarmada talep seçimi, App Store /
+  Google Play düğmesi, uygulama içinde ödeme geçmişi
+- [x] Konsol › Ödemeler ve faturalar (Yonetim.dc.html › Ödemeler): tahsilat özeti, sipariş tablosu (durum ve kanal
+  süzgeci), galeri abonelikleri, incelenecek mağaza bildirimleri; kişisel veri yetkisi yoksa ad kısaltılır
+- [ ] Gerçek mağaza: Apple ve Google hesapları açılınca RevenueCat SDK (`react-native-purchases`), ürünler `rr_<ürün>`
+  adıyla mağazalarda; canlıda `STORE_PROVIDER=none` (uygulamada satın alma kapalı)
+- [ ] Galeri adına talep açma: paketin aylık talep ve öne çıkarma hakları galeri hesabında birikir; kullanım ekranı
+  (sihirbazda "kimin adına") sonraki bölümde. Galeri ek paketinde talep ve üst sıra o zaman açılır
+- [ ] Mağaza iadesinde hak düşme ve web iadeleri: iade akışı (4 kilit), sahibe sorulduktan sonra
+- Tasarımdan farklar: mobilde "Ödeme geçmişi ve faturalar" web sayfasına gitmez (mağaza kuralı), aynı ekranda açılır;
+  konsolda "Ödemeler ve faturalar" Pazar grubunda (eski konsol tasarımındaki ekran), özet kutuları ve abonelik tablosu ek
+
 ## Sprint 14 · web ödemeleri, haklar ve öne çıkarma (Aşama 6 ilk bölüm, 8 Kasım 2026)
 
 - [x] Veri modeli: orders (sepet, fatura bilgileri, onaylar, doldurulmuş ön bilgilendirme formu), payments (yalnızca
@@ -159,8 +189,8 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   sihirbazın 6. adımında öne çıkarma seçimi yayından sonra sepete gelir, ön bilgilendirme ve mesafeli sözleşme sayfaları
 - [ ] Gerçek PayTR ve e-Arşiv: sözleşme ve entegratör gelene kadar canlıda `PAYMENT_PROVIDER=none` (satın alma kapalı),
   `EARSIV_PROVIDER=none` (faturalar kuyrukta); `fake` canlıda açılamaz
-- [ ] Sonraki bölümler: galeri abonelikleri (tekrarlı tahsil, Karar 12.2, 12.7), mağaza ödemeleri ve RevenueCat (Karar 38),
-  mobil Haklarım ekranı, konsolda Ödemeler ve faturalar; iade akışı (4 kilit) sahibe sorulduktan sonra
+- [x] Sonraki bölümler: galeri abonelikleri, mağaza ödemeleri ve RevenueCat, mobil Haklarım, konsolda Ödemeler ve
+  faturalar (Sprint 15); iade akışı (4 kilit) sahibe sorulduktan sonra
 - [ ] Ön bilgilendirme formu ve sözleşmenin PDF olarak e-postayla gönderilmesi (bildirim katmanıyla, Aşama 7)
 - Tasarımdan farklar: ödeme çerçevesi "Siparişi onayla ve öde" düğmesinden sonra açılır (PayTR çerçevesi siparişin
   tutarıyla oluşturulur); fatura il ve ilçesi listeden seçilir

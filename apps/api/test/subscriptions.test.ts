@@ -8,6 +8,7 @@ import { OrdersService } from '../src/payments/orders.service.js';
 import { SubscriptionsService } from '../src/payments/subscriptions.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
 import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
 let sms: MemorySmsSender;
@@ -377,5 +378,37 @@ describe('galeri abonelikleri (Karar 12.2, 12.3, 12.7, 39; Teknik tasarım §7)'
     expect((await db.gallery.findUniqueOrThrow({ where: { accountId: g.accountId } })).plan).toBe('pasif');
     // Abonelik kaydı silinemez
     await expect(db.subscription.delete({ where: { id: s.id } })).rejects.toThrow();
+  });
+
+  it('konsol: ödemeler, abonelikler; kişisel veri yetkisi olmayan kısaltılmış ad görür', async () => {
+    const sahip = (await loginAs(app, await createStaff(db, 'OWNER'))).token;
+    const destek = (await loginAs(app, await createStaff(db, 'SUPPORT'))).token;
+    const u = await login('+905335552001');
+    await call(app, 'PATCH', '/me', { firstName: 'Ayşe', lastName: 'Yılmaz' }, u);
+    const s = await call(
+      app,
+      'POST',
+      '/orders',
+      {
+        kalemler: [{ urun: 'mesaj_10' }],
+        fatura: { ad: 'Ayşe Yılmaz', eposta: 'ayse@ornek.com', il: 'İstanbul', ilce: 'Kadıköy' },
+        onay: { sozlesme: true },
+      },
+      u,
+    );
+    await form(`/odeme/sahte/${s.body.no}`, { durum: 'success' });
+
+    const o = await staffCall(app, 'GET', '/staff/payments', undefined, sahip);
+    expect(o.status).toBe(200);
+    expect(o.body.ozet.etkinAbonelik).toBeGreaterThan(0);
+    const satir = o.body.siparisler.find((x: { no: string }) => x.no === s.body.no);
+    expect(satir).toMatchObject({ musteri: 'Ayşe Yılmaz', durum: 'PAID', fatura: 'Fatura kuyrukta' });
+    expect(o.body.abonelikler.length).toBeGreaterThan(0);
+    const d = await staffCall(app, 'GET', '/staff/payments?durum=odendi&tur=bireysel', undefined, destek);
+    expect(d.body.siparisler.find((x: { no: string }) => x.no === s.body.no)).toMatchObject({
+      musteri: 'Ayşe Y.',
+    });
+    expect(d.body.siparisler.every((x: { durum: string }) => x.durum === 'PAID')).toBe(true);
+    expect((await app.inject({ method: 'GET', url: '/staff/payments' })).statusCode).toBe(401);
   });
 });

@@ -4,8 +4,10 @@ import { AuthModule } from '../auth/auth.module.js';
 import { EntitlementsModule } from '../entitlements/entitlements.module.js';
 import { FlagsModule } from '../flags/flags.module.js';
 import { OutboxService } from '../outbox/outbox.service.js';
+import { StaffModule } from '../staff/staff.module.js';
 import { OrdersController, PaymentCallbackController } from './orders.controller.js';
 import { OrdersService } from './orders.service.js';
+import { PaymentsStaffController, PaymentsStaffService } from './payments-staff.js';
 import { EArsivFactory, PaymentProviderFactory } from './providers.js';
 import { StoreController, StoreWebhookController } from './store.controller.js';
 import { StoreService } from './store.service.js';
@@ -26,8 +28,9 @@ const PROVIDERS = [
 
 /** Web ödemeleri (Aşama 6): sipariş, PayTR, haklar ve öne çıkarma, galeri abonelikleri, e-Arşiv. İade burada değil. */
 @Module({
-  imports: [AuthModule, EntitlementsModule, FlagsModule],
+  imports: [AuthModule, StaffModule, EntitlementsModule, FlagsModule],
   controllers: [
+    PaymentsStaffController,
     OrdersController,
     PaymentCallbackController,
     SubscriptionsController,
@@ -35,7 +38,7 @@ const PROVIDERS = [
     StoreController,
     StoreWebhookController,
   ],
-  providers: PROVIDERS,
+  providers: [...PROVIDERS, PaymentsStaffService],
   exports: [OrdersService, SubscriptionsService],
 })
 export class PaymentsModule {}

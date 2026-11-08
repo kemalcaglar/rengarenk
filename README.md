@@ -173,6 +173,17 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Galeri abonelikleri ve mağaza ödemeleri (Sprint 15)
+
+- **Abonelik uçları:** `GET /gallery/:id/subscription`, `POST …/checkout` (`{ plan, donem, eposta, onay }`),
+  `POST …/pay` (bekleyen yenileme), `PATCH …/next` (sonraki dönem), `POST …/cancel` (`{ iptal }`); kart sayfası
+  `GET /odeme/kart/:no` (PayTR'de kart formu doğrudan PayTR'ye gider; sahte sağlayıcıda sahte sayfaya yönlenir).
+- **İşçi:** dönem sonu yenileme ve 3 gün yeniden deneme, hatırlatma, aylık hak döngüsü, kart adı (`abonelik.kart_kaydedildi`).
+- **Mağaza:** `POST /store/intents`, RevenueCat bildirimi `POST /odeme/magaza` (Authorization = `REVENUECAT_WEBHOOK_AUTH`),
+  geliştirmede `POST /store/fake-purchase`. `STORE_PROVIDER`: `none` | `revenuecat` | `fake`. Ürün kimlikleri `rr_<ürün>`
+  (ör. `rr_ek_talep`), App Store Connect ve Google Play Console'da tüketilebilir ürün olarak.
+- **Konsol:** `GET /staff/payments` (izin `rapor.gor`), sayfa `/odemeler`.
+
 ## Web ödemeleri (Sprint 14)
 
 - **Uçlar:** `GET /orders/overview`, `POST /orders` (`{ kalemler, fatura, onay }`), `GET /orders/:no`,

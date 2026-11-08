@@ -177,9 +177,15 @@ pnpm format        # Biome ile biçimlendir
   haklar ve öne çıkarma (`demand_promotions`), e-Arşiv sağlayıcısı (`EARSIV_PROVIDER`), web `/haklarim`. API'de 113,
   ortak pakette 66 test. İade tablosu ve kilidine dokunulmadı. Ekran görüntüsünde sahte ödeme çerçevedeki sayfaya
   `fetch(src, {method:'POST', body:'durum=success'})` ile onaylanır.
-- **Sıradaki:** Aşama 6'nın kalanı: galeri abonelikleri, mağaza ödemeleri (RevenueCat), mobil Haklarım, konsolda Ödemeler
-  ve faturalar; iade akışı (4 kilit) en son ve başlamadan önce sahibe sorulur. Sunucular gelince Radore'ye ilk dağıtım,
-  yedek, izleme, SOPS. Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
+- **Sprint 15 (8 Kasım 2026, Aşama 6 ikinci bölüm):** galeri abonelikleri (`subscriptions.service.ts`,
+  `subscription-billing.ts`, `packages/shared/src/subscriptions.ts`; PayTR Kart Saklama, otomatik yenileme, üst pakete
+  geçiş, iptal, askı ve "pasif" paket; erişim kuralı `galleryAccess`), web galeri paneli `paket.tsx`, mağaza ödemeleri
+  (`store.service.ts`, `STORE_PROVIDER`, `store_events`), mobil `app/haklarim.tsx`, konsol `/odemeler`. API'de 118,
+  ortak pakette 71 test. Mağaza iadesi yalnızca kaydedilir. Test ve ekranda abonelik dönem sonu, aboneliğin
+  `current_period_end` alanı geçmişe çekilerek denenir (başlangıç da geriye alınmalı: dönem kısıtı).
+- **Sıradaki:** galeri adına talep açma (paketin talep ve öne çıkarma haklarının kullanımı), sonra iade akışı (4 kilit):
+  başlamadan önce sahibe sorulur. Sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS. Bir sprint bitince plan
+  kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu
   gerçek anahtarla deneme; test/sahte sağlayıcı kullan.
