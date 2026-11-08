@@ -97,6 +97,7 @@ model Account {
   invites  AccountInvite[]
   vehicles PortfolioVehicle[]
   apiKeys  ApiKey[]
+  matches  Match[]
 
   @@map("accounts")
 }
@@ -964,6 +965,7 @@ model Demand {
   category  Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   events    DemandEvent[]
   favorites Favorite[]
+  matches   Match[]
 
   @@index([accountId, status])
   @@index([status, categoryId, publishedAt])
@@ -1216,6 +1218,7 @@ model PortfolioVehicle {
   category   Category         @relation(fields: [categoryId], references: [id])
   photos     PortfolioPhoto[]
   eidsChecks EidsCheck[]
+  matches    Match[]
 
   @@unique([accountId, externalId])
   @@index([accountId, status])
@@ -1286,4 +1289,39 @@ model ApiKey {
 
   @@index([accountId])
   @@map("api_keys")
+}
+
+/// Talep ile portföy aracının eşleşmesi (Karar 06.2, Teknik tasarım §6). Skor, hesaplandığı kategori şeması
+/// sürümüyle saklanır. Talep ya da araç yayından kalkınca satır silinmez, `active` kapanır.
+model Match {
+  id            String    @id @db.Uuid
+  demandId      String    @map("demand_id") @db.Uuid
+  vehicleId     String    @map("vehicle_id") @db.Uuid
+  /// Aracın galerisi
+  accountId     String    @map("account_id") @db.Uuid
+  score         Int
+  /// En iyi uyan alternatif (0'dan)
+  alternative   Int
+  /// Ölçütler: anahtar, kısa ad, ağırlık, uyum, alıcının seçimi var mı (kişisel veri yok)
+  criteria      Json
+  schemaVersion Int       @map("schema_version")
+  active        Boolean   @default(true)
+  /// Galeri eşleşmeler ekranını açtı
+  seenAt        DateTime? @map("seen_at") @db.Timestamptz(3)
+  /// anlik | ozet: "sana uygun talep" bildirimi olayı yazıldı (eşik üstü, günde 20 anlık)
+  notified      String?
+  notifiedAt    DateTime? @map("notified_at") @db.Timestamptz(3)
+  endedAt       DateTime? @map("ended_at") @db.Timestamptz(3)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  demand  Demand           @relation(fields: [demandId], references: [id])
+  vehicle PortfolioVehicle @relation(fields: [vehicleId], references: [id])
+  account Account          @relation(fields: [accountId], references: [id])
+
+  @@unique([demandId, vehicleId])
+  @@index([accountId, active, score])
+  @@index([vehicleId, active])
+  @@index([accountId, notifiedAt])
+  @@map("matches")
 }

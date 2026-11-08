@@ -36,6 +36,7 @@ import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { STORAGE, type Storage } from '../storage/storage.service.js';
 import { EidsFactory, type EidsProvider } from './eids.js';
+import { vehicleNames } from './vehicle-names.js';
 
 const AKTIF = ['DRAFT', 'PENDING_EIDS', 'PUBLISHED', 'PASSIVE'] as const;
 const ad = <T extends { key: string; ad: string }>(list: readonly T[], k: string | null) =>
@@ -586,42 +587,8 @@ export class PortfolioService {
   // ── Görünümler ────────────────────────────────────────────────
 
   /** Katalog adları (marka, seri, model, paket) toplu */
-  private async names(vs: PortfolioVehicle[]) {
-    const keys = (f: (v: PortfolioVehicle) => string | null) => [
-      ...new Set(vs.map(f).filter((x): x is string => Boolean(x))),
-    ];
-    const [m, s, mo, t] = await Promise.all([
-      this.db.catalogMake.findMany({
-        where: { key: { in: keys((v) => v.makeKey) } },
-        select: { key: true, name: true },
-      }),
-      this.db.catalogSeries.findMany({
-        where: { key: { in: keys((v) => v.seriesKey) } },
-        select: { key: true, name: true },
-      }),
-      this.db.catalogModel.findMany({
-        where: { key: { in: keys((v) => v.modelKey) } },
-        select: { key: true, name: true },
-      }),
-      this.db.catalogTrim.findMany({
-        where: { key: { in: keys((v) => v.trimKey) } },
-        select: { key: true, name: true },
-      }),
-    ]);
-    const map = new Map([...m, ...s, ...mo, ...t].map((x) => [x.key, x.name]));
-    return (v: PortfolioVehicle) => {
-      const marka = v.makeKey ? (map.get(v.makeKey) ?? v.makeKey) : (v.makeName ?? '');
-      const seri = v.seriesKey ? map.get(v.seriesKey) : null;
-      const model = v.modelKey ? map.get(v.modelKey) : v.modelName;
-      const paket = v.trimKey ? map.get(v.trimKey) : null;
-      return {
-        marka,
-        seri,
-        model,
-        paket,
-        ad: [String(v.year), marka, seri, model, paket].filter(Boolean).join(' '),
-      };
-    };
+  private names(vs: PortfolioVehicle[]) {
+    return vehicleNames(this.db, vs);
   }
 
   private ozet(v: PortfolioVehicle) {
@@ -641,6 +608,16 @@ export class PortfolioService {
     });
     const n = await this.names(vs);
     const aktif = vs.filter((v) => (AKTIF as readonly string[]).includes(v.status)).length;
+    // "Eşleşme" sütunu: aracın açık eşleşmeleri (yayındaki taleplerle)
+    const eslesme = new Map(
+      (
+        await this.db.match.groupBy({
+          by: ['vehicleId'],
+          where: { accountId: c.accountId, active: true, demand: { status: 'PUBLISHED' } },
+          _count: { _all: true },
+        })
+      ).map((r) => [r.vehicleId, r._count._all]),
+    );
     return {
       sinir: c.limit,
       aktif,
@@ -661,6 +638,7 @@ export class PortfolioService {
         atanan: v.assignedTo,
         duzenlenebilir: c.role !== 'SALES' || v.assignedTo === c.userId,
         disNo: v.externalId,
+        eslesme: v.status === 'PUBLISHED' ? (eslesme.get(v.id) ?? 0) : null,
       })),
     };
   }

@@ -54,7 +54,9 @@ export type EventType =
   | 'portfoy.eids_reddedildi'
   | 'portfoy.yayinlandi'
   | 'portfoy.guncellendi'
-  | 'portfoy.kalkti';
+  | 'portfoy.kalkti'
+  // Eşleştirme (Karar 06.2, Teknik tasarım §6): eşiği geçen yeni eşleşme; anlık ya da günlük özet (Aşama 7)
+  | 'eslesme.bulundu';
 
 @Injectable()
 export class OutboxService {

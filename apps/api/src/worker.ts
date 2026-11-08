@@ -14,6 +14,8 @@ import { DemandsWorkerModule } from './demands/demands.module.js';
 import { GalleriesWorkerModule } from './galleries/galleries.module.js';
 import { GalleryService } from './galleries/gallery.service.js';
 import { GalleryApplicationService } from './galleries/gallery-application.service.js';
+import { MatchingWorkerModule } from './matching/matching.module.js';
+import { MatchingService } from './matching/matching.service.js';
 import { OutboxService } from './outbox/outbox.service.js';
 import { PortfolioWorkerModule } from './portfolio/portfolio.module.js';
 import { PortfolioService } from './portfolio/portfolio.service.js';
@@ -23,8 +25,8 @@ import { StorageModule } from './storage/storage.service.js';
 
 /**
  * Arka plan işçisi: API ile aynı kod tabanı, ayrı süreç (Teknik tasarım §2).
- * Outbox aktarıcısı, onaylanan isteklerin yürütülmesi (ör. kategori şemasının yayına alınması) ve süre dolumları. Eşleştirme ve bildirim
- * sonraki sprintlerde eklenir. İade yürütücü ayrı bir süreç olacak ve PayTR iade anahtarı yalnızca
+ * Outbox aktarıcısı, onaylanan isteklerin yürütülmesi (ör. kategori şemasının yayına alınması), süre dolumları ve
+ * eşleştirme. Bildirim katmanı Aşama 7'de eklenir. İade yürütücü ayrı bir süreç olacak ve PayTR iade anahtarı yalnızca
  * orada bulunacak (kilit 2); bu işçi iade yürütmez.
  */
 @Module({
@@ -37,6 +39,7 @@ import { StorageModule } from './storage/storage.service.js';
     DemandsWorkerModule,
     GalleriesWorkerModule,
     PortfolioWorkerModule,
+    MatchingWorkerModule,
   ],
   providers: [OutboxService, QueueService],
 })
@@ -56,6 +59,7 @@ const search = app.get(DemandSearchService);
 const galleryApps = app.get(GalleryApplicationService);
 const galleries = app.get(GalleryService);
 const portfolio = app.get(PortfolioService);
+const matching = app.get(MatchingService);
 await queue.start();
 
 await queue.consume<{ approvalId: string }>('onay.onaylandi', 'onay-yurut', async ({ approvalId }) => {
@@ -90,6 +94,25 @@ for (const event of [
 ]) {
   await queue.consume<{ demandId: string }>(event, `arama-${event.replace('.', '-')}`, ({ demandId }) =>
     search.sync(demandId),
+  );
+}
+// Eşleştirme (Teknik tasarım §6): talep ve araç olaylarında yeniden skorlanır
+for (const event of [
+  'talep.yayinlandi',
+  'talep.guncellendi',
+  'talep.pasife_alindi',
+  'talep.suresi_doldu',
+  'talep.uzatildi',
+  'talep.kapandi',
+  'arac.bulundu',
+]) {
+  await queue.consume<{ demandId: string }>(event, `eslesme-${event.replace('.', '-')}`, ({ demandId }) =>
+    matching.onDemand(demandId),
+  );
+}
+for (const event of ['portfoy.yayinlandi', 'portfoy.guncellendi', 'portfoy.kalkti']) {
+  await queue.consume<{ vehicleId: string }>(event, `eslesme-${event.replace('.', '-')}`, ({ vehicleId }) =>
+    matching.onVehicle(vehicleId),
   );
 }
 // Açılışta ve her gece indeks veritabanıyla eşitlenir (artakalan kayıt kalmaz)
@@ -138,6 +161,10 @@ while (!stopping) {
       .reindexAll()
       .then((n) => log.log(`arama indeksi yenilendi: ${n} talep`))
       .catch((err: Error) => log.error(`arama indeksi: ${err.message}`));
+    await matching
+      .rebuildAll()
+      .then((r) => log.log(`eşleştirme yenilendi: ${r.arac} araç, ${r.talep} talep`))
+      .catch((err: Error) => log.error(`eşleştirme: ${err.message}`));
   }
   if (Date.now() - lastCatalogCheck > CATALOG_CHECK_MS) {
     lastCatalogCheck = Date.now();
