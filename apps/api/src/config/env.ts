@@ -4,6 +4,13 @@ const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   DATABASE_URL: z.string().min(1),
   REDIS_URL: z.string().default('redis://localhost:6379'),
+  /** Talep araması (Teknik tasarım §12) */
+  OPENSEARCH_URL: z.string().default('http://localhost:9200'),
+  /** İndeks adlarının öneki; testler kendi önekini kullanır */
+  OPENSEARCH_PREFIX: z
+    .string()
+    .regex(/^[a-z0-9_]+$/)
+    .default('rr'),
   JWT_SECRET: z.string().min(32, 'JWT_SECRET en az 32 karakter olmalı'),
   SMS_PROVIDER: z.enum(['console', 'test', 'iletimerkezi']).default('console'),
   /** Ana sağlayıcı arızalanınca kullanılacak yedek (Teknik tasarım §9). */

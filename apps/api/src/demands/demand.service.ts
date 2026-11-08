@@ -21,6 +21,7 @@ import {
 } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
 import { sha256 } from '../auth/tokens.js';
+import { CatalogImageService } from '../catalog/catalog-image.service.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { EntitlementService } from '../entitlements/entitlement.service.js';
 import { type EventType, OutboxService } from '../outbox/outbox.service.js';
@@ -115,7 +116,7 @@ export class DemandService {
       where: { no: BigInt(no) },
       include: {
         category: { select: { slug: true, name: true } },
-        user: { select: { firstName: true, lastName: true, phone: true } },
+        user: { select: { firstName: true, lastName: true, phone: true, createdAt: true } },
       },
     });
     if (!d || d.status === 'DRAFT') throw new NotFoundException('Talep bulunamadı');
@@ -125,14 +126,148 @@ export class DemandService {
     return {
       ...this.summary(d),
       data: { ...data, alanlar: data.alanlar },
+      gorunum: await this.gorunum(d, data),
       schema: { version: d.schemaVersion, fields: effectiveFields(def), rules: def.rules },
       owner: {
         name: demandOwnerName(d.user.firstName, d.user.lastName, d.nameMode as 'tam' | 'kisa'),
+        /** "Kasım 2025'ten beri üye" */
+        memberSince: d.user.createdAt,
         isYou: viewerUserId === d.userId,
         phone: showPhone ? d.user.phone : null,
         phoneHidden: d.phoneVisible && !viewerUserId,
         whatsapp: showPhone && d.whatsappVisible,
       },
+    };
+  }
+
+  /**
+   * Talep sayfasının katalog görünümü (Main.dc.html; Karar 24, 32): marka/seri/model adları; her alternatif için
+   * kasa kuşakları (yıllarıyla ve nesil fotoğrafıyla), paket adları ve katalogdaki örnek teknik değerler.
+   */
+  private async gorunum(d: Demand, data: DemandData) {
+    const [make, series, model] = await Promise.all([
+      d.makeKey
+        ? this.db.catalogMake.findUnique({ where: { key: d.makeKey }, select: { name: true } })
+        : null,
+      d.seriesKey
+        ? this.db.catalogSeries.findUnique({ where: { key: d.seriesKey }, select: { id: true, name: true } })
+        : null,
+      d.modelKey
+        ? this.db.catalogModel.findUnique({ where: { key: d.modelKey }, select: { id: true, name: true } })
+        : null,
+    ]);
+    const sources = (
+      await this.db.catalogSource.findMany({ where: { active: true }, select: { key: true } })
+    ).map((x) => x.key);
+    const gens = series
+      ? await this.db.catalogGeneration.findMany({
+          where: { seriesId: series.id, source: { in: sources } },
+          select: {
+            id: true,
+            key: true,
+            code: true,
+            facelift: true,
+            body: true,
+            startYear: true,
+            endYear: true,
+            source: true,
+            wikidataId: true,
+          },
+        })
+      : [];
+    const fotolar = gens.length
+      ? await this.db.catalogImage.findMany({
+          where: {
+            status: 'secildi',
+            generationId: { in: gens.filter((g) => g.source === 'wikidata').map((g) => g.id) },
+          },
+        })
+      : [];
+    const yil = new Date().getFullYear();
+    const AD: Record<string, Record<string, string>> = {
+      fuel: { benzin: 'Benzin', dizel: 'Dizel', hibrit: 'Hibrit', elektrik: 'Elektrik', lpg: 'LPG & Benzin' },
+      gearbox: { manuel: 'Manuel', otomatik: 'Otomatik', yari_otomatik: 'Yarı otomatik' },
+      drive: { onden: 'Önden çekiş', arkadan: 'Arkadan itiş', '4x4': '4x4' },
+    };
+    const alternatifler = [];
+    for (const a of data.alternatifler ?? []) {
+      const kasa = ((a.kasa as string[] | undefined) ?? []).map((v) => {
+        const m = /^([^:/]+):(\d+)$/.exec(v);
+        const grup = m
+          ? gens.filter(
+              (g) => g.source !== 'wikidata' && g.code === m[1] && (g.facelift ?? 0) === Number(m[2]),
+            )
+          : gens.filter((g) => g.key === v);
+        const bas = grup.length ? Math.min(...grup.map((g) => g.startYear)) : null;
+        const son = grup.length ? Math.max(...grup.map((g) => g.endYear ?? yil)) : null;
+        const kod = m ? gens.find((g) => g.source === 'wikidata' && g.code === m[1]) : undefined;
+        const foto = kod ? fotolar.find((f) => f.generationId === kod.id) : undefined;
+        return {
+          value: v,
+          label: m ? `${m[1]} ${m[2] === '0' ? 'makyajsız' : 'makyajlı'}` : (grup[0]?.body ?? 'Kasa'),
+          yillar: bas === null ? null : son !== null && son >= yil ? `${bas} ve sonrası` : `${bas}–${son}`,
+          foto: foto ? CatalogImageService.publicPhoto(foto) : null,
+        };
+      });
+      const paketKeys = (a.paket as string[] | undefined) ?? [];
+      const paket = paketKeys.length
+        ? (
+            await this.db.catalogTrim.findMany({ where: { key: { in: paketKeys } }, select: { name: true } })
+          ).map((t) => t.name)
+        : [];
+      const y = a.yil as { min?: number; max?: number } | undefined;
+      const variants = model
+        ? await this.db.catalogVariant.findMany({
+            where: {
+              modelId: model.id,
+              source: { in: sources },
+              ...(y?.min || y?.max
+                ? {
+                    years: {
+                      hasSome: Array.from(
+                        { length: (y.max ?? yil) - (y.min ?? 1950) + 1 },
+                        (_, i) => (y.min ?? 1950) + i,
+                      ).slice(-60),
+                    },
+                  }
+                : {}),
+            },
+            select: { engineL: true, powerHp: true, fuel: true, gearbox: true, drive: true, body: true },
+            take: 400,
+          })
+        : [];
+      // Katalogdaki en yaygın donanım (talepteki yıl aralığında)
+      const say = new Map<string, { n: number; v: (typeof variants)[number] }>();
+      for (const v of variants) {
+        const k = JSON.stringify([v.engineL, v.powerHp, v.fuel, v.gearbox]);
+        say.set(k, { n: (say.get(k)?.n ?? 0) + 1, v });
+      }
+      const ornek = [...say.values()].sort((p, q) => q.n - p.n)[0]?.v;
+      const teknik = ornek
+        ? [
+            ornek.engineL
+              ? {
+                  label: 'Motor hacmi',
+                  value: `${new Intl.NumberFormat('tr-TR').format(Math.round(ornek.engineL * 1000))} cm³`,
+                }
+              : null,
+            ornek.powerHp ? { label: 'Güç', value: `${ornek.powerHp} hp` } : null,
+            ornek.fuel ? { label: 'Yakıt', value: AD.fuel?.[ornek.fuel] ?? ornek.fuel } : null,
+            ornek.gearbox ? { label: 'Şanzıman', value: AD.gearbox?.[ornek.gearbox] ?? ornek.gearbox } : null,
+            ornek.drive ? { label: 'Çekiş', value: AD.drive?.[ornek.drive] ?? ornek.drive } : null,
+            ornek.body ? { label: 'Kasa', value: ornek.body } : null,
+          ].filter((x): x is { label: string; value: string } => x !== null)
+        : [];
+      alternatifler.push({
+        kasa,
+        paket,
+        teknik,
+        teknikOrnek: ornek && model ? `${model.name}${ornek.powerHp ? ` (${ornek.powerHp} hp)` : ''}` : null,
+      });
+    }
+    return {
+      katalog: { marka: make?.name ?? null, seri: series?.name ?? null, model: model?.name ?? null },
+      alternatifler,
     };
   }
 

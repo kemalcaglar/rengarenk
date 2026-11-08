@@ -143,13 +143,14 @@ describe('talepler (Karar 04, 05, 09, 10, 12, 21)', () => {
 
     // Herkese açık sayfa: telefon yalnızca girişli kullanıcıya; ad "Ayşe Y."
     const anon = await call(app, 'GET', `/talepler/${pub.body.no}`);
-    expect(anon.body.owner).toEqual({
+    expect(anon.body.owner).toMatchObject({
       name: 'Ayşe Y.',
       isYou: false,
       phone: null,
       phoneHidden: true,
       whatsapp: false,
     });
+    expect(anon.body.gorunum.katalog).toEqual({ marka: 'BMW', seri: '3 Serisi', model: '320i' });
     const other = await login('+905327771002');
     const seen = await call(app, 'GET', `/talepler/${pub.body.no}`, undefined, other);
     expect(seen.body.owner).toMatchObject({ phone: '+905327771001', whatsapp: true });

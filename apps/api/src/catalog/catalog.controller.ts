@@ -58,6 +58,8 @@ export class CatalogController {
     const f = await this.images.file(id);
     reply.header('content-type', f.contentType ?? 'image/jpeg');
     reply.header('cache-control', 'public, max-age=604800, immutable');
+    // Temsilî fotoğraf web sitesinde ve uygulamada gösterilir (başka köken); helmet'in "same-origin" varsayılanı burada gevşer
+    reply.header('cross-origin-resource-policy', 'cross-origin');
     if (f.sha256) reply.header('etag', `"${f.sha256}"`);
     return reply.send(f.body);
   }

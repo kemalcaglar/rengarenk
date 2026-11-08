@@ -112,3 +112,33 @@ textarea {
   outline: 2px solid #2450c8;
   outline-offset: 2px;
 }
+
+/* İşaret kutusu (Liste.dc.html): 20 px, köşeleri 6 px; seçilince mavi zemin ve ✓ */
+.rr-isaret {
+  appearance: none;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border-radius: 6px;
+  border: 1.5px solid #aeb5c4;
+  background: #ffffff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.rr-isaret:checked {
+  border-color: #5b8cff;
+  background: #5b8cff;
+}
+.rr-isaret:checked::after {
+  content: "✓";
+  font-size: 13px;
+  font-weight: 800;
+  color: #1e2333;
+  line-height: 1;
+}
+.rr-isaret:focus-visible {
+  outline: 2px solid #2450c8;
+  outline-offset: 2px;
+}

@@ -13,6 +13,7 @@ import { DemandService } from './demands/demand.service.js';
 import { DemandsWorkerModule } from './demands/demands.module.js';
 import { OutboxService } from './outbox/outbox.service.js';
 import { QueueService } from './queue/queue.service.js';
+import { DemandSearchService } from './search/demand-search.service.js';
 import { StorageModule } from './storage/storage.service.js';
 
 /**
@@ -44,12 +45,31 @@ const executor = app.get(ApprovalExecutor);
 const db = app.get<Db>(PRISMA);
 const catalog = app.get(CatalogPipelineService);
 const demands = app.get(DemandService);
+const search = app.get(DemandSearchService);
 await queue.start();
 
 await queue.consume<{ approvalId: string }>('onay.onaylandi', 'onay-yurut', async ({ approvalId }) => {
   const r = await executor.execute(approvalId);
   log.log(`onay ${approvalId}: ${r}`);
 });
+
+// Talep araması: talep olaylarında indeks güncellenir (Teknik tasarım §12)
+for (const event of [
+  'talep.yayinlandi',
+  'talep.guncellendi',
+  'talep.pasife_alindi',
+  'talep.suresi_doldu',
+  'talep.uzatildi',
+  'talep.kapandi',
+  'arac.bulundu',
+]) {
+  await queue.consume<{ demandId: string }>(event, `arama-${event.replace('.', '-')}`, ({ demandId }) =>
+    search.sync(demandId),
+  );
+}
+// Açılışta ve her gece indeks veritabanıyla eşitlenir (artakalan kayıt kalmaz)
+const REINDEX_MS = 24 * 3600_000;
+let lastReindex = 0;
 
 let stopping = false;
 process.on('SIGTERM', () => {
@@ -81,6 +101,13 @@ while (!stopping) {
     } catch (err) {
       log.error(err);
     }
+  }
+  if (Date.now() - lastReindex > REINDEX_MS) {
+    lastReindex = Date.now();
+    await search
+      .reindexAll()
+      .then((n) => log.log(`arama indeksi yenilendi: ${n} talep`))
+      .catch((err: Error) => log.error(`arama indeksi: ${err.message}`));
   }
   if (Date.now() - lastCatalogCheck > CATALOG_CHECK_MS) {
     lastCatalogCheck = Date.now();

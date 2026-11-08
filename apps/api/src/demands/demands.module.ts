@@ -3,12 +3,13 @@ import { AuditService } from '../audit/audit.service.js';
 import { AuthModule } from '../auth/auth.module.js';
 import { EntitlementsModule } from '../entitlements/entitlements.module.js';
 import { OutboxService } from '../outbox/outbox.service.js';
+import { SearchModule } from '../search/search.module.js';
 import { DemandsController, PublicDemandsController } from './demand.controller.js';
 import { DemandService } from './demand.service.js';
 
 /** Talepler (Aşama 3). */
 @Module({
-  imports: [AuthModule, EntitlementsModule],
+  imports: [AuthModule, EntitlementsModule, SearchModule],
   controllers: [DemandsController, PublicDemandsController],
   providers: [DemandService, AuditService, OutboxService],
   exports: [DemandService],
@@ -17,8 +18,8 @@ export class DemandsModule {}
 
 /** İşçi için: süre dolumu ve hatırlatmalar. */
 @Module({
-  imports: [EntitlementsModule],
+  imports: [EntitlementsModule, SearchModule],
   providers: [DemandService, AuditService, OutboxService],
-  exports: [DemandService],
+  exports: [DemandService, SearchModule],
 })
 export class DemandsWorkerModule {}

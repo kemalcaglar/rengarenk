@@ -17,6 +17,8 @@ Object.assign(process.env, {
   STAFF_EMAIL_DOMAINS: 'rengarenk.com.tr',
   STAFF_SECRET_KEY: 'test-icin-yonetim-sirlarini-sifreleyen-anahtar',
   REDIS_URL: process.env.TEST_REDIS_URL ?? 'redis://localhost:6379/15',
+  OPENSEARCH_URL: process.env.TEST_OPENSEARCH_URL ?? 'http://localhost:9200',
+  OPENSEARCH_PREFIX: 'rrtest',
 });
 
 const migrations = join(dirname(fileURLToPath(import.meta.url)), '../../../packages/db/prisma/migrations');
@@ -36,4 +38,6 @@ beforeAll(async () => {
   const r = new Redis(process.env.REDIS_URL as string);
   await r.flushdb();
   r.disconnect();
+  // Test indeksleri her dosyadan önce silinir (canlı ve geliştirme indekslerine dokunulmaz)
+  await fetch(`${process.env.OPENSEARCH_URL}/rrtest_*`, { method: 'DELETE' }).catch(() => undefined);
 });
