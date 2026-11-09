@@ -140,4 +140,74 @@ describe('Kontrol paneli ve hedefler (Karar 44)', () => {
     );
     expect(not.body.notlar.at(-1)).toMatchObject({ gun, metin: 'Antalya duyurusu', kaynak: 'elle' });
   });
+
+  it('raporlar: huni, harita, en çok talep edilenler, gelir, birim; dışa aktarma yetkisi ve kişisel pano', async () => {
+    const owner = await loginAs(app, await createStaff(db, 'OWNER'));
+    const finans = await loginAs(app, await createStaff(db, 'FINANCE'));
+    const destek = await loginAs(app, await createStaff(db, 'SUPPORT'));
+    const alici = await login('+905321110011');
+    const satici = await login('+905321110012');
+    const t = await talep(alici);
+    await call(app, 'POST', `/talepler/${t.no}/mesaj`, { metin: 'Merhaba, aracım var' }, satici);
+    await db.demand.update({ where: { id: t.id }, data: { publishedAt: new Date(Date.now() - 3 * DAY) } });
+    await db.conversation.updateMany({
+      where: { demandId: t.id },
+      data: { createdAt: new Date(Date.now() - 2.9 * DAY) },
+    });
+
+    const h = await staffCall(app, 'GET', '/staff/reports/huni?tarih=30', undefined, owner.token);
+    expect(h.status).toBe(200);
+    const adim = (ad: string) => h.body.huni.find((x: { ad: string }) => x.ad === ad);
+    expect(adim('Üyelik').sayi).toBeGreaterThan(0);
+    expect(adim('Talep oluşturan').sayi).toBeGreaterThan(0);
+    expect(adim('İlk mesaj alan talep').sayi).toBeGreaterThan(0);
+    // Süzgeç: başka il → talep yok, üyelik gösterilmez
+    const s = await staffCall(app, 'GET', '/staff/reports/huni?tarih=30&il=Konya', undefined, owner.token);
+    expect(s.body.huni.find((x: { ad: string }) => x.ad === 'Üyelik')).toBeUndefined();
+    expect(s.body.huni[0].sayi).toBe(0);
+    expect(
+      (await staffCall(app, 'GET', '/staff/reports/huni?tarih=yok', undefined, owner.token)).status,
+    ).toBe(400);
+
+    const m = await staffCall(app, 'GET', '/staff/reports/model', undefined, owner.token);
+    expect(m.body.modeller[0]).toMatchObject({ ad: 'BMW 3 Serisi', arac: 0, durum: 'Büyük açık' });
+    const hr = await staffCall(app, 'GET', '/staff/reports/harita', undefined, owner.token);
+    expect(hr.body.satirlar[0].il).toBe('İzmir');
+    expect(hr.body.kategoriler).toContain('Otomobil');
+    const g = await staffCall(app, 'GET', '/staff/reports/gelir', undefined, owner.token);
+    expect(g.body.sayilar.map((x: { ad: string }) => x.ad)).toEqual([
+      'Toplam gelir',
+      'Aylık tekrarlayan',
+      'Galeri kayıp oranı',
+      'Denemeden ücretliye',
+      'İade oranı',
+    ]);
+    expect(g.body.mrr).toHaveLength(6);
+    const b = await staffCall(app, 'GET', '/staff/reports/birim', undefined, owner.token);
+    expect(b.body.kohort).toHaveLength(5);
+    expect((await staffCall(app, 'GET', '/staff/reports/reklam', undefined, owner.token)).body.bos).toContain(
+      'Meta',
+    );
+
+    // Dışa aktarma: destek yapamaz; finans yapar, kişisel veri yok, işlem kaydına girer
+    expect((await staffCall(app, 'GET', '/staff/reports/model/export', undefined, destek.token)).status).toBe(
+      403,
+    );
+    const x = await staffCall(app, 'GET', '/staff/reports/model/export', undefined, finans.token);
+    expect(x.status).toBe(200);
+    expect(x.body.csv).toContain('BMW 3 Serisi');
+    expect(x.body.csv).not.toContain('+90532');
+    expect(await db.auditLog.count({ where: { action: 'rapor_disa_aktarildi' } })).toBe(1);
+
+    const v = await staffCall(
+      app,
+      'POST',
+      '/staff/reports/views',
+      { ad: 'İzmir otomobil', sekme: 'harita', filtre: { tarih: '30', karsilastir: 'onceki', il: 'İzmir' } },
+      owner.token,
+    );
+    expect(v.body[0]).toMatchObject({ name: 'İzmir otomobil', tab: 'harita' });
+    // Pano kişiseldir
+    expect((await staffCall(app, 'GET', '/staff/reports/views', undefined, finans.token)).body).toEqual([]);
+  });
 });

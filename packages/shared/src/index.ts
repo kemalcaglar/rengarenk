@@ -24,6 +24,7 @@ export * from './portfolio.js';
 export * from './pricing.js';
 export * from './ratings.js';
 export * from './refunds.js';
+export * from './reports.js';
 export * from './retention.js';
 export * from './staff.js';
 export * from './staff-alerts.js';

@@ -1787,6 +1787,19 @@ model MonthlyGoal {
   @@map("monthly_goals")
 }
 
+/// Kişisel pano (Karar 44, "panoya kaydet"): çalışanın kaydettiği rapor sekmesi ve süzgeçleri
+model ReportView {
+  id        String   @id @db.Uuid
+  staffId   String   @map("staff_id") @db.Uuid
+  name      String
+  tab       String
+  filter    Json
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([staffId])
+  @@map("report_views")
+}
+
 /// Grafik notu (Karar 44): elle ya da fiyat, kural ve kampanya değişikliğinde kendiliğinden
 model ChartNote {
   id        String   @id @db.Uuid

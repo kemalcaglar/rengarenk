@@ -66,7 +66,7 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
   {
     grup: 'Büyüme',
     ogeler: [
-      { ad: 'Raporlar', sonra: true },
+      { href: '/raporlar', ad: 'Raporlar', izin: 'rapor.gor' },
       { href: '/zamanlanmis-raporlar', ad: 'Zamanlanmış raporlar', izin: 'rapor.gor' },
       { ad: 'Kampanyalar', sonra: true },
       { href: '/akislar', ad: 'Otomatik akışlar', izin: 'rapor.gor' },

@@ -149,6 +149,15 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   galeriler, okunmamış uyarılar); aylık hedefler (Sahip ve yönetici girer, işlem kaydı), ay sonu tahmini, sapma %10'u
   geçerse çalışan uyarısı (`hedef_sapma`, ayda bir)
 - [x] Talep açıldığı platformla kaydedilir (`demands.platform`, `x-rr-platform`)
+- [x] Raporlar (YonetimRapor.dc.html › rapor): süzgeçler (tarih, karşılaştırma, il, kategori, platform), huni (üyelik →
+  talep → 48 saatte ilk mesaj → sohbet → aracı buldum; en büyük kayıp adımı), il × kategori arz-talep haritası (mesaj
+  almayan oran ve talep sayısı) ve en büyük arz açıkları, gelir (toplam, aylık tekrarlayan, galeri kayıp oranı,
+  denemeden ücretliye, iade oranı, kalemler, 6 aylık tekrarlayan gelir, platform payı), en çok talep edilen modeller ve
+  uygun araç (Dengeli / Arz az / Büyük açık), birim ekonomisi ve ücretli galeri kohortu; "Panoya kaydet" (kişisel),
+  "Excel'e aktar" (CSV; sahip, yönetici, finans; kişisel veri yok; işlem kaydı)
+- [ ] Reklam ve edinim (Meta, Google harcama çekimi), deneyler (A/B ve fiyat deneyleri), ziyaretçi sayısı (web analitiği),
+  model aramaları (arama günlüğü): bağlantılar ve altyapıyla. Sekmeler şimdilik açıklama gösteriyor
+- [ ] Haftalık ve aylık rapor e-postası, galerilere "aranan modeller" raporu
 - [ ] Kanal kırılımı (organik, reklam, bildirim): reklam ölçümüyle; ajanın yorumu yapay zekâyla (şimdilik kural)
 
 ## Sprint 27 · Aşama 8 kalanları (9 Kasım 2026)

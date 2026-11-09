@@ -195,6 +195,8 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   `apps/api/src/dashboard/` (`GET /staff/dashboard?donem=`, `GET /staff/dashboard/breakdown/:metrik`,
   `PUT /staff/dashboard/goals`, `POST /staff/dashboard/notes`); tablolar `monthly_goals`, `chart_notes`
   (`grafikNotu(tx, …)` fiyat ve kural değişikliğinde). Konsol `/panel`.
+- Raporlar: `packages/shared/src/reports.ts`, `apps/api/src/dashboard/report.service.ts`; `GET /staff/reports/:sekme`,
+  `GET /staff/reports/:sekme/export` (rapor.disa_aktar), `GET/POST/DELETE /staff/reports/views`. Konsol `/raporlar`.
 - Kurallar ve fiyatlar: `packages/shared/src/pricing.ts` (`PriceBook`, `DEFAULT_PRICE_BOOK`, `plansOf`, `priceChanges`),
   `apps/api/src/pricing/` (`PricingService.current()/plans()/productTl()`, küresel modül; işçide PRICE_CHANGE yürütücüsü).
   `galleryAccess`, `planNetKurus`, `memberLimit` isteğe bağlı paket tablosu alır; API'de her zaman
