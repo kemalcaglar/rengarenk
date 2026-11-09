@@ -18,6 +18,7 @@ import {
   VERBIS_THRESHOLDS,
 } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
+import { IpVault } from '../audit/ip-vault.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { STORAGE, type Storage } from '../storage/storage.service.js';
@@ -28,6 +29,8 @@ const IMHA = 'imha edildi';
 const PARTI = 50_000;
 
 type Sayim = Record<DisposalKind, number>;
+/** Yalnızca ekleme yapılan, satırı hiç değişmeyen kayıtlar (CLAUDE.md kural 4) */
+const DISINDA = ['Çalışan işlem kaydının satırları', 'Hak defteri', 'Rıza ve İYS kayıtları'];
 
 /**
  * Saklama ve periyodik imha (Karar 59; YonetimSistem.dc.html › imha). Ajan (işçi) her gün süresi dolan kayıtları sayar;
@@ -145,6 +148,19 @@ export class RetentionService {
     });
     const kisiBekle = (u: string | null) => !!u && hold.kisiler.has(u);
 
+    // İşlem kaydındaki IP adresleri: dönemi 2 yılı dolan anahtar (satıra dokunulmaz, anahtar silinir)
+    const anahtarlar = (
+      await this.db.piiKey.findMany({
+        where: { purpose: 'islem', periodEnd: { lt: once(RETENTION_DAYS.islem) } },
+        select: { id: true },
+      })
+    ).map((k) => k.id);
+    const islemIp = anahtarlar.length
+      ? await this.db.auditLog.count({
+          where: { OR: anahtarlar.map((id) => ({ ip: { startsWith: `k1.${id}.` } })) },
+        })
+      : 0;
+
     return {
       sohbet: {
         imha: sohbetler.filter((c) => !sohbetBekle(c)).map((c) => c.id),
@@ -167,6 +183,7 @@ export class RetentionService {
         imha: fatura.filter((d) => !kisiBekle(d.userId)).map((d) => d.id),
         bekle: fatura.filter((d) => kisiBekle(d.userId)).length,
       },
+      islem: { anahtarlar, sayi: islemIp, bekle: 0 },
     };
   }
 
@@ -179,6 +196,7 @@ export class RetentionService {
       destek: a.destek.imha.length,
       kvkk: a.kvkk.imha.length,
       fatura: a.fatura.imha.length,
+      islem: a.islem.sayi,
     };
   }
 
@@ -240,7 +258,7 @@ export class RetentionService {
       onceki: once ? { id: once.id, no: once.no, tarih: once.ranAt } : null,
       verbis: await this.verbis(now),
       // Yalnızca ekleme yapılan tablolar imha sürecinin dışındadır (CLAUDE.md kural 4); ayrı sahip kararı gerekir
-      disinda: ['Çalışan işlem kaydı', 'Hak defteri', 'Rıza ve İYS kayıtları'],
+      disinda: DISINDA,
     };
   }
 
@@ -322,7 +340,7 @@ export class RetentionService {
     });
     if (!r) return null;
     const a = await this.adaylar(now);
-    const imha: Sayim = { sohbet: 0, hesap: 0, erisim: 0, destek: 0, kvkk: 0, fatura: 0 };
+    const imha: Sayim = { sohbet: 0, hesap: 0, erisim: 0, destek: 0, kvkk: 0, fatura: 0, islem: 0 };
 
     if (a.sohbet.imha.length) {
       imha.sohbet = a.sohbet.imha.length;
@@ -372,10 +390,17 @@ export class RetentionService {
       ).count;
     }
 
+    if (a.islem.anahtarlar.length) {
+      imha.islem = a.islem.sayi;
+      await this.db.piiKey.deleteMany({ where: { id: { in: a.islem.anahtarlar } } });
+      for (const id of a.islem.anahtarlar) IpVault.forget(id);
+    }
+
     const report = {
       no: r.no,
       tarih: now.toISOString(),
-      yontem: 'Silme; metin alanlarında anonimleştirme (satır kalır)',
+      yontem:
+        'Silme; metin alanlarında anonimleştirme (satır kalır); işlem kaydındaki IP için dönem anahtarının silinmesi',
       kalemler: DISPOSAL_KIND_KEYS.map((k) => ({
         kalem: k,
         ad: DISPOSAL_KINDS[k],
@@ -383,7 +408,7 @@ export class RetentionService {
         imha: imha[k],
         bekletilen: k === 'erisim' ? 0 : (a[k] as { bekle: number }).bekle,
       })),
-      disinda: ['Çalışan işlem kaydı', 'Hak defteri', 'Rıza ve İYS kayıtları'],
+      disinda: DISINDA,
     };
     await this.db.$transaction(async (tx) => {
       await tx.disposalRun.update({

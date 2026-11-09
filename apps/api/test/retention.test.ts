@@ -2,6 +2,8 @@ import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { uuidv7 } from '@rengarenk/db';
 import { disposalNo, nextDisposalDate } from '@rengarenk/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { AuditService } from '../src/audit/audit.service.js';
+import { IpVault } from '../src/audit/ip-vault.js';
 import type { Db } from '../src/database/prisma.js';
 import { NotificationService } from '../src/notifications/notification.service.js';
 import { NotificationEvents } from '../src/notifications/notification-events.js';
@@ -144,6 +146,36 @@ describe('saklama ve periyodik imha (Karar 59)', () => {
       },
     });
 
+    // İşlem kaydındaki IP: satır yalnızca ekleme; 3 yıl önceki dönemin anahtarı imha edilir, bu dönemin kalır
+    const audit = app.get(AuditService);
+    const yeni = await audit.record({
+      actorType: 'SYSTEM',
+      action: 'ip_denemesi',
+      entityType: 'user',
+      entityId: a.userId,
+      ip: '203.0.113.7',
+    });
+    expect(yeni.ip).toMatch(/^k1\.islem-\d{4}-[12]\./);
+    expect(yeni.ip).not.toContain('203.0.113.7');
+    expect(await audit.ips.open(yeni.ip)).toBe('203.0.113.7');
+    const eskiTarih = new Date(Date.now() - 3 * 365 * DAY);
+    const eski = await db.auditLog.create({
+      data: {
+        actorType: 'SYSTEM',
+        action: 'ip_denemesi',
+        entityType: 'user',
+        entityId: a.userId,
+        ip: await audit.ips.seal('198.51.100.9', eskiTarih),
+        createdAt: eskiTarih,
+      },
+    });
+    const yeniAnahtar = (yeni.ip as string).split('.')[1] as string;
+    // Süresi dolmamış anahtar silinemez, hiçbir anahtar değiştirilemez (RR040, RR001)
+    await expect(db.piiKey.delete({ where: { id: yeniAnahtar } })).rejects.toThrow(/RR040|silinemez/);
+    await expect(db.piiKey.update({ where: { id: yeniAnahtar }, data: { keyEnc: 'x' } })).rejects.toThrow(
+      /yalnızca ekleme/,
+    );
+
     // Resmi talep süren kişi (Cem) bekletilir: s3 sohbeti ve kimlik kaydı
     const r = await staffCall(
       app,
@@ -160,7 +192,7 @@ describe('saklama ve periyodik imha (Karar 59)', () => {
     const liste = Object.fromEntries(
       (o.body.donem.liste as { kalem: string; sayi: number }[]).map((x) => [x.kalem, x.sayi]),
     );
-    expect(liste).toMatchObject({ sohbet: 1, hesap: 0, destek: 1 });
+    expect(liste).toMatchObject({ sohbet: 1, hesap: 0, destek: 1, islem: 1 });
     expect(liste.erisim).toBeGreaterThanOrEqual(1);
     expect(o.body.donem.no).toBe(disposalNo(nextDisposalDate(new Date())));
     expect(o.body.verbis.zorunlu).toBe(false);
@@ -198,6 +230,19 @@ describe('saklama ve periyodik imha (Karar 59)', () => {
       bekletilen: 2,
     });
     expect(k.onaylayan).toBeTruthy();
+    // Eski dönemin IP'si okunamaz, satır yerinde; bu dönemin IP'si okunur
+    IpVault.forget();
+    const eskiSatir = await db.auditLog.findUniqueOrThrow({ where: { id: eski.id } });
+    expect(eskiSatir.ip).toBe(eski.ip);
+    expect(await audit.ips.open(eskiSatir.ip)).toBeNull();
+    expect(await audit.ips.open(yeni.ip)).toBe('203.0.113.7');
+    const kayitlar = (await staffCall(app, 'GET', '/staff/audit?q=ip_denemesi', undefined, sahip)).body
+      .items as {
+      id: string;
+      ip: string;
+    }[];
+    expect(kayitlar.find((x) => x.id === eski.id.toString())?.ip).toBe('imha edildi');
+    expect(k.kalemler.find((x: { kalem: string }) => x.kalem === 'islem')).toMatchObject({ imha: 1 });
     expect(await db.auditLog.count({ where: { action: 'imha_yapildi' } })).toBe(1);
     // Dönem satırı silinmez
     await expect(db.disposalRun.delete({ where: { id } })).rejects.toThrow();

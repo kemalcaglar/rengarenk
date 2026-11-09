@@ -347,13 +347,29 @@ model AuditLog {
   entityId   String    @map("entity_id")
   before     Json?
   after      Json?
-  /// @pii
+  /// @pii Dönem anahtarıyla şifreli (k1.<anahtar>.<şifreli>); anahtar 2 yıl sonra silinir
   ip         String?
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
   @@index([entityType, entityId])
   @@index([createdAt])
   @@map("audit_log")
+}
+
+/// İşlem kaydındaki IP adresleri dönem anahtarıyla şifrelenir (yalnızca ekleme yapılan tablo değiştirilmeden imha):
+/// saklama süresi dolunca dönemin anahtarı silinir ve o dönemin IP adresleri okunamaz olur.
+model PiiKey {
+  /// islem-2026-2 (amaç ve yarıyıl)
+  id        String   @id
+  purpose   String
+  /// Dönemin bitişi; saklama süresi buradan sayılır
+  periodEnd DateTime @map("period_end") @db.Timestamptz(3)
+  /// Ana anahtarla şifrelenmiş rastgele dönem anahtarı
+  keyEnc    String   @map("key_enc")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([purpose, periodEnd])
+  @@map("pii_keys")
 }
 
 // ── Olaylar ───────────────────────────────────────────────────

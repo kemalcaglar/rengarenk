@@ -182,6 +182,8 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   `POST /staff/official/:id/reply`.
 - İşçi: günde bir sayım (`RetentionService.countDue`), saatte bir günü gelmiş onaylı imha (`runDue`) ve süresi dolan veri
   kopyası dosyalarının silinmesi. Kurallar `packages/shared/src/retention.ts`.
+- İşlem kaydındaki IP dönem anahtarıyla şifreli (`AuditService.ips`, `apps/api/src/audit/ip-vault.ts`); 2 yıl sonra
+  anahtar imha edilir, konsolda "imha edildi" görünür.
 
 ## KVKK araçları (Sprint 21)
 

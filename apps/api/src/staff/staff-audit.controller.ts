@@ -2,6 +2,7 @@ import { Controller, Get, Inject, Query, Req, UseGuards } from '@nestjs/common';
 import type { Prisma } from '@rengarenk/db';
 import { auditActionsMatching, maskIp } from '@rengarenk/shared';
 import { z } from 'zod';
+import { AuditService } from '../audit/audit.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { RequirePermission } from './permissions.js';
@@ -26,12 +27,17 @@ const FILTERS: Record<string, Prisma.AuditLogWhereInput> = {
 };
 
 const PAGE = 50;
+const ip = (acik: string | null, showIp: boolean) =>
+  acik === null ? 'imha edildi' : showIp ? acik : maskIp(acik);
 
 /** İşlem kaydı (Karar 40): silinemez, 2 yıl saklanır; kişiye ve işleme göre aranır. */
 @Controller('staff/audit')
 @UseGuards(StaffGuard)
 export class StaffAuditController {
-  constructor(@Inject(PRISMA) private readonly db: Db) {}
+  constructor(
+    @Inject(PRISMA) private readonly db: Db,
+    @Inject(AuditService) private readonly audit: AuditService,
+  ) {}
 
   @Get()
   @RequirePermission('islem_kaydi.gor')
@@ -75,8 +81,11 @@ export class StaffAuditController {
     // IP adresi kişisel veridir: açık görme yetkisi olmayan maskeli görür.
     const showIp = req.staff.grants['kisisel_veri.gor'] === 'tam';
 
+    // IP dönem anahtarıyla şifreli; anahtarı imha edilmiş dönemde "imha edildi" görünür (Karar 59)
+    const ips = await Promise.all(rows.map((r) => this.audit.ips.open(r.ip)));
+
     return {
-      items: rows.map((r) => ({
+      items: rows.map((r, i) => ({
         id: r.id.toString(),
         createdAt: r.createdAt,
         actorType: r.actorType,
@@ -92,7 +101,7 @@ export class StaffAuditController {
         entityId: r.entityId,
         before: r.before,
         after: r.after,
-        ip: r.ip ? (showIp ? r.ip : maskIp(r.ip)) : null,
+        ip: r.ip ? ip(ips[i] ?? null, showIp) : null,
       })),
       next: rows.length === PAGE ? rows[rows.length - 1]?.id.toString() : null,
     };

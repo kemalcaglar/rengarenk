@@ -60,14 +60,14 @@ export const RETENTION_RULES: readonly RetentionRule[] = [
     ad: 'Çalışan işlem kaydı',
     dayanak: 'Meşru menfaat · Karar 40',
     sure: '2 yıl',
-    sonra: 'Silinir',
+    sonra: 'Kayıt kalır (yalnızca ekleme); IP adresi dönem anahtarı silinerek okunamaz olur',
   },
   {
     key: 'riza',
     ad: 'Rıza ve İYS kayıtları',
     dayanak: 'İspat yükümlülüğü',
     sure: 'Rıza geri alındıktan 3 yıl',
-    sonra: 'Silinir',
+    sonra: 'Satır kalır (ispat, yalnızca ekleme); hesap kapanınca kişiyle bağı kopar',
   },
   {
     key: 'kvkk',
@@ -86,6 +86,7 @@ export const RETENTION_DAYS = {
   kimlik: 5 * 365,
   kvkk: 3 * 365,
   fatura: 10 * 365,
+  islem: 2 * 365,
 } as const;
 
 /** İmha listesindeki kalemler (konsoldaki sıra) */
@@ -96,6 +97,7 @@ export const DISPOSAL_KINDS = {
   destek: 'Süresi dolan destek talebi',
   kvkk: '3 yılı dolan KVKK başvurusu',
   fatura: '10 yılı dolan fatura bilgisi',
+  islem: 'İşlem kaydında 2 yılı dolan IP adresi',
 } as const;
 export type DisposalKind = keyof typeof DISPOSAL_KINDS;
 export const DISPOSAL_KIND_KEYS = Object.keys(DISPOSAL_KINDS) as DisposalKind[];

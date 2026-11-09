@@ -221,7 +221,9 @@ pnpm format        # Biome ile biçimlendir
 - **Sprint 22 (9 Kasım 2026):** saklama, imha, VERBİS, ihlal ve resmi talepler (`apps/api/src/privacy/retention.service.ts`,
   `compliance.service.ts`, `packages/shared/src/retention.ts`; konsol `/imha`, `/ihlal`). İmha listesini yalnızca Sahip
   onaylar, işçi 1 Ocak / 1 Temmuz'da yapar; yalnızca ekleme yapılan tablolar (işlem kaydı, hak defteri, rıza) imha
-  dışında. Depoya `Storage.delete` eklendi. API'de 152, ortak pakette 76 test.
+  dışında: satırları hiç değişmez. İşlem kaydındaki IP yarıyıl dönem anahtarıyla şifreli (`audit/ip-vault.ts`,
+  `pii_keys`); 2 yıl sonra imhada anahtar silinir (RR040: süresi dolmadan silinemez). IP okumak için `AuditService.ips.open`.
+  Depoya `Storage.delete` eklendi. API'de 152, ortak pakette 76 test.
 - **Sıradaki (Aşama 8 devamı):** Rengarenk Ajanı ve yapay zekâ bütçesi (Karar 41, 57), çalışan uyarılarının sahibe
   iletilmesi (gerçek ihlal, imha, VERBİS eşiği, KVKK 7 gün, yeni cihaz, iade sonucu); ya da
   sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan

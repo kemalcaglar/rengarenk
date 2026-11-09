@@ -78,6 +78,12 @@ Her modülün PostgreSQL'de kendi şeması vardır. Ana tablolar:
 
 **Kişisel veri etiketi:** şemadaki her kişisel veri kolonu (telefon, e-posta, ad soyad, adres, T.C. kimlik no, IBAN) etiketlenir. Ekranlardaki maskeleme, kullanıcının veri kopyası (Karar 58), anonimleştirme ve periyodik imha (Karar 59) bu etiketlerden otomatik çalışır; yeni bir kolon eklendiğinde ayrıca kod yazmak gerekmez.
 
+**Yalnızca ekleme yapılan tablolarda imha:** işlem kaydı, hak defteri ve rıza kayıtlarının satırları hiçbir zaman
+değiştirilmez ya da silinmez. İşlem kaydındaki IP adresi yarıyıl dönem anahtarıyla şifreli yazılır (`pii_keys`); saklama
+süresi (2 yıl) dolunca periyodik imhada dönemin anahtarı silinir ve o dönemin IP adresleri okunamaz olur. Anahtar
+değiştirilemez, süresi dolmadan silinemez (RR040). Bu kayıtlar kişiye kullanıcı kimliğiyle bağlıdır; hesap kapanınca kişi
+anonimleştiği için bağ kopar.
+
 Hak defteri örneği:
 
 ```sql

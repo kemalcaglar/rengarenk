@@ -144,7 +144,11 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   (sohbet mesajları 1 yıl, kapatılan hesabın kimlik kaydı 5 yıl, erişim kayıtları 2 yıl, çözülmüş destek talebi 1 yıl,
   KVKK başvurusu 3 yıl, fatura bilgisi 10 yıl); liste yalnızca Sahip onayıyla 1 Ocak / 1 Temmuz 03.00'te imha edilir,
   tutanak (`disposal_runs`) indirilir. Şikâyetli sohbet ve resmi talebi süren kişinin kaydı bekletilir. İşlem kaydı, hak
-  defteri ve rıza kayıtları yalnızca ekleme yapılan tablolar olduğu için imha dışında (ayrı sahip kararı)
+  defteri ve rıza kayıtları yalnızca ekleme yapılan tablolar olduğu için satırları hiç değişmez (sahip kararı: Claude'a
+  bırakıldı, 9 Kasım 2026)
+- [x] İşlem kaydındaki IP adresi yarıyıl dönem anahtarıyla şifreli (`pii_keys`, `apps/api/src/audit/ip-vault.ts`); 2 yılı
+  dolan dönemin anahtarı periyodik imhada silinir, IP okunamaz olur, satır yerinde kalır. Anahtar değiştirilemez, süresi
+  dolmadan silinemez (RR040)
 - [x] VERBİS kartı: çalışan sayısı ve son 12 ay satış toplamı (bilanço tahmini) eşiklere göre; envanter şemadaki `@pii`
 - [x] Veri ihlali prosedürü: tatbikat ya da gerçek kayıt, 72 saat sayacı, beş adım (işlem kaydında), Kurul formu
   başlıkları ve kişilere bildirim taslağı; gerçek ihlal Kurul adımı olmadan kapanmaz; sorumlu ve yedek, son tatbikat

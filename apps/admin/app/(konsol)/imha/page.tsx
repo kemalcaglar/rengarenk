@@ -168,8 +168,9 @@ export default function Imha() {
                 borderTop: '1px solid #EEF0F5',
               }}
             >
-              {o.disinda.join(', ')} yalnızca ekleme yapılan kayıtlardır; imha sürecinde değiştirilmez, süresi
-              dolunca ayrı sahip kararıyla ele alınır.
+              {o.disinda.join(', ')} yalnızca ekleme yapılan kayıtlardır; satırları hiç değiştirilmez ve
+              silinmez. İşlem kaydındaki IP adresleri dönem anahtarıyla şifrelidir; 2 yıl dolunca anahtar imha
+              edilir ve IP okunamaz olur. Hesap kapanınca bu kayıtların kişiyle bağı kopar.
             </p>
           </section>
 
