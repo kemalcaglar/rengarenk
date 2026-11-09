@@ -39,6 +39,12 @@ export class OrdersController {
     return this.orders.overview(req.user.sub);
   }
 
+  /** Kullanıcının gördüğü web fiyatları (fiyat deneyi kolu dahil; Karar 56) */
+  @Get('fiyatlar')
+  prices(@Req() req: AuthedRequest) {
+    return this.orders.prices(req.user.sub);
+  }
+
   @Post()
   create(
     @Req() req: AuthedRequest,

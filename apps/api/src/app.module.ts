@@ -28,6 +28,7 @@ import { MetricsModule } from './observability/metrics.js';
 import { PaymentsModule } from './payments/payments.module.js';
 import { PeopleModule } from './people/people.module.js';
 import { PortfolioModule } from './portfolio/portfolio.module.js';
+import { PriceExperimentsModule } from './pricing/price-experiments.service.js';
 import { PricingModule } from './pricing/pricing.module.js';
 import { PricingCoreModule } from './pricing/pricing.service.js';
 import { PrivacyModule } from './privacy/privacy.module.js';
@@ -76,6 +77,7 @@ import { TrustModule } from './trust/trust.module.js';
     DemandsModule,
     PricingCoreModule,
     PricingModule,
+    PriceExperimentsModule,
     DashboardModule,
     CampaignsModule,
     LandingModule,

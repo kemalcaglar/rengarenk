@@ -18,6 +18,7 @@ import { MetricsModule } from './observability/metrics.js';
 import { OutboxService } from './outbox/outbox.service.js';
 import { PaymentsWorkerModule } from './payments/payments.module.js';
 import { PortfolioWorkerModule } from './portfolio/portfolio.module.js';
+import { PriceExperimentsModule } from './pricing/price-experiments.service.js';
 import { PricingCoreModule } from './pricing/pricing.service.js';
 import { PrivacyWorkerModule } from './privacy/privacy.module.js';
 import { QueueService } from './queue/queue.service.js';
@@ -45,6 +46,7 @@ import { TrustWorkerModule } from './trust/trust.module.js';
     StorageModule,
     ApprovalsModule,
     PricingCoreModule,
+    PriceExperimentsModule,
     CampaignsWorkerModule,
     ScheduledReportsWorkerModule,
     CatalogPipelineModule,

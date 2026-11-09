@@ -94,13 +94,14 @@ model User {
   favorites           Favorite[]
   savedSearches       SavedSearch[]
   galleryApplications GalleryApplication[]
-  buyerConversations  Conversation[]       @relation("alici")
+  buyerConversations  Conversation[]            @relation("alici")
   ratings             Rating[]
   orders              Order[]
   follows             GalleryFollow[]
   blocks              UserBlock[]
   attribution         UserAttribution?
   adEvents            AdEvent[]
+  priceExposures      PriceExperimentExposure[]
 
   @@map("users")
 }
@@ -2944,4 +2945,47 @@ model AdNetworkStatus {
   updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   @@map("ad_network_status")
+}
+
+// ── Fiyat deneyleri (Karar 44, 56) ────────────────────────────────
+
+/// Web ürün fiyatı deneyi: B koluna deneme fiyatı, A koluna liste fiyatı; sahip onayıyla başlar (PRICE_CHANGE,
+/// konu price_experiment). Bitiş zamanı geçince kendiliğinden biter. Satırlar silinmez.
+model PriceExperiment {
+  id           String    @id @db.Uuid
+  name         String
+  productKey   String    @map("product_key")
+  /// Öneri anındaki liste fiyatı (kuruş, gösterim için; A kolu her zaman yürürlükteki liste fiyatıdır)
+  priceAKurus  Int       @map("price_a_kurus")
+  priceBKurus  Int       @map("price_b_kurus")
+  days         Int
+  /// onay_bekliyor | suruyor | durduruldu (bitiş ve red onaydan ve zamandan çıkarılır)
+  status       String    @default("onay_bekliyor")
+  approvalId   String?   @unique @map("approval_id") @db.Uuid
+  startsAt     DateTime? @map("starts_at") @db.Timestamptz(3)
+  endsAt       DateTime? @map("ends_at") @db.Timestamptz(3)
+  createdBy    String    @map("created_by") @db.Uuid
+  stoppedBy    String?   @map("stopped_by") @db.Uuid
+  /// Kazanan fiyat önerildiyse fiyat listesi önerisi
+  proposedBook String?   @map("proposed_book") @db.Uuid
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  exposures PriceExperimentExposure[]
+
+  @@index([status, endsAt])
+  @@map("price_experiments")
+}
+
+/// Deneydeki fiyatı ilk gören kullanıcı (kol kimlikten hesaplanır; burada yalnızca sayım ve gelir için)
+model PriceExperimentExposure {
+  experimentId String   @map("experiment_id") @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  arm          String
+  seenAt       DateTime @default(now()) @map("seen_at") @db.Timestamptz(3)
+
+  experiment PriceExperiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([experimentId, userId])
+  @@map("price_experiment_exposures")
 }

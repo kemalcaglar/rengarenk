@@ -12,6 +12,7 @@ import {
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
+import { FiyatDeneyleri } from './fiyat-deneyleri';
 
 interface Degisiklik {
   id: string;
@@ -96,7 +97,7 @@ const ilkGun = () => {
  * Kurallar ve fiyatlar (YonetimSistem.dc.html › kural; Karar 47, 56). Galeri paketleri ve bireysel ürünlerin web fiyatı
  * "Düzenle" ile değiştirilir; değişiklik yürürlük tarihiyle dört göz onayına gider (Sahip onaylar) ve o gün geçerli
  * olur. Mevcut aboneler yenileme tarihine kadar eski fiyattan devam eder. Mobil fiyatlar mağaza panelinden değişir.
- * Altta bekleyen, zamanlanmış ve geçmiş değişiklikler (tasarıma ek).
+ * Altta bekleyen, zamanlanmış ve geçmiş değişiklikler ve fiyat deneyleri (tasarıma ek).
  */
 export default function Kurallar() {
   const { me } = useKonsol();
@@ -486,6 +487,15 @@ export default function Kurallar() {
           })}
         </section>
       ) : null}
+
+      <FiyatDeneyleri
+        yazabilir={yazabilir}
+        bildir={(b, h) => {
+          setBilgi(b);
+          setHata(h ?? null);
+          if (b || h) window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+      />
     </>
   );
 }

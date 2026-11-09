@@ -231,7 +231,14 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   (kol başına günlük sayım); iki oranlı z testi, her kolda en az 100 kişi ve güven %95 ile kazanan; Raporlar › Deneyler
   kartları (tasarımdaki gibi), bannerda "B'yi herkese aç" (içerik B olur, ilk sürüm saklanır); ajan kazananı çalışan
   uyarısıyla bildirir (`deney`). Güven aşağı kesilerek yazılır
-- [ ] Fiyat deneyleri (ör. ek ilk mesaj 99 / 119 TL): sahip onayıyla, ödeme ve fiyat listesine bağlı ayrı altyapı
+- [x] Fiyat deneyleri (Karar 44, 56; YonetimRapor.dc.html › deney kartı): Kurallar ve fiyatlar'ın altında öneri (ad,
+  ürün, B fiyatı, 7–60 gün; B liste fiyatından en çok %50 farklı; ürün başına tek açık deney), yalnızca Sahip onaylar
+  (PRICE_CHANGE, konu `price_experiment`), onaylanınca başlar, süre dolunca biter, erken durdurulabilir. Yalnızca web ve
+  bireysel alım: kullanıcı kimliğinden sabit kol; B kolundaki kullanıcı sihirbazda, Taleplerim'de, Haklarım'da, kupon
+  önizlemesinde ve ödemede aynı fiyatı görür (`PricingService.bookFor`, `GET /orders/fiyatlar`); galeri hesabıyla,
+  mağazada ve herkese açık listede liste fiyatı. Fiyatı ilk görüş kaydedilir; ölçü o andan deney sonuna kadarki web
+  ürün ödemesiyle kullanıcı başına gelir (Welch, her kolda en az 100 kişi, güven %95). Raporlar › Deneyler'de kart;
+  biten deneyde B kazandıysa "B fiyatını öner" fiyat listesine öneri açar (yine Sahip onaylar); ajan kazananı bildirir
 - [ ] Arayüz deneyleri (ör. sihirbazın bütçe adımı): özellik anahtarlarına kol eklenince
 - [x] Raporlar › Reklam ve edinim (YonetimRapor.dc.html › reklam): toplam harcama, galeri başına edinme, üye başına
   maliyet, reklam getirisi; kanal ve kampanya tablosu (üyeler ilk temaslarının kampanyasına bağlanır; harcama, üyelik,

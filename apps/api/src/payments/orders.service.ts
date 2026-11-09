@@ -153,7 +153,8 @@ export class OrdersService {
       ]);
     const saglayici = this.providers.get().ad;
     const magaza = this.env.STORE_PROVIDER;
-    const fiyat = await this.pricing.current();
+    // Fiyat deneyi (Karar 56): kullanıcının kolundaki fiyat; fiyatı gördüğü deneye yazılır
+    const fiyat = await this.pricing.bookFor(userId, true);
     return {
       talepHakki: await this.entitlements.balance(accountId, 'talep'),
       ekMesaj,
@@ -204,6 +205,12 @@ export class OrdersService {
     };
   }
 
+  /** Web fiyatları kullanıcıya göre (sihirbaz ve Taleplerim; fiyat deneyinde aynı fiyat görünür) */
+  async prices(userId: string) {
+    const k = await this.pricing.bookFor(userId, true);
+    return { urunler: k.urunler, paketler: k.paketler };
+  }
+
   // ── Sipariş ───────────────────────────────────────────────────
 
   /** Doldurulmuş ön bilgilendirme formu (06-yasal-metin-taslaklari.md §6): sepet ve tutarla */
@@ -232,7 +239,8 @@ export class OrdersService {
     const provider = this.providers.get();
     if (provider.ad === 'none') throw new ServiceUnavailableException('Ödemeler yakında açılacak');
     const galeri = input.hesap ? await this.galleryBuyer(userId, input.hesap) : null;
-    const fiyat = await this.pricing.current();
+    // Galeri hesabıyla liste fiyatı; bireysel alımda fiyat deneyindeki kol (Karar 56)
+    const fiyat = galeri ? await this.pricing.current() : await this.pricing.bookFor(userId, true);
     if (galeri && galleryAccess(galeri.gallery, new Date(), plansOf(fiyat)).saltOkunur) {
       throw new ForbiddenException('Ek paket almak için önce bir paket seç');
     }
@@ -346,7 +354,7 @@ export class OrdersService {
   ) {
     const galeri = b.hesap ? await this.galleryBuyer(userId, b.hesap) : null;
     const accountId = galeri?.accountId ?? (await this.personal(userId));
-    const fiyat = await this.pricing.current();
+    const fiyat = galeri ? await this.pricing.current() : await this.pricing.bookFor(userId, true);
     const kalemler: Kalem[] = [];
     for (const u of b.urunler) {
       if (u === 'abonelik') {

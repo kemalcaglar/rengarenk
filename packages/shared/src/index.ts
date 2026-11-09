@@ -28,6 +28,7 @@ export * from './payments.js';
 export * from './people.js';
 export * from './phone.js';
 export * from './portfolio.js';
+export * from './price-experiments.js';
 export * from './pricing.js';
 export * from './ratings.js';
 export * from './refunds.js';

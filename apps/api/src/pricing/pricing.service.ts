@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { type Approval, type Prisma, uuidv7 } from '@rengarenk/db';
 import {
+  armOf,
   COUPON_MAX_PERCENT,
   DEFAULT_PRICE_BOOK,
   GALLERY_TRIAL,
@@ -50,6 +51,10 @@ export const yururlukAni = (gun: string) => new Date(`${gun}T00:00:00+03:00`);
 @Injectable()
 export class PricingService {
   private cache: { book: PriceBook; until: number } | null = null;
+  private deneyCache: {
+    list: { id: string; productKey: string; priceBKurus: number; endsAt: Date | null }[];
+    until: number;
+  } | null = null;
 
   constructor(
     @Inject(PRISMA) private readonly db: Db,
@@ -85,6 +90,39 @@ export class PricingService {
 
   forget() {
     this.cache = null;
+    this.deneyCache = null;
+  }
+
+  /** Süren fiyat deneyleri (kısa süre önbellekte) */
+  private async calisanDeneyler(now = new Date()) {
+    if (!this.deneyCache || this.deneyCache.until <= Date.now()) {
+      const list = await this.db.priceExperiment.findMany({
+        where: { status: 'suruyor', endsAt: { gt: now } },
+        select: { id: true, productKey: true, priceBKurus: true, endsAt: true },
+      });
+      this.deneyCache = { list, until: Date.now() + CACHE_MS };
+    }
+    return this.deneyCache.list.filter((d) => d.endsAt && d.endsAt > now);
+  }
+
+  /**
+   * Bireysel kullanıcının gördüğü web fiyat listesi (Karar 56): süren fiyat deneyinde B kolundaysa deneme fiyatı.
+   * `kaydet` fiyatı gördüğünü deneye yazar (ilk görüş; ölçü bu andan sonraki ödemeler). Galeri hesabıyla alımda ve
+   * mağazada liste fiyatı geçerlidir; bunu çağıran yer seçer.
+   */
+  async bookFor(userId: string, kaydet = false): Promise<PriceBook> {
+    const book = await this.current();
+    const deneyler = await this.calisanDeneyler();
+    if (!deneyler.length) return book;
+    const urunler = { ...book.urunler };
+    const kollar = deneyler.map((d) => ({ d, kol: armOf(userId, d.id) }));
+    for (const { d, kol } of kollar) if (kol === 'B') urunler[d.productKey] = d.priceBKurus / 100;
+    if (kaydet)
+      await this.db.priceExperimentExposure.createMany({
+        data: kollar.map(({ d, kol }) => ({ experimentId: d.id, userId, arm: kol })),
+        skipDuplicates: true,
+      });
+    return { ...book, urunler };
   }
 
   async plans(): Promise<PlanTable> {

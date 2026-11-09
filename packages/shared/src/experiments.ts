@@ -5,7 +5,7 @@ import { z } from 'zod';
  * ya da ziyaretçi kimliğinden sabit bir özetle iki kola ayrılır (aynı kişi hep aynı kolu görür). Kampanyada ölçü
  * uygulamada okunma, bannerda tıklama oranıdır. İki oranlı z testiyle güven hesaplanır; her kolda en az
  * `AB_MIN_ORNEK` kişi olunca ve güven %95'i geçince kazanan belli olur, ajan bildirir. Bannerda kazanan
- * "herkese açılır" (B içerik bannerın kendisi olur). Fiyat deneyleri sahip onayıyla ve ayrı bir altyapıyla gelecek.
+ * "herkese açılır" (B içerik bannerın kendisi olur). Fiyat deneylerinde ölçü kullanıcı başına gelirdir (`meanTest`).
  */
 
 export type Arm = 'A' | 'B';
@@ -64,6 +64,47 @@ export function abTest(aN: number, aX: number, bN: number, bX: number): AbResult
   out.guven = 2 * phi(Math.abs(zz)) - 1;
   if (aN >= AB_MIN_ORNEK && bN >= AB_MIN_ORNEK && out.guven >= AB_GUVEN && pa !== pb)
     out.kazanan = pb > pa ? 'B' : 'A';
+  return out;
+}
+
+/** Kol başına kullanıcı sayısı, toplam ve kareler toplamı (ör. kuruş cinsinden gelir) */
+export interface KolOzet {
+  n: number;
+  toplam: number;
+  kare: number;
+}
+
+export interface MeanResult {
+  a: { n: number; ort: number | null };
+  b: { n: number; ort: number | null };
+  /** B − A (aynı birim) */
+  fark: number | null;
+  guven: number | null;
+  kazanan: Arm | null;
+}
+
+/**
+ * İki ortalamanın karşılaştırması (Welch, normal yaklaşım): fiyat deneyinde kullanıcı başına gelir. Çoğu kullanıcı
+ * hiç ödemediği için dağılım çarpıktır; her kolda en az `AB_MIN_ORNEK` kişi aranır.
+ */
+export function meanTest(a: KolOzet, b: KolOzet): MeanResult {
+  const ort = (k: KolOzet) => (k.n ? k.toplam / k.n : null);
+  const varyans = (k: KolOzet) => (k.n > 1 ? (k.kare - (k.toplam * k.toplam) / k.n) / (k.n - 1) : 0);
+  const ma = ort(a);
+  const mb = ort(b);
+  const out: MeanResult = {
+    a: { n: a.n, ort: ma },
+    b: { n: b.n, ort: mb },
+    fark: ma !== null && mb !== null ? mb - ma : null,
+    guven: null,
+    kazanan: null,
+  };
+  if (ma === null || mb === null || a.n < 2 || b.n < 2) return out;
+  const se = Math.sqrt(Math.max(0, varyans(a)) / a.n + Math.max(0, varyans(b)) / b.n);
+  if (!se) return out;
+  out.guven = 2 * phi(Math.abs((mb - ma) / se)) - 1;
+  if (a.n >= AB_MIN_ORNEK && b.n >= AB_MIN_ORNEK && out.guven >= AB_GUVEN && ma !== mb)
+    out.kazanan = mb > ma ? 'B' : 'A';
   return out;
 }
 

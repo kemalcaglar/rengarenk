@@ -1,7 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@rengarenk/db';
-import { type AbResult, abTest, armOf, guvenYaz, type Variant } from '@rengarenk/shared';
+import { type AbResult, abTest, armOf, guvenYaz, tlYaz, type Variant } from '@rengarenk/shared';
 import { type Db, PRISMA } from '../database/prisma.js';
+import { priceExpResult, priceExpStatus } from '../pricing/price-experiments.service.js';
 
 const DAY = 86_400_000;
 const yuzde = (x: number | null, b = 1) =>
@@ -11,7 +12,7 @@ const puan = (x: number) => new Intl.NumberFormat('tr-TR', { maximumFractionDigi
 
 export interface Deney {
   id: string;
-  tur: 'banner' | 'kampanya';
+  tur: 'banner' | 'kampanya' | 'fiyat';
   ad: string;
   durum: string;
   bg: string;
@@ -20,7 +21,7 @@ export interface Deney {
   kollar: { ad: string; deger: string; w: number; renk: string }[];
   sonuc: string;
   kazanan: 'A' | 'B' | null;
-  /** Bannerda kazananı herkese açma */
+  /** Bannerda kazananı herkese açma; fiyat deneyinde kazanan fiyatı listeye önerme */
   eylem: { kol: 'A' | 'B'; yazi: string } | null;
   bitti: boolean;
 }
@@ -185,6 +186,73 @@ export class ExperimentService {
           },
         ),
       );
+    }
+    out.push(...(await this.fiyatKartlari(now)));
+    return out;
+  }
+
+  /**
+   * Fiyat deneyleri (Karar 56): ölçü fiyatı gören bireysel kullanıcı başına web geliri. Biten deneyde B kazandıysa
+   * "B fiyatını öner" fiyat listesine öneri açar (Sahip onaylar). Önerildiyse ya da A kaldıysa tamamlanmıştır.
+   */
+  private async fiyatKartlari(now: Date): Promise<Deney[]> {
+    const rows = await this.db.priceExperiment.findMany({
+      where: { status: { in: ['suruyor', 'durduruldu'] } },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    });
+    const tl = (k: number | null) => (k === null ? '—' : tlYaz(Math.round(k)));
+    const out: Deney[] = [];
+    for (const r of rows) {
+      const d = priceExpStatus(r, null, now);
+      const sonuc = await priceExpResult(this.db, r, now);
+      const bitti = d === 'bitti' || d === 'durduruldu';
+      const oneriBekliyor = bitti && sonuc.kazanan === 'B' && !r.proposedBook;
+      const tamam = bitti && !oneriBekliyor;
+      const etiket = tamam
+        ? { durum: 'Tamamlandı', bg: '#E7FAF0', fg: '#11683F' }
+        : oneriBekliyor || sonuc.kazanan
+          ? { durum: 'Sonuç hazır', bg: '#E7FAF0', fg: '#11683F' }
+          : {
+              durum: `Sürüyor · ${Math.max(0, Math.ceil(((r.endsAt?.getTime() ?? 0) - now.getTime()) / DAY))} gün kaldı`,
+              bg: '#EEF3FF',
+              fg: '#2450C8',
+            };
+      const enCok = Math.max(sonuc.a.ort ?? 0, sonuc.b.ort ?? 0, 1);
+      const onde =
+        sonuc.a.ort !== null && sonuc.b.ort !== null ? (sonuc.b.ort >= sonuc.a.ort ? 'B' : 'A') : null;
+      out.push({
+        id: r.id,
+        tur: 'fiyat',
+        ad: r.name,
+        ...etiket,
+        olcu: `Ölçü: bireysel kullanıcı başına gelir · yalnızca web · fiyat deneyi sahip onayıyla açıldı · ${sayi(sonuc.a.n + sonuc.b.n)} kişi`,
+        kollar: [
+          {
+            ad: `A · ${tlYaz(r.priceAKurus)}`,
+            deger: tl(sonuc.a.ort),
+            w: ((sonuc.a.ort ?? 0) / enCok) * 100,
+            renk: onde === 'A' ? '#5B8CFF' : '#AEB5C4',
+          },
+          {
+            ad: `B · ${tlYaz(r.priceBKurus)}`,
+            deger: tl(sonuc.b.ort),
+            w: ((sonuc.b.ort ?? 0) / enCok) * 100,
+            renk: onde === 'B' ? '#5B8CFF' : '#AEB5C4',
+          },
+        ],
+        sonuc:
+          sonuc.fark === null || sonuc.guven === null
+            ? 'Her iki kolda da veri birikiyor'
+            : sonuc.kazanan
+              ? `${sonuc.kazanan} kolu kişi başı ${tl(Math.abs(sonuc.fark))} önde · güven ${guvenYaz(sonuc.guven)}${
+                  tamam && sonuc.kazanan === 'B' ? ' · fiyat listesine önerildi' : ''
+                }`
+              : `Fark henüz anlamlı değil · güven ${guvenYaz(sonuc.guven)}`,
+        kazanan: sonuc.kazanan,
+        eylem: oneriBekliyor ? { kol: 'B', yazi: 'B fiyatını öner' } : null,
+        bitti: tamam,
+      });
     }
     return out;
   }

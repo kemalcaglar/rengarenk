@@ -278,9 +278,11 @@ pnpm format        # Biome ile biçimlendir
   `lib/olcum.ts`; Karar 35): yeni dönüşüm olayı eklersen `AD_EVENTS`'e ekle ve işlemin içinde `ads.olay(tx, …)` çağır
   (onay yoksa yazmaz); tarayıcıda aynı `ref` ile `olcumOlayi`. Meta'ya mobil olay gitmez (SDK bekliyor). Yerelde işçi
   açılışta gece harcama çekimini çalıştırır; sahte sağlayıcı boş döndüğü için dünün `ad_spend` satırları silinir.
-  API'de 194, ortak pakette 115 test.
+  Fiyat deneyleri (`pricing/price-experiments.service.ts`): bireysel web fiyatını okurken `pricing.current()` yerine
+  `pricing.bookFor(userId, true)` kullan (galeri ve mağaza liste fiyatı); deney Sahip onayıyla başlar.
+  API'de 195, ortak pakette 117 test.
 - **Sıradaki:** Aşama 9 devamı
-  (fiyat ve arayüz deneyleri); ya da sunucular gelince Radore'ye ilk
+  (arayüz deneyleri); ya da sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

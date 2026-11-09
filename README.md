@@ -222,6 +222,11 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   `apps/api/src/dashboard/experiments.service.ts` (Raporlar › Deneyler, çalışan uyarısı `deney`); kampanya ve bannerda
   `variant_b`, `banner_stats.arm`; `POST /staff/banners/:id/ab/:kol`. Ziyaretçi kolu web `localStorage.rr_z`, mobil ayrı
   rastgele kimlik (`ziyaretciKimligi`).
+- Fiyat deneyleri (Karar 56): `packages/shared/src/price-experiments.ts`, `meanTest` (`experiments.ts`),
+  `apps/api/src/pricing/price-experiments.service.ts` (`PriceExperimentsModule`; onay yürütücüsü
+  `PRICE_CHANGE:price_experiment`); kullanıcıya göre fiyat `PricingService.bookFor(userId, kaydet)`; uçlar
+  `/staff/pricing/experiments` (`:id/stop`, `:id/propose`), `GET /orders/fiyatlar`. Tablolar `price_experiments`,
+  `price_experiment_exposures`. Konsol Kurallar ve fiyatlar › Fiyat deneyleri, Raporlar › Deneyler.
 - Reklam ölçümü (Karar 35): `packages/shared/src/ads.ts` (`AD_EVENTS`, `adEventId`, `touchFromUrl`, `kanalOf`),
   `apps/api/src/ads/` (`AdsService.temas/olay/gonder/harcamaCek/rapor`, ağlar `ad-networks.ts`); olay işlemle aynı
   veritabanı işleminde `ads.olay(tx, kullanıcı, ad, { ref, platform })`. Uçlar `POST /me/temas`, `GET/PUT

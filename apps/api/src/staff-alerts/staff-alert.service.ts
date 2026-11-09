@@ -528,11 +528,17 @@ export class StaffAlertService {
     if (!this.deneyler) return 0;
     let n = 0;
     for (const d of await this.deneyler.liste(now)) {
-      if (!d.kazanan || d.bitti) continue;
+      if (!d.kazanan || (d.bitti && !d.eylem)) continue;
       n += await this.raise('deney', {
         dedupe: d.id,
         title: `A/B sonucu: ${d.ad.slice(0, 120)}`,
-        body: `${d.sonuc}. ${d.tur === 'banner' ? 'Raporlar › Deneyler’den kazananı herkese açabilirsin.' : 'Kazanan sürümü sonraki kampanyalarda kullanabilirsin.'}`,
+        body: `${d.sonuc}. ${
+          d.tur === 'banner'
+            ? 'Raporlar › Deneyler’den kazananı herkese açabilirsin.'
+            : d.tur === 'fiyat'
+              ? 'Deney bitince kazanan fiyatı Raporlar › Deneyler’den fiyat listesine önerebilirsin; değişikliği sen onaylarsın.'
+              : 'Kazanan sürümü sonraki kampanyalarda kullanabilirsin.'
+        }`,
       });
     }
     return n;
