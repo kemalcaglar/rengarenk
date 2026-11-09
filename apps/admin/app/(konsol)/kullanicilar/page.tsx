@@ -38,6 +38,7 @@ interface Kart {
   eposta: string;
   sayilar: { ad: string; deger: string }[];
   gecmis: { zamanYazi: string; olay: string; detay: string; renk: string }[];
+  musteri?: Musteri;
   /** Kişinin cihazları (cihaz kara listesi, Karar 43) */
   cihazlar?: {
     id: string;
@@ -49,6 +50,14 @@ interface Kart {
   }[];
 }
 type Cihazlar = NonNullable<Kart['cihazlar']>;
+/** Galeri kartı › Müşteri yönetimi (Karar 43) */
+interface Musteri {
+  sorumlu: { id: string; ad: string; zaman: string | null } | null;
+  risk: { puan: number; ad: string; bg: string; fg: string; gerekceler: string[] };
+  yenileme: { tarih: string; ne: string; kalanGun: number } | null;
+  ilkMesaj30: number;
+  calisanlar: { id: string; name: string }[];
+}
 interface KaraSatir {
   id: string;
   tur: BlockKind;
@@ -194,6 +203,20 @@ export default function Kullanicilar() {
     try {
       setAcik(await yonetim(`people/${sec.tip}/${sec.id}/reveal`, { method: 'POST', body: { gerekce } }));
       setGerekceAc(false);
+    } catch (e) {
+      setHata((e as Error).message);
+    }
+  }
+  async function sorumluAta(calisan: string) {
+    if (!k) return;
+    setHata(null);
+    try {
+      const m = await yonetim<Musteri>(`people/galeri/${k.id}/manager`, {
+        method: 'POST',
+        body: { calisan: calisan || null },
+      });
+      setK({ ...k, musteri: m });
+      setBilgi(calisan ? 'Sorumlu çalışan atandı; işlem kaydına yazıldı.' : 'Sorumlu çalışan kaldırıldı.');
     } catch (e) {
       setHata((e as Error).message);
     }
@@ -759,6 +782,75 @@ export default function Kullanicilar() {
                     </p>
                   ) : null}
                 </div>
+              ) : null}
+              {k.musteri ? (
+                <>
+                  <h3 style={{ margin: 0, padding: '14px 18px 6px', fontSize: 14, fontWeight: 800 }}>
+                    Müşteri yönetimi
+                  </h3>
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: '10px 24px',
+                      padding: '4px 18px 10px',
+                      fontSize: 13,
+                    }}
+                  >
+                    <span style={{ flex: '1 1 200px' }}>
+                      <span style={{ display: 'block', fontSize: 12, color: '#5A6073' }}>Ayrılma riski</span>
+                      <span
+                        style={{
+                          display: 'inline-block',
+                          marginTop: 3,
+                          fontSize: 12,
+                          fontWeight: 800,
+                          padding: '3px 9px',
+                          borderRadius: 999,
+                          background: k.musteri.risk.bg,
+                          color: k.musteri.risk.fg,
+                        }}
+                      >
+                        {k.musteri.risk.ad} · {k.musteri.risk.puan}
+                      </span>
+                      {k.musteri.risk.gerekceler.length ? (
+                        <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 4 }}>
+                          {k.musteri.risk.gerekceler.join(' · ')}
+                        </span>
+                      ) : null}
+                    </span>
+                    <span style={{ flex: '1 1 160px' }}>
+                      <span style={{ display: 'block', fontSize: 12, color: '#5A6073' }}>Yenileme</span>
+                      <span style={{ display: 'block', fontWeight: 700, marginTop: 3 }}>
+                        {k.musteri.yenileme
+                          ? `${k.musteri.yenileme.ne} · ${new Date(k.musteri.yenileme.tarih).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}`
+                          : 'Yenileme yok'}
+                      </span>
+                    </span>
+                    <span style={{ flex: '1 1 180px', fontSize: 12, color: '#5A6073' }}>
+                      <label htmlFor="sorumlu-calisan">Sorumlu çalışan</label>
+                      {me.permissions['galeri_basvuru.onayla'] === 'tam' ? (
+                        <select
+                          id="sorumlu-calisan"
+                          value={k.musteri.sorumlu?.id ?? ''}
+                          onChange={(e) => sorumluAta(e.target.value)}
+                          style={{ ...girdi, marginTop: 3, padding: '7px 10px', fontSize: 13 }}
+                        >
+                          <option value="">Sorumlu yok</option>
+                          {k.musteri.calisanlar.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span style={{ display: 'block', fontWeight: 700, color: '#1E2333', marginTop: 3 }}>
+                          {k.musteri.sorumlu?.ad ?? 'Sorumlu yok'}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                </>
               ) : null}
               {k.cihazlar?.length ? (
                 <>

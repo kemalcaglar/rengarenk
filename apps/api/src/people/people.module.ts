@@ -15,7 +15,10 @@ import {
 } from '@nestjs/common';
 import {
   blockAddSchema,
+  CARE_FILTERS,
+  type CareFilter,
   cardActionSchema,
+  careAssignSchema,
   deviceBlockSchema,
   grantSchema,
   PEOPLE_FILTERS,
@@ -32,6 +35,7 @@ import { OutboxService } from '../outbox/outbox.service.js';
 import { RequirePermission } from '../staff/permissions.js';
 import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
 import { StaffModule } from '../staff/staff.module.js';
+import { GalleryCareService } from './gallery-care.service.js';
 import { PeopleService } from './people.service.js';
 
 const tipPipe = new ZodPipe(z.enum(['kisi', 'galeri']));
@@ -42,7 +46,30 @@ type Tip = 'kisi' | 'galeri';
 @Controller('staff')
 @UseGuards(StaffGuard)
 export class PeopleStaffController {
-  constructor(private readonly p: PeopleService) {}
+  constructor(
+    private readonly p: PeopleService,
+    private readonly care: GalleryCareService,
+  ) {}
+
+  /** Pazar › Galeri müşterileri (Karar 43): risk, yenileme, sorumlu */
+  @Get('galleries/care')
+  @RequirePermission('kisisel_veri.gor', 'maskeli')
+  careList(@Req() req: StaffRequest, @Query('filtre') filtre = 'hepsi', @Query('q') q = '') {
+    const f = CARE_FILTERS.some(([k]) => k === filtre) ? (filtre as CareFilter) : 'hepsi';
+    return this.care.list(req.staff, f, String(q).slice(0, 80));
+  }
+
+  /** Galeri kartı › Müşteri yönetimi › sorumlu çalışan */
+  @Post('people/galeri/:id/manager')
+  @HttpCode(200)
+  @RequirePermission('galeri_basvuru.onayla', 'tam')
+  manager(
+    @Req() req: StaffRequest,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodPipe(careAssignSchema)) b: z.output<typeof careAssignSchema>,
+  ) {
+    return this.care.assign(req.staff, id, b.calisan, req.ip);
+  }
 
   @Get('people')
   @RequirePermission('kisisel_veri.gor', 'maskeli')
@@ -169,6 +196,6 @@ export class PeopleStaffController {
 @Module({
   imports: [StaffModule, ModerationCoreModule, ModerationServiceModule, NotificationsModule],
   controllers: [PeopleStaffController],
-  providers: [PeopleService, AuditService, OutboxService],
+  providers: [PeopleService, GalleryCareService, AuditService, OutboxService],
 })
 export class PeopleModule {}

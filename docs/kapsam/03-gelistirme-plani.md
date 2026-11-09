@@ -161,6 +161,11 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   bağlantı gönderir (15 dakika, bir kez; yenisi eskileri geçersiz kılar; kişi başına günde 3). Bağlantı özeti saklanır;
   e-postadaki kod teslim kaydında şifreli durur ve gönderimden sonra silinir. Web `/giris/baglanti`, kişi girince
   Ayarlar › Profil'e gider (numarasını değiştirebilir); kara liste denetimi girişle aynı
+- [x] Galeri müşteri yönetimi (Karar 43): konsol › Pazar › Galeri müşterileri (tasarımda ayrı ekran yok; liste ve kart
+  dili): ayrılma riski kurallarla (`churnRisk`: ödeme alınamadı, paket bitti, yenileme kapalı, deneme bitiyor, denemede
+  mesaj yok, 14 gün giriş yok, ilk mesajlarda yarıdan fazla düşüş, portföy boş) ve gerekçeleri, yenileme tarihi, sorumlu
+  çalışan (Sahip, Yönetici, Operasyon atar; işlem kaydına girer); süzgeçler: sorumlu olduklarım, riski yüksek, 30 gün
+  içinde yenileme, sorumlusu yok. Galeri kartında "Müşteri yönetimi" bölümü; notlar kartın çalışan notları
 
 ## Sprint 26 · kullanıcı tarafı yapay zekâ (Aşama 8 dokuzuncu bölüm, 9 Kasım 2026)
 
@@ -318,7 +323,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Kara liste (Karar 43): telefon ve IP'ye giriş kodu gönderilmez; kara listedeki IBAN içeren mesaj gizlenir ve kritik
   şikâyet açılır. Değerin kendisi değil anahtarlı özeti saklanır; çıkarma kaydı kapatır
 - [x] Cihaz kara listesi ve "Giriş bağlantısı gönder" (Sprint 27)
-- [ ] Galeri müşteri yönetimi (sorumlu çalışan, yenileme takibi, ayrılma riski)
+- [x] Galeri müşteri yönetimi (Sprint 27) (sorumlu çalışan, yenileme takibi, ayrılma riski)
 
 ## Sprint 18 · şikâyet ve moderasyon (Aşama 8 ilk bölüm, 8 Kasım 2026)
 

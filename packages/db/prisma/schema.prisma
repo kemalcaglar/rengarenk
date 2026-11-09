@@ -1221,6 +1221,9 @@ model Gallery {
   /// deneme | baslangic | profesyonel | kurumsal (abonelik ödeme modülüyle, Aşama 6)
   plan              String       @default("deneme")
   trialEndsAt       DateTime?    @map("trial_ends_at") @db.Timestamptz(3)
+  /// Müşteri yönetimi (Karar 43): galeriden sorumlu çalışan ve atama zamanı
+  managerStaffId    String?      @map("manager_staff_id") @db.Uuid
+  managerSetAt      DateTime?    @map("manager_set_at") @db.Timestamptz(3)
   /// Deneme bitişi için gönderilen hatırlatmalar (7, 3, 1 gün)
   trialReminderDays Int[]        @default([]) @map("trial_reminder_days")
   applicationId     String       @unique @map("application_id") @db.Uuid
@@ -1231,6 +1234,7 @@ model Gallery {
   account Account @relation(fields: [accountId], references: [id])
 
   @@index([il])
+  @@index([managerStaffId])
   @@map("galleries")
 }
 

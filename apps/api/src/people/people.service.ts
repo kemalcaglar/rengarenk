@@ -35,6 +35,7 @@ import { NotificationService } from '../notifications/notification.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { kalemler } from '../payments/order-item.js';
 import { rozetler } from '../trust/badges.js';
+import { GalleryCareService } from './gallery-care.service.js';
 
 const DAY = 86_400_000;
 const TINTS = ['#FFEEF6', '#FFF6DF', '#EEF3FF', '#E7FAF0', '#F3EFFF', '#FFF0EA'];
@@ -105,6 +106,7 @@ export class PeopleService {
     private readonly moderation: ModerationService,
     private readonly sanctions: SanctionService,
     private readonly notifications: NotificationService,
+    private readonly care: GalleryCareService,
   ) {}
 
   // ── Arama ─────────────────────────────────────────────────────
@@ -424,6 +426,8 @@ export class PeopleService {
         uyelik: g.approvedAt,
         galeri: true,
       }),
+      /** Müşteri yönetimi (Karar 43): sorumlu çalışan, yenileme, ayrılma riski */
+      musteri: await this.care.section(accountId),
       durum: g.account.status,
     };
   }
@@ -943,6 +947,7 @@ export class PeopleService {
       oturum: satisfies(grants['destek.yanitla'], 'tam') || satisfies(grants['hesap.askiya_al'], 'tam'),
       cihaz: satisfies(grants['sikayet.coz'], 'tam'),
       baglanti: satisfies(grants['destek.yanitla'], 'tam') || satisfies(grants['hesap.askiya_al'], 'tam'),
+      sorumlu: satisfies(grants['galeri_basvuru.onayla'], 'tam'),
     };
   }
 }

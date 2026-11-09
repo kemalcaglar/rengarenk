@@ -188,6 +188,9 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - Giriş bağlantısı: `POST /staff/people/:tip/:id/login-link` (`PeopleService.sendLoginLink`), tablo `login_links`,
   şablon `hesap.giris_baglantisi` (kod `veri.kodKutu` içinde şifreli, gönderimden sonra silinir), `POST /auth/link/verify`,
   web `/giris/baglanti` → `/api/oturum/baglanti`.
+- Galeri müşteri yönetimi: `packages/shared/src/gallery-care.ts` (`churnRisk`, `renewalOf`),
+  `apps/api/src/people/gallery-care.service.ts`; `GET /staff/galleries/care?filtre=`, `POST /staff/people/galeri/:id/manager`;
+  `galleries.manager_staff_id`. Konsol `/galeri-musterileri`.
 
 ## Kullanıcı tarafı yapay zekâ (Sprint 26)
 

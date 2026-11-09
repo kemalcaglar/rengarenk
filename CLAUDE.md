@@ -252,8 +252,9 @@ pnpm format        # Biome ile biçimlendir
   giriş bağlantısı (`login_links`, kod teslim kaydında şifreli ve gönderimden sonra silinir, web `/giris/baglanti`).
   Oturum düzeltmesi: elle kapatılan oturumun jetonu yalnızca reddedilir; bütün oturumları kapatma yalnızca döndürülmüş
   jeton tekrar gelince (`sessions.rotated`). API'de 178, ortak pakette 88 test. Testte aynı numaraya art arda kod için
-  `otpChallenge.createdAt` geri alınır (60 sn bekleme).
-- **Sıradaki:** galeri müşteri yönetimi (sorumlu çalışan, yenileme takibi, ayrılma riski; Karar 43), Sistem › Kurallar ve
+  `otpChallenge.createdAt` geri alınır (60 sn bekleme). Galeri müşteri yönetimi: konsol `/galeri-musterileri`
+  (`gallery-care.service.ts`, risk `churnRisk` ortak pakette), galeri kartında sorumlu çalışan.
+- **Sıradaki:** Sistem › Kurallar ve
   fiyatlar (rozet eşikleri, ücretsiz ilk mesaj sayıları, fiyat değişikliği dört göz; Karar 47, 56); sonra Aşama 9
   (kontrol paneli ve raporlar, kampanyalar ve segmentler, açılış sayfaları); ya da sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.

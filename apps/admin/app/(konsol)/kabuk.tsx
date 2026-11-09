@@ -49,6 +49,7 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
     grup: 'Pazar',
     ogeler: [
       { href: '/kullanicilar', ad: 'Kullanıcılar ve galeriler', izin: 'kisisel_veri.gor' },
+      { href: '/galeri-musterileri', ad: 'Galeri müşterileri', izin: 'kisisel_veri.gor' },
       {
         href: '/galeri-basvurulari',
         ad: 'Galeri başvuruları',

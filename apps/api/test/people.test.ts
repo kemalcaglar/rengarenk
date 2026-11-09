@@ -236,7 +236,7 @@ describe('kullanıcı ve galeri kartı, kara liste (Karar 40, 43, 52)', () => {
   });
 
   it('cihaz kara listesi: kişi kartından cihaz eklenir; o kurulumdan kod istenemez ve giriş yapılamaz (Karar 43)', async () => {
-    const phone = '+905339990031';
+    const phone = '+905339990035';
     const kurulum = '7f3c2a10-5b1e-4c8d-9a6f-0e2d4b7c9a11';
     const r = await call(app, 'POST', '/auth/otp/request', { phone, kurulum });
     const v = await call(app, 'POST', '/auth/otp/verify', {
@@ -285,15 +285,15 @@ describe('kullanıcı ve galeri kartı, kara liste (Karar 40, 43, 52)', () => {
     expect((await call(app, 'POST', '/auth/refresh', { refreshToken: v.body.refreshToken })).status).toBe(
       401,
     );
-    const baska = await call(app, 'POST', '/auth/otp/request', { phone: '+905339990032', kurulum });
+    const baska = await call(app, 'POST', '/auth/otp/request', { phone: '+905339990036', kurulum });
     expect(baska.status).toBe(403);
     // Kod başka cihazdan istenip bu cihazla doğrulanamaz
-    const k2 = await call(app, 'POST', '/auth/otp/request', { phone: '+905339990032' });
+    const k2 = await call(app, 'POST', '/auth/otp/request', { phone: '+905339990036' });
     expect(
       (
         await call(app, 'POST', '/auth/otp/verify', {
           challengeId: k2.body.challengeId,
-          code: sms.lastCode('+905339990032'),
+          code: sms.lastCode('+905339990036'),
           kurulum,
           consents: SIGNUP_CONSENTS,
         })
@@ -307,10 +307,10 @@ describe('kullanıcı ve galeri kartı, kara liste (Karar 40, 43, 52)', () => {
     // Kara listeden çıkarılınca cihaz yeniden kod alır
     await staffCall(app, 'DELETE', `/staff/blocklist/${kayit.id}`, undefined, mod);
     await db.otpChallenge.updateMany({
-      where: { phone: '+905339990032' },
+      where: { phone: '+905339990036' },
       data: { createdAt: new Date(Date.now() - 120_000) },
     });
-    expect((await call(app, 'POST', '/auth/otp/request', { phone: '+905339990032', kurulum })).status).toBe(
+    expect((await call(app, 'POST', '/auth/otp/request', { phone: '+905339990036', kurulum })).status).toBe(
       200,
     );
   });
@@ -430,5 +430,48 @@ describe('kullanıcı ve galeri kartı, kara liste (Karar 40, 43, 52)', () => {
       'Şikâyet',
       'Yıldız',
     ]);
+
+    // Müşteri yönetimi (Karar 43): abonelik yok, ilk mesaj ve portföy yok → risk ve gerekçeler
+    expect(k.body.musteri).toMatchObject({ sorumlu: null, yenileme: null });
+    expect(k.body.musteri.risk.gerekceler).toEqual(['Yayında aracı yok']);
+    await db.subscription.create({
+      data: {
+        id: uuidv7(),
+        accountId,
+        userId: sahibi.userId,
+        plan: 'profesyonel',
+        period: 'aylik',
+        priceKurus: 99_900n,
+        currentPeriodStart: new Date(Date.now() - 25 * 86_400_000),
+        currentPeriodEnd: new Date(Date.now() + 5 * 86_400_000),
+        quotaCycleStart: new Date(Date.now() - 25 * 86_400_000),
+        cancelAtPeriodEnd: true,
+        billingEmail: 'fatura@yildiz.com',
+      },
+    });
+    const liste = await staffCall(app, 'GET', '/staff/galleries/care?filtre=yenileme', undefined, destek);
+    const satir = liste.body.satirlar.find((x: { accountId: string }) => x.accountId === accountId);
+    expect(satir).toMatchObject({ ad: 'Yıldız Otomotiv', paket: 'Profesyonel', sorumlu: null });
+    expect(satir.yenileme).toMatchObject({ ne: 'Paket sona eriyor', kalanGun: 5 });
+    expect(satir.risk).toMatchObject({
+      duzey: 'orta',
+      gerekceler: ['Otomatik yenilemeyi kapattı', 'Yayında aracı yok'],
+    });
+
+    // Sorumlu: destek atayamaz (galeri başvurusu yetkisi), sahip atar; işlem kaydına girer
+    const calisan = await createStaff(db, 'OPERATIONS');
+    const yol = `/staff/people/galeri/${accountId}/manager`;
+    expect((await staffCall(app, 'POST', yol, { calisan: calisan.id }, destek)).status).toBe(403);
+    const ata = await staffCall(app, 'POST', yol, { calisan: calisan.id }, sahip);
+    expect(ata.status).toBe(200);
+    expect(ata.body.sorumlu.id).toBe(calisan.id);
+    expect(await db.auditLog.count({ where: { action: 'galeri_sorumlusu', entityId: accountId } })).toBe(1);
+    const op = (await loginAs(app, calisan)).token;
+    const benim = await staffCall(app, 'GET', '/staff/galleries/care?filtre=benim', undefined, op);
+    expect(benim.body.satirlar.map((x: { accountId: string }) => x.accountId)).toEqual([accountId]);
+    const sorumsuz = await staffCall(app, 'GET', '/staff/galleries/care?filtre=sorumsuz', undefined, op);
+    expect(sorumsuz.body.satirlar.some((x: { accountId: string }) => x.accountId === accountId)).toBe(false);
+    // Pazarlama göremez
+    expect((await staffCall(app, 'GET', '/staff/galleries/care', undefined, pazarlama)).status).toBe(403);
   });
 });
