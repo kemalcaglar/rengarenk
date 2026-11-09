@@ -19,6 +19,7 @@ import { QueueService } from './queue/queue.service.js';
 import { RateLimitModule } from './ratelimit/ratelimit.module.js';
 import { RedisModule } from './redis/redis.module.js';
 import { SmsModule } from './sms/sms.module.js';
+import { StaffAlertsWorkerModule } from './staff-alerts/staff-alerts.module.js';
 import { StorageModule } from './storage/storage.service.js';
 import { TrustWorkerModule } from './trust/trust.module.js';
 
@@ -50,6 +51,7 @@ import { TrustWorkerModule } from './trust/trust.module.js';
     NotificationsWorkerModule,
     ModerationServiceModule,
     PrivacyWorkerModule,
+    StaffAlertsWorkerModule,
   ],
   providers: [OutboxService, QueueService],
 })

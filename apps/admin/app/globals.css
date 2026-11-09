@@ -148,6 +148,18 @@ a:hover {
   font-weight: 800;
   color: #7a5300;
 }
+.k-alerts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #f5c2c0;
+  background: #fdecec;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #a3271f;
+}
 .k-avatar {
   width: 34px;
   height: 34px;

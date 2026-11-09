@@ -29,6 +29,7 @@ import { RedisModule } from './redis/redis.module.js';
 import { RefundsModule } from './refunds/refunds.module.js';
 import { SmsModule } from './sms/sms.module.js';
 import { StaffModule } from './staff/staff.module.js';
+import { StaffAlertsModule } from './staff-alerts/staff-alerts.module.js';
 import { StorageModule } from './storage/storage.service.js';
 import { SupportModule } from './support/support.module.js';
 import { TrustModule } from './trust/trust.module.js';
@@ -47,6 +48,7 @@ import { TrustModule } from './trust/trust.module.js';
     MeModule,
     EntitlementsModule,
     StaffModule,
+    StaffAlertsModule,
     FlagsModule,
     GalleriesModule,
     PortfolioModule,

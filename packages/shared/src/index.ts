@@ -21,6 +21,7 @@ export * from './ratings.js';
 export * from './refunds.js';
 export * from './retention.js';
 export * from './staff.js';
+export * from './staff-alerts.js';
 export * from './subscriptions.js';
 export * from './support.js';
 export * from './tokens.js';

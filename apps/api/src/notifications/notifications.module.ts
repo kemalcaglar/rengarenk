@@ -161,6 +161,7 @@ export class NotificationsModule {}
     AutomationService,
     ReputationService,
     IYS,
+    EMAIL_SENDER,
   ],
 })
 export class NotificationsWorkerModule {}

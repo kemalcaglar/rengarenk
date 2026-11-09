@@ -231,9 +231,12 @@ pnpm format        # Biome ile biçimlendir
   işleminde `agent.kaydet` ile yazar. Ajan iade yapamaz (yalnızca öneri). Türkçe ekler `packages/shared/src/tr-ek.ts`
   (`ekle('İzmir', 'bulunma')`). Yerel betik için Nest bağlamı `node --env-file-if-exists=../../.env --import
   @swc-node/register/esm-register` ile çalışır (tsx dekoratör meta verisi üretmez). API'de 156, ortak pakette 80 test.
-- **Sıradaki (Aşama 8 devamı):** çalışan uyarılarının sahibe iletilmesi (gerçek ihlal, imha, VERBİS eşiği, KVKK 7 gün,
-  yeni cihaz, iade sonucu, yapay zekâ bütçesi %80 ve sınır, ajanın günlük özeti); ajanın kalan işleri ve kullanıcı tarafı
-  yapay zekâ (Karar 42); ya da
+- **Sprint 24 (9 Kasım 2026):** çalışan uyarıları (`apps/api/src/staff-alerts/`, `packages/shared/src/staff-alerts.ts`):
+  olaydan ve saatlik denetimden uyarı, Sahip her uyarıyı alır, diğer alıcılar kuralın yetkisi ya da rolüyle; kritik uyarı
+  kapatılamaz. Konsolda üst çubukta "Uyarı N", `/uyarilar`, Büyüme › Zamanlanmış raporlar; şirket e-postasına teslim (işçi).
+  Uyarı metnine kişisel veri yazılmaz (e-posta Google Workspace'e gider). Yerelde e-postalar Mailpit'e düşer. API'de 162 test.
+- **Sıradaki (Aşama 8 devamı):** ajanın kalan işleri (destek otomatik yanıtı, talep açıklamasında düzeltme isteme, spam
+  hesap kısıtlama, metrik sapması) ve kullanıcı tarafı yapay zekâ (Karar 42); ya da
   sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan
   kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google

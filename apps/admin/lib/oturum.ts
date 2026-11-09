@@ -28,6 +28,8 @@ export interface Me {
   permissions: PermissionGrants;
   approverOf: string[];
   pendingApprovals: number;
+  /** Okunmamış çalışan uyarıları (üst çubukta "Uyarı" etiketi) */
+  unreadAlerts: number;
   integrationWarnings: number;
   pendingGalleryApplications: number;
   overdueReports: number;

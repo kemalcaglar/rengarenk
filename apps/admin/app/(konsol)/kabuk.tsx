@@ -66,7 +66,7 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
     grup: 'Büyüme',
     ogeler: [
       { ad: 'Raporlar', sonra: true },
-      { ad: 'Zamanlanmış raporlar', sonra: true },
+      { href: '/zamanlanmis-raporlar', ad: 'Zamanlanmış raporlar', izin: 'rapor.gor' },
       { ad: 'Kampanyalar', sonra: true },
       { href: '/akislar', ad: 'Otomatik akışlar', izin: 'rapor.gor' },
       { ad: 'Segmentler', sonra: true },
@@ -129,11 +129,12 @@ export function Kabuk({ me: initial, logo, children }: { me: Me; logo: ReactNode
       .catch(() => undefined);
   }, []);
 
-  // Sayfa değişimi bir işlemdir: hareketsizlik sayacı sıfırlanır.
+  // Sayfa değişimi bir işlemdir: hareketsizlik sayacı sıfırlanır; üst çubuktaki sayılar yenilenir.
   // biome-ignore lint/correctness/useExhaustiveDependencies: path yalnızca tetikleyici
   useEffect(() => {
     last.current = Date.now();
     setWarn(false);
+    refresh();
   }, [path]);
 
   useEffect(() => {
@@ -169,6 +170,11 @@ export function Kabuk({ me: initial, logo, children }: { me: Me; logo: ReactNode
           <div className="k-top-in">
             {logo}
             <span className="k-user">
+              {me.unreadAlerts > 0 ? (
+                <Link className="k-alerts" href="/uyarilar">
+                  Uyarı {me.unreadAlerts}
+                </Link>
+              ) : null}
               <Link className="k-pending" href="/onaylar">
                 Onayını bekleyen {me.pendingApprovals}
               </Link>

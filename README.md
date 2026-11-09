@@ -173,6 +173,17 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Çalışan uyarıları (Sprint 24)
+
+- Kurallar `packages/shared/src/staff-alerts.ts` (`STAFF_ALERT_RULES`), servis `apps/api/src/staff-alerts/`. Olaylar
+  (`STAFF_ALERT_EVENTS`) işçide uyarıya çevrilir; saatte bir `StaffAlertService.denetle()` (KVKK 7 gün, imha onayı,
+  VERBİS, ödeme hatası oranı, ajanın geri alınan işlemleri), 30 saniyede bir `teslim()` (şirket e-postası).
+- Sahip her uyarıyı alır; diğer alıcılar kuralın yetkisi ya da rolüyle belirlenir. Kritik uyarı kapatılamaz. Uyarı metnine
+  kişisel veri yazılmaz (e-posta Google Workspace'e gider). Yeni kural eklerken olay eşlemesine (`onEvent`) ve teste ekle.
+- **Konsol:** `GET /staff/alerts` (kendi uyarıların), `POST /staff/alerts/read` (`{ ids }` ya da `{ hepsi: true }`),
+  `GET /staff/alerts/rules`, `POST /staff/alerts/rules/:kural` (yalnızca Sahip); `/staff/me` içinde `unreadAlerts`.
+  Ekranlar: üst çubukta "Uyarı N", `/uyarilar`, Büyüme › `/zamanlanmis-raporlar`.
+
 ## Rengarenk Ajanı ve yapay zekâ (Sprint 23)
 
 - **Ağ geçidi:** `apps/api/src/ai/` (`AiGateway.run`): maskeleme (`maskPii`, `packages/shared/src/agent.ts`), görev

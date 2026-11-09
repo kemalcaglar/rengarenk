@@ -138,6 +138,30 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 24 · çalışan uyarıları (Aşama 8 yedinci bölüm, 9 Kasım 2026)
+
+- [x] Uyarı kuralları ortak pakette (`packages/shared/src/staff-alerts.ts`, 19 kural): Sahip her uyarıyı alır; ayrıca
+  kuralın yetkisine (ör. KVKK yanıtlama, iade, katalog ayarı) ya da rolüne sahip etkin çalışanlar. Kritik uyarılar (yeni
+  cihaz, kurtarma kodu, gerçek ihlal, sonucu belirsiz iade, ödeme hatası oranı, yapay zekâ bütçesi) kapatılamaz;
+  diğerlerini yalnızca Sahip kapatır (işlem kaydı)
+- [x] Olaydan uyarı (işçi): yeni cihaz ve kurtarma kodu (Karar 40), gerçek ihlal (tatbikat hariç) ve imha (Karar 59),
+  Sahibin onayını bekleyen iade, iade sonucu ve belirsiz iade (Teknik tasarım §7), ödeme uyuşmazlığı, mağaza iadesi ve
+  tanınmayan satış, otomatik çekimin bildirimi gelmedi, ajanın günlük özeti, ajanın galeri onayı (Karar 03), ajanın
+  durması, bütçe %80 ve sınır (Karar 57), ticari e-postanın durması, katalog kaynağı gecikti ya da reddedildi
+- [x] Saatlik denetimler: KVKK başvurusunda 7 gün kala (Karar 58), imhaya 14 gün kala onaylanmamış liste, VERBİS
+  eşiğinin %80'i ve aşılması, bir saatte ödeme hatası oranı %5'i aşarsa, ajanın geri alınan işlem oranı haftalık %5'i
+  aşarsa (YonetimRapor › Kritik uyarılar)
+- [x] Teslim: alıcı başına bir satır (`staff_alerts`, aynı uyarı bir kez), konsolda üst çubukta "Uyarı N" ve Uyarılar
+  listesi, şirket e-postasına gönderim (işçi, 5 deneme). Metin kişisel veri taşımaz (e-posta Google Workspace'e gider,
+  Karar 37); günlük özete dikkat isteyenler ve ajanın yaptıkları eklenir
+- [x] Konsol › Büyüme › Zamanlanmış raporlar ve uyarılar: ajanın günlük özeti (aç/kapat), kritik ve diğer uyarılar,
+  kanal ve alıcılar
+- [ ] Kritik uyarının telefona bildirim (push ya da SMS) olarak düşmesi: çalışanın telefonu ya da konsol için push
+  kaydı yok; şimdilik e-posta (şirket hesabının telefondaki bildirimi). Sahip kararı bekleniyor
+- [ ] Haftalık ve aylık raporlar, galerilere "aranan modeller" raporu, yeni zamanlanmış rapor ve kayıtlı panolar:
+  Raporlar ekranıyla (Aşama 9). "Ana ölçü 24 saatte 5 puan düşerse" ve "hedef geride kalırsa" uyarıları da raporlar ve
+  hedeflerle gelir
+
 ## Sprint 23 · Rengarenk Ajanı ve yapay zekâ bütçesi (Aşama 8 altıncı bölüm, 9 Kasım 2026)
 
 - [x] Yapay zekâ ağ geçidi (Teknik tasarım §10, T11): sağlayıcıdan bağımsız (`AI_PROVIDER` none | fake | vertex), Vertex AI
@@ -159,7 +183,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   sapması ve ödeme hata oranı uyarısı, SMS yedeğe geçişin akışa yazılması, gönderim saati ve A/B kazananı
 - [ ] Kullanıcı tarafı yapay zekâ (Karar 42): talep asistanı, ilk mesaj taslağı, yapay zekâ destekli mesaj güvenliği,
   toplu yükleme yardımı, destek sohbeti
-- [ ] Bütçe uyarısı, günlük özet ve ajanın durması sahibe iletilecek (çalışan uyarıları bölümü)
+- [x] Bütçe uyarısı, günlük özet ve ajanın durması sahibe iletiliyor (Sprint 24, çalışan uyarıları)
 
 ## Sprint 22 · saklama, imha, VERBİS; ihlal ve resmi talepler (Aşama 8 beşinci bölüm, 9 Kasım 2026)
 
@@ -178,7 +202,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Resmi makam talepleri: yalnız sahip ve yönetici; resmi yazı yüklenmeden veri verilmez, verilen her veri kaydedilir;
   yazı yasaklamıyorsa kullanıcıya bildirim (`resmi.bilgi`)
 - [x] Süresi dolan veri kopyası dosyaları ve kapatılan hesabın kopyaları depodan silinir (işçi, saatte bir)
-- [ ] Çalışan uyarıları (gerçek ihlal başladı, imha yapıldı, VERBİS eşiği) sahibe iletilecek (sonraki bölüm)
+- [x] Çalışan uyarıları (gerçek ihlal başladı, imha yapıldı, VERBİS eşiği) sahibe iletiliyor (Sprint 24)
 
 ## Sprint 21 · KVKK başvuruları, verilerimi indir, rıza kayıtları (Aşama 8 dördüncü bölüm, 9 Kasım 2026)
 
@@ -199,7 +223,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   Galeri sahibi ve askıdaki hesap buradan kapatamaz. Web Ayarlar › Hesap, mobil Kişisel verilerim › Hesabı kapat
 - [x] Saklama, imha ve VERBİS; veri ihlali prosedürü ve resmi makam talepleri; süresi dolan kopya dosyasının silinmesi
   (Sprint 22)
-- [ ] KVKK başvurusunda 7 gün kala ajan uyarısı: çalışan uyarılarının sahibe iletilmesiyle birlikte
+- [x] KVKK başvurusunda 7 gün kala uyarı (Sprint 24, çalışan uyarıları)
 
 ## Sprint 20 · destek ve yardım merkezi (Aşama 8 üçüncü bölüm, 8 Kasım 2026)
 
@@ -277,8 +301,8 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] Gerçek hesaplar: Firebase projesi (iOS'ta FCM için Firebase SDK), kendi posta sunucusu (Radore, SPF/DKIM/DMARC,
   ters DNS, kara liste denetimi), İYS bağdaştırıcısı, SMS fiyatları ve yedek sağlayıcı (Netgsm)
 - [ ] E-postada açılma ve tıklama ölçülmüyor (izleme pikseli ve yönlendirme yok); raporda uygulama içi okunma var
-- [ ] Akış düzenleyicisi ("Adım ekle"), kampanyalar ve segmentler: Aşama 9. Çalışan olaylarının (yeni cihaz, iade sonucu,
-  ticari gönderim durdu) sahibe iletilmesi: Aşama 8 (yönetim bildirimleri)
+- [ ] Akış düzenleyicisi ("Adım ekle"), kampanyalar ve segmentler: Aşama 9
+- [x] Çalışan olaylarının (yeni cihaz, iade sonucu, ticari gönderim durdu) sahibe iletilmesi (Sprint 24)
 - [ ] Ön bilgilendirme formu ve sözleşmenin PDF olarak e-postayla gönderilmesi
 - [ ] Ayarlar'da İletişim ve Hesap sekmeleri (hesabı kapatma KVKK araçlarıyla, Aşama 8)
 

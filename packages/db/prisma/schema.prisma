@@ -2361,3 +2361,40 @@ model AgentSuggestion {
   @@index([status, createdAt])
   @@map("agent_suggestions")
 }
+
+/// Çalışan uyarıları (Karar 40, 41, 57, 58, 59): alıcı başına bir satır. Metin kişisel veri taşımaz (e-posta şirket
+/// hesabına gider); ayrıntı konsolda yetkiyle açılır. Aynı uyarı aynı anahtarla bir kez açılır.
+model StaffAlert {
+  id          String    @id @db.Uuid
+  staffId     String    @map("staff_id") @db.Uuid
+  /// STAFF_ALERT_RULES anahtarı
+  rule        String
+  /// Tekrarı önleyen anahtar (ör. "yeni_cihaz:<cihaz>", "kvkk_sure:<başvuru>")
+  dedupeKey   String    @map("dedupe_key")
+  critical    Boolean   @default(false)
+  title       String
+  body        String
+  /// Konsoldaki ekran
+  link        String
+  readAt      DateTime? @map("read_at") @db.Timestamptz(3)
+  /// bekliyor | gonderildi | hata | yok (adres yok ya da kanal kapalı)
+  emailStatus String    @default("bekliyor") @map("email_status")
+  emailTries  Int       @default(0) @map("email_tries")
+  emailedAt   DateTime? @map("emailed_at") @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@unique([staffId, dedupeKey])
+  @@index([staffId, createdAt])
+  @@index([emailStatus, createdAt])
+  @@map("staff_alerts")
+}
+
+/// Kritik olmayan uyarı kuralını kapatma (Sahip); satır yoksa kural açıktır
+model StaffAlertSetting {
+  rule      String   @id
+  enabled   Boolean
+  updatedBy String?  @map("updated_by") @db.Uuid
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("staff_alert_settings")
+}

@@ -24,6 +24,7 @@ import { PrivacyService } from './privacy/privacy.service.js';
 import { RetentionService } from './privacy/retention.service.js';
 import { QueueService } from './queue/queue.service.js';
 import { DemandSearchService } from './search/demand-search.service.js';
+import { STAFF_ALERT_EVENTS, StaffAlertService } from './staff-alerts/staff-alert.service.js';
 import { SupportService } from './support/support.service.js';
 import { TrustService } from './trust/trust.service.js';
 import { WorkerModule } from './worker.module.js';
@@ -56,6 +57,7 @@ const destek = app.get(SupportService);
 const gizlilik = app.get(PrivacyService);
 const imha = app.get(RetentionService);
 const ajan = app.get(AgentService);
+const uyarilar = app.get(StaffAlertService);
 const iys = app.get<IysProvider>(IYS);
 await queue.start();
 
@@ -132,6 +134,12 @@ for (const event of NOTIFY_EVENTS) {
     bildirimOlaylari.handle(event, payload),
   );
 }
+// Çalışan uyarıları (Karar 40, 41, 57, 58, 59): olay → uyarı → Sahip ve ilgili çalışanlar (konsol ve e-posta)
+for (const event of STAFF_ALERT_EVENTS) {
+  await queue.consume<Record<string, unknown>>(event, `uyari-${event.replace('.', '-')}`, async (payload) => {
+    await uyarilar.onEvent(event, payload);
+  });
+}
 // Ticari ileti onayı değişti: İYS'ye bildirilir (bağlantı yoksa rıza kaydında bekler)
 await queue.consume<{ userId: string; onay: boolean }>('iys.izin_degisti', 'iys-esitle', ({ userId, onay }) =>
   ticari.iysEsitle(iys, userId, onay),
@@ -162,6 +170,10 @@ const TESLIM_MS = 5_000;
 let lastTeslim = 0;
 const ITIBAR_MS = 3_600_000;
 let lastItibar = 0;
+const UYARI_DENETIM_MS = 3_600_000;
+let lastUyariDenetim = 0;
+const UYARI_TESLIM_MS = 30_000;
+let lastUyariTeslim = 0;
 let sonOzetGunu = '';
 let sonAkisGunu = '';
 let sonImhaSayimi = '';
@@ -237,6 +249,22 @@ while (!stopping) {
   if (Date.now() - lastTeslim > TESLIM_MS) {
     lastTeslim = Date.now();
     await teslim.dispatchDue().catch((err: Error) => log.error(`teslim: ${err.message}`));
+  }
+  // Çalışan uyarıları: e-posta teslimi (30 sn) ve dönemsel denetimler (saatte bir: KVKK süresi, imha onayı, VERBİS,
+  // ödeme hatası oranı, ajanın geri alınan işlemleri)
+  if (Date.now() - lastUyariTeslim > UYARI_TESLIM_MS) {
+    lastUyariTeslim = Date.now();
+    await uyarilar.teslim().catch((err: Error) => log.error(`çalışan uyarısı teslimi: ${err.message}`));
+  }
+  if (Date.now() - lastUyariDenetim > UYARI_DENETIM_MS) {
+    lastUyariDenetim = Date.now();
+    await uyarilar
+      .denetle()
+      .then((r) => {
+        const n = r.kvkk + r.imha + r.verbis + r.odeme + r.ajan;
+        if (n) log.log(`çalışan uyarısı denetimi: ${n} uyarı`);
+      })
+      .catch((err: Error) => log.error(`çalışan uyarısı denetimi: ${err.message}`));
   }
   // E-posta itibarı: sınır aşılırsa ticari e-posta kendiliğinden durur (saatte bir)
   if (Date.now() - lastItibar > ITIBAR_MS) {
