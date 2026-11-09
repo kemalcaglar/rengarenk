@@ -21,6 +21,7 @@ import {
 } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
+import { DashboardService } from '../dashboard/dashboard.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { EMAIL_SENDER, type EmailSender } from '../notifications/channels.js';
 import { grantsFor } from '../staff/permissions.js';
@@ -97,6 +98,7 @@ export class StaffAlertService {
     @Inject(ENV) private readonly env: Env,
     private readonly audit: AuditService,
     @Optional() @Inject(EMAIL_SENDER) private readonly email?: EmailSender,
+    @Optional() private readonly dashboard?: DashboardService,
   ) {}
 
   private async acik(rule: StaffAlertKey) {
@@ -365,6 +367,7 @@ export class StaffAlertService {
       odeme: await this.odemeHatasi(now),
       ajan: await this.ajanGeriAlma(now),
       olcu: await this.anaOlcu(now),
+      hedef: await this.hedefSapma(now),
     };
     return sonuc;
   }
@@ -494,6 +497,27 @@ export class StaffAlertService {
       title: `Ana ölçü ${Math.round(fark)} puan düştü: ${yuzde(son.oran)}`,
       body: `48 saat içinde ilk mesaj alan talep oranı bir önceki günde ${yuzde(once.oran)} iken ${yuzde(son.oran)} oldu (${son.toplam} talep). Rengarenk Ajanı › Ajana sor ile il ve kategori kırılımına bakabilirsin.`,
     });
+  }
+
+  /** Aylık hedeflerden biri %10'dan fazla geride kalırsa (Karar 44); hedef ve ay başına bir kez */
+  async hedefSapma(now = new Date()) {
+    if (!this.dashboard) return 0;
+    const ay = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Istanbul',
+      year: 'numeric',
+      month: '2-digit',
+    }).format(now);
+    const h = await this.dashboard.hedefler(ay, now);
+    let n = 0;
+    for (const s of h.satirlar) {
+      if (s.hedef === null || !('durum' in s) || s.durum !== 'geride') continue;
+      n += await this.raise('hedef_sapma', {
+        dedupe: `${ay}:${s.key}`,
+        title: `${s.ad} hedefin gerisinde: ${s.mevcut} / ${s.hedef}`,
+        body: `${ay} için ${s.ad.toLocaleLowerCase('tr-TR')} hedefi ${s.hedef}; şu an ${s.mevcut}. ${s.not}. Kontrol panelindeki neden analizine bakabilirsin.`,
+      });
+    }
+    return n;
   }
 
   /** Ajanın geri alınan işlem oranı son 7 günde %5'i aşarsa (haftada bir) */

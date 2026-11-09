@@ -1059,6 +1059,8 @@ model Demand {
   closedAt          DateTime?    @map("closed_at") @db.Timestamptz(3)
   /// Aracı buldum: rengarenk | baska_site | tanidik | vazgectim (Karar 31; satıcıya gösterilmez)
   foundVia          String?      @map("found_via")
+  /// Talebin açıldığı platform (WEB | IOS | ANDROID; kontrol paneli kırılımı, Karar 44)
+  platform          String?
   /// Ücretsiz uzatma kullanıldı mı (Karar 10, 12.1)
   freeExtensionUsed Boolean      @default(false) @map("free_extension_used")
   extensionCount    Int          @default(0) @map("extension_count")
@@ -1770,6 +1772,34 @@ model PriceBook {
 
   @@index([status, effectiveAt])
   @@map("price_books")
+}
+
+/// Aylık hedefler (Karar 44): ay ("2026-11") ve ölçü başına bir değer; değişiklik işlem kaydına girer
+model MonthlyGoal {
+  month     String
+  /// talep | buldum | gelir (kuruş değil TL) | ucretli_galeri | ana_olcu (yüzde)
+  key       String
+  value     Float
+  updatedBy String   @map("updated_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@id([month, key])
+  @@map("monthly_goals")
+}
+
+/// Grafik notu (Karar 44): elle ya da fiyat, kural ve kampanya değişikliğinde kendiliğinden
+model ChartNote {
+  id        String   @id @db.Uuid
+  day       DateTime @db.Date
+  text      String
+  /// elle | fiyat | kural | kampanya
+  source    String
+  refId     String?  @map("ref_id")
+  createdBy String?  @map("created_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([day])
+  @@map("chart_notes")
 }
 
 /// Galeri aboneliği (Karar 12.2, 12.3, 12.7, 39; Teknik tasarım §7): galeri başına tek satır, her dönem bir sipariş.

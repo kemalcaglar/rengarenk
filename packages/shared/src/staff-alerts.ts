@@ -133,6 +133,13 @@ export const STAFF_ALERT_RULES = {
     roller: ['ADMIN'],
     yol: '/ajan',
   },
+  hedef_sapma: {
+    ad: 'Hedeften sapma',
+    kosul: 'Aylık hedeflerden biri ayın geçen kısmına göre %10’dan fazla geride kalırsa (ayda bir kez)',
+    kritik: false,
+    roller: ['ADMIN'],
+    yol: '/panel',
+  },
   ajan_geri_alma: {
     ad: 'Ajanın geri alınan işlemleri',
     kosul: 'Ajanın geri alınan işlem oranı haftalık %5’i aşarsa',

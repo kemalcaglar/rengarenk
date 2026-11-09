@@ -138,6 +138,19 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 28 · Aşama 9 · kontrol paneli ve raporlar (9 Kasım 2026)
+
+- [x] Kontrol paneli (YonetimRapor.dc.html › panel; Karar 44): ana ölçü (son 30 gün, 48 saati dolan talepler; önceki 30
+  gün farkı; 12 haftalık eğilim; ay hedefi), altı ölçü (yeni talep, ilk mesaj, açılan sohbet, aracı buldum, gelir
+  (iadeler düşülür), yeni ücretli galeri) bugün / 7 gün / 30 gün ve önceki eşit dönem; ölçüye tıklayınca neden analizi
+  (il, kategori, platform; gelirde platform ve kalem; galeride il ve paket) ve kurallardan tek cümlelik yorum; son 30
+  günün günlük yeni talep grafiği ve notları (elle; fiyat ve kategori kuralı değişince kendiliğinden); bugün bakılacaklar
+  (onay kuyruğu, başarısız galeri ödemesi, süresi aşan şikâyet, 48 saattir mesaj almayan talepler, denemesi biten
+  galeriler, okunmamış uyarılar); aylık hedefler (Sahip ve yönetici girer, işlem kaydı), ay sonu tahmini, sapma %10'u
+  geçerse çalışan uyarısı (`hedef_sapma`, ayda bir)
+- [x] Talep açıldığı platformla kaydedilir (`demands.platform`, `x-rr-platform`)
+- [ ] Kanal kırılımı (organik, reklam, bildirim): reklam ölçümüyle; ajanın yorumu yapay zekâyla (şimdilik kural)
+
 ## Sprint 27 · Aşama 8 kalanları (9 Kasım 2026)
 
 - [x] Galerinin 1 yıldıza itirazı (Karar 55): galeri panelinde (web Özet › Yıldızların ve rozetlerin, mobil Rozetlerin)
@@ -173,7 +186,8 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   yenileme günündeki listeden. Sipariş, abonelik, paket sınırları (portföy, günlük mesaj, aylık talep, öne çıkarma,
   çalışan) yürürlükteki listeden; web sihirbazı ve Taleplerim `GET /fiyatlar` okur. Mobil fiyatlar mağazadan, yalnızca
   gösterilir. Kullanım kuralları gösterilir (ücretsiz ilk mesaj ve yayın süresi kategori kuralı)
-- [ ] Fiyat değişikliğinin grafiklere not olarak düşmesi: Raporlar ekranıyla (Aşama 9); rozet eşiklerinin konsoldan
+- [x] Fiyat değişikliğinin grafiklere not olarak düşmesi (Sprint 28)
+- [ ] Rozet eşiklerinin konsoldan
   değiştirilmesi (tasarımın Kurallar ve fiyatlar ekranında yok)
 
 ## Sprint 26 · kullanıcı tarafı yapay zekâ (Aşama 8 dokuzuncu bölüm, 9 Kasım 2026)

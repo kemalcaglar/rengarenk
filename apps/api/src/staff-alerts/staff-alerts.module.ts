@@ -9,6 +9,7 @@ import { z } from 'zod';
 import { AuditService } from '../audit/audit.service.js';
 import { AuthModule } from '../auth/auth.module.js';
 import { ZodPipe } from '../common/zod.pipe.js';
+import { DashboardCoreModule } from '../dashboard/dashboard.module.js';
 import { NotificationsWorkerModule } from '../notifications/notifications.module.js';
 import { RequirePermission, StaffOnly } from '../staff/permissions.js';
 import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
@@ -60,7 +61,7 @@ export class StaffAlertsController {
 }
 
 @Module({
-  imports: [AuthModule, StaffModule],
+  imports: [AuthModule, StaffModule, DashboardCoreModule],
   controllers: [StaffAlertsController],
   providers: [StaffAlertService, AuditService],
 })
@@ -68,7 +69,7 @@ export class StaffAlertsModule {}
 
 /** İşçi: olaylardan uyarı, saatlik denetimler ve e-posta teslimi */
 @Module({
-  imports: [NotificationsWorkerModule],
+  imports: [NotificationsWorkerModule, DashboardCoreModule],
   providers: [StaffAlertService, AuditService],
   exports: [StaffAlertService],
 })

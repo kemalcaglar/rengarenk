@@ -394,7 +394,7 @@ export class DemandService {
 
   // ── Taslak ────────────────────────────────────────────────────
 
-  async create(userId: string, kategori: string, hesap?: string) {
+  async create(userId: string, kategori: string, hesap?: string, platform?: string) {
     const accountId = hesap ? (await this.galleryOf(userId, hesap)).accountId : await this.accountOf(userId);
     const category = await this.leafCategory(kategori);
     // Yeni talep Ayarlar'daki iletişim tercihleriyle ve profildeki konumla açılır (Karar 29); her talepte değişir
@@ -416,6 +416,8 @@ export class DemandService {
           categoryId: category.id,
           step: 2,
           data: { alanlar: konum, alternatifler: [{}] },
+          // Kontrol paneli kırılımı (Karar 44); başlığı göndermeyen istemci boş kalır
+          platform: platform && ['WEB', 'IOS', 'ANDROID'].includes(platform) ? platform : null,
           ...(hesap
             ? {}
             : { phoneVisible: u.phoneVisible, whatsappVisible: u.whatsappVisible, nameMode: u.nameMode }),

@@ -100,8 +100,9 @@ export class DemandsController {
   create(
     @Req() req: AuthedRequest,
     @Body(new ZodPipe(demandCreateSchema)) body: z.output<typeof demandCreateSchema>,
+    @Headers('x-rr-platform') platform?: string,
   ) {
-    return this.demands.create(req.user.sub, body.kategori, body.hesap);
+    return this.demands.create(req.user.sub, body.kategori, body.hesap, platformOf(platform));
   }
 
   /** Hakla öne çıkarma (paketin aylık hakkı ya da talep seçilmeden alınmış hak) */

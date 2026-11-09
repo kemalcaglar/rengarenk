@@ -191,6 +191,10 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - Galeri müşteri yönetimi: `packages/shared/src/gallery-care.ts` (`churnRisk`, `renewalOf`),
   `apps/api/src/people/gallery-care.service.ts`; `GET /staff/galleries/care?filtre=`, `POST /staff/people/galeri/:id/manager`;
   `galleries.manager_staff_id`. Konsol `/galeri-musterileri`.
+- Kontrol paneli (Karar 44): `packages/shared/src/dashboard.ts` (`goalStatus`, `DASH_METRICS`),
+  `apps/api/src/dashboard/` (`GET /staff/dashboard?donem=`, `GET /staff/dashboard/breakdown/:metrik`,
+  `PUT /staff/dashboard/goals`, `POST /staff/dashboard/notes`); tablolar `monthly_goals`, `chart_notes`
+  (`grafikNotu(tx, …)` fiyat ve kural değişikliğinde). Konsol `/panel`.
 - Kurallar ve fiyatlar: `packages/shared/src/pricing.ts` (`PriceBook`, `DEFAULT_PRICE_BOOK`, `plansOf`, `priceChanges`),
   `apps/api/src/pricing/` (`PricingService.current()/plans()/productTl()`, küresel modül; işçide PRICE_CHANGE yürütücüsü).
   `galleryAccess`, `planNetKurus`, `memberLimit` isteğe bağlı paket tablosu alır; API'de her zaman

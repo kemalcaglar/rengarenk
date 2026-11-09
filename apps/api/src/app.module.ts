@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { CatalogModule } from './catalog/catalog.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
 import { ConsentModule } from './consents/consent.module.js';
+import { DashboardModule } from './dashboard/dashboard.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { DemandsModule } from './demands/demands.module.js';
 import { EntitlementsModule } from './entitlements/entitlements.module.js';
@@ -71,6 +72,7 @@ import { TrustModule } from './trust/trust.module.js';
     DemandsModule,
     PricingCoreModule,
     PricingModule,
+    DashboardModule,
   ],
   controllers: [HealthController, MetricsController],
   providers: [{ provide: APP_INTERCEPTOR, useClass: HttpMetricsInterceptor }],

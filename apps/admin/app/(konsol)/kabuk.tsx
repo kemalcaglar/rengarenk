@@ -34,7 +34,7 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
     ogeler: [
       { href: '/ajan', ad: 'Rengarenk Ajanı', izin: 'rapor.gor' },
       { href: '/onaylar', ad: 'Onay kuyruğu', rozet: 'onay' },
-      { ad: 'Kontrol paneli', sonra: true },
+      { href: '/panel', ad: 'Kontrol paneli', izin: 'rapor.gor' },
     ],
   },
   {

@@ -21,6 +21,7 @@ import {
 import { type Actor, ApprovalService } from '../approvals/approval.service.js';
 import { ApprovalExecutor } from '../approvals/approval-executor.js';
 import { AuditService } from '../audit/audit.service.js';
+import { grafikNotu } from '../dashboard/dashboard.service.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 
@@ -609,7 +610,12 @@ export class CategoryService implements OnModuleInit, OnApplicationBootstrap {
       where: { id: v.id },
       data: { status: 'PUBLISHED', publishedBy: a.decidedBy, publishedAt: new Date() },
     });
-    await tx.category.update({ where: { id: v.categoryId }, data: { publishedVersion: v.version } });
+    const kat = await tx.category.update({
+      where: { id: v.categoryId },
+      data: { publishedVersion: v.version },
+    });
+    // Kontrol paneli grafiğine kendiliğinden not (Karar 44)
+    await grafikNotu(tx, new Date(), `${kat.name} kuralları değişti (s.${v.version})`, 'kural', v.id);
     await this.audit.record(
       {
         actorType: 'SYSTEM',

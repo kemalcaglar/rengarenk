@@ -256,8 +256,12 @@ pnpm format        # Biome ile biçimlendir
   (`gallery-care.service.ts`, risk `churnRisk` ortak pakette), galeri kartında sorumlu çalışan. Kurallar ve fiyatlar:
   fiyat listesi `price_books` (`apps/api/src/pricing/`); paket fiyatı veya sınırı okurken `GALLERY_PLANS` yerine
   `await this.pricing.plans()` (ürün web fiyatı `productTl`) kullan; mobil (mağaza) fiyatları değişmez. API'de 179 test.
-- **Sıradaki:** Aşama 9
-  (kontrol paneli ve raporlar, kampanyalar ve segmentler, açılış sayfaları); ya da sunucular gelince Radore'ye ilk
+- **Sprint 28 (9 Kasım 2026, Aşama 9 ilk bölüm):** kontrol paneli (`apps/api/src/dashboard/`, konsol `/panel`): ana
+  ölçü, ölçüler ve neden analizi, grafik notları (`grafikNotu` değişiklikle aynı işlemde), bakılacaklar, aylık hedefler
+  ve `hedef_sapma` uyarısı. Talep platformu `demands.platform`. Tam test çalıştırmasında `test/setup.ts` kurulumu bazen
+  10 sn'yi aşıp bir dosyayı düşürüyor; tek başına yeniden çalıştır.
+- **Sıradaki:** Aşama 9 devamı
+  (raporlar ekranı: huni, arz-talep haritası, gelir, en çok talep edilenler, birim ekonomisi; kampanyalar ve segmentler, açılış sayfaları); ya da sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

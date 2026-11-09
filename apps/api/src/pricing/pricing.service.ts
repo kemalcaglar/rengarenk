@@ -25,6 +25,7 @@ import { ApprovalService } from '../approvals/approval.service.js';
 import { ApprovalExecutor } from '../approvals/approval-executor.js';
 import { ApprovalsModule } from '../approvals/approvals.module.js';
 import { AuditService } from '../audit/audit.service.js';
+import { grafikNotu } from '../dashboard/dashboard.service.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 
@@ -261,18 +262,28 @@ export class PricingService {
       tx,
     );
     await this.outbox.add(tx, 'fiyat.zamanlandi', { priceBookId: r.id });
+    // Kontrol paneli grafiğinde yürürlük gününe not (Karar 44)
+    await grafikNotu(
+      tx,
+      r.effectiveAt,
+      `Fiyatlar güncellendi (${r.changes.length} değişiklik)`,
+      'fiyat',
+      r.id,
+    );
     this.forget();
     return { yururluk: r.effectiveAt.toISOString(), degisiklik: r.changes };
   }
 
   /** Henüz yürürlüğe girmemiş, zamanlanmış değişikliği iptal eder (yeni öneri gibi onay istemez; işlem kaydına girer) */
   async cancel(actor: StaffActor, id: string, ip?: string) {
+    // İptal edilen değişikliğin grafik notu da kalkar
     const r = await this.db.priceBook.findUnique({ where: { id } });
     if (!r) throw new NotFoundException('Değişiklik bulunamadı');
     if (r.status !== 'zamanlandi' || r.effectiveAt <= new Date())
       throw new ConflictException('Yalnızca yürürlüğe girmemiş zamanlanmış değişiklik iptal edilir');
     await this.db.$transaction(async (tx) => {
       await tx.priceBook.update({ where: { id }, data: { status: 'iptal' } });
+      await tx.chartNote.deleteMany({ where: { source: 'fiyat', refId: id } });
       await this.audit.record(
         {
           actorType: 'STAFF',
