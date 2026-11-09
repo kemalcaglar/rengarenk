@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AgentCoreModule } from './agent/agent.module.js';
 import { ApprovalsModule } from './approvals/approvals.module.js';
 import { CatalogPipelineModule } from './catalog/catalog.module.js';
 import { CategoriesWorkerModule } from './categories/categories.module.js';
@@ -30,6 +31,7 @@ import { TrustWorkerModule } from './trust/trust.module.js';
 @Module({
   imports: [
     DatabaseModule,
+    AgentCoreModule,
     RedisModule,
     MetricsModule,
     RateLimitModule,

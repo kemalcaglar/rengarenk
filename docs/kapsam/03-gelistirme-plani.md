@@ -138,6 +138,29 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 23 · Rengarenk Ajanı ve yapay zekâ bütçesi (Aşama 8 altıncı bölüm, 9 Kasım 2026)
+
+- [x] Yapay zekâ ağ geçidi (Teknik tasarım §10, T11): sağlayıcıdan bağımsız (`AI_PROVIDER` none | fake | vertex), Vertex AI
+  Gemini bağdaştırıcısı yazıldı (gerçek anahtarla denenmedi). Her istek maskelenir (telefon, e-posta, IBAN, T.C. kimlik no,
+  plaka, bilinen ad soyad; `maskPii`), yanıtta yer tutucular geri konur; her çağrı görev, istem sürümü, model, token ve
+  maliyetle `ai_calls`'a yazılır (maskeli içerik, silinmez). Sağlayıcı yoksa ya da hata verirse kural metni döner
+- [x] Bütçe (Karar 57): aylık sınır 150 USD, yalnızca Sahip değiştirir (işlem kaydı); %80'de ve sınırda ayda bir olay
+  (`yz.butce_uyari`, `yz.butce_doldu`); sınırda yalnızca kritik görevler (moderasyon, mesaj güvenliği); görev başına
+  aç/kapat. Konsol › Sistem › Yapay zekâ ve bütçe: harcama, ay sonu tahmini, sınır, değişiklik geçmişi, görevlere göre
+  harcama, maskeleme kuralları
+- [x] Rengarenk Ajanı (Karar 41): durdurma düğmesi `ajan` özellik anahtarı (durunca kapora kontrolü, galeri başvurusu
+  onayı ve ticari e-posta durdurma yapılmaz, karar insana kalır); ajanın işlemleri `agent_actions`'ta, mesaj gizleme ve
+  askı, galeri onayı ve ticari e-posta durdurma tek tıkla geri alınır (türüne göre yetki). Kurallarla öneriler (denemesi
+  biten sessiz galeriler, dolandırıcılıkta bağlantı oranı, il ve kategoride talep artışı), 09.00'dan sonra günlük özet,
+  "Ajana sor" (sayılar kuraldan, kişisel veri yok; yapay zekâ yalnızca cümleyi kurar). Konsol › Rengarenk Ajanı;
+  Çalışanlar listesinde ajan satırı
+- [ ] Ajanın kalan "sormadan yapar" işleri: destek taleplerini sınıflandırıp basit olanları yanıtlama (otomatik yanıt
+  sayacı), talep açıklamasında telefon, IBAN, bağlantı ya da hakarette düzeltme isteme, spam hesap kısıtlama, metrik
+  sapması ve ödeme hata oranı uyarısı, SMS yedeğe geçişin akışa yazılması, gönderim saati ve A/B kazananı
+- [ ] Kullanıcı tarafı yapay zekâ (Karar 42): talep asistanı, ilk mesaj taslağı, yapay zekâ destekli mesaj güvenliği,
+  toplu yükleme yardımı, destek sohbeti
+- [ ] Bütçe uyarısı, günlük özet ve ajanın durması sahibe iletilecek (çalışan uyarıları bölümü)
+
 ## Sprint 22 · saklama, imha, VERBİS; ihlal ve resmi talepler (Aşama 8 beşinci bölüm, 9 Kasım 2026)
 
 - [x] Konsol › Saklama, imha ve VERBİS (Karar 59): saklama süreleri tablosu; ajan her gün süresi dolan kayıtları sayar

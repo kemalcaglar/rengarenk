@@ -109,7 +109,11 @@ export type EventType =
   | 'sohbet.engellendi'
   // Güven (Karar 28, 55): yıldız ve takip edilen galerinin günlük özeti
   | 'puan.verildi'
-  | 'takip.ozet';
+  | 'takip.ozet'
+  // Ajan ve yapay zekâ (Karar 41, 57): bütçe %80 ve sınır, günlük özet
+  | 'yz.butce_uyari'
+  | 'yz.butce_doldu'
+  | 'ajan.ozet';
 
 @Injectable()
 export class OutboxService {

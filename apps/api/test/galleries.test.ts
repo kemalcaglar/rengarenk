@@ -1,6 +1,7 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { AgentCoreModule } from '../src/agent/agent.module.js';
 import { DatabaseModule } from '../src/database/database.module.js';
 import type { Db } from '../src/database/prisma.js';
 import { GalleriesWorkerModule } from '../src/galleries/galleries.module.js';
@@ -277,7 +278,7 @@ describe('kurumsal hesap başvurusu (Karar 03, 12.5, 17)', () => {
 describe('işçi modülü', () => {
   it('işçinin galeri modülü kendi başına kurulur (bağımlılık eksiği işçiyi sessizce durdurmasın)', async () => {
     const m = await Test.createTestingModule({
-      imports: [DatabaseModule, StorageModule, GalleriesWorkerModule],
+      imports: [DatabaseModule, StorageModule, AgentCoreModule, GalleriesWorkerModule],
     })
       .overrideProvider(STORAGE)
       .useValue(memoryStorage())

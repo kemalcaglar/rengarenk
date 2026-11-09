@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { AgentService } from './agent/agent.service.js';
 import { ApprovalService } from './approvals/approval.service.js';
 import { ApprovalExecutor } from './approvals/approval-executor.js';
 import { CatalogPipelineService } from './catalog/catalog-pipeline.service.js';
@@ -54,6 +55,7 @@ const itibar = app.get(ReputationService);
 const destek = app.get(SupportService);
 const gizlilik = app.get(PrivacyService);
 const imha = app.get(RetentionService);
+const ajan = app.get(AgentService);
 const iys = app.get<IysProvider>(IYS);
 await queue.start();
 
@@ -163,6 +165,7 @@ let lastItibar = 0;
 let sonOzetGunu = '';
 let sonAkisGunu = '';
 let sonImhaSayimi = '';
+let sonAjanGunu = '';
 
 log.log('outbox aktarıcısı çalışıyor');
 while (!stopping) {
@@ -260,6 +263,18 @@ while (!stopping) {
       .dailyDigest()
       .then((n) => n && log.log(`kayıtlı arama özeti: ${n} kişi`))
       .catch((err: Error) => log.error(`kayıtlı arama özeti: ${err.message}`));
+  }
+  // Rengarenk Ajanı (Karar 41): 09.00'dan sonra günlük özet (kendisi günde bir kez yazar) ve kural önerileri
+  if (trSaat.getUTCHours() >= 9 && sonAjanGunu !== gun) {
+    sonAjanGunu = gun;
+    await ajan
+      .ozet()
+      .then((a) => a && log.log('ajan günlük özeti yazıldı'))
+      .catch((err: Error) => log.error(`ajan özeti: ${err.message}`));
+    await ajan
+      .oneriUret()
+      .then((n) => n && log.log(`ajan önerisi: ${n}`))
+      .catch((err: Error) => log.error(`ajan önerisi: ${err.message}`));
   }
   // Ajanın imha sayımı (Karar 59): günde bir, İstanbul saatiyle 04.00'ten sonra
   if (trSaat.getUTCHours() >= 4 && sonImhaSayimi !== gun) {

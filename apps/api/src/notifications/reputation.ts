@@ -1,4 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { AgentService } from '../agent/agent.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
@@ -36,6 +37,7 @@ export class ReputationService {
     private readonly switches: SwitchService,
     private readonly audit: AuditService,
     private readonly outbox: OutboxService,
+    private readonly agent: AgentService,
   ) {}
 
   async oranlar(now = new Date()): Promise<ItibarOranlari> {
@@ -59,6 +61,8 @@ export class ReputationService {
   /** İşçi saatte bir çağırır. Durdurduysa nedeni döner. */
   async denetle(now = new Date()): Promise<string | null> {
     if (!(await this.switches.ticariAcik())) return null;
+    // Durdurma düğmesi: ajan durunca bu otomatik işlem de yapılmaz (Karar 41)
+    if (!(await this.agent.calisiyor())) return null;
     const o = await this.oranlar(now);
     const neden =
       o.gonderilen >= ITIBAR_SINIR.enAzGonderim && (o.geriDonme ?? 0) > ITIBAR_SINIR.geriDonme
@@ -83,6 +87,15 @@ export class ReputationService {
         },
         tx,
       );
+      await this.agent.kaydet(tx, {
+        kind: 'ticari_durdur',
+        title: 'Ticari e-posta gönderimi durduruldu',
+        reason: `${neden}; işlemsel iletiler sürüyor`,
+        confidence: 'Kural',
+        entityType: 'notification_switch',
+        entityId: 'ticari',
+        undo: {},
+      });
       await this.outbox.add(tx, 'bildirim.ticari_durduruldu', { neden });
     });
     this.switches.temizle();

@@ -26,6 +26,7 @@ Object.assign(process.env, {
   STORE_PROVIDER: 'fake',
   EMAIL_PROVIDER: 'memory',
   PUSH_PROVIDER: 'fake',
+  AI_PROVIDER: 'fake',
 });
 
 const migrations = join(dirname(fileURLToPath(import.meta.url)), '../../../packages/db/prisma/migrations');

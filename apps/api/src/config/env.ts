@@ -75,6 +75,14 @@ const schema = z.object({
   /** Push (FCM HTTP v1): none, fake (geliştirme ve test), fcm (hizmet hesabı JSON'u base64) */
   PUSH_PROVIDER: z.enum(['none', 'fake', 'fcm']).default('none'),
   FCM_SERVICE_ACCOUNT: z.string().optional(),
+  /**
+   * Yapay zekâ sağlayıcısı (T11, Karar 41, 57): none (çağrı yapılmaz, ajan kural metinlerini kullanır), fake (yerel
+   * deneme; maliyet tahminle sayılır), vertex (Google Vertex AI Gemini). İstekler her zaman maskelenir.
+   */
+  AI_PROVIDER: z.enum(['none', 'fake', 'vertex']).default('none'),
+  /** Vertex hizmet hesabı JSON'u (base64) */
+  VERTEX_SERVICE_ACCOUNT: z.string().optional(),
+  VERTEX_LOCATION: z.string().default('europe-west4'),
   /** API'nin dışarıdan görünen adresi (sahte ödeme sayfası, bildirim adresi) */
   API_PUBLIC_URL: z.string().default('http://localhost:4000'),
   SMS_PROVIDER: z.enum(['console', 'test', 'iletimerkezi']).default('console'),
@@ -161,6 +169,7 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (e.STORE_PROVIDER === 'fake') throw new Error('Canlıda sahte mağaza kullanılamaz');
     if (e.REFUND_PROVIDER === 'fake') throw new Error('Canlıda sahte iade kullanılamaz');
     if (e.PUSH_PROVIDER === 'fake') throw new Error('Canlıda sahte push kullanılamaz');
+    if (e.AI_PROVIDER === 'fake') throw new Error('Canlıda sahte yapay zekâ kullanılamaz');
     if (e.EMAIL_PROVIDER === 'memory') throw new Error('Canlıda bellek içi e-posta kullanılamaz');
     if (e.STAFF_AUTH_PROVIDER !== 'google') throw new Error('Canlıda yönetim girişi Google Workspace olmalı');
     if (!e.STAFF_SECRET_KEY) throw new Error('Canlıda STAFF_SECRET_KEY gerekli');
@@ -182,6 +191,8 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
   ) {
     throw new Error('PayTR için PAYTR_MERCHANT_ID, PAYTR_MERCHANT_KEY ve PAYTR_MERCHANT_SALT gerekli');
   }
+  if (e.AI_PROVIDER === 'vertex' && !e.VERTEX_SERVICE_ACCOUNT)
+    throw new Error('Vertex AI için VERTEX_SERVICE_ACCOUNT gerekli');
   if (e.PUSH_PROVIDER === 'fcm' && !e.FCM_SERVICE_ACCOUNT)
     throw new Error('FCM için FCM_SERVICE_ACCOUNT gerekli');
   if (e.STORE_PROVIDER === 'revenuecat' && !e.REVENUECAT_WEBHOOK_AUTH) {

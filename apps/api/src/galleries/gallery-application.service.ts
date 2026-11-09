@@ -22,6 +22,7 @@ import {
   gallerySlug,
   ilBul,
 } from '@rengarenk/shared';
+import { AgentService } from '../agent/agent.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { sniff } from '../common/files.js';
 import { ConsentService } from '../consents/consent.service.js';
@@ -33,6 +34,10 @@ import { type GalleryVerifier, VerifierFactory } from './verification.js';
 const OPEN = ['DRAFT', 'SUBMITTED', 'IN_REVIEW', 'DOCS_REQUESTED'] as const;
 const EDITABLE = ['DRAFT', 'DOCS_REQUESTED'];
 const DAY = 86_400_000;
+
+/** Ajan akışındaki gerekçe: yetki belgesi olan türlerde üç kurum kontrolü */
+const kontrolAdi = (tur: GalleryApplicationData['tur']) =>
+  BUSINESS_KIND_DEFS[tur].yetkiVar ? 'Yetki belgesi, vergi numarası ve MERSİS' : 'Vergi numarası ve MERSİS';
 
 /** Karar veren: çalışan ya da kurallarla ajan (Karar 41) */
 export type Decider = { staffId: string; ip?: string } | 'ajan';
@@ -53,6 +58,7 @@ export class GalleryApplicationService {
     private readonly outbox: OutboxService,
     private readonly consents: ConsentService,
     verifiers: VerifierFactory,
+    private readonly agent: AgentService,
   ) {
     this.verifier = verifiers.create();
   }
@@ -281,13 +287,17 @@ export class GalleryApplicationService {
         ? { key: 'telefon', sonuc: 'gecti', not: 'SMS koduyla doğrulandı' }
         : { key: 'telefon', sonuc: 'kaldi', not: 'Telefon doğrulanmadı' },
     ];
-    const hepsi = checks.every((c) => c.sonuc === 'gecti');
+    // Ajan durdurulduysa kontroller yine yazılır ama karar insana kalır (Karar 41)
+    const calisiyor = await this.agent.calisiyor();
+    const hepsi = checks.every((c) => c.sonuc === 'gecti') && calisiyor;
     const sorunlu = checks.filter((c) => c.sonuc !== 'gecti');
-    const agentNote = hepsi
-      ? `${APPLICATION_CHECKS.length}/${APPLICATION_CHECKS.length} kontrol geçti; kurallara göre onaylandı.`
-      : `${sorunlu
-          .map((c) => `${APPLICATION_CHECKS.find((x) => x.key === c.key)?.ad}: ${c.not ?? 'geçmedi'}`)
-          .join(' · ')}. Belgelere bakarak karar ver.`;
+    const agentNote = !calisiyor
+      ? `Ajan durduruldu; kontroller: ${checks.filter((c) => c.sonuc === 'gecti').length}/${checks.length} geçti. Belgelere bakarak karar ver.`
+      : hepsi
+        ? `${APPLICATION_CHECKS.length}/${APPLICATION_CHECKS.length} kontrol geçti; kurallara göre onaylandı.`
+        : `${sorunlu
+            .map((c) => `${APPLICATION_CHECKS.find((x) => x.key === c.key)?.ad}: ${c.not ?? 'geçmedi'}`)
+            .join(' · ')}. Belgelere bakarak karar ver.`;
     await this.db.galleryApplication.update({
       where: { id: a.id },
       data: {
@@ -298,6 +308,18 @@ export class GalleryApplicationService {
       },
     });
     if (hepsi) await this.approve(a.id, 'ajan');
+    else if (calisiyor) {
+      await this.db.$transaction((tx) =>
+        this.agent.kaydet(tx, {
+          kind: 'insana',
+          title: `Galeri başvurusu insana bırakıldı: ${d.gorunenAd}`,
+          reason: agentNote,
+          confidence: 'Kural',
+          entityType: 'gallery_application',
+          entityId: a.id,
+        }),
+      );
+    }
     return { hepsi, checks };
   }
 
@@ -382,6 +404,16 @@ export class GalleryApplicationService {
         },
         tx,
       );
+      if (by === 'ajan')
+        await this.agent.kaydet(tx, {
+          kind: 'galeri_onay',
+          title: `Galeri onaylandı: ${d.gorunenAd}`,
+          reason: `${kontrolAdi(d.tur)} kontrollerinin hepsi geçti · sana bildirildi`,
+          confidence: 'Kontroller tam',
+          entityType: 'gallery_application',
+          entityId: a.id,
+          undo: { applicationId: a.id, accountId },
+        });
       // Ajan onayında sahibe bilgi gider (Karar 03); başvurana hoş geldin iletisi (bildirim katmanı, Aşama 7)
       await this.outbox.add(tx, 'galeri.onaylandi', { applicationId: a.id, accountId, ajan: by === 'ajan' });
     });

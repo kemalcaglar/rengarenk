@@ -39,6 +39,7 @@ import {
   shortName,
   WARN_WINDOW_DAYS,
 } from '@rengarenk/shared';
+import { AgentService } from '../agent/agent.service.js';
 import { ApprovalService } from '../approvals/approval.service.js';
 import { ApprovalExecutor } from '../approvals/approval-executor.js';
 import { AuditService } from '../audit/audit.service.js';
@@ -101,6 +102,7 @@ export class ModerationService {
     executor: ApprovalExecutor,
     private readonly rules: ContentRulesService,
     private readonly sanctions: SanctionService,
+    private readonly agent: AgentService,
   ) {
     this.box = SecretBox.forMessages(env);
     this.web = env.WEB_ORIGIN;
@@ -265,6 +267,8 @@ export class ModerationService {
     const f = m.flags as MessageFlag[];
     if (!(f.includes('kapora') && (f.includes('iban') || f.includes('odeme')))) return 'islem_yok';
     if (!(await this.rules.acik('kapora'))) return 'islem_yok';
+    // Ajan durdurulduysa otomatik işlem yapılmaz; yasaklı kelime kuralının şikâyeti insan kuyruğunda kalır
+    if (!(await this.agent.calisiyor())) return 'islem_yok';
     const var_ = await this.db.report.findFirst({
       where: { source: 'ajan', targetType: 'mesaj', targetId: m.id },
       select: { id: true },
@@ -276,7 +280,23 @@ export class ModerationService {
     });
     const aski = askiSayisi < AGENT_DAILY_SUSPENSIONS;
     const id = uuidv7();
+    const sanctionId = aski ? uuidv7() : null;
     const accountId = m.conversation.sellerAccountId;
+    const adlar = new Map(
+      (
+        await this.db.user.findMany({
+          where: { id: { in: [m.senderUserId, m.conversation.buyerUserId] } },
+          select: { id: true, firstName: true, lastName: true },
+        })
+      ).map((u) => [u.id, shortName(u.firstName, u.lastName)]),
+    );
+    const ISARET: Record<string, string> = {
+      kapora: 'kapora isteği',
+      odeme: 'ödeme isteği',
+      iban: 'IBAN',
+      baglanti: 'bağlantı',
+      telefon: 'telefon numarası',
+    };
     await this.db.$transaction(async (tx) => {
       await tx.message.update({ where: { id: m.id }, data: { hiddenAt: new Date() } });
       const eylem = aski
@@ -300,7 +320,7 @@ export class ModerationService {
       if (aski) {
         await tx.userSanction.create({
           data: {
-            id: uuidv7(),
+            id: sanctionId as string,
             userId: m.senderUserId as string,
             accountId,
             kind: 'aski',
@@ -320,6 +340,15 @@ export class ModerationService {
         },
         tx,
       );
+      await this.agent.kaydet(tx, {
+        kind: 'mesaj_gizle',
+        title: `${aski ? 'Mesaj gizlendi, hesap 24 saat askıya alındı' : 'Mesaj gizlendi'}: ${adlar.get(m.senderUserId as string) ?? 'Satıcı'}`,
+        reason: `Mesajda ${f.map((x) => ISARET[x] ?? x).join(', ')} var; alıcı ${adlar.get(m.conversation.buyerUserId) ?? 'Kullanıcı'}${aski ? '' : ' · günlük askı sınırı doldu'} · şikâyet insan incelemesinde`,
+        confidence: 'Kural',
+        entityType: 'report',
+        entityId: id,
+        undo: { messageId: m.id, sanctionId },
+      });
       await this.outbox.add(tx, 'sikayet.acildi', { reportId: id });
       if (aski) await this.outbox.add(tx, 'moderasyon.ajan_aski', { reportId: id });
     });

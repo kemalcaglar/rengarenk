@@ -2269,3 +2269,95 @@ model OfficialRequest {
   @@index([status, createdAt])
   @@map("official_requests")
 }
+
+// ── Rengarenk Ajanı ve yapay zekâ (Karar 41, 57) ──────────────
+
+/// Yapay zekâ ayarı (tek satır, id = 1): aylık sınır yalnızca Sahip değiştirir, değişiklik işlem kaydına girer
+model AiSetting {
+  id         Int      @id @default(1)
+  limitUsd   Int      @default(150) @map("limit_usd")
+  /// %80 uyarısının gönderildiği ay (2026-11); ayda bir kez
+  alertMonth String?  @map("alert_month")
+  /// Sınıra ulaşıldı bildiriminin gönderildiği ay
+  capMonth   String?  @map("cap_month")
+  updatedBy  String?  @map("updated_by") @db.Uuid
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("ai_settings")
+}
+
+/// Görev başına aç/kapat (Karar 57); satırı olmayan görev açıktır
+model AiTaskSwitch {
+  task      String   @id
+  enabled   Boolean
+  updatedBy String?  @map("updated_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("ai_task_switches")
+}
+
+/// Her yapay zekâ çağrısı: görev, istem sürümü, token ve maliyet. İçerik maskelidir (Teknik tasarım §10).
+model AiCall {
+  id            String   @id @db.Uuid
+  task          String
+  promptVersion String   @map("prompt_version")
+  provider      String
+  model         String
+  /// tamam | kapali | butce | hata
+  status        String
+  inputTokens   Int      @default(0) @map("input_tokens")
+  outputTokens  Int      @default(0) @map("output_tokens")
+  /// Milyonda bir USD
+  costMicroUsd  Int      @default(0) @map("cost_micro_usd")
+  /// Maskelenmiş istek ve yanıt (kırpılmış)
+  inputMasked   String?  @map("input_masked")
+  outputMasked  String?  @map("output_masked")
+  /// Tür başına maskelenen değer sayısı
+  masked        Json     @default("{}")
+  error         String?
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([createdAt])
+  @@index([task, createdAt])
+  @@map("ai_calls")
+}
+
+/// Ajanın kendi yaptığı işlemler (Karar 41): konsolda "Bugün yaptıkları", tek tıkla geri alma, haftalık karne
+model AgentAction {
+  id         String    @id @db.Uuid
+  kind       String
+  title      String
+  reason     String
+  /// "Güven %97" | "Kural" | "Kontroller tam" | "Rapor"
+  confidence String
+  entityType String?   @map("entity_type")
+  entityId   String?   @map("entity_id")
+  /// Geri alma için gereken bilgi (türüne göre)
+  undo       Json?
+  undoneAt   DateTime? @map("undone_at") @db.Timestamptz(3)
+  undoneBy   String?   @map("undone_by") @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([createdAt])
+  @@index([kind, createdAt])
+  @@map("agent_actions")
+}
+
+/// Ajanın önerileri (Karar 41, önerir ve onay bekler): kurallar her gün üretir, aynı öneri aynı anahtarla bir kez açılır
+model AgentSuggestion {
+  id        String    @id @db.Uuid
+  kind      String
+  /// Tekrarı önler: deneme-bitiyor:2026-11-09
+  key       String    @unique
+  title     String
+  reason    String
+  data      Json      @default("{}")
+  /// acik | kapandi
+  status    String    @default("acik")
+  closedBy  String?   @map("closed_by") @db.Uuid
+  closedAt  DateTime? @map("closed_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([status, createdAt])
+  @@map("agent_suggestions")
+}

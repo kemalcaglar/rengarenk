@@ -173,6 +173,17 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Rengarenk Ajanı ve yapay zekâ (Sprint 23)
+
+- **Ağ geçidi:** `apps/api/src/ai/` (`AiGateway.run`): maskeleme (`maskPii`, `packages/shared/src/agent.ts`), görev
+  anahtarı, aylık sınır, çağrı kaydı (`ai_calls`). Sağlayıcı `AI_PROVIDER`: `none` (çağrı yok, kural metni), `fake` (yerel),
+  `vertex` (`VERTEX_SERVICE_ACCOUNT` base64 JSON, `VERTEX_LOCATION`).
+- **Ajan:** `apps/api/src/agent/` (`AgentService`: `calisiyor`, `kaydet`, `undo`, `oneriUret`, `ozet`; `AgentAsk`).
+  Yeni bir ajan işlemi eklerken değişiklikle aynı işlemde `agent.kaydet(tx, …)` çağır, türü `AGENT_ACTION_KINDS`'e ve
+  `agent_actions_kind_check` kısıtına ekle; geri alınabiliyorsa `AgentService.undo`'ya dalını yaz.
+- **Konsol:** `GET /staff/agent`, `POST /staff/agent/run` (`sistem.ayarla`), `POST /staff/agent/actions/:id/undo`,
+  `POST /staff/agent/ask`; `GET /staff/ai`, `POST /staff/ai/limit` (yalnızca Sahip), `POST /staff/ai/tasks/:gorev`.
+
 ## Saklama, imha ve ihlal (Sprint 22)
 
 - **Konsol:** `GET /staff/retention` (süreler, sıradaki dönem listesi, VERBİS), `POST /staff/retention/:id/approve`

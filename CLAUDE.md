@@ -224,8 +224,16 @@ pnpm format        # Biome ile biçimlendir
   dışında: satırları hiç değişmez. İşlem kaydındaki IP yarıyıl dönem anahtarıyla şifreli (`audit/ip-vault.ts`,
   `pii_keys`); 2 yıl sonra imhada anahtar silinir (RR040: süresi dolmadan silinemez). IP okumak için `AuditService.ips.open`.
   Depoya `Storage.delete` eklendi. API'de 152, ortak pakette 76 test.
-- **Sıradaki (Aşama 8 devamı):** Rengarenk Ajanı ve yapay zekâ bütçesi (Karar 41, 57), çalışan uyarılarının sahibe
-  iletilmesi (gerçek ihlal, imha, VERBİS eşiği, KVKK 7 gün, yeni cihaz, iade sonucu); ya da
+- **Sprint 23 (9 Kasım 2026):** yapay zekâ ağ geçidi ve bütçe (`apps/api/src/ai/`, Karar 57), Rengarenk Ajanı
+  (`apps/api/src/agent/`, `packages/shared/src/agent.ts`, Karar 41), konsol `/ajan` ve `/yapay-zeka`. Sağlayıcı
+  `AI_PROVIDER` (yerelde ve testte `fake`, canlıda `fake` yasak); istekler her zaman `maskPii` ile maskelenir. Durdurma
+  düğmesi `ajan` özellik anahtarı: ajanın her otomatik işi önce `agent.calisiyor()` sorar ve işlemini aynı veritabanı
+  işleminde `agent.kaydet` ile yazar. Ajan iade yapamaz (yalnızca öneri). Türkçe ekler `packages/shared/src/tr-ek.ts`
+  (`ekle('İzmir', 'bulunma')`). Yerel betik için Nest bağlamı `node --env-file-if-exists=../../.env --import
+  @swc-node/register/esm-register` ile çalışır (tsx dekoratör meta verisi üretmez). API'de 156, ortak pakette 80 test.
+- **Sıradaki (Aşama 8 devamı):** çalışan uyarılarının sahibe iletilmesi (gerçek ihlal, imha, VERBİS eşiği, KVKK 7 gün,
+  yeni cihaz, iade sonucu, yapay zekâ bütçesi %80 ve sınır, ajanın günlük özeti); ajanın kalan işleri ve kullanıcı tarafı
+  yapay zekâ (Karar 42); ya da
   sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan
   kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google

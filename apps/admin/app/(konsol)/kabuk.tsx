@@ -32,7 +32,7 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
   {
     grup: 'Genel',
     ogeler: [
-      { ad: 'Rengarenk Ajanı', sonra: true },
+      { href: '/ajan', ad: 'Rengarenk Ajanı', izin: 'rapor.gor' },
       { href: '/onaylar', ad: 'Onay kuyruğu', rozet: 'onay' },
       { ad: 'Kontrol paneli', sonra: true },
     ],
@@ -98,7 +98,7 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
       { ad: 'Kurallar ve fiyatlar', sonra: true },
       { href: '/entegrasyonlar', ad: 'Entegrasyonlar', izin: 'kategori.ayarla', rozet: 'entegrasyon' },
       { href: '/sistem', ad: 'Özellik anahtarları ve bakım', izin: 'sistem.ayarla' },
-      { ad: 'Yapay zekâ ve bütçe', sonra: true },
+      { href: '/yapay-zeka', ad: 'Yapay zekâ ve bütçe', izin: 'sistem.ayarla' },
       { ad: 'Sistem sağlığı ve yedek', sonra: true },
     ],
   },

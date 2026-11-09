@@ -1,6 +1,7 @@
 import { ConflictException, Inject, Injectable, Optional } from '@nestjs/common';
 import { type Prisma, uuidv7 } from '@rengarenk/db';
 import { CLOSED_KEEP, type CloseReason, closedPhone, shortName } from '@rengarenk/shared';
+import { AgentService } from '../agent/agent.service.js';
 import { ajanAktor } from '../approvals/agent-actor.js';
 import { AuditService } from '../audit/audit.service.js';
 import { AuthService } from '../auth/auth.service.js';
@@ -33,6 +34,7 @@ export class AccountClosureService {
     private readonly audit: AuditService,
     private readonly outbox: OutboxService,
     private readonly refunds: RefundsService,
+    private readonly agent: AgentService,
     @Optional() private readonly auth?: AuthService,
   ) {
     this.box = SecretBox.fromEnv(env);
@@ -115,6 +117,15 @@ export class AccountClosureService {
       if (r.count !== 1) throw new ConflictException('Hesap zaten kapatıldı');
 
       const iadeler = q && ajan ? await this.refunds.requestForClosure(tx, ajan, musteri, q.iadeler, ip) : [];
+      if (iadeler.length && q)
+        await this.agent.kaydet(tx, {
+          kind: 'iade_onerisi',
+          title: `Hesap kapatma iadesi önerildi: ${musteri}`,
+          reason: `${q.satirlar.map((s) => s.ad).join(', ')} kullanılmadı; iade yalnızca sahip onayıyla yapılır`,
+          confidence: 'Kural',
+          entityType: 'user',
+          entityId: userId,
+        });
       await tx.accountClosure.create({
         data: {
           id: uuidv7(),
