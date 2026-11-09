@@ -33,6 +33,8 @@ interface Detay {
   mesajlar: { id: string; taraf: 'kullanici' | 'destek'; kim: string; metin: string }[];
   kisi: { ad: string; userId: string | null };
   oneri: { soru: string; cevap: string; skor: number } | null;
+  /** Rengarenk Ajanı: taslak ve güven ya da insana bırakma notu */
+  ajan: { taslak: string | null; guven: number | null; not: string | null; yanitladi: boolean } | null;
   makrolar: { ad: string; metin: string }[];
 }
 
@@ -83,7 +85,7 @@ export default function Destek() {
     yonetim<Detay>(`support/tickets/${sec}`)
       .then((x) => {
         setD(x);
-        setMetin(x.oneri && x.durum !== 'cozuldu' ? x.oneri.cevap : '');
+        setMetin(x.durum !== 'cozuldu' ? (x.ajan?.taslak ?? x.oneri?.cevap ?? '') : '');
       })
       .catch((e: Error) => setHata(e.message));
   }, [sec]);
@@ -121,6 +123,7 @@ export default function Destek() {
   }
 
   const satirlar = q ? [...q.acik, ...q.cozulen] : [];
+  const taslakVar = Boolean(d?.ajan?.taslak || d?.oneri);
   return (
     <>
       <div style={{ marginBottom: 14 }}>
@@ -282,6 +285,19 @@ export default function Destek() {
                   </div>
                 ))}
               </div>
+              {d.durum !== 'cozuldu' && d.ajan?.not && !d.ajan.taslak ? (
+                <p
+                  style={{
+                    margin: 0,
+                    padding: '12px 18px 0',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: '#7A5300',
+                  }}
+                >
+                  Ajan: {d.ajan.not}
+                </p>
+              ) : null}
               {d.durum !== 'cozuldu' ? (
                 <div style={{ padding: '14px 18px', borderTop: '1px solid #EEF0F5' }}>
                   <div
@@ -293,9 +309,13 @@ export default function Destek() {
                       fontWeight: 800,
                     }}
                   >
-                    <span style={{ color: '#4B2FA6' }}>{d.oneri ? 'Ajanın taslağı' : 'Yanıt'}</span>
+                    <span style={{ color: '#4B2FA6' }}>{taslakVar ? 'Ajanın taslağı' : 'Yanıt'}</span>
                     <span style={{ color: '#5A6073' }}>
-                      {d.oneri ? `Sık sorulanlardan: “${d.oneri.soru}” · onayın gerekiyor` : ''}
+                      {d.ajan?.taslak
+                        ? `Güven %${d.ajan.guven ?? 0} · eşik %90 altında, onayın gerekiyor`
+                        : d.oneri
+                          ? `Sık sorulanlardan: “${d.oneri.soru}” · onayın gerekiyor`
+                          : ''}
                     </span>
                   </div>
                   <label
@@ -321,8 +341,8 @@ export default function Destek() {
                       width: '100%',
                       boxSizing: 'border-box',
                       marginTop: 6,
-                      border: `1.5px solid ${d.oneri ? '#C9B8FF' : '#D5DAE5'}`,
-                      background: d.oneri ? '#FAF7FF' : '#FFFFFF',
+                      border: `1.5px solid ${taslakVar ? '#C9B8FF' : '#D5DAE5'}`,
+                      background: taslakVar ? '#FAF7FF' : '#FFFFFF',
                       borderRadius: 12,
                       padding: '10px 12px',
                       fontSize: 13.5,
@@ -419,7 +439,7 @@ export default function Destek() {
                     color: '#11683F',
                   }}
                 >
-                  {bilgi ?? 'Çözüldü'}
+                  {bilgi ?? (d.ajan?.yanitladi ? `Ajan çözdü · ${d.ajan.not ?? ''}` : 'Çözüldü')}
                   {d.puan ? ` · memnuniyet ${d.puan}/5` : ''}
                 </div>
               )}

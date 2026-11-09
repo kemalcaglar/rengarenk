@@ -5,6 +5,7 @@ import {
   demandOwnerName,
   evaluateMatch,
   galleryAccess,
+  hideDemandText,
   MATCH_DAILY_INSTANT,
   MATCH_MIN_SCORE,
   type MatchCriterion,
@@ -350,7 +351,7 @@ export class MatchingService {
         d.id,
         {
           no: Number(d.no),
-          baslik: d.headline ?? d.title,
+          baslik: hideDemandText(d.headline) ?? d.title,
           // Eşleşme listesinde ad kısaltılmış görünür (GaleriPanel.dc.html: "Ayşe Y.")
           sahip: demandOwnerName(d.user.firstName, d.user.lastName, 'kisa'),
           il: d.il,
@@ -548,7 +549,7 @@ export class MatchingService {
     return {
       uyan: {
         talepNo: Number(best.pair.demand.no),
-        baslik: d?.title || d?.headline || '',
+        baslik: d?.title || hideDemandText(d?.headline ?? null) || '',
         metin: matchCountText(best.criteria),
       },
     };
@@ -617,7 +618,7 @@ export class MatchingService {
     return {
       talep: {
         no: Number(d.no),
-        baslik: d.headline ?? d.title,
+        baslik: hideDemandText(d.headline) ?? d.title,
         il: d.il,
         butceMin: d.budgetMin === null ? null : Number(d.budgetMin),
         butceMax: d.budgetMax === null ? null : Number(d.budgetMax),

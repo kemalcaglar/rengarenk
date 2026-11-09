@@ -1,8 +1,11 @@
 import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import {
+  DEMAND_TEXT_FLAGS,
+  type DemandTextFlag,
   FLAG_TITLES,
   GRANT_KINDS,
   type GrantKind,
+  hideDemandText,
   type MessageFlag,
   REPORT_REASONS,
   type ReportReasonKey,
@@ -54,6 +57,7 @@ export const NOTIFY_EVENTS = [
   'talep.suresi_doluyor',
   'talep.suresi_doldu',
   'talep.yayinlandi',
+  'talep.duzeltme_istendi',
   'mesaj.ilk',
   'mesaj.geldi',
   'mesaj.uyari',
@@ -167,6 +171,25 @@ export class NotificationEvents {
           veri: { talep: d.ad },
         });
         return n + (await this.kayitliAramalar(d));
+      }
+      case 'talep.duzeltme_istendi': {
+        const d = await this.talep(s('demandId'));
+        if (!d) return 0;
+        const adlar = ((p.isaretler as string[] | undefined) ?? []).map(
+          (f) => DEMAND_TEXT_FLAGS[f as DemandTextFlag] ?? f,
+        );
+        return this.notifications.notify({
+          userIds: [d.userId],
+          sablon: type,
+          veri: {
+            // Başlıkta iletişim bilgisi olabilir: bildirimde de gizli
+            talep: hideDemandText(d.ad),
+            alanlar:
+              adlar.length > 1
+                ? `${adlar.slice(0, -1).join(', ')} ve ${adlar.at(-1)}`
+                : (adlar[0] ?? 'iletişim bilgisi'),
+          },
+        });
       }
       case 'mesaj.ilk': {
         const c = await this.db.conversation.findUnique({
@@ -405,10 +428,24 @@ export class NotificationEvents {
       case 'moderasyon.ajan_aski': {
         const r = await this.db.report.findUnique({
           where: { id: s('reportId') },
-          select: { targetUserId: true },
+          select: { targetUserId: true, reason: true },
         });
         if (!r) return 0;
-        return this.notifications.notify({ userIds: [r.targetUserId], sablon: 'moderasyon.aski', veri: {} });
+        const spam = r.reason === 'spam';
+        return this.notifications.notify({
+          userIds: [r.targetUserId],
+          sablon: 'moderasyon.aski',
+          veri: spam
+            ? {
+                neden: 'Hesabından gelen mesajlar spam kuralına takıldı',
+                nedenUzun:
+                  'Hesabından kısa sürede çok sayıda talebe aynı mesaj gönderildiği ya da birçok kişi şikâyet ettiği için hesabın kısıtlandı.',
+              }
+            : {
+                neden: 'Bir mesajın güvenlik kurallarına takıldı',
+                nedenUzun: 'Gönderdiğin bir mesaj kapora ya da ödeme isteği içerdiği için gizlendi.',
+              },
+        });
       }
       case 'moderasyon.itiraz_sonuc': {
         const a = await this.db.reportAppeal.findUnique({ where: { id: s('appealId') } });

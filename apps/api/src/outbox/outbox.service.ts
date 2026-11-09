@@ -14,6 +14,8 @@ export type EventType =
   | 'talep.suresi_doldu'
   | 'talep.uzatildi'
   | 'talep.kapandi'
+  // Ajan talep metninde telefon, IBAN, bağlantı ya da yasaklı ifade buldu: sahibinden düzeltme istenir (Karar 41)
+  | 'talep.duzeltme_istendi'
   | 'arac.bulundu'
   | 'odeme.alindi'
   // Ödenen tutar siparişle uyuşmuyor: hak tanımlanmadı, inceleme (sahip)

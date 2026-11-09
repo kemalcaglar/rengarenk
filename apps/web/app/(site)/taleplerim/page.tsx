@@ -27,6 +27,8 @@ interface Talep {
   closedAt: string | null;
   freeExtensionUsed: boolean;
   updatedAt: string;
+  /** Rengarenk Ajanı düzeltme istedi (Karar 41): talep yayında, bu bilgiler başkalarına gizli */
+  duzeltme: { zaman: string; alanlar: string[] } | null;
   /** Galeri adına açılmış talep (Karar 12.2) */
   galeri: { ad: string; slug: string } | null;
   /** Talebin hesabındaki kullanılmamış öne çıkarma hakları (galeri paketi ya da talep seçmeden alınmış hak) */
@@ -96,6 +98,10 @@ function ozet(t: Talep) {
     .filter(Boolean)
     .join(' · ');
 }
+
+/** "telefon numarası ve bağlantı" */
+const birlestir = (l: string[]) =>
+  l.length > 1 ? `${l.slice(0, -1).join(', ')} ve ${l.at(-1)}` : (l[0] ?? '');
 
 function sure(t: Talep) {
   if (t.status === 'PUBLISHED') return `Yayında · ${gunKaldi(t.expiresAt)} gün kaldı`;
@@ -456,6 +462,31 @@ export default function Taleplerim() {
                     >
                       {sure(t)}
                     </p>
+                    {t.duzeltme ? (
+                      <p
+                        role="status"
+                        style={{
+                          margin: '8px 0 0',
+                          padding: '8px 12px',
+                          borderRadius: 10,
+                          background: '#FFF6DF',
+                          border: '1px solid #F4DC9A',
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: '#7A5300',
+                          lineHeight: 1.45,
+                        }}
+                      >
+                        Düzeltme gerekiyor: talebinde {birlestir(t.duzeltme.alanlar)} var. Talebin yayında, bu
+                        bilgiler başkalarına gizli gösteriliyor.{' '}
+                        <Link
+                          href={`/talep-olustur?id=${t.id}`}
+                          style={{ color: '#7A5300', fontWeight: 800 }}
+                        >
+                          Düzenle
+                        </Link>
+                      </p>
+                    ) : null}
                   </div>
                   <div
                     style={{

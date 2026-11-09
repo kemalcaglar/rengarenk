@@ -138,7 +138,7 @@ export class AgentService {
       durum: {
         aski,
         askiSinir: AGENT_LIMITS.aski,
-        yanit: 0,
+        yanit: await this.db.agentAction.count({ where: { kind: 'destek_yanit', createdAt: { gte: gun } } }),
         yanitSinir: AGENT_LIMITS.otomatikYanit,
         maliyetUsd: microToUsd(harcama),
         sinirUsd: sinir,
@@ -258,6 +258,24 @@ export class AgentService {
         await this.outbox.add(tx, 'galeri.onay_geri_alindi', {
           applicationId: app.id,
           accountId: app.accountId,
+        });
+      } else if (a.kind === 'spam_kisit') {
+        if (u.sanctionId)
+          await tx.userSanction.updateMany({
+            where: { id: u.sanctionId, liftedAt: null },
+            data: { liftedAt: now },
+          });
+      } else if (a.kind === 'destek_yanit') {
+        // Gönderilen yanıt geri çekilmez; talep yeniden insana açılır
+        await tx.supportTicket.updateMany({
+          where: { id: u.ticketId as string },
+          data: { status: 'acik', resolvedAt: null, resolvedBy: null, dueAt: new Date() },
+        });
+      } else if (a.kind === 'talep_duzeltme') {
+        // İstek kalkar; herkese açık görünümde iletişim bilgisi yine gizlidir
+        await tx.demand.updateMany({
+          where: { id: u.demandId as string },
+          data: { correctionFlags: [], correctionAt: null },
         });
       } else if (a.kind === 'ticari_durdur') {
         await tx.notificationSwitch.upsert({

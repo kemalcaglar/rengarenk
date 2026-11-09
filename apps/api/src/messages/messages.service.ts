@@ -17,6 +17,7 @@ import {
   FUELS,
   GEARBOXES,
   galleryAccess,
+  hideDemandText,
   hidePhones,
   MEMBER_ROLE_NAMES,
   type MessageFlag,
@@ -753,7 +754,9 @@ export class MessagesService {
         ad: karsi.ad,
         bas: basHarf(karsi.ad),
         galeri: karsi.galeri,
-        talep: c.demand ? { no: Number(c.demand.no), baslik: c.demand.headline ?? c.demand.title } : null,
+        talep: c.demand
+          ? { no: Number(c.demand.no), baslik: hideDemandText(c.demand.headline) ?? c.demand.title }
+          : null,
         arac: c.vehicle ? { no: Number(c.vehicle.no), ad: n(c.vehicle).ad } : null,
         son: sonMetin,
         zaman: c.lastMessageAt,
@@ -960,7 +963,9 @@ export class MessagesService {
       },
       // Yıldız (Karar 55): uygunsa alıcıya "Puan ver"
       puan: puan,
-      talep: c.demand ? { no: Number(c.demand.no), baslik: c.demand.headline ?? c.demand.title } : null,
+      talep: c.demand
+        ? { no: Number(c.demand.no), baslik: hideDemandText(c.demand.headline) ?? c.demand.title }
+        : null,
       arac: c.vehicle ? { no: Number(c.vehicle.no), ad: n(c.vehicle).ad } : null,
       numaraPaylasildi: !!c.phoneSharedAt,
       engelli: !!blok,

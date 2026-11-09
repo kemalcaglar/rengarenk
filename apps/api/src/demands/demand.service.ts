@@ -11,13 +11,16 @@ import {
   type CategoryDefinition,
   type CategoryField,
   DEMAND_STATUS_NAMES,
+  DEMAND_TEXT_FLAGS,
   type DemandStatusKey,
+  type DemandTextFlag,
   demandOwnerName,
   demandSchema,
   EXTEND_WINDOW_DAYS,
   effectiveFields,
   type FoundViaKey,
   galleryAccess,
+  hideDemandText,
   PROMOTE_DAYS,
   REMINDER_DAYS,
 } from '@rengarenk/shared';
@@ -135,6 +138,8 @@ export class DemandService {
     });
     return {
       ...this.summary({ ...d, category }),
+      /** Sahibi asıl başlığı görür ve düzeltir */
+      headline: d.headline,
       /** Galeri adına talep: hangi galeri (hak galerinin paketinden düşer) */
       hesap: g ? { id: d.accountId, ad: g.displayName } : null,
       data: d.data,
@@ -162,7 +167,13 @@ export class DemandService {
     const showPhone = d.status === 'PUBLISHED' && d.phoneVisible && Boolean(viewerUserId);
     return {
       ...this.summary(d),
-      data: { ...data, alanlar: data.alanlar },
+      data: {
+        ...data,
+        alanlar:
+          typeof data.alanlar?.aciklama === 'string'
+            ? { ...data.alanlar, aciklama: hideDemandText(data.alanlar.aciklama) }
+            : data.alanlar,
+      },
       gorunum: await this.gorunum(d, data),
       schema: { version: d.schemaVersion, fields: effectiveFields(def), rules: def.rules },
       owner: {
@@ -693,9 +704,11 @@ export class DemandService {
       status: d.status,
       statusName: DEMAND_STATUS_NAMES[d.status as DemandStatusKey],
       title: d.title,
-      headline: d.headline,
+      // Telefon, IBAN, e-posta ve bağlantı herkese açık başlıkta gizlenir (Karar 41, 13.2); sahibi ownerDetail'de asıl
+      // metni görür
+      headline: hideDemandText(d.headline),
       /** Gösterilecek başlık: alıcının yazdığı, yoksa katalogdan üretilen */
-      baslik: d.headline || d.title || d.category.name,
+      baslik: hideDemandText(d.headline) || d.title || d.category.name,
       category: d.category,
       il: d.il,
       ilce: d.ilce,
@@ -712,6 +725,13 @@ export class DemandService {
       passiveReason: d.passiveReason,
       closedAt: d.closedAt,
       freeExtensionUsed: d.freeExtensionUsed,
+      /** Ajanın düzeltme isteği (Karar 41): talep yayında, bu bilgiler gizli */
+      duzeltme: d.correctionAt
+        ? {
+            zaman: d.correctionAt,
+            alanlar: d.correctionFlags.map((f) => DEMAND_TEXT_FLAGS[f as DemandTextFlag] ?? f),
+          }
+        : null,
       createdAt: d.createdAt,
       updatedAt: d.updatedAt,
     };

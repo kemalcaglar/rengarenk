@@ -11,6 +11,7 @@ import {
 import { type Prisma, type Report, uuidv7 } from '@rengarenk/db';
 import {
   AGENT_DAILY_SUSPENSIONS,
+  AGENT_SPAM,
   APPEAL_DAYS,
   type BlockKind,
   CONTENT_FILTER_KEYS,
@@ -18,6 +19,8 @@ import {
   DECISION_NAMES,
   DECISION_NOTES,
   DECISION_PERMISSION,
+  DEMAND_TEXT_FLAGS,
+  type DemandTextFlag,
   flagShort,
   HIDE_NAMES,
   ibansIn,
@@ -36,6 +39,7 @@ import {
   type ReportReasonKey,
   type ReportTarget,
   SUSPEND_HOURS,
+  scanDemandText,
   shortName,
   WARN_WINDOW_DAYS,
 } from '@rengarenk/shared';
@@ -353,6 +357,194 @@ export class ModerationService {
       if (aski) await this.outbox.add(tx, 'moderasyon.ajan_aski', { reportId: id });
     });
     return aski ? 'askiya_alindi' : 'gizlendi';
+  }
+
+  /**
+   * Ajan (Karar 41): talep başlığı ya da açıklamasında telefon, IBAN, e-posta, bağlantı ya da yasaklı ifade varsa
+   * sahibinden düzeltme ister. Talep yayında kalır; bu bilgiler herkese açık görünümde zaten gizlidir. Sahibi düzeltince
+   * (talep.guncellendi) işaret kalkar. Ajan durduysa düzeltme istenmez; yasaklı kelime şikâyeti insan kuyruğunda kalır.
+   */
+  async ajanTalepKontrolu(demandId: string): Promise<'islem_yok' | 'duzeltme_istendi' | 'duzeltildi'> {
+    const d = await this.db.demand.findUnique({ where: { id: demandId } });
+    if (!d || (d.status !== 'PUBLISHED' && d.status !== 'PASSIVE')) return 'islem_yok';
+    const aciklama = String((d.data as { alanlar?: { aciklama?: unknown } }).alanlar?.aciklama ?? '');
+    const metin = [d.headline ?? '', aciklama].join('\n');
+    const isaret: DemandTextFlag[] = scanDemandText(metin);
+    if ((await this.rules.yasakli(metin)).length) isaret.push('yasakli');
+    if (isaret.length === 0) {
+      if (!d.correctionAt) return 'islem_yok';
+      // Sahibi düzeltti: işaret kalkar (ajan durmuş olsa da temizlenir)
+      await this.db.demand.update({ where: { id: d.id }, data: { correctionFlags: [], correctionAt: null } });
+      return 'duzeltildi';
+    }
+    const ayni = d.correctionAt && [...isaret].sort().join() === [...d.correctionFlags].sort().join();
+    if (ayni) return 'islem_yok';
+    if (!(await this.agent.calisiyor())) return 'islem_yok';
+    const adlar = isaret.map((f) => DEMAND_TEXT_FLAGS[f]);
+    const liste = adlar.length > 1 ? `${adlar.slice(0, -1).join(', ')} ve ${adlar.at(-1)}` : (adlar[0] ?? '');
+    await this.db.$transaction(async (tx) => {
+      await tx.demand.update({
+        where: { id: d.id },
+        data: { correctionFlags: isaret, correctionAt: new Date() },
+      });
+      await this.audit.record(
+        {
+          actorType: 'AGENT',
+          action: 'ajan_talep_duzeltme_istedi',
+          entityType: 'demand',
+          entityId: d.id,
+          after: { isaretler: isaret },
+        },
+        tx,
+      );
+      await this.agent.kaydet(tx, {
+        kind: 'talep_duzeltme',
+        title: `Talep açıklaması için düzeltme istendi: No ${d.no}`,
+        reason: `${liste.charAt(0).toLocaleUpperCase('tr-TR')}${liste.slice(1)} var; talep düzeltilene kadar yayında ama ${isaret.includes('yasakli') && isaret.length === 1 ? 'ifade moderasyonda' : 'bu bilgiler gizli'}`,
+        confidence: isaret.includes('yasakli') && isaret.length === 1 ? 'Kural' : 'Güven %99',
+        entityType: 'demand',
+        entityId: d.id,
+        undo: { demandId: d.id },
+      });
+      await this.outbox.add(tx, 'talep.duzeltme_istendi', { demandId: d.id, isaretler: isaret });
+    });
+    return 'duzeltme_istendi';
+  }
+
+  /**
+   * Ajan (Karar 41): spam hesabı kısıtlar. Son bir saatte aynı ilk mesajı en az 10 farklı talebe gönderen ya da son 24
+   * saatte en az 5 farklı kişiden şikâyet alan hesap 24 saat mesaj gönderemez; şikâyet insan incelemesine düşer.
+   * Günlük askı sınırı ve durdurma düğmesi geçerlidir; ajanın işlemi tek tıkla geri alınır.
+   */
+  async ajanSpamKontrolu(userId: string, now = new Date()): Promise<'islem_yok' | 'kisitlandi'> {
+    if (!(await this.agent.calisiyor())) return 'islem_yok';
+    const aktif = await this.db.userSanction.findFirst({
+      where: { userId, kind: 'aski', liftedAt: null, until: { gt: now } },
+      select: { id: true },
+    });
+    if (aktif) return 'islem_yok';
+
+    // Aynı ilk mesaj: şifreli gövde açılıp sadeleştirilerek karşılaştırılır
+    const saat = new Date(now.getTime() - HOUR);
+    const ilkler = await this.db.message.findMany({
+      where: {
+        senderUserId: userId,
+        side: 'satici',
+        kind: 'metin',
+        createdAt: { gte: saat, lte: now },
+        conversation: { origin: 'talep' },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 200,
+      select: { id: true, conversationId: true, body: true },
+    });
+    const gruplar = new Map<string, { sohbet: Set<string>; mesaj: string }>();
+    for (const m of ilkler) {
+      let metin = '';
+      try {
+        metin = this.box.open(m.body);
+      } catch {
+        continue;
+      }
+      const anahtar = metin.toLocaleLowerCase('tr-TR').replace(/\s+/g, ' ').trim();
+      if (anahtar.length < 10) continue;
+      const g = gruplar.get(anahtar) ?? { sohbet: new Set<string>(), mesaj: m.id };
+      g.sohbet.add(m.conversationId);
+      gruplar.set(anahtar, g);
+    }
+    const ayni = [...gruplar.values()].sort((a, b) => b.sohbet.size - a.sohbet.size)[0];
+    const mesajSpam = ayni && ayni.sohbet.size >= AGENT_SPAM.ayniMesaj ? ayni : null;
+
+    const sikayetler = mesajSpam
+      ? []
+      : await this.db.report.findMany({
+          where: {
+            targetUserId: userId,
+            source: 'kullanici',
+            createdAt: { gte: new Date(now.getTime() - DAY), lte: now },
+          },
+          orderBy: { createdAt: 'desc' },
+          select: { reporterUserId: true, targetType: true, targetId: true, targetAccountId: true },
+        });
+    const kisiler = new Set(sikayetler.flatMap((r) => (r.reporterUserId ? [r.reporterUserId] : [])));
+    const sikayetSpam = !mesajSpam && kisiler.size >= AGENT_SPAM.sikayet ? sikayetler[0] : null;
+    if (!mesajSpam && !sikayetSpam) return 'islem_yok';
+
+    const gunBasi = new Date(new Date(now).setHours(0, 0, 0, 0));
+    const askiSayisi = await this.db.userSanction.count({
+      where: { byAgent: true, kind: 'aski', createdAt: { gte: gunBasi } },
+    });
+    if (askiSayisi >= AGENT_DAILY_SUSPENSIONS) return 'islem_yok';
+
+    const hedef = mesajSpam
+      ? await this.db.message.findUniqueOrThrow({
+          where: { id: mesajSpam.mesaj },
+          select: { id: true, conversation: { select: { sellerAccountId: true } } },
+        })
+      : null;
+    const targetType = (hedef ? 'mesaj' : sikayetSpam?.targetType) as ReportTarget;
+    const targetId = hedef?.id ?? (sikayetSpam?.targetId as string);
+    const accountId = hedef?.conversation.sellerAccountId ?? sikayetSpam?.targetAccountId ?? null;
+    const u = await this.db.user.findUnique({
+      where: { id: userId },
+      select: { firstName: true, lastName: true },
+    });
+    const ad = shortName(u?.firstName, u?.lastName);
+    const neden = mesajSpam
+      ? `Son bir saatte aynı ilk mesajı ${mesajSpam.sohbet.size} farklı talebe gönderdi`
+      : `Son 24 saatte ${kisiler.size} farklı kişiden şikâyet aldı`;
+    const id = uuidv7();
+    const sanctionId = uuidv7();
+    await this.db.$transaction(async (tx) => {
+      await tx.report.create({
+        data: {
+          id,
+          source: 'ajan',
+          targetType,
+          targetId,
+          targetUserId: userId,
+          targetAccountId: accountId,
+          reason: 'spam',
+          priority: 'yuksek',
+          signals: [mesajSpam ? 'ayni_mesaj' : 'cok_sikayet'],
+          agentAction: 'Hesabı 24 saat kısıtladı (spam)',
+          dueAt: new Date(now.getTime() + PRIORITY_HOURS.yuksek * HOUR),
+        },
+      });
+      await tx.userSanction.create({
+        data: {
+          id: sanctionId,
+          userId,
+          accountId,
+          kind: 'aski',
+          reportId: id,
+          until: new Date(now.getTime() + SUSPEND_HOURS * HOUR),
+          byAgent: true,
+        },
+      });
+      await this.audit.record(
+        {
+          actorType: 'AGENT',
+          action: 'ajan_spam_kisitladi',
+          entityType: 'report',
+          entityId: id,
+          after: { neden: mesajSpam ? 'ayni_mesaj' : 'cok_sikayet' },
+        },
+        tx,
+      );
+      await this.agent.kaydet(tx, {
+        kind: 'spam_kisit',
+        title: `Spam hesabı 24 saat kısıtlandı: ${ad}`,
+        reason: `${neden} · şikâyet insan incelemesinde`,
+        confidence: 'Kural',
+        entityType: 'report',
+        entityId: id,
+        undo: { sanctionId },
+      });
+      await this.outbox.add(tx, 'sikayet.acildi', { reportId: id });
+      await this.outbox.add(tx, 'moderasyon.ajan_aski', { reportId: id });
+    });
+    return 'kisitlandi';
   }
 
   // ── Konsol: kuyruk ve ayrıntı ─────────────────────────────────

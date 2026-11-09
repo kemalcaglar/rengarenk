@@ -138,6 +138,28 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 25 · ajanın kalan işleri (Aşama 8 sekizinci bölüm, 9 Kasım 2026)
+
+- [x] Talep metni (Karar 41, 13.2): başlık ve açıklamadaki telefon, IBAN, e-posta ve bağlantı herkese açık her yerde
+  (talep sayfası, liste ve arama, favoriler, eşleşmeler, sohbet başlığı) gizlenir; sahibi kendi taleplerinde asıl metni
+  görür. Ajan yayında ve düzenlemede tarar, yasaklı kelime listesini de kullanır; bulursa "düzeltme istendi"
+  (`correction_flags`), sahibine bildirim (`talep.duzeltme_istendi`, uygulama içi ve e-posta), web ve mobil Taleplerim'de
+  not. Düzeltilince işaret kalkar; moderatör geri alabilir
+- [x] Destek (Karar 41, 54): ajan yeni talebi sınıflandırır. Hak bakiyesi (hak defterinden) ve hesap durumu (etkin askı
+  ve itiraz yolu) kişinin kaydından, diğerleri sık sorulanlardan. Güven %90 ve üstünde yanıtlayıp çözer (günde en çok
+  500), altında taslağı konsolda "Ajanın taslağı · Güven %X · eşik %90 altında" olarak bırakır. İade, hesap kapatma,
+  dolandırıcılık her zaman insana; ajan iade önerisi açmaz. Satın aldığını söyleyip ek hakkı görünmeyen kişide taslak
+  insana. Kullanıcıya "Rengarenk Destek · otomatik yanıt" görünür; geri alınca talep yeniden insana açılır. Kuyrukta
+  "Ajanın kendi çözdüğü" ve geri dönen oranı
+- [x] Spam (Karar 41): son bir saatte aynı ilk mesajı en az 10 talebe gönderen ya da 24 saatte en az 5 farklı kişiden
+  şikâyet alan hesap 24 saat kısıtlanır (günlük askı sınırı, durdurma düğmesi), şikâyet insan incelemesine düşer,
+  kişiye nedenli bildirim; geri alınabilir
+- [x] SMS ana sağlayıcı art arda hata verip yedeğe geçince ajanın akışına yazılır
+- [x] Ana ölçü uyarısı (Karar 44): 48 saatte ilk mesaj alan talep oranı bir günde 5 puandan fazla düşerse Sahip ve
+  yöneticiye
+- [x] Kritik uyarılar SMS ile gitmez (sahip kararı, 9 Kasım 2026)
+- [ ] Yapay zekâ ile sınıflandırma ve taslak: Vertex AI hesabı açılınca (şimdilik kurallar; ağ geçidi maskeli istekle hazır)
+
 ## Sprint 24 · çalışan uyarıları (Aşama 8 yedinci bölüm, 9 Kasım 2026)
 
 - [x] Uyarı kuralları ortak pakette (`packages/shared/src/staff-alerts.ts`, 19 kural): Sahip her uyarıyı alır; ayrıca
@@ -156,11 +178,10 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   Karar 37); günlük özete dikkat isteyenler ve ajanın yaptıkları eklenir
 - [x] Konsol › Büyüme › Zamanlanmış raporlar ve uyarılar: ajanın günlük özeti (aç/kapat), kritik ve diğer uyarılar,
   kanal ve alıcılar
-- [ ] Kritik uyarının telefona bildirim (push ya da SMS) olarak düşmesi: çalışanın telefonu ya da konsol için push
-  kaydı yok; şimdilik e-posta (şirket hesabının telefondaki bildirimi). Sahip kararı bekleniyor
+- [x] Kritik uyarı SMS olarak gönderilmez (sahip kararı, 9 Kasım 2026): konsol ve şirket e-postası yeterli; e-posta
+  telefonda bildirim olarak düşer
 - [ ] Haftalık ve aylık raporlar, galerilere "aranan modeller" raporu, yeni zamanlanmış rapor ve kayıtlı panolar:
-  Raporlar ekranıyla (Aşama 9). "Ana ölçü 24 saatte 5 puan düşerse" ve "hedef geride kalırsa" uyarıları da raporlar ve
-  hedeflerle gelir
+  Raporlar ekranıyla (Aşama 9). "Hedef geride kalırsa" uyarısı hedeflerle gelir ("ana ölçü düşerse" Sprint 25'te)
 
 ## Sprint 23 · Rengarenk Ajanı ve yapay zekâ bütçesi (Aşama 8 altıncı bölüm, 9 Kasım 2026)
 
@@ -178,9 +199,9 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   biten sessiz galeriler, dolandırıcılıkta bağlantı oranı, il ve kategoride talep artışı), 09.00'dan sonra günlük özet,
   "Ajana sor" (sayılar kuraldan, kişisel veri yok; yapay zekâ yalnızca cümleyi kurar). Konsol › Rengarenk Ajanı;
   Çalışanlar listesinde ajan satırı
-- [ ] Ajanın kalan "sormadan yapar" işleri: destek taleplerini sınıflandırıp basit olanları yanıtlama (otomatik yanıt
-  sayacı), talep açıklamasında telefon, IBAN, bağlantı ya da hakarette düzeltme isteme, spam hesap kısıtlama, metrik
-  sapması ve ödeme hata oranı uyarısı, SMS yedeğe geçişin akışa yazılması, gönderim saati ve A/B kazananı
+- [x] Ajanın kalan "sormadan yapar" işleri (Sprint 25): destek yanıtı, talep düzeltme isteği, spam kısıtlama, ana ölçü
+  ve ödeme hata oranı uyarısı, SMS yedeğe geçişin akışa yazılması
+- [ ] Gönderim saati ve A/B kazananı: kampanyalar ve deneylerle (Aşama 9)
 - [ ] Kullanıcı tarafı yapay zekâ (Karar 42): talep asistanı, ilk mesaj taslağı, yapay zekâ destekli mesaj güvenliği,
   toplu yükleme yardımı, destek sohbeti
 - [x] Bütçe uyarısı, günlük özet ve ajanın durması sahibe iletiliyor (Sprint 24, çalışan uyarıları)

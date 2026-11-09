@@ -126,6 +126,13 @@ export const STAFF_ALERT_RULES = {
     roller: ['ADMIN'],
     yol: '/ajan',
   },
+  ana_olcu: {
+    ad: 'Ana ölçü',
+    kosul: 'Ana ölçü (48 saatte ilk mesaj alan talep oranı) 24 saatte 5 puandan fazla düşerse',
+    kritik: false,
+    roller: ['ADMIN'],
+    yol: '/ajan',
+  },
   ajan_geri_alma: {
     ad: 'Ajanın geri alınan işlemleri',
     kosul: 'Ajanın geri alınan işlem oranı haftalık %5’i aşarsa',
@@ -166,6 +173,9 @@ export const STAFF_ALERT_LIMITS = {
   /** Ajanın geri alınan işlemleri son 7 günde; en az bu kadar geri alınabilir işlem varsa bakılır */
   ajanGeriAlmaOrani: 0.05,
   ajanEnAzIslem: 10,
+  /** Ana ölçü (Karar 44): 24 saatte puan düşüşü; iki günün her birinde en az bu kadar talep varsa bakılır */
+  anaOlcuPuan: 5,
+  anaOlcuEnAz: 20,
   kvkkKalanGun: 7,
   imhaKalanGun: 14,
   verbisOrani: 0.8,

@@ -157,6 +157,54 @@ export function maskEvidence(text: string): string {
     .replace(/https?:\/\/\S+|www\.\S+/gi, '[bağlantı]');
 }
 
+// ── Talep metni (Karar 41, 13.2) ───────────────────────────────
+
+/** Talep başlığı ve açıklamasında aranan iletişim ve ödeme bilgileri */
+export const DEMAND_TEXT_FLAGS = {
+  telefon: 'telefon numarası',
+  iban: 'IBAN',
+  eposta: 'e-posta adresi',
+  baglanti: 'bağlantı',
+  yasakli: 'uygunsuz ifade',
+} as const;
+export type DemandTextFlag = keyof typeof DEMAND_TEXT_FLAGS;
+
+const T_IBAN = /\bTR\s?\d{2}(?:\s?\d){22}\b/gi;
+const T_EPOSTA = /[\p{L}\d._%+-]+@[\p{L}\d.-]+\.[\p{L}]{2,}/gu;
+const T_BAGLANTI =
+  /\b(?:https?:\/\/|www\.)\S+|\b[a-z0-9-]+\.(?:com|net|org|info|biz|io|me|ly|link|site|online|xyz)(?:\.tr)?(?:\/\S*)?/gi;
+// Cep ve sabit hat: +90 / 0 ön ekli ya da 10 hane; boşluk, tire, nokta ve parantezle
+const T_TELEFON =
+  /(?<!\d)(?:(?:\+|00)90[\s.-]?|0[\s.-]?)?\(?[2-5]\d{2}\)?[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}(?!\d)/g;
+
+/** Talep metnindeki iletişim ve ödeme bilgileri (yasaklı kelime ayrı, konsoldaki listeden) */
+export function scanDemandText(text: string): DemandTextFlag[] {
+  const f: DemandTextFlag[] = [];
+  const t = text.replace(T_EPOSTA, () => {
+    f.push('eposta');
+    return ' ';
+  });
+  if (new RegExp(T_IBAN.source, 'i').test(t)) f.push('iban');
+  if (new RegExp(T_TELEFON.source).test(t.replace(new RegExp(T_IBAN.source, 'gi'), ' '))) f.push('telefon');
+  if (new RegExp(T_BAGLANTI.source, 'i').test(t)) f.push('baglanti');
+  return [...new Set(f)];
+}
+
+/**
+ * Herkese açık talep metninde telefon, IBAN, e-posta ve bağlantı gizlenir (talep düzeltilene kadar yayında kalır).
+ * Talep sahibi kendi taleplerinde asıl metni görür.
+ */
+export function hideDemandText(text: string): string;
+export function hideDemandText(text: string | null): string | null;
+export function hideDemandText(text: string | null): string | null {
+  if (!text) return text;
+  return text
+    .replace(T_EPOSTA, '[e-posta gizlendi]')
+    .replace(T_IBAN, '[IBAN gizlendi]')
+    .replace(T_BAGLANTI, '[bağlantı gizlendi]')
+    .replace(T_TELEFON, '[numara gizlendi]');
+}
+
 /** Alıcıya giden mesajda numara gizleme (telefon izni kapalıysa; Karar 13.2) */
 export function hidePhones(text: string): string {
   return text.replace(

@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { type CategoryDefinition, effectiveFields } from '@rengarenk/shared';
+import { type CategoryDefinition, effectiveFields, hideDemandText } from '@rengarenk/shared';
 import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 
@@ -280,7 +280,7 @@ export class DemandSearchService {
       : null;
     return {
       no: Number(d.no),
-      baslik: d.headline || d.title || d.category.name,
+      baslik: hideDemandText(d.headline) || d.title || d.category.name,
       arac,
       kategori: d.category.slug,
       kategoriAd: d.category.name,

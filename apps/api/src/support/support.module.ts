@@ -34,6 +34,7 @@ import { RequirePermission } from '../staff/permissions.js';
 import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
 import { StaffModule } from '../staff/staff.module.js';
 import { SupportService } from './support.service.js';
+import { SupportAgent } from './support-agent.js';
 
 type AuthedRequest = { user: AccessClaims };
 
@@ -150,8 +151,8 @@ export class SupportStaffController {
 
 /** İşçi için: memnuniyet sorusu ve bildirim metni */
 @Module({
-  providers: [SupportService, AuditService, OutboxService],
-  exports: [SupportService],
+  providers: [SupportService, SupportAgent, AuditService, OutboxService],
+  exports: [SupportService, SupportAgent],
 })
 export class SupportServiceModule {}
 

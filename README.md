@@ -173,6 +173,15 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Ajanın işleri (Sprint 25)
+
+- Talep metni: `scanDemandText`, `hideDemandText` (`packages/shared/src/moderation.ts`); herkese açık çıktıda gizleme,
+  `ModerationService.ajanTalepKontrolu` (işçi: `talep.yayinlandi`, `talep.guncellendi`).
+- Destek: `apps/api/src/support/support-agent.ts` (`SupportAgent.isle`, işçi: `destek.acildi`); eşik `AGENT_SUPPORT`.
+- Spam: `ModerationService.ajanSpamKontrolu` (işçi: `mesaj.ilk`, `sikayet.acildi`); eşikler `AGENT_SPAM`.
+- SMS yedeğe geçiş: `FailoverSmsSender` `onFailover` → ajan akışı. Ana ölçü: `StaffAlertService.anaOlcu`.
+- Ajanın yeni işlem türleri (`AGENT_ACTION_KINDS`): `talep_duzeltme`, `destek_yanit`, `spam_kisit` geri alınır; `sms_yedek`.
+
 ## Çalışan uyarıları (Sprint 24)
 
 - Kurallar `packages/shared/src/staff-alerts.ts` (`STAFF_ALERT_RULES`), servis `apps/api/src/staff-alerts/`. Olaylar

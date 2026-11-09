@@ -141,11 +141,32 @@ export function unmaskPii(text: string, map: Record<string, string>): string {
 /** Günlük işlem sınırları (Karar 41 güvenlik kuralları) */
 export const AGENT_LIMITS = { aski: 50, otomatikYanit: 500 } as const;
 
+/**
+ * Destek yanıtı (YonetimPazar › destek): ajan güveni eşiğin üstündeyse yanıtlayıp çözer, altındaysa taslağı insana
+ * bırakır. İade, hesap silme, dolandırıcılık ve hesap engeli her zaman insana kalır; ajan iade önerisi açmaz.
+ */
+export const AGENT_SUPPORT = { esik: 0.9 } as const;
+
+/**
+ * Spam hesap (Karar 41): kısa sürede çok sayıda satıcıya aynı ilk mesajı gönderen ya da çok sayıda şikâyet alan hesap
+ * 24 saat mesaj gönderemez (askı); karar insana bırakılır.
+ */
+export const AGENT_SPAM = {
+  /** Son 1 saatte aynı metinle en az bu kadar farklı sohbete ilk mesaj */
+  ayniMesaj: 10,
+  /** Son 24 saatte en az bu kadar farklı kişiden şikâyet */
+  sikayet: 5,
+} as const;
+
 /** Ajanın kendi yaptığı işlem türleri; geri alınabilenler konsolda "Geri al" düğmesi taşır */
 export const AGENT_ACTION_KINDS = {
   mesaj_gizle: { ad: 'Mesaj gizleme ve askı', geriAlinir: true, izin: 'sikayet.coz' },
   galeri_onay: { ad: 'Galeri başvurusu onayı', geriAlinir: true, izin: 'galeri_basvuru.onayla' },
   ticari_durdur: { ad: 'Ticari e-postayı durdurma', geriAlinir: true, izin: 'sistem.ayarla' },
+  talep_duzeltme: { ad: 'Talep açıklaması için düzeltme isteme', geriAlinir: true, izin: 'sikayet.coz' },
+  destek_yanit: { ad: 'Destek talebini yanıtlama', geriAlinir: true, izin: 'destek.yanitla' },
+  spam_kisit: { ad: 'Spam hesabı kısıtlama', geriAlinir: true, izin: 'hesap.askiya_al' },
+  sms_yedek: { ad: 'SMS yedek sağlayıcıya geçiş', geriAlinir: false, izin: null },
   iade_onerisi: { ad: 'İade önerisi', geriAlinir: false, izin: null },
   imha_sayimi: { ad: 'İmha listesi sayımı', geriAlinir: false, izin: null },
   ozet: { ad: 'Günlük özet', geriAlinir: false, izin: null },

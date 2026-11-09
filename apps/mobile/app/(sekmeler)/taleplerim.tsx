@@ -39,6 +39,8 @@ interface Talep {
   closedAt: string | null;
   freeExtensionUsed: boolean;
   updatedAt: string;
+  /** Rengarenk Ajanı düzeltme istedi (Karar 41): talep yayında, bu bilgiler başkalarına gizli */
+  duzeltme: { zaman: string; alanlar: string[] } | null;
   /** Galeri adına açılmış talep (Karar 12.2) */
   galeri: { ad: string; slug: string } | null;
   /** Hesabın kullanılmamış öne çıkarma hakları (galeri paketi ya da talep seçmeden alınmış hak) */
@@ -324,6 +326,29 @@ export default function Taleplerim() {
                 <T style={{ fontSize: 12.5, color: t.status === 'PASSIVE' ? '#7A5300' : colors.muted }}>
                   {sure(t)}
                 </T>
+                {t.duzeltme ? (
+                  <T
+                    accessibilityRole="alert"
+                    style={{
+                      marginTop: 8,
+                      padding: 10,
+                      borderRadius: 10,
+                      backgroundColor: '#FFF6DF',
+                      borderWidth: 1,
+                      borderColor: '#F4DC9A',
+                      fontSize: 12.5,
+                      fontWeight: '600',
+                      color: '#7A5300',
+                      lineHeight: 17,
+                    }}
+                  >
+                    Düzeltme gerekiyor: talebinde{' '}
+                    {t.duzeltme.alanlar.length > 1
+                      ? `${t.duzeltme.alanlar.slice(0, -1).join(', ')} ve ${t.duzeltme.alanlar.at(-1)}`
+                      : t.duzeltme.alanlar[0]}{' '}
+                    var. Talebin yayında, bu bilgiler başkalarına gizli. Düzenle ile kaldırabilirsin.
+                  </T>
+                ) : null}
               </View>
             </Pressable>
             <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>

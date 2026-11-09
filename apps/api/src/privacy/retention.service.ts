@@ -371,7 +371,7 @@ export class RetentionService {
         data: { body: '' },
       });
       imha.destek = await this.db
-        .$executeRaw`UPDATE support_tickets SET subject = ${IMHA}, purged_at = ${now},
+        .$executeRaw`UPDATE support_tickets SET subject = ${IMHA}, purged_at = ${now}, agent_draft = NULL,
           email = CASE WHEN user_id IS NULL THEN ${IMHA} ELSE NULL END
           WHERE id = ANY(${a.destek.imha}::uuid[])`;
     }

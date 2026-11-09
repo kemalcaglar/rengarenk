@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { uuidv7 } from '@rengarenk/db';
 import {
+  AGENT_ACTION_KINDS,
   BUILTIN_ROLES,
   DISPOSAL_KINDS,
   STAFF_ALERT_KEYS,
@@ -342,17 +343,12 @@ export class StaffAlertService {
       kvkk && `${kvkk} KVKK başvurusu`,
       basvuru && `${basvuru} galeri başvurusu incelemede`,
     ].filter(Boolean);
-    const AD: Record<string, string> = {
-      mesaj_gizle: 'mesaj gizleme ve askı',
-      galeri_onay: 'galeri onayı',
-      ticari_durdur: 'ticari e-postayı durdurma',
-      iade_onerisi: 'iade önerisi',
-      imha_sayimi: 'imha sayımı',
-      insana: 'insana bırakılan iş',
-    };
     const yaptiklari = islemler
       .filter((g) => g._count._all > 0)
-      .map((g) => `${g._count._all} ${AD[g.kind] ?? g.kind}`);
+      .map((g) => {
+        const ad = (AGENT_ACTION_KINDS as Record<string, { ad: string }>)[g.kind]?.ad ?? g.kind;
+        return `${g._count._all} ${ad.toLocaleLowerCase('tr-TR')}`;
+      });
     return [
       `Dikkat isteyenler: ${dikkat.length ? dikkat.join(', ') : 'bekleyen iş yok'}.`,
       `Ajanın son 24 saatte yaptıkları: ${yaptiklari.length ? yaptiklari.join(', ') : 'otomatik işlem yok'}.`,
@@ -368,6 +364,7 @@ export class StaffAlertService {
       verbis: await this.verbis(now),
       odeme: await this.odemeHatasi(now),
       ajan: await this.ajanGeriAlma(now),
+      olcu: await this.anaOlcu(now),
     };
     return sonuc;
   }
@@ -464,6 +461,38 @@ export class StaffAlertService {
       dedupe: `${Math.floor(now.getTime() / HOUR)}`,
       title: `Ödeme hatası oranı ${yuzde(oran)}`,
       body: `Son bir saatte ${toplam} ödemenin ${hata} tanesi başarısız oldu (sınır %5). Ödeme kuruluşunun durumunu kontrol et.`,
+    });
+  }
+
+  /**
+   * Ana ölçü (Karar 44): 48 saat içinde en az bir satıcının yazdığı talep oranı. 48 saati dolan son 24 saatlik
+   * yayınlar bir önceki 24 saatle karşılaştırılır; 5 puandan fazla düşerse günde bir uyarı.
+   */
+  async anaOlcu(now = new Date()) {
+    const oran = async (bas: Date, bit: Date) => {
+      const [r] = await this.db.$queryRaw<{ toplam: bigint; alan: bigint }[]>`
+        SELECT count(*) AS toplam,
+               count(*) FILTER (WHERE EXISTS (
+                 SELECT 1 FROM conversations c
+                 WHERE c.demand_id = d.id AND c.origin = 'talep'
+                   AND c.created_at <= d.published_at + interval '48 hours')) AS alan
+        FROM demands d
+        WHERE d.published_at >= ${bas} AND d.published_at < ${bit}`;
+      const toplam = Number(r?.toplam ?? 0);
+      return { toplam, oran: toplam ? Number(r?.alan ?? 0) / toplam : 0 };
+    };
+    const t = now.getTime();
+    const [son, once] = await Promise.all([
+      oran(new Date(t - 72 * HOUR), new Date(t - 48 * HOUR)),
+      oran(new Date(t - 96 * HOUR), new Date(t - 72 * HOUR)),
+    ]);
+    if (son.toplam < STAFF_ALERT_LIMITS.anaOlcuEnAz || once.toplam < STAFF_ALERT_LIMITS.anaOlcuEnAz) return 0;
+    const fark = (once.oran - son.oran) * 100;
+    if (fark <= STAFF_ALERT_LIMITS.anaOlcuPuan) return 0;
+    return this.raise('ana_olcu', {
+      dedupe: `${Math.floor(t / DAY)}`,
+      title: `Ana ölçü ${Math.round(fark)} puan düştü: ${yuzde(son.oran)}`,
+      body: `48 saat içinde ilk mesaj alan talep oranı bir önceki günde ${yuzde(once.oran)} iken ${yuzde(son.oran)} oldu (${son.toplam} talep). Rengarenk Ajanı › Ajana sor ile il ve kategori kırılımına bakabilirsin.`,
     });
   }
 

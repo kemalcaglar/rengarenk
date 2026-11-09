@@ -26,6 +26,7 @@ import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { SecretBox } from '../staff/secret-box.js';
+import { SupportAgent } from './support-agent.js';
 
 const DAY = 86_400_000;
 /** Kişi başına aynı anda açık talep ve günlük yeni talep sınırı (kötüye kullanıma karşı) */
@@ -46,6 +47,7 @@ export class SupportService {
     @Inject(ENV) env: Env,
     private readonly audit: AuditService,
     private readonly outbox: OutboxService,
+    private readonly ajan: SupportAgent,
   ) {
     this.box = SecretBox.forMessages(env);
   }
@@ -161,6 +163,9 @@ export class SupportService {
         data: {
           lastMessageAt: now,
           userReadAt: now,
+          // Yeni mesajla ajanın taslağı eskir
+          agentDraft: null,
+          agentConfidence: null,
           ...(t.status !== 'acik' ? { status: 'acik', dueAt: firstResponseDue(now), resolvedAt: null } : {}),
         },
       });
@@ -230,7 +235,7 @@ export class SupportService {
   async queue() {
     const otuz = new Date(Date.now() - 30 * DAY);
     const now = new Date();
-    const [acik, cozulen, ilkYanit, puan] = await Promise.all([
+    const [acik, cozulen, ilkYanit, puan, ajan] = await Promise.all([
       this.db.supportTicket.findMany({
         where: { status: { not: 'cozuldu' } },
         orderBy: [{ priority: 'desc' }, { dueAt: 'asc' }],
@@ -250,6 +255,7 @@ export class SupportService {
         _avg: { rating: true },
         _count: { rating: true },
       }),
+      this.ajan.ozet(),
     ]);
     const kisiler = new Map(
       (
@@ -288,7 +294,11 @@ export class SupportService {
                 : `${(ort / 60).toLocaleString('tr-TR', { maximumFractionDigits: 1 })} sa`,
           not: 'Hedef: mesai içi 2 saat',
         },
-        { ad: 'Ajanın kendi çözdüğü', deger: '—', not: 'Yapay zekâ yanıtları Rengarenk Ajanı ile' },
+        {
+          ad: 'Ajanın kendi çözdüğü',
+          deger: ajan.toplam ? `%${Math.round((ajan.ajan / ajan.toplam) * 100)}` : '—',
+          not: `Son 30 gün · geri dönen %${ajan.ajan ? Math.round((ajan.donen / ajan.ajan) * 100) : 0}`,
+        },
         {
           ad: 'Memnuniyet',
           deger: puan._count.rating
@@ -320,9 +330,9 @@ export class SupportService {
       (
         await this.db.staffMember.findMany({
           where: { id: { in: mesajlar.flatMap((m) => (m.staffId ? [m.staffId] : [])) } },
-          select: { id: true, name: true },
+          select: { id: true, name: true, role: true },
         })
-      ).map((s) => [s.id, s.name.split(' ')[0] ?? s.name]),
+      ).map((s) => [s.id, s.role === 'AGENT' ? 'Ajan' : (s.name.split(' ')[0] ?? s.name)]),
     );
     const kisiAd = u ? shortName(u.firstName, u.lastName) : (t.email ?? 'Kullanıcı');
     const liste = mesajlar.map((m) => {
@@ -332,7 +342,10 @@ export class SupportService {
         taraf: m.side as 'kullanici' | 'destek',
         kim:
           m.side === 'destek'
-            ? `Rengarenk Destek${kim === 'destek' && m.staffId ? ` · ${calisan.get(m.staffId) ?? ''}` : ''}`
+            ? kim === 'destek'
+              ? `Rengarenk Destek${m.staffId ? ` · ${calisan.get(m.staffId) ?? ''}` : ''}`
+              : // Ajanın yanıtı kullanıcıya otomatik olduğu söylenerek gösterilir (Karar 41)
+                `Rengarenk Destek${m.staffId && calisan.get(m.staffId) === 'Ajan' ? ' · otomatik yanıt' : ''}`
             : kisiAd,
         // Destek ekranında telefon numarası maskelidir (Karar 54)
         metin: kim === 'destek' && m.side === 'kullanici' ? hidePhones(metin) : metin,
@@ -360,6 +373,16 @@ export class SupportService {
             sonTarih: t.status === 'acik' ? t.dueAt : null,
             oncelikli: t.priority,
             oneri: sonKullanici ? suggestAnswer(sonKullanici.metin) : null,
+            /** Rengarenk Ajanı (Karar 41): taslak ve güven ya da insana bırakma notu */
+            ajan:
+              t.agentNote || t.agentDraft
+                ? {
+                    taslak: t.agentDraft ? this.acik(t.agentDraft) : null,
+                    guven: t.agentConfidence,
+                    not: t.agentNote,
+                    yanitladi: t.agentAnsweredAt !== null,
+                  }
+                : null,
             makrolar: SUPPORT_MACROS,
           }
         : {}),

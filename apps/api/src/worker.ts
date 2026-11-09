@@ -26,6 +26,7 @@ import { QueueService } from './queue/queue.service.js';
 import { DemandSearchService } from './search/demand-search.service.js';
 import { STAFF_ALERT_EVENTS, StaffAlertService } from './staff-alerts/staff-alert.service.js';
 import { SupportService } from './support/support.service.js';
+import { SupportAgent } from './support/support-agent.js';
 import { TrustService } from './trust/trust.service.js';
 import { WorkerModule } from './worker.module.js';
 
@@ -54,6 +55,7 @@ const akislar = app.get(AutomationService);
 const moderasyon = app.get(ModerationService);
 const itibar = app.get(ReputationService);
 const destek = app.get(SupportService);
+const destekAjani = app.get(SupportAgent);
 const gizlilik = app.get(PrivacyService);
 const imha = app.get(RetentionService);
 const ajan = app.get(AgentService);
@@ -123,6 +125,45 @@ await queue.consume<{ messageId?: string }>('mesaj.uyari', 'moderasyon-ajan', as
   if (!messageId) return;
   const r = await moderasyon.ajanMesajKontrolu(messageId);
   if (r !== 'islem_yok') log.log(`ajan mesaj kontrolü: ${r}`);
+});
+// Ajan (Karar 41): talep metninde telefon, IBAN, e-posta, bağlantı ya da yasaklı ifade varsa düzeltme ister
+for (const event of ['talep.yayinlandi', 'talep.guncellendi']) {
+  await queue.consume<{ demandId: string }>(
+    event,
+    `ajan-talep-${event.replace('.', '-')}`,
+    async ({ demandId }) => {
+      const r = await moderasyon.ajanTalepKontrolu(demandId);
+      if (r !== 'islem_yok') log.log(`ajan talep kontrolü: ${r}`);
+    },
+  );
+}
+// Ajan (Karar 41, 54): yeni destek talebini sınıflandırır; basit olanları yanıtlar, diğerlerinde taslak ya da insana
+await queue.consume<{ ticketId: string }>('destek.acildi', 'ajan-destek', async ({ ticketId }) => {
+  const r = await destekAjani.isle(ticketId);
+  if (r !== 'islem_yok') log.log(`ajan destek: ${r}`);
+});
+// Ajan (Karar 41): spam hesap kısıtlama (aynı ilk mesajı çok sayıda talebe gönderen ya da çok şikâyet alan hesap)
+await queue.consume<{ conversationId: string }>(
+  'mesaj.ilk',
+  'ajan-spam-mesaj',
+  async ({ conversationId }) => {
+    const c = await db.conversation.findUnique({
+      where: { id: conversationId },
+      select: { sellerUserId: true },
+    });
+    if (!c) return;
+    const r = await moderasyon.ajanSpamKontrolu(c.sellerUserId);
+    if (r !== 'islem_yok') log.log(`ajan spam kontrolü: ${r}`);
+  },
+);
+await queue.consume<{ reportId: string }>('sikayet.acildi', 'ajan-spam-sikayet', async ({ reportId }) => {
+  const r = await db.report.findUnique({
+    where: { id: reportId },
+    select: { source: true, targetUserId: true },
+  });
+  if (r?.source !== 'kullanici') return;
+  const s = await moderasyon.ajanSpamKontrolu(r.targetUserId);
+  if (s !== 'islem_yok') log.log(`ajan spam kontrolü: ${s}`);
 });
 // KVKK (Karar 58): veri kopyası hazırlanır, hazır olunca bildirim gider
 await queue.consume<{ exportId: string }>('veri.indirme_istendi', 'veri-indirme', async ({ exportId }) => {
@@ -261,7 +302,7 @@ while (!stopping) {
     await uyarilar
       .denetle()
       .then((r) => {
-        const n = r.kvkk + r.imha + r.verbis + r.odeme + r.ajan;
+        const n = r.kvkk + r.imha + r.verbis + r.odeme + r.ajan + r.olcu;
         if (n) log.log(`çalışan uyarısı denetimi: ${n} uyarı`);
       })
       .catch((err: Error) => log.error(`çalışan uyarısı denetimi: ${err.message}`));

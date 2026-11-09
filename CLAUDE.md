@@ -234,9 +234,14 @@ pnpm format        # Biome ile biçimlendir
 - **Sprint 24 (9 Kasım 2026):** çalışan uyarıları (`apps/api/src/staff-alerts/`, `packages/shared/src/staff-alerts.ts`):
   olaydan ve saatlik denetimden uyarı, Sahip her uyarıyı alır, diğer alıcılar kuralın yetkisi ya da rolüyle; kritik uyarı
   kapatılamaz. Konsolda üst çubukta "Uyarı N", `/uyarilar`, Büyüme › Zamanlanmış raporlar; şirket e-postasına teslim (işçi).
-  Uyarı metnine kişisel veri yazılmaz (e-posta Google Workspace'e gider). Yerelde e-postalar Mailpit'e düşer. API'de 162 test.
-- **Sıradaki (Aşama 8 devamı):** ajanın kalan işleri (destek otomatik yanıtı, talep açıklamasında düzeltme isteme, spam
-  hesap kısıtlama, metrik sapması) ve kullanıcı tarafı yapay zekâ (Karar 42); ya da
+  Uyarı metnine kişisel veri yazılmaz (e-posta Google Workspace'e gider). Kritik uyarı SMS ile gitmez (sahip kararı).
+  Yerelde e-postalar Mailpit'e düşer. API'de 162 test.
+- **Sprint 25 (9 Kasım 2026):** ajanın kalan işleri: talep metninde telefon/IBAN/e-posta/bağlantı herkese açık çıktıda
+  her zaman gizli (`hideDemandText`; yeni bir yerde talep başlığı gösterirken bunu kullan) ve ajan düzeltme ister;
+  destek yanıtı (`support-agent.ts`, güven %90 eşiği, iade/hesap kapatma/dolandırıcılık insana, ajan iade önerisi
+  açmaz); spam kısıtlama; SMS yedeğe geçiş akışa yazılır; ana ölçü uyarısı. API'de 167, ortak pakette 82 test.
+- **Sıradaki (Aşama 8 devamı):** kullanıcı tarafı yapay zekâ (Karar 42: talep asistanı, ilk mesaj taslağı, mesaj
+  güvenliği, toplu yükleme yardımı, destek sohbeti); galeri 1 yıldız itirazı, cihaz kara listesi, Ayarlar › İletişim; ya da
   sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan
   kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google

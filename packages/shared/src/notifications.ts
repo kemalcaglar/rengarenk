@@ -160,6 +160,24 @@ export const NOTIFY_TEMPLATES = {
       dugme: { yazi: 'Talebini uzat', url: '/taleplerim' },
     },
   },
+  'talep.duzeltme_istendi': {
+    ad: 'Talepte düzeltme gerekiyor (ajan)',
+    konu: 'guvenlik',
+    grup: 'talep',
+    baslik: 'Talebinde düzeltme gerekiyor',
+    metin:
+      '{{talep}} metninde {{alanlar}} var. Talebin yayında, bu bilgiler gizlendi; düzenleyip kaldırabilirsin.',
+    url: '/taleplerim',
+    eposta: {
+      konu: 'Talebinde düzeltme gerekiyor',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        '“{{talep}}” talebinin başlığında ya da açıklamasında {{alanlar}} var. Güvenliğin için talep metninde iletişim ve ödeme bilgisi paylaşılmaz; satıcılar sana mesajla ulaşır.',
+        'Talebin yayında kalıyor; bu bilgiler başkalarına gizli gösteriliyor. Talebini düzenleyip bu kısmı kaldırabilirsin.',
+      ],
+      dugme: { yazi: 'Talebini düzenle', url: '/taleplerim' },
+    },
+  },
   'talep.yayinlandi': {
     ad: 'Talep yayında',
     konu: 'genel',
@@ -633,13 +651,13 @@ export const NOTIFY_TEMPLATES = {
     konu: 'guvenlik',
     grup: 'guvenlik',
     baslik: 'Hesabın incelemeye alındı',
-    metin: 'Bir mesajın güvenlik kurallarına takıldı; 24 saat mesaj gönderemezsin. Moderatör inceleyecek.',
+    metin: '{{neden}}; 24 saat mesaj gönderemezsin. Moderatör inceleyecek.',
     url: '/mesajlarim',
     eposta: {
       konu: 'Hesabın incelemeye alındı',
       paragraflar: [
         'Merhaba {{ad}},',
-        'Gönderdiğin bir mesaj kapora ya da ödeme isteği içerdiği için gizlendi ve hesabın 24 saat mesaj gönderemeyecek.',
+        '{{nedenUzun}} Hesabın 24 saat mesaj gönderemeyecek.',
         'Bir moderatör durumu inceleyip karar verecek; karar sana bildirilecek ve 7 gün içinde itiraz edebileceksin.',
       ],
     },

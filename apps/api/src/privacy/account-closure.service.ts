@@ -197,7 +197,7 @@ export class AccountClosureService {
       await tx.notification.updateMany({ where: { userId }, data: { baslik: '', metin: '' } });
       await tx.delivery.updateMany({ where: { userId }, data: { hedef: null, veri: {} } });
       await tx.rating.updateMany({ where: { buyerUserId: userId }, data: { fingerprint: null } });
-      await tx.supportTicket.updateMany({ where: { userId }, data: { email: null } });
+      await tx.supportTicket.updateMany({ where: { userId }, data: { email: null, agentDraft: null } });
       await tx.dataExport.updateMany({
         where: { userId, status: { in: ['hazirlaniyor', 'hazir'] } },
         data: { status: 'suresi_doldu' },

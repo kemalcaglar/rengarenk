@@ -1014,6 +1014,10 @@ model Demand {
   passiveAt         DateTime?    @map("passive_at") @db.Timestamptz(3)
   /// sure_doldu | kullanici
   passiveReason     String?      @map("passive_reason")
+  /// Ajanın düzeltme isteği (Karar 41): başlık ya da açıklamada telefon, IBAN, e-posta, bağlantı ya da uygunsuz ifade.
+  /// Talep yayında kalır, bu bilgiler herkese açık görünümde gizlenir; sahibi düzeltince temizlenir.
+  correctionFlags   String[]     @default([]) @map("correction_flags")
+  correctionAt      DateTime?    @map("correction_at") @db.Timestamptz(3)
   closedAt          DateTime?    @map("closed_at") @db.Timestamptz(3)
   /// Aracı buldum: rengarenk | baska_site | tanidik | vazgectim (Karar 31; satıcıya gösterilmez)
   foundVia          String?      @map("found_via")
@@ -2083,6 +2087,13 @@ model SupportTicket {
   /// Kullanıcının son okuduğu
   userReadAt      DateTime? @map("user_read_at") @db.Timestamptz(3)
   /// İmha edildiyse zamanı (Karar 59): metinler silinir, satır kalır
+  /// Rengarenk Ajanı (Karar 41): yanıt taslağı (@pii, şifreli), güven (0–100), sınıf notu; güven eşiği aşıldıysa ajan
+  /// yanıtlayıp çözer (agentAnsweredAt)
+  /// @pii
+  agentDraft      String?   @map("agent_draft")
+  agentConfidence Int?      @map("agent_confidence")
+  agentNote       String?   @map("agent_note")
+  agentAnsweredAt DateTime? @map("agent_answered_at") @db.Timestamptz(3)
   purgedAt        DateTime? @map("purged_at") @db.Timestamptz(3)
   createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 

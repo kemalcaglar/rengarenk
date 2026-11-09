@@ -10,6 +10,7 @@ import {
   type DemandSearchQuery,
   demandOwnerName,
   demandSearchQuerySchema,
+  hideDemandText,
   MAX_SAVED_SEARCHES,
 } from '@rengarenk/shared';
 import { type Db, PRISMA } from '../database/prisma.js';
@@ -105,7 +106,7 @@ export class FavoritesService {
               : 'kapandi';
       return {
         no: Number(d.no),
-        baslik: d.headline || d.title || d.category.name,
+        baslik: hideDemandText(d.headline) || d.title || d.category.name,
         category: d.category,
         arac: [d.makeKey, d.seriesKey, d.modelKey]
           .map((k) => (k ? ad.get(k) : undefined))
