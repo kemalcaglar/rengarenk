@@ -202,6 +202,10 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   zaman başına tek gönderim `scheduled_report_runs`), PDF `report-pdf.ts` (pdfkit, Plus Jakarta Sans gömülü:
   `apps/api/assets/fonts/`, SIL OFL). Uçlar `/staff/scheduled-reports`; galeri raporunu açmak BULK_SEND onayı
   (`ApprovalExecutor.register(tür, işlev, konu)`). Konsol `/zamanlanmis-raporlar`.
+- Akış düzenleyicisi (Karar 51): `packages/shared/src/notifications.ts` (`flowStepSchema`, `FLOW_CONDITIONS`, `FLOW_GOALS`,
+  `flowVariables`), motor `apps/api/src/notifications/flows.ts` (`FlowService.baslat` tetikleyicide ilk iletiden sonra,
+  `tick` işçide dakikada bir); tablolar `automation_flows`, `automation_runs`. Uçlar
+  `PUT /staff/notifications/automations/:key/steps`, `POST /staff/notifications/automations/:key/test`. Konsol `/akislar`.
 - Kampanyalar ve segmentler (Karar 49, 51): `packages/shared/src/campaigns.ts`, `apps/api/src/campaigns/`
   (`SegmentService.preview/reach`, `CampaignService.estimate/create/dispatchDue`, işçide dakikada bir); uçlar
   `/staff/segments`, `/staff/campaigns`; bildirimlerde `campaign_id`. Konsol `/segmentler`, `/kampanyalar`.

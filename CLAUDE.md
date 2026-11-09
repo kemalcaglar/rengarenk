@@ -266,9 +266,11 @@ pnpm format        # Biome ile biçimlendir
   rotasından; yeni bir site rotası eklersen `LANDING_RESERVED`'a da ekle). Zamanlanmış raporlar
   (`scheduled-report.service.ts`, konsol `/zamanlanmis-raporlar`): haftalık ve aylık rapor e-postası PDF ekiyle
   (`report-pdf.ts`, pdfkit + `apps/api/assets/fonts/`), yeni rapor, galerilere aranan modeller (açmak BULK_SEND onayı).
-  Aynı onay türünü iki modül kullanırsa `executor.register(tür, işlev, konu)`. API'de 186, ortak pakette 96 test.
+  Aynı onay türünü iki modül kullanırsa `executor.register(tür, işlev, konu)`. Akış düzenleyicisi (`notifications/flows.ts`):
+  tetikleyici ilk iletiyi gönderince `flows.baslat(akış, kişiler, bağlam, ref)`; yeni akış tetikleyicisi eklersen hedefini
+  `FlowService.hedefte`'ye, adım şablonunu `akis.adim.<akış>` olarak ekle. API'de 187, ortak pakette 99 test.
 - **Sıradaki:** Aşama 9 devamı
-  (akış düzenleyicisi, ana sayfa düzeni ve banner, kupon ve A/B, reklam ölçümü); ya da sunucular gelince Radore'ye ilk
+  (ana sayfa düzeni ve banner, kupon ve A/B, reklam ölçümü); ya da sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

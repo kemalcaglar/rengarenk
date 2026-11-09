@@ -198,6 +198,9 @@ export class AccountClosureService {
       await tx.notificationPref.deleteMany({ where: { userId } });
       await tx.notification.updateMany({ where: { userId }, data: { baslik: '', metin: '' } });
       await tx.delivery.updateMany({ where: { userId }, data: { hedef: null, veri: {} } });
+      // Süren otomatik akışlar durur; bağlamdaki ileti değişkenleri (talep başlığı, galeri adı) silinir
+      await tx.automationRun.updateMany({ where: { userId, status: 'aktif' }, data: { status: 'kapali' } });
+      await tx.automationRun.updateMany({ where: { userId }, data: { context: {} } });
       await tx.rating.updateMany({ where: { buyerUserId: userId }, data: { fingerprint: null } });
       await tx.supportTicket.updateMany({ where: { userId }, data: { email: null, agentDraft: null } });
       await tx.dataExport.updateMany({

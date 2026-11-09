@@ -20,6 +20,7 @@ import { vehicleNames } from '../portfolio/vehicle-names.js';
 import { DemandSearchService } from '../search/demand-search.service.js';
 import { SupportService } from '../support/support.service.js';
 import { DeliveryService } from './delivery.service.js';
+import { FlowService } from './flows.js';
 import { NotificationService } from './notification.service.js';
 
 const DAY = 86_400_000;
@@ -107,6 +108,7 @@ export class NotificationEvents {
     private readonly search: DemandSearchService,
     @Optional() private readonly support?: SupportService,
     @Optional() private readonly teslim?: DeliveryService,
+    @Optional() private readonly flows?: FlowService,
   ) {}
 
   private async ekip(accountId: string, satisDahil = false) {
@@ -162,11 +164,21 @@ export class NotificationEvents {
         const d = await this.talep(s('demandId'));
         if (!d) return 0;
         const yazan = await this.db.conversation.count({ where: { demandId: d.id, origin: 'talep' } });
-        return this.notifications.notify({
-          userIds: [d.userId],
-          sablon: type,
-          veri: { talep: d.ad, talepKisa: kisa(d.ad, 40), gun: p.gun ?? 0, yazan },
-        });
+        const veri = { talep: d.ad, talepKisa: kisa(d.ad, 40), gun: p.gun ?? 0, yazan };
+        const n = await this.notifications.notify({ userIds: [d.userId], sablon: type, veri });
+        // Akışın eklenen adımları (Karar 51): talep ve bitiş tarihi başına bir kez
+        if (type === 'talep.suresi_doluyor' && this.flows) {
+          const bitis = (
+            await this.db.demand.findUnique({ where: { id: d.id }, select: { expiresAt: true } })
+          )?.expiresAt;
+          await this.flows.baslat(
+            'doluyor',
+            [d.userId],
+            { veri, demandId: d.id, bitis: bitis?.toISOString() },
+            `${d.id}:${bitis?.toISOString() ?? ''}`,
+          );
+        }
+        return n;
       }
       case 'talep.yayinlandi': {
         const d = await this.talep(s('demandId'));
@@ -297,18 +309,22 @@ export class NotificationEvents {
       case 'galeri.deneme_bitiyor':
       case 'galeri.deneme_bitti': {
         const g = await this.galeriAdi(s('accountId'));
-        return this.notifications.notify({
-          userIds: await this.ekip(s('accountId')),
-          sablon: type,
-          veri: {
-            galeri: g.displayName,
-            galeriKisa: kisa(g.displayName, 24),
-            neden: s('neden') || 'Kart reddedildi',
-            tarih: p.tarih ? tarih(s('tarih')) : '',
-            tutar: p.tutarKurus ? tlYaz(Number(p.tutarKurus)) : '',
-            gun: p.kalanGun ?? '',
-          },
-        });
+        const ekip = await this.ekip(s('accountId'));
+        const veri = {
+          galeri: g.displayName,
+          galeriKisa: kisa(g.displayName, 24),
+          neden: s('neden') || 'Kart reddedildi',
+          tarih: p.tarih ? tarih(s('tarih')) : '',
+          tutar: p.tutarKurus ? tlYaz(Number(p.tutarKurus)) : '',
+          gun: p.kalanGun ?? '',
+        };
+        const n = await this.notifications.notify({ userIds: ekip, sablon: type, veri });
+        // Akışın eklenen adımları: ödeme hatasında sipariş, denemede galeri başına bir kez
+        if (this.flows && type === 'abonelik.odeme_basarisiz')
+          await this.flows.baslat('odeme', ekip, { veri, accountId: s('accountId') }, s('orderId'));
+        if (this.flows && (type === 'galeri.deneme_bitiyor' || type === 'galeri.deneme_bitti'))
+          await this.flows.baslat('deneme', ekip, { veri, accountId: s('accountId') }, s('accountId'));
+        return n;
       }
       case 'iade.yurutuldu': {
         const r = await this.db.refund.findUnique({
@@ -523,8 +539,15 @@ export class NotificationEvents {
           },
         });
       }
-      case 'kullanici.kaydoldu':
-        return this.notifications.notify({ userIds: [s('userId')], sablon: 'akis.hosgeldin', veri: {} });
+      case 'kullanici.kaydoldu': {
+        const n = await this.notifications.notify({
+          userIds: [s('userId')],
+          sablon: 'akis.hosgeldin',
+          veri: {},
+        });
+        await this.flows?.baslat('hosgeldin', [s('userId')], { veri: {} }, s('userId'));
+        return n;
+      }
       case 'portfoy.eids_reddedildi': {
         const v = await this.db.portfolioVehicle.findUnique({ where: { id: s('vehicleId') } });
         if (!v) return 0;

@@ -9,6 +9,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +18,11 @@ import {
   AUTOMATION_KEYS,
   AUTOMATIONS,
   type AutomationKey,
+  FLOW_GOALS,
+  type FlowStep,
+  flowEditSchema,
+  flowStepText,
+  flowVariables,
   NOTIFY_TEMPLATES,
   NOTIFY_TOPICS,
   type NotifyTemplate,
@@ -34,6 +40,7 @@ import { type Db, PRISMA } from '../database/prisma.js';
 import { RequirePermission } from '../staff/permissions.js';
 import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
 import { isinmaLimiti } from './commercial.js';
+import { doldur, FlowService } from './flows.js';
 import { ITIBAR_SINIR, ReputationService } from './reputation.js';
 import { SwitchService } from './switches.js';
 import { TemplatesService } from './templates.service.js';
@@ -109,6 +116,7 @@ export class NotificationsStaffService {
     private readonly switches: SwitchService,
     private readonly audit: AuditService,
     private readonly itibar: ReputationService,
+    private readonly flows: FlowService,
   ) {}
 
   async templateList() {
@@ -440,7 +448,7 @@ export class NotificationsStaffService {
     return Promise.all(
       AUTOMATION_KEYS.map(async (key) => {
         const a = AUTOMATIONS[key];
-        const [acik, kisi, okunan] = await Promise.all([
+        const [acik, kisi, okunan, ek, akista, hedefte] = await Promise.all([
           this.switches.akisAcik(key),
           this.db.notification.count({
             where: { sablon: { in: [...a.sablonlar] }, createdAt: { gte: once } },
@@ -448,18 +456,120 @@ export class NotificationsStaffService {
           this.db.notification.count({
             where: { sablon: { in: [...a.sablonlar] }, createdAt: { gte: once }, readAt: { not: null } },
           }),
+          this.flows.adimlar(key),
+          this.db.automationRun.count({ where: { flowKey: key, status: 'aktif' } }),
+          this.db.automationRun.count({ where: { flowKey: key, status: 'hedef', createdAt: { gte: once } } }),
         ]);
+        // Koddaki adımlar: tetikleyici ve ilk ileti; hedef en sonda. Eklenen adımlar hedeften önce gelir.
+        const sabit = a.adimlar.filter((x) => x.tip !== 'Hedef');
+        const hedef = a.adimlar.find((x) => x.tip === 'Hedef');
         return {
           key,
           ad: a.ad,
           tur: a.tur,
           acik,
-          adimlar: a.adimlar,
+          adimlar: sabit,
+          ekAdimlar: ek.adimlar,
+          ekSatirlar: ek.adimlar.map(flowStepText),
+          hedef: hedef ?? { tip: 'Hedef', baslik: FLOW_GOALS[key].hedef, detay: 'Akıştan çıkış' },
+          surum: ek.surum,
+          degiskenler: flowVariables(key),
+          epostaVar: FLOW_GOALS[key].eposta,
+          akista,
+          hedefte,
           kisi,
           okunma: kisi ? okunan / kisi : null,
         };
       }),
     );
+  }
+
+  /**
+   * Akış düzenleyicisi (Karar 51): ilk iletiden sonraki adımlar. İletide yalnızca akışın değişkenleri kullanılır;
+   * e-posta yalnızca e-postası olan akışlarda. Yeni sürüm yalnızca yeni başlayan kişilere uygulanır; işlem kaydına girer.
+   */
+  async setSteps(key: AutomationKey, adimlar: FlowStep[], staffId: string, ip: string) {
+    const izinli = new Set(flowVariables(key));
+    for (const a of adimlar) {
+      if (a.tip !== 'ileti') continue;
+      const kullanilan = [a.baslik, a.metin, a.dugme].flatMap((m) =>
+        [...m.matchAll(/\{\{\s*(\w+)\s*\}\}/g)].map((x) => x[1] as string),
+      );
+      const yabanci = [...new Set(kullanilan.filter((v) => !izinli.has(v)))];
+      if (yabanci.length)
+        throw new BadRequestException(
+          `Bu akışta kullanılamayan değişken: ${yabanci.map((v) => `{{${v}}}`).join(', ')}. Kullanılabilir: ${[...izinli].map((v) => `{{${v}}}`).join(', ')}`,
+        );
+      if (a.kanallar.includes('eposta') && !FLOW_GOALS[key].eposta)
+        throw new BadRequestException('Bu akışın iletileri yalnızca uygulama içinde gider');
+    }
+    await this.db.$transaction(async (tx) => {
+      const once = await tx.automationFlow.findUnique({ where: { key } });
+      await tx.automationFlow.upsert({
+        where: { key },
+        update: {
+          steps: adimlar as unknown as Prisma.InputJsonValue,
+          version: { increment: 1 },
+          updatedBy: staffId,
+        },
+        create: { key, steps: adimlar as unknown as Prisma.InputJsonValue, version: 1, updatedBy: staffId },
+      });
+      await this.audit.record(
+        {
+          actorType: 'STAFF',
+          actorId: staffId,
+          action: 'akis_duzenlendi',
+          entityType: 'automation',
+          entityId: key,
+          before: (once?.steps ?? []) as Prisma.InputJsonValue,
+          after: adimlar as unknown as Prisma.InputJsonValue,
+          ip,
+        },
+        tx,
+      );
+    });
+    return this.automations();
+  }
+
+  /** Test kişisine gönder: akışın e-postaları örnek değerlerle çalışanın şirket adresine */
+  async testFlow(key: AutomationKey, staffId: string) {
+    const a = AUTOMATIONS[key];
+    const ilk = a.sablonlar[0] as string;
+    const { adimlar } = await this.flows.adimlar(key);
+    const ileti = adimlar.filter((x): x is Extract<FlowStep, { tip: 'ileti' }> => x.tip === 'ileti');
+    const ornekVeri = { ...ORNEK, conversationId: 'ornek' } as Record<string, unknown>;
+    let n = 0;
+    if (templateOf(ilk)?.eposta) {
+      await this.test(ilk, staffId);
+      n++;
+    }
+    const adim = `akis.adim.${key}`;
+    if (templateOf(adim)?.eposta)
+      for (const x of ileti) {
+        const { surum } = await this.templates.get(adim);
+        await this.db.delivery.create({
+          data: {
+            id: uuidv7(),
+            staffId,
+            kanal: 'eposta',
+            sablon: adim,
+            sablonSurum: surum,
+            veri: {
+              ad: String(ORNEK.ad),
+              baslik: doldur(x.baslik, ornekVeri),
+              metin: doldur(x.metin, ornekVeri),
+              dugme: doldur(x.dugme, ornekVeri),
+              url: doldur(FLOW_GOALS[key].url, ornekVeri),
+            },
+          },
+        });
+        n++;
+      }
+    if (!n)
+      throw new BadRequestException(
+        'Bu akışın iletileri yalnızca uygulama içinde; test e-postası gönderilemez',
+      );
+    return { gonderilen: n };
   }
 
   async setAutomation(key: AutomationKey, acik: boolean, staffId: string, ip: string) {
@@ -545,6 +655,25 @@ export class NotificationsStaffController {
   @RequirePermission('rapor.gor', 'maskeli')
   automations() {
     return this.s.automations();
+  }
+
+  @Put('automations/:key/steps')
+  @RequirePermission('kampanya.hazirla')
+  setSteps(
+    @Req() req: StaffRequest,
+    @Param('key') key: string,
+    @Body(new ZodPipe(flowEditSchema)) b: z.output<typeof flowEditSchema>,
+  ) {
+    if (!(AUTOMATION_KEYS as string[]).includes(key)) throw new NotFoundException('Akış bulunamadı');
+    return this.s.setSteps(key as AutomationKey, b.adimlar, req.staff.staff.id, req.ip);
+  }
+
+  @Post('automations/:key/test')
+  @HttpCode(200)
+  @RequirePermission('kampanya.hazirla', 'oneri')
+  testFlow(@Req() req: StaffRequest, @Param('key') key: string) {
+    if (!(AUTOMATION_KEYS as string[]).includes(key)) throw new NotFoundException('Akış bulunamadı');
+    return this.s.testFlow(key as AutomationKey, req.staff.staff.id);
   }
 
   @Post('automations/:key')

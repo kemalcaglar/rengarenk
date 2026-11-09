@@ -27,6 +27,7 @@ import { AutomationService } from './automations.js';
 import { createEmailSender, createPushSender, EMAIL_SENDER, PUSH_SENDER } from './channels.js';
 import { CommercialController, CommercialService, FakeIys, IYS, NoIys } from './commercial.js';
 import { DeliveryService } from './delivery.service.js';
+import { FlowService } from './flows.js';
 import { NotificationService } from './notification.service.js';
 import { NotificationEvents } from './notification-events.js';
 import { NotificationsStaffController, NotificationsStaffService } from './notifications-staff.js';
@@ -127,6 +128,7 @@ const KANALLAR = [
     ReputationService,
     AuditService,
     OutboxService,
+    FlowService,
   ],
   exports: [NotificationService],
 })
@@ -143,6 +145,7 @@ export class NotificationsModule {}
     CommercialService,
     SwitchService,
     AutomationService,
+    FlowService,
     ReputationService,
     AuditService,
     OutboxService,

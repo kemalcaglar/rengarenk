@@ -169,6 +169,15 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   talep edilen 5 model (ilde 5 talepten azsa Türkiye geneli), portföydeki araç sayısı ve ajanın kural tabanlı önerisi.
   Varsayılan kapalı; açmak toplu gönderim onayı (BULK_SEND) ister
 - [ ] Galeri ana sayfasında "Bölgende aranan modeller" bölümü: ana sayfa düzeniyle
+- [x] Akış düzenleyicisi (YonetimKampanya.dc.html › akış; Karar 51; Teknik tasarım: JSON tanım, kişi başına durum):
+  tetikleyici ve ilk ileti kodda; "Adım ekle" ile ilk iletiden sonra bekle (1 saat–30 gün), koşul (önceki ileti
+  okunmadıysa, ticari onay varsa, doğrulanmış e-posta varsa; sağlanmazsa çıkış) ve ileti (başlık, metin, düğme;
+  uygulama içi ve push, e-posta; SMS yok); akışın değişkenleri denetlenir; her düzenleme yeni sürüm ve işlem kaydı.
+  Kişi akışa girince adımlar kaydına kopyalanır (`automation_runs`), işçi dakikada bir yürütür; her adımdan önce akış
+  açık mı ve hedefe ulaşıldı mı bakılır (ilk talep, talep uzatıldı, mesaj okundu, galeri yazdı, paket alındı, ödeme
+  alındı). İleti `akis.adim.<akış>` şablonuyla bildirim katmanından (tercih, ticari onay, haftada 2, sessiz saat).
+  "Test kişisine gönder" akışın e-postalarını örnek değerlerle çalışanın adresine yollar; akıştaki ve hedefe ulaşan
+  kişi sayısı. Hesap kapanınca süren akışlar durur, bağlam silinir
 - [x] Segmentler (YonetimKampanya.dc.html › segment; Karar 51): rol, aktif talep, son giriş, il, talep kategorisi, ödeme,
   platform, açık sohbet, galeri paketi; "ve" ile birleşir; her kuraldan sonra kişi sayısı; kanal ulaşımı (ticari onay,
   kampanya bildirimi izni, push cihazı, doğrulanmış e-posta) ve haftalık sınıra takılanlar; kayıtlı segmentler
@@ -431,7 +440,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] Gerçek hesaplar: Firebase projesi (iOS'ta FCM için Firebase SDK), kendi posta sunucusu (Radore, SPF/DKIM/DMARC,
   ters DNS, kara liste denetimi), İYS bağdaştırıcısı, SMS fiyatları ve yedek sağlayıcı (Netgsm)
 - [ ] E-postada açılma ve tıklama ölçülmüyor (izleme pikseli ve yönlendirme yok); raporda uygulama içi okunma var
-- [ ] Akış düzenleyicisi ("Adım ekle"): Aşama 9 (kampanyalar ve segmentler Sprint 28'de)
+- [x] Akış düzenleyicisi ("Adım ekle"): Sprint 28
 - [x] Çalışan olaylarının (yeni cihaz, iade sonucu, ticari gönderim durdu) sahibe iletilmesi (Sprint 24)
 - [ ] Ön bilgilendirme formu ve sözleşmenin PDF olarak e-postayla gönderilmesi
 - [x] Ayarlar'da İletişim ve Hesap sekmeleri (Hesap: hesap kapatma Sprint 21; İletişim Sprint 27)

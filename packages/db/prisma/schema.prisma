@@ -83,6 +83,7 @@ model User {
   updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   memberships         AccountMember[]
+  automationRuns      AutomationRun[]
   notifications       Notification[]
   notificationPrefs   NotificationPref[]
   pushTokens          PushToken[]
@@ -2199,6 +2200,44 @@ model NotificationSwitch {
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   @@map("notification_switches")
+}
+
+/// Akış düzenleyicisi (Karar 51): ilk iletiden sonra eklenen adımlar (bekle, koşul, ileti). Satır yoksa ek adım yok.
+model AutomationFlow {
+  key       String   @id
+  steps     Json
+  version   Int      @default(1)
+  updatedBy String?  @map("updated_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("automation_flows")
+}
+
+/// Kişinin akıştaki durumu: tetiklenince eklenen adımlar anlık olarak kopyalanır; işçi sırayla yürütür
+model AutomationRun {
+  id          String   @id @db.Uuid
+  flowKey     String   @map("flow_key")
+  userId      String   @map("user_id") @db.Uuid
+  /// Aynı tetikleyiciyle ikinci kez başlamaz (ör. talep ve bitiş tarihi başına)
+  dedupeKey   String   @unique @map("dedupe_key")
+  /// @pii İleti değişkenleri (talep başlığı, galeri adı) ve hedef denetimi için kimlikler
+  context     Json
+  steps       Json
+  flowVersion Int      @map("flow_version")
+  step        Int      @default(0)
+  /// aktif | hedef | bitti | cikti | kapali
+  status      String   @default("aktif")
+  nextAt      DateTime @map("next_at") @db.Timestamptz(3)
+  /// Son adımın sonucu (ör. "koşul sağlanmadı", "ileti gönderildi")
+  note        String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, nextAt])
+  @@index([flowKey, createdAt])
+  @@map("automation_runs")
 }
 
 /// Şikâyet (Karar 13.2, 53): kullanıcı, kural ya da ajan açar; öncelik nedenden, süre öncelikten gelir

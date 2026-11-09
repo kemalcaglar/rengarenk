@@ -549,6 +549,95 @@ export const NOTIFY_TEMPLATES = {
       dugme: { yazi: 'Mesajı oku', url: '/mesajlarim?sohbet={{conversationId}}' },
     },
   },
+  'akis.adim.hosgeldin': {
+    ad: 'Akış adımı: Hoş geldin',
+    konu: 'genel',
+    grup: 'talep',
+    baslik: '{{baslik}}',
+    metin: '{{metin}}',
+    url: '{{url}}',
+  },
+  'akis.adim.ilk_talep': {
+    ad: 'Akış adımı: İlk talebini oluştur',
+    konu: 'kampanya',
+    grup: 'kampanya',
+    baslik: '{{baslik}}',
+    metin: '{{metin}}',
+    url: '{{url}}',
+    eposta: {
+      konu: '{{baslik}}',
+      paragraflar: ['Merhaba {{ad}},', '{{metin}}'],
+      dugme: { yazi: '{{dugme}}', url: '{{url}}' },
+    },
+  },
+  'akis.adim.doluyor': {
+    ad: 'Akış adımı: Talebin 3 gün sonra doluyor',
+    konu: 'sure',
+    grup: 'talep',
+    baslik: '{{baslik}}',
+    metin: '{{metin}}',
+    url: '{{url}}',
+    eposta: {
+      konu: '{{baslik}}',
+      paragraflar: ['Merhaba {{ad}},', '{{metin}}'],
+      dugme: { yazi: '{{dugme}}', url: '{{url}}' },
+    },
+  },
+  'akis.adim.okumadin': {
+    ad: 'Akış adımı: İlk mesajı okumadın',
+    konu: 'mesaj',
+    grup: 'mesaj',
+    baslik: '{{baslik}}',
+    metin: '{{metin}}',
+    url: '{{url}}',
+    eposta: {
+      konu: '{{baslik}}',
+      paragraflar: ['Merhaba {{ad}},', '{{metin}}'],
+      dugme: { yazi: '{{dugme}}', url: '{{url}}' },
+    },
+  },
+  'akis.adim.galeri7': {
+    ad: 'Akış adımı: Galeri 7 gündür mesaj göndermedi',
+    konu: 'galeri',
+    grup: 'galeri',
+    baslik: '{{baslik}}',
+    metin: '{{metin}}',
+    url: '{{url}}',
+    ekip: true,
+    eposta: {
+      konu: '{{baslik}}',
+      paragraflar: ['Merhaba {{ad}},', '{{metin}}'],
+      dugme: { yazi: '{{dugme}}', url: '{{url}}' },
+    },
+  },
+  'akis.adim.deneme': {
+    ad: 'Akış adımı: Deneme bitiyor',
+    konu: 'galeri',
+    grup: 'galeri',
+    baslik: '{{baslik}}',
+    metin: '{{metin}}',
+    url: '{{url}}',
+    ekip: true,
+    eposta: {
+      konu: '{{baslik}}',
+      paragraflar: ['Merhaba {{ad}},', '{{metin}}'],
+      dugme: { yazi: '{{dugme}}', url: '{{url}}' },
+    },
+  },
+  'akis.adim.odeme': {
+    ad: 'Akış adımı: Ödeme başarısız',
+    konu: 'odeme',
+    grup: 'odeme',
+    baslik: '{{baslik}}',
+    metin: '{{metin}}',
+    url: '{{url}}',
+    ekip: true,
+    eposta: {
+      konu: '{{baslik}}',
+      paragraflar: ['Merhaba {{ad}},', '{{metin}}'],
+      dugme: { yazi: '{{dugme}}', url: '{{url}}' },
+    },
+  },
   'akis.galeri_sessiz': {
     ad: 'Akış: galeri 7 gündür mesaj göndermedi',
     konu: 'galeri',
@@ -829,7 +918,7 @@ export const AUTOMATIONS = {
   hosgeldin: {
     ad: 'Hoş geldin',
     tur: 'İşlemsel',
-    sablonlar: ['akis.hosgeldin'],
+    sablonlar: ['akis.hosgeldin', 'akis.adim.hosgeldin'],
     varsayilan: true,
     adimlar: [
       { tip: 'Tetikleyici', baslik: 'Yeni üyelik', detay: 'Telefonla kayıt tamamlanınca' },
@@ -840,7 +929,7 @@ export const AUTOMATIONS = {
   ilk_talep: {
     ad: 'İlk talebini oluştur',
     tur: 'Ticari',
-    sablonlar: ['akis.ilk_talep'],
+    sablonlar: ['akis.ilk_talep', 'akis.adim.ilk_talep'],
     varsayilan: true,
     adimlar: [
       { tip: 'Tetikleyici', baslik: 'Üyeliğin 3. günü, talep yok', detay: 'Her gün 09.30’da kontrol edilir' },
@@ -856,7 +945,7 @@ export const AUTOMATIONS = {
   doluyor: {
     ad: 'Talebin 3 gün sonra doluyor',
     tur: 'İşlemsel',
-    sablonlar: ['talep.suresi_doluyor'],
+    sablonlar: ['talep.suresi_doluyor', 'akis.adim.doluyor'],
     varsayilan: true,
     adimlar: [
       {
@@ -880,7 +969,7 @@ export const AUTOMATIONS = {
   okumadin: {
     ad: 'İlk mesajı okumadın',
     tur: 'İşlemsel',
-    sablonlar: ['akis.okumadin'],
+    sablonlar: ['akis.okumadin', 'akis.adim.okumadin'],
     varsayilan: false,
     adimlar: [
       {
@@ -895,7 +984,7 @@ export const AUTOMATIONS = {
   galeri7: {
     ad: 'Galeri 7 gündür mesaj göndermedi',
     tur: 'İşlemsel',
-    sablonlar: ['akis.galeri_sessiz'],
+    sablonlar: ['akis.galeri_sessiz', 'akis.adim.galeri7'],
     varsayilan: true,
     adimlar: [
       {
@@ -914,7 +1003,7 @@ export const AUTOMATIONS = {
   deneme: {
     ad: 'Deneme bitiyor',
     tur: 'İşlemsel',
-    sablonlar: ['galeri.deneme_bitiyor', 'galeri.deneme_bitti'],
+    sablonlar: ['galeri.deneme_bitiyor', 'galeri.deneme_bitti', 'akis.adim.deneme'],
     varsayilan: true,
     adimlar: [
       { tip: 'Tetikleyici', baslik: 'Denemenin bitmesine 7, 3 ve 1 gün kaldı', detay: 'Karar 12.5' },
@@ -929,7 +1018,7 @@ export const AUTOMATIONS = {
   odeme: {
     ad: 'Ödeme başarısız',
     tur: 'İşlemsel',
-    sablonlar: ['abonelik.odeme_basarisiz'],
+    sablonlar: ['abonelik.odeme_basarisiz', 'akis.adim.odeme'],
     varsayilan: true,
     adimlar: [
       {
@@ -948,6 +1037,93 @@ export const AUTOMATIONS = {
 } as const satisfies Record<string, Automation>;
 export type AutomationKey = keyof typeof AUTOMATIONS;
 export const AUTOMATION_KEYS = Object.keys(AUTOMATIONS) as AutomationKey[];
+
+/**
+ * Akış düzenleyicisi (Karar 51; Teknik tasarım: her akış bir JSON tanımı, her kişinin akıştaki durumu ayrı tutulur).
+ * Tetikleyici ve ilk ileti kodda tanımlıdır; "Adım ekle" ile ilk iletiden sonra bekleme, koşul ve ileti adımları
+ * eklenir. Her adımdan önce hedefe bakılır: hedefe ulaşan kişi akıştan çıkar. Koşul sağlanmazsa kişi akıştan çıkar.
+ * İleti adımı akışın kendi şablonuyla (`akis.adim.<akış>`) bildirim katmanından gider: tercih, ticari onay, haftada 2
+ * ve sessiz saat orada uygulanır. SMS ileti adımında yoktur (yalnızca kritik iletiler SMS ile gider, Karar 49).
+ */
+export const FLOW_CONDITIONS = {
+  okunmadi: {
+    ad: 'Önceki ileti okunmadıysa',
+    not: 'Kişi bu akıştaki son iletiyi uygulamada açmadıysa devam eder',
+  },
+  ticari_onay: { ad: 'Ticari ileti onayı varsa', not: 'Onayı olmayan kişi akıştan çıkar (Karar 49)' },
+  eposta_var: { ad: 'Doğrulanmış e-postası varsa', not: 'E-postası olmayan kişi akıştan çıkar' },
+} as const;
+export type FlowCondition = keyof typeof FLOW_CONDITIONS;
+
+export const FLOW_CHANNELS = { uygulama: 'Uygulama içi ve push', eposta: 'E-posta' } as const;
+export type FlowChannel = keyof typeof FLOW_CHANNELS;
+
+/** Akışın hedefi (kodda denetlenir) ve adım iletilerinin varsayılan bağlantısı */
+export const FLOW_GOALS: Record<AutomationKey, { hedef: string; url: string; eposta: boolean }> = {
+  hosgeldin: { hedef: 'İlk talep yayınlandı', url: '/talep-olustur', eposta: false },
+  ilk_talep: { hedef: 'Talep yayınlandı', url: '/talep-olustur', eposta: true },
+  doluyor: { hedef: 'Talep uzatıldı ya da kapandı', url: '/taleplerim', eposta: true },
+  okumadin: { hedef: 'Mesaj okundu', url: '/mesajlarim?sohbet={{conversationId}}', eposta: true },
+  galeri7: { hedef: 'Galeri ilk mesaj gönderdi', url: '/galeri-paneli?bolum=eslesme', eposta: true },
+  deneme: { hedef: 'Paket alındı', url: '/galeri-paneli?bolum=paket', eposta: true },
+  odeme: { hedef: 'Ödeme alındı', url: '/galeri-paneli?bolum=paket', eposta: true },
+};
+
+const metinAlani = (en: number, cok: number) => z.string().trim().min(en).max(cok);
+export const flowStepSchema = z.discriminatedUnion('tip', [
+  z.object({ tip: z.literal('bekle'), saat: z.number().int().min(1).max(720) }).strict(),
+  z
+    .object({
+      tip: z.literal('kosul'),
+      kosul: z.enum(Object.keys(FLOW_CONDITIONS) as [FlowCondition, ...FlowCondition[]]),
+    })
+    .strict(),
+  z
+    .object({
+      tip: z.literal('ileti'),
+      baslik: metinAlani(3, 80),
+      metin: metinAlani(3, 300),
+      dugme: metinAlani(2, 30),
+      kanallar: z
+        .array(z.enum(Object.keys(FLOW_CHANNELS) as [FlowChannel, ...FlowChannel[]]))
+        .min(1)
+        .refine((k) => new Set(k).size === k.length, 'Kanal iki kez seçilemez'),
+    })
+    .strict(),
+]);
+export type FlowStep = z.infer<typeof flowStepSchema>;
+
+/** Adımlar tek tek eklenir; sonda kalan bekleme ya da koşul yalnızca akışı bitirir (konsol uyarır) */
+export const flowEditSchema = z.object({ adimlar: z.array(flowStepSchema).max(8) }).strict();
+
+/** Adımın konsoldaki satırı */
+export function flowStepText(a: FlowStep): { tip: string; baslik: string; detay: string } {
+  if (a.tip === 'bekle')
+    return {
+      tip: 'Bekle',
+      baslik: a.saat % 24 === 0 ? `${a.saat / 24} gün` : `${a.saat} saat`,
+      detay: 'Kişi bu sürede hedefe ulaşırsa akıştan çıkar',
+    };
+  if (a.tip === 'kosul')
+    return { tip: 'Koşul', baslik: FLOW_CONDITIONS[a.kosul].ad, detay: FLOW_CONDITIONS[a.kosul].not };
+  return {
+    tip: 'İleti',
+    baslik: `${a.kanallar.map((k, i) => (i ? FLOW_CHANNELS[k].toLocaleLowerCase('tr-TR') : FLOW_CHANNELS[k])).join(', ')}: “${a.baslik}”`,
+    detay: a.metin,
+  };
+}
+
+/** İleti adımında kullanılabilecek değişkenler: akışın ilk iletisindekiler ve kişinin adı */
+export function flowVariables(key: AutomationKey): string[] {
+  const ilk = AUTOMATIONS[key].sablonlar[0] as TemplateKey;
+  // {{link}} yalnızca SMS'te, gönderim anında dolar
+  return [
+    ...new Set([
+      'ad',
+      ...templateVariables(NOTIFY_TEMPLATES[ilk] as NotifyTemplate).filter((v) => v !== 'link'),
+    ]),
+  ];
+}
 
 /** Şablonu gönderen akış (kapalıysa gönderilmez) */
 export const automationOf = (sablon: string): AutomationKey | undefined =>

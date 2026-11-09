@@ -1,5 +1,6 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { type Db, PRISMA } from '../database/prisma.js';
+import { FlowService } from './flows.js';
 import { NotificationService } from './notification.service.js';
 import { SwitchService } from './switches.js';
 
@@ -16,6 +17,7 @@ export class AutomationService {
     @Inject(PRISMA) private readonly db: Db,
     private readonly notifications: NotificationService,
     private readonly switches: SwitchService,
+    @Optional() private readonly flows?: FlowService,
   ) {}
 
   async runDaily(now = new Date()) {
@@ -42,6 +44,7 @@ export class AutomationService {
       const talep = await this.db.demand.count({ where: { userId: k.id } });
       if (talep) continue;
       n += await this.notifications.notify({ userIds: [k.id], sablon: 'akis.ilk_talep', veri: {} });
+      await this.flows?.baslat('ilk_talep', [k.id], { veri: {} }, k.id, now);
     }
     return n;
   }
@@ -62,15 +65,13 @@ export class AutomationService {
     });
     let n = 0;
     for (const c of sohbetler) {
-      n += await this.notifications.notify({
-        userIds: [c.buyerUserId],
-        sablon: 'akis.okumadin',
-        veri: {
-          conversationId: c.id,
-          satici: c.sellerAccount.gallery?.displayName ?? 'Bir satıcı',
-          talep: c.demand?.headline || c.demand?.title || 'Talebin',
-        },
-      });
+      const veri = {
+        conversationId: c.id,
+        satici: c.sellerAccount.gallery?.displayName ?? 'Bir satıcı',
+        talep: c.demand?.headline || c.demand?.title || 'Talebin',
+      };
+      n += await this.notifications.notify({ userIds: [c.buyerUserId], sablon: 'akis.okumadin', veri });
+      await this.flows?.baslat('okumadin', [c.buyerUserId], { veri, conversationId: c.id }, c.id, now);
     }
     return n;
   }
@@ -100,11 +101,15 @@ export class AutomationService {
         where: { userId: { in: ids }, sablon: 'akis.galeri_sessiz', createdAt: { gte: hafta } },
       });
       if (yakin) continue;
-      n += await this.notifications.notify({
-        userIds: ids,
-        sablon: 'akis.galeri_sessiz',
-        veri: { galeri: g.displayName, sayi: eslesme },
-      });
+      const veri = { galeri: g.displayName, sayi: eslesme };
+      n += await this.notifications.notify({ userIds: ids, sablon: 'akis.galeri_sessiz', veri });
+      await this.flows?.baslat(
+        'galeri7',
+        ids,
+        { veri, accountId: g.accountId },
+        `${g.accountId}:${Math.floor(now.getTime() / (7 * DAY))}`,
+        now,
+      );
     }
     if (n) this.log.log(`galeri hatırlatması: ${n} kişi`);
     return n;

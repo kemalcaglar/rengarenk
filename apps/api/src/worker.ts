@@ -17,6 +17,7 @@ import { ModerationService } from './moderation/moderation.service.js';
 import { AutomationService } from './notifications/automations.js';
 import { CommercialService, IYS, type IysProvider } from './notifications/commercial.js';
 import { DeliveryService } from './notifications/delivery.service.js';
+import { FlowService } from './notifications/flows.js';
 import { NOTIFY_EVENTS, NotificationEvents } from './notifications/notification-events.js';
 import { ReputationService } from './notifications/reputation.js';
 import { OutboxService } from './outbox/outbox.service.js';
@@ -57,6 +58,7 @@ const kampanyalar = app.get(CampaignService);
 const zamanliRaporlar = app.get(ScheduledReportService);
 const ticari = app.get(CommercialService);
 const akislar = app.get(AutomationService);
+const akisAdimlari = app.get(FlowService);
 const moderasyon = app.get(ModerationService);
 const itibar = app.get(ReputationService);
 const destek = app.get(SupportService);
@@ -231,6 +233,7 @@ let lastTeslim = 0;
 const KAMPANYA_MS = 60_000;
 let lastKampanya = 0;
 let lastZamanliRapor = 0;
+let lastAkisAdimi = 0;
 const ITIBAR_MS = 3_600_000;
 let lastItibar = 0;
 const UYARI_DENETIM_MS = 3_600_000;
@@ -322,6 +325,16 @@ while (!stopping) {
         if (n) log.log(`zamanlanmış rapor: ${n} gönderim`);
       })
       .catch((err: Error) => log.error(`zamanlanmış rapor: ${err.message}`));
+  }
+  // Otomatik akışların eklenen adımları (Karar 51): bekleme süresi dolan kişiler
+  if (Date.now() - lastAkisAdimi > KAMPANYA_MS) {
+    lastAkisAdimi = Date.now();
+    await akisAdimlari
+      .tick()
+      .then((n) => {
+        if (n) log.log(`akış adımı: ${n} kişi`);
+      })
+      .catch((err: Error) => log.error(`akış adımı: ${err.message}`));
   }
   // Teslim: zamanı gelen push, e-posta ve SMS (gecikmeli e-posta, ticari iletide sessiz saat)
   if (Date.now() - lastTeslim > TESLIM_MS) {
