@@ -158,6 +158,16 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] Reklam ve edinim (Meta, Google harcama çekimi), deneyler (A/B ve fiyat deneyleri), ziyaretçi sayısı (web analitiği),
   model aramaları (arama günlüğü): bağlantılar ve altyapıyla. Sekmeler şimdilik açıklama gösteriyor
 - [ ] Haftalık ve aylık rapor e-postası, galerilere "aranan modeller" raporu
+- [x] Segmentler (YonetimKampanya.dc.html › segment; Karar 51): rol, aktif talep, son giriş, il, talep kategorisi, ödeme,
+  platform, açık sohbet, galeri paketi; "ve" ile birleşir; her kuraldan sonra kişi sayısı; kanal ulaşımı (ticari onay,
+  kampanya bildirimi izni, push cihazı, doğrulanmış e-posta) ve haftalık sınıra takılanlar; kayıtlı segmentler
+- [x] Kampanyalar (YonetimKampanya.dc.html › kampanya; Karar 49, 51): ad, hedef, segment, başlık, metin, düğme,
+  bağlantı (site içi), kanal (uygulama içi ve push, ticari e-posta; SMS kapalı), zaman; gönderim özeti (ulaşım, sıklık
+  sınırı, ısınma, maliyet); 1.000 kişiyi aşan gönderim BULK_SEND onayıyla; işçi zamanında segmenti yeniden hesaplayıp
+  `kampanya.duyuru` şablonuyla bildirim katmanından gönderir (onay, tercih, haftada 2, sessiz saat orada); sonuç
+  (kişi, uygulamada okunma, e-posta teslimi) ve grafik notu; iptal
+- [ ] Kupon bağlama ve A/B testi: kupon modülü ve deney altyapısıyla; tasarımdaki tek şablon seçimi yerine içerik
+  kampanyaya özel yazılıyor
 - [ ] Kanal kırılımı (organik, reklam, bildirim): reklam ölçümüyle; ajanın yorumu yapay zekâyla (şimdilik kural)
 
 ## Sprint 27 · Aşama 8 kalanları (9 Kasım 2026)
@@ -403,7 +413,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] Gerçek hesaplar: Firebase projesi (iOS'ta FCM için Firebase SDK), kendi posta sunucusu (Radore, SPF/DKIM/DMARC,
   ters DNS, kara liste denetimi), İYS bağdaştırıcısı, SMS fiyatları ve yedek sağlayıcı (Netgsm)
 - [ ] E-postada açılma ve tıklama ölçülmüyor (izleme pikseli ve yönlendirme yok); raporda uygulama içi okunma var
-- [ ] Akış düzenleyicisi ("Adım ekle"), kampanyalar ve segmentler: Aşama 9
+- [ ] Akış düzenleyicisi ("Adım ekle"): Aşama 9 (kampanyalar ve segmentler Sprint 28'de)
 - [x] Çalışan olaylarının (yeni cihaz, iade sonucu, ticari gönderim durdu) sahibe iletilmesi (Sprint 24)
 - [ ] Ön bilgilendirme formu ve sözleşmenin PDF olarak e-postayla gönderilmesi
 - [x] Ayarlar'da İletişim ve Hesap sekmeleri (Hesap: hesap kapatma Sprint 21; İletişim Sprint 27)

@@ -147,16 +147,16 @@ model AccountMember {
 }
 
 model Device {
-  id         String         @id @db.Uuid
-  userId     String         @map("user_id") @db.Uuid
-  platform   DevicePlatform
+  id          String         @id @db.Uuid
+  userId      String         @map("user_id") @db.Uuid
+  platform    DevicePlatform
   /// @pii
-  pushToken  String?        @map("push_token")
-  trusted    Boolean        @default(false)
+  pushToken   String?        @map("push_token")
+  trusted     Boolean        @default(false)
   /// @pii Uygulama kurulum kimliğinin anahtarlı özeti (cihaz kara listesi, Karar 43); kimliğin kendisi saklanmaz
-  installHash String?       @map("install_hash")
-  lastSeenAt DateTime       @default(now()) @map("last_seen_at") @db.Timestamptz(3)
-  createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  installHash String?        @map("install_hash")
+  lastSeenAt  DateTime       @default(now()) @map("last_seen_at") @db.Timestamptz(3)
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   sessions Session[]
@@ -1787,6 +1787,53 @@ model MonthlyGoal {
   @@map("monthly_goals")
 }
 
+/// Segment (Karar 51): "ve" ile birleşen kurallar; her gönderimde yeniden hesaplanır
+model Segment {
+  id        String    @id @db.Uuid
+  name      String
+  /// SegmentRule[] (packages/shared/src/campaigns.ts)
+  rules     Json
+  lastCount Int?      @map("last_count")
+  countedAt DateTime? @map("counted_at") @db.Timestamptz(3)
+  createdBy String    @map("created_by") @db.Uuid
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  campaigns Campaign[]
+
+  @@map("segments")
+}
+
+/// Kampanya (Karar 49, 51): ticari ileti; 1.000 kişiyi aşan gönderim BULK_SEND onayı ister, işçi zamanında gönderir
+model Campaign {
+  id          String    @id @db.Uuid
+  name        String
+  goal        String
+  segmentId   String    @map("segment_id") @db.Uuid
+  /// uygulama | eposta
+  channels    String[]
+  title       String
+  body        String
+  buttonText  String    @map("button_text")
+  url         String
+  scheduledAt DateTime  @map("scheduled_at") @db.Timestamptz(3)
+  /// taslak | onay_bekliyor | zamanlandi | gonderiliyor | gonderildi | reddedildi | iptal
+  status      String    @default("taslak")
+  approvalId  String?   @unique @map("approval_id") @db.Uuid
+  /// Gönderimden önceki tahmin (segment, kanal ulaşımı, sıklık sınırı)
+  estimate    Json?
+  targetCount Int?      @map("target_count")
+  sentCount   Int?      @map("sent_count")
+  sentAt      DateTime? @map("sent_at") @db.Timestamptz(3)
+  createdBy   String    @map("created_by") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  segment Segment @relation(fields: [segmentId], references: [id])
+
+  @@index([status, scheduledAt])
+  @@map("campaigns")
+}
+
 /// Kişisel pano (Karar 44, "panoya kaydet"): çalışanın kaydettiği rapor sekmesi ve süzgeçleri
 model ReportView {
   id        String   @id @db.Uuid
@@ -1895,27 +1942,30 @@ model StoreEvent {
 
 /// Uygulama içi bildirim (zil). `tekil` aynı konudaki okunmamış bildirimi günceller (ör. aynı sohbette yeni mesaj).
 model Notification {
-  id        String    @id @db.Uuid
-  userId    String    @map("user_id") @db.Uuid
+  id         String    @id @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
   /// Şablon anahtarı (ör. talep.suresi_doluyor)
-  sablon    String
+  sablon     String
   /// Süzgeç ve simge: mesaj | talep | guvenlik | kampanya | odeme | galeri
-  grup      String
+  grup       String
   /// @pii Başlık ve metin kişi ve talep adı içerebilir
-  baslik    String
+  baslik     String
   /// @pii
-  metin     String
-  url       String?
-  ticari    Boolean   @default(false)
-  tekil     String?
-  readAt    DateTime? @map("read_at") @db.Timestamptz(3)
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  metin      String
+  url        String?
+  ticari     Boolean   @default(false)
+  tekil      String?
+  readAt     DateTime? @map("read_at") @db.Timestamptz(3)
+  /// Kampanyadan geldiyse (Karar 51; kampanya sonucu)
+  campaignId String?   @map("campaign_id") @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   user       User       @relation(fields: [userId], references: [id])
   deliveries Delivery[]
 
   @@index([userId, createdAt])
+  @@index([campaignId])
   @@map("notifications")
 }
 
@@ -1966,6 +2016,10 @@ model Delivery {
 
   notification Notification? @relation(fields: [notificationId], references: [id])
 
+  /// Kampanyadan geldiyse (Karar 51; kampanya sonucu)
+  campaignId String? @map("campaign_id") @db.Uuid
+
+  @@index([campaignId])
   @@index([durum, dueAt])
   @@index([userId, createdAt])
   @@index([kanal, createdAt])

@@ -197,6 +197,9 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   (`grafikNotu(tx, …)` fiyat ve kural değişikliğinde). Konsol `/panel`.
 - Raporlar: `packages/shared/src/reports.ts`, `apps/api/src/dashboard/report.service.ts`; `GET /staff/reports/:sekme`,
   `GET /staff/reports/:sekme/export` (rapor.disa_aktar), `GET/POST/DELETE /staff/reports/views`. Konsol `/raporlar`.
+- Kampanyalar ve segmentler (Karar 49, 51): `packages/shared/src/campaigns.ts`, `apps/api/src/campaigns/`
+  (`SegmentService.preview/reach`, `CampaignService.estimate/create/dispatchDue`, işçide dakikada bir); uçlar
+  `/staff/segments`, `/staff/campaigns`; bildirimlerde `campaign_id`. Konsol `/segmentler`, `/kampanyalar`.
 - Kurallar ve fiyatlar: `packages/shared/src/pricing.ts` (`PriceBook`, `DEFAULT_PRICE_BOOK`, `plansOf`, `priceChanges`),
   `apps/api/src/pricing/` (`PricingService.current()/plans()/productTl()`, küresel modül; işçide PRICE_CHANGE yürütücüsü).
   `galleryAccess`, `planNetKurus`, `memberLimit` isteğe bağlı paket tablosu alır; API'de her zaman

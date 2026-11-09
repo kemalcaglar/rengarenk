@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AgentCoreModule } from './agent/agent.module.js';
 import { ApprovalsModule } from './approvals/approvals.module.js';
+import { CampaignsWorkerModule } from './campaigns/campaigns.module.js';
 import { CatalogPipelineModule } from './catalog/catalog.module.js';
 import { CategoriesWorkerModule } from './categories/categories.module.js';
 import { ConsentModule } from './consents/consent.module.js';
@@ -42,6 +43,7 @@ import { TrustWorkerModule } from './trust/trust.module.js';
     StorageModule,
     ApprovalsModule,
     PricingCoreModule,
+    CampaignsWorkerModule,
     CatalogPipelineModule,
     CategoriesWorkerModule,
     DemandsWorkerModule,

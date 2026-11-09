@@ -260,9 +260,11 @@ pnpm format        # Biome ile biçimlendir
   ölçü, ölçüler ve neden analizi, grafik notları (`grafikNotu` değişiklikle aynı işlemde), bakılacaklar, aylık hedefler
   ve `hedef_sapma` uyarısı. Talep platformu `demands.platform`. Raporlar (`report.service.ts`, konsol `/raporlar`): huni,
   harita, gelir, modeller, birim ve kohort; reklam ve deneyler bağlantı bekliyor. API testlerinde `hookTimeout` 60 sn
-  (her dosya şemayı sıfırlayıp bütün göçleri uygular). API'de 181 test.
+  (her dosya şemayı sıfırlayıp bütün göçleri uygular). Kampanyalar ve segmentler (`apps/api/src/campaigns/`, konsol
+  `/segmentler`, `/kampanyalar`): gönderim bildirim katmanından (`notify({ kanallar, campaignId })`), 1.000 kişi üstü
+  BULK_SEND onayı. API'de 183 test.
 - **Sıradaki:** Aşama 9 devamı
-  (kampanyalar ve segmentler, açılış sayfaları, haftalık/aylık rapor e-postası, reklam ölçümü); ya da sunucular gelince Radore'ye ilk
+  (açılış sayfaları, haftalık/aylık rapor e-postası, akış düzenleyicisi, reklam ölçümü, kupon ve A/B); ya da sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AgentCoreModule, AgentModule } from './agent/agent.module.js';
 import { AuthModule } from './auth/auth.module.js';
+import { CampaignsModule } from './campaigns/campaigns.module.js';
 import { CatalogModule } from './catalog/catalog.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
 import { ConsentModule } from './consents/consent.module.js';
@@ -73,6 +74,7 @@ import { TrustModule } from './trust/trust.module.js';
     PricingCoreModule,
     PricingModule,
     DashboardModule,
+    CampaignsModule,
   ],
   controllers: [HealthController, MetricsController],
   providers: [{ provide: APP_INTERCEPTOR, useClass: HttpMetricsInterceptor }],

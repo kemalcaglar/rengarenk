@@ -37,6 +37,9 @@ export interface NotifyInput {
   userIds: string[];
   sablon: string;
   veri: Record<string, unknown>;
+  /** Kampanya (Karar 51): yalnızca bu kanallar (kişinin tercihleriyle kesişir) ve sonuç için kampanya kimliği */
+  kanallar?: PrefChannel[];
+  campaignId?: string;
 }
 
 /** Sessiz saat (ticari ileti): İstanbul saatiyle 21.00–09.00 arası sabah 09.00'a ertelenir (Karar 49) */
@@ -185,7 +188,7 @@ export class NotificationService implements OnModuleDestroy {
     let n = 0;
     for (const userId of [...new Set(input.userIds)]) {
       try {
-        if (await this.one(userId, input.sablon, input.veri)) n++;
+        if (await this.one(userId, input.sablon, input.veri, input.kanallar, input.campaignId)) n++;
       } catch (e) {
         this.log.error(`bildirim ${input.sablon} → ${userId}: ${(e as Error).message}`);
       }
@@ -193,7 +196,13 @@ export class NotificationService implements OnModuleDestroy {
     return n;
   }
 
-  private async one(userId: string, key: string, veriTaban: Record<string, unknown>) {
+  private async one(
+    userId: string,
+    key: string,
+    veriTaban: Record<string, unknown>,
+    izinli?: PrefChannel[],
+    campaignId?: string,
+  ) {
     // Konsolda kapatılan otomatik akışın iletisi gönderilmez (Karar 51)
     if (!(await this.switches.sablonAcik(key))) return false;
     const { surum, sablon } = await this.templates.get(key);
@@ -205,6 +214,8 @@ export class NotificationService implements OnModuleDestroy {
     const veri: Record<string, unknown> = { ad: user.firstName || 'değerli üyemiz', ...veriTaban };
     const ticari = sablon.konu === 'kampanya';
     const kanal = await this.kanallar(userId, sablon);
+    if (izinli)
+      for (const k of Object.keys(kanal) as PrefChannel[]) if (!izinli.includes(k)) kanal[k] = false;
     if (!kanal.uygulama && !kanal.eposta && !kanal.sms) return false;
     const now = new Date();
     let due = now;
@@ -227,6 +238,7 @@ export class NotificationService implements OnModuleDestroy {
         sablon: key,
         grup: sablon.grup,
         ticari,
+        campaignId: campaignId ?? null,
       };
       const var_ = r.tekil
         ? await this.db.notification.findFirst({ where: { userId, tekil: r.tekil, readAt: null } })
@@ -250,6 +262,7 @@ export class NotificationService implements OnModuleDestroy {
           key,
           surum,
           ticari,
+          campaignId,
           veri: { ...veri, tokenId: c.id },
           due,
         });
@@ -264,6 +277,7 @@ export class NotificationService implements OnModuleDestroy {
         key,
         surum,
         ticari,
+        campaignId,
         veri,
         due: new Date(due.getTime() + gecikme * 60_000),
         kosul: gecikme && bildirimId ? 'okunmadiysa' : null,
@@ -279,6 +293,7 @@ export class NotificationService implements OnModuleDestroy {
         key,
         surum,
         ticari,
+        campaignId,
         veri,
         due,
         hedef: maskTrMobile(user.phone),
@@ -288,6 +303,7 @@ export class NotificationService implements OnModuleDestroy {
   }
 
   private teslim(d: {
+    campaignId?: string;
     userId: string;
     bildirimId: string | null;
     kanal: 'push' | 'eposta' | 'sms';
@@ -312,6 +328,7 @@ export class NotificationService implements OnModuleDestroy {
         dueAt: d.due,
         kosul: d.kosul ?? null,
         hedef: d.hedef ?? null,
+        campaignId: d.campaignId ?? null,
       },
     });
   }

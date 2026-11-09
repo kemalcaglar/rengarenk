@@ -68,9 +68,9 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
     ogeler: [
       { href: '/raporlar', ad: 'Raporlar', izin: 'rapor.gor' },
       { href: '/zamanlanmis-raporlar', ad: 'Zamanlanmış raporlar', izin: 'rapor.gor' },
-      { ad: 'Kampanyalar', sonra: true },
+      { href: '/kampanyalar', ad: 'Kampanyalar', izin: 'kampanya.hazirla' },
       { href: '/akislar', ad: 'Otomatik akışlar', izin: 'rapor.gor' },
-      { ad: 'Segmentler', sonra: true },
+      { href: '/segmentler', ad: 'Segmentler', izin: 'kampanya.hazirla' },
       { href: '/sablonlar', ad: 'Şablonlar', izin: 'rapor.gor' },
       { href: '/bildirim-merkezi', ad: 'Bildirim merkezi', izin: 'rapor.gor' },
       { href: '/teslim-raporu', ad: 'Teslim raporu', izin: 'rapor.gor' },
