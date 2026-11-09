@@ -24,6 +24,7 @@ import {
   type FlagPlatform,
 } from '@rengarenk/shared';
 import { z } from 'zod';
+import { AnalyticsService } from '../analytics/analytics.service.js';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { type AccessClaims, AuthService } from '../auth/auth.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
@@ -37,6 +38,7 @@ const platformOf = (p?: string): FlagPlatform | undefined => {
 };
 
 type AuthedRequest = { user: AccessClaims; ip: string };
+type AnyRequest = { ip: string; headers: Record<string, string | string[] | undefined> };
 
 const listQuery = demandSearchQuerySchema;
 
@@ -47,12 +49,31 @@ export class PublicDemandsController {
     private readonly demands: DemandService,
     private readonly auth: AuthService,
     private readonly search: DemandSearchService,
+    private readonly asistan: DemandAssistant,
+    private readonly analitik: AnalyticsService,
   ) {}
 
   /** Talep listesi ve arama (Karar 06.1, 06.3): yalnızca yayındaki talepler. */
   @Get()
   list(@Query(new ZodPipe(listQuery)) q: z.output<typeof listQuery>) {
     return this.search.search(q);
+  }
+
+  /**
+   * Arama günlüğü (Raporlar › En çok aranan modeller): tarayıcı ya da uygulama, kullanıcının yaptığı aramanın ilk
+   * sayfasını bildirir (sunucu tarafı ve benzer talep çağrıları sayılmasın diye listeden ayrı). Marka ve seri seçimi ya
+   * da metinden bulunan model sayılır; metin saklanmaz.
+   */
+  @Post('arama')
+  @HttpCode(204)
+  async arama(@Body(new ZodPipe(listQuery)) q: z.output<typeof listQuery>, @Req() req: AnyRequest) {
+    const ua = req.headers['user-agent'] as string | undefined;
+    if (q.marka) {
+      await this.analitik.arama({ make: q.marka, series: q.seri }, req.ip, ua);
+      return;
+    }
+    const m = q.q ? await this.asistan.katalog(q.q, q.kategori ?? 'otomobil') : null;
+    await this.analitik.arama(m ? { make: m.make, series: m.series ? [m.series] : [] } : null, req.ip, ua);
   }
 
   /** Ana sayfa vitrini (Karar 46): karışık sıra */
@@ -74,6 +95,27 @@ export class PublicDemandsController {
           .catch(() => undefined)
       : undefined;
     return this.demands.publicDetail(no, viewer);
+  }
+
+  /** Talep sayfası görüntülendi (Taleplerim istatistiği); istemci sayfa açılınca bir kez gönderir */
+  @Post(':no/goruntu')
+  @HttpCode(204)
+  async goruntu(
+    @Param('no', new ParseIntPipe()) no: number,
+    @Req() req: AnyRequest,
+    @Headers('authorization') authorization?: string,
+  ) {
+    const viewer = authorization?.startsWith('Bearer ')
+      ? await this.auth
+          .verifyAccess(authorization.slice(7))
+          .then((c) => c.sub)
+          .catch(() => undefined)
+      : undefined;
+    await this.demands.goruntulendi(no, {
+      userId: viewer,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
+    });
   }
 }
 

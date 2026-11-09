@@ -283,8 +283,15 @@ pnpm format        # Biome ile biçimlendir
   Arayüz deneyi (`flags/ui-experiments.ts`): yeni deney için `UI_EXPERIMENTS`'e tanım ekle, istemcide kolu `GET /flags`
   ile oku, adımı görme ve geçmeyi `POST /flags/deney/:anahtar` ile bildir; deney anahtarın yüzdesi 1–99 iken sürer.
   API'de 196, ortak pakette 117 test.
+- **Kalan geliştirmeler (10 Kasım 2026, sahip "sırayla hepsini yap" dedi):** 1) Taleplerim istatistikleri
+  (`demands.view_count`, `POST /talepler/:no/goruntu`, `GET /demands/mine` → `istatistik`) bitti; 2) web analitiği ve
+  arama günlüğü (`apps/api/src/analytics/`, çerezsiz, günlük tuz; `POST /analitik/ziyaret`, `POST /talepler/arama`;
+  tablolar `web_traffic_daily`, `search_log_daily`) bitti. Sunucu tarafında çekilen listeyi sayma: arama istemciden
+  bildirilir. 3) Ön bilgilendirme formu ve sözleşme PDF'i fatura e-postasına (`payments/contract-mail.service.ts`,
+  `common/document-pdf.ts`, işçide `odeme-sozlesme`) bitti. API'de 199 test. Sırada: 4) mobil toplu yükleme, 5) rozet eşikleri
+  konsoldan, makyaj başına fotoğraf, plaka bulanıklaştırma, 6) araç favorisi, fotoğraf kopya tespiti, 7) komşu il.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
-  yapay zekâ yorumu, web analitiği ve arama günlüğü); sunucular gelince Radore'ye ilk
+  yapay zekâ yorumu); sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

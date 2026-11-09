@@ -155,8 +155,19 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   denemeden ücretliye, iade oranı, kalemler, 6 aylık tekrarlayan gelir, platform payı), en çok talep edilen modeller ve
   uygun araç (Dengeli / Arz az / Büyük açık), birim ekonomisi ve ücretli galeri kohortu; "Panoya kaydet" (kişisel),
   "Excel'e aktar" (CSV; sahip, yönetici, finans; kişisel veri yok; işlem kaydı)
-- [ ] Reklam ve edinim (Meta, Google harcama çekimi), deneyler (A/B ve fiyat deneyleri), ziyaretçi sayısı (web analitiği),
-  model aramaları (arama günlüğü): bağlantılar ve altyapıyla. Sekmeler şimdilik açıklama gösteriyor
+- [x] Reklam ve edinim, deneyler (A/B, fiyat ve arayüz deneyleri): Sprint 28 sonraki bölümleri (aşağıda)
+- [x] Ziyaretçi sayısı (web analitiği, 10 Kasım 2026): çerez ve kalıcı kimlik yok; web her yön değişiminde
+  `POST /analitik/ziyaret` gönderir, ziyaretçi IP ve tarayıcının o güne özgü rastgele tuzla özetidir (tuz ertesi gün
+  Redis'ten silinir), Redis HyperLogLog ile sayılır; işçi beş dakikada bir günlük sayıyı `web_traffic_daily`'ye yazar
+  (yalnızca tekil ziyaretçi ve sayfa görüntüleme). Botlar ve başsız tarayıcılar sayılmaz. Huninin başında "N tekil
+  ziyaretçi" ve üyelik satırında "% · ziyaretten" (YonetimRapor.dc.html); tekil ziyaretçi günlük tekillerin toplamıdır
+- [x] Model aramaları (arama günlüğü, 10 Kasım 2026): web ve mobil talep listesi aramanın ilk sayfasını
+  `POST /talepler/arama` ile bildirir (liste sunucuda çekildiği ve benzer talepler de listeyi çağırdığı için listeden
+  ayrı). Marka ve seri seçimi ya da metinden bulunan model (`DemandAssistant.katalog`) sayılır; aynı kişi aynı gün aynı
+  modeli bir kez. `search_log_daily` (gün, marka, seri, sayı); kişi, IP ve metin saklanmaz. Raporlar › En çok talep
+  edilenler'de "Arama" sütunu (süzgeçten bağımsız)
+- [ ] Çerezsiz ziyaretçi sayımı ve arama günlüğü aydınlatma metnine yazılacak (avukat görüşmesiyle; yasal metin
+  sayfası henüz yer tutucu)
 - [x] Zamanlanmış raporlar (YonetimRapor.dc.html › zaman; Karar 44): haftalık rapor (her pazartesi 09.30; sahip,
   yönetici, pazarlama; ana ölçü ve altı ölçü, huni, aylık hedefler, reklam ve deneyler) ve aylık rapor (her ayın 1'i
   10.00; sahip, finans; geçen ayın geliri, birim ekonomisi, kohort) şirket e-postasına PDF ekiyle (Plus Jakarta Sans
@@ -497,7 +508,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] E-postada açılma ve tıklama ölçülmüyor (izleme pikseli ve yönlendirme yok); raporda uygulama içi okunma var
 - [x] Akış düzenleyicisi ("Adım ekle"): Sprint 28
 - [x] Çalışan olaylarının (yeni cihaz, iade sonucu, ticari gönderim durdu) sahibe iletilmesi (Sprint 24)
-- [ ] Ön bilgilendirme formu ve sözleşmenin PDF olarak e-postayla gönderilmesi
+- [x] Ön bilgilendirme formu ve sözleşmenin PDF olarak e-postayla gönderilmesi (10 Kasım 2026; Sprint 15 notuna bak)
 - [x] Ayarlar'da İletişim ve Hesap sekmeleri (Hesap: hesap kapatma Sprint 21; İletişim Sprint 27)
 
 ## Sprint 16 · iade akışı ve dört kilit (Aşama 6 son bölüm, 8 Kasım 2026)
@@ -578,7 +589,12 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   `EARSIV_PROVIDER=none` (faturalar kuyrukta); `fake` canlıda açılamaz
 - [x] Sonraki bölümler: galeri abonelikleri, mağaza ödemeleri ve RevenueCat, mobil Haklarım, konsolda Ödemeler ve
   faturalar (Sprint 15); iade akışı (4 kilit) sahibe sorulduktan sonra
-- [ ] Ön bilgilendirme formu ve sözleşmenin PDF olarak e-postayla gönderilmesi (bildirim katmanıyla, Aşama 7)
+- [x] Ön bilgilendirme formu ve sözleşmenin PDF olarak e-postayla gönderilmesi (10 Kasım 2026): ödeme alınınca işçi
+  (`odeme.alindi` → `odeme-sozlesme`, `ContractMailService`) siparişte onaylanan metin sürümleriyle iki PDF üretir (ön
+  bilgilendirme formu; mesafeli hizmet ya da galeri hizmet sözleşmesi; taraflar, tutar, onay zamanı; 12 punto, site yazı
+  tipi, `common/document-pdf.ts`) ve fatura e-postasına gönderir. Yalnızca web siparişi (mağaza satışında belgeyi mağaza
+  verir, otomatik yenileme yeni sözleşme değil); bir kez (`orders.contract_sent_at`), geçici hatada yeniden denenir,
+  gönderim dışı adreste nedeni yazılır (`contract_note`). Konsol › Ödemeler'de fatura sütununun altında durum
 - Tasarımdan farklar: ödeme çerçevesi "Siparişi onayla ve öde" düğmesinden sonra açılır (PayTR çerçevesi siparişin
   tutarıyla oluşturulur); fatura il ve ilçesi listeden seçilir
 
@@ -747,7 +763,10 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Mobilde uygulama içi fiyatlar (Karar 38: ,99 ile biten mobil fiyat; web fiyatından söz edilmez)
 - [ ] Öne çıkarma ve ek talep/uzatma satın alma: ödeme modülüyle (Aşama 6); şimdilik seçenekler görünür ama pasif
 - [ ] Talep sayfasında "Mesaj at" (Aşama 5) ve "Şikayet et" (Aşama 8): şimdilik pasif
-- [ ] Talep kartlarında görüntülenme, favori, mesaj ve uyan portföy sayıları (ilgili modüllerle)
+- [x] Talep kartlarında görüntülenme, favori, mesaj ve uyan portföy sayıları (10 Kasım 2026; Taleplerim.dc.html,
+  TaleplerimMobil.dc.html): `GET /demands/mine` `istatistik`; görüntülenme `demands.view_count`, talep sayfası açılınca
+  `POST /talepler/:no/goruntu` (web ve mobil), sahibi, botlar ve 24 saat içinde aynı üye ya da IP sayılmaz (özet
+  Redis'te 24 saat). Mesaj açılan sohbet, uyan portföy aracı etkin eşleşme sayısıdır
 - Tasarımdan farklar: mobil tasarımda 2. adımda alternatif başka araç olarak ekleniyor; Karar 05 ve web tasarımına
   göre alternatifler aynı aracın farklı kriterleri olarak yapıldı. Mobil kategori kartlarına tasarımda olmayan
   Hasarlı, Klasik ve Hava eklendi (Karar 19). Kiralamada araç türü kartı kiralık kategorisine gider, uygun olanlarda

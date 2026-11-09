@@ -97,6 +97,11 @@ export default function TalepDetay() {
             r.ok ? (r.json() as Promise<Talep>) : Promise.reject(new Error('Talep bulunamadı')),
           );
     al.then(setT).catch((e: Error) => setHata(e.message));
+    // Görüntülenme (Taleplerim istatistiği); sunucu sahibi ve 24 saat içindeki tekrarı saymaz
+    (durum === 'uye'
+      ? istek(`/talepler/${no}/goruntu`, { method: 'POST' })
+      : fetch(`${API}/talepler/${no}/goruntu`, { method: 'POST' })
+    ).catch(() => undefined);
   }, [no, durum, istek]);
 
   // Favori (Karar 06.4): misafir önce giriş yapar

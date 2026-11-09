@@ -1069,6 +1069,8 @@ model Demand {
   /// Ücretsiz uzatma kullanıldı mı (Karar 10, 12.1)
   freeExtensionUsed Boolean      @default(false) @map("free_extension_used")
   extensionCount    Int          @default(0) @map("extension_count")
+  /// Talep sayfasının görüntülenmesi (Taleplerim istatistiği): sahibi hariç, aynı kişi ya da cihaz 24 saatte bir sayılır
+  viewCount         Int          @default(0) @map("view_count")
   createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt         DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
 
@@ -1660,6 +1662,10 @@ model Order {
   /// Kupon (Karar 51): indirim kalemlere uygulanmış, tutarlar indirimli
   couponId       String?     @map("coupon_id") @db.Uuid
   discountKurus  BigInt      @default(0) @map("discount_kurus")
+  /// Ön bilgilendirme formu ve sözleşme PDF'inin müşterinin fatura e-postasına gönderildiği an (kalıcı veri saklayıcısı)
+  contractSentAt DateTime?   @map("contract_sent_at") @db.Timestamptz(3)
+  /// Gönderilemediyse ya da gönderilmediyse nedeni (adres gönderim dışı, mağaza satışı, yenileme)
+  contractNote   String?     @map("contract_note")
   paidAt         DateTime?   @map("paid_at") @db.Timestamptz(3)
   createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt      DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -3023,4 +3029,30 @@ model UiExperimentEvent {
 
   @@id([runId, userId])
   @@map("ui_experiment_events")
+}
+
+/// Web ziyaret sayıları (Raporlar › Huni): günlük tekil ziyaretçi ve sayfa görüntüleme. Çerez kullanılmaz; ziyaretçi
+/// IP ve tarayıcıdan, her gün değişen ve ertesi gün silinen tuzla özetlenip yalnızca sayılır (kişisel veri saklanmaz).
+model WebTrafficDaily {
+  /// İstanbul günü
+  day       DateTime @id @db.Date
+  visitors  Int      @default(0)
+  pageviews Int      @default(0)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
+
+  @@map("web_traffic_daily")
+}
+
+/// Talep araması günlüğü (Raporlar › En çok aranan modeller): gün, marka ve seri başına arayan sayısı. Kişi, IP ve
+/// serbest metin saklanmaz; aynı kişinin aynı gün aynı modeli araması bir kez sayılır.
+model SearchLogDaily {
+  day       DateTime @db.Date
+  makeKey   String   @map("make_key")
+  /// Seri seçilmediyse boş
+  seriesKey String   @default("") @map("series_key")
+  count     Int      @default(0)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(3)
+
+  @@id([day, makeKey, seriesKey])
+  @@map("search_log_daily")
 }

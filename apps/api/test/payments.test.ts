@@ -1,9 +1,12 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { uuidv7 } from '@rengarenk/db';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { ENV, type Env } from '../src/config/env.js';
 import type { Db } from '../src/database/prisma.js';
 import { EntitlementService } from '../src/entitlements/entitlement.service.js';
 import { FeatureFlagService } from '../src/flags/feature-flag.service.js';
+import { MemoryEmail } from '../src/notifications/channels.js';
+import { ContractMailService } from '../src/payments/contract-mail.service.js';
 import { OrdersService } from '../src/payments/orders.service.js';
 import { FakePayment, PaymentProviderFactory } from '../src/payments/providers.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
@@ -179,6 +182,34 @@ describe('web ödemeleri (Karar 12, 31, 39; Teknik tasarım §7)', () => {
     });
     expect(pdf.headers['content-type']).toBe('application/pdf');
     expect(pdf.body.startsWith('%PDF')).toBe(true);
+    // Ön bilgilendirme formu ve sözleşme PDF'i fatura e-postasına (Karar 39); bir kez
+    await db.consentText.create({
+      data: {
+        id: uuidv7(),
+        key: 'mesafeli_sozlesme',
+        version: 1,
+        title: 'Mesafeli hizmet sözleşmesi',
+        body: [
+          '1. **Taraflar:** hizmet sağlayıcı ve tüketici.',
+          '    - alt madde',
+          '2. **Bedel:** tüm vergiler dahil.',
+        ].join(String.fromCharCode(10)),
+      },
+    });
+    const eposta = new MemoryEmail();
+    const sozlesme = new ContractMailService(db, app.get<Env>(ENV), eposta);
+    expect(await sozlesme.gonder(siparis.id)).toBe('gonderildi');
+    expect(await sozlesme.gonder(siparis.id)).toBe('zaten');
+    expect(eposta.sent).toHaveLength(1);
+    expect(eposta.sent[0]?.to).toBe('ayse@ornek.com');
+    expect(eposta.sent[0]?.attachments?.map((a) => a.filename)).toEqual([
+      `on-bilgilendirme-formu-${no}.pdf`,
+      `mesafeli-hizmet-sozlesmesi-${no}.pdf`,
+    ]);
+    for (const a of eposta.sent[0]?.attachments ?? [])
+      expect((a.content as Buffer).subarray(0, 4).toString()).toBe('%PDF');
+    expect((await db.order.findUniqueOrThrow({ where: { id: siparis.id } })).contractSentAt).not.toBeNull();
+
     const g = await call(app, 'GET', '/orders/overview', undefined, t);
     expect(g.body.ekMesaj).toBe(10);
     expect(g.body.gecmis[0]).toMatchObject({ no, tutarKurus: 32_700, fatura: true });

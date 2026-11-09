@@ -914,6 +914,7 @@ export default function Raporlar() {
               sira: number;
               ad: string;
               talep: number;
+              arama: number | null;
               arac: number;
               durum: string;
               bg: string;
@@ -935,7 +936,7 @@ export default function Raporlar() {
               <span style={{ fontWeight: 800, color: '#5A6073' }}>{m.sira}</span>
               <span style={{ minWidth: 0, fontWeight: 800 }}>{m.ad}</span>
               <span style={{ textAlign: 'right', fontWeight: 700 }}>{sayi(m.talep)}</span>
-              <span style={{ textAlign: 'right', color: '#5A6073' }}>—</span>
+              <span style={{ textAlign: 'right' }}>{m.arama === null ? '—' : sayi(m.arama)}</span>
               <span style={{ textAlign: 'right' }}>{sayi(m.arac)}</span>
               <span>
                 <span

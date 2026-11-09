@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import { Banner } from '../../../components/banner';
 import { getCategories } from '../../../lib/kategoriler';
 import { binlik, butceAraligi, yilAraligi, zaman } from '../../../lib/talep-bicim';
+import { AramaBildir } from './arama-bildir';
 import { AramaKaydet } from './arama-kaydet';
 import { SiralamaSecimi } from './siralama';
 
@@ -449,6 +450,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
               <Suspense>
                 <AramaKaydet ad={baslik} />
+                <AramaBildir sorgu={q} />
                 <SiralamaSecimi deger={tek(q.sira) ?? 'onerilen'} />
               </Suspense>
             </div>

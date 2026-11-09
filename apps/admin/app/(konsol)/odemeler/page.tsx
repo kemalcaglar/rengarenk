@@ -29,6 +29,8 @@ interface Veri {
     durum: 'PAID' | 'FAILED' | 'PENDING' | 'CANCELLED' | 'REFUNDED';
     durumAd: string;
     fatura: string;
+    /** Ön bilgilendirme formu ve sözleşme e-postası (web siparişi) */
+    sozlesme: string | null;
     iadeKurus: number;
     iadeEdilebilir: boolean;
   }[];
@@ -329,6 +331,9 @@ export default function Odemeler() {
             </span>
             <span style={{ flex: '1 1 120px', fontSize: 13.5 }}>
               {s.fatura}
+              {s.sozlesme ? (
+                <span style={{ display: 'block', fontSize: 12, color: '#5A6073' }}>{s.sozlesme}</span>
+              ) : null}
               {iadeYetkisi && s.iadeEdilebilir ? (
                 <button
                   type="button"

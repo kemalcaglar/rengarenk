@@ -150,6 +150,12 @@ export function TalepDetay({
     }
   }
 
+  // Görüntülenme (Taleplerim istatistiği): giriş durumu belli olunca bir kez; sunucu sahibi ve tekrarı saymaz
+  useEffect(() => {
+    if (giris === null || t.status !== 'PUBLISHED') return;
+    istek(`/talepler/${t.no}/goruntu`, { method: 'POST' }).catch(() => undefined);
+  }, [giris, t.no, t.status]);
+
   // Giriş yapmış kullanıcı için izin verilen telefon numarası (Karar 11.4)
   useEffect(() => {
     if (giris)

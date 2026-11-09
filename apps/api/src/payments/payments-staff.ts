@@ -175,6 +175,13 @@ export class PaymentsStaffService {
           // İade önerisi: web ve abonelik satışında, ödenmiş ve tamamı iade edilmemiş sipariş
           iadeEdilebilir: o.status === 'PAID' && !magaza && iade < Number(o.totalKurus),
           fatura,
+          // Ön bilgilendirme formu ve sözleşme e-postası (Karar 39): yalnızca web siparişinde
+          sozlesme:
+            o.status !== 'PAID' || o.channel !== 'web'
+              ? null
+              : o.contractSentAt
+                ? 'Sözleşme e-postalandı'
+                : (o.contractNote ?? 'Sözleşme e-postası kuyrukta'),
         };
       }),
       abonelikler: abonelikler.map((s) => ({

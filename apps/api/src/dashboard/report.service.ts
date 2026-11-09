@@ -14,6 +14,7 @@ import {
   tlYaz,
 } from '@rengarenk/shared';
 import { AdsService } from '../ads/ads.service.js';
+import { AnalyticsService } from '../analytics/analytics.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { trGunBasi } from './dashboard.service.js';
@@ -84,6 +85,7 @@ export class ReportService {
     private readonly audit: AuditService,
     @Optional() private readonly deneyler?: ExperimentService,
     @Optional() private readonly reklam?: AdsService,
+    @Optional() private readonly analitik?: AnalyticsService,
   ) {}
 
   araliklar(f: ReportFilter, now = new Date()): { simdi: Aralik; once: Aralik | null; ad: string } {
@@ -216,10 +218,21 @@ export class ReportService {
     const now = new Date();
     const s = await hesap(a);
     const p = o ? await hesap(o) : null;
+    // Tekil ziyaretçi (web analitiği): günlük tekil ziyaretçilerin toplamı; süzgeçte gösterilmez
+    const ziyaret = s.uye !== null ? ((await this.analitik?.ziyaretci(a.bas, a.bit)) ?? null) : null;
     const taban = s.uye ?? s.talep;
     const oran = (x: number, y: number) => (y ? yuzde(x / y) : '—');
     const satirlar = [
-      ...(s.uye !== null ? [{ ad: 'Üyelik', sayi: s.uye, not: '', once: p?.uye ?? null }] : []),
+      ...(s.uye !== null
+        ? [
+            {
+              ad: 'Üyelik',
+              sayi: s.uye,
+              not: ziyaret ? `${yuzde(s.uye / ziyaret, s.uye / ziyaret < 0.1 ? 1 : 0)} · ziyaretten` : '',
+              once: p?.uye ?? null,
+            },
+          ]
+        : []),
       {
         ad: 'Talep oluşturan',
         sayi: s.talep,
@@ -262,10 +275,15 @@ export class ReportService {
     }
     return {
       ust:
-        s.uye !== null
-          ? `${sayi(s.uye)} yeni üye. Çubuk uzunluğu üyeliğe göre oran.`
-          : 'Süzgeç seçildiği için üyelik gösterilmez; çubuklar talebe göre.',
-      ziyaretNotu: 'Ziyaretçi sayısı web analitiği bağlanınca huninin başına eklenecek.',
+        s.uye === null
+          ? 'Süzgeç seçildiği için üyelik gösterilmez; çubuklar talebe göre.'
+          : ziyaret !== null
+            ? `${sayi(ziyaret)} tekil ziyaretçi. Çubuk uzunluğu üyeliğe göre oran.`
+            : `${sayi(s.uye)} yeni üye. Çubuk uzunluğu üyeliğe göre oran.`,
+      ziyaretNotu:
+        s.uye !== null && ziyaret === null
+          ? 'Ziyaretçi sayısı web analitiği veri toplamaya başlayınca huninin başına eklenecek.'
+          : '',
       huni: satirlar,
       yorum: kayip.oran
         ? `En büyük kayıp ${kayip.ad} adımında (${yuzde(kayip.oran)}).`
@@ -476,6 +494,8 @@ export class ReportService {
 
   private async modeller(a: Aralik, f: ReportFilter) {
     const t = await this.talepler(a, f);
+    // Arama günlüğü: il, kategori ve platform süzgecine bağlı değildir
+    const aramalar = (await this.analitik?.aramalar(a.bas, a.bit)) ?? null;
     const say = new Map<string, number>();
     for (const d of t) {
       const m = (d.data as { alanlar?: { model?: { make?: string; series?: string; model?: string } } })
@@ -509,7 +529,7 @@ export class ReportService {
         sira: i + 1,
         ad: ad.get(key) ?? key,
         talep: n,
-        arama: null,
+        arama: aramalar ? (aramalar.get(key) ?? 0) : null,
         arac: u,
         durum: SUPPLY_STATES[durum].ad,
         bg: SUPPLY_STATES[durum].bg,
@@ -519,7 +539,9 @@ export class ReportService {
     const acik = satirlar.filter((s) => s.durum === 'Büyük açık').slice(0, 2);
     return {
       modeller: satirlar,
-      aramaNotu: 'Arama sayısı arama günlüğü tutulmaya başlayınca eklenecek.',
+      aramaNotu: aramalar
+        ? 'Arama: talep listesinde bu modeli arayan kişi sayısı (aynı kişi aynı gün bir kez; süzgeçten bağımsız).'
+        : 'Arama sayısı arama günlüğü veri toplamaya başlayınca eklenecek.',
       yorum: acik.length
         ? `${acik.map((s) => s.ad).join(' ve ')} için uygun araç talebin altında. Bu modelleri satan galerilere "talep var" bildirimi kampanyalarla gönderilebilir.`
         : 'Bu dönemde talebin çok altında arz kalan model yok.',

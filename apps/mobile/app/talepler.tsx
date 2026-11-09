@@ -87,6 +87,16 @@ export default function Talepler() {
     yukle(1).catch(() => setListe([]));
   }, [yukle]);
 
+  // Arama günlüğü (Raporlar › En çok aranan modeller): aramanın ilk sayfası bir kez; metin saklanmaz
+  useEffect(() => {
+    if (!(q.marka || q.q)) return;
+    fetch(`${API}/talepler/arama`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ kategori: q.kategori, marka: q.marka, seri: q.seri, q: q.q }),
+    }).catch(() => undefined);
+  }, [q]);
+
   // Bu arama kayıtlı mı (Karar 30)
   const anahtar = searchQueryKey(q);
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AdsCoreModule } from './ads/ads.module.js';
 import { AgentCoreModule } from './agent/agent.module.js';
+import { AnalyticsModule } from './analytics/analytics.module.js';
 import { ApprovalsModule } from './approvals/approvals.module.js';
 import { CampaignsWorkerModule } from './campaigns/campaigns.module.js';
 import { CatalogPipelineModule } from './catalog/catalog.module.js';
@@ -16,6 +17,7 @@ import { ModerationServiceModule } from './moderation/moderation.module.js';
 import { NotificationsWorkerModule } from './notifications/notifications.module.js';
 import { MetricsModule } from './observability/metrics.js';
 import { OutboxService } from './outbox/outbox.service.js';
+import { ContractMailService } from './payments/contract-mail.service.js';
 import { PaymentsWorkerModule } from './payments/payments.module.js';
 import { PortfolioWorkerModule } from './portfolio/portfolio.module.js';
 import { PriceExperimentsModule } from './pricing/price-experiments.service.js';
@@ -47,6 +49,7 @@ import { TrustWorkerModule } from './trust/trust.module.js';
     ApprovalsModule,
     PricingCoreModule,
     PriceExperimentsModule,
+    AnalyticsModule,
     CampaignsWorkerModule,
     ScheduledReportsWorkerModule,
     CatalogPipelineModule,
@@ -65,6 +68,6 @@ import { TrustWorkerModule } from './trust/trust.module.js';
     MessageSafetyModule,
     AdsCoreModule,
   ],
-  providers: [OutboxService, QueueService],
+  providers: [OutboxService, QueueService, ContractMailService],
 })
 export class WorkerModule {}

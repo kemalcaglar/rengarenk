@@ -8,7 +8,7 @@ import {
   type Touch,
   touchFromUrl,
 } from '@rengarenk/shared';
-import { erisim, istek } from './istemci';
+import { API, erisim, istek } from './istemci';
 
 /**
  * Reklam ölçümü (Karar 35). Meta Pixel ve Google etiketi yalnızca çerez bandında "Reklam ölçümü" (Google için
@@ -223,8 +223,12 @@ export function etiketleriYukle(t: CerezTercihi | null = cerezTercihi()) {
   }
 }
 
-/** Sayfa görüntüleme (yön değişiminde) */
+/**
+ * Sayfa görüntüleme (yön değişiminde). Kendi web analitiğimize (Raporlar › Huni) her zaman gider: çerez ve gövde yok,
+ * sunucu yalnızca günlük sayıyı tutar. Pixel ve Google etiketi yalnızca izin verilip yüklendiyse.
+ */
 export function sayfaGoruntulendi() {
+  fetch(`${API}/analitik/ziyaret`, { method: 'POST', keepalive: true }).catch(() => undefined);
   window.fbq?.('track', 'PageView');
   window.gtag?.('event', 'page_view', { page_path: location.pathname });
 }

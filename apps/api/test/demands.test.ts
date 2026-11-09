@@ -263,4 +263,37 @@ describe('talepler (Karar 04, 05, 09, 10, 12, 21)', () => {
     expect((await call(app, 'POST', `/demands/${draft.body.id}/close`, {}, t)).body.status).toBe('CLOSED');
     await expect(db.demand.delete({ where: { id: draft.body.id } })).rejects.toThrow(/RR001/);
   });
+
+  it('Taleplerim istatistiği: görüntülenme sahibi ve botlar hariç kişi başına 24 saatte bir; favori sayısı', async () => {
+    const sahip = await login('+905327771090');
+    const diger = await login('+905327771091');
+    const { id } = await yayinda(sahip);
+    const { no, updatedAt } = await db.demand.findUniqueOrThrow({ where: { id } });
+    const gor = (ip: string, token?: string, ua = 'Mozilla/5.0') =>
+      app.inject({
+        method: 'POST',
+        url: `/talepler/${no}/goruntu`,
+        remoteAddress: ip,
+        headers: { 'user-agent': ua, ...(token ? { authorization: `Bearer ${token}` } : {}) },
+      });
+    expect((await gor('10.1.0.1', sahip)).statusCode).toBe(204);
+    await gor('10.1.0.2');
+    await gor('10.1.0.2');
+    await gor('10.1.0.3');
+    await gor('10.1.0.4', undefined, 'Googlebot/2.1');
+    await gor('10.1.0.5', diger);
+    await gor('10.1.0.6', diger);
+    expect((await call(app, 'PUT', `/favorites/${no}`, undefined, diger)).status).toBe(204);
+    const d = await db.demand.findUniqueOrThrow({ where: { id } });
+    expect(d.viewCount).toBe(3);
+    expect(d.updatedAt).toEqual(updatedAt);
+    const mine = await call(app, 'GET', '/demands/mine', undefined, sahip);
+    expect(mine.body.items.find((x: { id: string }) => x.id === id).istatistik).toEqual({
+      goruntu: 3,
+      favori: 1,
+      mesaj: 0,
+      eslesen: 0,
+    });
+    expect((await call(app, 'POST', '/talepler/99999999/goruntu', {})).status).toBe(204);
+  });
 });

@@ -34,6 +34,8 @@ interface Talep {
   galeri: { ad: string; slug: string } | null;
   /** Talebin hesabındaki kullanılmamış öne çıkarma hakları (galeri paketi ya da talep seçmeden alınmış hak) */
   oneCikarmaHakki: Partial<Record<'ust_sira' | 'acil' | 'vitrin', number>>;
+  /** Kart istatistikleri (Taleplerim.dc.html): görüntülenme, favori, açılan sohbet, uyan portföy aracı */
+  istatistik?: { goruntu: number; favori: number; mesaj: number; eslesen: number };
 }
 interface Haklar {
   ucretsizTalep: boolean;
@@ -464,6 +466,33 @@ export default function Taleplerim() {
                     >
                       {sure(t)}
                     </p>
+                    {t.status !== 'DRAFT' && t.istatistik ? (
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: '6px 18px',
+                          marginTop: 10,
+                          fontSize: 13.5,
+                          color: '#3A4052',
+                        }}
+                      >
+                        <span>
+                          <strong style={{ color: '#1E2333' }}>{binlik(t.istatistik.goruntu)}</strong>{' '}
+                          görüntülenme
+                        </span>
+                        <span>
+                          <strong style={{ color: '#1E2333' }}>{binlik(t.istatistik.favori)}</strong> favori
+                        </span>
+                        <Link href="/mesajlarim" style={{ color: '#2450C8' }}>
+                          <strong>{binlik(t.istatistik.mesaj)}</strong> mesaj
+                        </Link>
+                        <span>
+                          <strong style={{ color: '#1E2333' }}>{binlik(t.istatistik.eslesen)}</strong> uyan
+                          portföy aracı
+                        </span>
+                      </div>
+                    ) : null}
                     {t.duzeltme ? (
                       <p
                         role="status"

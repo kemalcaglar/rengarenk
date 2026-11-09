@@ -238,6 +238,15 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   (temas, Pixel ve Google etiketi yalnızca izinle, `olcumOlayi`), `components/olcum.tsx`. Sağlayıcı `META_PROVIDER`
   (`none`, `fake`, `capi` + `META_PIXEL_ID`, `META_CAPI_TOKEN`, `META_AD_ACCOUNT`), `GOOGLE_ADS_PROVIDER` (`none`, `fake`);
   web `NEXT_PUBLIC_META_PIXEL_ID`, `NEXT_PUBLIC_GOOGLE_TAG_ID` (yerelde boş: dış betik yüklenmez).
+- Web analitiği ve arama günlüğü: `apps/api/src/analytics/` (`AnalyticsService.ziyaret/arama/aktar/ziyaretci/aramalar`);
+  uçlar `POST /analitik/ziyaret` (web `sayfaGoruntulendi`), `POST /talepler/arama` (web `talepler/arama-bildir.tsx`,
+  mobil `app/talepler.tsx`). Çerez yok; ziyaretçi günlük tuzla özetlenir ve Redis'te sayılır, işçi beş dakikada bir
+  `web_traffic_daily` ve `search_log_daily` tablolarına yazar (kişisel veri yok). Raporlar › Huni ve En çok talep edilenler.
+- Sözleşme e-postası (Karar 39): `apps/api/src/payments/contract-mail.service.ts` (işçide `odeme.alindi` →
+  `odeme-sozlesme`), PDF `apps/api/src/common/document-pdf.ts` (sürümlü yasal metnin basit Markdown'ı). Yalnızca web
+  siparişi; `orders.contract_sent_at`, `contract_note`.
+- Taleplerim istatistikleri: `GET /demands/mine` → `istatistik` (görüntülenme `demands.view_count`, favori, sohbet,
+  etkin eşleşme); görüntülenme `POST /talepler/:no/goruntu` (sahibi ve 24 saat içinde tekrar sayılmaz).
 - Kampanyalar ve segmentler (Karar 49, 51): `packages/shared/src/campaigns.ts`, `apps/api/src/campaigns/`
   (`SegmentService.preview/reach`, `CampaignService.estimate/create/dispatchDue`, işçide dakikada bir); uçlar
   `/staff/segments`, `/staff/campaigns`; bildirimlerde `campaign_id`. Konsol `/segmentler`, `/kampanyalar`.

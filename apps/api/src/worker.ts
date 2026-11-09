@@ -3,6 +3,7 @@ import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AdsService } from './ads/ads.service.js';
 import { AgentService } from './agent/agent.service.js';
+import { AnalyticsService } from './analytics/analytics.service.js';
 import { ApprovalService } from './approvals/approval.service.js';
 import { ApprovalExecutor } from './approvals/approval-executor.js';
 import { CampaignService } from './campaigns/campaign.service.js';
@@ -22,6 +23,7 @@ import { FlowService } from './notifications/flows.js';
 import { NOTIFY_EVENTS, NotificationEvents } from './notifications/notification-events.js';
 import { ReputationService } from './notifications/reputation.js';
 import { OutboxService } from './outbox/outbox.service.js';
+import { ContractMailService } from './payments/contract-mail.service.js';
 import { OrdersService } from './payments/orders.service.js';
 import { SubscriptionsService } from './payments/subscriptions.service.js';
 import { PortfolioService } from './portfolio/portfolio.service.js';
@@ -58,6 +60,8 @@ const teslim = app.get(DeliveryService);
 const kampanyalar = app.get(CampaignService);
 const zamanliRaporlar = app.get(ScheduledReportService);
 const reklam = app.get(AdsService);
+const analitik = app.get(AnalyticsService);
+let lastAnalitik = 0;
 const ticari = app.get(CommercialService);
 const akislar = app.get(AutomationService);
 const akisAdimlari = app.get(FlowService);
@@ -130,6 +134,11 @@ for (const event of ['portfoy.yayinlandi', 'portfoy.guncellendi', 'portfoy.kalkt
 await queue.consume<{ orderId: string }>('odeme.alindi', 'odeme-fatura', ({ orderId }) =>
   orders.issueInvoice(orderId),
 );
+// Ön bilgilendirme formu ve sözleşme PDF'i fatura e-postasına (Karar 39); geçici hatada olay yeniden denenir
+const sozlesmeEpostasi = app.get(ContractMailService);
+await queue.consume<{ orderId: string }>('odeme.alindi', 'odeme-sozlesme', async ({ orderId }) => {
+  await sozlesmeEpostasi.gonder(orderId);
+});
 // Ajan (Karar 41): satıcı mesajında açık kapora ve ödeme isteği varsa mesajı gizler, 24 saat askı, karar insana
 await queue.consume<{ messageId?: string }>('mesaj.uyari', 'moderasyon-ajan', async ({ messageId }) => {
   if (!messageId) return;
@@ -386,6 +395,11 @@ while (!stopping) {
       .dailyDigest()
       .then((n) => n && log.log(`kayıtlı arama özeti: ${n} kişi`))
       .catch((err: Error) => log.error(`kayıtlı arama özeti: ${err.message}`));
+  }
+  // Web analitiği ve arama günlüğü: Redis'teki günlük sayılar beş dakikada bir veritabanına
+  if (Date.now() - lastAnalitik > 5 * 60_000) {
+    lastAnalitik = Date.now();
+    await analitik.aktar().catch((err: Error) => log.error(`analitik aktarımı: ${err.message}`));
   }
   // Reklam ölçümü (Karar 35): izinli olaylar dakikada bir Meta ve Google'a; harcama her gece 03.00'ten sonra
   if (Date.now() - lastReklam > KAMPANYA_MS) {

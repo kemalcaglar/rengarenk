@@ -26,6 +26,7 @@ import {
   PROMOTE_DAYS,
   REMINDER_DAYS,
 } from '@rengarenk/shared';
+import type { Redis } from 'ioredis';
 import { AdsService, olayPlatformu } from '../ads/ads.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { sha256 } from '../auth/tokens.js';
@@ -35,6 +36,7 @@ import { EntitlementService } from '../entitlements/entitlement.service.js';
 import { ContentRulesService } from '../moderation/content-rules.service.js';
 import { ModerationService } from '../moderation/moderation.service.js';
 import { type EventType, OutboxService } from '../outbox/outbox.service.js';
+import { REDIS, ready } from '../redis/redis.module.js';
 
 const DAY = 86_400_000;
 
@@ -86,9 +88,33 @@ export class DemandService {
     private readonly icerik: ContentRulesService,
     private readonly moderation: ModerationService,
     @Optional() private readonly ads?: AdsService,
+    @Optional() @Inject(REDIS) private readonly redis?: Redis,
   ) {}
 
   // ── Okuma ─────────────────────────────────────────────────────
+
+  /**
+   * Talep sayfası görüntülendi (Taleplerim istatistiği). Yalnızca yayındaki talepte ve sahibi dışındakiler sayılır;
+   * aynı üye (girişsizse aynı IP) 24 saatte bir kez. Kimlik yalnızca özetiyle ve 24 saat Redis'te durur; Redis yoksa
+   * sayılmaz. Botlar ve başsız tarayıcılar sayılmaz. `updated_at` değişmez (Taleplerim sırası bozulmasın).
+   */
+  async goruntulendi(no: number, kim: { userId?: string; ip?: string; ua?: string }) {
+    if (!this.redis || (kim.ua && /bot|crawl|spider|slurp|headless|preview/i.test(kim.ua))) return false;
+    const d = await this.db.demand.findUnique({
+      where: { no: BigInt(no) },
+      select: { id: true, userId: true, status: true },
+    });
+    if (d?.status !== 'PUBLISHED' || d.userId === kim.userId) return false;
+    const kisi = kim.userId ? `u:${kim.userId}` : kim.ip ? `ip:${kim.ip}` : null;
+    if (!kisi) return false;
+    const anahtar = `goruntu:${d.id}:${sha256(kisi).slice(0, 24)}`;
+    const yeni = await ready(this.redis)
+      .then((r) => r.set(anahtar, '1', 'EX', 86_400, 'NX'))
+      .catch(() => null);
+    if (yeni !== 'OK') return false;
+    await this.db.$executeRaw`UPDATE demands SET view_count = view_count + 1 WHERE id = ${d.id}::uuid`;
+    return true;
+  }
 
   /** Taleplerim: taslak dahil bütün talepler, durum sayılarıyla. */
   async mine(userId: string) {
@@ -112,6 +138,27 @@ export class DemandService {
       });
       haklar[h] = Object.fromEntries(r.map((x) => [x.kind, x._sum.delta ?? 0]));
     }
+    // Kart istatistikleri (Taleplerim.dc.html): favori, mesaj (açılan sohbet) ve uyan portföy aracı
+    const ids = rows.map((r) => r.id);
+    const [favs, sohbetler, uyanlar] = await Promise.all([
+      this.db.favorite.groupBy({
+        by: ['demandId'],
+        where: { demandId: { in: ids } },
+        _count: { _all: true },
+      }),
+      this.db.conversation.groupBy({
+        by: ['demandId'],
+        where: { demandId: { in: ids } },
+        _count: { _all: true },
+      }),
+      this.db.match.groupBy({
+        by: ['demandId'],
+        where: { demandId: { in: ids }, active: true },
+        _count: { _all: true },
+      }),
+    ]);
+    const say = (l: { demandId: string | null; _count: { _all: number } }[], id: string) =>
+      l.find((x) => x.demandId === id)?._count._all ?? 0;
     const counts = Object.fromEntries(
       (Object.keys(DEMAND_STATUS_NAMES) as DemandStatusKey[]).map((k) => [
         k,
@@ -126,6 +173,12 @@ export class DemandService {
           ? { ad: d.account.gallery.displayName, slug: d.account.gallery.slug }
           : null,
         oneCikarmaHakki: haklar[d.accountId] ?? {},
+        istatistik: {
+          goruntu: d.viewCount,
+          favori: say(favs, d.id),
+          mesaj: say(sohbetler, d.id),
+          eslesen: say(uyanlar, d.id),
+        },
       })),
     };
   }

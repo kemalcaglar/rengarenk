@@ -16,6 +16,7 @@ import { BosDurum } from '../../components/bos-durum';
 import { Ikon } from '../../components/ikon';
 import { T } from '../../components/t';
 import { useOturum } from '../../lib/oturum';
+import { binlik } from '../../lib/talep-bicim';
 
 const SEKMELER = [
   ['yayinda', 'Yayında'],
@@ -45,6 +46,8 @@ interface Talep {
   galeri: { ad: string; slug: string } | null;
   /** Hesabın kullanılmamış öne çıkarma hakları (galeri paketi ya da talep seçmeden alınmış hak) */
   oneCikarmaHakki: Partial<Record<'ust_sira' | 'acil' | 'vitrin', number>>;
+  /** Kart istatistikleri (TaleplerimMobil.dc.html): görüntülenme, favori, açılan sohbet, uyan portföy aracı */
+  istatistik?: { goruntu: number; favori: number; mesaj: number; eslesen: number };
 }
 
 const sekmeOf = (t: Talep): Sekme | null =>
@@ -351,7 +354,54 @@ export default function Taleplerim() {
                 ) : null}
               </View>
             </Pressable>
-            <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
+            {t.status !== 'DRAFT' && t.istatistik ? (
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  marginTop: 12,
+                  paddingVertical: 10,
+                  borderTopWidth: 1,
+                  borderBottomWidth: 1,
+                  borderColor: '#EEF0F5',
+                }}
+              >
+                {(
+                  [
+                    ['goruntu', 'görüntülenme'],
+                    ['favori', 'favori'],
+                    ['mesaj', 'mesaj'],
+                    ['eslesen', 'uyan araç'],
+                  ] as const
+                ).map(([k, ad]) => (
+                  <Pressable
+                    key={k}
+                    disabled={k !== 'mesaj'}
+                    accessibilityRole={k === 'mesaj' ? 'link' : undefined}
+                    onPress={() => router.push('/mesajlar')}
+                    style={{ alignItems: 'center' }}
+                  >
+                    <T
+                      style={{
+                        fontSize: 15,
+                        fontWeight: '800',
+                        color: k === 'mesaj' ? '#2450C8' : '#1E2333',
+                      }}
+                    >
+                      {binlik(t.istatistik?.[k] ?? 0)}
+                    </T>
+                    <T style={{ fontSize: 12.5, color: '#5A6073' }}>{ad}</T>
+                  </Pressable>
+                ))}
+              </View>
+            ) : null}
+            <View
+              style={{
+                flexDirection: 'row',
+                gap: 8,
+                marginTop: t.status !== 'DRAFT' && t.istatistik ? 10 : 12,
+              }}
+            >
               {t.status === 'PUBLISHED' ? (
                 <>
                   <Pressable
