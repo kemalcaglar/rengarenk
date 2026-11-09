@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { type Demand, type DemandStatus, type Prisma, uuidv7 } from '@rengarenk/db';
 import {
@@ -25,6 +26,7 @@ import {
   PROMOTE_DAYS,
   REMINDER_DAYS,
 } from '@rengarenk/shared';
+import { AdsService, olayPlatformu } from '../ads/ads.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { sha256 } from '../auth/tokens.js';
 import { CatalogImageService } from '../catalog/catalog-image.service.js';
@@ -83,6 +85,7 @@ export class DemandService {
     private readonly entitlements: EntitlementService,
     private readonly icerik: ContentRulesService,
     private readonly moderation: ModerationService,
+    @Optional() private readonly ads?: AdsService,
   ) {}
 
   // ── Okuma ─────────────────────────────────────────────────────
@@ -548,6 +551,12 @@ export class DemandService {
         include: { category: { select: { slug: true, name: true } } },
       });
       await this.transition(tx, updated, userId, 'yayinlandi', 'talep.yayinlandi', ip);
+      // Reklam ölçümü (Karar 35): ana optimizasyon olayı; talep metni gitmez, yalnızca kategori
+      await this.ads?.olay(tx, userId, 'Lead', {
+        ref: id,
+        platform: olayPlatformu(updated.platform),
+        kategori: updated.category.name,
+      });
       await this.moderation.kuralSikayeti(
         tx,
         { targetType: 'talep', targetId: d.id, targetUserId: userId, targetAccountId: d.accountId },

@@ -32,6 +32,26 @@ const schema = z.object({
   PAYTR_MERCHANT_SALT: z.string().optional(),
   /** PayTR canlı mağazada test işlemi (1) */
   PAYTR_TEST_MODE: z.enum(['0', '1']).default('0'),
+  /**
+   * Reklam ölçümü (Karar 35): Meta Conversions API ve Google çevrimdışı dönüşüm. none gönderim yok (hesaplar açılana
+   * kadar; olaylar kuyrukta bekler, süresi dolanlar düşer), fake geliştirme ve test (canlıda kullanılamaz), capi gerçek
+   * Meta Conversions API (+ META_AD_ACCOUNT verilirse harcama çekme). Google'ın gerçek bağdaştırıcısı Google Ads hesabı
+   * açılınca Data Manager API'nin güncel belgesine göre yazılacak.
+   */
+  META_PROVIDER: z.enum(['none', 'fake', 'capi']).default('none'),
+  META_PIXEL_ID: z
+    .string()
+    .regex(/^\d{5,20}$/)
+    .optional(),
+  META_CAPI_TOKEN: z.string().optional(),
+  /** Reklam hesabı (act_ olmadan); harcama çekmek için */
+  META_AD_ACCOUNT: z
+    .string()
+    .regex(/^\d{5,20}$/)
+    .optional(),
+  /** Events Manager'daki "Test events" kodu (yalnızca deneme) */
+  META_TEST_EVENT_CODE: z.string().optional(),
+  GOOGLE_ADS_PROVIDER: z.enum(['none', 'fake']).default('none'),
   /** e-Arşiv fatura entegratörü: none (fatura kuyrukta bekler), fake (geliştirme ve test; canlıda kullanılamaz) */
   EARSIV_PROVIDER: z.enum(['none', 'fake']).default('none'),
   /**
@@ -166,6 +186,8 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (e.EIDS_PROVIDER === 'fake') throw new Error('Canlıda sahte EİDS kullanılamaz');
     if (e.PAYMENT_PROVIDER === 'fake') throw new Error('Canlıda sahte ödeme kullanılamaz');
     if (e.EARSIV_PROVIDER === 'fake') throw new Error('Canlıda sahte e-Arşiv kullanılamaz');
+    if (e.META_PROVIDER === 'fake') throw new Error('Canlıda sahte Meta ölçümü kullanılamaz');
+    if (e.GOOGLE_ADS_PROVIDER === 'fake') throw new Error('Canlıda sahte Google ölçümü kullanılamaz');
     if (e.STORE_PROVIDER === 'fake') throw new Error('Canlıda sahte mağaza kullanılamaz');
     if (e.REFUND_PROVIDER === 'fake') throw new Error('Canlıda sahte iade kullanılamaz');
     if (e.PUSH_PROVIDER === 'fake') throw new Error('Canlıda sahte push kullanılamaz');
@@ -191,6 +213,8 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
   ) {
     throw new Error('PayTR için PAYTR_MERCHANT_ID, PAYTR_MERCHANT_KEY ve PAYTR_MERCHANT_SALT gerekli');
   }
+  if (e.META_PROVIDER === 'capi' && !(e.META_PIXEL_ID && e.META_CAPI_TOKEN))
+    throw new Error('Meta Conversions API için META_PIXEL_ID ve META_CAPI_TOKEN gerekli');
   if (e.AI_PROVIDER === 'vertex' && !e.VERTEX_SERVICE_ACCOUNT)
     throw new Error('Vertex AI için VERTEX_SERVICE_ACCOUNT gerekli');
   if (e.PUSH_PROVIDER === 'fcm' && !e.FCM_SERVICE_ACCOUNT)

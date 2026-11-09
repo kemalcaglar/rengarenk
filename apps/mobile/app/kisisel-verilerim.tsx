@@ -14,6 +14,7 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ikon } from '../components/ikon';
 import { T, TInput } from '../components/t';
+import { Anahtar } from '../components/talep/ortak';
 import { useOturum } from '../lib/oturum';
 
 interface Kopya {
@@ -48,7 +49,7 @@ const tarih = (iso: string) =>
 
 /**
  * Kişisel verilerim (HesapMobil.dc.html › Hesap; Karar 31, 58): verilerimi indir, KVKK başvurusu ve hesabı kapat,
- * üçü de SMS koduyla. Kapatmada kullanılmamış hakların iadesi Sahip'in onayına gider.
+ * üçü de SMS koduyla. Reklam ölçümü onayı da buradan verilir ya da geri alınır (Karar 35, 59; tasarımda yok). Kapatmada kullanılmamış hakların iadesi Sahip'in onayına gider.
  * Hazır kopya güvenlik için hesaba girilerek web'den (Ayarlar › Gizlilik ve güvenlik) indirilir.
  */
 export default function KisiselVerilerim() {
@@ -64,8 +65,12 @@ export default function KisiselVerilerim() {
   const [metin, setMetin] = useState('');
   const [bilgi, setBilgi] = useState<string | null>(null);
   const [hata, setHata] = useState<string | null>(null);
+  const [reklam, setReklam] = useState<boolean | null>(null);
 
   const yukle = useCallback(() => {
+    istek<{ acik: boolean }>('/me/reklam-olcum')
+      .then((r) => setReklam(r.acik))
+      .catch(() => undefined);
     istek<Kopya[]>('/me/data-exports')
       .then((k) => setKopya(k[0] ?? null))
       .catch(() => undefined);
@@ -206,6 +211,30 @@ export default function KisiselVerilerim() {
             {hata}
           </T>
         ) : null}
+        {reklam === null ? null : (
+          <View style={[kart, { flexDirection: 'row', alignItems: 'center', gap: 12 }]}>
+            <View style={{ flex: 1 }}>
+              <T style={{ fontSize: 16, fontWeight: '800' }}>Reklam ölçümü</T>
+              <T style={{ fontSize: 13, color: colors.muted, marginTop: 4, lineHeight: 19 }}>
+                Talep ve ödeme gibi adımların, reklamlarımızı ölçmek için Meta ve Google'a özet bilgiyle
+                bildirilmesi. Mesajların ve talep açıklaman hiçbir zaman gönderilmez.
+              </T>
+            </View>
+            <Anahtar
+              on={reklam}
+              label="Reklam ölçümü"
+              onPress={() =>
+                istek<{ acik: boolean }>('/me/reklam-olcum', { method: 'PUT', body: { acik: !reklam } })
+                  .then((r) => {
+                    setReklam(r.acik);
+                    setHata(null);
+                    setBilgi(r.acik ? 'Reklam ölçümüne izin verdin.' : 'Reklam ölçümü iznini geri aldın.');
+                  })
+                  .catch((e: Error) => setHata(e.message))
+              }
+            />
+          </View>
+        )}
         <View style={kart}>
           <T style={{ fontSize: 16, fontWeight: '800' }}>Verilerimi indir</T>
           <T style={{ fontSize: 13, color: colors.muted, marginTop: 4, lineHeight: 19 }}>

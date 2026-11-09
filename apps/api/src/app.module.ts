@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { AdsCoreModule, AdsModule } from './ads/ads.module.js';
 import { AgentCoreModule, AgentModule } from './agent/agent.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { CampaignsModule } from './campaigns/campaigns.module.js';
@@ -79,6 +80,8 @@ import { TrustModule } from './trust/trust.module.js';
     CampaignsModule,
     LandingModule,
     ContentModule,
+    AdsCoreModule,
+    AdsModule,
   ],
   controllers: [HealthController, MetricsController],
   providers: [{ provide: APP_INTERCEPTOR, useClass: HttpMetricsInterceptor }],

@@ -185,9 +185,10 @@ describe('Kontrol paneli ve hedefler (Karar 44)', () => {
     expect(g.body.mrr).toHaveLength(6);
     const b = await staffCall(app, 'GET', '/staff/reports/birim', undefined, owner.token);
     expect(b.body.kohort).toHaveLength(5);
-    expect((await staffCall(app, 'GET', '/staff/reports/reklam', undefined, owner.token)).body.bos).toContain(
-      'Meta',
-    );
+    // Reklam ve edinim (Karar 35): harcama çekilmediyse not bunu söyler; kanal kırılımı üç satır
+    const rk = await staffCall(app, 'GET', '/staff/reports/reklam', undefined, owner.token);
+    expect(rk.body.cekimNotu).toContain('henüz çekim yok');
+    expect(rk.body.kanallar).toHaveLength(3);
 
     // Dışa aktarma: destek yapamaz; finans yapar, kişisel veri yok, işlem kaydına girer
     expect((await staffCall(app, 'GET', '/staff/reports/model/export', undefined, destek.token)).status).toBe(

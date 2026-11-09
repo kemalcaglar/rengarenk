@@ -40,7 +40,7 @@ const satirStil: CSSProperties = {
   borderTop: '1px solid #EEF0F5',
 };
 
-function Anahtar({ acik, ad, onClick }: { acik: boolean; ad: string; onClick: () => void }) {
+export function Anahtar({ acik, ad, onClick }: { acik: boolean; ad: string; onClick: () => void }) {
   return (
     <button
       type="button"

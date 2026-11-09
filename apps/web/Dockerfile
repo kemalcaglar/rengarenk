@@ -5,6 +5,10 @@ ARG APP
 # Tarayıcıya giden kodda API adresi derleme anında gömülür (Next.js NEXT_PUBLIC_*).
 ARG NEXT_PUBLIC_API_URL=https://api.rengarenk.com.tr
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} NEXT_TELEMETRY_DISABLED=1
+# Reklam ölçümü (Karar 35): boşsa Pixel ve Google etiketi hiç yüklenmez; doluysa yalnızca çerez izniyle
+ARG NEXT_PUBLIC_META_PIXEL_ID=
+ARG NEXT_PUBLIC_GOOGLE_TAG_ID=
+ENV NEXT_PUBLIC_META_PIXEL_ID=${NEXT_PUBLIC_META_PIXEL_ID} NEXT_PUBLIC_GOOGLE_TAG_ID=${NEXT_PUBLIC_GOOGLE_TAG_ID}
 RUN corepack enable
 WORKDIR /repo
 COPY . .

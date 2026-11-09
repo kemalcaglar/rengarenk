@@ -3,7 +3,9 @@
 import { KVKK_KIND_KEYS, KVKK_KINDS, type KvkkKind } from '@rengarenk/shared';
 import Link from 'next/link';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { CerezTercihleri } from '../../../components/cerez-tercihleri';
 import { API, erisim, istek } from '../../../lib/istemci';
+import { Anahtar } from './iletisim';
 
 const kart: CSSProperties = {
   background: '#FFFFFF',
@@ -142,11 +144,30 @@ export function KisiselVerilerim({
   const [tur, setTur] = useState<KvkkKind>('bilgi');
   const [metin, setMetin] = useState('');
 
+  const [reklam, setReklam] = useState<boolean | null>(null);
   const yukle = useCallback(async () => {
-    const [k, b] = await Promise.all([istek<Kopya[]>('/me/data-exports'), istek<Basvuru[]>('/me/kvkk')]);
+    const [k, b, r] = await Promise.all([
+      istek<Kopya[]>('/me/data-exports'),
+      istek<Basvuru[]>('/me/kvkk'),
+      istek<{ acik: boolean }>('/me/reklam-olcum'),
+    ]);
     setKopyalar(k);
     setBasvurular(b);
+    setReklam(r.acik);
   }, []);
+  /** Reklam ölçümü onayı (Karar 35, 59): kapatınca bekleyen olaylar gönderilmez, tıklama kimlikleri silinir */
+  async function reklamDegistir() {
+    try {
+      const r = await istek<{ acik: boolean }>('/me/reklam-olcum', {
+        method: 'PUT',
+        body: { acik: !reklam },
+      });
+      setReklam(r.acik);
+      bildir(r.acik ? 'Reklam ölçümüne izin verdin.' : 'Reklam ölçümü iznini geri aldın.');
+    } catch (e) {
+      bildir(null, (e as Error).message);
+    }
+  }
   useEffect(() => {
     yukle().catch(() => undefined);
   }, [yukle]);
@@ -361,6 +382,18 @@ export function KisiselVerilerim({
           </span>
         </div>
       ))}
+      {reklam === null ? null : (
+        <div style={satir}>
+          <span style={{ flex: '1 1 300px', minWidth: 0 }}>
+            <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>Reklam ölçümü</span>
+            <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+              Talep ve ödeme gibi adımların, reklamlarımızı ölçmek için Meta ve Google'a özet bilgiyle
+              bildirilmesi. Mesajların ve talep açıklaman hiçbir zaman gönderilmez.
+            </span>
+          </span>
+          <Anahtar acik={reklam} ad="Reklam ölçümü" onClick={reklamDegistir} />
+        </div>
+      )}
       <div style={satir}>
         <span>
           <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>
@@ -370,9 +403,10 @@ export function KisiselVerilerim({
             Hangi verileri neden işlediğimiz ve haklarınız
           </span>
         </span>
-        <Link href="/kvkk" style={{ fontSize: 13.5, fontWeight: 700 }}>
-          Görüntüle
-        </Link>
+        <span style={{ display: 'flex', gap: 16, fontSize: 13.5, fontWeight: 700 }}>
+          <CerezTercihleri />
+          <Link href="/kvkk">Görüntüle</Link>
+        </span>
       </div>
     </section>
   );

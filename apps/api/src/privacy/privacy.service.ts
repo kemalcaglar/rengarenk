@@ -289,6 +289,11 @@ export class PrivacyService {
       })),
       odemeler: siparisler.map((o) => ({ ...o, totalKurus: Number(o.totalKurus) })),
       rizalar,
+      // Reklam ölçümü (Karar 35): ilk ve son temas, izin durumuyla
+      reklamTemasi: await this.db.userAttribution.findUnique({
+        where: { userId },
+        select: { first: true, last: true, cookieOk: true, ip: true, userAgent: true, updatedAt: true },
+      }),
       bildirimTercihleri: tercihler,
       kayitliAramalar: aramalar.map((a) => ({
         ad: a.name,

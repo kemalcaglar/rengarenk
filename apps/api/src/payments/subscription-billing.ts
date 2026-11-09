@@ -1,6 +1,7 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { type Order, type Prisma, type Subscription, uuidv7 } from '@rengarenk/db';
 import { addMonths, type PaidPlan, planRank, SUB_PERIODS, SUB_RETRY_DAYS } from '@rengarenk/shared';
+import { AdsService } from '../ads/ads.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
 import type { Tx } from '../database/prisma.js';
@@ -33,6 +34,7 @@ export class SubscriptionBilling {
     private readonly outbox: OutboxService,
     private readonly audit: AuditService,
     private readonly pricing: PricingService,
+    @Optional() private readonly ads?: AdsService,
   ) {
     this.box = SecretBox.forPayments(env);
   }
@@ -292,6 +294,12 @@ export class SubscriptionBilling {
         tx,
       );
       await this.outbox.add(tx, 'abonelik.basladi', { accountId: o.accountId, subscriptionId: s.id });
+      // Reklam ölçümü (Karar 35): web'den alınan ilk abonelik; Google'a çevrimdışı dönüşüm
+      await this.ads?.olay(tx, o.userId, 'Subscribe', {
+        ref: o.no,
+        platform: 'web',
+        degerKurus: n.amountKurus,
+      });
       return;
     }
 

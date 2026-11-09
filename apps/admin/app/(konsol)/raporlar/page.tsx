@@ -75,7 +75,8 @@ const kucukKart = (ad: string, deger: string, not: string) => (
 
 /**
  * Raporlar (YonetimRapor.dc.html › rapor; Karar 44): huni, arz-talep haritası, gelir, en çok talep edilenler, birim
- * ekonomisi ve kohort gerçek veriyle; reklam ve edinim ile deneyler bağlantıları kurulunca. Süzgeçler, "Panoya kaydet"
+ * ekonomisi ve kohort gerçek veriyle; reklam ve edinim ilk temas ve gece çekilen harcamayla (Karar 35), deneyler A/B
+ * testlerinden. Süzgeçler, "Panoya kaydet"
  * (kişisel) ve "Excel'e aktar" (sahip, yönetici, finans; kişisel veri yok, işlem kaydına girer). Ajan notları
  * kurallardan üretilir.
  */
@@ -939,6 +940,185 @@ export default function Raporlar() {
             <strong>Ajan:</strong> {gecerli.yorum}
           </p>
         </section>
+      ) : null}
+
+      {gecerli && sekme === 'reklam' && veri ? (
+        <>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: 10,
+              marginBottom: 14,
+            }}
+          >
+            {(veri.reklamSayilar as { ad: string; deger: string; not: string }[]).map((x) => (
+              <div key={x.ad} style={{ ...kart, borderRadius: 16, padding: 14 }}>
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: '#5A6073' }}>{x.ad}</div>
+                <div style={{ fontSize: 21, fontWeight: 800, marginTop: 4 }}>{x.deger}</div>
+                <div style={{ fontSize: 12, color: '#5A6073', marginTop: 3 }}>{x.not}</div>
+              </div>
+            ))}
+          </div>
+          <section aria-labelledby="kampanya" style={{ ...kart, overflow: 'hidden' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'space-between',
+                gap: 8,
+                padding: '16px 18px',
+                borderBottom: '1px solid #EEF0F5',
+              }}
+            >
+              <h2 id="kampanya" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+                Kanal ve kampanya
+              </h2>
+              <span style={{ fontSize: 12.5, color: '#5A6073' }}>{veri.cekimNotu}</span>
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'minmax(0, 2.6fr) repeat(6, minmax(0, 1fr))',
+                gap: 8,
+                padding: '10px 18px',
+                background: '#F3F5FA',
+                fontSize: 11.5,
+                fontWeight: 800,
+                color: '#5A6073',
+                textTransform: 'uppercase',
+                letterSpacing: 0.3,
+              }}
+            >
+              <span>Kampanya</span>
+              {['Harcama', 'Üyelik', 'Talep', 'Yeni galeri', 'Üye başı', 'Getiri'].map((k) => (
+                <span key={k} style={{ textAlign: 'right' }}>
+                  {k}
+                </span>
+              ))}
+            </div>
+            {(veri.kampanyalar as unknown[]).length ? null : (
+              <p style={{ margin: 0, padding: '12px 18px', fontSize: 13.5, color: '#5A6073' }}>
+                Bu dönemde yeni üye ve reklam harcaması yok.
+              </p>
+            )}
+            {(
+              veri.kampanyalar as {
+                ad: string;
+                kanal: string;
+                harcama: string;
+                uye: string;
+                talep: string;
+                galeri: string;
+                uyeBasi: string;
+                getiri: string;
+              }[]
+            ).map((k) => (
+              <div
+                key={`${k.kanal}|${k.ad}`}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'minmax(0, 2.6fr) repeat(6, minmax(0, 1fr))',
+                  gap: 8,
+                  alignItems: 'center',
+                  padding: '12px 18px',
+                  borderTop: '1px solid #EEF0F5',
+                  fontSize: 13.5,
+                }}
+              >
+                <span style={{ minWidth: 0 }}>
+                  <span style={{ display: 'block', fontWeight: 800, overflowWrap: 'anywhere' }}>{k.ad}</span>
+                  <span style={{ display: 'block', fontSize: 12, color: '#5A6073' }}>{k.kanal}</span>
+                </span>
+                <span style={{ textAlign: 'right', fontWeight: 700 }}>{k.harcama}</span>
+                <span style={{ textAlign: 'right' }}>{k.uye}</span>
+                <span style={{ textAlign: 'right' }}>{k.talep}</span>
+                <span style={{ textAlign: 'right' }}>{k.galeri}</span>
+                <span style={{ textAlign: 'right' }}>{k.uyeBasi}</span>
+                <span style={{ textAlign: 'right', fontWeight: 800 }}>{k.getiri}</span>
+              </div>
+            ))}
+            {gecerli.yorum ? (
+              <p
+                style={{
+                  margin: 0,
+                  padding: '12px 18px',
+                  fontSize: 13,
+                  lineHeight: 1.5,
+                  color: '#2E3344',
+                  background: '#F6F8FD',
+                }}
+              >
+                <strong>Ajan:</strong> {gecerli.yorum}
+              </p>
+            ) : null}
+          </section>
+          <p style={{ margin: '10px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+            Getiri: kampanyadan gelen kullanıcıların 30 günlük ödemesi ÷ harcama. Üyeler ilk temaslarının
+            kampanyasına bağlanır. Dönüşümler sunucu tarafından, ölçüme izin veren kullanıcılar için
+            gönderilir (Karar 35).
+          </p>
+          <section aria-labelledby="kanal" style={{ ...kart, overflow: 'hidden', marginTop: 14 }}>
+            <div style={{ padding: '16px 18px', borderBottom: '1px solid #EEF0F5' }}>
+              <h2 id="kanal" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+                Kanal kırılımı · {gecerli.donem}
+              </h2>
+              <p style={{ margin: '3px 0 0', fontSize: 13, color: '#5A6073' }}>
+                Reklam: tıklama kimliği ya da ücretli UTM. Bildirim ve e-posta: kendi iletilerimiz. Organik:
+                gerisi.
+              </p>
+            </div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'minmax(0, 2fr) repeat(4, minmax(0, 1fr))',
+                gap: 8,
+                padding: '10px 18px',
+                background: '#F3F5FA',
+                fontSize: 11.5,
+                fontWeight: 800,
+                color: '#5A6073',
+                textTransform: 'uppercase',
+                letterSpacing: 0.3,
+              }}
+            >
+              <span>Kanal</span>
+              {['Üyelik', 'Talep', 'Yeni galeri', '30 günlük ödeme'].map((k) => (
+                <span key={k} style={{ textAlign: 'right' }}>
+                  {k}
+                </span>
+              ))}
+            </div>
+            {(
+              veri.kanallar as {
+                kanal: string;
+                ad: string;
+                uye: number;
+                talep: number;
+                galeri: number;
+                odeme: string;
+              }[]
+            ).map((k) => (
+              <div
+                key={k.kanal}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'minmax(0, 2fr) repeat(4, minmax(0, 1fr))',
+                  gap: 8,
+                  padding: '12px 18px',
+                  borderTop: '1px solid #EEF0F5',
+                  fontSize: 13.5,
+                }}
+              >
+                <span style={{ fontWeight: 800 }}>{k.ad}</span>
+                <span style={{ textAlign: 'right' }}>{sayi(k.uye)}</span>
+                <span style={{ textAlign: 'right' }}>{sayi(k.talep)}</span>
+                <span style={{ textAlign: 'right' }}>{sayi(k.galeri)}</span>
+                <span style={{ textAlign: 'right', fontWeight: 700 }}>{k.odeme}</span>
+              </div>
+            ))}
+          </section>
+        </>
       ) : null}
 
       {gecerli && sekme === 'birim' && veri ? (

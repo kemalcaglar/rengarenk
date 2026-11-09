@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { ApiHatasi, dosyaYukle, istek, useGiris } from '../../lib/istemci';
+import { olcumOlayi } from '../../lib/olcum';
 
 type Durum = 'DRAFT' | 'SUBMITTED' | 'IN_REVIEW' | 'DOCS_REQUESTED' | 'APPROVED' | 'REJECTED' | 'REVOKED';
 interface Basvuru {
@@ -183,10 +184,12 @@ export function KurumsalBasvuru() {
         setAdim(adim + 1);
         window.scrollTo({ top: 0 });
       } else {
+        const ilk = !b?.gonderildi;
         const r = await istek<Basvuru>('/gallery-applications/me/submit', {
           method: 'POST',
           body: { sozlesme, ticariIleti, kanal: 'web' },
         });
+        if (ilk) olcumOlayi('SubmitApplication', r.id);
         setB(r);
       }
     } catch (err) {

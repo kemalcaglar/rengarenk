@@ -274,9 +274,13 @@ pnpm format        # Biome ile biçimlendir
   bölümü eklersen `HOME_SECTIONS`'a, web `ana-duzen.tsx` ve mobil `index.tsx` bölüm haritasına ekle; tasarımda yoksa
   varsayılanı kapalı. Kuponlar (`payments/coupon.service.ts`, konsol Kampanyalar › Kuponlar): onay isteğinin
   `payload.yalnizSahip` işareti yalnızca sahibe karar verdirir. A/B (`experiments.ts`, `dashboard/experiments.service.ts`):
-  kol saklanmaz, kimlikten hesaplanır (`armOf`). API'de 192, ortak pakette 110 test.
+  kol saklanmaz, kimlikten hesaplanır (`armOf`). Reklam ölçümü (`apps/api/src/ads/`, `packages/shared/src/ads.ts`, web
+  `lib/olcum.ts`; Karar 35): yeni dönüşüm olayı eklersen `AD_EVENTS`'e ekle ve işlemin içinde `ads.olay(tx, …)` çağır
+  (onay yoksa yazmaz); tarayıcıda aynı `ref` ile `olcumOlayi`. Meta'ya mobil olay gitmez (SDK bekliyor). Yerelde işçi
+  açılışta gece harcama çekimini çalıştırır; sahte sağlayıcı boş döndüğü için dünün `ad_spend` satırları silinir.
+  API'de 194, ortak pakette 115 test.
 - **Sıradaki:** Aşama 9 devamı
-  (reklam ölçümü; fiyat ve arayüz deneyleri); ya da sunucular gelince Radore'ye ilk
+  (fiyat ve arayüz deneyleri); ya da sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

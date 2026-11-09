@@ -14,8 +14,17 @@ interface Source {
   lastError: string | null;
 }
 
+interface ReklamAgi {
+  saglayici: string;
+  acik: boolean;
+  sonGonderim: string | null;
+  sonHarcama: string | null;
+  bekleyen: number;
+  hata: string | null;
+}
 interface Durum {
   sms: { ana: string; yedek: string | null };
+  reklam: { meta: ReklamAgi; google: ReklamAgi } | null;
   sources: Source[];
   bekleyen: { adEsleme: number; fotograf: number };
 }
@@ -55,6 +64,33 @@ function kaynakDurumu(list: Source[]): { durum: Etiket; son: string } {
     .at(-1);
   if (etkin.some((s) => s.lastError)) return { durum: 'Uyarı', son: goreli(son) };
   return { durum: son ? 'Sağlıklı' : 'Beklemede', son: goreli(son) };
+}
+
+/**
+ * Reklam ağı kartı (Karar 35): bağlı değilse Beklemede (olaylar kuyrukta bekler), son işten sonra hata varsa Uyarı.
+ * Son: olay gönderimi ya da harcama çekiminin yenisi.
+ */
+function reklamKarti(ad: string, amac: string, a: ReklamAgi | undefined, harcama: boolean): Kart {
+  if (!a?.acik)
+    return bekleyen(
+      ad,
+      amac,
+      a?.bekleyen ? `Hesap bekleniyor · ${a.bekleyen} olay kuyrukta` : 'Hesap bekleniyor',
+    );
+  const son =
+    [a.sonGonderim, a.sonHarcama]
+      .filter((x): x is string => Boolean(x))
+      .sort()
+      .at(-1) ?? null;
+  return {
+    ad,
+    amac,
+    durum: a.hata ? 'Uyarı' : son ? 'Sağlıklı' : 'Beklemede',
+    son: goreli(son),
+    anahtar: a.hata
+      ? `Son hata: ${a.hata}`
+      : `Sağlayıcı: ${a.saglayici} · ${a.bekleyen} olay bekliyor${harcama && !a.sonHarcama ? ' · harcama henüz çekilmedi' : ''}`,
+  };
 }
 
 /** Henüz hesabı açılmamış dış hizmet (sahibin yürüttüğü işler, CLAUDE.md) */
@@ -107,8 +143,13 @@ export default function Entegrasyonlar() {
         bekleyen('İYS', 'Ticari ileti onaylarının eşitlenmesi'),
         bekleyen('Firebase Cloud Messaging', 'Mobil ve web push'),
         bekleyen('Kendi e-posta sunucumuz', 'İşlemsel ve ticari e-posta', 'Sunucu kurulumu bekleniyor'),
-        bekleyen('Meta (Pixel ve dönüşüm API’si)', 'Reklam ölçümü · rızası olanlar'),
-        bekleyen('Google Ads ve Analytics', 'Reklam ölçümü ve harcama çekme'),
+        reklamKarti(
+          'Meta (Pixel ve dönüşüm API’si)',
+          'Reklam ölçümü · rızası olanlar',
+          d.reklam?.meta,
+          false,
+        ),
+        reklamKarti('Google Ads ve Analytics', 'Reklam ölçümü ve harcama çekme', d.reklam?.google, true),
         {
           ad: 'TSB kasko değer listesi',
           amac: 'Katalog · ana kaynak · aylık dosya',

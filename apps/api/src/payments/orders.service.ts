@@ -6,6 +6,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  Optional,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { type Order, type Prisma, uuidv7 } from '@rengarenk/db';
@@ -30,6 +31,7 @@ import {
   WAIVER_CONSENT,
   withVat,
 } from '@rengarenk/shared';
+import { AdsService, olayPlatformu } from '../ads/ads.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
 import { ConsentService } from '../consents/consent.service.js';
@@ -95,6 +97,7 @@ export class OrdersService {
     earsiv: EArsivFactory,
     private readonly pricing: PricingService,
     private readonly coupons: CouponService,
+    @Optional() private readonly ads?: AdsService,
   ) {
     this.earsiv = earsiv.create();
   }
@@ -409,6 +412,8 @@ export class OrdersService {
       durumAd: ORDER_STATUS_NAMES[o.status],
       toplamKurus: Number(o.totalKurus),
       neden: o.failReason,
+      /** urun | abonelik | yukseltme | yenileme (ölçüm olayı için) */
+      tur: o.kind,
     };
   }
 
@@ -549,6 +554,13 @@ export class OrdersService {
       tx,
     );
     await this.outbox.add(tx, 'odeme.alindi', { orderId: o.id, userId: o.userId });
+    // Reklam ölçümü (Karar 35): hak veya öne çıkarma satın alımı (mağaza satışı Meta SDK ile gelecek)
+    if (o.kind === 'urun')
+      await this.ads?.olay(tx, o.userId, 'Purchase', {
+        ref: o.no,
+        platform: olayPlatformu(o.channel),
+        degerKurus: n.amountKurus,
+      });
     for (const demandId of yenidenIndeks) await this.outbox.add(tx, 'talep.guncellendi', { demandId });
   }
 

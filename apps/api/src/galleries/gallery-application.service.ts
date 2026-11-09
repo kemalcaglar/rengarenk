@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  Optional,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { type GalleryApplication, type Prisma, uuidv7 } from '@rengarenk/db';
@@ -22,6 +23,7 @@ import {
   gallerySlug,
   ilBul,
 } from '@rengarenk/shared';
+import { AdsService, olayPlatformu } from '../ads/ads.service.js';
 import { AgentService } from '../agent/agent.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { sniff } from '../common/files.js';
@@ -59,6 +61,7 @@ export class GalleryApplicationService {
     private readonly consents: ConsentService,
     verifiers: VerifierFactory,
     private readonly agent: AgentService,
+    @Optional() private readonly ads?: AdsService,
   ) {
     this.verifier = verifiers.create();
   }
@@ -219,6 +222,12 @@ export class GalleryApplicationService {
       );
       await this.consents.recordGallery(tx, userId, Boolean(onay.ticariIleti), onay.kanal, ip);
       await this.outbox.add(tx, 'galeri.basvuru_alindi', { applicationId: a.id });
+      // Reklam ölçümü (Karar 35): ilk gönderim (belge sonrası yeniden gönderim sayılmaz)
+      if (!a.submittedAt)
+        await this.ads?.olay(tx, userId, 'SubmitApplication', {
+          ref: a.id,
+          platform: olayPlatformu(onay.kanal),
+        });
     });
     return this.mine(userId);
   }
@@ -416,6 +425,8 @@ export class GalleryApplicationService {
         });
       // Ajan onayında sahibe bilgi gider (Karar 03); başvurana hoş geldin iletisi (bildirim katmanı, Aşama 7)
       await this.outbox.add(tx, 'galeri.onaylandi', { applicationId: a.id, accountId, ajan: by === 'ajan' });
+      // Reklam ölçümü (Karar 35): yalnızca sunucudan; Google'a çevrimdışı dönüşüm
+      await this.ads?.olay(tx, a.userId, 'DealerApproved', { ref: a.id, platform: 'sunucu' });
     });
     return { accountId, slug };
   }

@@ -222,6 +222,13 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   `apps/api/src/dashboard/experiments.service.ts` (Raporlar › Deneyler, çalışan uyarısı `deney`); kampanya ve bannerda
   `variant_b`, `banner_stats.arm`; `POST /staff/banners/:id/ab/:kol`. Ziyaretçi kolu web `localStorage.rr_z`, mobil ayrı
   rastgele kimlik (`ziyaretciKimligi`).
+- Reklam ölçümü (Karar 35): `packages/shared/src/ads.ts` (`AD_EVENTS`, `adEventId`, `touchFromUrl`, `kanalOf`),
+  `apps/api/src/ads/` (`AdsService.temas/olay/gonder/harcamaCek/rapor`, ağlar `ad-networks.ts`); olay işlemle aynı
+  veritabanı işleminde `ads.olay(tx, kullanıcı, ad, { ref, platform })`. Uçlar `POST /me/temas`, `GET/PUT
+  /me/reklam-olcum`. Tablolar `user_attributions`, `ad_events`, `ad_spend`, `ad_network_status`. Web `lib/olcum.ts`
+  (temas, Pixel ve Google etiketi yalnızca izinle, `olcumOlayi`), `components/olcum.tsx`. Sağlayıcı `META_PROVIDER`
+  (`none`, `fake`, `capi` + `META_PIXEL_ID`, `META_CAPI_TOKEN`, `META_AD_ACCOUNT`), `GOOGLE_ADS_PROVIDER` (`none`, `fake`);
+  web `NEXT_PUBLIC_META_PIXEL_ID`, `NEXT_PUBLIC_GOOGLE_TAG_ID` (yerelde boş: dış betik yüklenmez).
 - Kampanyalar ve segmentler (Karar 49, 51): `packages/shared/src/campaigns.ts`, `apps/api/src/campaigns/`
   (`SegmentService.preview/reach`, `CampaignService.estimate/create/dispatchDue`, işçide dakikada bir); uçlar
   `/staff/segments`, `/staff/campaigns`; bildirimlerde `campaign_id`. Konsol `/segmentler`, `/kampanyalar`.

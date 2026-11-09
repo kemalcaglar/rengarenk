@@ -152,6 +152,8 @@ describe('talepler (Karar 04, 05, 09, 10, 12, 21)', () => {
       whatsapp: false,
     });
     expect(anon.body.gorunum.katalog).toEqual({ marka: 'BMW', seri: '3 Serisi', model: '320i' });
+    // Aranabilir saatler (varsayılan 09–21) dışında numara gizlidir; test saatten bağımsız olsun
+    await db.user.update({ where: { phone: '+905327771001' }, data: { callFrom: 0, callTo: 24 } });
     const other = await login('+905327771002');
     const seen = await call(app, 'GET', `/talepler/${pub.body.no}`, undefined, other);
     expect(seen.body.owner).toMatchObject({ phone: '+905327771001', whatsapp: true });

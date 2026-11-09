@@ -206,8 +206,20 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   rotası; site sayfalarıyla çakışan adres reddedilir), sürüm ve önceki sürüme dönüş, 1 saatlik imzalı önizleme, UTM'li
   reklam bağlantısı, hedefe göre ölçüm olayları listesi, günlük ziyaret ve düğme tıklaması (kişisel veri yok, IP başına
   sınır); düğme UTM'leri koruyarak talep oluşturmaya ya da galeri başvurusuna götürür
-- [ ] Ölçüm olaylarının gönderimi (Meta Pixel, Conversions API, Google etiketi) ve ilk/son temasın saklanması: reklam
-  ölçümüyle (Karar 35)
+- [x] Reklam ölçümü (Karar 35): ilk ve son temas (UTM, gclid, fbclid, fbp, fbc, açılış sayfası, yönlendiren site)
+  izin durumuyla (`user_attributions`; tıklama kimlikleri yalnızca reklam çerezi izniyle, izinden önce sekmenin oturum
+  belleğinde bekler). Olaylar (CompleteRegistration, Lead, SubmitApplication, DealerApproved, Subscribe, Purchase)
+  işlemle aynı veritabanı işleminde ve yalnızca "reklam ölçümü" onayı olan üyede (`ad_events`); işçi dakikada bir
+  Meta'ya (web ve sunucu olayları, özet telefon ve kimlik, fbp, fbc, IP ve tarayıcı) ve Google'a (galeri onayı ve
+  abonelik, gclid varsa) gönderir; tarayıcı olayı aynı kimlikle (`adEventId`) tekilleşir. Web'de Pixel ve Google
+  etiketi yalnızca çerez izninden sonra (Consent Mode v2 temel mod), izin kalkınca ölçüm çerezleri silinir; alt bilgide
+  ve Ayarlar › Gizlilik'te "Çerez tercihleri"; Ayarlar › Gizlilik ve mobil Kişisel verilerim'de reklam ölçümü onayı
+  (geri alınınca bekleyen olaylar iptal, tıklama kimlikleri, IP ve tarayıcı silinir). Mesaj, talep açıklaması, plaka ve
+  şasi gönderilmez. Sağlayıcılar `META_PROVIDER` (none, fake, capi) ve `GOOGLE_ADS_PROVIDER` (none, fake)
+- [ ] Mobil Meta SDK (react-native-fbsdk-next), KVKK izin ekranı ve iOS takip izni (ATT): Meta uygulama kimliği gelince.
+  O zamana kadar mobil olaylar sunucudan Meta'ya gitmez (`meta_status = yok`)
+- [ ] Google çevrimdışı dönüşümün gerçek bağdaştırıcısı (Data Manager API) ve Google Ads harcama çekimi: Google Ads hesabı
+  açılınca güncel belgeye göre
 - [x] Kuponlar (Karar 40, 51, 56): pazarlama kampanyalar sayfasında hazırlar (kod, ad, yüzde, ürün grupları, kitle,
   tarih, toplam sınır); dört göz onayı (COUPON; sahip ya da yönetici, %50 üstünü yalnızca sahip, onay isteğinde
   `yalnizSahip`); web ödemesinde kod ("Uygula" önizlemesi sunucuda hesaplanır), hesap başına bir kez, kullanım ödeme
@@ -221,7 +233,12 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   uyarısıyla bildirir (`deney`). Güven aşağı kesilerek yazılır
 - [ ] Fiyat deneyleri (ör. ek ilk mesaj 99 / 119 TL): sahip onayıyla, ödeme ve fiyat listesine bağlı ayrı altyapı
 - [ ] Arayüz deneyleri (ör. sihirbazın bütçe adımı): özellik anahtarlarına kol eklenince
-- [ ] Kanal kırılımı (organik, reklam, bildirim): reklam ölçümüyle; ajanın yorumu yapay zekâyla (şimdilik kural)
+- [x] Raporlar › Reklam ve edinim (YonetimRapor.dc.html › reklam): toplam harcama, galeri başına edinme, üye başına
+  maliyet, reklam getirisi; kanal ve kampanya tablosu (üyeler ilk temaslarının kampanyasına bağlanır; harcama, üyelik,
+  talep, yeni galeri, üye başı, 30 günlük ödeme ÷ harcama), son çekim notu, ajanın kural tabanlı bütçe yorumu; kanal
+  kırılımı (reklam, bildirim ve e-posta, organik). Harcama her gece 03.00'ten sonra dünü ve önceki günü çeker
+  (`ad_spend`; elle giriş yok). PDF ve Excel aynı tablolarla. Entegrasyonlar'da Meta ve Google kartları gerçek durumla
+- [ ] Ajanın reklam yorumu yapay zekâyla (şimdilik kural)
 
 ## Sprint 27 · Aşama 8 kalanları (9 Kasım 2026)
 

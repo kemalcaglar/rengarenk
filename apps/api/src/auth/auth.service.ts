@@ -6,11 +6,13 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  Optional,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Prisma, uuidv7 } from '@rengarenk/db';
 import type { SignupConsents, TokenPair } from '@rengarenk/shared';
+import { AdsService, olayPlatformu } from '../ads/ads.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
 import { ConsentService, channelOf } from '../consents/consent.service.js';
@@ -51,6 +53,7 @@ export class AuthService {
     private readonly limiter: RateLimiter,
     private readonly metrics: Metrics,
     private readonly consents: ConsentService,
+    @Optional() private readonly ads?: AdsService,
   ) {}
 
   /** SMS kodu gönderir. Aynı numaraya 60 saniyede bir, saatte en fazla 5 kod. */
@@ -316,6 +319,12 @@ export class AuthService {
 
       // Rıza kaydı (Karar 59): hangi metin sürümüne, hangi kanaldan, ne zaman
       if (consents) await this.consents.recordSignup(tx, user.id, consents, channelOf(platform), ip);
+      // Reklam ölçümü (Karar 35): telefonla doğrulanmış yeni üyelik; tarayıcı aynı kimliği (kod isteği) kullanır
+      if (isNewUser)
+        await this.ads?.olay(tx, user.id, 'CompleteRegistration', {
+          ref: challengeId,
+          platform: olayPlatformu(platform),
+        });
       const device = await tx.device.create({
         data: {
           id: uuidv7(),

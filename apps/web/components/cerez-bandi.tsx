@@ -3,30 +3,11 @@
 import { colors } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { type CerezTercihi, cerezTercihi, tercihDegisti } from '../lib/olcum';
 import { OnayKutusu } from './onay-kutusu';
-
-/** Çerez tercihi: zorunlu her zaman açık; analiz ve reklam ölçümü yalnızca izinle (Karar 35, 59). */
-export interface CerezTercihi {
-  analiz: boolean;
-  reklam: boolean;
-}
 
 const COOKIE = 'rr_cerez';
 const MAX_AGE = 180 * 24 * 60 * 60;
-
-function oku(): CerezTercihi | null {
-  const raw = document.cookie
-    .split('; ')
-    .find((c) => c.startsWith(`${COOKIE}=`))
-    ?.slice(COOKIE.length + 1);
-  if (!raw) return null;
-  try {
-    const v = JSON.parse(decodeURIComponent(raw)) as CerezTercihi;
-    return { analiz: Boolean(v.analiz), reklam: Boolean(v.reklam) };
-  } catch {
-    return null;
-  }
-}
 
 function kaydet(t: CerezTercihi) {
   // biome-ignore lint/suspicious/noDocumentCookie: tercih sunucu tarafında da okunur; Cookie Store API her tarayıcıda yok
@@ -37,6 +18,8 @@ function kaydet(t: CerezTercihi) {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(t),
   }).catch(() => undefined);
+  // Reklam ölçümü (Karar 35): izinle etiketler yüklenir, izin kalkınca ölçüm çerezleri silinir
+  tercihDegisti(t);
 }
 
 function Kutu({ on, label, onClick }: { on: boolean; label: string; onClick: () => void }) {
@@ -75,7 +58,17 @@ export function CerezBandi() {
   const [reklam, setReklam] = useState(false);
 
   useEffect(() => {
-    setGoster(oku() === null);
+    setGoster(cerezTercihi() === null);
+    // "Çerez tercihleri" bağlantısı: bant mevcut seçimlerle yeniden açılır
+    const ac = () => {
+      const t = cerezTercihi();
+      setAnaliz(Boolean(t?.analiz));
+      setReklam(Boolean(t?.reklam));
+      setDetay(true);
+      setGoster(true);
+    };
+    window.addEventListener('rr-cerez-ac', ac);
+    return () => window.removeEventListener('rr-cerez-ac', ac);
   }, []);
 
   if (!goster) return null;

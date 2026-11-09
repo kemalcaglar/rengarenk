@@ -201,6 +201,16 @@ export class AccountClosureService {
       // Süren otomatik akışlar durur; bağlamdaki ileti değişkenleri (talep başlığı, galeri adı) silinir
       await tx.automationRun.updateMany({ where: { userId, status: 'aktif' }, data: { status: 'kapali' } });
       await tx.automationRun.updateMany({ where: { userId }, data: { context: {} } });
+      // Reklam ölçümü (Karar 35): bekleyen olaylar iptal, temas kaydı silinir
+      await tx.adEvent.updateMany({
+        where: { userId, metaStatus: 'bekliyor' },
+        data: { metaStatus: 'iptal' },
+      });
+      await tx.adEvent.updateMany({
+        where: { userId, googleStatus: 'bekliyor' },
+        data: { googleStatus: 'iptal' },
+      });
+      await tx.userAttribution.deleteMany({ where: { userId } });
       await tx.rating.updateMany({ where: { buyerUserId: userId }, data: { fingerprint: null } });
       await tx.supportTicket.updateMany({ where: { userId }, data: { email: null, agentDraft: null } });
       await tx.dataExport.updateMany({

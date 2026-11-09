@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import { type CSSProperties, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useWebFiyat } from '../../lib/fiyat';
 import { ApiHatasi, binlik, istek, useGiris } from '../../lib/istemci';
+import { olcumOlayi } from '../../lib/olcum';
 import { Logo } from '../logo';
 import { Alan, Anahtar, Cip, etiket, Konum, kutu, secimKutusu } from './alan';
 import { Asistan } from './asistan';
@@ -327,6 +328,7 @@ export function Sihirbaz() {
         return;
       }
       const r = await istek<{ no: number }>(`/demands/${taslak.id}/publish`, { method: 'POST' });
+      olcumOlayi('Lead', taslak.id);
       router.push(
         oneCikar.length && !taslak.hesap
           ? `/haklarim?talep=${r.no}&sepet=${oneCikar.map((k) => `${k}_7`).join(',')}`

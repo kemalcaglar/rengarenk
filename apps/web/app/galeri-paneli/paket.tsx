@@ -4,6 +4,7 @@ import { GALLERY_TRIAL, RENEWAL_CONSENT, SUBSCRIPTION_CONSENT, tlYaz, withVat } 
 import Link from 'next/link';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { API, erisim, istek } from '../../lib/istemci';
+import { olcumOlayi } from '../../lib/olcum';
 
 type Degisim = 'yeni' | 'yukseltme' | 'sonraki_donem' | 'ayni';
 interface PaketSecenek {
@@ -178,8 +179,9 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
   useEffect(() => {
     const no = new URLSearchParams(window.location.search).get('siparis');
     if (!no) return;
-    istek<{ durum: string }>(`/orders/${no}`)
+    istek<{ durum: string; tur: string; toplamKurus: number }>(`/orders/${no}`)
       .then((s) => {
+        if (s.durum === 'PAID' && s.tur === 'abonelik') olcumOlayi('Subscribe', no, s.toplamKurus);
         if (s.durum === 'PAID') setBilgi('Ödemen alındı. Teşekkürler!');
       })
       .catch(() => undefined);
@@ -189,10 +191,11 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
   useEffect(() => {
     if (!siparis) return;
     const t = setInterval(async () => {
-      const s = await istek<{ durum: string; neden: string | null }>(`/orders/${siparis.no}`).catch(
-        () => null,
-      );
+      const s = await istek<{ durum: string; neden: string | null; tur: string; toplamKurus: number }>(
+        `/orders/${siparis.no}`,
+      ).catch(() => null);
       if (s?.durum === 'PAID') {
+        if (s.tur === 'abonelik') olcumOlayi('Subscribe', siparis.no, s.toplamKurus);
         setSiparis(null);
         setSecim(null);
         setBilgi('Ödemen alındı. Paketin ve hakların güncellendi.');

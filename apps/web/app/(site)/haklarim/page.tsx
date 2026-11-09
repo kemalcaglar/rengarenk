@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { HesabimMenu } from '../../../components/hesabim-menu';
 import { API, erisim, istek, useGiris } from '../../../lib/istemci';
+import { olcumOlayi } from '../../../lib/olcum';
 
 interface Urun {
   key: string;
@@ -117,6 +118,7 @@ export default function Haklarim() {
     if (no) {
       const s = await istek<{ durum: string; toplamKurus: number }>(`/orders/${no}`).catch(() => null);
       if (s?.durum === 'PAID') {
+        olcumOlayi('Purchase', no, s.toplamKurus);
         setSiparis({ no, odemeAdresi: '', toplamKurus: s.toplamKurus });
         setAdim('tamam');
       }
@@ -134,6 +136,7 @@ export default function Haklarim() {
         () => null,
       );
       if (s?.durum === 'PAID') {
+        olcumOlayi('Purchase', siparis.no, siparis.toplamKurus);
         setAdim('tamam');
         yukle().catch(() => undefined);
       } else if (s?.durum === 'FAILED' || s?.durum === 'CANCELLED') {

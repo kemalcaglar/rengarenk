@@ -13,6 +13,7 @@ import {
   supplyState,
   tlYaz,
 } from '@rengarenk/shared';
+import { AdsService } from '../ads/ads.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { trGunBasi } from './dashboard.service.js';
@@ -73,8 +74,8 @@ const ayAdi = (d: Date, kisa = false) => {
 
 /**
  * Raporlar (Karar 44; YonetimRapor.dc.html › rapor): huni, arz-talep haritası, gelir, en çok talep edilenler, birim
- * ekonomisi ve kohort gerçek veriyle; reklam ve edinim Meta ve Google hesapları bağlanınca, deneyler A/B altyapısıyla
- * gelir. Ziyaretçi sayısı web analitiği gelene kadar yoktur. Dışa aktarma kişisel veri içermez ve işlem kaydına girer.
+ * ekonomisi ve kohort gerçek veriyle; reklam ve edinim ilk temas ve gece çekilen harcamayla (Karar 35), deneyler A/B
+ * testlerinden. Ziyaretçi sayısı web analitiği gelene kadar yoktur. Dışa aktarma kişisel veri içermez ve işlem kaydına girer.
  */
 @Injectable()
 export class ReportService {
@@ -82,6 +83,7 @@ export class ReportService {
     @Inject(PRISMA) private readonly db: Db,
     private readonly audit: AuditService,
     @Optional() private readonly deneyler?: ExperimentService,
+    @Optional() private readonly reklam?: AdsService,
   ) {}
 
   araliklar(f: ReportFilter, now = new Date()): { simdi: Aralik; once: Aralik | null; ad: string } {
@@ -163,7 +165,13 @@ export class ReportService {
       case 'reklam':
         return {
           ...ortak,
-          bos: 'Meta ve Google reklam hesapları bağlanınca harcama, üyelik, talep, yeni galeri, üye başı maliyet ve getiri her gece kendiliğinden çekilir (Karar 44). Hesaplar sahipte.',
+          filtreNotu:
+            f.il || f.kategori || f.platform
+              ? 'Reklam ve edinim il, kategori ve platform süzgecine bağlı değildir.'
+              : null,
+          ...(this.reklam
+            ? await this.reklam.rapor(r.simdi, now)
+            : { bos: 'Reklam ölçümü bu süreçte kapalı.' }),
         };
       default: {
         const deneyler = (await this.deneyler?.liste(now)) ?? [];
@@ -713,6 +721,52 @@ export class ReportService {
           },
         ];
       }
+      case 'reklam':
+        return [
+          {
+            baslik: 'Reklam ve edinim',
+            kolonlar: ['Ölçü', 'Değer', 'Not'],
+            satirlar: (r.reklamSayilar as { ad: string; deger: string; not: string }[]).map((x) => [
+              x.ad,
+              x.deger,
+              x.not,
+            ]),
+            not: (r.cekimNotu as string | undefined) ?? null,
+          },
+          {
+            baslik: 'Kanal ve kampanya',
+            kolonlar: [
+              'Kampanya',
+              'Kanal',
+              'Harcama',
+              'Üyelik',
+              'Talep',
+              'Yeni galeri',
+              'Üye başı',
+              'Getiri',
+            ],
+            satirlar: (
+              r.kampanyalar as {
+                ad: string;
+                kanal: string;
+                harcama: string;
+                uye: string;
+                talep: string;
+                galeri: string;
+                uyeBasi: string;
+                getiri: string;
+              }[]
+            ).map((x) => [x.ad, x.kanal, x.harcama, x.uye, x.talep, x.galeri, x.uyeBasi, x.getiri]),
+            not: yorum,
+          },
+          {
+            baslik: 'Kanal kırılımı',
+            kolonlar: ['Kanal', 'Üyelik', 'Talep', 'Yeni galeri', '30 günlük ödeme'],
+            satirlar: (
+              r.kanallar as { ad: string; uye: number; talep: number; galeri: number; odeme: string }[]
+            ).map((x) => [x.ad, x.uye, x.talep, x.galeri, x.odeme]),
+          },
+        ];
       default:
         return [];
     }

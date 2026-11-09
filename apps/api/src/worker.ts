@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { AdsService } from './ads/ads.service.js';
 import { AgentService } from './agent/agent.service.js';
 import { ApprovalService } from './approvals/approval.service.js';
 import { ApprovalExecutor } from './approvals/approval-executor.js';
@@ -56,6 +57,7 @@ const bildirimOlaylari = app.get(NotificationEvents);
 const teslim = app.get(DeliveryService);
 const kampanyalar = app.get(CampaignService);
 const zamanliRaporlar = app.get(ScheduledReportService);
+const reklam = app.get(AdsService);
 const ticari = app.get(CommercialService);
 const akislar = app.get(AutomationService);
 const akisAdimlari = app.get(FlowService);
@@ -244,6 +246,8 @@ let sonOzetGunu = '';
 let sonAkisGunu = '';
 let sonImhaSayimi = '';
 let sonAjanGunu = '';
+let lastReklam = 0;
+let sonHarcamaGunu = '';
 
 log.log('outbox aktarıcısı çalışıyor');
 while (!stopping) {
@@ -382,6 +386,23 @@ while (!stopping) {
       .dailyDigest()
       .then((n) => n && log.log(`kayıtlı arama özeti: ${n} kişi`))
       .catch((err: Error) => log.error(`kayıtlı arama özeti: ${err.message}`));
+  }
+  // Reklam ölçümü (Karar 35): izinli olaylar dakikada bir Meta ve Google'a; harcama her gece 03.00'ten sonra
+  if (Date.now() - lastReklam > KAMPANYA_MS) {
+    lastReklam = Date.now();
+    await reklam
+      .gonder()
+      .then((n) => {
+        if (n) log.log(`reklam ölçümü: ${n} olay gönderildi`);
+      })
+      .catch((err: Error) => log.error(`reklam ölçümü: ${err.message}`));
+  }
+  if (trSaat.getUTCHours() >= 3 && sonHarcamaGunu !== gun) {
+    sonHarcamaGunu = gun;
+    await reklam
+      .harcamaCek()
+      .then((n) => n && log.log(`reklam harcaması: ${n} satır`))
+      .catch((err: Error) => log.error(`reklam harcaması: ${err.message}`));
   }
   // Rengarenk Ajanı (Karar 41): 09.00'dan sonra günlük özet (kendisi günde bir kez yazar) ve kural önerileri
   if (trSaat.getUTCHours() >= 9 && sonAjanGunu !== gun) {

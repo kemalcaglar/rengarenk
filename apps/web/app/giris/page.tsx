@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type FormEvent, useEffect, useState } from 'react';
 import { OnayKutusu } from '../../components/onay-kutusu';
+import { olcumOlayi, temasGonder } from '../../lib/olcum';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
@@ -167,10 +168,13 @@ export default function Giris() {
         code,
         consents: onay,
       });
+      // Reklam ölçümü (Karar 35): temaslar üyeye bağlanır; yeni üyelik olayı sunucuyla aynı kimlikle
+      void temasGonder();
       if (!r.isNewUser) {
         router.push(sonra ?? '/');
         return;
       }
+      if (challengeId) olcumOlayi('CompleteRegistration', challengeId);
       setAccess(r.accessToken);
       setStep(3);
     });

@@ -1,4 +1,5 @@
-import { Controller, Get, Inject, UseGuards } from '@nestjs/common';
+import { Controller, Get, Inject, Optional, UseGuards } from '@nestjs/common';
+import { AdsService } from '../ads/ads.service.js';
 import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { RequirePermission } from './permissions.js';
@@ -14,6 +15,7 @@ export class IntegrationsController {
   constructor(
     @Inject(ENV) private readonly env: Env,
     @Inject(PRISMA) private readonly db: Db,
+    @Optional() private readonly reklam?: AdsService,
   ) {}
 
   @Get()
@@ -49,6 +51,7 @@ export class IntegrationsController {
       },
       sources,
       bekleyen: { adEsleme: aliasPending, fotograf: photoGenerations },
+      reklam: (await this.reklam?.durum()) ?? null,
     };
   }
 }

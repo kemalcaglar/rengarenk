@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AdsCoreModule } from './ads/ads.module.js';
 import { AgentCoreModule } from './agent/agent.module.js';
 import { ApprovalsModule } from './approvals/approvals.module.js';
 import { CampaignsWorkerModule } from './campaigns/campaigns.module.js';
@@ -60,6 +61,7 @@ import { TrustWorkerModule } from './trust/trust.module.js';
     PrivacyWorkerModule,
     StaffAlertsWorkerModule,
     MessageSafetyModule,
+    AdsCoreModule,
   ],
   providers: [OutboxService, QueueService],
 })
