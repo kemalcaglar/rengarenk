@@ -20,8 +20,17 @@ export const RATING_FLAGS = {
   yeni_hesap: 'Son 3 günde açılmış hesaptan',
   ayni_cihaz: 'Aynı cihaz ve ağdan birden çok hesaptan',
   bagli_hesap: 'Satıcıyla bağlantılı hesaptan',
+  itiraz: 'Galerinin itirazı moderasyonda kabul edildi',
 } as const;
 export type RatingFlag = keyof typeof RATING_FLAGS;
+
+/**
+ * Galerinin 1 yıldıza itirazı (Karar 55): galeri sahibi ya da yöneticisi yıldızdan sonraki 30 gün içinde bir kez itiraz
+ * eder; yıldızı verenin kimliği galeriye gösterilmez. Moderasyon sohbetin kanıtıyla 7 gün içinde inceler; kabulde yıldız
+ * hesaba katılmaz (`itiraz` işareti), redde yıldız kalır. Sonuç galeriye bildirilir.
+ */
+export const RATING_APPEAL_DAYS = 30;
+export const RATING_APPEAL_REVIEW_DAYS = 7;
 
 export const BADGES = {
   onay: {

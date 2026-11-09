@@ -173,6 +173,13 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Aşama 8 kalanları (Sprint 27)
+
+- 1 yıldıza itiraz (Karar 55): `RatingAppealService` (`apps/api/src/trust/rating-appeal.service.ts`), tablo
+  `rating_appeals`. Galeri: `GET /gallery/:id/ratings/low`, `POST /gallery/:id/ratings/:ratingId/appeal`. Konsol:
+  `GET /staff/trust/appeals`, `POST /staff/trust/appeals/:id/decide` (Moderasyon › İtirazlar). Kabulde yıldızın işareti
+  `itiraz`, sonuç olayı `yildiz.itiraz_sonuc`.
+
 ## Kullanıcı tarafı yapay zekâ (Sprint 26)
 
 - Talep asistanı: `parseDemandText` (`packages/shared/src/assistant.ts`), `DemandAssistant`

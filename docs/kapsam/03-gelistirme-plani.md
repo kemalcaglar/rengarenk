@@ -138,6 +138,14 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 27 · Aşama 8 kalanları (9 Kasım 2026)
+
+- [x] Galerinin 1 yıldıza itirazı (Karar 55): galeri panelinde (web Özet › Yıldızların ve rozetlerin, mobil Rozetlerin)
+  son 30 günün 1 yıldızları yalnızca tarihiyle; sahip ya da yönetici her yıldıza 30 gün içinde bir kez itiraz eder.
+  Konsol › Moderasyon › İtirazlar'da "Galeri · 1 yıldıza itiraz" (YonetimPazar.dc.html): sohbet kanıtı (mesaj sayıları,
+  yıldızın son mesajdan ne kadar sonra verildiği, alıcı hesabının yaşı), maskeli son mesajlar, 7 günlük inceleme
+  süresi. Kabulde yıldız `itiraz` işaretiyle hesaptan çıkar, göstergeler yenilenir; sonuç itirazı yazana bildirilir
+
 ## Sprint 26 · kullanıcı tarafı yapay zekâ (Aşama 8 dokuzuncu bölüm, 9 Kasım 2026)
 
 - [x] Talep asistanı (`talep_asistani` anahtarı, Karar 42): serbest metinden yıl, bütçe, km, yakıt, vites, renk, hasar,
@@ -314,7 +322,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Yasaklı kelime kuralı mesaj ve talep yayınında moderasyona şikâyet açar; telefon izni kapalı alıcıda satıcı
   mesajındaki numara gizlenir; satıcı puanında şikâyet oranı (90 gün, karara bağlanan ve geri alınmayan)
 - [ ] Yapay zekâ değerlendirmesi ve güven oranı (Rengarenk Ajanı, Vertex AI hesabı gelince); galerinin 1 yıldıza
-  itirazı; kara liste (telefon, IBAN, cihaz, IP) kullanıcı kartıyla
+  itirazı (Sprint 27'de yapıldı); kara liste (telefon, IBAN, cihaz, IP) kullanıcı kartıyla
 
 , şablonlar, otomatik akışlar (Aşama 7, 8 Kasım 2026)
 
@@ -449,7 +457,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   takip edilen galeriye eklenen ve yayındaki taleplere uyan araçlar her gece `takip.ozet` olayı (iletim Aşama 7)
 - [x] Çalışan başına günlük ilk mesaj sınırı (Karar 20): sahip Ekip'te koyar (işlem kaydına girer), "Günde en fazla N ilk
   mesaj"; paket hakkı ortak havuzdur
-- [ ] Şikâyet oranı moderasyonla (Aşama 8), o zamana kadar 0; galerinin 1 yıldıza itirazı (moderasyon); rozet eşiklerinin
+- [ ] Şikâyet oranı moderasyonla (Aşama 8, yapıldı); galerinin 1 yıldıza itirazı (Sprint 27, yapıldı); rozet eşiklerinin
   konsoldan değiştirilmesi (Kurallar ve fiyatlar, Karar 47, 56); ajanın yıldız incelemesi (Karar 41)
 - Kararlar: "Hızlı yanıt" bireysel satıcıya da verilir (Karar 55'te galeri şartı yalnızca Güvenilir satıcıda); profildeki
   "ortalama yanıt süresi" son 30 günde yanıtlanan sohbetlerin ortalamasıdır

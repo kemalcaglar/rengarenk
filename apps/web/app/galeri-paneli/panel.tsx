@@ -719,7 +719,7 @@ function Ozet({
         })}
       </div>
 
-      {guven ? <Guven v={guven} /> : null}
+      {guven ? <Guven v={guven} hesap={p.accountId} /> : null}
 
       <section style={{ ...kart, borderRadius: 18, padding: 20, marginTop: 16 }} aria-labelledby="profil">
         <div

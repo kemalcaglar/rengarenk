@@ -12,6 +12,7 @@ import { useCallback, useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
+import { BirYildiz } from '../components/bir-yildiz';
 import { IlkMesaj } from '../components/ilk-mesaj';
 import { T } from '../components/t';
 import { API } from '../lib/api';
@@ -827,6 +828,7 @@ export default function GaleriPaneli() {
                 Rozetler alıcı yıldızları, yanıt süren ve şikayet oranınla her gece güncellenir. Alıcılar tek
                 tek puan görmez.
               </T>
+              <BirYildiz hesap={p.accountId} />
             </View>
 
             <View style={{ ...kart, borderRadius: 16, padding: 14, marginTop: 12 }}>

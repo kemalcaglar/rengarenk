@@ -3,9 +3,13 @@ import { uuidv7 } from '@rengarenk/db';
 import { gallerySlug } from '@rengarenk/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Db } from '../src/database/prisma.js';
+import { NotificationService } from '../src/notifications/notification.service.js';
+import { NotificationEvents } from '../src/notifications/notification-events.js';
+import { DemandSearchService } from '../src/search/demand-search.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
 import { TrustService } from '../src/trust/trust.service.js';
 import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
 let sms: MemorySmsSender;
@@ -251,5 +255,100 @@ describe('yıldız, rozetler, galeri takibi, çalışan sınırı (Karar 20, 28,
       (await call(app, 'GET', `/talepler/${t2}/mesaj?hesap=${g.accountId}`, undefined, g.token)).body.engel,
     ).toContain('kişisel');
     expect(await db.auditLog.count({ where: { action: 'galeri_mesaj_siniri' } })).toBe(1);
+  });
+
+  it('galeri 1 yıldıza bir kez itiraz eder; moderasyon kabul edince yıldız sayılmaz, galeriye bildirilir (Karar 55)', async () => {
+    const g = await galeri('+905336662001', 'İtiraz Otomotiv');
+    const satis = await login('+905336662002', ['Can', 'Satış']);
+    await db.accountMember.create({ data: { accountId: g.accountId, userId: satis.userId, role: 'SALES' } });
+    const a1 = await login('+905336662011', ['Ece', 'Kurt']);
+    const a2 = await login('+905336662012', ['Okan', 'Er']);
+    const s1 = await sohbet(g, a1);
+    await s1.yanitla();
+    await s1.saticiYazsin();
+    const s2 = await sohbet(g, a2);
+    await s2.yanitla();
+    await s2.saticiYazsin();
+    expect((await puanVer(s1.id, a1.token, 1, 'tarayici-1')).status).toBe(201);
+    expect((await puanVer(s2.id, a2.token, 5, 'tarayici-2')).status).toBe(201);
+
+    // Galeri yalnızca tarihi görür; yıldızı veren gösterilmez
+    const liste = await call(app, 'GET', `/gallery/${g.accountId}/ratings/low`, undefined, g.token);
+    expect(liste.body.yildizlar).toHaveLength(1);
+    const y = liste.body.yildizlar[0];
+    expect(y.itirazEdebilir).toBe(true);
+    expect(JSON.stringify(liste.body)).not.toContain('Ece');
+    expect(JSON.stringify(liste.body)).not.toContain(a1.userId);
+    // Satış temsilcisi itiraz edemez; kısa metin reddedilir
+    const sl = await call(app, 'GET', `/gallery/${g.accountId}/ratings/low`, undefined, satis.token);
+    expect(sl.body.yildizlar[0].itirazEdebilir).toBe(false);
+    const yol = `/gallery/${g.accountId}/ratings/${y.id}/appeal`;
+    expect((await call(app, 'POST', yol, { metin: 'Alıcıyla hiç konuşmadık.' }, satis.token)).status).toBe(
+      403,
+    );
+    expect((await call(app, 'POST', yol, { metin: 'kısa' }, g.token)).status).toBe(400);
+    // Başka galerinin çalışanı göremez
+    const baska = await galeri('+905336662003', 'Başka Oto');
+    expect(
+      (await call(app, 'GET', `/gallery/${g.accountId}/ratings/low`, undefined, baska.token)).status,
+    ).toBe(404);
+
+    const ac = await call(
+      app,
+      'POST',
+      yol,
+      { metin: 'Alıcıyla hiç konuşmadık, 2 dakika sonra 1 yıldız verdi.' },
+      g.token,
+    );
+    expect(ac.status).toBe(201);
+    expect(ac.body.yildizlar[0].itiraz.durum).toBe('acik');
+    expect((await call(app, 'POST', yol, { metin: 'İkinci kez itiraz ediyorum.' }, g.token)).status).toBe(
+      409,
+    );
+    expect(await db.auditLog.count({ where: { action: 'yildiz_itiraz_acildi', entityId: y.id } })).toBe(1);
+
+    // Konsol: kanıt ve maskeli son mesajlar, inceleme süresi
+    const mod = (await loginAs(app, await createStaff(db, 'MODERATOR'))).token;
+    const k = (await staffCall(app, 'GET', '/staff/trust/appeals', undefined, mod)).body.find(
+      (a: { ad: string }) => a.ad.startsWith('İtiraz Otomotiv'),
+    );
+    expect(k.ad).toBe('İtiraz Otomotiv · 1 yıldıza itiraz');
+    expect(k.kanit).toContain('Sohbette alıcı 1, galeri 2 mesaj yazdı');
+    expect(k.mesajlar.map((m: { taraf: string }) => m.taraf)).toEqual(['Galeri', 'Alıcı', 'Galeri']);
+    expect(new Date(k.sonGun).getTime()).toBeGreaterThan(Date.now() + 6 * DAY);
+    // İzleyici rolü itirazları göremez
+    const izleyici = (await loginAs(app, await createStaff(db, 'VIEWER'))).token;
+    expect((await staffCall(app, 'GET', '/staff/trust/appeals', undefined, izleyici)).status).toBe(403);
+
+    const once = await call(app, 'GET', `/gallery/${g.accountId}/trust`, undefined, g.token);
+    expect(once.body.yildizOrtalama).toBe(3);
+    const kabul = await staffCall(app, 'POST', `/staff/trust/appeals/${k.id}/decide`, { kabul: true }, mod);
+    expect(kabul.status).toBe(200);
+    expect(
+      (await staffCall(app, 'POST', `/staff/trust/appeals/${k.id}/decide`, { kabul: false }, mod)).status,
+    ).toBe(409);
+    const r = await db.rating.findUniqueOrThrow({ where: { id: y.id } });
+    expect(r).toMatchObject({ counted: false, flag: 'itiraz' });
+    const sonra = await call(app, 'GET', `/gallery/${g.accountId}/trust`, undefined, g.token);
+    expect(sonra.body).toMatchObject({ yildizSayisi: 1, yildizOrtalama: 5 });
+    const l2 = await call(app, 'GET', `/gallery/${g.accountId}/ratings/low`, undefined, g.token);
+    expect(l2.body.yildizlar[0].itiraz.durum).toBe('kabul');
+
+    // Sonuç yalnızca itirazı yazana bildirilir
+    const olay = await db.outboxEvent.findFirstOrThrow({
+      where: { type: 'yildiz.itiraz_sonuc' },
+      orderBy: { createdAt: 'desc' },
+    });
+    const ol = new NotificationEvents(db, app.get(NotificationService), app.get(DemandSearchService));
+    expect(await ol.handle('yildiz.itiraz_sonuc', olay.payload as Record<string, unknown>)).toBeGreaterThan(
+      0,
+    );
+    const b = await db.notification.findFirstOrThrow({
+      where: { userId: g.userId, sablon: 'yildiz.itiraz_sonuc' },
+    });
+    expect(b.metin).toContain('ortalamana katılmayacak');
+    expect(
+      await db.notification.count({ where: { userId: satis.userId, sablon: 'yildiz.itiraz_sonuc' } }),
+    ).toBe(0);
   });
 });

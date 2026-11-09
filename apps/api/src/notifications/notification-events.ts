@@ -78,6 +78,7 @@ export const NOTIFY_EVENTS = [
   'moderasyon.karar',
   'moderasyon.ajan_aski',
   'moderasyon.itiraz_sonuc',
+  'yildiz.itiraz_sonuc',
   'hak.tanimlandi',
   'destek.yanitlandi',
   'destek.memnuniyet',
@@ -459,6 +460,22 @@ export class NotificationEvents {
               a.status === 'kabul'
                 ? 'İtirazını haklı bulduk; karar geri alındı.'
                 : `İtirazını inceledik; karar geçerli.${a.decisionNote ? ` ${a.decisionNote}` : ''}`,
+          },
+        });
+      }
+      case 'yildiz.itiraz_sonuc': {
+        const a = await this.db.ratingAppeal.findUnique({ where: { id: s('appealId') } });
+        if (!a || a.status === 'acik') return 0;
+        const g = await this.galeriAdi(a.accountId);
+        return this.notifications.notify({
+          userIds: [a.userId],
+          sablon: type,
+          veri: {
+            galeri: g.displayName,
+            sonuc:
+              a.status === 'kabul'
+                ? 'İtirazını haklı bulduk; bu yıldız ortalamana katılmayacak.'
+                : `İtirazını inceledik; yıldız geçerli.${a.decisionNote ? ` ${a.decisionNote}` : ''}`,
           },
         });
       }

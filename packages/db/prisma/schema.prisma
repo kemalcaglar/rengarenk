@@ -1499,13 +1499,39 @@ model Rating {
   fingerprint     String?
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  conversation  Conversation @relation(fields: [conversationId], references: [id])
-  buyer         User         @relation(fields: [buyerUserId], references: [id])
-  sellerAccount Account      @relation(fields: [sellerAccountId], references: [id])
+  conversation  Conversation  @relation(fields: [conversationId], references: [id])
+  buyer         User          @relation(fields: [buyerUserId], references: [id])
+  sellerAccount Account       @relation(fields: [sellerAccountId], references: [id])
+  appeal        RatingAppeal?
 
   @@index([sellerAccountId, createdAt])
   @@index([sellerAccountId, fingerprint])
   @@map("ratings")
+}
+
+/// Galerinin 1 yıldıza itirazı (Karar 55): yıldız başına bir kez; moderasyon inceler, kabulde yıldız hesaba katılmaz
+model RatingAppeal {
+  id               String    @id @db.Uuid
+  ratingId         String    @unique @map("rating_id") @db.Uuid
+  accountId        String    @map("account_id") @db.Uuid
+  /// İtirazı yazan galeri çalışanı (sahip ya da yönetici)
+  userId           String    @map("user_id") @db.Uuid
+  /// @pii İtiraz metni
+  text             String
+  /// acik | kabul | red
+  status           String    @default("acik")
+  /// İnceleme hedefi (7 gün)
+  dueAt            DateTime  @map("due_at") @db.Timestamptz(3)
+  decidedByStaffId String?   @map("decided_by_staff_id") @db.Uuid
+  decisionNote     String?   @map("decision_note")
+  decidedAt        DateTime? @map("decided_at") @db.Timestamptz(3)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  rating Rating @relation(fields: [ratingId], references: [id])
+
+  @@index([status, createdAt])
+  @@index([accountId, createdAt])
+  @@map("rating_appeals")
 }
 
 /// Satıcının hesaplanmış göstergeleri ve rozetleri (Karar 55); işçi her gece ve yeni yıldızda yeniler

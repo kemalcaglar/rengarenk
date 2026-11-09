@@ -690,6 +690,19 @@ export const NOTIFY_TEMPLATES = {
       dugme: { yazi: 'Ayrıntıyı gör', url: '/itiraz/{{rapor}}' },
     },
   },
+  'yildiz.itiraz_sonuc': {
+    ad: '1 yıldıza itirazın sonuçlandı (galeri)',
+    konu: 'galeri',
+    grup: 'galeri',
+    baslik: '1 yıldıza itirazın sonuçlandı',
+    metin: '{{sonuc}}',
+    url: '/galeri-paneli?bolum=ozet',
+    eposta: {
+      konu: '1 yıldıza itirazın sonuçlandı',
+      paragraflar: ['Merhaba {{ad}},', '{{galeri}} için yaptığın itiraz: {{sonuc}}'],
+      dugme: { yazi: 'Galeri panelini aç', url: '/galeri-paneli?bolum=ozet' },
+    },
+  },
 } as const satisfies Record<string, NotifyTemplate>;
 export type TemplateKey = keyof typeof NOTIFY_TEMPLATES;
 export const templateOf = (key: string): NotifyTemplate | undefined =>

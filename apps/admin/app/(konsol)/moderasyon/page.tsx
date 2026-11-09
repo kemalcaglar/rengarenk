@@ -70,6 +70,18 @@ interface Itiraz {
   sonuc: string | null;
   inceleyen: string | null;
 }
+/** Galerinin 1 yıldıza itirazı (Karar 55; YonetimPazar.dc.html › "Hızlı Oto · 1 yıldıza itiraz") */
+interface YildizItiraz {
+  id: string;
+  ad: string;
+  metin: string;
+  kanit: string;
+  mesajlar: { taraf: string; metin: string; zaman: string }[];
+  durum: 'acik' | 'kabul' | 'red';
+  sonuc: string | null;
+  inceleyen: string | null;
+  sonGun: string;
+}
 interface Filtreler {
   filtreler: { key: string; ad: string; not: string; acik: boolean }[];
   kelimeler: string[];
@@ -112,6 +124,7 @@ export default function Moderasyon() {
   const [karar, setKarar] = useState<ModerationDecision>('uyari');
   const [not, setNot] = useState('');
   const [itirazlar, setItirazlar] = useState<Itiraz[]>([]);
+  const [yildizlar, setYildizlar] = useState<YildizItiraz[]>([]);
   const [f, setF] = useState<Filtreler | null>(null);
   const [yeni, setYeni] = useState('');
   const [bilgi, setBilgi] = useState<string | null>(null);
@@ -120,13 +133,15 @@ export default function Moderasyon() {
 
   const yukle = useCallback(async () => {
     try {
-      const [k, i, fl] = await Promise.all([
+      const [k, i, y, fl] = await Promise.all([
         yonetim<Kuyruk>('moderation/reports'),
         yonetim<Itiraz[]>('moderation/appeals'),
+        yonetim<YildizItiraz[]>('trust/appeals'),
         yonetim<Filtreler>('moderation/filters'),
       ]);
       setQ(k);
       setItirazlar(i);
+      setYildizlar(y);
       setF(fl);
       setSec((s) => s ?? k.acik[0]?.id ?? k.kapali[0]?.id ?? null);
     } catch (e) {
@@ -182,6 +197,20 @@ export default function Moderasyon() {
         await yonetim<Itiraz[]>(`moderation/appeals/${i.id}/decide`, { method: 'POST', body: { kabul } }),
       );
       setBilgi(kabul ? 'İtiraz kabul edildi; yaptırım kalktı.' : 'İtiraz reddedildi; karar geçerli.');
+    } catch (e) {
+      setHata((e as Error).message);
+    }
+  }
+  async function yildizKarar(i: YildizItiraz, kabul: boolean) {
+    try {
+      setYildizlar(
+        await yonetim<YildizItiraz[]>(`trust/appeals/${i.id}/decide`, { method: 'POST', body: { kabul } }),
+      );
+      setBilgi(
+        kabul
+          ? 'İtiraz kabul edildi; yıldız hesaba katılmıyor, galeriye bildirildi.'
+          : 'İtiraz reddedildi; yıldız geçerli, galeriye bildirildi.',
+      );
     } catch (e) {
       setHata((e as Error).message);
     }
@@ -500,7 +529,7 @@ export default function Moderasyon() {
         >
           İtirazlar
         </h2>
-        {!itirazlar.length ? (
+        {!itirazlar.length && !yildizlar.length ? (
           <p style={{ margin: 0, padding: '12px 18px', fontSize: 13.5, color: '#5A6073' }}>İtiraz yok.</p>
         ) : null}
         {itirazlar.map((it) => (
@@ -574,6 +603,93 @@ export default function Moderasyon() {
             )}
           </div>
         ))}
+        {yildizlar.map((it) => {
+          const kalan = Math.ceil((new Date(it.sonGun).getTime() - simdi) / 86_400_000);
+          return (
+            <div
+              key={it.id}
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                gap: '6px 16px',
+                padding: '12px 18px',
+                borderBottom: '1px solid #EEF0F5',
+                fontSize: 13.5,
+              }}
+            >
+              <span style={{ flex: '999 1 300px', minWidth: 0 }}>
+                <span style={{ display: 'block', fontWeight: 800 }}>{it.ad}</span>
+                <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+                  {it.kanit} · galeri: “{it.metin}”
+                </span>
+                {it.mesajlar.length ? (
+                  <details style={{ marginTop: 4, fontSize: 12.5 }}>
+                    <summary style={{ cursor: 'pointer', color: '#2F5FD0', fontWeight: 700 }}>
+                      Sohbetin son mesajları (maskeli)
+                    </summary>
+                    <div style={{ display: 'grid', gap: 4, marginTop: 6 }}>
+                      {it.mesajlar.map((m) => (
+                        <span key={`${m.zaman}${m.taraf}`} style={{ color: '#3A4052' }}>
+                          <b>{m.taraf}</b> · {saat(m.zaman)}: {m.metin}
+                        </span>
+                      ))}
+                    </div>
+                  </details>
+                ) : null}
+              </span>
+              {it.durum === 'acik' ? (
+                <span style={{ flex: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ color: kalan <= 0 ? '#A3271F' : '#3A4052', marginRight: 6 }}>
+                    {kalan <= 0 ? 'Süre aştı' : `Kalan ${kalan} gün`}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => yildizKarar(it, true)}
+                    style={{
+                      border: '1px solid #D5DAE5',
+                      background: '#FFFFFF',
+                      borderRadius: 10,
+                      padding: '8px 12px',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    Kabul et, yıldızı sayma
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => yildizKarar(it, false)}
+                    style={{
+                      border: 0,
+                      background: 'transparent',
+                      padding: '8px 6px',
+                      fontSize: 13,
+                      fontWeight: 700,
+                      color: '#5A6073',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    Reddet
+                  </button>
+                </span>
+              ) : (
+                <span
+                  style={{
+                    flex: 'none',
+                    color: it.durum === 'kabul' ? '#11683F' : '#3A4052',
+                    fontWeight: 700,
+                  }}
+                >
+                  {it.durum === 'kabul' ? 'Kabul edildi' : 'Reddedildi'} · {it.inceleyen}
+                </span>
+              )}
+            </div>
+          );
+        })}
       </section>
 
       {f ? (

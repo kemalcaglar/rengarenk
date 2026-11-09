@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
+import { AuditService } from '../audit/audit.service.js';
 import { AuthModule } from '../auth/auth.module.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { StaffModule } from '../staff/staff.module.js';
+import { RatingAppealService } from './rating-appeal.service.js';
 import { StaffTrustController, TrustController } from './trust.controller.js';
 import { TrustService } from './trust.service.js';
 
@@ -9,7 +11,7 @@ import { TrustService } from './trust.service.js';
 @Module({
   imports: [AuthModule, StaffModule],
   controllers: [TrustController, StaffTrustController],
-  providers: [TrustService, OutboxService],
+  providers: [TrustService, RatingAppealService, AuditService, OutboxService],
   exports: [TrustService],
 })
 export class TrustModule {}

@@ -11,13 +11,14 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ratingSchema } from '@rengarenk/shared';
+import { appealCreateSchema, appealDecideSchema, ratingSchema } from '@rengarenk/shared';
 import type { z } from 'zod';
 import { AuthGuard } from '../auth/auth.guard.js';
 import type { AccessClaims } from '../auth/auth.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
 import { RequirePermission } from '../staff/permissions.js';
-import { StaffGuard } from '../staff/staff.guard.js';
+import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
+import { RatingAppealService } from './rating-appeal.service.js';
 import { TrustService } from './trust.service.js';
 
 type AuthedRequest = { user: AccessClaims; ip?: string; headers: Record<string, string | undefined> };
@@ -27,7 +28,10 @@ const uuid = new ParseUUIDPipe();
 @Controller()
 @UseGuards(AuthGuard)
 export class TrustController {
-  constructor(private readonly trust: TrustService) {}
+  constructor(
+    private readonly trust: TrustService,
+    private readonly appeals: RatingAppealService,
+  ) {}
 
   @Get('ratings/pending')
   pending(@Req() req: AuthedRequest) {
@@ -53,6 +57,23 @@ export class TrustController {
     return this.trust.galleryView(req.user.sub, accountId);
   }
 
+  /** Galerinin 1 yıldızları ve itirazları (Karar 55) */
+  @Get('gallery/:accountId/ratings/low')
+  lowRatings(@Req() req: AuthedRequest, @Param('accountId', uuid) accountId: string) {
+    return this.appeals.list(req.user.sub, accountId);
+  }
+
+  @Post('gallery/:accountId/ratings/:ratingId/appeal')
+  @HttpCode(201)
+  appealRating(
+    @Req() req: AuthedRequest,
+    @Param('accountId', uuid) accountId: string,
+    @Param('ratingId', uuid) ratingId: string,
+    @Body(new ZodPipe(appealCreateSchema)) b: z.output<typeof appealCreateSchema>,
+  ) {
+    return this.appeals.appeal(req.user.sub, accountId, ratingId, b.metin, req.ip);
+  }
+
   @Get('galeriler/:slug/takip')
   followState(@Req() req: AuthedRequest, @Param('slug') slug: string) {
     return this.trust.followState(req.user.sub, slug);
@@ -74,11 +95,32 @@ export class TrustController {
 @Controller('staff/trust')
 @UseGuards(StaffGuard)
 export class StaffTrustController {
-  constructor(private readonly trust: TrustService) {}
+  constructor(
+    private readonly trust: TrustService,
+    private readonly appeals: RatingAppealService,
+  ) {}
 
   @Get('overview')
   @RequirePermission('rapor.gor')
   overview() {
     return this.trust.staffOverview();
+  }
+
+  /** Moderasyon › İtirazlar: galerinin 1 yıldıza itirazları */
+  @Get('appeals')
+  @RequirePermission('sikayet.coz', 'tam')
+  ratingAppeals() {
+    return this.appeals.staffList();
+  }
+
+  @Post('appeals/:id/decide')
+  @HttpCode(200)
+  @RequirePermission('sikayet.coz', 'tam')
+  decideRatingAppeal(
+    @Req() req: StaffRequest,
+    @Param('id', uuid) id: string,
+    @Body(new ZodPipe(appealDecideSchema)) b: z.output<typeof appealDecideSchema>,
+  ) {
+    return this.appeals.decide(req.staff, id, b, req.ip);
   }
 }
