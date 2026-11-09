@@ -3,6 +3,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ProfilVeIletisim } from '../components/ayar-profil';
 import { Ikon } from '../components/ikon';
 import { T, TInput } from '../components/t';
 import { useOturum } from '../lib/oturum';
@@ -27,7 +28,8 @@ const kart = {
 } as const;
 
 /**
- * Ayarlar (Ayarlar.dc.html'nin mobil karşılığı; Karar 30, 48, 49): e-posta adresi ve doğrulama, bildirim konuları ve
+ * Ayarlar (Ayarlar.dc.html'nin mobil karşılığı; Karar 29, 30, 48, 49): profil ve iletişim tercihleri, numarayı
+ * değiştir, e-posta adresi ve doğrulama, bildirim konuları ve
  * kanalları. Ödeme bildirimleri kapatılamaz; kampanya ticari ileti onayıyla açılır.
  */
 export default function Ayarlar() {
@@ -113,6 +115,7 @@ export default function Ayarlar() {
           style={{ flex: 1, backgroundColor: colors.background }}
           contentContainerStyle={{ padding: 12, paddingBottom: 40, gap: 12 }}
         >
+          <ProfilVeIletisim />
           <View style={{ ...kart, padding: 14 }}>
             <T accessibilityRole="header" style={{ fontSize: 16, fontWeight: '800' }}>
               E-posta

@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { type Demand, type DemandStatus, type Prisma, uuidv7 } from '@rengarenk/db';
 import {
+  aranabilir,
   type CategoryDefinition,
   type CategoryField,
   DEMAND_STATUS_NAMES,
@@ -156,7 +157,16 @@ export class DemandService {
       where: { no: BigInt(no) },
       include: {
         category: { select: { slug: true, name: true } },
-        user: { select: { firstName: true, lastName: true, phone: true, createdAt: true } },
+        user: {
+          select: {
+            firstName: true,
+            lastName: true,
+            phone: true,
+            createdAt: true,
+            callFrom: true,
+            callTo: true,
+          },
+        },
         account: { select: { gallery: { select: { displayName: true, slug: true } } } },
       },
     });
@@ -164,7 +174,10 @@ export class DemandService {
     const galeri = d.account.gallery;
     const def = await this.definition(d.categoryId, d.schemaVersion as number);
     const data = d.data as unknown as DemandData;
-    const showPhone = d.status === 'PUBLISHED' && d.phoneVisible && Boolean(viewerUserId);
+    // Aranabilir saatler dışında numara ve WhatsApp gizlenir; uygulama içi mesaj her zaman açık (Karar 29)
+    const saatte = aranabilir(d.user.callFrom, d.user.callTo);
+    const izinli = d.status === 'PUBLISHED' && d.phoneVisible && Boolean(viewerUserId);
+    const showPhone = izinli && (saatte || viewerUserId === d.userId);
     return {
       ...this.summary(d),
       data: {
@@ -196,6 +209,11 @@ export class DemandService {
         phone: showPhone ? d.user.phone : null,
         phoneHidden: d.phoneVisible && !viewerUserId,
         whatsapp: showPhone && d.whatsappVisible,
+        /** Telefon izinli ama şu an aranabilir saatlerin dışında: "Telefon 09.00–21.00 arasında görünür" */
+        aramaSaati:
+          d.phoneVisible && d.status === 'PUBLISHED'
+            ? { bas: d.user.callFrom, bit: d.user.callTo, simdiGizli: izinli && !showPhone }
+            : null,
       },
     };
   }
@@ -343,16 +361,22 @@ export class DemandService {
     }
     const accountId = await this.accountOf(userId);
     const user = await this.db.user.findUniqueOrThrow({ where: { id: userId }, select: { phone: true } });
-    const freeUsed = await this.db.entitlementLedger.findUnique({
-      where: {
-        sourceType_sourceId_kind: {
-          sourceType: 'ucretsiz_talep',
-          sourceId: sha256(`rr-ucretsiz-talep:${user.phone}`),
-          kind: 'talep',
+    // Ücretsiz ilk talep hem numara hem hesap başına bir kez: numarayı değiştirmek hakkı yenilemez
+    const freeUsed =
+      (await this.db.entitlementLedger.findUnique({
+        where: {
+          sourceType_sourceId_kind: {
+            sourceType: 'ucretsiz_talep',
+            sourceId: sha256(`rr-ucretsiz-talep:${user.phone}`),
+            kind: 'talep',
+          },
         },
-      },
-      select: { id: true },
-    });
+        select: { id: true },
+      })) ??
+      (await this.db.entitlementLedger.findFirst({
+        where: { accountId, sourceType: 'ucretsiz_talep' },
+        select: { id: true },
+      }));
     const [talep, uzatma] = await Promise.all([
       this.entitlements.balance(accountId, 'talep'),
       this.entitlements.balance(accountId, 'uzatma'),
@@ -373,6 +397,16 @@ export class DemandService {
   async create(userId: string, kategori: string, hesap?: string) {
     const accountId = hesap ? (await this.galleryOf(userId, hesap)).accountId : await this.accountOf(userId);
     const category = await this.leafCategory(kategori);
+    // Yeni talep Ayarlar'daki iletişim tercihleriyle ve profildeki konumla açılır (Karar 29); her talepte değişir
+    const u = await this.db.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { il: true, ilce: true, nameMode: true, phoneVisible: true, whatsappVisible: true },
+    });
+    const def = await this.definition(category.id, category.publishedVersion as number);
+    const konum =
+      u.il && effectiveFields(def).some((f) => f.key === 'konum' && f.type === 'location')
+        ? { konum: u.ilce ? { il: u.il, ilce: u.ilce } : { il: u.il } }
+        : {};
     return this.db.$transaction(async (tx) => {
       const d = await tx.demand.create({
         data: {
@@ -381,7 +415,10 @@ export class DemandService {
           userId,
           categoryId: category.id,
           step: 2,
-          data: { alanlar: {}, alternatifler: [{}] },
+          data: { alanlar: konum, alternatifler: [{}] },
+          ...(hesap
+            ? {}
+            : { phoneVisible: u.phoneVisible, whatsappVisible: u.whatsappVisible, nameMode: u.nameMode }),
         },
         include: { category: { select: { slug: true, name: true } } },
       });
@@ -465,22 +502,29 @@ export class DemandService {
     return this.db.$transaction(async (tx) => {
       // İlk talep telefon numarası başına ücretsiz; yeni hesap açmak hakkı yenilemez (Karar 12). Galeri adına talepte
       // ücretsiz hak yoktur, paketin aylık talep hakkı (ya da galerinin aldığı ek hak) kullanılır.
-      const free = galeri
-        ? { count: 0 }
-        : await tx.entitlementLedger.createMany({
-            data: [
-              {
-                accountId: d.accountId,
-                kind: 'talep',
-                delta: 1,
-                reason: 'tanimlama',
-                sourceType: 'ucretsiz_talep',
-                sourceId: sha256(`rr-ucretsiz-talep:${user.phone}`),
-                createdBy: userId,
-              },
-            ],
-            skipDuplicates: true,
-          });
+      // Hesap daha önce ücretsiz talep aldıysa (ör. numarasını değiştirdiyse) yeniden verilmez
+      const hesapAldi =
+        !galeri &&
+        (await tx.entitlementLedger.count({
+          where: { accountId: d.accountId, sourceType: 'ucretsiz_talep' },
+        })) > 0;
+      const free =
+        galeri || hesapAldi
+          ? { count: 0 }
+          : await tx.entitlementLedger.createMany({
+              data: [
+                {
+                  accountId: d.accountId,
+                  kind: 'talep',
+                  delta: 1,
+                  reason: 'tanimlama',
+                  sourceType: 'ucretsiz_talep',
+                  sourceId: sha256(`rr-ucretsiz-talep:${user.phone}`),
+                  createdBy: userId,
+                },
+              ],
+              skipDuplicates: true,
+            });
       await this.entitlements.consume(tx, d.accountId, 'talep', {
         sourceType: 'demand',
         sourceId: d.id,

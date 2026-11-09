@@ -1,6 +1,12 @@
 'use client';
 
-import { type CategoryField, type CategoryRules, PAINT_PARTS, PAINT_STATES } from '@rengarenk/shared';
+import {
+  type CategoryField,
+  type CategoryRules,
+  PAINT_PARTS,
+  PAINT_STATES,
+  saatYaz,
+} from '@rengarenk/shared';
 import Link from 'next/link';
 import { type CSSProperties, useEffect, useState } from 'react';
 import { AracSemasiGorunum } from '../../../../components/arac-semasi';
@@ -42,6 +48,8 @@ export interface TalepVeri {
     phone: string | null;
     phoneHidden: boolean;
     whatsapp: boolean;
+    /** Aranabilir saatler (Karar 29): dışındaysa numara ve WhatsApp gizli */
+    aramaSaati?: { bas: number; bit: number; simdiGizli: boolean } | null;
   };
 }
 
@@ -1109,6 +1117,23 @@ export function TalepDetay({
                   </Link>
                 )}
               </div>
+            ) : null}
+            {yayinda && sahip.aramaSaati?.simdiGizli ? (
+              <p
+                style={{
+                  margin: '10px 0 0',
+                  border: '1px solid #E3E6EF',
+                  borderRadius: 14,
+                  padding: '12px 14px',
+                  fontSize: 13.5,
+                  color: '#3A4052',
+                  lineHeight: 1.5,
+                }}
+              >
+                Telefon ve WhatsApp {saatYaz(sahip.aramaSaati.bas)}–
+                {sahip.aramaSaati.bit === 24 ? '24.00' : saatYaz(sahip.aramaSaati.bit)} arasında görünür.
+                Mesaj her zaman açık.
+              </p>
             ) : null}
             {yayinda && sahip.whatsapp && sahip.phone ? (
               <a

@@ -1,4 +1,11 @@
-import { type CategoryField, type CategoryRules, colors, PAINT_PARTS, PAINT_STATES } from '@rengarenk/shared';
+import {
+  type CategoryField,
+  type CategoryRules,
+  colors,
+  PAINT_PARTS,
+  PAINT_STATES,
+  saatYaz,
+} from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, Linking, Pressable, ScrollView, Share, View } from 'react-native';
@@ -45,6 +52,8 @@ interface Talep {
     phone: string | null;
     phoneHidden: boolean;
     whatsapp: boolean;
+    /** Aranabilir saatler (Karar 29): dışındaysa numara ve WhatsApp gizli */
+    aramaSaati?: { bas: number; bit: number; simdiGizli: boolean } | null;
   };
 }
 
@@ -612,6 +621,13 @@ export default function TalepDetay() {
                 </Pressable>
               ) : null}
             </View>
+            {yayinda && t.owner.aramaSaati?.simdiGizli ? (
+              <T style={{ textAlign: 'center', fontSize: 12.5, color: colors.muted, lineHeight: 18 }}>
+                Telefon ve WhatsApp {saatYaz(t.owner.aramaSaati.bas)}–
+                {t.owner.aramaSaati.bit === 24 ? '24.00' : saatYaz(t.owner.aramaSaati.bit)} arasında görünür.
+                Mesaj her zaman açık.
+              </T>
+            ) : null}
             {yayinda && t.owner.whatsapp && t.owner.phone ? (
               <Pressable
                 accessibilityRole="button"

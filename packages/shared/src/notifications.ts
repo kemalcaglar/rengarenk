@@ -703,6 +703,24 @@ export const NOTIFY_TEMPLATES = {
       dugme: { yazi: 'Galeri panelini aç', url: '/galeri-paneli?bolum=ozet' },
     },
   },
+  'hesap.telefon_degisti': {
+    ad: 'Telefon numaran değişti',
+    konu: 'guvenlik',
+    grup: 'guvenlik',
+    baslik: 'Telefon numaran değişti',
+    metin:
+      'Giriş numaran {{tel}} olarak değişti; diğer cihazlardaki oturumların kapandı. Sen yapmadıysan hemen destek ekibimize yaz.',
+    url: '/ayarlar?bolum=gizlilik',
+    eposta: {
+      konu: 'Telefon numaran değişti',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        'Rengarenk giriş numaran {{tel}} olarak değişti; diğer cihazlardaki oturumların kapandı.',
+        'Bu değişikliği sen yapmadıysan hemen destek ekibimize yaz.',
+      ],
+      dugme: { yazi: 'Oturumlarımı gör', url: '/ayarlar?bolum=gizlilik' },
+    },
+  },
 } as const satisfies Record<string, NotifyTemplate>;
 export type TemplateKey = keyof typeof NOTIFY_TEMPLATES;
 export const templateOf = (key: string): NotifyTemplate | undefined =>

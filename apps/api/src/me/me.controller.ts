@@ -9,14 +9,23 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
+  Post,
+  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { personNameSchema } from '@rengarenk/shared';
+import {
+  contactPrefsSchema,
+  ilIlceKontrol,
+  personNameSchema,
+  phoneChangeRequestSchema,
+  phoneChangeVerifySchema,
+  profileLocationFields,
+} from '@rengarenk/shared';
 import { z } from 'zod';
 import { AuditService } from '../audit/audit.service.js';
 import { AuthGuard } from '../auth/auth.guard.js';
-import type { AccessClaims } from '../auth/auth.service.js';
+import { type AccessClaims, AuthService } from '../auth/auth.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 
@@ -27,8 +36,13 @@ const updateSchema = z
     firstName: personNameSchema.optional(),
     lastName: personNameSchema.optional(),
     email: z.email('Geçerli bir e-posta gir').max(254).nullable().optional(),
+    /** Ayarlar › Profil: il, ilçe ve talepte görünen ad (Karar 29) */
+    ...profileLocationFields,
   })
   .strict()
+  .superRefine((v, ctx) => {
+    if (v.il !== undefined || v.ilce !== undefined) ilIlceKontrol(v, ctx);
+  })
   .transform((v) =>
     v.firstName && v.lastName && v.displayName === undefined
       ? { ...v, displayName: `${v.firstName} ${v.lastName}` }
@@ -44,6 +58,7 @@ export class MeController {
   constructor(
     @Inject(PRISMA) private readonly db: Db,
     private readonly audit: AuditService,
+    private readonly auth: AuthService,
   ) {}
 
   @Get()
@@ -58,6 +73,13 @@ export class MeController {
         email: true,
         phone: true,
         status: true,
+        il: true,
+        ilce: true,
+        nameMode: true,
+        phoneVisible: true,
+        whatsappVisible: true,
+        callFrom: true,
+        callTo: true,
         memberships: {
           select: { role: true, account: { select: { id: true, kind: true, name: true, status: true } } },
         },
@@ -73,15 +95,37 @@ export class MeController {
     return this.db.$transaction(async (tx) => {
       const before = await tx.user.findUniqueOrThrow({
         where: { id: req.user.sub },
-        select: { displayName: true, firstName: true, lastName: true, email: true },
+        select: {
+          displayName: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          il: true,
+          ilce: true,
+          nameMode: true,
+        },
       });
       // Adres değişirse doğrulama sıfırlanır: bildirim e-postası yalnızca doğrulanmış adrese gider (POST /me/email)
       const adresDegisti =
         body.email !== undefined && body.email?.toLowerCase() !== before.email?.toLowerCase();
       const after = await tx.user.update({
         where: { id: req.user.sub },
-        data: { ...body, ...(adresDegisti ? { emailVerifiedAt: null } : {}) },
-        select: { id: true, displayName: true, firstName: true, lastName: true, email: true },
+        data: {
+          ...body,
+          // İl değişip ilçe verilmediyse eski ilçe silinir (başka ilin ilçesi kalmasın)
+          ...(body.il !== undefined && body.ilce === undefined ? { ilce: null } : {}),
+          ...(adresDegisti ? { emailVerifiedAt: null } : {}),
+        },
+        select: {
+          id: true,
+          displayName: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          il: true,
+          ilce: true,
+          nameMode: true,
+        },
       });
       await this.audit.record(
         {
@@ -100,6 +144,52 @@ export class MeController {
       );
       return after;
     });
+  }
+
+  /** Ayarlar › İletişim (Karar 29): telefon ve WhatsApp izni, aranabilir saatler; yeni talepler bunlarla açılır */
+  @Put('contact')
+  async contact(
+    @Req() req: AuthedRequest,
+    @Body(new ZodPipe(contactPrefsSchema)) b: z.output<typeof contactPrefsSchema>,
+  ) {
+    return this.db.$transaction(async (tx) => {
+      const u = await tx.user.update({
+        where: { id: req.user.sub },
+        data: b,
+        select: { phoneVisible: true, whatsappVisible: true, callFrom: true, callTo: true },
+      });
+      await this.audit.record(
+        {
+          actorType: 'USER',
+          actorId: req.user.sub,
+          action: 'iletisim_tercihi',
+          entityType: 'user',
+          entityId: req.user.sub,
+          ip: req.ip,
+        },
+        tx,
+      );
+      return u;
+    });
+  }
+
+  /** Numarayı değiştir: yeni numaraya SMS kodu */
+  @Post('phone/request')
+  @HttpCode(200)
+  phoneRequest(
+    @Req() req: AuthedRequest,
+    @Body(new ZodPipe(phoneChangeRequestSchema)) b: z.output<typeof phoneChangeRequestSchema>,
+  ) {
+    return this.auth.requestPhoneChange(req.user.sub, b.phone, req.ip);
+  }
+
+  @Post('phone/verify')
+  @HttpCode(200)
+  phoneVerify(
+    @Req() req: AuthedRequest,
+    @Body(new ZodPipe(phoneChangeVerifySchema)) b: z.output<typeof phoneChangeVerifySchema>,
+  ) {
+    return this.auth.confirmPhoneChange(req.user.sub, req.user.sid, b.challengeId, b.code, req.ip);
   }
 
   @Get('sessions')

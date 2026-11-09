@@ -1,11 +1,13 @@
 'use client';
 
+import { ILLER } from '@rengarenk/shared';
 import { useRouter } from 'next/navigation';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { HesabimMenu } from '../../../components/hesabim-menu';
 import { istek, useGiris } from '../../../lib/istemci';
 import { Engellediklerin, KisiselVerilerim } from './gizlilik';
 import { HesabiKapat } from './hesap';
+import { GorunenAd, Iletisim, type IletisimTercihi, NumaraDegistir } from './iletisim';
 
 interface Kanal {
   kanal: 'uygulama' | 'eposta' | 'sms';
@@ -17,10 +19,13 @@ interface Tercihler {
   ticariOnay: boolean;
   eposta: { adres: string; dogrulandi: boolean } | null;
 }
-interface Ben {
+interface Ben extends IletisimTercihi {
   firstName: string | null;
   lastName: string | null;
   phone: string;
+  il: string | null;
+  ilce: string | null;
+  nameMode: 'tam' | 'kisa';
 }
 interface Oturum {
   id: string;
@@ -29,10 +34,11 @@ interface Oturum {
   device: { platform: string; lastSeenAt: string } | null;
 }
 
-type Bolum = 'profil' | 'bildirim' | 'gizlilik' | 'hesap';
-/** Ayar bölümleri (Ayarlar.dc.html). İletişim bölümü varsayılan iletişim izniyle eklenecek. */
+type Bolum = 'profil' | 'iletisim' | 'bildirim' | 'gizlilik' | 'hesap';
+/** Ayar bölümleri (Ayarlar.dc.html) */
 const BOLUMLER: [Bolum, string][] = [
   ['profil', 'Profil'],
+  ['iletisim', 'İletişim'],
   ['bildirim', 'Bildirimler'],
   ['gizlilik', 'Gizlilik ve güvenlik'],
   ['hesap', 'Hesap'],
@@ -85,7 +91,8 @@ const tarih = (iso: string) =>
   }).format(new Date(iso));
 
 /**
- * Ayarlar (Ayarlar.dc.html; Karar 29, 30, 48, 49): Profil (ad, soyad, telefon, e-posta ve doğrulama), Bildirimler (konu
+ * Ayarlar (Ayarlar.dc.html; Karar 29, 30, 48, 49): Profil (ad, soyad, il, ilçe, görünen ad, numarayı değiştir, e-posta ve
+ * doğrulama), İletişim (telefon ve WhatsApp izni, aranabilir saatler), Bildirimler (konu
  * ve kanal; ödeme kapatılamaz; kampanya ticari ileti onayıyla), Gizlilik ve güvenlik (açık oturumlar, engellediklerin,
  * kişisel verilerim: verilerimi indir ve KVKK başvurusu, Karar 58).
  */
@@ -96,6 +103,8 @@ export default function Ayarlar() {
   const [ben, setBen] = useState<Ben | null>(null);
   const [ad, setAd] = useState('');
   const [soyad, setSoyad] = useState('');
+  const [il, setIl] = useState('');
+  const [ilce, setIlce] = useState('');
   const [t, setT] = useState<Tercihler | null>(null);
   const [yeniEposta, setYeniEposta] = useState('');
   const [oturumlar, setOturumlar] = useState<Oturum[]>([]);
@@ -117,6 +126,8 @@ export default function Ayarlar() {
     setBen(m);
     setAd(m.firstName ?? '');
     setSoyad(m.lastName ?? '');
+    setIl(m.il ?? '');
+    setIlce(m.ilce ?? '');
     setT(p);
     setOturumlar(o);
   }, []);
@@ -238,11 +249,18 @@ export default function Ayarlar() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                calistir(
-                  () =>
-                    istek('/me', { method: 'PATCH', body: { firstName: ad.trim(), lastName: soyad.trim() } }),
-                  'Profilin kaydedildi.',
-                );
+                calistir(async () => {
+                  const r = await istek<Partial<Ben>>('/me', {
+                    method: 'PATCH',
+                    body: {
+                      firstName: ad.trim(),
+                      lastName: soyad.trim(),
+                      il: il || null,
+                      ilce: ilce || null,
+                    },
+                  });
+                  setBen((b) => (b ? { ...b, ...r } : b));
+                }, 'Profilin kaydedildi.');
               }}
             >
               <div className="rr-iki-sutun" style={{ gap: 14 }}>
@@ -254,11 +272,61 @@ export default function Ayarlar() {
                   Soyad
                   <input value={soyad} onChange={(e) => setSoyad(e.target.value)} style={girdi} />
                 </label>
+                <label style={{ fontSize: 13, fontWeight: 700 }}>
+                  İl
+                  <select
+                    value={il}
+                    onChange={(e) => {
+                      setIl(e.target.value);
+                      setIlce('');
+                    }}
+                    style={{ ...girdi, background: '#FFFFFF' }}
+                  >
+                    <option value="">Seç</option>
+                    {ILLER.map((i) => (
+                      <option key={i.plaka} value={i.ad}>
+                        {i.ad}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label style={{ fontSize: 13, fontWeight: 700 }}>
+                  İlçe
+                  <select
+                    value={ilce}
+                    disabled={!il}
+                    onChange={(e) => setIlce(e.target.value)}
+                    style={{ ...girdi, background: '#FFFFFF' }}
+                  >
+                    <option value="">{il ? 'Seç' : 'Önce il seç'}</option>
+                    {(ILLER.find((i) => i.ad === il)?.ilceler ?? []).map((x) => (
+                      <option key={x} value={x}>
+                        {x}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               </div>
               <button type="submit" style={{ ...ikincil, marginTop: 12 }}>
                 Kaydet
               </button>
             </form>
+            <GorunenAd
+              ad={ad}
+              soyad={soyad}
+              secili={ben.nameMode}
+              sec={(m) =>
+                calistir(
+                  async () => {
+                    await istek('/me', { method: 'PATCH', body: { nameMode: m } });
+                    setBen((b) => (b ? { ...b, nameMode: m } : b));
+                  },
+                  m === 'tam'
+                    ? 'Yeni taleplerde adın tam görünecek.'
+                    : 'Yeni taleplerde soyadının baş harfi görünecek.',
+                )
+              }
+            />
             <h3 style={{ margin: '22px 0 10px', fontSize: 15, fontWeight: 800 }}>Giriş bilgileri</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div style={satir}>
@@ -278,6 +346,12 @@ export default function Ayarlar() {
                     SMS ile doğrulandı
                   </span>
                 </span>
+                <NumaraDegistir
+                  bitti={(m) => {
+                    setBilgi(m);
+                    yukle().catch((e: Error) => setHata(e.message));
+                  }}
+                />
               </div>
               <div style={satir}>
                 <span>
@@ -328,6 +402,26 @@ export default function Ayarlar() {
               </div>
             </div>
           </section>
+        ) : null}
+
+        {bolum === 'iletisim' && ben ? (
+          <Iletisim
+            v={ben}
+            kaydet={(yeni, mesaj) =>
+              calistir(async () => {
+                const r = await istek<IletisimTercihi>('/me/contact', {
+                  method: 'PUT',
+                  body: {
+                    phoneVisible: yeni.phoneVisible,
+                    whatsappVisible: yeni.whatsappVisible,
+                    callFrom: yeni.callFrom,
+                    callTo: yeni.callTo,
+                  },
+                });
+                setBen((b) => (b ? { ...b, ...r } : b));
+              }, mesaj)
+            }
+          />
         ) : null}
 
         {bolum === 'bildirim' && t ? (

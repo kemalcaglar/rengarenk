@@ -145,6 +145,14 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   Konsol › Moderasyon › İtirazlar'da "Galeri · 1 yıldıza itiraz" (YonetimPazar.dc.html): sohbet kanıtı (mesaj sayıları,
   yıldızın son mesajdan ne kadar sonra verildiği, alıcı hesabının yaşı), maskeli son mesajlar, 7 günlük inceleme
   süresi. Kabulde yıldız `itiraz` işaretiyle hesaptan çıkar, göstergeler yenilenir; sonuç itirazı yazana bildirilir
+- [x] Ayarlar › İletişim ve Profil (Ayarlar.dc.html, Karar 29): telefon ve WhatsApp izni, aranabilir saatler (varsayılan
+  09.00–21.00; dışında talep sayfasında numara ve WhatsApp gizli, "Telefon ve WhatsApp 09.00–21.00 arasında görünür"),
+  profilde il, ilçe ve görünen ad (tam ya da "Ayşe Y."). Yeni talep bu tercihlerle ve profildeki konumla açılır (web, mobil)
+- [x] Numarayı değiştir (Yardim.dc.html): yeni numaraya SMS kodu; numara başka hesapta kayıtlıysa reddedilir; doğrulanınca
+  diğer cihazlardaki oturumlar kapanır, işlem kaydı ve güvenlik bildirimi. Ücretsiz ilk talep numara ve hesap başına bir
+  kez (numara değiştirmek hakkı yenilemez)
+- [x] Oturum kapatma düzeltmesi: elle kapatılan oturumun (Ayarlar, numara değişikliği) jetonu yalnızca reddedilir; çalınma
+  sayılıp bütün oturumları kapatma yalnızca yenilenmiş (döndürülmüş) jetonun tekrar gelmesinde (`sessions.rotated`)
 
 ## Sprint 26 · kullanıcı tarafı yapay zekâ (Aşama 8 dokuzuncu bölüm, 9 Kasım 2026)
 
@@ -353,7 +361,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] Akış düzenleyicisi ("Adım ekle"), kampanyalar ve segmentler: Aşama 9
 - [x] Çalışan olaylarının (yeni cihaz, iade sonucu, ticari gönderim durdu) sahibe iletilmesi (Sprint 24)
 - [ ] Ön bilgilendirme formu ve sözleşmenin PDF olarak e-postayla gönderilmesi
-- [ ] Ayarlar'da İletişim ve Hesap sekmeleri (hesabı kapatma KVKK araçlarıyla, Aşama 8)
+- [x] Ayarlar'da İletişim ve Hesap sekmeleri (Hesap: hesap kapatma Sprint 21; İletişim Sprint 27)
 
 ## Sprint 16 · iade akışı ve dört kilit (Aşama 6 son bölüm, 8 Kasım 2026)
 

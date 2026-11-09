@@ -79,6 +79,7 @@ export const NOTIFY_EVENTS = [
   'moderasyon.ajan_aski',
   'moderasyon.itiraz_sonuc',
   'yildiz.itiraz_sonuc',
+  'hesap.telefon_degisti',
   'hak.tanimlandi',
   'destek.yanitlandi',
   'destek.memnuniyet',
@@ -461,6 +462,16 @@ export class NotificationEvents {
                 ? 'İtirazını haklı bulduk; karar geri alındı.'
                 : `İtirazını inceledik; karar geçerli.${a.decisionNote ? ` ${a.decisionNote}` : ''}`,
           },
+        });
+      }
+      case 'hesap.telefon_degisti': {
+        const u = await this.db.user.findUnique({ where: { id: s('userId') }, select: { phone: true } });
+        if (!u) return 0;
+        // Numaranın yalnızca son iki hanesi yazılır
+        return this.notifications.notify({
+          userIds: [s('userId')],
+          sablon: type,
+          veri: { tel: `+90 5XX XXX XX ${u.phone.slice(-2)}` },
         });
       }
       case 'yildiz.itiraz_sonuc': {

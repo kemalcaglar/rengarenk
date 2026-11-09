@@ -112,6 +112,8 @@ export class AccountClosureService {
           displayName: null,
           email: null,
           emailVerifiedAt: null,
+          il: null,
+          ilce: null,
         },
       });
       if (r.count !== 1) throw new ConflictException('Hesap zaten kapatıldı');

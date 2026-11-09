@@ -95,6 +95,8 @@ export type EventType =
   // Galerinin 1 yıldıza itirazı (Karar 55)
   | 'yildiz.itiraz_acildi'
   | 'yildiz.itiraz_sonuc'
+  // Ayarlar › Profil: numara değişti (güvenlik bildirimi)
+  | 'hesap.telefon_degisti'
   // Kullanıcı kartından hak tanımlandı (Karar 52): kişiye bildirim
   | 'hak.tanimlandi'
   // Destek (Karar 54): talep açıldı, destek yanıtladı (kullanıcıya bildirim), memnuniyet sorusu

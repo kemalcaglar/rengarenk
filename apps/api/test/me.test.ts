@@ -1,5 +1,6 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { type Db, PRISMA } from '../src/database/prisma.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
 import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
 
@@ -52,6 +53,31 @@ describe('profil ve oturumlar', () => {
       (await call(app, 'DELETE', `/me/sessions/${list.body[0].id}`, undefined, a.accessToken)).status,
     ).toBe(204);
     expect((await call(app, 'POST', '/auth/refresh', { refreshToken: a.refreshToken })).status).toBe(401);
+  });
+
+  it('diğer cihaz kapatılınca o cihazın jetonu reddedilir, bu cihaz açık kalır; yenilenmiş jeton çalınma sayılır', async () => {
+    const phone = '+905327770005';
+    const a = await login(phone);
+    const db = app.get<Db>(PRISMA);
+    await db.otpChallenge.updateMany({
+      where: { phone },
+      data: { createdAt: new Date(Date.now() - 120_000) },
+    });
+    const b = await login(phone);
+    const list = await call(app, 'GET', '/me/sessions', undefined, a.accessToken);
+    const diger = list.body.find((s: { current: boolean }) => !s.current);
+    expect((await call(app, 'DELETE', `/me/sessions/${diger.id}`, undefined, a.accessToken)).status).toBe(
+      204,
+    );
+    expect((await call(app, 'POST', '/auth/refresh', { refreshToken: b.refreshToken })).status).toBe(401);
+    // Elle kapatılan oturumun jetonu yalnızca reddedilir
+    const yeni = await call(app, 'POST', '/auth/refresh', { refreshToken: a.refreshToken });
+    expect(yeni.status).toBe(200);
+    // Yenilenmiş (kullanılmış) jeton tekrar gelirse bütün oturumlar kapanır
+    expect((await call(app, 'POST', '/auth/refresh', { refreshToken: a.refreshToken })).status).toBe(401);
+    expect((await call(app, 'POST', '/auth/refresh', { refreshToken: yeni.body.refreshToken })).status).toBe(
+      401,
+    );
   });
 
   it('başkasının oturumunu kapatamaz', async () => {

@@ -67,6 +67,17 @@ model User {
   email           String?
   /// E-posta doğrulandıysa zamanı (bildirim e-postası yalnızca doğrulanmış adrese gider)
   emailVerifiedAt DateTime?  @map("email_verified_at") @db.Timestamptz(3)
+  /// @pii Profildeki il ve ilçe (yeni talebin konumu bununla açılır)
+  il              String?
+  /// @pii
+  ilce            String?
+  /// İletişim tercihleri (Karar 29): yeni talepler bunlarla açılır, her talepte ayrıca değişir
+  nameMode        String     @default("tam") @map("name_mode")
+  phoneVisible    Boolean    @default(false) @map("phone_visible")
+  whatsappVisible Boolean    @default(false) @map("whatsapp_visible")
+  /// Aranabilir saatler (Türkiye saati, 0–24); dışında telefon ve WhatsApp gizli. Varsayılan 09.00–21.00
+  callFrom        Int        @default(9) @map("call_from")
+  callTo          Int        @default(21) @map("call_to")
   status          UserStatus @default(ACTIVE)
   createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -160,6 +171,9 @@ model Session {
   refreshTokenHash String    @unique @map("refresh_token_hash")
   expiresAt        DateTime  @map("expires_at") @db.Timestamptz(3)
   revokedAt        DateTime? @map("revoked_at") @db.Timestamptz(3)
+  /// Jeton yenilenince (döndürme) true: bu jeton yeniden gelirse çalınmış sayılır ve bütün oturumlar kapanır.
+  /// Elle kapatılan oturumun (Ayarlar, numara değişikliği, çalışan) jetonu yalnızca reddedilir.
+  rotated          Boolean   @default(false)
   createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)

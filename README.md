@@ -179,6 +179,10 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   `rating_appeals`. Galeri: `GET /gallery/:id/ratings/low`, `POST /gallery/:id/ratings/:ratingId/appeal`. Konsol:
   `GET /staff/trust/appeals`, `POST /staff/trust/appeals/:id/decide` (Moderasyon › İtirazlar). Kabulde yıldızın işareti
   `itiraz`, sonuç olayı `yildiz.itiraz_sonuc`.
+- İletişim tercihleri (Karar 29): `packages/shared/src/contact.ts` (`contactPrefsSchema`, `aranabilir`, `trSaat`);
+  `PUT /me/contact`, `PATCH /me` (il, ilçe, `nameMode`). Talep sayfasında `owner.aramaSaati`. Numarayı değiştir:
+  `POST /me/phone/request`, `POST /me/phone/verify` (`AuthService.requestPhoneChange`, `confirmPhoneChange`).
+- Oturumlar: döndürülen jetonun oturumu `rotated = true`; yalnızca böyle bir jeton tekrar gelirse bütün oturumlar kapanır.
 
 ## Kullanıcı tarafı yapay zekâ (Sprint 26)
 

@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   HttpException,
   HttpStatus,
@@ -8,7 +9,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { uuidv7 } from '@rengarenk/db';
+import { Prisma, uuidv7 } from '@rengarenk/db';
 import type { SignupConsents, TokenPair } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
@@ -138,6 +139,83 @@ export class AuthService {
     if (k.count !== 1) throw invalid;
   }
 
+  /**
+   * Numarayı değiştir (Ayarlar › Profil; Yardim.dc.html): yeni numaraya kod gönderir. Numara başka bir hesapta
+   * kayıtlıysa reddedilir; kara liste ve hız sınırları girişle aynıdır.
+   */
+  async requestPhoneChange(userId: string, phone: string, ip?: string) {
+    const u = await this.db.user.findUniqueOrThrow({ where: { id: userId }, select: { phone: true } });
+    if (u.phone === phone) throw new ConflictException('Bu numara zaten hesabında kayıtlı');
+    if (await this.db.user.findUnique({ where: { phone }, select: { id: true } })) {
+      throw new ConflictException('Bu numara başka bir hesapta kayıtlı');
+    }
+    return this.requestOtp(phone, ip);
+  }
+
+  /**
+   * Yeni numaraya gelen kodla numarayı değiştirir. Bu oturum dışındaki bütün oturumlar kapanır (Karar 58), işlem kaydına
+   * numaranın kendisi değil yalnızca değiştiği yazılır, kişiye güvenlik bildirimi gider.
+   */
+  async confirmPhoneChange(
+    userId: string,
+    sessionId: string,
+    challengeId: string,
+    code: string,
+    ip?: string,
+  ) {
+    const u = await this.db.user.findUniqueOrThrow({ where: { id: userId }, select: { phone: true } });
+    const ch = await this.db.otpChallenge.findUnique({ where: { id: challengeId } });
+    const invalid = new UnauthorizedException('Kod hatalı ya da süresi dolmuş');
+    if (
+      !ch ||
+      ch.phone === u.phone ||
+      ch.consumedAt ||
+      ch.expiresAt < new Date() ||
+      ch.attempts >= OTP_MAX_ATTEMPTS
+    ) {
+      throw invalid;
+    }
+    if (!safeEqualHex(ch.codeHash, hashOtp(this.env.JWT_SECRET, ch.id, code))) {
+      await this.db.otpChallenge.update({ where: { id: ch.id }, data: { attempts: { increment: 1 } } });
+      throw invalid;
+    }
+    try {
+      return await this.db.$transaction(async (tx) => {
+        const k = await tx.otpChallenge.updateMany({
+          where: { id: ch.id, consumedAt: null },
+          data: { consumedAt: new Date() },
+        });
+        if (k.count !== 1) throw invalid;
+        await tx.user.update({
+          where: { id: userId },
+          data: { phone: ch.phone, phoneVerifiedAt: new Date() },
+        });
+        const kapanan = await tx.session.updateMany({
+          where: { userId, id: { not: sessionId }, revokedAt: null },
+          data: { revokedAt: new Date() },
+        });
+        await this.audit.record(
+          {
+            actorType: 'USER',
+            actorId: userId,
+            action: 'telefon_degisti',
+            entityType: 'user',
+            entityId: userId,
+            ip,
+          },
+          tx,
+        );
+        await this.outbox.add(tx, 'hesap.telefon_degisti', { userId });
+        return { degisti: true, kapananOturum: kapanan.count };
+      });
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+        throw new ConflictException('Bu numara başka bir hesapta kayıtlı');
+      }
+      throw err;
+    }
+  }
+
   /** Kodu doğrular; kullanıcı yoksa oluşturur (bireysel hesabıyla birlikte) ve oturum açar. */
   async verifyOtp(
     challengeId: string,
@@ -205,17 +283,20 @@ export class AuthService {
     const s = await this.db.session.findUnique({ where: { refreshTokenHash: hash } });
     if (!s || s.expiresAt < new Date()) throw new UnauthorizedException('Oturum süresi doldu');
     if (s.revokedAt) {
-      // Kullanılmış jeton tekrar geldi: jeton çalınmış olabilir, kullanıcının tüm oturumları kapanır.
-      await this.db.session.updateMany({
-        where: { userId: s.userId, revokedAt: null },
-        data: { revokedAt: new Date() },
-      });
+      // Yenilenmiş (kullanılmış) jeton tekrar geldi: jeton çalınmış olabilir, kullanıcının tüm oturumları kapanır.
+      // Elle kapatılan oturumun jetonu yalnızca reddedilir; diğer cihazlar açık kalır.
+      if (s.rotated) {
+        await this.db.session.updateMany({
+          where: { userId: s.userId, revokedAt: null },
+          data: { revokedAt: new Date() },
+        });
+      }
       throw new UnauthorizedException('Oturum kapatıldı');
     }
     return this.db.$transaction(async (tx) => {
       const revoked = await tx.session.updateMany({
         where: { id: s.id, revokedAt: null },
-        data: { revokedAt: new Date() },
+        data: { revokedAt: new Date(), rotated: true },
       });
       if (revoked.count !== 1) throw new UnauthorizedException('Oturum kapatıldı');
       return this.openSession(tx, s.userId, s.deviceId);
