@@ -703,6 +703,23 @@ export const NOTIFY_TEMPLATES = {
       dugme: { yazi: 'Galeri panelini aç', url: '/galeri-paneli?bolum=ozet' },
     },
   },
+  'hesap.giris_baglantisi': {
+    ad: 'Giriş bağlantısı (destek)',
+    konu: 'guvenlik',
+    grup: 'guvenlik',
+    baslik: 'Giriş bağlantın',
+    metin: '',
+    yalnizcaEposta: true,
+    eposta: {
+      konu: 'Rengarenk giriş bağlantın',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        'Destek ekibimiz isteğin üzerine bu giriş bağlantısını gönderdi. Bağlantı 15 dakika geçerlidir ve bir kez kullanılır.',
+        'Girdikten sonra telefon numaranı Ayarlar › Profil bölümünden değiştirebilirsin. Bu isteği sen yapmadıysan bağlantıyı kullanma ve destek ekibimize yaz.',
+      ],
+      dugme: { yazi: 'Giriş yap', url: '/giris/baglanti?k={{kod}}' },
+    },
+  },
   'hesap.telefon_degisti': {
     ad: 'Telefon numaran değişti',
     konu: 'guvenlik',

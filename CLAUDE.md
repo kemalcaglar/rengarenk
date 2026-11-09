@@ -245,10 +245,18 @@ pnpm format        # Biome ile biçimlendir
   (`/support/tickets/oneri`). Yapay zekâ çıktısı her zaman şema, katalog ve `scanMessage` ile doğrulanır. `kelimeVar`
   harf ve rakam sınırıyla arar ("2" "2019"da bulunmaz); sayıdan ibaret seri adı ("3") tek başına aranmaz. API'de 172,
   ortak pakette 86 test.
-- **Sıradaki (Aşama 8 devamı):** galeri 1 yıldız itirazı, cihaz kara listesi, Ayarlar › İletişim ve Hesap sekmeleri,
-  giriş bağlantısı gönderme; ya da
-  sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan
-  kutularını işaretle ve README'yi güncelle.
+- **Sprint 27 (9 Kasım 2026):** galerinin 1 yıldıza itirazı (`apps/api/src/trust/rating-appeal.service.ts`, konsol
+  Moderasyon › İtirazlar), Ayarlar › İletişim ve Profil (`packages/shared/src/contact.ts`; telefon/WhatsApp izni, aranabilir
+  saatler dışında numara gizli, il/ilçe, görünen ad; yeni talep bunlarla açılır), numarayı değiştir (`/me/phone/*`),
+  ücretsiz ilk talep numara ve hesap başına bir kez, cihaz kara listesi (mobil `kurulumKimligi()`, `devices.install_hash`),
+  giriş bağlantısı (`login_links`, kod teslim kaydında şifreli ve gönderimden sonra silinir, web `/giris/baglanti`).
+  Oturum düzeltmesi: elle kapatılan oturumun jetonu yalnızca reddedilir; bütün oturumları kapatma yalnızca döndürülmüş
+  jeton tekrar gelince (`sessions.rotated`). API'de 178, ortak pakette 88 test. Testte aynı numaraya art arda kod için
+  `otpChallenge.createdAt` geri alınır (60 sn bekleme).
+- **Sıradaki:** galeri müşteri yönetimi (sorumlu çalışan, yenileme takibi, ayrılma riski; Karar 43), Sistem › Kurallar ve
+  fiyatlar (rozet eşikleri, ücretsiz ilk mesaj sayıları, fiyat değişikliği dört göz; Karar 47, 56); sonra Aşama 9
+  (kontrol paneli ve raporlar, kampanyalar ve segmentler, açılış sayfaları); ya da sunucular gelince Radore'ye ilk
+  dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu
   gerçek anahtarla deneme; test/sahte sağlayıcı kullan.

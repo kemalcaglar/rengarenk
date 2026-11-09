@@ -1,7 +1,12 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { uuidv7 } from '@rengarenk/db';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { ENV, type Env } from '../src/config/env.js';
 import type { Db } from '../src/database/prisma.js';
+import { FakePush, MemoryEmail } from '../src/notifications/channels.js';
+import { DeliveryService } from '../src/notifications/delivery.service.js';
+import { SwitchService } from '../src/notifications/switches.js';
+import { TemplatesService } from '../src/notifications/templates.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
 import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
@@ -228,6 +233,148 @@ describe('kullanıcı ve galeri kartı, kara liste (Karar 40, 43, 52)', () => {
     );
     await staffCall(app, 'DELETE', `/staff/blocklist/${kayit.id}`, undefined, mod);
     expect((await call(app, 'POST', '/auth/otp/request', { phone: '+905339990021' })).status).toBe(200);
+  });
+
+  it('cihaz kara listesi: kişi kartından cihaz eklenir; o kurulumdan kod istenemez ve giriş yapılamaz (Karar 43)', async () => {
+    const phone = '+905339990031';
+    const kurulum = '7f3c2a10-5b1e-4c8d-9a6f-0e2d4b7c9a11';
+    const r = await call(app, 'POST', '/auth/otp/request', { phone, kurulum });
+    const v = await call(app, 'POST', '/auth/otp/verify', {
+      challengeId: r.body.challengeId,
+      code: sms.lastCode(phone),
+      platform: 'ANDROID',
+      kurulum,
+      consents: SIGNUP_CONSENTS,
+    });
+    expect(v.status).toBe(200);
+    const u = await db.user.findUniqueOrThrow({ where: { phone }, select: { id: true } });
+    // Kurulum kimliğinin kendisi saklanmaz
+    const d = await db.device.findFirstOrThrow({ where: { userId: u.id } });
+    expect(d.installHash).toMatch(/^[0-9a-f]{64}$/);
+    expect(JSON.stringify(await db.device.findMany())).not.toContain(kurulum);
+
+    const kart = await staffCall(app, 'GET', `/staff/people/kisi/${u.id}`, undefined, mod);
+    expect(kart.body.cihazlar).toEqual([
+      expect.objectContaining({
+        id: d.id,
+        ad: 'Android · uygulama',
+        engellenebilir: true,
+        karaListede: false,
+      }),
+    ]);
+    // Destek cihaz ekleyemez; cihaz elle yazılarak eklenemez
+    expect(
+      (await staffCall(app, 'POST', `/staff/people/kisi/${u.id}/devices/${d.id}/block`, {}, destek)).status,
+    ).toBe(403);
+    expect(
+      (await staffCall(app, 'POST', '/staff/blocklist', { tur: 'cihaz', deger: kurulum }, mod)).status,
+    ).toBe(400);
+    const engel = await staffCall(
+      app,
+      'POST',
+      `/staff/people/kisi/${u.id}/devices/${d.id}/block`,
+      { not: 'Sahte hesap çiftliği' },
+      mod,
+    );
+    expect(engel.status).toBe(200);
+    expect(engel.body[0].karaListede).toBe(true);
+    expect(
+      (await staffCall(app, 'POST', `/staff/people/kisi/${u.id}/devices/${d.id}/block`, {}, mod)).status,
+    ).toBe(409);
+    // Açık oturum kapandı; aynı kurulumdan başka numarayla da kod istenemez
+    expect((await call(app, 'POST', '/auth/refresh', { refreshToken: v.body.refreshToken })).status).toBe(
+      401,
+    );
+    const baska = await call(app, 'POST', '/auth/otp/request', { phone: '+905339990032', kurulum });
+    expect(baska.status).toBe(403);
+    // Kod başka cihazdan istenip bu cihazla doğrulanamaz
+    const k2 = await call(app, 'POST', '/auth/otp/request', { phone: '+905339990032' });
+    expect(
+      (
+        await call(app, 'POST', '/auth/otp/verify', {
+          challengeId: k2.body.challengeId,
+          code: sms.lastCode('+905339990032'),
+          kurulum,
+          consents: SIGNUP_CONSENTS,
+        })
+      ).status,
+    ).toBe(403);
+    const liste = (await staffCall(app, 'GET', '/staff/blocklist', undefined, mod)).body;
+    const kayit = liste.find((x: { tur: string }) => x.tur === 'cihaz');
+    expect(kayit).toMatchObject({ turAd: 'Cihaz', not: 'Sahte hesap çiftliği' });
+    expect(kayit.deger).toMatch(/^Android · /);
+
+    // Kara listeden çıkarılınca cihaz yeniden kod alır
+    await staffCall(app, 'DELETE', `/staff/blocklist/${kayit.id}`, undefined, mod);
+    await db.otpChallenge.updateMany({
+      where: { phone: '+905339990032' },
+      data: { createdAt: new Date(Date.now() - 120_000) },
+    });
+    expect((await call(app, 'POST', '/auth/otp/request', { phone: '+905339990032', kurulum })).status).toBe(
+      200,
+    );
+  });
+
+  it('giriş bağlantısı: doğrulanmış e-postaya tek kullanımlık; kod kayıtta açık durmaz; yenisi eskisini geçersiz kılar (Karar 52)', async () => {
+    const eposta = new MemoryEmail();
+    const teslim = new DeliveryService(
+      db,
+      app.get<Env>(ENV),
+      eposta,
+      new FakePush(),
+      sms,
+      app.get(TemplatesService),
+      app.get(SwitchService),
+    );
+    const k = await login('+905339990041', ['Deniz', 'Ay']);
+    const yol = `/staff/people/kisi/${k.userId}/login-link`;
+    // Doğrulanmış e-posta yoksa gönderilmez; pazarlama gönderemez
+    expect((await staffCall(app, 'POST', yol, {}, destek)).status).toBe(409);
+    await db.user.update({
+      where: { id: k.userId },
+      data: { email: 'deniz@ornek.com', emailVerifiedAt: new Date() },
+    });
+    expect((await staffCall(app, 'POST', yol, {}, pazarlama)).status).toBe(403);
+
+    expect((await staffCall(app, 'POST', yol, {}, destek)).status).toBe(200);
+    const d = await db.delivery.findFirstOrThrow({
+      where: { userId: k.userId, sablon: 'hesap.giris_baglantisi' },
+    });
+    expect(Object.keys(d.veri as object)).toEqual(['ad', 'kodKutu']);
+    await teslim.dispatchDue();
+    const posta = eposta.sent.at(-1);
+    expect(posta).toMatchObject({ to: 'deniz@ornek.com', subject: 'Rengarenk giriş bağlantın' });
+    const kod = posta?.text.match(/baglanti\?k=([\w-]+)/)?.[1] as string;
+    expect(kod).toHaveLength(43);
+    // Gönderildikten sonra kod teslim kaydından silinir; bağlantının kendisi hiçbir tabloda yok
+    const sonra = await db.delivery.findUniqueOrThrow({ where: { id: d.id } });
+    expect(sonra.durum).toBe('gonderildi');
+    expect(sonra.veri).toEqual({ ad: 'Deniz' });
+    expect(await db.loginLink.count({ where: { tokenHash: kod } })).toBe(0);
+
+    const giris = await call(app, 'POST', '/auth/link/verify', { kod });
+    expect(giris.status).toBe(200);
+    expect(giris.body.refreshToken).toBeTruthy();
+    expect((await call(app, 'POST', '/auth/link/verify', { kod })).status).toBe(401);
+    expect(await db.auditLog.count({ where: { action: 'giris_baglanti', entityId: k.userId } })).toBe(1);
+    expect(
+      await db.auditLog.count({ where: { action: 'giris_baglantisi_gonderildi', entityId: k.userId } }),
+    ).toBe(1);
+
+    // Yeni bağlantı eskisini geçersiz kılar; süresi dolan açılmaz; günde en çok 3
+    await staffCall(app, 'POST', yol, {}, destek);
+    await teslim.dispatchDue();
+    const eski = eposta.sent.at(-1)?.text.match(/baglanti\?k=([\w-]+)/)?.[1] as string;
+    await staffCall(app, 'POST', yol, {}, destek);
+    expect((await call(app, 'POST', '/auth/link/verify', { kod: eski })).status).toBe(401);
+    expect((await staffCall(app, 'POST', yol, {}, destek)).status).toBe(409);
+    await db.loginLink.updateMany({
+      where: { userId: k.userId },
+      data: { expiresAt: new Date(Date.now() - 1000) },
+    });
+    await teslim.dispatchDue();
+    const sure = eposta.sent.at(-1)?.text.match(/baglanti\?k=([\w-]+)/)?.[1] as string;
+    expect((await call(app, 'POST', '/auth/link/verify', { kod: sure })).status).toBe(401);
   });
 
   it('galeri kartı: sahibin maskeli iletişimi, portföy ve yıldız sayıları', async () => {

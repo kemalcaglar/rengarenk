@@ -31,6 +31,11 @@ export class SecretBox {
     return new SecretBox(env.MESSAGE_SECRET_KEY ?? `gelistirme:${env.JWT_SECRET}`, 'mesaj');
   }
 
+  /** Teslim kaydında bekleyen tek kullanımlık kod (giriş bağlantısı); gönderimden sonra silinir */
+  static forDeliveries(env: Env) {
+    return new SecretBox(env.MESSAGE_SECRET_KEY ?? `gelistirme:${env.JWT_SECRET}`, 'teslim-kod');
+  }
+
   /** Ödeme kuruluşundaki saklı kartın kullanıcı anahtarı (galeri aboneliği) */
   static forPayments(env: Env) {
     return new SecretBox(env.MESSAGE_SECRET_KEY ?? `gelistirme:${env.JWT_SECRET}`, 'odeme-kart');

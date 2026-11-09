@@ -15,7 +15,7 @@ import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
 import { ConsentService, channelOf } from '../consents/consent.service.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
-import { karaListede } from '../moderation/blocklist.js';
+import { blockHash, karaListede } from '../moderation/blocklist.js';
 import { Metrics } from '../observability/metrics.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { RateLimiter } from '../ratelimit/rate-limiter.js';
@@ -57,13 +57,15 @@ export class AuthService {
   async requestOtp(
     phone: string,
     ip?: string,
+    kurulum?: string,
   ): Promise<{ challengeId: string; expiresIn: number; devCode?: string }> {
     // Aynı IP'den saatte en fazla 20 kod: numara değiştirerek SMS bombardımanını engeller.
     if (ip) await this.limiter.hit(`otp:ip:${ip}`, 20, 3600);
-    // Kara liste (Karar 43): engellenen numara ya da IP'ye kod gönderilmez (neden açıklanmaz)
+    // Kara liste (Karar 43): engellenen numara, IP ya da cihaza kod gönderilmez (neden açıklanmaz)
     if (
       (await karaListede(this.db, this.env.JWT_SECRET, 'telefon', [phone])) ||
-      (ip && (await karaListede(this.db, this.env.JWT_SECRET, 'ip', [ip.toLowerCase()])))
+      (ip && (await karaListede(this.db, this.env.JWT_SECRET, 'ip', [ip.toLowerCase()]))) ||
+      (kurulum && (await karaListede(this.db, this.env.JWT_SECRET, 'cihaz', [kurulum])))
     ) {
       throw new ForbiddenException('Bu numarayla şu an giriş yapılamıyor. Destek ekibimize yazabilirsin.');
     }
@@ -216,6 +218,49 @@ export class AuthService {
     }
   }
 
+  /**
+   * Giriş bağlantısıyla oturum (Karar 52): destekten gelen tek kullanımlık bağlantı; 15 dakika geçerli, bir kez
+   * kullanılır. Kara liste denetimi girişle aynıdır. Yalnızca web'de açılır; bağlantı yeni hesap açmaz.
+   */
+  async verifyLoginLink(kod: string, ip?: string) {
+    if (ip) await this.limiter.hit(`verify:ip:${ip}`, 60, 3600);
+    const invalid = new UnauthorizedException(
+      'Bağlantının süresi dolmuş ya da kullanılmış. Destek ekibimizden yenisini iste.',
+    );
+    const l = await this.db.loginLink.findUnique({ where: { tokenHash: sha256(kod) } });
+    if (!l || l.usedAt || l.revokedAt || l.expiresAt < new Date()) throw invalid;
+    const u = await this.db.user.findUnique({ where: { id: l.userId } });
+    if (u?.status !== 'ACTIVE') throw invalid;
+    if (
+      (await karaListede(this.db, this.env.JWT_SECRET, 'telefon', [u.phone])) ||
+      (ip && (await karaListede(this.db, this.env.JWT_SECRET, 'ip', [ip.toLowerCase()])))
+    ) {
+      throw new ForbiddenException('Bu hesapla şu an giriş yapılamıyor. Destek ekibimize yazabilirsin.');
+    }
+    return this.db.$transaction(async (tx) => {
+      const k = await tx.loginLink.updateMany({
+        where: { id: l.id, usedAt: null, revokedAt: null },
+        data: { usedAt: new Date() },
+      });
+      if (k.count !== 1) throw invalid;
+      const device = await tx.device.create({ data: { id: uuidv7(), userId: u.id, platform: 'WEB' } });
+      const pair = await this.openSession(tx, u.id, device.id);
+      await this.audit.record(
+        {
+          actorType: 'USER',
+          actorId: u.id,
+          action: 'giris_baglanti',
+          entityType: 'user',
+          entityId: u.id,
+          ip,
+        },
+        tx,
+      );
+      await this.outbox.add(tx, 'kullanici.giris', { userId: u.id, platform: 'WEB' });
+      return { ...pair, isNewUser: false };
+    });
+  }
+
   /** Kodu doğrular; kullanıcı yoksa oluşturur (bireysel hesabıyla birlikte) ve oturum açar. */
   async verifyOtp(
     challengeId: string,
@@ -223,8 +268,13 @@ export class AuthService {
     platform: 'IOS' | 'ANDROID' | 'WEB',
     ip?: string,
     consents?: SignupConsents,
+    kurulum?: string,
   ): Promise<TokenPair & { isNewUser: boolean }> {
     if (ip) await this.limiter.hit(`verify:ip:${ip}`, 60, 3600);
+    // Kara listedeki cihaz giriş yapamaz (kod başka cihazdan istenmiş olsa da)
+    if (kurulum && (await karaListede(this.db, this.env.JWT_SECRET, 'cihaz', [kurulum]))) {
+      throw new ForbiddenException('Bu cihazla şu an giriş yapılamıyor. Destek ekibimize yazabilirsin.');
+    }
     const ch = await this.db.otpChallenge.findUnique({ where: { id: challengeId } });
     const invalid = new UnauthorizedException('Kod hatalı ya da süresi dolmuş');
     if (!ch || ch.consumedAt || ch.expiresAt < new Date() || ch.attempts >= OTP_MAX_ATTEMPTS) throw invalid;
@@ -266,7 +316,14 @@ export class AuthService {
 
       // Rıza kaydı (Karar 59): hangi metin sürümüne, hangi kanaldan, ne zaman
       if (consents) await this.consents.recordSignup(tx, user.id, consents, channelOf(platform), ip);
-      const device = await tx.device.create({ data: { id: uuidv7(), userId: user.id, platform } });
+      const device = await tx.device.create({
+        data: {
+          id: uuidv7(),
+          userId: user.id,
+          platform,
+          installHash: kurulum ? blockHash(this.env.JWT_SECRET, 'cihaz', kurulum) : null,
+        },
+      });
       const pair = await this.openSession(tx, user.id, device.id);
       await this.audit.record(
         { actorType: 'USER', actorId: user.id, action: 'giris', entityType: 'user', entityId: user.id, ip },

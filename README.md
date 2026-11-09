@@ -183,6 +183,11 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   `PUT /me/contact`, `PATCH /me` (il, ilçe, `nameMode`). Talep sayfasında `owner.aramaSaati`. Numarayı değiştir:
   `POST /me/phone/request`, `POST /me/phone/verify` (`AuthService.requestPhoneChange`, `confirmPhoneChange`).
 - Oturumlar: döndürülen jetonun oturumu `rotated = true`; yalnızca böyle bir jeton tekrar gelirse bütün oturumlar kapanır.
+- Cihaz kara listesi: mobil `kurulumKimligi()` (`apps/mobile/lib/api.ts`), girişte `kurulum`; `devices.install_hash`
+  (`blockHash(…, 'cihaz', …)`); konsol `POST /staff/people/kisi/:id/devices/:deviceId/block`.
+- Giriş bağlantısı: `POST /staff/people/:tip/:id/login-link` (`PeopleService.sendLoginLink`), tablo `login_links`,
+  şablon `hesap.giris_baglantisi` (kod `veri.kodKutu` içinde şifreli, gönderimden sonra silinir), `POST /auth/link/verify`,
+  web `/giris/baglanti` → `/api/oturum/baglanti`.
 
 ## Kullanıcı tarafı yapay zekâ (Sprint 26)
 

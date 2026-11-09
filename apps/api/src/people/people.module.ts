@@ -16,6 +16,7 @@ import {
 import {
   blockAddSchema,
   cardActionSchema,
+  deviceBlockSchema,
   grantSchema,
   PEOPLE_FILTERS,
   type PeopleFilter,
@@ -26,6 +27,7 @@ import { z } from 'zod';
 import { AuditService } from '../audit/audit.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
 import { ModerationCoreModule, ModerationServiceModule } from '../moderation/moderation.module.js';
+import { NotificationsModule } from '../notifications/notifications.module.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { RequirePermission } from '../staff/permissions.js';
 import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
@@ -105,6 +107,20 @@ export class PeopleStaffController {
     return this.p.revokeSessions(req.staff, tip, id, req.ip);
   }
 
+  /** Giriş bağlantısı gönder (Karar 52): kişinin doğrulanmış e-postasına tek kullanımlık bağlantı */
+  @Post('people/:tip/:id/login-link')
+  @HttpCode(200)
+  @RequirePermission('kisisel_veri.gor', 'maskeli')
+  loginLink(
+    @Req() req: StaffRequest,
+    @Param('tip', tipPipe) tip: Tip,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
+    if (!PeopleService.izin(req.staff.grants).baglanti)
+      throw new ForbiddenException('Bu işlem için yetkin yok');
+    return this.p.sendLoginLink(req.staff, tip, id, req.ip);
+  }
+
   @Post('people/:tip/:id/notes')
   @HttpCode(200)
   @RequirePermission('kisisel_veri.gor', 'maskeli')
@@ -115,6 +131,19 @@ export class PeopleStaffController {
     @Body(new ZodPipe(staffNoteSchema)) b: z.output<typeof staffNoteSchema>,
   ) {
     return this.p.addNote(req.staff, tip, id, b.metin);
+  }
+
+  /** Kişi kartı › Cihazlar › Kara listeye al (Karar 43) */
+  @Post('people/kisi/:id/devices/:deviceId/block')
+  @HttpCode(200)
+  @RequirePermission('sikayet.coz', 'tam')
+  blockDevice(
+    @Req() req: StaffRequest,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Param('deviceId', new ParseUUIDPipe()) deviceId: string,
+    @Body(new ZodPipe(deviceBlockSchema)) b: z.output<typeof deviceBlockSchema>,
+  ) {
+    return this.p.blockDevice(req.staff, id, deviceId, b.not, req.ip);
   }
 
   @Get('blocklist')
@@ -138,7 +167,7 @@ export class PeopleStaffController {
 }
 
 @Module({
-  imports: [StaffModule, ModerationCoreModule, ModerationServiceModule],
+  imports: [StaffModule, ModerationCoreModule, ModerationServiceModule, NotificationsModule],
   controllers: [PeopleStaffController],
   providers: [PeopleService, AuditService, OutboxService],
 })

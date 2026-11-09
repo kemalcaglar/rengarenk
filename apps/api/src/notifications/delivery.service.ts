@@ -1,8 +1,9 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import type { Delivery } from '@rengarenk/db';
+import type { Delivery, Prisma } from '@rengarenk/db';
 import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { SMS_SENDER, type SmsSender } from '../sms/sms.js';
+import { SecretBox } from '../staff/secret-box.js';
 import { EMAIL_SENDER, type EmailSender, PUSH_SENDER, type PushSender } from './channels.js';
 import { ayrilmaKodu, isinmaLimiti } from './commercial.js';
 import { sessizSaatSonu } from './notification.service.js';
@@ -89,6 +90,16 @@ export class DeliveryService {
     },
   ) {
     const deneme = d.attempts + 1;
+    // Şifreli tek kullanımlık kod (giriş bağlantısı) teslim sonuçlanınca kayıttan silinir
+    const v = d.veri as Record<string, unknown>;
+    const temizle =
+      typeof v?.kodKutu === 'string' && !(s.durum === 'tekrar' && deneme < DENEME)
+        ? {
+            veri: Object.fromEntries(
+              Object.entries(v).filter(([k]) => k !== 'kodKutu'),
+            ) as Prisma.InputJsonValue,
+          }
+        : {};
     if (s.durum === 'tekrar' && deneme < DENEME) {
       return this.db.delivery.update({
         where: { id: d.id },
@@ -103,6 +114,7 @@ export class DeliveryService {
         saglayici: s.saglayici ?? null,
         saglayiciNo: s.no ?? null,
         sentAt: s.durum === 'gonderildi' ? new Date() : null,
+        ...temizle,
       },
     });
   }
@@ -180,7 +192,16 @@ export class DeliveryService {
       }
       const kod = ayrilmaKodu(this.env.JWT_SECRET, d.id);
       const ayrilma = d.ticari ? this.templates.link(`/iletisim/ayril?k=${kod}`) : undefined;
-      const e = await this.templates.email(sablon, veri, ayrilma);
+      // Giriş bağlantısının kodu teslim kaydında şifreli durur; yalnızca gönderimde açılır
+      let acik = veri;
+      if (typeof veri.kodKutu === 'string') {
+        try {
+          acik = { ...veri, kod: SecretBox.forDeliveries(this.env).open(veri.kodKutu) };
+        } catch {
+          return this.sonuc(d, { durum: 'hata', neden: 'Kod açılamadı' });
+        }
+      }
+      const e = await this.templates.email(sablon, acik, ayrilma);
       if (!e) return this.sonuc(d, { durum: 'atlandi', neden: 'Şablonda e-posta yok' });
       const r = await this.email.send({
         to: adres,

@@ -153,6 +153,14 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   kez (numara değiştirmek hakkı yenilemez)
 - [x] Oturum kapatma düzeltmesi: elle kapatılan oturumun (Ayarlar, numara değişikliği) jetonu yalnızca reddedilir; çalınma
   sayılıp bütün oturumları kapatma yalnızca yenilenmiş (döndürülmüş) jetonun tekrar gelmesinde (`sessions.rotated`)
+- [x] Cihaz kara listesi (Karar 43): mobil uygulama ilk açılışta kurulum kimliği üretir (güvenli depo) ve girişte gönderir;
+  sunucu yalnızca anahtarlı özetini tutar. Konsol › kişi kartı › Cihazlar › "Kara listeye al": o kurulumdan kod
+  istenemez, giriş yapılamaz, açık oturumları kapanır; kara liste ekranından çıkarılır. Tarayıcı cihazı kara listeye
+  alınamaz (IP kara listesi var)
+- [x] Giriş bağlantısı gönder (Karar 52; YonetimPazar.dc.html): destek, kişinin doğrulanmış e-postasına tek kullanımlık
+  bağlantı gönderir (15 dakika, bir kez; yenisi eskileri geçersiz kılar; kişi başına günde 3). Bağlantı özeti saklanır;
+  e-postadaki kod teslim kaydında şifreli durur ve gönderimden sonra silinir. Web `/giris/baglanti`, kişi girince
+  Ayarlar › Profil'e gider (numarasını değiştirebilir); kara liste denetimi girişle aynı
 
 ## Sprint 26 · kullanıcı tarafı yapay zekâ (Aşama 8 dokuzuncu bölüm, 9 Kasım 2026)
 
@@ -309,8 +317,8 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   iade önerisi için Ödemeler ekranı
 - [x] Kara liste (Karar 43): telefon ve IP'ye giriş kodu gönderilmez; kara listedeki IBAN içeren mesaj gizlenir ve kritik
   şikâyet açılır. Değerin kendisi değil anahtarlı özeti saklanır; çıkarma kaydı kapatır
-- [ ] Cihaz kara listesi: uygulama kurulum kimliği girişte gönderilince; "Giriş bağlantısı gönder" (e-postayla tek
-  kullanımlık giriş) güvenlik tasarımıyla birlikte; galeri müşteri yönetimi (sorumlu çalışan, yenileme takibi, ayrılma riski)
+- [x] Cihaz kara listesi ve "Giriş bağlantısı gönder" (Sprint 27)
+- [ ] Galeri müşteri yönetimi (sorumlu çalışan, yenileme takibi, ayrılma riski)
 
 ## Sprint 18 · şikâyet ve moderasyon (Aşama 8 ilk bölüm, 8 Kasım 2026)
 

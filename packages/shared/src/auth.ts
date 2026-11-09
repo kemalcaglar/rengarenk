@@ -10,7 +10,13 @@ export const phoneSchema = z.string().transform((v, ctx) => {
   return n;
 });
 
-export const otpRequestSchema = z.object({ phone: phoneSchema });
+/**
+ * Uygulama kurulum kimliği (cihaz kara listesi, Karar 43): mobil uygulama ilk açılışta üretir, güvenli depoda tutar ve
+ * girişte gönderir. Sunucu yalnızca anahtarlı özetini saklar.
+ */
+export const installIdSchema = z.string().regex(/^[A-Za-z0-9-]{16,64}$/);
+
+export const otpRequestSchema = z.object({ phone: phoneSchema, kurulum: installIdSchema.optional() });
 export type OtpRequest = z.input<typeof otpRequestSchema>;
 
 /**
@@ -29,10 +35,14 @@ export const otpVerifySchema = z.object({
   challengeId: z.uuid(),
   code: z.string().regex(/^\d{6}$/, '6 haneli kodu gir'),
   platform: z.enum(['IOS', 'ANDROID', 'WEB']).default('WEB'),
+  kurulum: installIdSchema.optional(),
   /** Yeni üyede zorunlu; kayıtlı kullanıcının girişinde verilirse yeniden kaydedilir */
   consents: signupConsentsSchema.optional(),
 });
 export type OtpVerify = z.input<typeof otpVerifySchema>;
+
+/** Giriş bağlantısının kodu (32 bayt, base64url) */
+export const loginLinkSchema = z.object({ kod: z.string().regex(/^[A-Za-z0-9_-]{40,64}$/) }).strict();
 
 export const refreshSchema = z.object({ refreshToken: z.string().min(32) });
 

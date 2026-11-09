@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, Inject, Ip, Post, Req, UseGuards } from '@nestjs/common';
-import { otpRequestSchema, otpVerifySchema, refreshSchema } from '@rengarenk/shared';
+import { loginLinkSchema, otpRequestSchema, otpVerifySchema, refreshSchema } from '@rengarenk/shared';
 import type { z } from 'zod';
 import { ZodPipe } from '../common/zod.pipe.js';
 import { type Db, PRISMA } from '../database/prisma.js';
@@ -16,13 +16,20 @@ export class AuthController {
   @Post('otp/request')
   @HttpCode(200)
   request(@Body(new ZodPipe(otpRequestSchema)) body: z.output<typeof otpRequestSchema>, @Ip() ip: string) {
-    return this.auth.requestOtp(body.phone, ip);
+    return this.auth.requestOtp(body.phone, ip, body.kurulum);
   }
 
   @Post('otp/verify')
   @HttpCode(200)
   verify(@Body(new ZodPipe(otpVerifySchema)) body: z.output<typeof otpVerifySchema>, @Ip() ip: string) {
-    return this.auth.verifyOtp(body.challengeId, body.code, body.platform, ip, body.consents);
+    return this.auth.verifyOtp(body.challengeId, body.code, body.platform, ip, body.consents, body.kurulum);
+  }
+
+  /** Destekten gelen giriş bağlantısı (Karar 52) */
+  @Post('link/verify')
+  @HttpCode(200)
+  linkVerify(@Body(new ZodPipe(loginLinkSchema)) body: z.output<typeof loginLinkSchema>, @Ip() ip: string) {
+    return this.auth.verifyLoginLink(body.kod, ip);
   }
 
   @Post('refresh')

@@ -1,3 +1,4 @@
+import { createHash, randomBytes } from 'node:crypto';
 import {
   BadRequestException,
   ConflictException,
@@ -27,9 +28,10 @@ import {
 import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA } from '../database/prisma.js';
-import { blockHash } from '../moderation/blocklist.js';
+import { blockHash, karaListede } from '../moderation/blocklist.js';
 import { ModerationService } from '../moderation/moderation.service.js';
 import { SanctionService } from '../moderation/sanctions.service.js';
+import { NotificationService } from '../notifications/notification.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { kalemler } from '../payments/order-item.js';
 import { rozetler } from '../trust/badges.js';
@@ -47,6 +49,9 @@ const bas = (ad: string) =>
     .join('') || '?';
 const ayYil = (d: Date) =>
   new Intl.DateTimeFormat('tr-TR', { month: 'long', year: 'numeric', timeZone: 'Europe/Istanbul' }).format(d);
+/** Giriş bağlantısı (Karar 52): geçerlilik ve kişi başına günlük sınır */
+const LOGIN_LINK_MINUTES = 15;
+const LOGIN_LINK_PER_DAY = 3;
 const kisaTarih = (d: Date) => {
   const gun = new Intl.DateTimeFormat('tr-TR', {
     day: 'numeric',
@@ -99,6 +104,7 @@ export class PeopleService {
     private readonly outbox: OutboxService,
     private readonly moderation: ModerationService,
     private readonly sanctions: SanctionService,
+    private readonly notifications: NotificationService,
   ) {}
 
   // ── Arama ─────────────────────────────────────────────────────
@@ -343,6 +349,7 @@ export class PeopleService {
         { ad: 'Verdiği yıldız', deger: String(yildiz) },
       ],
       gecmis: await this.gecmis({ userId: id, accountIds: hesaplar, uyelik: u.createdAt }),
+      cihazlar: await this.cihazlar(id),
       durum: u.status,
     };
   }
@@ -722,7 +729,11 @@ export class PeopleService {
     }));
   }
 
-  async blockAdd(ctx: StaffCtx, b: { tur: BlockKind; deger: string; not?: string }, ip?: string) {
+  async blockAdd(
+    ctx: StaffCtx,
+    b: { tur: Exclude<BlockKind, 'cihaz'>; deger: string; not?: string },
+    ip?: string,
+  ) {
     const v = normalizeBlockValue(b.tur, b.deger);
     if (!v) throw new BadRequestException(`${BLOCK_KINDS[b.tur]} biçimi geçersiz`);
     const masked =
@@ -768,6 +779,137 @@ export class PeopleService {
     return this.blocklist();
   }
 
+  /**
+   * Giriş bağlantısı gönder (Karar 52; YonetimPazar.dc.html › "Giriş bağlantısı kişinin doğrulanmış e-postasına
+   * gönderildi."): telefonuna ulaşamayan kişi web'den girer. Yalnızca doğrulanmış e-postaya; 15 dakika, tek kullanım;
+   * yenisi eskileri geçersiz kılar; kişi başına günde en çok 3. Bağlantının kendisi saklanmaz, işlem kaydına girer.
+   */
+  async sendLoginLink(ctx: StaffCtx, tip: Tip, id: string, ip?: string) {
+    const userId = tip === 'kisi' ? id : (await this.galeriOf(id)).sahipId;
+    const u = await this.db.user.findUnique({
+      where: { id: userId },
+      select: { status: true, email: true, emailVerifiedAt: true, phone: true },
+    });
+    if (!u) throw new NotFoundException('Kullanıcı bulunamadı');
+    if (u.status !== 'ACTIVE') throw new ConflictException('Hesap etkin değil');
+    if (!u.email || !u.emailVerifiedAt) throw new ConflictException('Kişinin doğrulanmış e-postası yok');
+    if (await karaListede(this.db, this.env.JWT_SECRET, 'telefon', [u.phone]))
+      throw new ConflictException('Kişinin numarası kara listede');
+    const gun = await this.db.loginLink.count({
+      where: { userId, createdAt: { gte: new Date(Date.now() - 86_400_000) } },
+    });
+    if (gun >= LOGIN_LINK_PER_DAY)
+      throw new ConflictException('Bu kişiye bugün en çok 3 giriş bağlantısı gönderilir');
+    const kod = randomBytes(32).toString('base64url');
+    await this.db.$transaction(async (tx) => {
+      await tx.loginLink.updateMany({
+        where: { userId, usedAt: null, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+      await tx.loginLink.create({
+        data: {
+          id: uuidv7(),
+          userId,
+          tokenHash: createHash('sha256').update(kod).digest('hex'),
+          staffId: ctx.staff.id,
+          expiresAt: new Date(Date.now() + LOGIN_LINK_MINUTES * 60_000),
+        },
+      });
+      await this.audit.record(
+        {
+          actorType: 'STAFF',
+          actorId: ctx.staff.id,
+          action: 'giris_baglantisi_gonderildi',
+          entityType: 'user',
+          entityId: userId,
+          ip,
+        },
+        tx,
+      );
+    });
+    await this.notifications.girisBaglantisi(userId, kod);
+    return this.card(tip, id);
+  }
+
+  /** Kişinin cihazları (kişi kartı): platform, son giriş, kara listede mi; kurulum kimliği gösterilmez */
+  private async cihazlar(userId: string) {
+    const rows = await this.db.device.findMany({
+      where: { userId },
+      orderBy: { lastSeenAt: 'desc' },
+      take: 10,
+      select: { id: true, platform: true, lastSeenAt: true, createdAt: true, installHash: true },
+    });
+    const engelli = new Set(
+      (
+        await this.db.blocklist.findMany({
+          where: {
+            kind: 'cihaz',
+            removedAt: null,
+            valueHash: { in: rows.flatMap((d) => (d.installHash ? [d.installHash] : [])) },
+          },
+          select: { valueHash: true },
+        })
+      ).map((b) => b.valueHash),
+    );
+    return rows.map((d) => ({
+      id: d.id,
+      ad: { IOS: 'iPhone · uygulama', ANDROID: 'Android · uygulama', WEB: 'Tarayıcı' }[d.platform],
+      sonGiris: d.lastSeenAt,
+      ilkGiris: d.createdAt,
+      // Kurulum kimliği yalnızca mobil uygulamadan gelir; tarayıcı cihazı kara listeye alınamaz
+      engellenebilir: Boolean(d.installHash),
+      karaListede: Boolean(d.installHash && engelli.has(d.installHash)),
+    }));
+  }
+
+  /**
+   * Cihaz kara listesi (Karar 43): kişinin kartındaki bir cihazın kurulum kimliği (özeti) kara listeye girer; o cihazdan
+   * kod istenemez ve giriş yapılamaz, cihazdaki açık oturumlar kapanır. Çıkarma kara liste ekranından.
+   */
+  async blockDevice(ctx: StaffCtx, userId: string, deviceId: string, not: string | undefined, ip?: string) {
+    const d = await this.db.device.findFirst({ where: { id: deviceId, userId } });
+    if (!d) throw new NotFoundException('Cihaz bulunamadı');
+    if (!d.installHash) throw new BadRequestException('Bu cihazın kurulum kimliği yok (tarayıcı)');
+    const hash = d.installHash;
+    const zaten = await this.db.blocklist.findFirst({
+      where: { kind: 'cihaz', valueHash: hash, removedAt: null },
+    });
+    if (zaten) throw new ConflictException('Bu cihaz zaten kara listede');
+    const id = uuidv7();
+    const ad = { IOS: 'iPhone', ANDROID: 'Android', WEB: 'Tarayıcı' }[d.platform];
+    await this.db.$transaction(async (tx) => {
+      await tx.blocklist.create({
+        data: {
+          id,
+          kind: 'cihaz',
+          valueHash: hash,
+          masked: `${ad} · ${kisaTarih(d.createdAt)} kurulumu`,
+          note: not || null,
+          createdBy: ctx.staff.id,
+        },
+      });
+      // Aynı kurulumla açılmış bütün oturumlar (başka hesaplar dahil) kapanır
+      const cihazlar = await tx.device.findMany({ where: { installHash: hash }, select: { id: true } });
+      await tx.session.updateMany({
+        where: { deviceId: { in: cihazlar.map((c) => c.id) }, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+      await this.audit.record(
+        {
+          actorType: 'STAFF',
+          actorId: ctx.staff.id,
+          action: 'kara_listeye_eklendi',
+          entityType: 'blocklist',
+          entityId: id,
+          after: { tur: 'cihaz', kullanici: userId, cihaz: deviceId },
+          ip,
+        },
+        tx,
+      );
+    });
+    return this.cihazlar(userId);
+  }
+
   async blockRemove(ctx: StaffCtx, id: string, ip?: string) {
     await this.db.$transaction(async (tx) => {
       const r = await tx.blocklist.updateMany({
@@ -799,6 +941,8 @@ export class PeopleService {
       engel: ['tam', 'oneri'].includes(grants['hesap.kalici_engelle'] ?? ''),
       hak: satisfies(grants['hak.tanimla'], 'tam'),
       oturum: satisfies(grants['destek.yanitla'], 'tam') || satisfies(grants['hesap.askiya_al'], 'tam'),
+      cihaz: satisfies(grants['sikayet.coz'], 'tam'),
+      baglanti: satisfies(grants['destek.yanitla'], 'tam') || satisfies(grants['hesap.askiya_al'], 'tam'),
     };
   }
 }

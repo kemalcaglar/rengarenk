@@ -44,18 +44,22 @@ export const cardActionSchema = z
   })
   .strict();
 
-export const BLOCK_KINDS = { telefon: 'Telefon', iban: 'IBAN', ip: 'IP adresi' } as const;
+export const BLOCK_KINDS = { telefon: 'Telefon', iban: 'IBAN', ip: 'IP adresi', cihaz: 'Cihaz' } as const;
 export type BlockKind = keyof typeof BLOCK_KINDS;
+/** Değeri elle yazılan türler; cihaz kişi kartındaki cihaz listesinden eklenir (kurulum kimliği gösterilmez) */
+export const BLOCK_MANUAL_KINDS = ['telefon', 'iban', 'ip'] as const;
 export const blockAddSchema = z
   .object({
-    tur: z.enum(Object.keys(BLOCK_KINDS) as [BlockKind, ...BlockKind[]]),
+    tur: z.enum(BLOCK_MANUAL_KINDS),
     deger: z.string().trim().min(3).max(64),
     not: z.string().trim().max(300).optional(),
   })
   .strict();
 
+export const deviceBlockSchema = z.object({ not: z.string().trim().max(300).optional() }).strict();
+
 /** Kara liste için değerin biçimi: telefon E.164, IBAN boşluksuz büyük harf, IP olduğu gibi */
-export function normalizeBlockValue(tur: BlockKind, deger: string): string | null {
+export function normalizeBlockValue(tur: (typeof BLOCK_MANUAL_KINDS)[number], deger: string): string | null {
   const v = deger.trim();
   if (tur === 'iban') {
     const i = v.replace(/\s/g, '').toUpperCase();

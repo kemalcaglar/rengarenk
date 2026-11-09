@@ -2,6 +2,7 @@
 
 import {
   BLOCK_KINDS,
+  BLOCK_MANUAL_KINDS,
   type BlockKind,
   GRANT_KINDS,
   type GrantKind,
@@ -37,7 +38,17 @@ interface Kart {
   eposta: string;
   sayilar: { ad: string; deger: string }[];
   gecmis: { zamanYazi: string; olay: string; detay: string; renk: string }[];
+  /** Kişinin cihazları (cihaz kara listesi, Karar 43) */
+  cihazlar?: {
+    id: string;
+    ad: string;
+    sonGiris: string;
+    ilkGiris: string;
+    engellenebilir: boolean;
+    karaListede: boolean;
+  }[];
 }
+type Cihazlar = NonNullable<Kart['cihazlar']>;
 interface KaraSatir {
   id: string;
   tur: BlockKind;
@@ -110,7 +121,11 @@ export default function Kullanicilar() {
   });
   const [metin, setMetin] = useState('');
   const [kara, setKara] = useState<KaraSatir[]>([]);
-  const [yeniKara, setYeniKara] = useState<{ tur: BlockKind; deger: string; not: string }>({
+  const [yeniKara, setYeniKara] = useState<{
+    tur: (typeof BLOCK_MANUAL_KINDS)[number];
+    deger: string;
+    not: string;
+  }>({
     tur: 'telefon',
     deger: '',
     not: '',
@@ -183,6 +198,21 @@ export default function Kullanicilar() {
       setHata((e as Error).message);
     }
   }
+  async function cihazEngelle(deviceId: string) {
+    if (!k) return;
+    setHata(null);
+    try {
+      const c = await yonetim<Cihazlar>(`people/kisi/${k.id}/devices/${deviceId}/block`, {
+        method: 'POST',
+        body: {},
+      });
+      setK({ ...k, cihazlar: c });
+      setKara(await yonetim<KaraSatir[]>('blocklist'));
+      setBilgi('Cihaz kara listeye alındı; bu cihazdan giriş yapılamaz, açık oturumları kapandı.');
+    } catch (e) {
+      setHata((e as Error).message);
+    }
+  }
   async function karaEkle() {
     try {
       setKara(
@@ -211,10 +241,12 @@ export default function Kullanicilar() {
 
   // Kapatılan hesapta yalnızca not ve iade önerisi (Karar 31)
   const kapali = !!k?.kapali;
-  const dugmeler: [string, Form | 'oturum' | 'iade', boolean, string, string][] = [
+  const dugmeler: [string, Form | 'oturum' | 'baglanti' | 'iade', boolean, string, string][] = [
     ['Uyar', 'uyari', izin.uyari && !kapali, '#D5DAE5', '#1E2333'],
     ['24 saat askıya al', 'aski', izin.aski && !kapali, '#D5DAE5', '#1E2333'],
     ['Hak tanımla', 'hak', izin.hak && !kapali, '#D5DAE5', '#1E2333'],
+    // Tasarımdaki sıra (YonetimPazar.dc.html): hak tanımla, giriş bağlantısı, oturumları kapat
+    ['Giriş bağlantısı gönder', 'baglanti', izin.oturum && !kapali, '#D5DAE5', '#1E2333'],
     ['Oturumları kapat', 'oturum', izin.oturum && !kapali, '#D5DAE5', '#1E2333'],
     ['Not ekle', 'not', true, '#D5DAE5', '#1E2333'],
     ['İade öner', 'iade', izin.iade, '#F4DC9A', '#7A5300'],
@@ -572,7 +604,13 @@ export default function Kullanicilar() {
                       onClick={() =>
                         ne === 'oturum'
                           ? islem('sessions/revoke', {}, 'Tüm cihazlardaki oturumlar kapatıldı.')
-                          : setForm(form === ne ? null : (ne as Form))
+                          : ne === 'baglanti'
+                            ? islem(
+                                'login-link',
+                                {},
+                                'Giriş bağlantısı kişinin doğrulanmış e-postasına gönderildi. 15 dakika geçerli, bir kez kullanılır.',
+                              )
+                            : setForm(form === ne ? null : (ne as Form))
                       }
                       style={{
                         border: `1px solid ${kenar}`,
@@ -722,6 +760,68 @@ export default function Kullanicilar() {
                   ) : null}
                 </div>
               ) : null}
+              {k.cihazlar?.length ? (
+                <>
+                  <h3 style={{ margin: 0, padding: '14px 18px 6px', fontSize: 14, fontWeight: 800 }}>
+                    Cihazlar
+                  </h3>
+                  {k.cihazlar.map((c) => (
+                    <div
+                      key={c.id}
+                      style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        alignItems: 'center',
+                        gap: '4px 12px',
+                        padding: '7px 18px',
+                        fontSize: 13,
+                      }}
+                    >
+                      <span style={{ flex: '1 1 220px', minWidth: 0 }}>
+                        <span style={{ fontWeight: 700 }}>{c.ad}</span>
+                        <span style={{ color: '#5A6073' }}>
+                          {' '}
+                          · ilk giriş {new Date(c.ilkGiris).toLocaleDateString('tr-TR')} · son{' '}
+                          {new Date(c.sonGiris).toLocaleDateString('tr-TR')}
+                        </span>
+                      </span>
+                      {c.karaListede ? (
+                        <span
+                          style={{
+                            flex: 'none',
+                            fontSize: 12,
+                            fontWeight: 800,
+                            padding: '3px 9px',
+                            borderRadius: 999,
+                            background: '#FDECEC',
+                            color: '#A3271F',
+                          }}
+                        >
+                          Kara listede
+                        </span>
+                      ) : c.engellenebilir && me.permissions['sikayet.coz'] === 'tam' ? (
+                        <button
+                          type="button"
+                          onClick={() => cihazEngelle(c.id)}
+                          style={{
+                            flex: 'none',
+                            border: '1px solid #D5DAE5',
+                            background: '#FFFFFF',
+                            borderRadius: 10,
+                            padding: '6px 10px',
+                            fontSize: 12.5,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            fontFamily: 'inherit',
+                          }}
+                        >
+                          Kara listeye al
+                        </button>
+                      ) : null}
+                    </div>
+                  ))}
+                </>
+              ) : null}
               <h3 style={{ margin: 0, padding: '14px 18px 6px', fontSize: 14, fontWeight: 800 }}>Geçmiş</h3>
               {k.gecmis.map((g, i) => (
                 <div
@@ -791,10 +891,12 @@ export default function Kullanicilar() {
               Tür
               <select
                 value={yeniKara.tur}
-                onChange={(e) => setYeniKara({ ...yeniKara, tur: e.target.value as BlockKind })}
+                onChange={(e) =>
+                  setYeniKara({ ...yeniKara, tur: e.target.value as (typeof BLOCK_MANUAL_KINDS)[number] })
+                }
                 style={girdi}
               >
-                {(Object.keys(BLOCK_KINDS) as BlockKind[]).map((b) => (
+                {BLOCK_MANUAL_KINDS.map((b) => (
                   <option key={b} value={b}>
                     {BLOCK_KINDS[b]}
                   </option>

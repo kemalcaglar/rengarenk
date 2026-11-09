@@ -153,6 +153,8 @@ model Device {
   /// @pii
   pushToken  String?        @map("push_token")
   trusted    Boolean        @default(false)
+  /// @pii Uygulama kurulum kimliğinin anahtarlı özeti (cihaz kara listesi, Karar 43); kimliğin kendisi saklanmaz
+  installHash String?       @map("install_hash")
   lastSeenAt DateTime       @default(now()) @map("last_seen_at") @db.Timestamptz(3)
   createdAt  DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
 
@@ -160,6 +162,7 @@ model Device {
   sessions Session[]
 
   @@index([userId])
+  @@index([installHash])
   @@map("devices")
 }
 
@@ -181,6 +184,27 @@ model Session {
 
   @@index([userId])
   @@map("sessions")
+}
+
+/**
+ * Giriş bağlantısı (Karar 52): destek, kişinin doğrulanmış e-postasına tek kullanımlık giriş bağlantısı gönderir
+ * (telefonuna ulaşamayan kişi web'den girip numarasını değiştirir). Bağlantının kendisi değil özeti saklanır; 15 dakika
+ * geçerli, bir kez kullanılır; yenisi gönderilince eskileri geçersiz olur.
+ */
+model LoginLink {
+  id        String    @id @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash")
+  /// Gönderen çalışan
+  staffId   String    @map("staff_id") @db.Uuid
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(3)
+  usedAt    DateTime? @map("used_at") @db.Timestamptz(3)
+  /// Yenisi gönderildi ya da kişi giriş yaptı
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([userId, createdAt])
+  @@map("login_links")
 }
 
 model OtpChallenge {
@@ -2079,7 +2103,7 @@ model StaffNote {
 /// Kara liste (Karar 43): telefon, IBAN, IP. Değerin kendisi saklanmaz; anahtarlı özeti ve maskeli gösterimi tutulur
 model Blocklist {
   id        String    @id @db.Uuid
-  /// telefon | iban | ip
+  /// telefon | iban | ip | cihaz
   kind      String
   /// Anahtarlı özet (HMAC); aynı değer ikinci kez eklenmez
   valueHash String    @map("value_hash")

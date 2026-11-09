@@ -1,6 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   Logger,
@@ -24,6 +25,7 @@ import { Redis } from 'ioredis';
 import { ENV, type Env } from '../config/env.js';
 import { ConsentService } from '../consents/consent.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
+import { SecretBox } from '../staff/secret-box.js';
 import { SwitchService } from './switches.js';
 import { TemplatesService } from './templates.service.js';
 
@@ -416,6 +418,35 @@ export class NotificationService implements OnModuleDestroy {
       hedef: maskEposta(adres),
     });
     return { adres: maskEposta(adres), dogrulandi: false };
+  }
+
+  /**
+   * Giriş bağlantısı e-postası (Karar 52): yalnızca doğrulanmış adrese; kod teslim kaydında şifreli durur ve gönderimden
+   * sonra silinir (DeliveryService). Bekleyen eski bağlantı e-postaları gönderilmez.
+   */
+  async girisBaglantisi(userId: string, kod: string) {
+    const u = await this.db.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { firstName: true, email: true, emailVerifiedAt: true },
+    });
+    if (!u.email || !u.emailVerifiedAt) throw new ConflictException('Kişinin doğrulanmış e-postası yok');
+    const { surum } = await this.templates.get('hesap.giris_baglantisi');
+    await this.db.delivery.updateMany({
+      where: { userId, sablon: 'hesap.giris_baglantisi', durum: 'bekliyor' },
+      data: { durum: 'atlandi', neden: 'Yeni bağlantı gönderildi', veri: {} },
+    });
+    await this.teslim({
+      userId,
+      bildirimId: null,
+      kanal: 'eposta',
+      key: 'hesap.giris_baglantisi',
+      surum,
+      ticari: false,
+      veri: { ad: u.firstName || 'değerli üyemiz', kodKutu: SecretBox.forDeliveries(this.env).seal(kod) },
+      due: new Date(),
+      hedef: maskEposta(u.email),
+    });
+    return { hedef: maskEposta(u.email) };
   }
 
   async verifyEmail(kod: string) {

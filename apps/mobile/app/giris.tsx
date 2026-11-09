@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ikon } from '../components/ikon';
 import { Logo } from '../components/logo';
 import { T, TInput } from '../components/t';
-import { API, post } from '../lib/api';
+import { API, kurulumKimligi, post } from '../lib/api';
 import { useOturum } from '../lib/oturum';
 
 const WEB = process.env.EXPO_PUBLIC_WEB_URL ?? 'http://localhost:3000';
@@ -67,6 +67,7 @@ export default function Giris() {
         '/auth/otp/request',
         {
           phone: `+90${rakam}`,
+          kurulum: await kurulumKimligi(),
         },
       );
       setChallengeId(r.challengeId);
@@ -85,6 +86,7 @@ export default function Giris() {
           challengeId,
           code,
           platform: Platform.OS === 'android' ? 'ANDROID' : 'IOS',
+          kurulum: await kurulumKimligi(),
           consents: { kullanimKosullari: true, kvkkAydinlatma: true, ticariIleti: false, reklamOlcum: false },
         },
       );

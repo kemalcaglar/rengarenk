@@ -13,6 +13,32 @@ export async function post<T>(path: string, body: object): Promise<T> {
   return data as T;
 }
 
+/** 32 onaltılık hane: varsa güvenli rastgele kaynak, yoksa Math.random (kimlik gizli değildir, yalnızca tekildir) */
+function rastgeleKimlik() {
+  const b = new Uint8Array(16);
+  const c = (globalThis as { crypto?: { getRandomValues?: (a: Uint8Array) => Uint8Array } }).crypto;
+  if (c?.getRandomValues) c.getRandomValues(b);
+  else for (let i = 0; i < b.length; i++) b[i] = Math.floor(Math.random() * 256);
+  const h = Array.from(b, (x) => x.toString(16).padStart(2, '0')).join('');
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+}
+
+let kurulum: string | null = null;
+/**
+ * Uygulama kurulum kimliği (cihaz kara listesi, Karar 43): ilk açılışta üretilir, güvenli depoda kalır ve girişte
+ * gönderilir. Uygulama silinip yeniden kurulursa yenisi üretilir.
+ */
+export async function kurulumKimligi(): Promise<string> {
+  if (kurulum) return kurulum;
+  let k = await SecureStore.getItemAsync('kurulum');
+  if (!k) {
+    k = rastgeleKimlik();
+    await SecureStore.setItemAsync('kurulum', k);
+  }
+  kurulum = k;
+  return k;
+}
+
 /** Yenileme jetonu cihazın güvenli deposunda (Keychain / Keystore) tutulur. */
 export const tokens = {
   save: (refreshToken: string) => SecureStore.setItemAsync('refreshToken', refreshToken),
