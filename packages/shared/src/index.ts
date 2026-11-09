@@ -13,6 +13,7 @@ export * from './demand.js';
 export * from './flags.js';
 export * from './gallery.js';
 export * from './gallery-care.js';
+export * from './home-layout.js';
 export * from './iller.js';
 export * from './kvkk.js';
 export * from './landing.js';

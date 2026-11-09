@@ -1994,6 +1994,20 @@ model BannerStat {
   @@map("banner_stats")
 }
 
+/// Ana sayfa düzeni sürümleri (Karar 46): yayındaki, `publish_at` zamanı gelmiş en yüksek sürümdür
+model HomeLayoutVersion {
+  id        String   @id @db.Uuid
+  version   Int      @unique
+  layout    Json
+  note      String
+  publishAt DateTime @map("publish_at") @db.Timestamptz(3)
+  createdBy String?  @map("created_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([publishAt])
+  @@map("home_layout_versions")
+}
+
 /// İçerik ayarları (ör. vitrinde boş yerlere editör seçimi)
 model ContentSetting {
   key       String   @id

@@ -1,8 +1,30 @@
-import { colors, compactBudget, fiyatYaz, ONE_CIKARMA, tints } from '@rengarenk/shared';
+import {
+  colors,
+  compactBudget,
+  defaultHomeLayout,
+  fiyatYaz,
+  type HomeResponse,
+  ONE_CIKARMA,
+  tints,
+  visibleSections,
+} from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  ArananModeller,
+  GaleriCagri,
+  GaleriKarsilama,
+  GelenMesajlar,
+  GuvenRozetleri,
+  HakKarti,
+  KategoriKutulari,
+  KayitliAramalar,
+  PortfoyEslesmeleri,
+  SikSorulanlar,
+  TaleplerimOzeti,
+} from '../../components/ana-bolumler';
 import { Banner } from '../../components/banner';
 import { Ikon } from '../../components/ikon';
 import { Logo } from '../../components/logo';
@@ -10,6 +32,7 @@ import { MenuCekmecesi } from '../../components/menu-cekmecesi';
 import { T, TInput } from '../../components/t';
 import { API } from '../../lib/api';
 import { useCanli } from '../../lib/canli';
+import { useKategoriler } from '../../lib/kategoriler';
 import { useOturum } from '../../lib/oturum';
 import { yilAraligi, zaman } from '../../lib/talep-bicim';
 
@@ -81,148 +104,79 @@ export default function Home() {
   });
   const [vitrin, setVitrin] = useState<Yanit | null>(null);
   const [son, setSon] = useState<Yanit | null>(null);
+  const kategoriler = useKategoriler().filter((c) => c.vertical === 'vasita');
+  // Ana sayfa düzeni (Karar 46): görüntüleyenin kitlesine göre bölümler; yüklenene kadar tasarımdaki ziyaretçi düzeni
+  const [v, setV] = useState<HomeResponse>({
+    kitle: 'ziyaretci',
+    sira: visibleSections(defaultHomeLayout().ziyaretci.mobil),
+  });
+  useEffect(() => {
+    if (durum === 'yukleniyor') return;
+    const yol = '/icerik/anasayfa?platform=mobil';
+    (durum === 'uye'
+      ? istek<HomeResponse>(yol)
+      : fetch(`${API}${yol}`).then((r) => (r.ok ? (r.json() as Promise<HomeResponse>) : Promise.reject()))
+    )
+      .then(setV)
+      .catch(() => undefined);
+  }, [durum, istek]);
+  const galeriIl = v.kitle === 'galeri' ? v.galeri?.il : undefined;
   useEffect(() => {
     al('/talepler/vitrin?boyut=17').then(setVitrin);
-    al('/talepler?sira=yeni&boyut=5').then(setSon);
   }, []);
+  useEffect(() => {
+    al(`/talepler?sira=yeni&boyut=5${galeriIl ? `&il=${encodeURIComponent(galeriIl)}` : ''}`).then(setSon);
+  }, [galeriIl]);
   const hucre = (width - 2) / 3;
   const vitrinSayi = (vitrin?.sonuclar.length ?? 0) + 1;
   const bosHucre = (3 - (vitrinSayi % 3)) % 3;
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }} edges={['top']}>
-      <View
-        style={{
-          backgroundColor: colors.surface,
-          borderBottomWidth: 1,
-          borderBottomColor: colors.line,
-          paddingTop: 10,
-          paddingHorizontal: 12,
-          paddingBottom: 12,
-        }}
-      >
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+
+  const parca = (k: string): ReactNode => {
+    switch (k) {
+      case 'karsi':
+        return v.kitle === 'galeri' && v.galeri ? (
+          <GaleriKarsilama g={v.galeri} />
+        ) : (
+          <View
+            style={{
+              marginHorizontal: 12,
+              backgroundColor: colors.ink,
+              borderRadius: 16,
+              paddingVertical: 10,
+              paddingRight: 10,
+              paddingLeft: 14,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 10,
+            }}
+          >
+            <T
+              accessibilityRole="header"
+              style={{ flex: 1, fontSize: 14.5, fontWeight: '800', lineHeight: 19, color: '#FFFFFF' }}
+            >
+              Aradığın aracı yaz, satıcılar sana gelsin.
+            </T>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Menü ve kategoriler"
-              accessibilityState={{ expanded: menu }}
-              onPress={() => setMenu(true)}
+              onPress={() => router.push(durum === 'uye' ? '/talep-olustur' : '/giris')}
               style={{
-                width: 44,
-                height: 44,
+                backgroundColor: colors.blue,
                 borderRadius: 12,
+                paddingVertical: 11,
+                paddingHorizontal: 12,
                 alignItems: 'center',
-                justifyContent: 'center',
               }}
             >
-              <Ikon d="menu" />
+              <T style={{ fontSize: 13.5, fontWeight: '800', lineHeight: 16 }}>Talep oluştur</T>
+              <T style={{ fontSize: 10.5, fontWeight: '700', lineHeight: 13 }}>ilk talep ücretsiz</T>
             </Pressable>
-            <Logo />
           </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`Bildirimler, ${okunmamis} okunmamış`}
-            onPress={() => router.push('/bildirimler')}
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 12,
-              backgroundColor: '#F3F5FA',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Ikon d="zil" size={21} width={2} />
-            {okunmamis > 0 ? (
-              <View
-                style={{
-                  position: 'absolute',
-                  top: 6,
-                  right: 6,
-                  minWidth: 18,
-                  height: 18,
-                  borderRadius: 999,
-                  backgroundColor: colors.pink,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  paddingHorizontal: 4,
-                }}
-              >
-                <T style={{ fontSize: 11, fontWeight: '800' }}>{okunmamis > 99 ? '99+' : okunmamis}</T>
-              </View>
-            ) : null}
-          </Pressable>
-        </View>
-        <View
-          accessibilityRole="search"
-          style={{
-            marginTop: 10,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
-            backgroundColor: '#F3F5FA',
-            borderWidth: 1,
-            borderColor: colors.line,
-            borderRadius: 12,
-            paddingHorizontal: 12,
-          }}
-        >
-          <Ikon d="ara" size={18} width={2} color={colors.muted} />
-          <TInput
-            accessibilityLabel="Talep ara"
-            placeholder="Marka, model veya talep no ile ara"
-            returnKeyType="search"
-            onSubmitEditing={(e) =>
-              router.push({ pathname: '/talepler', params: { q: e.nativeEvent.text.trim() } })
-            }
-            style={{ flex: 1, fontSize: 15, paddingVertical: 12 }}
-          />
-        </View>
-      </View>
-
-      <ScrollView
-        style={{ flex: 1, backgroundColor: colors.background }}
-        contentContainerStyle={{ paddingTop: 10, paddingBottom: 24 }}
-      >
-        <View
-          style={{
-            marginHorizontal: 12,
-            backgroundColor: colors.ink,
-            borderRadius: 16,
-            paddingVertical: 10,
-            paddingRight: 10,
-            paddingLeft: 14,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 10,
-          }}
-        >
-          <T
-            accessibilityRole="header"
-            style={{ flex: 1, fontSize: 14.5, fontWeight: '800', lineHeight: 19, color: '#FFFFFF' }}
-          >
-            Aradığın aracı yaz, satıcılar sana gelsin.
-          </T>
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => router.push(durum === 'uye' ? '/talep-olustur' : '/giris')}
-            style={{
-              backgroundColor: colors.blue,
-              borderRadius: 12,
-              paddingVertical: 11,
-              paddingHorizontal: 12,
-              alignItems: 'center',
-            }}
-          >
-            <T style={{ fontSize: 13.5, fontWeight: '800', lineHeight: 16 }}>Talep oluştur</T>
-            <T style={{ fontSize: 10.5, fontWeight: '700', lineHeight: 13 }}>ilk talep ücretsiz</T>
-          </Pressable>
-        </View>
-        <Banner yer="anasayfa_ust" style={{ marginHorizontal: 12, marginTop: 12 }} />
-        <Banner yer="duyuru" style={{ marginHorizontal: 12, marginTop: 12 }} />
-
-        {vitrin?.sonuclar.length ? (
-          <View style={{ marginTop: 14 }}>
+        );
+      case 'kat':
+        return <KategoriKutulari kategoriler={kategoriler} />;
+      case 'vitrin':
+        return vitrin?.sonuclar.length ? (
+          <View>
             <View
               style={{
                 flexDirection: 'row',
@@ -326,26 +280,31 @@ export default function Home() {
               Fotoğraflar temsilîdir · Wikimedia Commons ve galeri portföyleri · sıra her açılışta karışır
             </T>
           </View>
-        ) : null}
-
-        {son?.sonuclar.length ? (
+        ) : null;
+      case 'son':
+        return son?.sonuclar.length ? (
           <>
             <View
               style={{
                 flexDirection: 'row',
                 alignItems: 'baseline',
                 justifyContent: 'space-between',
-                marginTop: 22,
                 marginHorizontal: 12,
                 marginBottom: 10,
               }}
             >
               <T accessibilityRole="header" style={{ fontSize: 17, fontWeight: '800' }}>
-                Son talepler
+                {v.kitle === 'galeri' && v.galeri ? `Son talepler · ${v.galeri.il}` : 'Son talepler'}
               </T>
               <T
                 accessibilityRole="link"
-                onPress={() => router.push({ pathname: '/talepler', params: { sira: 'yeni' } })}
+                onPress={() =>
+                  router.push({
+                    pathname: '/talepler',
+                    params:
+                      v.kitle === 'galeri' && v.galeri ? { sira: 'yeni', il: v.galeri.il } : { sira: 'yeni' },
+                  })
+                }
                 style={{ fontSize: 13.5, fontWeight: '700', color: colors.link }}
               >
                 Tümü
@@ -404,43 +363,176 @@ export default function Home() {
               ))}
             </View>
           </>
-        ) : null}
-
-        <View
-          style={{
-            marginTop: 22,
-            marginHorizontal: 12,
-            backgroundColor: colors.surface,
-            borderWidth: 1,
-            borderColor: colors.line,
-            borderRadius: 18,
-            padding: 16,
-          }}
-        >
-          <T accessibilityRole="header" style={{ marginBottom: 10, fontSize: 16, fontWeight: '800' }}>
-            Nasıl çalışır?
-          </T>
-          {ADIMLAR.map((a) => (
-            <View key={a.no} style={{ flexDirection: 'row', gap: 12, paddingVertical: 8 }}>
+        ) : null;
+      case 'nasil':
+        return (
+          <View
+            style={{
+              marginHorizontal: 12,
+              backgroundColor: colors.surface,
+              borderWidth: 1,
+              borderColor: colors.line,
+              borderRadius: 18,
+              padding: 16,
+            }}
+          >
+            <T accessibilityRole="header" style={{ marginBottom: 10, fontSize: 16, fontWeight: '800' }}>
+              Nasıl çalışır?
+            </T>
+            {ADIMLAR.map((a) => (
+              <View key={a.no} style={{ flexDirection: 'row', gap: 12, paddingVertical: 8 }}>
+                <View
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 14,
+                    backgroundColor: a.renk,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <T style={{ fontSize: 13, fontWeight: '800' }}>{a.no}</T>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <T style={{ fontSize: 14, fontWeight: '800' }}>{a.baslik}</T>
+                  <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 2 }}>{a.metin}</T>
+                </View>
+              </View>
+            ))}
+          </View>
+        );
+      case 'duyuru':
+        return <Banner yer="duyuru" style={{ marginHorizontal: 12 }} />;
+      case 'arama':
+        return <KayitliAramalar />;
+      case 'eslesme':
+        return <PortfoyEslesmeleri />;
+      case 'taleplerim':
+        return v.taleplerim ? <TaleplerimOzeti liste={v.taleplerim} /> : null;
+      case 'mesaj':
+        return v.mesajlar ? <GelenMesajlar liste={v.mesajlar} /> : null;
+      case 'hak':
+        return v.galeri ? <HakKarti g={v.galeri} /> : null;
+      case 'aranan':
+        return v.aranan?.modeller.length ? <ArananModeller a={v.aranan} /> : null;
+      case 'guven':
+        return <GuvenRozetleri />;
+      case 'sss':
+        return <SikSorulanlar />;
+      case 'galeri_cagri':
+        return <GaleriCagri />;
+      default:
+        return null;
+    }
+  };
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }} edges={['top']}>
+      <View
+        style={{
+          backgroundColor: colors.surface,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.line,
+          paddingTop: 10,
+          paddingHorizontal: 12,
+          paddingBottom: 12,
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Menü ve kategoriler"
+              accessibilityState={{ expanded: menu }}
+              onPress={() => setMenu(true)}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 12,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Ikon d="menu" />
+            </Pressable>
+            <Logo />
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Bildirimler, ${okunmamis} okunmamış`}
+            onPress={() => router.push('/bildirimler')}
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: 12,
+              backgroundColor: '#F3F5FA',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Ikon d="zil" size={21} width={2} />
+            {okunmamis > 0 ? (
               <View
                 style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 14,
-                  backgroundColor: a.renk,
+                  position: 'absolute',
+                  top: 6,
+                  right: 6,
+                  minWidth: 18,
+                  height: 18,
+                  borderRadius: 999,
+                  backgroundColor: colors.pink,
                   alignItems: 'center',
                   justifyContent: 'center',
+                  paddingHorizontal: 4,
                 }}
               >
-                <T style={{ fontSize: 13, fontWeight: '800' }}>{a.no}</T>
+                <T style={{ fontSize: 11, fontWeight: '800' }}>{okunmamis > 99 ? '99+' : okunmamis}</T>
               </View>
-              <View style={{ flex: 1 }}>
-                <T style={{ fontSize: 14, fontWeight: '800' }}>{a.baslik}</T>
-                <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 2 }}>{a.metin}</T>
-              </View>
-            </View>
-          ))}
+            ) : null}
+          </Pressable>
         </View>
+        <View
+          accessibilityRole="search"
+          style={{
+            marginTop: 10,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+            backgroundColor: '#F3F5FA',
+            borderWidth: 1,
+            borderColor: colors.line,
+            borderRadius: 12,
+            paddingHorizontal: 12,
+          }}
+        >
+          <Ikon d="ara" size={18} width={2} color={colors.muted} />
+          <TInput
+            accessibilityLabel="Talep ara"
+            placeholder="Marka, model veya talep no ile ara"
+            returnKeyType="search"
+            onSubmitEditing={(e) =>
+              router.push({ pathname: '/talepler', params: { q: e.nativeEvent.text.trim() } })
+            }
+            style={{ flex: 1, fontSize: 15, paddingVertical: 12 }}
+          />
+        </View>
+      </View>
+
+      <ScrollView
+        style={{ flex: 1, backgroundColor: colors.background }}
+        contentContainerStyle={{ paddingTop: 10, paddingBottom: 24 }}
+      >
+        {parca('karsi')}
+        <Banner yer="anasayfa_ust" style={{ marginHorizontal: 12, marginTop: 12 }} />
+        {v.sira
+          .filter((k) => k !== 'karsi')
+          .map((k) => {
+            const n = parca(k);
+            return n ? (
+              <View key={k} style={{ marginTop: 18 }}>
+                {n}
+              </View>
+            ) : null;
+          })}
       </ScrollView>
       <MenuCekmecesi acik={menu} kapat={() => setMenu(false)} />
     </SafeAreaView>

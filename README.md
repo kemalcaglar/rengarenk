@@ -210,6 +210,10 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   `apps/api/src/content/` (`GET /icerik/banner?yer=&platform=`, `POST /icerik/banner/:id/olay`, konsol `/staff/banners`,
   `PUT /staff/banners/vitrin/editor`); tablolar `banners`, `banner_stats`, `content_settings`. Web ve mobil
   `components/banner.tsx`. Konsol `/banner-ve-vitrin`.
+- Ana sayfa düzeni (Karar 46): `packages/shared/src/home-layout.ts` (`HOME_SECTIONS`, `defaultHomeLayout`,
+  `homeLayoutSchema`, `homeLayoutChanges`), `apps/api/src/content/home.service.ts` (`GET /icerik/anasayfa?platform=`,
+  konsol `/staff/home-layout`), tablo `home_layout_versions`. Web `app/(site)/ana-duzen.tsx` ve `ana-bolumler.tsx`,
+  mobil `components/ana-bolumler.tsx`. Konsol `/ana-sayfa-duzeni`. Aranan modeller `dashboard/aranan-modeller.ts`.
 - Kampanyalar ve segmentler (Karar 49, 51): `packages/shared/src/campaigns.ts`, `apps/api/src/campaigns/`
   (`SegmentService.preview/reach`, `CampaignService.estimate/create/dispatchDue`, işçide dakikada bir); uçlar
   `/staff/segments`, `/staff/campaigns`; bildirimlerde `campaign_id`. Konsol `/segmentler`, `/kampanyalar`.

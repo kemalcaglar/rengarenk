@@ -270,9 +270,11 @@ pnpm format        # Biome ile biçimlendir
   tetikleyici ilk iletiyi gönderince `flows.baslat(akış, kişiler, bağlam, ref)`; yeni akış tetikleyicisi eklersen hedefini
   `FlowService.hedefte`'ye, adım şablonunu `akis.adim.<akış>` olarak ekle. Banner ve vitrin (`apps/api/src/content/`,
   konsol `/banner-ve-vitrin`): web ve mobil `components/banner.tsx` (yer: ana sayfa, galeri paneli, talep listesi ve
-  detayı, duyuru, üst şerit). API'de 188, ortak pakette 102 test.
+  detayı, duyuru, üst şerit). Ana sayfa düzeni (`content/home.service.ts`, konsol `/ana-sayfa-duzeni`): yeni bir ana sayfa
+  bölümü eklersen `HOME_SECTIONS`'a, web `ana-duzen.tsx` ve mobil `index.tsx` bölüm haritasına ekle; tasarımda yoksa
+  varsayılanı kapalı. API'de 189, ortak pakette 105 test.
 - **Sıradaki:** Aşama 9 devamı
-  (ana sayfa düzeni, kupon ve A/B, reklam ölçümü); ya da sunucular gelince Radore'ye ilk
+  (kupon ve A/B, reklam ölçümü); ya da sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

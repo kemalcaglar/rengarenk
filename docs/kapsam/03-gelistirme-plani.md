@@ -168,7 +168,14 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   `galeri.aranan_modeller` şablonuyla (galeri konusu; ayarlardan kapatılabilir): galerinin ilinde son 30 günde en çok
   talep edilen 5 model (ilde 5 talepten azsa Türkiye geneli), portföydeki araç sayısı ve ajanın kural tabanlı önerisi.
   Varsayılan kapalı; açmak toplu gönderim onayı (BULK_SEND) ister
-- [ ] Galeri ana sayfasında "Bölgende aranan modeller" bölümü: ana sayfa düzeniyle
+- [x] Ana sayfa düzeni (YonetimIcerik.dc.html › anasayfa; Karar 46): kitle (ziyaretçi, bireysel üye, galeri) ve platform
+  (web, mobil) başına bölüm sırası ve görünürlüğü, anında önizleme; karşılama hep en üstte ve açık; yayın yeni sürüm
+  (değişiklikler sürüm notuna yazılır, işlem kaydı), ileri tarihe zamanlama, eski sürüme dönüş. `GET /icerik/anasayfa`
+  görüntüleyenin kitlesini, görünen bölümleri ve kişiye özel verileri verir. Varsayılan düzen ana sayfa
+  tasarımlarıyla aynı; tasarımlarda olmayan bölümler hazır ve kapalı gelir: ziyaretçide nasıl çalışır (web), galeriler
+  için çağrı, güven rozetleri, sık sorulanlar; bireyselde taleplerim özeti ve gelen ilk mesajlar; galeride kalan ilk
+  mesaj hakkı ve bölgende aranan modeller. Galeri karşılaması (ad, paket, bugünkü hak, portföy, mesajlar) ve galeri
+  için ildeki son talepler; mobilde kategori kutuları, kayıtlı aramalar ve portföy eşleşmeleri
 - [x] Banner ve duyuru (YonetimIcerik.dc.html › banner; Karar 46): yer (ana sayfa üstü, galeri paneli üstü, talep
   listesi üstü, talep detayı, uygulama içi duyuru, bütün sayfalar üst şerit), kitle (herkes, ziyaretçi, bireysel üye,
   galeri; üye ve galeride isteğe bağlı il), platform, tarih aralığı (en çok 90 gün), renk; taslak öneri düzeyiyle,

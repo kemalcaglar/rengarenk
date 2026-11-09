@@ -1,10 +1,16 @@
-import { colors, compactBudget, DOTS, ONE_CIKARMA, tints } from '@rengarenk/shared';
+import {
+  colors,
+  compactBudget,
+  defaultHomeLayout,
+  type HomeResponse,
+  ONE_CIKARMA,
+  tints,
+  visibleSections,
+} from '@rengarenk/shared';
 import Link from 'next/link';
-import { Banner } from '../../components/banner';
 import { getCategories } from '../../lib/kategoriler';
-import { butceAraligi, zaman } from '../../lib/talep-bicim';
-import { KayitliAramalarim } from './kayitli-aramalarim';
-import { PortfoyEslesmeleri } from './portfoy-eslesmeleri';
+import { GaleriCagri, GuvenRozetleri, NasilCalisir, SikSorulanlar, SonTalepler } from './ana-bolumler';
+import { AnaDuzen } from './ana-duzen';
 
 const API = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 /** Görseller tarayıcıdan istenir: genel API adresi */
@@ -41,6 +47,20 @@ interface Kart {
   foto: string | null;
 }
 
+/** Ziyaretçi düzeni (yayındaki sürüm); API'ye ulaşılamazsa tasarımdaki varsayılan */
+async function duzen(): Promise<HomeResponse> {
+  try {
+    const r = await fetch(`${API}/icerik/anasayfa?platform=web`, {
+      next: { revalidate: 30 },
+      signal: AbortSignal.timeout(3000),
+    });
+    if (r.ok) return (await r.json()) as HomeResponse;
+  } catch {
+    // varsayılana düşer
+  }
+  return { kitle: 'ziyaretci', sira: visibleSections(defaultHomeLayout().ziyaretci.web) };
+}
+
 async function talepler(yol: string): Promise<{ toplam: number; sonuclar: Kart[] } | null> {
   try {
     const r = await fetch(`${API}${yol}`, { cache: 'no-store', signal: AbortSignal.timeout(3000) });
@@ -51,405 +71,338 @@ async function talepler(yol: string): Promise<{ toplam: number; sonuclar: Kart[]
 }
 
 /**
- * Ana sayfa (tasarım: Anasayfa.dc.html; Karar 22, 46): tanıtım, girişli kullanıcıya kayıtlı aramaları, vitrin ve son
- * talepler. Vitrinde ücretli vitrin ödeme modülüyle (Aşama 6) önce gelecek; boş yerleri yayındaki talepler karışık
- * sırayla doldurur. Galeri görünümü (portföye uyan talepler) kurumsal hesaplarla gelir.
+ * Ana sayfa (tasarım: Anasayfa.dc.html; Karar 22, 46): bölümler sunucuda çizilir, sırası ve görünürlüğü konsoldaki
+ * "Ana sayfa düzeni"nden gelir (kitleye ve platforma göre). Vitrinde ücretli talepler önce; boş yerleri editör seçimi
+ * doldurur. Giriş yapan üye ve galeriye özel bölümler istemcide (`ana-duzen.tsx`).
  */
 export default async function Home() {
-  const [tum, vitrin, son] = await Promise.all([
+  const [tum, vitrin, son, ilk] = await Promise.all([
     getCategories(),
     talepler('/talepler/vitrin?boyut=17'),
     talepler('/talepler?sira=yeni&boyut=6'),
+    duzen(),
   ]);
   const kategoriler = tum.filter((c) => c.vertical === 'vasita');
-  return (
-    <main
+  const kat = (
+    <aside
       style={{
-        maxWidth: 1360,
-        margin: '0 auto',
-        padding: '24px 24px 64px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'flex-start',
-        gap: 24,
+        ...card,
+        flex: '1 1 220px',
+        maxWidth: 250,
+        minWidth: 0,
+        borderRadius: 18,
+        padding: '18px 12px',
       }}
+      aria-label="Kategoriler"
     >
-      <aside
+      <h2
         style={{
-          ...card,
-          flex: '1 1 220px',
-          maxWidth: 250,
-          minWidth: 0,
-          borderRadius: 18,
-          padding: '18px 12px',
+          margin: '0 8px 12px',
+          fontSize: 13,
+          fontWeight: 800,
+          letterSpacing: 0.6,
+          textTransform: 'uppercase',
+          color: colors.muted,
         }}
-        aria-label="Kategoriler"
       >
-        <h2
-          style={{
-            margin: '0 8px 12px',
-            fontSize: 13,
-            fontWeight: 800,
-            letterSpacing: 0.6,
-            textTransform: 'uppercase',
-            color: colors.muted,
-          }}
-        >
-          Kategoriler
-        </h2>
-        <span style={{ display: 'block', padding: '10px 8px', fontSize: 15.5, fontWeight: 800 }}>Vasıta</span>
-        <ul style={{ listStyle: 'none', margin: '0 0 8px', padding: 0 }}>
-          {kategoriler.map((c) => (
-            <li key={c.slug}>
-              <Link
-                href={`/kategori/${c.slug}`}
-                className="kategori"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '9px 10px',
-                  borderRadius: 10,
-                  fontSize: 14,
-                  fontWeight: 500,
-                  color: colors.inkSoft,
-                  textDecoration: 'none',
-                }}
-              >
-                <span
-                  style={{ width: 9, height: 9, borderRadius: '50%', background: c.color, flex: 'none' }}
-                  aria-hidden="true"
-                />
-                {c.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <div style={{ borderTop: '1px solid #EEF0F5', paddingTop: 8 }}>
-          {YAKINDA.map((ad) => (
-            <span
-              key={ad}
+        Kategoriler
+      </h2>
+      <span style={{ display: 'block', padding: '10px 8px', fontSize: 15.5, fontWeight: 800 }}>Vasıta</span>
+      <ul style={{ listStyle: 'none', margin: '0 0 8px', padding: 0 }}>
+        {kategoriler.map((c) => (
+          <li key={c.slug}>
+            <Link
+              href={`/kategori/${c.slug}`}
+              className="kategori"
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '10px 8px',
-                fontSize: 15.5,
-                fontWeight: 700,
-                color: '#6B7183',
-              }}
-            >
-              {ad}
-              <span
-                style={{
-                  fontSize: 11.5,
-                  fontWeight: 700,
-                  color: colors.muted,
-                  background: '#F3F5FA',
-                  padding: '3px 8px',
-                  borderRadius: 999,
-                }}
-              >
-                Yakında
-              </span>
-            </span>
-          ))}
-        </div>
-      </aside>
-
-      <div style={{ flex: '999 1 760px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 22 }}>
-        <Banner yer="anasayfa_ust" />
-        <section
-          style={{
-            ...card,
-            borderRadius: 22,
-            padding: 32,
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            gap: 28,
-          }}
-          aria-labelledby="hero"
-        >
-          <div style={{ flex: '999 1 380px', minWidth: 0 }}>
-            <h1
-              id="hero"
-              style={{ margin: 0, fontSize: 36, lineHeight: 1.15, fontWeight: 800, letterSpacing: -0.8 }}
-            >
-              Aradığın aracı söyle, satıcılar seni bulsun.
-            </h1>
-            <p style={{ margin: '12px 0 22px', fontSize: 16, lineHeight: 1.55, color: colors.inkSoft }}>
-              İlan ilan gezmek yerine talebini bir kez yayınla. Uygun aracı olan galeriler ve satıcılar sana
-              yazsın.
-            </p>
-            <Link
-              href="/talep-olustur"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                background: colors.blue,
-                color: colors.ink,
-                fontWeight: 800,
-                fontSize: 16,
-                padding: '15px 24px',
-                borderRadius: 14,
+                gap: 10,
+                padding: '9px 10px',
+                borderRadius: 10,
+                fontSize: 14,
+                fontWeight: 500,
+                color: colors.inkSoft,
                 textDecoration: 'none',
               }}
             >
-              Ücretsiz talep oluştur
+              <span
+                style={{ width: 9, height: 9, borderRadius: '50%', background: c.color, flex: 'none' }}
+                aria-hidden="true"
+              />
+              {c.name}
             </Link>
-          </div>
-          <ol
+          </li>
+        ))}
+      </ul>
+      <div style={{ borderTop: '1px solid #EEF0F5', paddingTop: 8 }}>
+        {YAKINDA.map((ad) => (
+          <span
+            key={ad}
             style={{
-              flex: '1 1 280px',
-              minWidth: 0,
-              listStyle: 'none',
-              margin: 0,
-              padding: 0,
               display: 'flex',
-              flexDirection: 'column',
-              gap: 10,
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '10px 8px',
+              fontSize: 15.5,
+              fontWeight: 700,
+              color: '#6B7183',
             }}
           >
-            {ADIMLAR.map((a) => (
-              <li
-                key={a.no}
-                style={{
-                  display: 'flex',
-                  gap: 12,
-                  alignItems: 'center',
-                  background: a.tint,
-                  borderRadius: 14,
-                  padding: '12px 14px',
-                }}
-              >
-                <span
-                  style={{
-                    width: 30,
-                    height: 30,
-                    borderRadius: '50%',
-                    background: a.dot,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 800,
-                    fontSize: 14,
-                    flex: 'none',
-                  }}
-                >
-                  {a.no}
-                </span>
-                <span style={{ fontSize: 14.5, fontWeight: 600 }}>{a.text}</span>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <Banner yer="duyuru" />
-        <PortfoyEslesmeleri />
-
-        <KayitliAramalarim />
-
-        {vitrin?.sonuclar.length ? (
-          <section aria-labelledby="vitrin">
-            <div
+            {ad}
+            <span
               style={{
-                display: 'flex',
-                alignItems: 'baseline',
-                justifyContent: 'space-between',
-                gap: 12,
-                marginBottom: 10,
+                fontSize: 11.5,
+                fontWeight: 700,
+                color: colors.muted,
+                background: '#F3F5FA',
+                padding: '3px 8px',
+                borderRadius: 999,
               }}
             >
-              <h2 id="vitrin" style={{ margin: 0, fontSize: 19, fontWeight: 800 }}>
-                Ana sayfa vitrini
-              </h2>
-              <Link
-                href="/talepler"
-                style={{ fontSize: 13.5, fontWeight: 700, color: colors.link, textDecoration: 'none' }}
-              >
-                Tüm talepler ({vitrin.toplam})
-              </Link>
-            </div>
-            <div className="rr-vitrin">
-              {vitrin.sonuclar.map((v, i) => (
-                <Link
-                  key={v.no}
-                  href={`/talep/${v.no}`}
-                  style={{
-                    display: 'block',
-                    background: '#FFFFFF',
-                    padding: '8px 8px 10px',
-                    color: colors.ink,
-                    textDecoration: 'none',
-                    minWidth: 0,
-                  }}
-                >
-                  <span
-                    style={{
-                      display: 'block',
-                      position: 'relative',
-                      aspectRatio: '4 / 3',
-                      borderRadius: 8,
-                      overflow: 'hidden',
-                      background: FOTO_YOK[i % FOTO_YOK.length],
-                    }}
-                  >
-                    {v.foto ? (
-                      // biome-ignore lint/performance/noImgElement: katalog görseli API'den akar; Next görüntü iyileştirmesi gerekmez
-                      <img
-                        src={`${GORSEL}${v.foto}`}
-                        alt=""
-                        loading="lazy"
-                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                      />
-                    ) : null}
-                  </span>
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 12.5,
-                      fontWeight: 700,
-                      lineHeight: 1.3,
-                      marginTop: 6,
-                      height: 33,
-                      overflow: 'hidden',
-                    }}
-                  >
-                    {v.baslik}
-                  </span>
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 12.5,
-                      fontWeight: 800,
-                      color: colors.link,
-                      marginTop: 3,
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {compactBudget(v.butceMin, v.butceMax) || ' '}
-                  </span>
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 11.5,
-                      color: colors.muted,
-                      marginTop: 1,
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}
-                  >
-                    {v.il ?? 'Tüm Türkiye'}
-                  </span>
-                </Link>
-              ))}
-              <Link
-                href="/taleplerim"
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  gap: 5,
-                  background: tints.yellow,
-                  padding: 12,
-                  color: colors.ink,
-                  textDecoration: 'none',
-                  minWidth: 0,
-                }}
-              >
-                <span style={{ fontSize: 13.5, fontWeight: 800, lineHeight: 1.3 }}>
-                  Talebin burada görünsün
-                </span>
-                <span style={{ fontSize: 12, color: '#5A3D00', lineHeight: 1.4 }}>
-                  7 gün ana sayfa vitrini, web ve uygulamada
-                </span>
-                <span style={{ fontSize: 13.5, fontWeight: 800, color: '#7A5300', marginTop: 2 }}>
-                  {VITRIN_FIYAT} TL ›
-                </span>
-              </Link>
-              {/* Az talep varken satırın kalanı boş beyaz hücre; dar ekranda (3 sütun) fazlası gizlenir */}
-              {BOS.slice(0, (6 - ((vitrin.sonuclar.length + 1) % 6)) % 6).map((k, i) => (
-                <span
-                  key={k}
-                  aria-hidden="true"
-                  className={i < (3 - ((vitrin.sonuclar.length + 1) % 3)) % 3 ? undefined : 'rr-genis'}
-                  style={{ background: '#FFFFFF' }}
-                />
-              ))}
-            </div>
-            <p style={{ margin: '6px 2px 0', fontSize: 11.5, color: colors.muted }}>
-              Fotoğraflar temsilîdir · Wikimedia Commons ve galeri portföyleri · sıra her açılışta karışır
-            </p>
-          </section>
-        ) : null}
-
-        {son?.sonuclar.length ? (
-          <section aria-labelledby="son">
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'baseline',
-                justifyContent: 'space-between',
-                gap: 12,
-                marginBottom: 12,
-              }}
-            >
-              <h2 id="son" style={{ margin: 0, fontSize: 19, fontWeight: 800 }}>
-                Son talepler
-              </h2>
-              <Link href="/talepler?sira=yeni" style={{ fontSize: 14, fontWeight: 700 }}>
-                Tüm talepler
-              </Link>
-            </div>
-            <div style={{ ...card, borderRadius: 16, overflow: 'hidden' }}>
-              {son.sonuclar.map((t, i) => (
-                <Link
-                  key={t.no}
-                  href={`/talep/${t.no}`}
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'center',
-                    gap: '8px 18px',
-                    padding: '14px 18px',
-                    borderBottom: i < son.sonuclar.length - 1 ? '1px solid #EEF0F5' : 0,
-                    color: colors.ink,
-                    textDecoration: 'none',
-                  }}
-                >
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: '50%',
-                      background: DOTS[i % DOTS.length],
-                      flex: 'none',
-                    }}
-                  />
-                  <span style={{ flex: '999 1 300px', minWidth: 0, fontSize: 15, fontWeight: 700 }}>
-                    {t.baslik}
-                  </span>
-                  <span style={{ flex: '1 1 140px', fontSize: 13.5, color: colors.muted }}>
-                    {[t.il, t.ilce].filter(Boolean).join(', ') || 'Tüm Türkiye'}
-                  </span>
-                  <span style={{ flex: '1 1 180px', fontSize: 14, fontWeight: 800, color: colors.link }}>
-                    {butceAraligi(t.butceMin, t.butceMax)}
-                  </span>
-                  <span style={{ flex: '0 0 80px', fontSize: 13, color: colors.muted, textAlign: 'right' }}>
-                    {zaman(t.yayin)}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
-        ) : null}
+              Yakında
+            </span>
+          </span>
+        ))}
       </div>
-    </main>
+    </aside>
+  );
+  const karsi = (
+    <section
+      style={{
+        ...card,
+        borderRadius: 22,
+        padding: 32,
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        gap: 28,
+      }}
+      aria-labelledby="hero"
+    >
+      <div style={{ flex: '999 1 380px', minWidth: 0 }}>
+        <h1
+          id="hero"
+          style={{ margin: 0, fontSize: 36, lineHeight: 1.15, fontWeight: 800, letterSpacing: -0.8 }}
+        >
+          Aradığın aracı söyle, satıcılar seni bulsun.
+        </h1>
+        <p style={{ margin: '12px 0 22px', fontSize: 16, lineHeight: 1.55, color: colors.inkSoft }}>
+          İlan ilan gezmek yerine talebini bir kez yayınla. Uygun aracı olan galeriler ve satıcılar sana
+          yazsın.
+        </p>
+        <Link
+          href="/talep-olustur"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            background: colors.blue,
+            color: colors.ink,
+            fontWeight: 800,
+            fontSize: 16,
+            padding: '15px 24px',
+            borderRadius: 14,
+            textDecoration: 'none',
+          }}
+        >
+          Ücretsiz talep oluştur
+        </Link>
+      </div>
+      <ol
+        style={{
+          flex: '1 1 280px',
+          minWidth: 0,
+          listStyle: 'none',
+          margin: 0,
+          padding: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 10,
+        }}
+      >
+        {ADIMLAR.map((a) => (
+          <li
+            key={a.no}
+            style={{
+              display: 'flex',
+              gap: 12,
+              alignItems: 'center',
+              background: a.tint,
+              borderRadius: 14,
+              padding: '12px 14px',
+            }}
+          >
+            <span
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: '50%',
+                background: a.dot,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 800,
+                fontSize: 14,
+                flex: 'none',
+              }}
+            >
+              {a.no}
+            </span>
+            <span style={{ fontSize: 14.5, fontWeight: 600 }}>{a.text}</span>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+  const vitrinBolumu = vitrin?.sonuclar.length ? (
+    <section aria-labelledby="vitrin">
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'baseline',
+          justifyContent: 'space-between',
+          gap: 12,
+          marginBottom: 10,
+        }}
+      >
+        <h2 id="vitrin" style={{ margin: 0, fontSize: 19, fontWeight: 800 }}>
+          Ana sayfa vitrini
+        </h2>
+        <Link
+          href="/talepler"
+          style={{ fontSize: 13.5, fontWeight: 700, color: colors.link, textDecoration: 'none' }}
+        >
+          Tüm talepler ({vitrin.toplam})
+        </Link>
+      </div>
+      <div className="rr-vitrin">
+        {vitrin.sonuclar.map((v, i) => (
+          <Link
+            key={v.no}
+            href={`/talep/${v.no}`}
+            style={{
+              display: 'block',
+              background: '#FFFFFF',
+              padding: '8px 8px 10px',
+              color: colors.ink,
+              textDecoration: 'none',
+              minWidth: 0,
+            }}
+          >
+            <span
+              style={{
+                display: 'block',
+                position: 'relative',
+                aspectRatio: '4 / 3',
+                borderRadius: 8,
+                overflow: 'hidden',
+                background: FOTO_YOK[i % FOTO_YOK.length],
+              }}
+            >
+              {v.foto ? (
+                // biome-ignore lint/performance/noImgElement: katalog görseli API'den akar; Next görüntü iyileştirmesi gerekmez
+                <img
+                  src={`${GORSEL}${v.foto}`}
+                  alt=""
+                  loading="lazy"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                />
+              ) : null}
+            </span>
+            <span
+              style={{
+                display: 'block',
+                fontSize: 12.5,
+                fontWeight: 700,
+                lineHeight: 1.3,
+                marginTop: 6,
+                height: 33,
+                overflow: 'hidden',
+              }}
+            >
+              {v.baslik}
+            </span>
+            <span
+              style={{
+                display: 'block',
+                fontSize: 12.5,
+                fontWeight: 800,
+                color: colors.link,
+                marginTop: 3,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {compactBudget(v.butceMin, v.butceMax) || ' '}
+            </span>
+            <span
+              style={{
+                display: 'block',
+                fontSize: 11.5,
+                color: colors.muted,
+                marginTop: 1,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {v.il ?? 'Tüm Türkiye'}
+            </span>
+          </Link>
+        ))}
+        <Link
+          href="/taleplerim"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            gap: 5,
+            background: tints.yellow,
+            padding: 12,
+            color: colors.ink,
+            textDecoration: 'none',
+            minWidth: 0,
+          }}
+        >
+          <span style={{ fontSize: 13.5, fontWeight: 800, lineHeight: 1.3 }}>Talebin burada görünsün</span>
+          <span style={{ fontSize: 12, color: '#5A3D00', lineHeight: 1.4 }}>
+            7 gün ana sayfa vitrini, web ve uygulamada
+          </span>
+          <span style={{ fontSize: 13.5, fontWeight: 800, color: '#7A5300', marginTop: 2 }}>
+            {VITRIN_FIYAT} TL ›
+          </span>
+        </Link>
+        {/* Az talep varken satırın kalanı boş beyaz hücre; dar ekranda (3 sütun) fazlası gizlenir */}
+        {BOS.slice(0, (6 - ((vitrin.sonuclar.length + 1) % 6)) % 6).map((k, i) => (
+          <span
+            key={k}
+            aria-hidden="true"
+            className={i < (3 - ((vitrin.sonuclar.length + 1) % 3)) % 3 ? undefined : 'rr-genis'}
+            style={{ background: '#FFFFFF' }}
+          />
+        ))}
+      </div>
+      <p style={{ margin: '6px 2px 0', fontSize: 11.5, color: colors.muted }}>
+        Fotoğraflar temsilîdir · Wikimedia Commons ve galeri portföyleri · sıra her açılışta karışır
+      </p>
+    </section>
+  ) : null;
+
+  return (
+    <AnaDuzen
+      ilk={ilk}
+      bolumler={{
+        kat,
+        karsi,
+        vitrin: vitrinBolumu,
+        son: <SonTalepler liste={son?.sonuclar ?? []} baslik="Son talepler" tumu="/talepler?sira=yeni" />,
+        nasil: <NasilCalisir />,
+        guven: <GuvenRozetleri />,
+        sss: <SikSorulanlar />,
+        galeri_cagri: <GaleriCagri />,
+      }}
+    />
   );
 }
