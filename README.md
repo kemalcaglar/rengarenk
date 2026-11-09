@@ -191,6 +191,10 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - Galeri müşteri yönetimi: `packages/shared/src/gallery-care.ts` (`churnRisk`, `renewalOf`),
   `apps/api/src/people/gallery-care.service.ts`; `GET /staff/galleries/care?filtre=`, `POST /staff/people/galeri/:id/manager`;
   `galleries.manager_staff_id`. Konsol `/galeri-musterileri`.
+- Kurallar ve fiyatlar: `packages/shared/src/pricing.ts` (`PriceBook`, `DEFAULT_PRICE_BOOK`, `plansOf`, `priceChanges`),
+  `apps/api/src/pricing/` (`PricingService.current()/plans()/productTl()`, küresel modül; işçide PRICE_CHANGE yürütücüsü).
+  `galleryAccess`, `planNetKurus`, `memberLimit` isteğe bağlı paket tablosu alır; API'de her zaman
+  `await pricing.plans()` verilir. Uçlar: `GET/POST /staff/pricing`, `POST /staff/pricing/:id/cancel`, `GET /fiyatlar`.
 
 ## Kullanıcı tarafı yapay zekâ (Sprint 26)
 

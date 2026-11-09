@@ -95,6 +95,8 @@ export type EventType =
   // Galerinin 1 yıldıza itirazı (Karar 55)
   | 'yildiz.itiraz_acildi'
   | 'yildiz.itiraz_sonuc'
+  // Kurallar ve fiyatlar (Karar 56): onaylanan fiyat değişikliği zamanlandı (galerilere duyuru)
+  | 'fiyat.zamanlandi'
   // Ayarlar › Profil: numara değişti (güvenlik bildirimi)
   | 'hesap.telefon_degisti'
   // Kullanıcı kartından hak tanımlandı (Karar 52): kişiye bildirim

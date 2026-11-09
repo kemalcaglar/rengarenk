@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { phoneSchema } from './auth.js';
 import { ILLER } from './iller.js';
+import type { PlanTable } from './pricing.js';
 
 // ── Kurumsal hesap başvurusu (Karar 03, 17; Basvuru.dc.html) ─────────
 
@@ -348,6 +349,8 @@ export interface GalleryFeatures {
 export function galleryAccess(
   g: { plan: string; trialEndsAt: Date | null },
   now: Date = new Date(),
+  /** Yürürlükteki fiyat listesinin paket tablosu (Kurallar ve fiyatlar); verilmezse başlangıç değerleri */
+  plans: PlanTable = GALLERY_PLANS,
 ): { plan: GalleryPlanKey; ad: string; ozellik: GalleryFeatures; saltOkunur: boolean } {
   const plan = g.plan as GalleryPlanKey;
   if (plan === 'deneme') {
@@ -359,18 +362,18 @@ export function galleryAccess(
       saltOkunur: bitti,
     };
   }
-  const p = GALLERY_PLANS[plan as keyof typeof GALLERY_PLANS];
+  const p = plans[plan as keyof typeof GALLERY_PLANS];
   if (!p) return { plan: 'pasif', ad: 'Paket yok', ozellik: GALLERY_PASSIVE, saltOkunur: true };
   return { plan, ad: p.ad, ozellik: p, saltOkunur: false };
 }
 
 /** Galerinin kullanabileceği çalışan sayısı */
-export const memberLimit = (plan: GalleryPlanKey) =>
+export const memberLimit = (plan: GalleryPlanKey, plans: PlanTable = GALLERY_PLANS) =>
   plan === 'deneme'
     ? GALLERY_TRIAL.calisan
     : plan === 'pasif'
       ? GALLERY_PASSIVE.calisan
-      : GALLERY_PLANS[plan].calisan;
+      : plans[plan].calisan;
 
 // ── Çalışanlar (Karar 20) ─────────────────────────────────────
 

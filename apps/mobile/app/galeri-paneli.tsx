@@ -2,7 +2,6 @@ import {
   colors,
   compactBudget,
   DOTS,
-  GALLERY_PLANS,
   GALLERY_TRIAL,
   MEMBER_ROLE_NAMES,
   type MemberRoleKey,
@@ -30,6 +29,8 @@ interface Panel {
     saltOkunur: boolean;
     portfoy: number | null;
     gunlukMesaj: number;
+    aylikTalep?: number;
+    oneCikarma?: number;
     calisan: number;
   };
   ekip: { userId: string }[];
@@ -182,7 +183,9 @@ export default function GaleriPaneli() {
     }
   }
   const eslesmeListe = (eslesme?.eslesmeler ?? []).filter((e) => !aracFiltre || e.arac.id === aracFiltre);
-  const plan = p && !deneme ? GALLERY_PLANS[p.paket.key as keyof typeof GALLERY_PLANS] : null;
+  // Paket hakları yürürlükteki fiyat listesinden (API)
+  const plan =
+    p && !deneme ? { aylikTalep: p.paket.aylikTalep ?? 0, oneCikarma: p.paket.oneCikarma ?? 0 } : null;
   const haklar = p
     ? [
         {

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { HesabimMenu } from '../../../components/hesabim-menu';
+import { useWebFiyat } from '../../../lib/fiyat';
 import { binlik, istek, useGiris } from '../../../lib/istemci';
 
 interface Talep {
@@ -116,6 +117,7 @@ function sure(t: Talep) {
 
 /** Taleplerim (tasarım: Taleplerim.dc.html; Karar 09, 10, 31): durum sekmeleri, süre ve talebin işlemleri. */
 export default function Taleplerim() {
+  const fiyat = useWebFiyat();
   const giris = useGiris();
   const router = useRouter();
   const [liste, setListe] = useState<Talep[] | null>(null);
@@ -240,7 +242,7 @@ export default function Taleplerim() {
               <p style={{ margin: '4px 0 0', fontSize: 14.5, color: '#5A6073' }}>
                 Kalan talep hakkın: <strong style={{ color: '#1E2333' }}>{hak}</strong>
                 {haklar && haklar.talep === 0
-                  ? ` · ek talep ${BIREYSEL_FIYATLAR.ekTalep.tl} TL (ödeme altyapısı açılınca)`
+                  ? ` · ek talep ${fiyat('ek_talep', BIREYSEL_FIYATLAR.ekTalep.tl)} TL (ödeme altyapısı açılınca)`
                   : ''}
               </p>
             </div>
@@ -532,7 +534,9 @@ export default function Taleplerim() {
                             onClick={() => islem(t, 'extend', 'Talep uzatıldı.')}
                             style={yalin('#2450C8')}
                           >
-                            {ucretsiz ? 'Ücretsiz uzat' : `Uzat · ${BIREYSEL_FIYATLAR.uzatma.tl} TL`}
+                            {ucretsiz
+                              ? 'Ücretsiz uzat'
+                              : `Uzat · ${fiyat('uzatma', BIREYSEL_FIYATLAR.uzatma.tl)} TL`}
                           </button>
                         ) : null}
                         <button
@@ -574,7 +578,9 @@ export default function Taleplerim() {
                               opacity: !ucretsiz && (haklar?.uzatma ?? 0) < 1 ? 0.55 : 1,
                             }}
                           >
-                            {ucretsiz ? 'Ücretsiz uzat · 30 gün' : `Uzat · ${BIREYSEL_FIYATLAR.uzatma.tl} TL`}
+                            {ucretsiz
+                              ? 'Ücretsiz uzat · 30 gün'
+                              : `Uzat · ${fiyat('uzatma', BIREYSEL_FIYATLAR.uzatma.tl)} TL`}
                           </button>
                         ) : (
                           <button

@@ -20,6 +20,7 @@ export * from './payments.js';
 export * from './people.js';
 export * from './phone.js';
 export * from './portfolio.js';
+export * from './pricing.js';
 export * from './ratings.js';
 export * from './refunds.js';
 export * from './retention.js';

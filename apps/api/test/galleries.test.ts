@@ -7,6 +7,7 @@ import type { Db } from '../src/database/prisma.js';
 import { GalleriesWorkerModule } from '../src/galleries/galleries.module.js';
 import { GalleryService } from '../src/galleries/gallery.service.js';
 import { GalleryApplicationService } from '../src/galleries/gallery-application.service.js';
+import { PricingCoreModule } from '../src/pricing/pricing.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
 import { STORAGE, StorageModule } from '../src/storage/storage.service.js';
 import { call, createTestApp, memoryStorage, SIGNUP_CONSENTS } from './helpers.js';
@@ -278,7 +279,8 @@ describe('kurumsal hesap başvurusu (Karar 03, 12.5, 17)', () => {
 describe('işçi modülü', () => {
   it('işçinin galeri modülü kendi başına kurulur (bağımlılık eksiği işçiyi sessizce durdurmasın)', async () => {
     const m = await Test.createTestingModule({
-      imports: [DatabaseModule, StorageModule, AgentCoreModule, GalleriesWorkerModule],
+      // İşçideki küresel modüller (veritabanı, depolama, ajan, fiyat listesi)
+      imports: [DatabaseModule, StorageModule, AgentCoreModule, PricingCoreModule, GalleriesWorkerModule],
     })
       .overrideProvider(STORAGE)
       .useValue(memoryStorage())

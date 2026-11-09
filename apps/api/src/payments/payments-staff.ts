@@ -1,7 +1,6 @@
 import { Controller, Get, Inject, Injectable, Query, Req, UseGuards } from '@nestjs/common';
 import type { Prisma } from '@rengarenk/db';
 import {
-  GALLERY_PLANS,
   ORDER_STATUS_NAMES,
   type PaidPlan,
   planNetKurus,
@@ -12,6 +11,7 @@ import {
   withVat,
 } from '@rengarenk/shared';
 import { type Db, PRISMA } from '../database/prisma.js';
+import { PricingService } from '../pricing/pricing.service.js';
 import { RequirePermission } from '../staff/permissions.js';
 import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
 import { kalemler } from './order-item.js';
@@ -42,9 +42,14 @@ const ayBasi = () => {
  */
 @Injectable()
 export class PaymentsStaffService {
-  constructor(@Inject(PRISMA) private readonly db: Db) {}
+  constructor(
+    @Inject(PRISMA) private readonly db: Db,
+    private readonly pricing: PricingService,
+  ) {}
 
   async overview(acikAd: boolean, filtre: Filtre, tur: Tur) {
+    const plans = await this.pricing.plans();
+    const netOf = (pl: PaidPlan, d: SubPeriod) => planNetKurus(pl, d, plans);
     const now = new Date();
     const where: Prisma.OrderWhereInput = {
       ...(filtre === 'odendi'
@@ -175,7 +180,7 @@ export class PaymentsStaffService {
       abonelikler: abonelikler.map((s) => ({
         id: s.id,
         galeri: s.account.gallery?.displayName ?? '—',
-        plan: GALLERY_PLANS[s.plan as PaidPlan].ad,
+        plan: plans[s.plan as PaidPlan].ad,
         donem: SUB_PERIODS[s.period as SubPeriod].ad,
         durum: s.status,
         durumAd:
@@ -184,7 +189,7 @@ export class PaymentsStaffService {
             : SUB_STATUS_NAMES[s.status],
         bitis: s.currentPeriodEnd,
         yenilemeKurus: withVat(
-          planNetKurus((s.nextPlan ?? s.plan) as PaidPlan, (s.nextPeriod ?? s.period) as SubPeriod),
+          netOf((s.nextPlan ?? s.plan) as PaidPlan, (s.nextPeriod ?? s.period) as SubPeriod),
         ),
         kart: s.cardLabel,
         basarisizDeneme: s.failCount,

@@ -23,6 +23,8 @@ import { MetricsModule } from './observability/metrics.js';
 import { PaymentsModule } from './payments/payments.module.js';
 import { PeopleModule } from './people/people.module.js';
 import { PortfolioModule } from './portfolio/portfolio.module.js';
+import { PricingModule } from './pricing/pricing.module.js';
+import { PricingCoreModule } from './pricing/pricing.service.js';
 import { PrivacyModule } from './privacy/privacy.module.js';
 import { RateLimitModule } from './ratelimit/ratelimit.module.js';
 import { RedisModule } from './redis/redis.module.js';
@@ -67,6 +69,8 @@ import { TrustModule } from './trust/trust.module.js';
     CatalogModule,
     CategoriesModule,
     DemandsModule,
+    PricingCoreModule,
+    PricingModule,
   ],
   controllers: [HealthController, MetricsController],
   providers: [{ provide: APP_INTERCEPTOR, useClass: HttpMetricsInterceptor }],

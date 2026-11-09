@@ -96,7 +96,7 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
   {
     grup: 'Sistem',
     ogeler: [
-      { ad: 'Kurallar ve fiyatlar', sonra: true },
+      { href: '/kurallar', ad: 'Kurallar ve fiyatlar', izin: 'rapor.gor' },
       { href: '/entegrasyonlar', ad: 'Entegrasyonlar', izin: 'kategori.ayarla', rozet: 'entegrasyon' },
       { href: '/sistem', ad: 'Özellik anahtarları ve bakım', izin: 'sistem.ayarla' },
       { href: '/yapay-zeka', ad: 'Yapay zekâ ve bütçe', izin: 'sistem.ayarla' },

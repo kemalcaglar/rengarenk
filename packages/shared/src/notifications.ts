@@ -326,6 +326,24 @@ export const NOTIFY_TEMPLATES = {
     },
     sms: 'Rengarenk: {{galeriKisa}} paket yenileme odemesi alinamadi. Karti guncellemek icin: {{link}}',
   },
+  'fiyat.degisiyor': {
+    ad: 'Paket fiyatı değişiyor (galeri)',
+    konu: 'odeme',
+    grup: 'odeme',
+    baslik: '{{paket}} paket fiyatı {{tarih}} tarihinde değişiyor',
+    metin: 'Yeni fiyat {{fiyat}}. Mevcut paketin yenileme tarihine kadar eski fiyattan devam eder.',
+    url: '/galeri-paneli?bolum=paket',
+    ekip: true,
+    eposta: {
+      konu: '{{paket}} paket fiyatı {{tarih}} tarihinde değişiyor',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        '{{tarih}} tarihinden itibaren {{paket}} paketin fiyatı {{fiyat}} olacak.',
+        '{{galeri}} paketi yenileme tarihine kadar eski fiyattan devam eder; yeni fiyat ilk yenilemede geçerli olur. Paketini dilediğin zaman değiştirebilir ya da iptal edebilirsin.',
+      ],
+      dugme: { yazi: 'Paket ve faturalar', url: '/galeri-paneli?bolum=paket' },
+    },
+  },
   'abonelik.yenileme_yaklasti': {
     ad: 'Paket yenileme hatırlatması',
     konu: 'odeme',

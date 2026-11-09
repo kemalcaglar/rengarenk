@@ -33,6 +33,7 @@ import { ModerationService } from '../moderation/moderation.service.js';
 import { SanctionService } from '../moderation/sanctions.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { vehicleNames } from '../portfolio/vehicle-names.js';
+import { PricingService } from '../pricing/pricing.service.js';
 import { SecretBox } from '../staff/secret-box.js';
 import { rozetler } from '../trust/badges.js';
 import { TrustService } from '../trust/trust.service.js';
@@ -95,6 +96,7 @@ export class MessagesService {
     private readonly sanctions: SanctionService,
     private readonly moderation: ModerationService,
     private readonly icerik: ContentRulesService,
+    private readonly pricing: PricingService,
   ) {
     this.box = SecretBox.forMessages(env);
   }
@@ -122,7 +124,7 @@ export class MessagesService {
       throw new ForbiddenException('Bu hesap adına yazamazsın');
     }
     if (m.account.status !== 'ACTIVE') throw new ForbiddenException('Galeri hesabı askıda');
-    const { plan, ozellik, saltOkunur } = galleryAccess(g);
+    const { plan, ozellik, saltOkunur } = galleryAccess(g, new Date(), await this.pricing.plans());
     if (saltOkunur) {
       throw new ForbiddenException(
         plan === 'deneme'

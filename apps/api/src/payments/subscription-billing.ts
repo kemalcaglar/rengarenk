@@ -1,17 +1,11 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { type Order, type Prisma, type Subscription, uuidv7 } from '@rengarenk/db';
-import {
-  addMonths,
-  GALLERY_PLANS,
-  type PaidPlan,
-  planRank,
-  SUB_PERIODS,
-  SUB_RETRY_DAYS,
-} from '@rengarenk/shared';
+import { addMonths, type PaidPlan, planRank, SUB_PERIODS, SUB_RETRY_DAYS } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
 import type { Tx } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
+import { PricingService } from '../pricing/pricing.service.js';
 import { SecretBox } from '../staff/secret-box.js';
 import { kalemler } from './order-item.js';
 import type { Notification } from './providers.js';
@@ -38,6 +32,7 @@ export class SubscriptionBilling {
     @Inject(ENV) env: Env,
     private readonly outbox: OutboxService,
     private readonly audit: AuditService,
+    private readonly pricing: PricingService,
   ) {
     this.box = SecretBox.forPayments(env);
   }
@@ -56,7 +51,8 @@ export class SubscriptionBilling {
     cycleNo: number,
     by: string,
   ) {
-    const p = GALLERY_PLANS[plan];
+    const plans = await this.pricing.plans();
+    const p = plans[plan];
     for (const [kind, alan] of PAKET_HAKLARI) {
       if (p[alan] <= 0) continue;
       await tx.entitlementLedger.createMany({
@@ -223,6 +219,7 @@ export class SubscriptionBilling {
    * yenilemede yeni dönem öncekinin bitişinden başlar (askıdan sonra ödemede bugünden).
    */
   async fulfill(tx: Tx, o: Order, n: Notification) {
+    const plans = await this.pricing.plans();
     const k = kalemler(o.items)[0];
     if (!k?.plan || !k.donem) throw new Error(`abonelik kalemi eksik: ${o.id}`);
     const plan = k.plan;
@@ -304,13 +301,13 @@ export class SubscriptionBilling {
       if (sub.status === 'ENDED' || planRank(plan) <= planRank(sub.plan)) {
         return uyusmazlik('üst pakete geçiş uygulanamadı');
       }
-      const eski = GALLERY_PLANS[sub.plan as PaidPlan];
-      const yeni = GALLERY_PLANS[plan];
+      const eski = plans[sub.plan as PaidPlan];
+      const yeni = plans[plan];
       const s = await tx.subscription.update({
         where: { id: sub.id },
         data: {
           plan,
-          priceKurus: BigInt(GALLERY_PLANS[plan][sub.period === 'aylik' ? 'aylik' : 'yillik'] * 100),
+          priceKurus: BigInt(plans[plan][sub.period === 'aylik' ? 'aylik' : 'yillik'] * 100),
           // Sonraki dönem için seçilen alt paket artık geçersiz; ödeme dönemi seçimi kalır
           nextPlan: null,
           ...kart,

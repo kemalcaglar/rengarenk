@@ -3,10 +3,13 @@ import {
   DEMAND_TEXT_FLAGS,
   type DemandTextFlag,
   FLAG_TITLES,
+  GALLERY_PLANS,
   GRANT_KINDS,
   type GrantKind,
   hideDemandText,
   type MessageFlag,
+  type PaidPlanKey,
+  type PriceBook,
   REPORT_REASONS,
   type ReportReasonKey,
   tlYaz,
@@ -80,6 +83,7 @@ export const NOTIFY_EVENTS = [
   'moderasyon.itiraz_sonuc',
   'yildiz.itiraz_sonuc',
   'hesap.telefon_degisti',
+  'fiyat.zamanlandi',
   'hak.tanimlandi',
   'destek.yanitlandi',
   'destek.memnuniyet',
@@ -463,6 +467,35 @@ export class NotificationEvents {
                 : `İtirazını inceledik; karar geçerli.${a.decisionNote ? ` ${a.decisionNote}` : ''}`,
           },
         });
+      }
+      case 'fiyat.zamanlandi': {
+        // Fiyatı değişen paketin aboneleri (Karar 56): yürürlük tarihi ve yenilemeye kadar eski fiyat
+        const r = await this.db.priceBook.findUnique({ where: { id: s('priceBookId') } });
+        if (r?.status !== 'zamanlandi') return 0;
+        const yeni = r.data as unknown as PriceBook;
+        const subs = await this.db.subscription.findMany({
+          where: { status: { not: 'ENDED' } },
+          select: { accountId: true, plan: true, period: true, priceKurus: true },
+        });
+        let n = 0;
+        for (const sub of subs) {
+          const p = yeni.paketler[sub.plan as PaidPlanKey];
+          if (!p) continue;
+          const net = (sub.period === 'aylik' ? p.aylik : p.yillik) * 100;
+          if (BigInt(net) === sub.priceKurus) continue;
+          const g = await this.galeriAdi(sub.accountId);
+          n += await this.notifications.notify({
+            userIds: await this.ekip(sub.accountId),
+            sablon: 'fiyat.degisiyor',
+            veri: {
+              galeri: g.displayName,
+              paket: GALLERY_PLANS[sub.plan as PaidPlanKey].ad,
+              tarih: tarih(r.effectiveAt.toISOString()),
+              fiyat: `${tlYaz(net)} + KDV / ${sub.period === 'aylik' ? 'ay' : 'yıl'}`,
+            },
+          });
+        }
+        return n;
       }
       case 'hesap.telefon_degisti': {
         const u = await this.db.user.findUnique({ where: { id: s('userId') }, select: { phone: true } });

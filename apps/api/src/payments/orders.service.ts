@@ -19,7 +19,9 @@ import {
   PRODUCTS,
   PROMOTION_NAMES,
   type PromotionKind,
+  plansOf,
   productByKey,
+  productPrice,
   tlYaz,
   vatOfGross,
   WAIVER_CONSENT,
@@ -32,6 +34,7 @@ import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { EntitlementService } from '../entitlements/entitlement.service.js';
 import { FeatureFlagService } from '../flags/feature-flag.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
+import { PricingService } from '../pricing/pricing.service.js';
 import { STORAGE, type Storage } from '../storage/storage.service.js';
 import { type Kalem, kalemler as kalemlerOf } from './order-item.js';
 import {
@@ -86,6 +89,7 @@ export class OrdersService {
     private readonly audit: AuditService,
     private readonly subs: SubscriptionBilling,
     earsiv: EArsivFactory,
+    private readonly pricing: PricingService,
   ) {
     this.earsiv = earsiv.create();
   }
@@ -141,6 +145,7 @@ export class OrdersService {
       ]);
     const saglayici = this.providers.get().ad;
     const magaza = this.env.STORE_PROVIDER;
+    const fiyat = await this.pricing.current();
     return {
       talepHakki: await this.entitlements.balance(accountId, 'talep'),
       ekMesaj,
@@ -157,13 +162,14 @@ export class OrdersService {
         acik: magaza !== 'none' && !odeme.on,
         not: odeme.on ? odeme.note : magaza === 'none' ? 'Uygulama içi satın alma yakında açılacak' : null,
       },
+      // Web fiyatı yürürlükteki fiyat listesinden (Kurallar ve fiyatlar, Karar 56)
       urunler: PRODUCTS.map((p) => ({
         key: p.key,
         grup: p.grup,
         grupAd: PRODUCT_GROUP_NAMES[p.grup],
         ad: p.ad,
         not: p.not,
-        kurus: Math.round(p.tl * 100),
+        kurus: Math.round((productPrice(fiyat, p.key) ?? p.tl) * 100),
         mobilKurus: Math.round(p.mobil * 100),
         oneCikarma: !!p.oneCikarma,
         hemenBaslar: p.hemenBaslar,
@@ -218,7 +224,8 @@ export class OrdersService {
     const provider = this.providers.get();
     if (provider.ad === 'none') throw new ServiceUnavailableException('Ödemeler yakında açılacak');
     const galeri = input.hesap ? await this.galleryBuyer(userId, input.hesap) : null;
-    if (galeri && galleryAccess(galeri.gallery).saltOkunur) {
+    const fiyat = await this.pricing.current();
+    if (galeri && galleryAccess(galeri.gallery, new Date(), plansOf(fiyat)).saltOkunur) {
       throw new ForbiddenException('Ek paket almak için önce bir paket seç');
     }
     const accountId = galeri?.accountId ?? (await this.personal(userId));
@@ -234,7 +241,7 @@ export class OrdersService {
       if (galeri && !(GALLERY_EXTRAS as readonly string[]).includes(p.key)) {
         throw new BadRequestException('Bu ürün galeri hesabıyla alınamaz');
       }
-      const net = Math.round(p.tl * 100);
+      const net = Math.round((productPrice(fiyat, p.key) ?? p.tl) * 100);
       const brut = galeri ? withVat(net) : net;
       const kalem: Kalem = {
         urun: p.key,

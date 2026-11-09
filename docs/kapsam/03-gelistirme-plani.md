@@ -166,6 +166,15 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   mesaj yok, 14 gün giriş yok, ilk mesajlarda yarıdan fazla düşüş, portföy boş) ve gerekçeleri, yenileme tarihi, sorumlu
   çalışan (Sahip, Yönetici, Operasyon atar; işlem kaydına girer); süzgeçler: sorumlu olduklarım, riski yüksek, 30 gün
   içinde yenileme, sorumlusu yok. Galeri kartında "Müşteri yönetimi" bölümü; notlar kartın çalışan notları
+- [x] Sistem › Kurallar ve fiyatlar (YonetimSistem.dc.html; Karar 47, 56): galeri paketlerinin fiyat ve sınırları ve
+  bireysel ürünlerin web fiyatı fiyat listesinde (`price_books`); "Düzenle" → yürürlük tarihi → onaya gönder
+  (PRICE_CHANGE, Sahip onaylar), işçi zamanlar, o gün geçerli olur. Mevcut aboneler yenileme tarihine kadar dönem
+  fiyatından devam eder; fiyatı değişen paketin abonelerine duyuru (`fiyat.degisiyor`), yenileme hatırlatmasındaki tutar
+  yenileme günündeki listeden. Sipariş, abonelik, paket sınırları (portföy, günlük mesaj, aylık talep, öne çıkarma,
+  çalışan) yürürlükteki listeden; web sihirbazı ve Taleplerim `GET /fiyatlar` okur. Mobil fiyatlar mağazadan, yalnızca
+  gösterilir. Kullanım kuralları gösterilir (ücretsiz ilk mesaj ve yayın süresi kategori kuralı)
+- [ ] Fiyat değişikliğinin grafiklere not olarak düşmesi: Raporlar ekranıyla (Aşama 9); rozet eşiklerinin konsoldan
+  değiştirilmesi (tasarımın Kurallar ve fiyatlar ekranında yok)
 
 ## Sprint 26 · kullanıcı tarafı yapay zekâ (Aşama 8 dokuzuncu bölüm, 9 Kasım 2026)
 

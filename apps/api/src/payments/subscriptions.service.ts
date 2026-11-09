@@ -12,13 +12,13 @@ import { type Prisma, type Subscription, uuidv7 } from '@rengarenk/db';
 import {
   addMonths,
   type Billing,
-  GALLERY_PLANS,
   galleryAccess,
   PAID_PLANS,
   type PaidPlan,
   PRODUCTS,
   planChangeKind,
   planNetKurus,
+  plansOf,
   prorateKurus,
   RENEWAL_CONSENT,
   SUB_PERIODS,
@@ -38,6 +38,7 @@ import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { EntitlementService } from '../entitlements/entitlement.service.js';
 import { FeatureFlagService } from '../flags/feature-flag.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
+import { PricingService } from '../pricing/pricing.service.js';
 import { type Kalem, kalemler } from './order-item.js';
 import { GALLERY_EXTRAS, OrdersService, siparisNo } from './orders.service.js';
 import { FakePayment, PaymentProviderFactory } from './providers.js';
@@ -80,6 +81,7 @@ export class SubscriptionsService {
     private readonly consents: ConsentService,
     private readonly outbox: OutboxService,
     private readonly audit: AuditService,
+    private readonly pricing: PricingService,
   ) {}
 
   private async member(userId: string, accountId: string) {
@@ -107,6 +109,8 @@ export class SubscriptionsService {
 
   /** Galeri paneli › Paket ve faturalar (GaleriPanel.dc.html) */
   async overview(userId: string, accountId: string) {
+    const plans = await this.pricing.plans();
+    const netOf = (pl: PaidPlan, d: SubPeriod) => planNetKurus(pl, d, plans);
     const { role, gallery: g, sub } = await this.member(userId, accountId);
     if (role === 'SALES') throw new ForbiddenException('Paket ve faturaları sahip ve yönetici görür');
     const now = new Date();
@@ -134,7 +138,7 @@ export class SubscriptionsService {
       }),
     ]);
     const saglayici = this.providers.get().ad;
-    const erisim = galleryAccess(g, now);
+    const erisim = galleryAccess(g, now, plans);
     return {
       rol: role,
       paket: {
@@ -146,7 +150,7 @@ export class SubscriptionsService {
       abonelik: sub
         ? {
             plan: sub.plan,
-            planAd: GALLERY_PLANS[sub.plan as PaidPlan].ad,
+            planAd: plans[sub.plan as PaidPlan].ad,
             donem: sub.period,
             donemAd: SUB_PERIODS[sub.period as SubPeriod].ad,
             durum: sub.status,
@@ -160,16 +164,13 @@ export class SubscriptionsService {
               sub.nextPlan || sub.nextPeriod
                 ? {
                     plan: sub.nextPlan ?? sub.plan,
-                    planAd: GALLERY_PLANS[(sub.nextPlan ?? sub.plan) as PaidPlan].ad,
+                    planAd: plans[(sub.nextPlan ?? sub.plan) as PaidPlan].ad,
                     donem: sub.nextPeriod ?? sub.period,
                     donemAd: SUB_PERIODS[(sub.nextPeriod ?? sub.period) as SubPeriod].ad,
                   }
                 : null,
             yenilemeKurus: withVat(
-              planNetKurus(
-                (sub.nextPlan ?? sub.plan) as PaidPlan,
-                (sub.nextPeriod ?? sub.period) as SubPeriod,
-              ),
+              netOf((sub.nextPlan ?? sub.plan) as PaidPlan, (sub.nextPeriod ?? sub.period) as SubPeriod),
             ),
             kart: sub.cardLabel ?? (sub.cardToken ? 'Kayıtlı kart' : null),
             basarisizDeneme: sub.failCount,
@@ -178,14 +179,14 @@ export class SubscriptionsService {
           }
         : null,
       paketler: PAID_PLANS.map((key) => {
-        const p = GALLERY_PLANS[key];
+        const p = plans[key];
         const degisim = planChangeKind(cur, { plan: key, donem: cur?.donem ?? 'aylik' });
         const fark =
           degisim === 'yukseltme' && sub
             ? withVat(
                 prorateKurus(
                   Number(sub.priceKurus),
-                  planNetKurus(key, sub.period as SubPeriod),
+                  netOf(key, sub.period as SubPeriod),
                   sub.currentPeriodStart,
                   sub.currentPeriodEnd,
                   now,
@@ -278,6 +279,8 @@ export class SubscriptionsService {
     input: SubscriptionCheckout | { yenile: true; eposta: string; onay: { sozlesme: true; yenileme: true } },
     meta: { ip?: string },
   ) {
+    const plans = await this.pricing.plans();
+    const netOf = (pl: PaidPlan, d: SubPeriod) => planNetKurus(pl, d, plans);
     await this.flags.assertAvailable('odeme');
     if (this.providers.get().ad === 'none')
       throw new ServiceUnavailableException('Ödemeler yakında açılacak');
@@ -295,9 +298,9 @@ export class SubscriptionsService {
       kind = 'yenileme';
       plan = (sub.nextPlan ?? sub.plan) as PaidPlan;
       donem = (sub.nextPeriod ?? sub.period) as SubPeriod;
-      net = planNetKurus(plan, donem);
+      net = netOf(plan, donem);
       const bitis = addMonths(sub.currentPeriodEnd, SUB_PERIODS[donem].ay);
-      ad = `${GALLERY_PLANS[plan].ad} paket · ${SUB_PERIODS[donem].ad} (${tarih(sub.currentPeriodEnd)} – ${tarih(bitis)})`;
+      ad = `${plans[plan].ad} paket · ${SUB_PERIODS[donem].ad} (${tarih(sub.currentPeriodEnd)} – ${tarih(bitis)})`;
       yenilemeNotu = `Dönem ${tarih(bitis)} tarihinde kayıtlı karttan aynı tutarla kendiliğinden yenilenir.`;
     } else {
       plan = input.plan;
@@ -312,20 +315,20 @@ export class SubscriptionsService {
         donem = sub.period as SubPeriod;
         net = prorateKurus(
           Number(sub.priceKurus),
-          planNetKurus(plan, donem),
+          netOf(plan, donem),
           sub.currentPeriodStart,
           sub.currentPeriodEnd,
           now,
         );
         if (net < 100) throw new BadRequestException('Dönem bitmek üzere; yeni pakete yenilemede geç');
-        ad = `${GALLERY_PLANS[plan].ad} pakete geçiş · ${tarih(sub.currentPeriodEnd)} tarihine kadar fark`;
-        yenilemeNotu = `${tarih(sub.currentPeriodEnd)} tarihinde ${GALLERY_PLANS[plan].ad} paket ${tlYaz(withVat(planNetKurus(plan, donem)))} ile yenilenir.`;
+        ad = `${plans[plan].ad} pakete geçiş · ${tarih(sub.currentPeriodEnd)} tarihine kadar fark`;
+        yenilemeNotu = `${tarih(sub.currentPeriodEnd)} tarihinde ${plans[plan].ad} paket ${tlYaz(withVat(netOf(plan, donem)))} ile yenilenir.`;
       } else {
         kind = 'abonelik';
         donem = input.donem;
-        net = planNetKurus(plan, donem);
+        net = netOf(plan, donem);
         const bitis = addMonths(now, SUB_PERIODS[donem].ay);
-        ad = `${GALLERY_PLANS[plan].ad} paket · ${SUB_PERIODS[donem].ad} (${tarih(now)} – ${tarih(bitis)})`;
+        ad = `${plans[plan].ad} paket · ${SUB_PERIODS[donem].ad} (${tarih(now)} – ${tarih(bitis)})`;
         yenilemeNotu = `Dönem ${tarih(bitis)} tarihinde kayıtlı karttan aynı tutarla kendiliğinden yenilenir.`;
       }
     }
@@ -504,6 +507,9 @@ ${alan('Kart numarası', 'card_number', 'inputmode="numeric" maxlength="16" auto
     for (const s of subs) {
       const donem = (s.nextPeriod ?? s.period) as SubPeriod;
       if (s.currentPeriodEnd.getTime() - now.getTime() > SUB_REMINDER_DAYS[donem] * DAY) continue;
+      // Hatırlatmadaki tutar, yenileme gününde yürürlükte olacak fiyat listesinden
+      const plans = plansOf((await this.pricing.bookAt(s.currentPeriodEnd)).book);
+      const netOf = (pl: PaidPlan, d: SubPeriod) => planNetKurus(pl, d, plans);
       if (s.remindedFor?.getTime() === s.currentPeriodEnd.getTime()) continue;
       await this.db.$transaction(async (tx) => {
         const r = await tx.subscription.updateMany({
@@ -514,7 +520,7 @@ ${alan('Kart numarası', 'card_number', 'inputmode="numeric" maxlength="16" auto
         await this.outbox.add(tx, 'abonelik.yenileme_yaklasti', {
           accountId: s.accountId,
           tarih: s.currentPeriodEnd.toISOString(),
-          tutarKurus: withVat(planNetKurus((s.nextPlan ?? s.plan) as PaidPlan, donem)),
+          tutarKurus: withVat(netOf((s.nextPlan ?? s.plan) as PaidPlan, donem)),
         });
         n++;
       });
@@ -546,6 +552,8 @@ ${alan('Kart numarası', 'card_number', 'inputmode="numeric" maxlength="16" auto
    * 3 gün yeniden denenir. Aynı abonelik için bekleyen bir çekim varsa yenisi başlatılmaz (çift tahsilat olmaz).
    */
   async renewDue(now = new Date()) {
+    const plans = await this.pricing.plans();
+    const netOf = (pl: PaidPlan, d: SubPeriod) => planNetKurus(pl, d, plans);
     const subs = await this.db.subscription.findMany({
       where: {
         OR: [
@@ -572,12 +580,12 @@ ${alan('Kart numarası', 'card_number', 'inputmode="numeric" maxlength="16" auto
       }
       const plan = (s.nextPlan ?? s.plan) as PaidPlan;
       const donem = (s.nextPeriod ?? s.period) as SubPeriod;
-      const net = planNetKurus(plan, donem);
+      const net = netOf(plan, donem);
       const brut = withVat(net);
       const bitis = addMonths(s.currentPeriodEnd, SUB_PERIODS[donem].ay);
       const kalem: Kalem = {
         urun: 'abonelik',
-        ad: `${GALLERY_PLANS[plan].ad} paket · ${SUB_PERIODS[donem].ad} (${tarih(s.currentPeriodEnd)} – ${tarih(bitis)})`,
+        ad: `${plans[plan].ad} paket · ${SUB_PERIODS[donem].ad} (${tarih(s.currentPeriodEnd)} – ${tarih(bitis)})`,
         adet: 1,
         birimKurus: brut,
         tutarKurus: brut,

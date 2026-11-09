@@ -12,6 +12,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type CSSProperties, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { useWebFiyat } from '../../lib/fiyat';
 import { ApiHatasi, binlik, istek, useGiris } from '../../lib/istemci';
 import { Logo } from '../logo';
 import { Alan, Anahtar, Cip, etiket, Konum, kutu, secimKutusu } from './alan';
@@ -1479,6 +1480,7 @@ function Onizleme({
   oneCikar: string[];
   setOneCikar: (v: string[]) => void;
 }) {
+  const fiyat = useWebFiyat();
   const konum = veri.alanlar.konum as { il?: string; ilce?: string } | undefined;
   const boya = veri.alanlar.boya as BoyaDegeri | undefined;
   const kabul = (veri.alanlar.islemKabul as string[] | undefined) ?? [];
@@ -1638,7 +1640,7 @@ function Onizleme({
                       marginTop: 8,
                     }}
                   >
-                    {b.tl} TL
+                    {fiyat(`${b.key}_7`, b.tl)} TL
                   </span>
                 </button>
               );
@@ -1716,8 +1718,8 @@ function Onizleme({
               fontWeight: 600,
             }}
           >
-            Ücretsiz talep hakkını kullandın. Ek talep {BIREYSEL_FIYATLAR.ekTalep.tl} TL, 3'lü paket{' '}
-            {BIREYSEL_FIYATLAR.talepPaketi.tl} TL.{' '}
+            Ücretsiz talep hakkını kullandın. Ek talep {fiyat('ek_talep', BIREYSEL_FIYATLAR.ekTalep.tl)} TL,
+            3'lü paket {fiyat('talep_paketi', BIREYSEL_FIYATLAR.talepPaketi.tl)} TL.{' '}
             <a href="/haklarim?sepet=ek_talep" style={{ fontWeight: 800 }}>
               Ek talep hakkı al
             </a>

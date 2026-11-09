@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { GALLERY_PLANS } from './gallery.js';
 import { VAT_RATE } from './payments.js';
+import type { PlanTable } from './pricing.js';
 
 /**
  * Galeri abonelikleri (Karar 12.2, 12.3, 12.7, 38, 39; Teknik tasarım §7). Yalnızca web'den, PayTR ile; ilk ödemede kart
@@ -33,8 +34,8 @@ export const SUB_STATUS_NAMES: Record<SubStatusKey, string> = {
 };
 
 /** Paketin dönem fiyatı, KDV hariç (kuruş) */
-export const planNetKurus = (plan: PaidPlan, donem: SubPeriod) =>
-  GALLERY_PLANS[plan][donem === 'aylik' ? 'aylik' : 'yillik'] * 100;
+export const planNetKurus = (plan: PaidPlan, donem: SubPeriod, plans: PlanTable = GALLERY_PLANS) =>
+  plans[plan][donem === 'aylik' ? 'aylik' : 'yillik'] * 100;
 /** KDV hariç tutara KDV ekler */
 export const withVat = (netKurus: number) => Math.round((netKurus * (100 + VAT_RATE)) / 100);
 

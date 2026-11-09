@@ -15,6 +15,7 @@ import {
 import { AuditService } from '../audit/audit.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
+import { PricingService } from '../pricing/pricing.service.js';
 import { rozetler } from '../trust/badges.js';
 
 const DAY = 86_400_000;
@@ -29,6 +30,7 @@ export class GalleryService {
     @Inject(PRISMA) private readonly db: Db,
     private readonly audit: AuditService,
     private readonly outbox: OutboxService,
+    private readonly pricing: PricingService,
   ) {}
 
   /** Kullanıcının üyesi olduğu galeriler (üst bilgide hesap seçici, mobilde galeri paneli) */
@@ -57,8 +59,9 @@ export class GalleryService {
     return { role: m.role, account: m.account, gallery: m.account.gallery };
   }
 
-  private planOf(g: { plan: string; trialEndsAt: Date | null }) {
-    const { plan, ad, ozellik, saltOkunur } = galleryAccess(g);
+  private async planOf(g: { plan: string; trialEndsAt: Date | null }) {
+    const plans = await this.pricing.plans();
+    const { plan, ad, ozellik, saltOkunur } = galleryAccess(g, new Date(), plans);
     const kalan = g.trialEndsAt ? Math.ceil((g.trialEndsAt.getTime() - Date.now()) / DAY) : null;
     return {
       key: plan,
@@ -69,7 +72,10 @@ export class GalleryService {
       saltOkunur,
       portfoy: ozellik.portfoy,
       gunlukMesaj: ozellik.gunlukMesaj,
-      calisan: memberLimit(plan),
+      // Paketin aylık talep ve öne çıkarma hakkı (yürürlükteki fiyat listesinden; denemede ve pasifte koddan)
+      aylikTalep: plan in plans ? plans[plan as keyof typeof plans].aylikTalep : 0,
+      oneCikarma: ozellik.oneCikarma,
+      calisan: memberLimit(plan, plans),
     };
   }
 
@@ -121,7 +127,7 @@ export class GalleryService {
               mersis: g.mersisNo,
               adres: g.address,
             },
-      paket: this.planOf(g),
+      paket: await this.planOf(g),
       haklar: await this.rights(accountId, g.approvedAt),
       ekip: members.map((m) => ({
         userId: m.userId,
@@ -249,7 +255,7 @@ export class GalleryService {
     const { role: by, account, gallery: g } = await this.membership(userId, accountId);
     if (account.status !== 'ACTIVE') throw new ConflictException('Galeri hesabı askıda');
     if (!canInvite(by, role)) throw new ForbiddenException('Bu rolde çalışan ekleme yetkin yok');
-    const limit = memberLimit(g.plan as GalleryPlanKey);
+    const limit = memberLimit(g.plan as GalleryPlanKey, await this.pricing.plans());
     if ((await this.seats(accountId)) >= limit) {
       throw new ConflictException(`Paketinde en çok ${limit} kullanıcı olabilir`);
     }

@@ -1748,6 +1748,30 @@ enum SubscriptionStatus {
   ENDED
 }
 
+/**
+ * Fiyat listesi (Karar 47, 56; Kurallar ve fiyatlar): galeri paketlerinin fiyat ve sınırları, bireysel ürünlerin web
+ * fiyatı. Dört göz onayıyla (PRICE_CHANGE) zamanlanır; yürürlük tarihi gelince geçerli olur. Satırlar silinmez; yenisi
+ * eskisinin yerine geçer. Liste yoksa koddaki başlangıç değerleri geçerlidir.
+ */
+model PriceBook {
+  id          String    @id @db.Uuid
+  /// onay_bekliyor | zamanlandi | reddedildi | iptal
+  status      String    @default("onay_bekliyor")
+  /// PriceBook (packages/shared/src/pricing.ts)
+  data        Json
+  effectiveAt DateTime  @map("effective_at") @db.Timestamptz(3)
+  /// Değişiklik özeti ("Profesyonel · Aylık fiyat: 3.490 TL → 3.990 TL")
+  changes     String[]  @default([])
+  note        String?
+  approvalId  String?   @unique @map("approval_id") @db.Uuid
+  createdBy   String    @map("created_by") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  scheduledAt DateTime? @map("scheduled_at") @db.Timestamptz(3)
+
+  @@index([status, effectiveAt])
+  @@map("price_books")
+}
+
 /// Galeri aboneliği (Karar 12.2, 12.3, 12.7, 39; Teknik tasarım §7): galeri başına tek satır, her dönem bir sipariş.
 /// Kart bilgisi Rengarenk'te yoktur: ödeme kuruluşunun kullanıcı anahtarı (PayTR utoken) şifreli saklanır.
 model Subscription {

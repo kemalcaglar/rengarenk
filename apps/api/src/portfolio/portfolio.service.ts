@@ -33,6 +33,7 @@ import { AuditService } from '../audit/audit.service.js';
 import { sniff } from '../common/files.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
+import { PricingService } from '../pricing/pricing.service.js';
 import { STORAGE, type Storage } from '../storage/storage.service.js';
 import { EidsFactory, type EidsProvider } from './eids.js';
 import { vehicleNames } from './vehicle-names.js';
@@ -70,6 +71,7 @@ export class PortfolioService {
     private readonly audit: AuditService,
     private readonly outbox: OutboxService,
     eids: EidsFactory,
+    private readonly pricing: PricingService,
   ) {
     this.eids = eids.create();
   }
@@ -83,7 +85,7 @@ export class PortfolioService {
     });
     const g = m?.account.gallery;
     if (!m || !g) throw new NotFoundException('Galeri bulunamadı');
-    const { plan, ozellik, saltOkunur } = galleryAccess(g);
+    const { plan, ozellik, saltOkunur } = galleryAccess(g, new Date(), await this.pricing.plans());
     if (yaz) {
       if (m.account.status !== 'ACTIVE') throw new ForbiddenException('Galeri hesabı askıda');
       if (saltOkunur) {

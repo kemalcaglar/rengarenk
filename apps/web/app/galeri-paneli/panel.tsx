@@ -2,7 +2,6 @@
 
 import {
   DOTS,
-  GALLERY_PLANS,
   GALLERY_TRIAL,
   galleryInviteSchema,
   MEMBER_ROLE_NAMES,
@@ -44,6 +43,8 @@ interface Panel {
     saltOkunur: boolean;
     portfoy: number | null;
     gunlukMesaj: number;
+    aylikTalep?: number;
+    oneCikarma?: number;
     calisan: number;
   };
   ekip: {
@@ -565,9 +566,8 @@ function Ozet({
   const [hakkinda, setHakkinda] = useState(p.galeri.hakkinda ?? '');
   const [saatler, setSaatler] = useState(p.galeri.calismaSaatleri ?? '');
   const deneme = p.paket.key === 'deneme';
-  const plan = GALLERY_PLANS[p.paket.key as keyof typeof GALLERY_PLANS] as
-    | (typeof GALLERY_PLANS)[keyof typeof GALLERY_PLANS]
-    | undefined;
+  // Paket hakları yürürlükteki fiyat listesinden (API)
+  const plan = { aylikTalep: p.paket.aylikTalep ?? 0, oneCikarma: deneme ? 0 : (p.paket.oneCikarma ?? 0) };
   const kotalar = [
     {
       label: 'Portföy',
