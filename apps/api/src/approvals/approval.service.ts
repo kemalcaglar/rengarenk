@@ -106,10 +106,13 @@ export class ApprovalService {
   }
 
   /** Çalışan bu isteği onaylayabilir ya da reddedebilir mi? */
-  canDecide(actor: Actor, a: Pick<Approval, 'kind' | 'requestedBy'>): boolean {
+  canDecide(actor: Actor, a: Pick<Approval, 'kind' | 'requestedBy'> & { payload?: unknown }): boolean {
     const policy = APPROVAL_POLICIES[a.kind as ApprovalKindKey];
     if (!policy || actor.staff.status !== 'ACTIVE') return false;
     if (!(policy.approvers as string[]).includes(actor.staff.role)) return false;
+    // İstek yalnız sahibin onayını gerektiriyorsa (ör. en yüksek indirimin üstündeki kupon)
+    if ((a.payload as { yalnizSahip?: boolean } | null)?.yalnizSahip && actor.staff.role !== 'OWNER')
+      return false;
     return actor.staff.id !== a.requestedBy || actor.staff.role === 'OWNER';
   }
 

@@ -84,6 +84,10 @@ export default function Haklarim() {
   );
   const [hata, setHata] = useState<string | null>(null);
   const [mesgul, setMesgul] = useState(false);
+  // Kupon (Karar 51): fiyatlar ve indirim sunucuda hesaplanır
+  const [kuponKod, setKuponKod] = useState('');
+  const [kupon, setKupon] = useState<{ kod: string; indirimKurus: number; toplamKurus: number } | null>(null);
+  const [kuponHata, setKuponHata] = useState<string | null>(null);
 
   useEffect(() => {
     if (giris === false) router.replace('/giris?sonra=/haklarim');
@@ -147,6 +151,26 @@ export default function Haklarim() {
   const odeHazir =
     onay.sozlesme && (!hemen || onay.cayma) && !!fatura.ad && !!fatura.eposta && !!fatura.il && !!fatura.ilce;
   const hedefBaslik = o?.talepler.find((t) => t.no === hedef)?.baslik;
+  const odenecek = kupon?.toplamKurus ?? toplam;
+  const sepetAnahtari = sepet.join(',');
+  // Sepet değişince kupon yeniden uygulanmalı
+  useEffect(() => {
+    if (sepetAnahtari !== undefined) setKupon(null);
+  }, [sepetAnahtari]);
+
+  async function kuponUygula() {
+    setKuponHata(null);
+    try {
+      const r = await istek<{ kod: string; indirimKurus: number; toplamKurus: number }>('/orders/kupon', {
+        method: 'POST',
+        body: { kod: kuponKod, urunler: secili.map((u) => u.key) },
+      });
+      setKupon(r);
+    } catch (e) {
+      setKupon(null);
+      setKuponHata((e as Error).message);
+    }
+  }
 
   async function ode() {
     setHata(null);
@@ -157,6 +181,7 @@ export default function Haklarim() {
         body: {
           kalemler: secili.map((u) => (u.oneCikarma ? { urun: u.key, talepNo: hedef } : { urun: u.key })),
           fatura: { ...fatura, ...(kurumsal ? { kurumsal } : {}) },
+          ...(kupon ? { kupon: kupon.kod } : {}),
           onay: { sozlesme: true, ...(hemen ? { cayma: onay.cayma } : {}) },
         },
       });
@@ -877,6 +902,95 @@ export default function Haklarim() {
                     <strong style={{ flex: 'none' }}>{tlYaz(u.kurus)}</strong>
                   </div>
                 ))}
+                {kupon ? (
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      gap: 10,
+                      padding: '8px 0',
+                      borderBottom: '1px solid #EEF0F5',
+                      fontSize: 14,
+                      color: '#11683F',
+                      fontWeight: 700,
+                    }}
+                  >
+                    <span>
+                      Kupon {kupon.kod}
+                      {siparis ? null : (
+                        <button
+                          type="button"
+                          onClick={() => setKupon(null)}
+                          style={{
+                            marginLeft: 8,
+                            border: 0,
+                            background: 'transparent',
+                            padding: 0,
+                            color: '#5A6073',
+                            fontSize: 12.5,
+                            cursor: 'pointer',
+                            fontFamily: 'inherit',
+                          }}
+                        >
+                          Kaldır
+                        </button>
+                      )}
+                    </span>
+                    <span>−{tlYaz(kupon.indirimKurus)}</span>
+                  </div>
+                ) : siparis ? null : (
+                  <div style={{ marginTop: 10 }}>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <label style={{ flex: 1, minWidth: 0 }}>
+                        <span className="sr-only">Kupon kodu</span>
+                        <input
+                          value={kuponKod}
+                          maxLength={16}
+                          placeholder="Kupon kodu"
+                          aria-label="Kupon kodu"
+                          onChange={(e) => setKuponKod(e.target.value.toLocaleUpperCase('tr-TR'))}
+                          style={{
+                            width: '100%',
+                            boxSizing: 'border-box',
+                            border: '1px solid #D5DAE5',
+                            borderRadius: 10,
+                            padding: '9px 10px',
+                            fontSize: 14,
+                            fontFamily: 'inherit',
+                          }}
+                        />
+                      </label>
+                      <button
+                        type="button"
+                        disabled={kuponKod.trim().length < 4}
+                        onClick={kuponUygula}
+                        style={{
+                          flex: 'none',
+                          border: '1px solid #D5DAE5',
+                          background: '#FFFFFF',
+                          borderRadius: 10,
+                          padding: '9px 14px',
+                          fontSize: 14,
+                          fontWeight: 700,
+                          color: '#1E2333',
+                          cursor: 'pointer',
+                          fontFamily: 'inherit',
+                          opacity: kuponKod.trim().length < 4 ? 0.5 : 1,
+                        }}
+                      >
+                        Uygula
+                      </button>
+                    </div>
+                    {kuponHata ? (
+                      <p
+                        role="alert"
+                        style={{ margin: '6px 0 0', fontSize: 12.5, color: '#A3271F', fontWeight: 700 }}
+                      >
+                        {kuponHata}
+                      </p>
+                    ) : null}
+                  </div>
+                )}
                 <div
                   style={{
                     display: 'flex',
@@ -887,7 +1001,7 @@ export default function Haklarim() {
                   }}
                 >
                   <span>KDV (%20, dahil)</span>
-                  <span>{tlYaz(vatOfGross(toplam))}</span>
+                  <span>{tlYaz(vatOfGross(odenecek))}</span>
                 </div>
                 <div
                   style={{
@@ -899,7 +1013,7 @@ export default function Haklarim() {
                   }}
                 >
                   <span>Toplam</span>
-                  <span>{tlYaz(toplam)}</span>
+                  <span>{tlYaz(odenecek)}</span>
                 </div>
                 <p style={{ margin: '12px 0 0', fontSize: 12.5, lineHeight: 1.5, color: '#3A4052' }}>
                   {hemen
@@ -930,7 +1044,7 @@ export default function Haklarim() {
                       fontFamily: 'inherit',
                     }}
                   >
-                    {mesgul ? 'Hazırlanıyor…' : `Siparişi onayla ve öde · ${tlYaz(toplam)}`}
+                    {mesgul ? 'Hazırlanıyor…' : `Siparişi onayla ve öde · ${tlYaz(odenecek)}`}
                   </button>
                 ) : (
                   <>
@@ -950,7 +1064,7 @@ export default function Haklarim() {
                         fontFamily: 'inherit',
                       }}
                     >
-                      Siparişi onayla ve öde · {tlYaz(toplam)}
+                      Siparişi onayla ve öde · {tlYaz(odenecek)}
                     </button>
                     <p style={{ margin: '8px 0 0', fontSize: 12.5, color: '#5A6073' }}>
                       {!fatura.ad || !fatura.eposta || !fatura.il || !fatura.ilce

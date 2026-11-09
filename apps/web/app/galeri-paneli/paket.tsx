@@ -158,6 +158,10 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
   const [siparis, setSiparis] = useState<{ no: string; odemeAdresi: string } | null>(null);
   const [mesgul, setMesgul] = useState(false);
   const [paketler, setPaketlerAcik] = useState(false);
+  // Kupon (Karar 51): yeni pakette ilk ödemeye ve ek paketlere; yenilemede yok
+  const [kuponKod, setKuponKod] = useState('');
+  const [kupon, setKupon] = useState<{ kod: string; indirimKurus: number; toplamKurus: number } | null>(null);
+  const [kuponHata, setKuponHata] = useState<string | null>(null);
 
   const yukle = useCallback(async () => {
     const x = await istek<AbonelikVerisi>(`/gallery/${accountId}/subscription`);
@@ -217,8 +221,35 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
     }
   }
 
+  async function kuponUygula() {
+    if (!secim || secim.tur === 'yenile') return;
+    setKuponHata(null);
+    try {
+      setKupon(
+        await istek<{ kod: string; indirimKurus: number; toplamKurus: number }>('/orders/kupon', {
+          method: 'POST',
+          body:
+            secim.tur === 'paket'
+              ? {
+                  kod: kuponKod,
+                  urunler: ['abonelik'],
+                  hesap: accountId,
+                  plan: secim.plan,
+                  donem: secim.donem,
+                }
+              : { kod: kuponKod, urunler: [secim.urun], hesap: accountId },
+        }),
+      );
+    } catch (e) {
+      setKupon(null);
+      setKuponHata((e as Error).message);
+    }
+  }
+
   function sec(s: Secim) {
     setSecim(s);
+    setKupon(null);
+    setKuponHata(null);
     setOnay({ sozlesme: false, yenileme: false });
     setSiparis(null);
     setHata(null);
@@ -236,6 +267,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
               kalemler: [{ urun: secim.urun }],
               // Fatura galerinin ticari bilgileriyle kesilir; burada yalnızca e-posta kullanılır
               fatura: { ad: 'Galeri hesabı', eposta, il: 'İstanbul', ilce: 'Kadıköy' },
+              ...(kupon ? { kupon: kupon.kod } : {}),
               onay: { sozlesme: true },
             },
           })
@@ -250,6 +282,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                       plan: secim.plan,
                       donem: secim.donem,
                       eposta,
+                      ...(kupon ? { kupon: kupon.kod } : {}),
                       onay: { sozlesme: true, yenileme: true },
                     },
             },
@@ -754,6 +787,77 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
             <span style={{ fontWeight: 700 }}>{secim.ad}</span>
             <strong>{tlYaz(secim.tutarKurus)}</strong>
           </div>
+          {kupon ? (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                gap: 10,
+                padding: '10px 0',
+                borderBottom: '1px solid #EEF0F5',
+                fontSize: 14.5,
+                fontWeight: 700,
+                color: '#11683F',
+              }}
+            >
+              <span>
+                Kupon {kupon.kod}
+                {secim.tur === 'paket' ? ' · yalnızca ilk ödeme' : ''}
+              </span>
+              <span>
+                −{tlYaz(kupon.indirimKurus)} · ödenecek {tlYaz(kupon.toplamKurus)}
+              </span>
+            </div>
+          ) : secim.tur !== 'yenile' && !siparis ? (
+            <div style={{ padding: '10px 0', borderBottom: '1px solid #EEF0F5' }}>
+              <div style={{ display: 'flex', gap: 8, maxWidth: 420 }}>
+                <input
+                  value={kuponKod}
+                  maxLength={16}
+                  placeholder="Kupon kodu"
+                  aria-label="Kupon kodu"
+                  onChange={(e) => setKuponKod(e.target.value.toLocaleUpperCase('tr-TR'))}
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    border: '1px solid #D5DAE5',
+                    borderRadius: 10,
+                    padding: '9px 10px',
+                    fontSize: 14,
+                    fontFamily: 'inherit',
+                  }}
+                />
+                <button
+                  type="button"
+                  disabled={kuponKod.trim().length < 4}
+                  onClick={kuponUygula}
+                  style={{
+                    flex: 'none',
+                    border: '1px solid #D5DAE5',
+                    background: '#FFFFFF',
+                    borderRadius: 10,
+                    padding: '9px 14px',
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: '#1E2333',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    opacity: kuponKod.trim().length < 4 ? 0.5 : 1,
+                  }}
+                >
+                  Uygula
+                </button>
+              </div>
+              {kuponHata ? (
+                <p
+                  role="alert"
+                  style={{ margin: '6px 0 0', fontSize: 12.5, color: '#A3271F', fontWeight: 700 }}
+                >
+                  {kuponHata}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
           <p style={{ margin: '10px 0 14px', fontSize: 13.5, color: '#5A6073' }}>
             {secim.not} Tutar KDV dahildir. Fatura galerinin ticari unvanı ve vergi numarasıyla kesilir.
           </p>

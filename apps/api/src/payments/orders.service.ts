@@ -15,13 +15,16 @@ import {
   galleryAccess,
   ORDER_STATUS_NAMES,
   type OrderCreate,
+  type PaidPlan,
   PRODUCT_GROUP_NAMES,
   PRODUCTS,
   PROMOTION_NAMES,
   type PromotionKind,
+  planNetKurus,
   plansOf,
   productByKey,
   productPrice,
+  type SubPeriod,
   tlYaz,
   vatOfGross,
   WAIVER_CONSENT,
@@ -36,6 +39,7 @@ import { FeatureFlagService } from '../flags/feature-flag.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { PricingService } from '../pricing/pricing.service.js';
 import { STORAGE, type Storage } from '../storage/storage.service.js';
+import { CouponService } from './coupon.service.js';
 import { type Kalem, kalemler as kalemlerOf } from './order-item.js';
 import {
   EArsivFactory,
@@ -90,6 +94,7 @@ export class OrdersService {
     private readonly subs: SubscriptionBilling,
     earsiv: EArsivFactory,
     private readonly pricing: PricingService,
+    private readonly coupons: CouponService,
   ) {
     this.earsiv = earsiv.create();
   }
@@ -265,6 +270,16 @@ export class OrdersService {
       }
       kalemler.push(kalem);
     }
+    // Kupon (Karar 51): uygun kalemlerin tutarı düşer; kullanım ödeme alınınca yazılır
+    let kupon: { id: string; indirim: number } | null = null;
+    if (input.kupon) {
+      const c = await this.coupons.resolve(
+        input.kupon,
+        { id: accountId, kitle: galeri ? 'galeri' : 'bireysel' },
+        kalemler.map((k) => k.urun),
+      );
+      kupon = { id: c.id, indirim: this.coupons.apply(kalemler, c) };
+    }
     const toplam = kalemler.reduce((t, k) => t + k.tutarKurus, 0);
     const hemen = !galeri && kalemler.some((k) => productByKey(k.urun)?.hemenBaslar);
     const no = siparisNo();
@@ -282,6 +297,8 @@ export class OrdersService {
           items: kalemler as unknown as Prisma.InputJsonValue,
           totalKurus: BigInt(toplam),
           vatKurus: BigInt(vatOfGross(toplam)),
+          couponId: kupon?.id ?? null,
+          discountKurus: BigInt(kupon?.indirim ?? 0),
           billing: fatura as unknown as Prisma.InputJsonValue,
           consents: {
             sozlesme: CONTRACT_CONSENT,
@@ -317,6 +334,31 @@ export class OrdersService {
       throw new ServiceUnavailableException('Ödeme şu an başlatılamadı; birazdan yeniden dene');
     }
     return { no, odemeAdresi, toplamKurus: toplam };
+  }
+
+  /** Ödeme formundaki kupon önizlemesi: kalem fiyatları sunucuda hesaplanır (galeride KDV dahil) */
+  async couponPreview(
+    userId: string,
+    b: { kod: string; urunler: string[]; hesap?: string; plan?: PaidPlan; donem?: SubPeriod },
+  ) {
+    const galeri = b.hesap ? await this.galleryBuyer(userId, b.hesap) : null;
+    const accountId = galeri?.accountId ?? (await this.personal(userId));
+    const fiyat = await this.pricing.current();
+    const kalemler: Kalem[] = [];
+    for (const u of b.urunler) {
+      if (u === 'abonelik') {
+        if (!galeri || !b.plan || !b.donem) throw new BadRequestException('Paket ve ödeme dönemini seç');
+        const brut = withVat(planNetKurus(b.plan, b.donem, plansOf(fiyat)));
+        kalemler.push({ urun: u, ad: 'Galeri paketi', adet: 1, birimKurus: brut, tutarKurus: brut });
+        continue;
+      }
+      const p = productByKey(u);
+      if (!p) throw new BadRequestException('Ürün bulunamadı');
+      const net = Math.round((productPrice(fiyat, p.key) ?? p.tl) * 100);
+      const brut = galeri ? withVat(net) : net;
+      kalemler.push({ urun: p.key, ad: p.ad, adet: 1, birimKurus: brut, tutarKurus: brut });
+    }
+    return this.coupons.check({ id: accountId, kitle: galeri ? 'galeri' : 'bireysel' }, b.kod, kalemler);
   }
 
   /** Ödeme kuruluşunun dönüş adresleri: galeri siparişinde galeri paneline döner */
@@ -432,6 +474,7 @@ export class OrdersService {
     const now = new Date();
     const kalemler = o.kind === 'urun' ? kalemlerOf(o.items) : [];
     const yenidenIndeks = new Set<string>();
+    await this.coupons.redeem(tx, o);
     if (o.kind !== 'urun') await this.subs.fulfill(tx, o, n);
     for (const [i, k] of kalemler.entries()) {
       const p = productByKey(k.urun);
@@ -572,7 +615,7 @@ ${
         date: o.paidAt ?? new Date(),
         billing: o.billing as unknown as Billing,
         lines: kalemlerOf(o.items).map((k) => ({
-          ad: k.talepBaslik ? `${k.ad} · ${k.talepBaslik}` : k.ad,
+          ad: `${k.talepBaslik ? `${k.ad} · ${k.talepBaslik}` : k.ad}${k.kupon ? ` · ${k.kupon} kuponu` : ''}`,
           adet: k.adet,
           tutarKurus: k.tutarKurus,
         })),

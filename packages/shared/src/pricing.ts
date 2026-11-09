@@ -71,9 +71,6 @@ export function plansOf(book: PriceBook): PlanTable {
 export const productPrice = (book: PriceBook, key: string) =>
   book.urunler[key] ?? PRODUCTS.find((p) => p.key === key)?.tl ?? null;
 
-/** Kupon en yüksek indirim yüzdesi; üstü sahip onayı ister (kuponlar kampanyalarla, Aşama 9) */
-export const COUPON_MAX_PERCENT = 50;
-
 /** Konsoldaki paket satırları (YonetimSistem.dc.html › Galeri paketleri) */
 export const PACKAGE_ROWS: { alan: keyof PackageTerms; ad: string }[] = [
   { alan: 'aylik', ad: 'Aylık fiyat' },

@@ -11,7 +11,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { orderCreateSchema } from '@rengarenk/shared';
+import { couponCheckSchema, orderCreateSchema } from '@rengarenk/shared';
 import type { z } from 'zod';
 import { AuthGuard } from '../auth/auth.guard.js';
 import type { AccessClaims } from '../auth/auth.service.js';
@@ -45,6 +45,16 @@ export class OrdersController {
     @Body(new ZodPipe(orderCreateSchema)) b: z.output<typeof orderCreateSchema>,
   ) {
     return this.orders.create(req.user.sub, b, { ip: req.ip });
+  }
+
+  /** Kupon kodu önizlemesi (ödeme formunda "Uygula") */
+  @Post('kupon')
+  @HttpCode(200)
+  coupon(
+    @Req() req: AuthedRequest,
+    @Body(new ZodPipe(couponCheckSchema)) b: z.output<typeof couponCheckSchema>,
+  ) {
+    return this.orders.couponPreview(req.user.sub, b);
   }
 
   @Get(':no')

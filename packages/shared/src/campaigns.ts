@@ -174,5 +174,7 @@ export const campaignSchema = z
     dugme: z.string().trim().min(2).max(30),
     url: yol,
     zaman: z.iso.datetime({ offset: true }),
+    /** Bağlı kupon (Karar 51): kupon onaylanmadan kampanya gönderilmez */
+    kuponId: z.uuid().nullable().default(null),
   })
   .strict();

@@ -8,6 +8,7 @@ export * from './category-defaults.js';
 export * from './category-schema.js';
 export * from './contact.js';
 export * from './content.js';
+export * from './coupons.js';
 export * from './dashboard.js';
 export * from './demand.js';
 export * from './flags.js';

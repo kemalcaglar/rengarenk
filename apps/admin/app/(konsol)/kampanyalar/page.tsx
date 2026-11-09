@@ -1,6 +1,16 @@
 'use client';
 
-import { CAMPAIGN_CHANNELS, CAMPAIGN_GOALS, type CampaignChannel } from '@rengarenk/shared';
+import {
+  CAMPAIGN_CHANNELS,
+  CAMPAIGN_GOALS,
+  type CampaignChannel,
+  COUPON_AUDIENCES,
+  COUPON_MAX_PERCENT,
+  COUPON_TARGET_KEYS,
+  COUPON_TARGETS,
+  type CouponAudience,
+  type CouponTarget,
+} from '@rengarenk/shared';
 import Link from 'next/link';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { yonetim } from '../../../lib/istemci';
@@ -17,6 +27,20 @@ interface Satir {
   bg: string;
   fg: string;
   iptalEdilebilir: boolean;
+}
+interface Kupon {
+  id: string;
+  kod: string;
+  ad: string;
+  yuzde: number;
+  ozet: string;
+  tarih: string;
+  kullanim: string;
+  durumKey: string;
+  durum: string;
+  bg: string;
+  fg: string;
+  secilebilir: boolean;
 }
 interface Segment {
   id: string;
@@ -58,7 +82,8 @@ const varsayilanZaman = () => {
  * Kampanyalar (YonetimKampanya.dc.html › kampanya; Karar 49, 51). Ticari ileti: yalnızca ticari ileti onayı ve kampanya
  * bildirimi izni olanlara; kişi başı haftada 2; 21.00–09.00 sabaha ertelenir. Gönderim özeti segmenti, kanal ulaşımını,
  * sıklık sınırına takılanları ve ısınmayı gösterir. 1.000 kişiyi aşan gönderim onay kuyruğuna gider. İçerik kampanyaya
- * özeldir (tasarımdaki tek şablon seçimi yerine başlık, metin ve düğme); kupon ve A/B testi kendi modülleriyle gelecek.
+ * özeldir (tasarımdaki tek şablon seçimi yerine başlık, metin ve düğme). Kupon bağlanabilir: kupon onaylanmadan kampanya
+ * gönderilmez. Kuponlar bu sayfada hazırlanır; sahip ya da yönetici onaylar (%50 üstünü yalnızca sahip).
  */
 export default function Kampanyalar() {
   const [liste, setListe] = useState<Satir[]>([]);
@@ -73,14 +98,34 @@ export default function Kampanyalar() {
   const [url, setUrl] = useState('/');
   const [zaman, setZaman] = useState(varsayilanZaman);
   const [tahmin, setTahmin] = useState<Tahmin | null>(null);
+  const [kuponlar, setKuponlar] = useState<Kupon[]>([]);
+  const [kuponId, setKuponId] = useState('');
+  const [kuponForm, setKuponForm] = useState(false);
+  const [yk, setYk] = useState({
+    kod: '',
+    ad: '',
+    yuzde: 20,
+    hedefler: ['ust_sira'] as CouponTarget[],
+    kitle: 'herkes' as CouponAudience,
+    bas: new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Istanbul' }).format(new Date()),
+    bit: new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Istanbul' }).format(
+      new Date(Date.now() + 7 * 86_400_000),
+    ),
+    sinir: '',
+  });
   const [bilgi, setBilgi] = useState<string | null>(null);
   const [hata, setHata] = useState<string | null>(null);
 
   const yukle = useCallback(async () => {
     try {
-      const [l, s] = await Promise.all([yonetim<Satir[]>('campaigns'), yonetim<Segment[]>('segments')]);
+      const [l, s, k] = await Promise.all([
+        yonetim<Satir[]>('campaigns'),
+        yonetim<Segment[]>('segments'),
+        yonetim<Kupon[]>('coupons'),
+      ]);
       setListe(l);
       setSegmentler(s);
+      setKuponlar(k);
       setSegmentId((x) => x || s[0]?.id || '');
     } catch (e) {
       setHata((e as Error).message);
@@ -111,6 +156,7 @@ export default function Kampanyalar() {
           dugme,
           url,
           zaman: new Date(`${zaman}:00+03:00`).toISOString(),
+          kuponId: kuponId || null,
         },
       });
       setListe(l);
@@ -131,6 +177,43 @@ export default function Kampanyalar() {
   async function iptal(id: string) {
     try {
       setListe(await yonetim<Satir[]>(`campaigns/${id}/cancel`, { method: 'POST', body: {} }));
+    } catch (e) {
+      setHata((e as Error).message);
+    }
+  }
+
+  async function kuponHazirla() {
+    setHata(null);
+    try {
+      setKuponlar(
+        await yonetim<Kupon[]>('coupons', {
+          method: 'POST',
+          body: {
+            kod: yk.kod,
+            ad: yk.ad,
+            yuzde: yk.yuzde,
+            hedefler: yk.hedefler,
+            kitle: yk.kitle,
+            baslangic: new Date(`${yk.bas}T00:00:00+03:00`).toISOString(),
+            // Bitiş günü dahil
+            bitis: new Date(new Date(`${yk.bit}T00:00:00+03:00`).getTime() + 86_400_000).toISOString(),
+            toplamSinir: yk.sinir ? Number(yk.sinir) : null,
+          },
+        }),
+      );
+      setKuponForm(false);
+      setBilgi(
+        yk.yuzde > COUPON_MAX_PERCENT
+          ? `Kupon onay kuyruğuna gitti. %${COUPON_MAX_PERCENT} üstü indirimi yalnızca sahip onaylar.`
+          : 'Kupon onay kuyruğuna gitti. Sahip ya da yönetici onaylayınca geçerli olur.',
+      );
+    } catch (e) {
+      setHata((e as Error).message);
+    }
+  }
+  async function kuponIptal(id: string) {
+    try {
+      setKuponlar(await yonetim<Kupon[]>(`coupons/${id}/cancel`, { method: 'POST', body: {} }));
     } catch (e) {
       setHata((e as Error).message);
     }
@@ -396,10 +479,17 @@ export default function Kampanyalar() {
                 style={girdi}
               />
             </label>
-            <label style={{ ...etiket, flex: '1 1 200px', color: '#5A6073' }}>
+            <label style={{ ...etiket, flex: '1 1 200px' }}>
               Kupon
-              <select disabled style={{ ...girdi, color: '#5A6073' }}>
-                <option>Kupon yok · kupon modülüyle gelecek</option>
+              <select value={kuponId} onChange={(e) => setKuponId(e.target.value)} style={girdi}>
+                <option value="">Kupon yok</option>
+                {kuponlar
+                  .filter((k) => k.secilebilir)
+                  .map((k) => (
+                    <option key={k.id} value={k.id}>
+                      {k.kod} · {k.ad} %{k.yuzde} ({k.durum.toLocaleLowerCase('tr-TR')})
+                    </option>
+                  ))}
               </select>
             </label>
             <span style={{ flex: 'none', fontSize: 12.5, color: '#5A6073', paddingTop: 30 }}>
@@ -528,6 +618,237 @@ export default function Kampanyalar() {
           </div>
         </section>
       </div>
+
+      <section aria-labelledby="kuponlar" style={{ ...kart, overflow: 'hidden', marginTop: 16 }}>
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 10,
+            padding: '16px 18px',
+            borderBottom: '1px solid #EEF0F5',
+          }}
+        >
+          <div>
+            <h2 id="kuponlar" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+              Kuponlar
+            </h2>
+            <p style={{ margin: '3px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+              Web ödemesinde kodla, hesap başına bir kez · onay sahip ya da yönetici · %{COUPON_MAX_PERCENT}{' '}
+              üstü yalnızca sahip · uygulama içi satın almada geçmez
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setKuponForm((x) => !x)}
+            aria-expanded={kuponForm}
+            style={{
+              border: '1px solid #D5DAE5',
+              background: '#FFFFFF',
+              borderRadius: 10,
+              padding: '9px 14px',
+              fontSize: 13.5,
+              fontWeight: 700,
+              color: '#1E2333',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            Yeni kupon
+          </button>
+        </div>
+        {kuponForm ? (
+          <div style={{ padding: '14px 18px', borderBottom: '1px solid #EEF0F5', background: '#F6F8FD' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'flex-end' }}>
+              <label style={{ ...etiket, flex: '1 1 130px' }}>
+                Kod
+                <input
+                  value={yk.kod}
+                  maxLength={16}
+                  placeholder="UST20"
+                  onChange={(e) => setYk({ ...yk, kod: e.target.value.toLocaleUpperCase('tr-TR') })}
+                  style={girdi}
+                />
+              </label>
+              <label style={{ ...etiket, flex: '2 1 220px' }}>
+                Ad
+                <input
+                  value={yk.ad}
+                  maxLength={60}
+                  placeholder="Hafta sonu üst sıra"
+                  onChange={(e) => setYk({ ...yk, ad: e.target.value })}
+                  style={girdi}
+                />
+              </label>
+              <label style={{ ...etiket, flex: '0 1 100px' }}>
+                İndirim %
+                <input
+                  type="number"
+                  min={1}
+                  max={100}
+                  value={yk.yuzde}
+                  onChange={(e) => setYk({ ...yk, yuzde: Number(e.target.value) })}
+                  style={girdi}
+                />
+              </label>
+              <label style={{ ...etiket, flex: '1 1 140px' }}>
+                Kitle
+                <select
+                  value={yk.kitle}
+                  onChange={(e) => setYk({ ...yk, kitle: e.target.value as CouponAudience })}
+                  style={girdi}
+                >
+                  {(Object.keys(COUPON_AUDIENCES) as CouponAudience[]).map((k) => (
+                    <option key={k} value={k}>
+                      {COUPON_AUDIENCES[k]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label style={{ ...etiket, flex: '1 1 140px' }}>
+                Başlangıç
+                <input
+                  type="date"
+                  value={yk.bas}
+                  onChange={(e) => setYk({ ...yk, bas: e.target.value })}
+                  style={girdi}
+                />
+              </label>
+              <label style={{ ...etiket, flex: '1 1 140px' }}>
+                Bitiş (dahil)
+                <input
+                  type="date"
+                  value={yk.bit}
+                  onChange={(e) => setYk({ ...yk, bit: e.target.value })}
+                  style={girdi}
+                />
+              </label>
+              <label style={{ ...etiket, flex: '0 1 130px' }}>
+                Toplam sınır
+                <input
+                  type="number"
+                  min={1}
+                  value={yk.sinir}
+                  placeholder="Sınırsız"
+                  onChange={(e) => setYk({ ...yk, sinir: e.target.value })}
+                  style={girdi}
+                />
+              </label>
+            </div>
+            <fieldset style={{ border: 0, padding: 0, margin: '12px 0 0' }}>
+              <legend style={{ ...etiket, padding: 0 }}>Ürünler</legend>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginTop: 6 }}>
+                {COUPON_TARGET_KEYS.map((t) => (
+                  <label key={t} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13.5 }}>
+                    <input
+                      type="checkbox"
+                      checked={yk.hedefler.includes(t)}
+                      onChange={() =>
+                        setYk({
+                          ...yk,
+                          hedefler: yk.hedefler.includes(t)
+                            ? yk.hedefler.filter((x) => x !== t)
+                            : [...yk.hedefler, t],
+                        })
+                      }
+                    />
+                    {COUPON_TARGETS[t].ad}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 12, marginTop: 12 }}>
+              <button
+                type="button"
+                onClick={kuponHazirla}
+                disabled={yk.kod.length < 4 || yk.ad.trim().length < 3 || !yk.hedefler.length}
+                style={{
+                  border: 0,
+                  background: '#5B8CFF',
+                  borderRadius: 12,
+                  padding: '11px 18px',
+                  fontSize: 14,
+                  fontWeight: 800,
+                  color: '#1E2333',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  opacity: yk.kod.length < 4 || yk.ad.trim().length < 3 || !yk.hedefler.length ? 0.5 : 1,
+                }}
+              >
+                Onaya gönder
+              </button>
+              {yk.yuzde > COUPON_MAX_PERCENT ? (
+                <span style={{ fontSize: 12.5, fontWeight: 700, color: '#7A5300' }}>
+                  %{COUPON_MAX_PERCENT} üstü indirimi yalnızca sahip onaylar.
+                </span>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+        {kuponlar.length === 0 ? (
+          <p style={{ margin: 0, padding: '14px 18px', fontSize: 13.5, color: '#5A6073' }}>
+            Henüz kupon yok.
+          </p>
+        ) : (
+          kuponlar.map((k) => (
+            <div
+              key={k.id}
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                gap: '6px 16px',
+                padding: '12px 18px',
+                borderBottom: '1px solid #EEF0F5',
+              }}
+            >
+              <span style={{ flex: '0 0 96px', fontSize: 14.5, fontWeight: 800, letterSpacing: 0.5 }}>
+                {k.kod}
+              </span>
+              <span style={{ flex: '999 1 260px', minWidth: 0 }}>
+                <span style={{ display: 'block', fontSize: 14, fontWeight: 700 }}>{k.ad}</span>
+                <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+                  {k.ozet} · {k.tarih}
+                </span>
+              </span>
+              <span style={{ flex: '1 1 180px', fontSize: 12.5, color: '#3A4052' }}>{k.kullanim}</span>
+              {k.secilebilir ? (
+                <button
+                  type="button"
+                  onClick={() => kuponIptal(k.id)}
+                  style={{
+                    border: 0,
+                    background: 'transparent',
+                    padding: 0,
+                    color: '#A3271F',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  İptal et
+                </button>
+              ) : null}
+              <span
+                style={{
+                  flex: 'none',
+                  fontSize: 12,
+                  fontWeight: 800,
+                  padding: '3px 9px',
+                  borderRadius: 999,
+                  background: k.bg,
+                  color: k.fg,
+                }}
+              >
+                {k.durum}
+              </span>
+            </div>
+          ))
+        )}
+      </section>
     </>
   );
 }

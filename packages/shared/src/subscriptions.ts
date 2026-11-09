@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { couponCodeSchema } from './coupons.js';
 import { GALLERY_PLANS } from './gallery.js';
 import { VAT_RATE } from './payments.js';
 import type { PlanTable } from './pricing.js';
@@ -82,6 +83,8 @@ export const subscriptionCheckoutSchema = z
     donem: z.enum(SUB_PERIOD_KEYS),
     eposta: z.email('Fatura için geçerli bir e-posta yaz').max(100),
     onay: onaylar,
+    /** Kupon: yalnızca yeni abonelikte ilk ödemeye */
+    kupon: couponCodeSchema.optional(),
   })
   .strict();
 export type SubscriptionCheckout = z.infer<typeof subscriptionCheckoutSchema>;

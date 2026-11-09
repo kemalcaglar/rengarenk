@@ -129,6 +129,14 @@ export class CampaignService {
       ).map((a) => [a.id, a]),
     );
     const sonuc = await this.sonuclar(rows.filter((r) => r.status === 'gonderildi').map((r) => r.id));
+    const kuponlar = new Map(
+      (
+        await this.db.coupon.findMany({
+          where: { id: { in: rows.flatMap((r) => (r.couponId ? [r.couponId] : [])) } },
+          select: { id: true, code: true, status: true },
+        })
+      ).map((k) => [k.id, k]),
+    );
     const kanalAd = (k: string[]) =>
       k.map((x) => CAMPAIGN_CHANNELS.find((c) => c.key === x)?.ad.split(' (')[0] ?? x).join(' ve ');
     const tarih = (d: Date) =>
@@ -146,6 +154,12 @@ export class CampaignService {
           ? 'reddedildi'
           : (r.status as CampaignStatus);
       const sn = sonuc.get(r.id);
+      const kupon = r.couponId ? kuponlar.get(r.couponId) : undefined;
+      const kuponNotu = kupon
+        ? kupon.status === 'onaylandi'
+          ? ` · kupon ${kupon.code}`
+          : ` · kupon ${kupon.code} onayını bekliyor`
+        : '';
       return {
         id: r.id,
         ad: r.name,
@@ -156,7 +170,7 @@ export class CampaignService {
           durum === 'gonderildi' && r.sentAt
             ? `${tarih(r.sentAt)} · ${new Intl.NumberFormat('tr-TR').format(r.sentCount ?? 0)} kişiye gitti${sn ? ` · uygulamada okunma %${sn.okunma} · e-posta ${sn.eposta}` : ''}`
             : durum === 'zamanlandi'
-              ? `${tarih(r.scheduledAt)} gönderilecek`
+              ? `${tarih(r.scheduledAt)} gönderilecek${kuponNotu}`
               : durum === 'onay_bekliyor'
                 ? '1.000 kişiyi aştığı için onay bekliyor'
                 : durum === 'reddedildi'
@@ -215,12 +229,18 @@ export class CampaignService {
       dugme: string;
       url: string;
       zaman: string;
+      kuponId?: string | null;
     },
     ip?: string,
   ) {
     const zaman = new Date(b.zaman);
     if (zaman.getTime() < Date.now() - 60_000)
       throw new BadRequestException('Gönderim zamanı geçmişte olamaz');
+    if (b.kuponId) {
+      const k = await this.db.coupon.findUnique({ where: { id: b.kuponId } });
+      if (!k || k.status === 'iptal') throw new BadRequestException('Kupon bulunamadı');
+      if (k.endsAt <= zaman) throw new BadRequestException('Kuponun süresi gönderim zamanından önce bitiyor');
+    }
     const tahmin = await this.estimate(b.segmentId, b.kanallar);
     if (!tahmin.ulasilan)
       throw new BadRequestException('Bu segmentte bu kanallardan ulaşılabilecek kimse yok');
@@ -243,6 +263,7 @@ export class CampaignService {
           buttonText: b.dugme,
           url: b.url,
           scheduledAt: zaman,
+          couponId: b.kuponId ?? null,
           status: onayli ? 'onay_bekliyor' : 'zamanlandi',
           estimate: tahmin as unknown as Prisma.InputJsonValue,
           targetCount: tahmin.ulasilan,
@@ -322,6 +343,18 @@ export class CampaignService {
     });
     let n = 0;
     for (const c of due) {
+      if (c.couponId) {
+        const kupon = await this.db.coupon.findUnique({ where: { id: c.couponId } });
+        if (kupon?.status === 'onay_bekliyor' && kupon.endsAt > now) continue; // onay bekleniyor
+        if (kupon?.status !== 'onaylandi' || kupon.endsAt <= now) {
+          await this.db.campaign.updateMany({
+            where: { id: c.id, status: 'zamanlandi' },
+            data: { status: 'iptal' },
+          });
+          this.log.warn(`kampanya ${c.id}: kupon geçersiz, gönderilmedi`);
+          continue;
+        }
+      }
       const k = await this.db.campaign.updateMany({
         where: { id: c.id, status: 'zamanlandi' },
         data: { status: 'gonderiliyor' },

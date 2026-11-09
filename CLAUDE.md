@@ -272,9 +272,10 @@ pnpm format        # Biome ile biçimlendir
   konsol `/banner-ve-vitrin`): web ve mobil `components/banner.tsx` (yer: ana sayfa, galeri paneli, talep listesi ve
   detayı, duyuru, üst şerit). Ana sayfa düzeni (`content/home.service.ts`, konsol `/ana-sayfa-duzeni`): yeni bir ana sayfa
   bölümü eklersen `HOME_SECTIONS`'a, web `ana-duzen.tsx` ve mobil `index.tsx` bölüm haritasına ekle; tasarımda yoksa
-  varsayılanı kapalı. API'de 189, ortak pakette 105 test.
+  varsayılanı kapalı. Kuponlar (`payments/coupon.service.ts`, konsol Kampanyalar › Kuponlar): onay isteğinin
+  `payload.yalnizSahip` işareti yalnızca sahibe karar verdirir. API'de 190, ortak pakette 108 test.
 - **Sıradaki:** Aşama 9 devamı
-  (kupon ve A/B, reklam ölçümü); ya da sunucular gelince Radore'ye ilk
+  (A/B testi, reklam ölçümü); ya da sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

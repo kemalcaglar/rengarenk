@@ -208,8 +208,13 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   sınır); düğme UTM'leri koruyarak talep oluşturmaya ya da galeri başvurusuna götürür
 - [ ] Ölçüm olaylarının gönderimi (Meta Pixel, Conversions API, Google etiketi) ve ilk/son temasın saklanması: reklam
   ölçümüyle (Karar 35)
-- [ ] Kupon bağlama ve A/B testi: kupon modülü ve deney altyapısıyla; tasarımdaki tek şablon seçimi yerine içerik
-  kampanyaya özel yazılıyor
+- [x] Kuponlar (Karar 40, 51, 56): pazarlama kampanyalar sayfasında hazırlar (kod, ad, yüzde, ürün grupları, kitle,
+  tarih, toplam sınır); dört göz onayı (COUPON; sahip ya da yönetici, %50 üstünü yalnızca sahip, onay isteğinde
+  `yalnizSahip`); web ödemesinde kod ("Uygula" önizlemesi sunucuda hesaplanır), hesap başına bir kez, kullanım ödeme
+  alınınca aynı işlemde; galeri paketinde yalnızca ilk ödeme (yenileme tam fiyat), galeri ek paketlerinde de geçer;
+  fatura satırında kupon adı; kampanyaya bağlanır, kupon onaylanmadan kampanya gönderilmez, kupon geçersizse kampanya
+  iptal olur; listede kullanım ve toplam indirim. Uygulama içi (mağaza) satın almada kupon yok
+- [ ] A/B testi: deney altyapısıyla; tasarımdaki tek şablon seçimi yerine içerik kampanyaya özel yazılıyor
 - [ ] Kanal kırılımı (organik, reklam, bildirim): reklam ölçümüyle; ajanın yorumu yapay zekâyla (şimdilik kural)
 
 ## Sprint 27 · Aşama 8 kalanları (9 Kasım 2026)

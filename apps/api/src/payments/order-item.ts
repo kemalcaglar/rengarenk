@@ -14,6 +14,9 @@ export interface Kalem {
   /** Abonelik kalemi (Karar 12.2) */
   plan?: PaidPlan;
   donem?: SubPeriod;
+  /** Kupon indirimi (tutarKurus indirimli; abonelikte netKurus liste fiyatı kalır, yenileme tam fiyat) */
+  indirimKurus?: number;
+  kupon?: string;
 }
 
 export const kalemler = (items: unknown) => items as Kalem[];

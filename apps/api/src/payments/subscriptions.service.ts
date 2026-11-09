@@ -39,6 +39,7 @@ import { EntitlementService } from '../entitlements/entitlement.service.js';
 import { FeatureFlagService } from '../flags/feature-flag.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { PricingService } from '../pricing/pricing.service.js';
+import { CouponService } from './coupon.service.js';
 import { type Kalem, kalemler } from './order-item.js';
 import { GALLERY_EXTRAS, OrdersService, siparisNo } from './orders.service.js';
 import { FakePayment, PaymentProviderFactory } from './providers.js';
@@ -82,6 +83,7 @@ export class SubscriptionsService {
     private readonly outbox: OutboxService,
     private readonly audit: AuditService,
     private readonly pricing: PricingService,
+    private readonly coupons: CouponService,
   ) {}
 
   private async member(userId: string, accountId: string) {
@@ -344,6 +346,15 @@ export class SubscriptionsService {
       plan,
       donem,
     };
+    // Kupon yalnızca yeni abonelikte ilk ödemeye uygulanır; liste fiyatı (netKurus) yenileme için kalır
+    let kupon: { id: string; indirim: number } | null = null;
+    if ('kupon' in input && input.kupon) {
+      if (kind !== 'abonelik')
+        throw new BadRequestException('Kupon yalnızca yeni pakette ilk ödemeye uygulanır');
+      const c = await this.coupons.resolve(input.kupon, { id: accountId, kitle: 'galeri' }, ['abonelik']);
+      kupon = { id: c.id, indirim: this.coupons.apply([kalem], c) };
+    }
+    const toplam = kalem.tutarKurus;
     const fatura = this.fatura(g, input.eposta);
     const no = siparisNo();
     const id = uuidv7();
@@ -363,8 +374,10 @@ export class SubscriptionsService {
           kind,
           subscriptionId: sub?.id ?? null,
           items: [kalem] as unknown as Prisma.InputJsonValue,
-          totalKurus: BigInt(brut),
-          vatKurus: BigInt(vatOfGross(brut)),
+          totalKurus: BigInt(toplam),
+          vatKurus: BigInt(vatOfGross(toplam)),
+          couponId: kupon?.id ?? null,
+          discountKurus: BigInt(kupon?.indirim ?? 0),
           billing: fatura as unknown as Prisma.InputJsonValue,
           consents: {
             sozlesme: SUBSCRIPTION_CONSENT,
@@ -378,7 +391,7 @@ export class SubscriptionsService {
         },
       });
     });
-    return { no, odemeAdresi: `${this.env.API_PUBLIC_URL}/odeme/kart/${no}`, toplamKurus: brut };
+    return { no, odemeAdresi: `${this.env.API_PUBLIC_URL}/odeme/kart/${no}`, toplamKurus: toplam };
   }
 
   /** Kart sayfası: PayTR'de kart formu doğrudan PayTR'ye gönderilir; sahte sağlayıcıda sahte sayfaya yönlenir */

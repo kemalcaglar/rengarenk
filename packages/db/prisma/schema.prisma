@@ -1653,6 +1653,9 @@ model Order {
   /// @pii Ödeme kuruluşuna giden müşteri IP'si
   userIp         String?     @map("user_ip")
   failReason     String?     @map("fail_reason")
+  /// Kupon (Karar 51): indirim kalemlere uygulanmış, tutarlar indirimli
+  couponId       String?     @map("coupon_id") @db.Uuid
+  discountKurus  BigInt      @default(0) @map("discount_kurus")
   paidAt         DateTime?   @map("paid_at") @db.Timestamptz(3)
   createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt      DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -1821,6 +1824,8 @@ model Campaign {
   /// taslak | onay_bekliyor | zamanlandi | gonderiliyor | gonderildi | reddedildi | iptal
   status      String    @default("taslak")
   approvalId  String?   @unique @map("approval_id") @db.Uuid
+  /// Bağlı kupon: onaylanmadan kampanya gönderilmez
+  couponId    String?   @map("coupon_id") @db.Uuid
   /// Gönderimden önceki tahmin (segment, kanal ulaşımı, sıklık sınırı)
   estimate    Json?
   targetCount Int?      @map("target_count")
@@ -2006,6 +2011,46 @@ model HomeLayoutVersion {
 
   @@index([publishAt])
   @@map("home_layout_versions")
+}
+
+/// Kupon (Karar 40, 51, 56): dört göz onayıyla geçerli olur; web ödemesinde kodla, hesap başına bir kez
+model Coupon {
+  id         String   @id @db.Uuid
+  code       String   @unique
+  name       String
+  percent    Int
+  /// Ürün grupları: ust_sira | acil | vitrin | talep | mesaj | abonelik
+  targets    String[]
+  /// herkes | bireysel | galeri
+  audience   String
+  startsAt   DateTime @map("starts_at") @db.Timestamptz(3)
+  endsAt     DateTime @map("ends_at") @db.Timestamptz(3)
+  maxUses    Int?     @map("max_uses")
+  /// onay_bekliyor | onaylandi | iptal (reddedilen onay okunurken anlaşılır)
+  status     String   @default("onay_bekliyor")
+  approvalId String?  @unique @map("approval_id") @db.Uuid
+  createdBy  String?  @map("created_by") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  redemptions CouponRedemption[]
+
+  @@map("coupons")
+}
+
+/// Kuponun kullanımı: ödeme alınınca yazılır; hesap başına bir kez
+model CouponRedemption {
+  id            String   @id @db.Uuid
+  couponId      String   @map("coupon_id") @db.Uuid
+  accountId     String   @map("account_id") @db.Uuid
+  orderId       String   @unique @map("order_id") @db.Uuid
+  discountKurus BigInt   @map("discount_kurus")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  coupon Coupon @relation(fields: [couponId], references: [id])
+
+  @@unique([couponId, accountId])
+  @@map("coupon_redemptions")
 }
 
 /// İçerik ayarları (ör. vitrinde boş yerlere editör seçimi)

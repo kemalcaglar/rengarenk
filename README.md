@@ -214,6 +214,10 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   `homeLayoutSchema`, `homeLayoutChanges`), `apps/api/src/content/home.service.ts` (`GET /icerik/anasayfa?platform=`,
   konsol `/staff/home-layout`), tablo `home_layout_versions`. Web `app/(site)/ana-duzen.tsx` ve `ana-bolumler.tsx`,
   mobil `components/ana-bolumler.tsx`. Konsol `/ana-sayfa-duzeni`. Aranan modeller `dashboard/aranan-modeller.ts`.
+- Kuponlar (Karar 40, 51): `packages/shared/src/coupons.ts` (`couponSchema`, `couponStatus`, `couponDiscount`,
+  `COUPON_MAX_PERCENT`), `apps/api/src/payments/coupon.service.ts` (`resolve`, `apply`, `redeem` ödemede aynı işlemde;
+  COUPON onay yürütücüsü); uçlar `POST /orders/kupon`, siparişte ve abonelikte `kupon`, konsol `/staff/coupons`;
+  tablolar `coupons`, `coupon_redemptions`, `orders.coupon_id/discount_kurus`, `campaigns.coupon_id`.
 - Kampanyalar ve segmentler (Karar 49, 51): `packages/shared/src/campaigns.ts`, `apps/api/src/campaigns/`
   (`SegmentService.preview/reach`, `CampaignService.estimate/create/dispatchDue`, işçide dakikada bir); uçlar
   `/staff/segments`, `/staff/campaigns`; bildirimlerde `campaign_id`. Konsol `/segmentler`, `/kampanyalar`.

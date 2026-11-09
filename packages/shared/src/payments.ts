@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { couponCodeSchema } from './coupons.js';
 
 /**
  * Web ödemeleri (Karar 12.8, 31, 38, 39; Teknik tasarım §7). Bireysel fiyatlar KDV dahildir. Uygulamada satış mağaza
@@ -193,6 +194,8 @@ export const orderCreateSchema = z
     fatura: billingSchema,
     /** Galeri adına ek paket (yalnızca galeri sahibi; fatura galerinin ticari bilgileriyle) */
     hesap: z.uuid().optional(),
+    /** Kupon kodu (Karar 51): yalnızca web ödemesinde */
+    kupon: couponCodeSchema.optional(),
     onay: z
       .object({
         sozlesme: z.literal(true, 'Sözleşme onayı gerekli'),
