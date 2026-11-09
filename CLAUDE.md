@@ -262,9 +262,10 @@ pnpm format        # Biome ile biçimlendir
   harita, gelir, modeller, birim ve kohort; reklam ve deneyler bağlantı bekliyor. API testlerinde `hookTimeout` 60 sn
   (her dosya şemayı sıfırlayıp bütün göçleri uygular). Kampanyalar ve segmentler (`apps/api/src/campaigns/`, konsol
   `/segmentler`, `/kampanyalar`): gönderim bildirim katmanından (`notify({ kanallar, campaignId })`), 1.000 kişi üstü
-  BULK_SEND onayı. API'de 183 test.
+  BULK_SEND onayı. Açılış sayfaları (`apps/api/src/landing/`, konsol `/acilis-sayfalari`; web kök adreste yakalama
+  rotasından; yeni bir site rotası eklersen `LANDING_RESERVED`'a da ekle). API'de 184 test.
 - **Sıradaki:** Aşama 9 devamı
-  (açılış sayfaları, haftalık/aylık rapor e-postası, akış düzenleyicisi, reklam ölçümü, kupon ve A/B); ya da sunucular gelince Radore'ye ilk
+  (haftalık/aylık rapor e-postası, akış düzenleyicisi, reklam ölçümü, kupon ve A/B, ana sayfa düzeni, banner); ya da sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

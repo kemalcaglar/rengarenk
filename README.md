@@ -200,6 +200,9 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - Kampanyalar ve segmentler (Karar 49, 51): `packages/shared/src/campaigns.ts`, `apps/api/src/campaigns/`
   (`SegmentService.preview/reach`, `CampaignService.estimate/create/dispatchDue`, işçide dakikada bir); uçlar
   `/staff/segments`, `/staff/campaigns`; bildirimlerde `campaign_id`. Konsol `/segmentler`, `/kampanyalar`.
+- Açılış sayfaları (Karar 46): `packages/shared/src/landing.ts`, `apps/api/src/landing/`; herkese açık
+  `GET /acilis/:slug`, `POST /acilis/:slug/olay`; konsol `/staff/landing`. Web `app/(site)/[...yok]/page.tsx` kök
+  adresteki yayında sayfayı `components/acilis.tsx` ile çizer. Konsol `/acilis-sayfalari`.
 - Kurallar ve fiyatlar: `packages/shared/src/pricing.ts` (`PriceBook`, `DEFAULT_PRICE_BOOK`, `plansOf`, `priceChanges`),
   `apps/api/src/pricing/` (`PricingService.current()/plans()/productTl()`, küresel modül; işçide PRICE_CHANGE yürütücüsü).
   `galleryAccess`, `planNetKurus`, `memberLimit` isteğe bağlı paket tablosu alır; API'de her zaman

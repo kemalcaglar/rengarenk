@@ -88,7 +88,7 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
     ogeler: [
       { ad: 'Ana sayfa düzeni', sonra: true },
       { ad: 'Banner ve vitrin', sonra: true },
-      { ad: 'Açılış sayfaları', sonra: true },
+      { href: '/acilis-sayfalari', ad: 'Açılış sayfaları', izin: 'gorunum.duzenle' },
       { ad: 'Tasarım değerleri', sonra: true },
       { ad: 'Yardım ve yasal metinler', sonra: true },
     ],

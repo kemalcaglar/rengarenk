@@ -166,6 +166,13 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   sınırı, ısınma, maliyet); 1.000 kişiyi aşan gönderim BULK_SEND onayıyla; işçi zamanında segmenti yeniden hesaplayıp
   `kampanya.duyuru` şablonuyla bildirim katmanından gönderir (onay, tercih, haftada 2, sessiz saat orada); sonuç
   (kişi, uygulamada okunma, e-posta teslimi) ve grafik notu; iptal
+- [x] Açılış sayfaları (YonetimIcerik.dc.html › acilis; Karar 46, 35): bloklar (başlık, rakamlar, avantajlar, form, nasıl
+  çalışır, sık sorulanlar, güven rozetleri), sıralama ve içerik düzenleme, sitenin kök adresinde yayın (web yakalama
+  rotası; site sayfalarıyla çakışan adres reddedilir), sürüm ve önceki sürüme dönüş, 1 saatlik imzalı önizleme, UTM'li
+  reklam bağlantısı, hedefe göre ölçüm olayları listesi, günlük ziyaret ve düğme tıklaması (kişisel veri yok, IP başına
+  sınır); düğme UTM'leri koruyarak talep oluşturmaya ya da galeri başvurusuna götürür
+- [ ] Ölçüm olaylarının gönderimi (Meta Pixel, Conversions API, Google etiketi) ve ilk/son temasın saklanması: reklam
+  ölçümüyle (Karar 35)
 - [ ] Kupon bağlama ve A/B testi: kupon modülü ve deney altyapısıyla; tasarımdaki tek şablon seçimi yerine içerik
   kampanyaya özel yazılıyor
 - [ ] Kanal kırılımı (organik, reklam, bildirim): reklam ölçümüyle; ajanın yorumu yapay zekâyla (şimdilik kural)

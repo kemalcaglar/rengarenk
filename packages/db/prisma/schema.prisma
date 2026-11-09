@@ -1834,6 +1834,61 @@ model Campaign {
   @@map("campaigns")
 }
 
+/// Açılış sayfası (Karar 46): taslak bloklar ve yayındaki sürüm; kök adreste (rengarenk.com.tr/<slug>) sunulur
+model LandingPage {
+  id              String    @id @db.Uuid
+  slug            String    @unique
+  name            String
+  seoTitle        String    @map("seo_title")
+  /// { source, medium, campaign }
+  utm             Json
+  /// Taslak bloklar (LandingBlock[])
+  blocks          Json
+  /// Yayındaki bloklar; null ise yayında değil
+  publishedBlocks Json?     @map("published_blocks")
+  /// taslak | yayinda | kapali
+  status          String    @default("taslak")
+  version         Int       @default(0)
+  publishedAt     DateTime? @map("published_at") @db.Timestamptz(3)
+  createdBy       String    @map("created_by") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  versions LandingPageVersion[]
+  stats    LandingStat[]
+
+  @@map("landing_pages")
+}
+
+/// Yayınlanan her sürüm (önceki sürüme dönmek için; silinmez)
+model LandingPageVersion {
+  id          String   @id @db.Uuid
+  pageId      String   @map("page_id") @db.Uuid
+  version     Int
+  blocks      Json
+  seoTitle    String   @map("seo_title")
+  publishedBy String   @map("published_by") @db.Uuid
+  publishedAt DateTime @default(now()) @map("published_at") @db.Timestamptz(3)
+
+  page LandingPage @relation(fields: [pageId], references: [id])
+
+  @@unique([pageId, version])
+  @@map("landing_page_versions")
+}
+
+/// Günlük ziyaret ve düğme tıklaması (kişisel veri yok)
+model LandingStat {
+  pageId String   @map("page_id") @db.Uuid
+  day    DateTime @db.Date
+  visits Int      @default(0)
+  clicks Int      @default(0)
+
+  page LandingPage @relation(fields: [pageId], references: [id])
+
+  @@id([pageId, day])
+  @@map("landing_stats")
+}
+
 /// Kişisel pano (Karar 44, "panoya kaydet"): çalışanın kaydettiği rapor sekmesi ve süzgeçleri
 model ReportView {
   id        String   @id @db.Uuid
