@@ -15,6 +15,7 @@ import { type CSSProperties, type ReactNode, useCallback, useEffect, useRef, use
 import { ApiHatasi, binlik, istek, useGiris } from '../../lib/istemci';
 import { Logo } from '../logo';
 import { Alan, Anahtar, Cip, etiket, Konum, kutu, secimKutusu } from './alan';
+import { Asistan } from './asistan';
 import { type BoyaDegeri, BoyaSemasi, boyaOzeti } from './boya';
 import { type KatalogDegeri, katalogKategorisi, useKatalog } from './katalog';
 
@@ -77,6 +78,8 @@ interface Taslak {
   headline: string | null;
   schema: { version: number; fields: CategoryField[]; rules: CategoryRules } | null;
   hesap: { id: string; ad: string } | null;
+  /** Talep asistanı bu kişi için açık mı (Karar 42) */
+  asistan?: boolean;
 }
 interface Haklar {
   ucretsizTalep: boolean;
@@ -119,6 +122,8 @@ export function Sihirbaz() {
   const [galeriler, setGaleriler] = useState<{ accountId: string; ad: string }[]>([]);
   const [hesap, setHesap] = useState<string | null>(null);
   const kirli = useRef(false);
+  // Asistan formu doldurunca katalog seçicisi yeniden kurulur
+  const [asistanSurum, setAsistanSurum] = useState(0);
 
   useEffect(() => {
     if (giris === false)
@@ -669,8 +674,20 @@ export function Sihirbaz() {
             </>
           ) : null}
 
+          {adim === 'ana_arac' && taslak?.asistan && !duzenle ? (
+            <Asistan
+              taslakId={taslak.id}
+              doldu={async () => {
+                kirli.current = false;
+                await yukle(taslak.id);
+                setAdim('ana_arac');
+                setAsistanSurum((n) => n + 1);
+              }}
+            />
+          ) : null}
           {adim === 'ana_arac' && taslak ? (
             <AnaArac
+              key={asistanSurum}
               alanlar={adimAlanlari('ana_arac')}
               veri={veri}
               kategori={katalogKategorisi(taslak.category.slug, katUst, veri.alanlar.aracTuru)}

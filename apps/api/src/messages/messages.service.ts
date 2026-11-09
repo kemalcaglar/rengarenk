@@ -316,6 +316,7 @@ export class MessagesService {
         if (b.aracId) await this.kart(tx, id, 'satici', userId, b.aracId);
         await this.outbox.add(tx, 'mesaj.ilk', {
           conversationId: id,
+          messageId: mid,
           demandId: d.id,
           sellerAccountId: s.accountId,
           entitlement,
@@ -573,7 +574,7 @@ export class MessagesService {
           ...(taraf === 'satici' && flags.length ? { warned: true } : {}),
         },
       });
-      await this.outbox.add(tx, 'mesaj.geldi', { conversationId: id, side: taraf });
+      await this.outbox.add(tx, 'mesaj.geldi', { conversationId: id, side: taraf, messageId: mid });
       if (flags.length)
         await this.outbox.add(tx, 'mesaj.uyari', { conversationId: id, messageId: mid, flags, side: taraf });
     });

@@ -1,4 +1,5 @@
 import {
+  ASSISTANT_TEXT_MAX,
   BIREYSEL_FIYATLAR,
   type CategoryField,
   type CategoryRules,
@@ -93,6 +94,8 @@ interface Taslak {
   headline: string | null;
   schema: { fields: CategoryField[]; rules: CategoryRules } | null;
   hesap: { id: string; ad: string } | null;
+  /** Talep asistanı bu kişi için açık mı (Karar 42) */
+  asistan?: boolean;
 }
 interface Haklar {
   ucretsizTalep: boolean;
@@ -639,6 +642,19 @@ export default function TalepOlustur() {
 
         {adim === 'ana_arac' && taslak ? (
           <>
+            {taslak.asistan && !duzenle ? (
+              <Asistan
+                doldur={async (metin) => {
+                  const r = await istek<AsistanSonucu>(`/demands/${taslak.id}/asistan`, {
+                    method: 'POST',
+                    body: { metin },
+                  });
+                  kirli.current = false;
+                  await yukle(taslak.id);
+                  return r;
+                }}
+              />
+            ) : null}
             {adimAlanlari('ana_arac')
               .filter((f) => f.type !== 'catalog' && gorunur(f))
               .map((f) => kart(<Alan f={f} value={deger(f)} onChange={yaz(f)} hata={hataOf(f)} />, f.key))}
@@ -1363,5 +1379,101 @@ function Onizleme({
         )
       ) : null}
     </>
+  );
+}
+
+interface AsistanSonucu {
+  doldurulan: { alan: string; deger: string }[];
+  eksik: string[];
+}
+
+/**
+ * Talep asistanı (Karar 42; özellik anahtarı `talep_asistani`): alıcı aradığı aracı kendi cümleleriyle yazar, asistan
+ * formu doldurur; alıcı adımları kontrol edip kendisi yayınlar. Web ile aynı metinler.
+ */
+function Asistan({ doldur }: { doldur: (metin: string) => Promise<AsistanSonucu> }) {
+  const [metin, setMetin] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [sonuc, setSonuc] = useState<AsistanSonucu | null>(null);
+  const [hata, setHata] = useState<string | null>(null);
+  const hazir = metin.trim().length >= 5;
+  return (
+    <View
+      style={{
+        borderWidth: 1.5,
+        borderColor: '#C9B8FF',
+        backgroundColor: '#FAF7FF',
+        borderRadius: 16,
+        padding: 14,
+        marginBottom: 12,
+      }}
+    >
+      <T style={{ fontSize: 15, fontWeight: '800', color: '#4B2FA6' }}>
+        ✦ Aradığın aracı kendi cümlelerinle yaz
+      </T>
+      <T style={{ fontSize: 12.5, color: '#5A6073', marginTop: 3, marginBottom: 8, lineHeight: 17 }}>
+        Asistan formu doldurur; adımları kontrol edip talebini sen yayınlarsın.
+      </T>
+      <TInput
+        accessibilityLabel="Aradığın araç"
+        multiline
+        numberOfLines={3}
+        maxLength={ASSISTANT_TEXT_MAX}
+        value={metin}
+        placeholder="Ör. 2019 sonrası otomatik, dizel, 1,5 milyon bütçe, İstanbul"
+        onChangeText={setMetin}
+        style={{
+          borderWidth: 1,
+          borderColor: '#D5DAE5',
+          borderRadius: 14,
+          padding: 12,
+          fontSize: 14.5,
+          minHeight: 72,
+          textAlignVertical: 'top',
+          backgroundColor: '#FFFFFF',
+        }}
+      />
+      <View
+        style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}
+      >
+        <Pressable
+          accessibilityRole="button"
+          disabled={busy || !hazir}
+          onPress={async () => {
+            setBusy(true);
+            setHata(null);
+            try {
+              setSonuc(await doldur(metin.trim()));
+            } catch (e) {
+              setHata((e as Error).message);
+            } finally {
+              setBusy(false);
+            }
+          }}
+          style={{ paddingVertical: 6, opacity: hazir ? 1 : 0.55 }}
+        >
+          <T style={{ fontSize: 13.5, fontWeight: '800', color: '#2450C8' }}>
+            {busy ? 'Dolduruluyor…' : '✦ Formu doldur'}
+          </T>
+        </Pressable>
+        <T style={{ fontSize: 12, color: '#5A6073' }}>
+          {metin.length} / {ASSISTANT_TEXT_MAX}
+        </T>
+      </View>
+      {hata ? (
+        <T style={{ marginTop: 6, fontSize: 13, fontWeight: '600', color: '#A3271F' }}>{hata}</T>
+      ) : null}
+      {sonuc ? (
+        <T style={{ marginTop: 8, fontSize: 13, lineHeight: 18 }}>
+          {sonuc.doldurulan.length
+            ? `Asistan doldurdu: ${sonuc.doldurulan.map((d) => `${d.alan}: ${d.deger}`).join(' · ')}`
+            : 'Metinden bir alan çıkaramadım; marka, model, yıl ya da bütçe yazmayı dene.'}
+          {sonuc.eksik.length
+            ? `
+Senin doldurman gerekenler: ${sonuc.eksik.join(', ')}`
+            : ''}
+        </T>
+      ) : null}
+    </View>
   );
 }

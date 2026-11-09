@@ -10,6 +10,7 @@ import { DemandService } from './demands/demand.service.js';
 import { GalleryService } from './galleries/gallery.service.js';
 import { GalleryApplicationService } from './galleries/gallery-application.service.js';
 import { MatchingService } from './matching/matching.service.js';
+import { MessageSafety } from './messages/message-safety.js';
 import { ModerationService } from './moderation/moderation.service.js';
 import { AutomationService } from './notifications/automations.js';
 import { CommercialService, IYS, type IysProvider } from './notifications/commercial.js';
@@ -60,6 +61,7 @@ const gizlilik = app.get(PrivacyService);
 const imha = app.get(RetentionService);
 const ajan = app.get(AgentService);
 const uyarilar = app.get(StaffAlertService);
+const mesajGuvenligi = app.get(MessageSafety);
 const iys = app.get<IysProvider>(IYS);
 await queue.start();
 
@@ -165,6 +167,18 @@ await queue.consume<{ reportId: string }>('sikayet.acildi', 'ajan-spam-sikayet',
   const s = await moderasyon.ajanSpamKontrolu(r.targetUserId);
   if (s !== 'islem_yok') log.log(`ajan spam kontrolü: ${s}`);
 });
+// Yapay zekâ destekli mesaj güvenliği (Karar 42): satıcı mesajı şüpheliyse alıcıya uyarı bandı
+for (const event of ['mesaj.ilk', 'mesaj.geldi']) {
+  await queue.consume<{ messageId?: string; side?: string }>(
+    event,
+    `mesaj-guvenligi-${event.replace('.', '-')}`,
+    async ({ messageId, side }) => {
+      if (!messageId || side === 'alici' || side === 'sistem') return;
+      const r = await mesajGuvenligi.kontrol(messageId);
+      if (r === 'supheli') log.log('mesaj güvenliği: şüpheli mesaj işaretlendi');
+    },
+  );
+}
 // KVKK (Karar 58): veri kopyası hazırlanır, hazır olunca bildirim gider
 await queue.consume<{ exportId: string }>('veri.indirme_istendi', 'veri-indirme', async ({ exportId }) => {
   log.log(`veri kopyası ${exportId}: ${await gizlilik.buildExport(exportId)}`);

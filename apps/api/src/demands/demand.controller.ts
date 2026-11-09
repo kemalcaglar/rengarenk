@@ -14,11 +14,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  assistantSchema,
   demandCompleteSchema,
   demandCreateSchema,
   demandPromoteSchema,
   demandSearchQuerySchema,
   demandUpdateSchema,
+  FLAG_PLATFORMS,
+  type FlagPlatform,
 } from '@rengarenk/shared';
 import { z } from 'zod';
 import { AuthGuard } from '../auth/auth.guard.js';
@@ -26,6 +29,12 @@ import { type AccessClaims, AuthService } from '../auth/auth.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
 import { DemandSearchService } from '../search/demand-search.service.js';
 import { DemandService } from './demand.service.js';
+import { DemandAssistant } from './demand-assistant.js';
+
+const platformOf = (p?: string): FlagPlatform | undefined => {
+  const u = p?.toUpperCase();
+  return FLAG_PLATFORMS.includes(u as FlagPlatform) ? (u as FlagPlatform) : undefined;
+};
 
 type AuthedRequest = { user: AccessClaims; ip: string };
 
@@ -72,7 +81,10 @@ export class PublicDemandsController {
 @Controller('demands')
 @UseGuards(AuthGuard)
 export class DemandsController {
-  constructor(private readonly demands: DemandService) {}
+  constructor(
+    private readonly demands: DemandService,
+    private readonly asistan: DemandAssistant,
+  ) {}
 
   @Get('mine')
   mine(@Req() req: AuthedRequest) {
@@ -103,8 +115,27 @@ export class DemandsController {
   }
 
   @Get(':id')
-  detail(@Req() req: AuthedRequest, @Param('id', new ParseUUIDPipe()) id: string) {
-    return this.demands.ownerDetail(req.user.sub, id);
+  async detail(
+    @Req() req: AuthedRequest,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Headers('x-rr-platform') platform?: string,
+  ) {
+    const d = await this.demands.ownerDetail(req.user.sub, id);
+    /** Talep asistanı bu kişi ve platform için açık mı (Karar 42, özellik anahtarı) */
+    const asistan = d.status === 'DRAFT' && (await this.asistan.acik(req.user.sub, platformOf(platform)));
+    return { ...d, asistan };
+  }
+
+  /** Talep asistanı: serbest metinden taslağı doldurur; alıcı kontrol edip kendisi yayınlar (Karar 42) */
+  @Post(':id/asistan')
+  @HttpCode(200)
+  doldur(
+    @Req() req: AuthedRequest,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodPipe(assistantSchema)) body: z.output<typeof assistantSchema>,
+    @Headers('x-rr-platform') platform?: string,
+  ) {
+    return this.asistan.doldur(req.user.sub, id, body.metin, platformOf(platform));
   }
 
   @Patch(':id')

@@ -1,7 +1,7 @@
 'use client';
 
 import { MESSAGE_MAX } from '@rengarenk/shared';
-import { type CSSProperties, useEffect, useState } from 'react';
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
 import { istek } from '../lib/istemci';
 
 interface Durum {
@@ -32,7 +32,8 @@ const dugme: CSSProperties = {
 /**
  * İlk mesaj penceresi (GaleriMobil.dc.html › İlk mesaj; Karar 08.1, 11, 26). Satıcı talebe tek ilk mesaj atar; galeri
  * adına yazılıyorsa yayındaki portföy aracı kart olarak eklenebilir. Hak: önce günlük (bireyselde ücretsiz, galeride
- * paketin günlük hakkı), sonra ek hak. Tasarımdaki "Taslağı yeniden yaz" yapay zekâ özelliğiyle gelecek (Karar 42).
+ * paketin günlük hakkı), sonra ek hak. Pencere açılınca taslak gelir (Karar 42): galeride eşleştirmenin en uygun
+ * bulduğu portföy aracı önerilir; "✦ Taslağı yeniden yaz" başka bir taslak getirir. Gönderen her zaman satıcıdır.
  */
 export function IlkMesaj({
   talepNo,
@@ -60,6 +61,9 @@ export function IlkMesaj({
   const [metin, setMetin] = useState('');
   const [hata, setHata] = useState<string | null>(null);
   const [mesgul, setMesgul] = useState(false);
+  const [sira, setSira] = useState(0);
+  const [yaziyor, setYaziyor] = useState(false);
+  const elle = useRef(false);
 
   useEffect(() => {
     istek<Durum>(`/talepler/${talepNo}/mesaj${hesap ? `?hesap=${hesap}` : ''}`)
@@ -86,6 +90,39 @@ export function IlkMesaj({
     window.addEventListener('keydown', esc);
     return () => window.removeEventListener('keydown', esc);
   }, [kapat]);
+
+  // Taslak: hesap seçilince (ve "yeniden yaz" ile) gelir; kişi metni elle değiştirdiyse üzerine yazılmaz
+  const taslakGetir = useCallback(
+    async (n: number, zorla = false) => {
+      if (!d || d.kendi || d.yazildi || (elle.current && !zorla)) return;
+      setYaziyor(true);
+      try {
+        const r = await istek<{ metin: string; arac: { id: string; ad: string } | null }>(
+          `/talepler/${talepNo}/mesaj/taslak`,
+          {
+            method: 'POST',
+            body: {
+              sira: n,
+              ...(secili?.galeri ? { hesap: secili.id } : {}),
+              ...(secili?.galeri && aracId ? { aracId } : {}),
+            },
+          },
+        );
+        setMetin(r.metin);
+        elle.current = false;
+        if (r.arac && !aracId) setAracId(r.arac.id);
+      } catch {
+        // Taslak gelmezse kişi kendisi yazar
+      } finally {
+        setYaziyor(false);
+      }
+    },
+    [d, talepNo, secili?.galeri, secili?.id, aracId],
+  );
+  // biome-ignore lint/correctness/useExhaustiveDependencies: hesap ya da araç değişince yeni taslak
+  useEffect(() => {
+    taslakGetir(0);
+  }, [d?.hesap, secili?.id, aracId]);
 
   const hakVar = (d?.gunluk?.kalan ?? 0) > 0 || (d?.ek ?? 0) > 0;
   const gunlukAd = secili?.galeri ? 'Bugün kalan ilk mesaj hakkın' : 'Bugün kalan ücretsiz mesaj hakkın';
@@ -247,7 +284,10 @@ export function IlkMesaj({
           rows={5}
           maxLength={MESSAGE_MAX}
           value={metin}
-          onChange={(e) => setMetin(e.target.value)}
+          onChange={(e) => {
+            elle.current = true;
+            setMetin(e.target.value);
+          }}
           placeholder="Merhaba, aradığınız kriterlere uyan aracım var…"
           style={{
             width: '100%',
@@ -261,8 +301,29 @@ export function IlkMesaj({
             fontFamily: 'inherit',
           }}
         />
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
-          <span style={{ fontSize: 12.5, color: '#5A6073' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 4 }}>
+          <button
+            type="button"
+            disabled={yaziyor}
+            onClick={() => {
+              const n = sira + 1;
+              setSira(n);
+              taslakGetir(n, true);
+            }}
+            style={{
+              border: 0,
+              background: 'transparent',
+              padding: '6px 0',
+              fontSize: 13,
+              fontWeight: 700,
+              color: '#2450C8',
+              cursor: yaziyor ? 'default' : 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            {yaziyor ? 'Yazılıyor…' : '✦ Taslağı yeniden yaz'}
+          </button>
+          <span style={{ fontSize: 12.5, color: '#5A6073', padding: '6px 0' }}>
             {metin.length} / {MESSAGE_MAX}
           </span>
         </div>

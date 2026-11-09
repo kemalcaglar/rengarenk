@@ -12,11 +12,17 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { chatMessageSchema, firstMessageSchema, vehicleMessageSchema } from '@rengarenk/shared';
+import {
+  chatMessageSchema,
+  firstMessageDraftSchema,
+  firstMessageSchema,
+  vehicleMessageSchema,
+} from '@rengarenk/shared';
 import { z } from 'zod';
 import { AuthGuard } from '../auth/auth.guard.js';
 import type { AccessClaims } from '../auth/auth.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
+import { FirstMessageDraft } from './first-message-draft.js';
 import { MessagesService } from './messages.service.js';
 
 type AuthedRequest = { user: AccessClaims };
@@ -26,7 +32,21 @@ const uuid = new ParseUUIDPipe();
 @Controller()
 @UseGuards(AuthGuard)
 export class FirstMessageController {
-  constructor(private readonly messages: MessagesService) {}
+  constructor(
+    private readonly messages: MessagesService,
+    private readonly taslaklar: FirstMessageDraft,
+  ) {}
+
+  /** İlk mesaj taslağı ve önerilen portföy aracı (Karar 42); gönderen her zaman satıcıdır */
+  @Post('talepler/:no/mesaj/taslak')
+  @HttpCode(200)
+  draft(
+    @Req() req: AuthedRequest,
+    @Param('no', new ParseIntPipe()) no: number,
+    @Body(new ZodPipe(firstMessageDraftSchema)) b: z.output<typeof firstMessageDraftSchema>,
+  ) {
+    return this.taslaklar.taslak(req.user.sub, no, b);
+  }
 
   /** Talep sayfasındaki iletişim kutusu: yazılabilir mi, kalan hak */
   @Get('talepler/:no/mesaj')

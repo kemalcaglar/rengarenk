@@ -35,10 +35,13 @@ export class FakeAiProvider implements AiProvider {
   readonly calls: AiProviderRequest[] = [];
   /** Test: true iken hata verir */
   fail = false;
+  /** Test: doluysa taslak yerine bu metni döner (sağlayıcının kurala aykırı yanıtını denemek için) */
+  yanit: string | null = null;
   async generate(r: AiProviderRequest): Promise<AiProviderResult> {
     this.calls.push(r);
     if (this.fail) throw new Error('sahte sağlayıcı hatası');
-    return { text: r.taslak, inputTokens: tahmin(r.system + r.prompt), outputTokens: tahmin(r.taslak) };
+    const text = this.yanit ?? r.taslak;
+    return { text, inputTokens: tahmin(r.system + r.prompt), outputTokens: tahmin(text) };
   }
 }
 

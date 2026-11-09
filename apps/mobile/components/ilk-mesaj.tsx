@@ -1,10 +1,12 @@
 import { colors, MESSAGE_MAX } from '@rengarenk/shared';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { useOturum } from '../lib/oturum';
 import { T } from './t';
 
 interface Durum {
+  kendi?: boolean;
+  yazildi?: string | null;
   hesap?: string;
   hesaplar: { id: string; ad: string; galeri: boolean }[];
   gunluk: { toplam: number; kalan: number } | null;
@@ -14,7 +16,8 @@ interface Durum {
 
 /**
  * İlk mesaj (tasarım: GaleriMobil.dc.html › İlk mesaj): alttan açılan pencere. Galeri adına yazılıyorsa araç kartı
- * eklenir. "Taslağı yeniden yaz" yapay zekâ özelliğiyle gelecek (Karar 42).
+ * eklenir. Pencere açılınca taslak gelir (Karar 42): galeride eşleştirmenin en uygun bulduğu araç önerilir; "✦ Taslağı
+ * yeniden yaz" başka bir taslak getirir. Gönderen her zaman satıcıdır.
  */
 export function IlkMesaj({
   acik,
@@ -40,6 +43,10 @@ export function IlkMesaj({
   const [metin, setMetin] = useState('');
   const [hata, setHata] = useState<string | null>(null);
   const [mesgul, setMesgul] = useState(false);
+  const [secArac, setSecArac] = useState(arac ?? null);
+  const [sira, setSira] = useState(0);
+  const [yaziyor, setYaziyor] = useState(false);
+  const elle = useRef(false);
 
   useEffect(() => {
     if (!acik) return;
@@ -50,6 +57,38 @@ export function IlkMesaj({
   }, [acik, talepNo, hesap, istek]);
 
   const galeri = d?.hesaplar.find((h) => h.id === (hesap ?? d.hesap))?.galeri ?? false;
+  const taslakGetir = useCallback(
+    async (n: number, zorla = false) => {
+      if (!d || d.kendi || d.yazildi || (elle.current && !zorla)) return;
+      setYaziyor(true);
+      try {
+        const r = await istek<{ metin: string; arac: { id: string; ad: string } | null }>(
+          `/talepler/${talepNo}/mesaj/taslak`,
+          {
+            method: 'POST',
+            body: {
+              sira: n,
+              ...(galeri && hesap ? { hesap } : {}),
+              ...(galeri && secArac ? { aracId: secArac.id } : {}),
+            },
+          },
+        );
+        setMetin(r.metin);
+        elle.current = false;
+        if (r.arac && !secArac) setSecArac(r.arac);
+      } catch {
+        // Taslak gelmezse kişi kendisi yazar
+      } finally {
+        setYaziyor(false);
+      }
+    },
+    [d, galeri, hesap, secArac, talepNo, istek],
+  );
+  // biome-ignore lint/correctness/useExhaustiveDependencies: pencere ve hesap durumu gelince bir kez
+  useEffect(() => {
+    if (acik) taslakGetir(0);
+  }, [acik, d]);
+
   const hakVar = (d?.gunluk?.kalan ?? 0) > 0 || (d?.ek ?? 0) > 0;
   const pasif = mesgul || !metin.trim() || !d || !!d.engel || !hakVar;
 
@@ -62,7 +101,7 @@ export function IlkMesaj({
         body: {
           metin,
           ...(galeri && hesap ? { hesap } : {}),
-          ...(galeri && arac ? { aracId: arac.id } : {}),
+          ...(galeri && secArac ? { aracId: secArac.id } : {}),
         },
       });
       setMetin('');
@@ -104,7 +143,7 @@ export function IlkMesaj({
             <T style={{ fontSize: 13, color: colors.muted, marginTop: 2 }}>
               {[talepBaslik, sahip].filter(Boolean).join(' · ')}
             </T>
-            {galeri && arac ? (
+            {galeri && secArac ? (
               <View
                 style={{
                   flexDirection: 'row',
@@ -119,7 +158,7 @@ export function IlkMesaj({
                 <View style={{ width: 52, height: 34, borderRadius: 8, backgroundColor: '#E5D8B5' }} />
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <T numberOfLines={1} style={{ fontSize: 14, fontWeight: '800' }}>
-                    {arac.ad}
+                    {secArac.ad}
                   </T>
                   <T style={{ fontSize: 12, color: '#7A5300', marginTop: 1 }}>
                     Araç kartı mesaja eklenir · EİDS doğrulandı
@@ -133,7 +172,10 @@ export function IlkMesaj({
               multiline
               maxLength={MESSAGE_MAX}
               value={metin}
-              onChangeText={setMetin}
+              onChangeText={(s) => {
+                elle.current = true;
+                setMetin(s);
+              }}
               placeholder="Merhaba, aradığınız kriterlere uyan aracım var…"
               placeholderTextColor={colors.muted}
               style={{
@@ -149,9 +191,25 @@ export function IlkMesaj({
                 color: colors.ink,
               }}
             />
-            <T style={{ alignSelf: 'flex-end', fontSize: 12, color: colors.muted, marginTop: 4 }}>
-              {metin.length} / {MESSAGE_MAX}
-            </T>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
+              <Pressable
+                accessibilityRole="button"
+                disabled={yaziyor}
+                onPress={() => {
+                  const n = sira + 1;
+                  setSira(n);
+                  taslakGetir(n, true);
+                }}
+                style={{ paddingVertical: 6 }}
+              >
+                <T style={{ fontSize: 13, fontWeight: '700', color: '#2450C8' }}>
+                  {yaziyor ? 'Yazılıyor…' : '✦ Taslağı yeniden yaz'}
+                </T>
+              </Pressable>
+              <T style={{ fontSize: 12, color: colors.muted, paddingVertical: 6 }}>
+                {metin.length} / {MESSAGE_MAX}
+              </T>
+            </View>
             <T style={{ fontSize: 12, color: colors.muted, lineHeight: 17, marginTop: 4 }}>
               Yalnızca metin. Telefon, IBAN, bağlantı yazma ve kapora isteme. Alıcı cevap verene kadar ikinci
               mesaj atılamaz.

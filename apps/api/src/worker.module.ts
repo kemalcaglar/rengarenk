@@ -8,6 +8,7 @@ import { DatabaseModule } from './database/database.module.js';
 import { DemandsWorkerModule } from './demands/demands.module.js';
 import { GalleriesWorkerModule } from './galleries/galleries.module.js';
 import { MatchingWorkerModule } from './matching/matching.module.js';
+import { MessageSafetyModule } from './messages/messages.module.js';
 import { ModerationServiceModule } from './moderation/moderation.module.js';
 import { NotificationsWorkerModule } from './notifications/notifications.module.js';
 import { MetricsModule } from './observability/metrics.js';
@@ -52,6 +53,7 @@ import { TrustWorkerModule } from './trust/trust.module.js';
     ModerationServiceModule,
     PrivacyWorkerModule,
     StaffAlertsWorkerModule,
+    MessageSafetyModule,
   ],
   providers: [OutboxService, QueueService],
 })

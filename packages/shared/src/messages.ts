@@ -30,6 +30,15 @@ export const firstMessageSchema = z
 
 export const vehicleMessageSchema = z.object({ metin: messageBodySchema }).strict();
 
+/** İlk mesaj taslağı (Karar 42): galeride uygun portföy aracı önerilir; `sira` "Taslağı yeniden yaz" ile artar */
+export const firstMessageDraftSchema = z
+  .object({
+    hesap: z.uuid().optional(),
+    aracId: z.uuid().optional(),
+    sira: z.number().int().min(0).max(50).optional(),
+  })
+  .strict();
+
 export const chatMessageSchema = z
   .object({
     metin: messageBodySchema,
@@ -39,7 +48,8 @@ export const chatMessageSchema = z
 
 // ── Mesaj güvenliği (Karar 25, Teknik tasarım §8) ─────────────
 
-export const MESSAGE_FLAGS = ['kapora', 'odeme', 'iban', 'telefon', 'baglanti'] as const;
+/** `supheli`: yapay zekâ destekli mesaj güvenliği (Karar 42) şüpheli ödeme ya da teslim yöntemi buldu */
+export const MESSAGE_FLAGS = ['kapora', 'odeme', 'iban', 'telefon', 'baglanti', 'supheli'] as const;
 export type MessageFlag = (typeof MESSAGE_FLAGS)[number];
 
 /** Uyarı bandının başlığı (Mesajlar.dc.html: "Dikkat: bu mesajda kapora isteği var.") */
@@ -49,6 +59,7 @@ export const FLAG_TITLES: Record<MessageFlag, string> = {
   iban: 'Dikkat: bu mesajda IBAN var.',
   telefon: 'Dikkat: bu mesajda telefon numarası var.',
   baglanti: 'Dikkat: bu mesajda platform dışı bir bağlantı var.',
+  supheli: 'Dikkat: bu mesajda şüpheli bir ödeme ya da teslim yöntemi var.',
 };
 export const SECURITY_WARNING =
   'Aracı görmeden ve noterde Güvenli Ödeme Sistemi dışında ödeme yapmayın. Şüpheleniyorsan satıcıyı şikayet et.';
@@ -70,7 +81,16 @@ const KURALLAR: [MessageFlag, RegExp][] = [
   ],
 ];
 
-/** Anında kurallar: mesajdaki şüpheli kalıplar. Yapay zekâ sınıflandırması sonra eklenir (Karar 41, 42). */
+/** Anında kurallar: mesajdaki şüpheli kalıplar. Yapay zekâ sınıflandırması işçide eklenir (Karar 41, 42). */
 export function scanMessage(text: string): MessageFlag[] {
   return KURALLAR.filter(([, re]) => re.test(text)).map(([k]) => k);
 }
+
+/**
+ * Mesaj güvenliği (Karar 42): yapay zekâya yalnızca para, teslim ya da iletişimle ilgili satıcı mesajı gider (maliyet ve
+ * veri en aza). Kural sınıflandırması bilinen dolandırıcılık kalıplarını yakalar; sağlayıcı varsa onun kararı da eklenir.
+ */
+export const SAFETY_PREFILTER =
+  /para|öde|ucret|ücret|gönder|gonder|yolla|kargo|teslim|noter|whatsapp|telegram|site|link|hesab|kart|kripto|avans|teminat|yurt\s*dış|asker|gümrük|sigorta/iu;
+export const SAFETY_RISK =
+  /kargo\s*(ile|yla|la)?\s*(gönder|yolla|teslim)|yurt\s*dışı(nda|ndayım)|askerdeyim|gümrük|avans|teminat|sigorta\s*bedeli|önce\s*(para|ödeme|ücret)|güvenli\s*ödeme\s*(sitesi|linki)|western\s*union|kripto|bitcoin|usdt|hediye\s*kart|görmeden\s*(al|öde)|noter(e)?\s*gelemem|whatsapp(tan)?\s*(yaz|ulaş)|telegram/iu;

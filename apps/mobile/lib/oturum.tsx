@@ -165,6 +165,8 @@ export function OturumProvider({ children }: { children: ReactNode }) {
                 ? { 'content-type': 'application/json' }
                 : {}),
             ...(token ? { authorization: `Bearer ${token}` } : {}),
+            // Özellik anahtarları platforma göre açılır (T13)
+            'x-rr-platform': process.env.EXPO_OS === 'android' ? 'ANDROID' : 'IOS',
           },
           body: init.dosya
             ? init.dosya.blob

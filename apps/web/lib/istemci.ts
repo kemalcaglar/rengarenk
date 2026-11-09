@@ -51,6 +51,8 @@ export async function istek<T>(
       headers: {
         ...(init.body !== undefined ? { 'content-type': 'application/json' } : {}),
         ...(token ? { authorization: `Bearer ${token}` } : {}),
+        // Özellik anahtarları platforma göre açılır (T13)
+        'x-rr-platform': 'WEB',
       },
       body: init.body === undefined ? undefined : JSON.stringify(init.body),
     });

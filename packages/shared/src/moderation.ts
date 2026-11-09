@@ -97,6 +97,7 @@ export const FLAG_SHORT: Record<string, string> = {
   iban: 'IBAN',
   telefon: 'telefon numarası',
   baglanti: 'bağlantı',
+  supheli: 'şüpheli ödeme ya da teslim yöntemi',
 };
 export const flagShort = (f: string) => FLAG_SHORT[f] ?? f;
 
