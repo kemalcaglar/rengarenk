@@ -351,6 +351,9 @@ interface Onizleme {
   guncelleme: number;
   kapasite: number | null;
   hatalar: { satir: number; arac: string; hata: string; aksiyon: string }[];
+  /** Toplu yükleme yardımı (Karar 42; anahtar açıksa) */
+  asistan: { baglanan: number; aciklama: number } | null;
+  bilgiler: { satir: number; arac: string; not: string }[];
 }
 
 /** Dosyayı ham gövdeyle gönderir; yanıt JSON ya da dosya */
@@ -531,6 +534,37 @@ export function TopluYukleme({
         >
           {hata}
         </p>
+      ) : null}
+      {on?.asistan && (on.asistan.baglanan || on.asistan.aciklama) ? (
+        <details
+          style={{
+            margin: '0 0 14px',
+            border: '1.5px solid #C9B8FF',
+            background: '#FAF7FF',
+            borderRadius: 14,
+            padding: '10px 14px',
+            fontSize: 13.5,
+            color: '#1E2333',
+          }}
+        >
+          <summary style={{ cursor: 'pointer', fontWeight: 800, color: '#4B2FA6' }}>
+            ✦ Asistan{' '}
+            {[
+              on.asistan.baglanan ? `${on.asistan.baglanan} satırdaki araç adını kataloğa bağladı` : null,
+              on.asistan.aciklama ? `${on.asistan.aciklama} araca açıklama taslağı yazdı` : null,
+            ]
+              .filter(Boolean)
+              .join(', ')}
+            . Aktarmadan önce kontrol et.
+          </summary>
+          <ul style={{ margin: '8px 0 0', paddingLeft: 18, lineHeight: 1.55, color: '#3A4052' }}>
+            {on.bilgiler.map((b) => (
+              <li key={b.satir}>
+                Satır {b.satir}: {b.not}
+              </li>
+            ))}
+          </ul>
+        </details>
       ) : null}
       {on ? (
         <div

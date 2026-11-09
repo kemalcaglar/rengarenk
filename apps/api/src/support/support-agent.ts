@@ -168,6 +168,28 @@ export class SupportAgent {
     return { tur: 'insana', not: 'Sık sorulanlarda karşılığı yok; yanıtı ekip yazar' };
   }
 
+  /** Destek sohbeti (Karar 42): talep açılmadan önce hemen yanıt; konu insana kalıyorsa ya da yanıt yoksa boş */
+  async hemenYanit(userId: string, konu: string, metin: string): Promise<{ yanit: string | null }> {
+    if (!(await this.agent.calisiyor())) return { yanit: null };
+    const s = await this.siniflandir({ topic: konu, userId }, metin);
+    if (s.tur !== 'yanit' || s.guven < 75) return { yanit: null };
+    const u = await this.db.user.findUnique({
+      where: { id: userId },
+      select: { firstName: true, lastName: true },
+    });
+    const r = await this.ai.run({
+      task: 'destek',
+      promptVersion: 'destek-sohbet-v1',
+      size: 'kucuk',
+      system:
+        'Rengarenk destek asistanı olarak kısa ve net yanıt ver. Taslaktaki sayıları ve gerçekleri değiştirme, yeni bilgi ekleme, iade ya da hukuki taahhütte bulunma. Türkçe, en çok dört cümle.',
+      prompt: metin.slice(0, 2000),
+      taslak: s.taslak,
+      names: [u?.firstName, u?.lastName],
+    });
+    return { yanit: r.text.trim() || s.taslak };
+  }
+
   /** İşçi: destek.acildi */
   async isle(ticketId: string): Promise<'islem_yok' | 'insana' | 'taslak' | 'yanitladi'> {
     if (!(await this.agent.calisiyor())) return 'islem_yok';

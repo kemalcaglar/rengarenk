@@ -27,6 +27,10 @@ beforeAll(async () => {
   await db.catalogModel.create({
     data: { id: uuidv7(), key: 'bmw/3-serisi/320i', makeId: bmw.id, seriesId: s3.id, name: '320i' },
   });
+  // Tuzak: "2019" içindeki "2", "2 Serisi" sanılmamalı
+  await db.catalogSeries.create({
+    data: { id: uuidv7(), key: 'bmw/2-serisi', makeId: bmw.id, name: '2 Serisi', categories: ['otomobil'] },
+  });
   const vw = await db.catalogMake.create({ data: { id: uuidv7(), key: 'volkswagen', name: 'Volkswagen' } });
   await db.catalogSeries.create({
     data: { id: uuidv7(), key: 'volkswagen/passat', makeId: vw.id, name: 'Passat', categories: ['otomobil'] },
@@ -211,5 +215,31 @@ describe('kullanıcı tarafı yapay zekâ (Karar 42)', () => {
     });
     expect(await guvenlik.kontrol(m2.id)).toBe('temiz');
     expect(yz.calls.length).toBe(once);
+  });
+
+  it('destek sohbeti: talep açmadan hemen yanıt; iade insana kalır', async () => {
+    const k = await login('+905339982006');
+    const once = await db.supportTicket.count();
+    const r = await call(
+      app,
+      'POST',
+      '/support/tickets/oneri',
+      { konu: 'diger', metin: 'Telefon numaramı nasıl değiştiririm acaba?' },
+      k,
+    );
+    expect(r.status).toBe(200);
+    expect(r.body.yanit).toContain('Numarayı değiştir');
+    const iade = await call(
+      app,
+      'POST',
+      '/support/tickets/oneri',
+      { konu: 'odeme', metin: 'Yanlış paket aldım, iade istiyorum.' },
+      k,
+    );
+    expect(iade.body.yanit).toBeNull();
+    expect(await db.supportTicket.count()).toBe(once);
+    expect(
+      (await call(app, 'POST', '/support/tickets/oneri', { konu: 'diger', metin: 'kısa' }, k)).status,
+    ).toBe(400);
   });
 });

@@ -46,6 +46,10 @@ export default function Yardim() {
   const [gonderildi, setGonderildi] = useState<string | null>(null);
   const [hata, setHata] = useState<string | null>(null);
   const [mesgul, setMesgul] = useState(false);
+  // Destek sohbeti (Karar 42): gönderilmeden önce ajanın hemen yanıtı
+  const [oneri, setOneri] = useState<string | null>(null);
+  const [oneriSoruldu, setOneriSoruldu] = useState(false);
+  const [cozuldu, setCozuldu] = useState(false);
 
   useEffect(() => {
     if (!giris) return;
@@ -75,7 +79,7 @@ export default function Yardim() {
   }, [aranan]);
   const sorular = sonuc ?? k.sorular;
 
-  async function gonder() {
+  async function gonder(yineDe = false) {
     if (form.metin.trim().length < 10) {
       setHata('Açıklamayı en az 10 karakterle yaz.');
       return;
@@ -83,6 +87,17 @@ export default function Yardim() {
     setMesgul(true);
     setHata(null);
     try {
+      if (!yineDe && !oneriSoruldu) {
+        setOneriSoruldu(true);
+        const o = await istek<{ yanit: string | null }>('/support/tickets/oneri', {
+          method: 'POST',
+          body: { konu: form.konu, metin: form.metin.trim() },
+        }).catch(() => ({ yanit: null }));
+        if (o.yanit) {
+          setOneri(o.yanit);
+          return;
+        }
+      }
       const r = await istek<{ no: number; numara: string }>('/support/tickets', {
         method: 'POST',
         body: {
@@ -92,6 +107,7 @@ export default function Yardim() {
         },
       });
       setGonderildi(r.numara);
+      setOneri(null);
     } catch (e) {
       setHata((e as Error).message);
     } finally {
@@ -402,7 +418,22 @@ export default function Yardim() {
               <h2 id="ds" style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 800 }}>
                 Destek talebi oluştur
               </h2>
-              {gonderildi ? (
+              {cozuldu ? (
+                <div
+                  role="status"
+                  style={{
+                    marginTop: 10,
+                    background: '#E7FAF0',
+                    borderRadius: 12,
+                    padding: 14,
+                    fontSize: 14,
+                    lineHeight: 1.5,
+                    color: '#11683F',
+                  }}
+                >
+                  <strong>Sevindik.</strong> Başka bir sorunda yine buradan yazabilirsin.
+                </div>
+              ) : gonderildi ? (
                 <div
                   role="status"
                   style={{
@@ -463,7 +494,11 @@ export default function Yardim() {
                     <textarea
                       rows={4}
                       value={form.metin}
-                      onChange={(e) => setForm({ ...form, metin: e.target.value })}
+                      onChange={(e) => {
+                        setForm({ ...form, metin: e.target.value });
+                        setOneri(null);
+                        setOneriSoruldu(false);
+                      }}
                       maxLength={2000}
                       style={{ ...girdi, resize: 'vertical' }}
                     />
@@ -476,26 +511,88 @@ export default function Yardim() {
                       {hata}
                     </p>
                   ) : null}
-                  <button
-                    type="button"
-                    onClick={gonder}
-                    disabled={mesgul}
-                    style={{
-                      width: '100%',
-                      marginTop: 12,
-                      border: 0,
-                      background: '#5B8CFF',
-                      borderRadius: 12,
-                      padding: 13,
-                      fontSize: 15,
-                      fontWeight: 800,
-                      color: '#1E2333',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
-                    Gönder
-                  </button>
+                  {oneri ? (
+                    <div
+                      role="status"
+                      style={{
+                        marginTop: 12,
+                        border: '1.5px solid #C9B8FF',
+                        background: '#FAF7FF',
+                        borderRadius: 12,
+                        padding: '12px 14px',
+                        fontSize: 13.5,
+                        lineHeight: 1.55,
+                      }}
+                    >
+                      <span style={{ display: 'block', fontSize: 12.5, fontWeight: 800, color: '#4B2FA6' }}>
+                        ✦ Hemen yanıt
+                      </span>
+                      {oneri}
+                      <span style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCozuldu(true);
+                            setOneri(null);
+                            setForm({ ...form, metin: '', referans: '' });
+                          }}
+                          style={{
+                            border: 0,
+                            background: '#3DD68C',
+                            borderRadius: 10,
+                            padding: '9px 14px',
+                            fontSize: 13.5,
+                            fontWeight: 800,
+                            color: '#1E2333',
+                            cursor: 'pointer',
+                            fontFamily: 'inherit',
+                          }}
+                        >
+                          Sorunum çözüldü
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => gonder(true)}
+                          disabled={mesgul}
+                          style={{
+                            border: '1px solid #D5DAE5',
+                            background: '#FFFFFF',
+                            borderRadius: 10,
+                            padding: '9px 14px',
+                            fontSize: 13.5,
+                            fontWeight: 700,
+                            color: '#1E2333',
+                            cursor: 'pointer',
+                            fontFamily: 'inherit',
+                          }}
+                        >
+                          Yine de ekibe gönder
+                        </button>
+                      </span>
+                    </div>
+                  ) : null}
+                  {oneri ? null : (
+                    <button
+                      type="button"
+                      onClick={() => gonder()}
+                      disabled={mesgul}
+                      style={{
+                        width: '100%',
+                        marginTop: 12,
+                        border: 0,
+                        background: '#5B8CFF',
+                        borderRadius: 12,
+                        padding: 13,
+                        fontSize: 15,
+                        fontWeight: 800,
+                        color: '#1E2333',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                      }}
+                    >
+                      Gönder
+                    </button>
+                  )}
                 </>
               )}
             </section>

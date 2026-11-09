@@ -22,7 +22,9 @@ import {
 import { AuditService } from '../audit/audit.service.js';
 import { writeSheet } from '../common/files.js';
 import { type Db, PRISMA } from '../database/prisma.js';
+import { BulkAssist } from './bulk-assist.js';
 import { type Ctx, PortfolioService } from './portfolio.service.js';
+import { vehicleNames } from './vehicle-names.js';
 
 const kucuk = (s: string) => s.trim().toLocaleLowerCase('tr-TR');
 const evet = (v: string) => ['e', 'evet', 'x', '1', 'true', 'var'].includes(kucuk(v));
@@ -37,6 +39,9 @@ export interface BulkRow {
   aksiyon?: string;
   /** Aynı stok no ile var olan aracın güncellenmesi */
   guncelleme?: string;
+  /** Toplu yükleme yardımının yaptığı (Karar 42): katalog bağlama ve açıklama taslağı */
+  asistan?: string;
+  aciklamaTaslagi?: boolean;
 }
 
 /**
@@ -50,7 +55,58 @@ export class PortfolioBulkService {
     @Inject(PRISMA) private readonly db: Db,
     private readonly portfolio: PortfolioService,
     private readonly audit: AuditService,
+    private readonly assist: BulkAssist,
   ) {}
+
+  /** Satırları çözer; yardım açıksa açıklaması boş araçlara taslak yazılır */
+  private async cozumle(c: Ctx, rows: Record<string, string>[]) {
+    const yardim = await this.assist.acik(c.userId);
+    const out: BulkRow[] = [];
+    for (const [i, r] of rows.entries()) out.push(await this.resolve(r, i + 2, c.accountId, yardim));
+    if (yardim) {
+      const bos = out.filter((r) => r.veri && !r.veri.aciklama);
+      if (bos.length) {
+        const adlar = await vehicleNames(
+          this.db,
+          bos.map((r) => {
+            const v = r.veri as PortfolioVehicleData;
+            return {
+              makeKey: v.marka ?? null,
+              seriesKey: v.seri ?? null,
+              modelKey: v.model ?? null,
+              trimKey: v.paket ?? null,
+              makeName: v.markaAd ?? null,
+              modelName: v.modelAd ?? null,
+              year: Number(v.yil),
+            };
+          }),
+        );
+        const metinler = await this.assist.iyilestir(
+          bos.map((r) => {
+            const v = r.veri as PortfolioVehicleData;
+            const ad = adlar({
+              makeKey: v.marka ?? null,
+              seriesKey: v.seri ?? null,
+              modelKey: v.model ?? null,
+              trimKey: v.paket ?? null,
+              makeName: v.markaAd ?? null,
+              modelName: v.modelAd ?? null,
+              year: Number(v.yil),
+            }).ad;
+            return { satir: r.satir, taslak: this.assist.taslak(ad, v) };
+          }),
+        );
+        for (const r of bos) {
+          const m = metinler.get(r.satir);
+          if (m && r.veri) {
+            r.veri = { ...r.veri, aciklama: m };
+            r.aciklamaTaslagi = true;
+          }
+        }
+      }
+    }
+    return { out, yardim };
+  }
 
   template(): Uint8Array {
     return writeSheet(
@@ -107,7 +163,12 @@ export class PortfolioBulkService {
       );
   }
 
-  private async resolve(raw: Record<string, string>, satir: number, accountId: string): Promise<BulkRow> {
+  private async resolve(
+    raw: Record<string, string>,
+    satir: number,
+    accountId: string,
+    yardim = false,
+  ): Promise<BulkRow> {
     const al = (alan: string) => {
       const b = BULK_COLUMNS.find(([, a]) => a === alan)?.[0] as string;
       return (raw[b] ?? '').trim();
@@ -125,23 +186,34 @@ export class PortfolioBulkService {
       select: { slug: true },
     });
     if (!kategori) return hata('Kategori bulunamadı', 'Kategori seç');
-    const make = al('marka')
+    // Katalog: önce birebir ad; yardım açıksa karışık yazımlar da bağlanır (Karar 42)
+    const birlesik = [al('marka'), al('seri'), al('model'), al('paket')].filter(Boolean).join(' ');
+    let make = al('marka')
       ? await this.db.catalogMake.findFirst({
           where: { name: { equals: al('marka'), mode: 'insensitive' } },
-          select: { id: true, key: true },
+          select: { id: true, key: true, name: true },
         })
       : null;
+    let bagli = false;
+    if (!make && yardim && birlesik) {
+      make = await this.assist.marka(al('marka'), birlesik);
+      bagli = Boolean(make);
+    }
     if (al('marka') && !make && !['deniz', 'hava'].includes(kategori.slug))
       return hata(`“${al('marka')}” markası katalogda yok`, 'Marka seç');
-    const series =
+    let series =
       make && al('seri')
         ? await this.db.catalogSeries.findFirst({
             where: { makeId: make.id, name: { equals: al('seri'), mode: 'insensitive' } },
-            select: { id: true, key: true },
+            select: { id: true, key: true, name: true },
           })
         : null;
+    if (!series && make && yardim && (al('seri') || al('model'))) {
+      series = await this.assist.seri(make.id, al('seri'), birlesik);
+      bagli ||= Boolean(series);
+    }
     if (make && al('seri') && !series) return hata(`“${al('seri')}” serisi bu markada yok`, 'Seri seç');
-    const model =
+    let model: { key: string; name: string; seriesId?: string | null } | null =
       make && al('model')
         ? await this.db.catalogModel.findFirst({
             where: {
@@ -149,10 +221,23 @@ export class PortfolioBulkService {
               ...(series ? { seriesId: series.id } : {}),
               name: { equals: al('model'), mode: 'insensitive' },
             },
-            select: { key: true },
+            select: { key: true, name: true },
           })
         : null;
+    if (!model && make && yardim && al('model')) {
+      model = await this.assist.model(make.id, series?.id, al('model'), birlesik);
+      bagli ||= Boolean(model);
+      if (model?.seriesId && !series)
+        series = await this.db.catalogSeries.findUnique({
+          where: { id: model.seriesId },
+          select: { id: true, key: true, name: true },
+        });
+    }
     if (make && al('model') && !model) return hata(`“${al('model')}” modeli katalogda yok`, 'Model seç');
+    const asistan =
+      bagli && make
+        ? `Katalogla bağlandı: “${birlesik}” → ${[make.name, series?.name, model?.name].filter(Boolean).join(' ')}`
+        : undefined;
     let paket: string | undefined;
     if (series && al('paket')) {
       const t = await this.db.catalogTrim.findFirst({
@@ -214,7 +299,7 @@ export class PortfolioBulkService {
       : null;
     if (varolan?.status === 'SOLD')
       return hata('Bu stok numarasıyla satılmış bir araç var', 'Stok no değiştir');
-    return { satir, arac, veri: r.data, guncelleme: varolan?.id };
+    return { satir, arac, veri: r.data, guncelleme: varolan?.id, ...(asistan ? { asistan } : {}) };
   }
 
   /** Önizleme: hazır satırlar ve düzeltme gerekenler */
@@ -225,8 +310,7 @@ export class PortfolioBulkService {
     if (rows.length === 0) throw new BadRequestException('Dosyada araç satırı yok');
     if (rows.length > BULK_MAX_ROWS)
       throw new BadRequestException(`Bir dosyada en çok ${BULK_MAX_ROWS} satır olabilir`);
-    const out: BulkRow[] = [];
-    for (const [i, r] of rows.entries()) out.push(await this.resolve(r, i + 2, c.accountId));
+    const { out, yardim } = await this.cozumle(c, rows);
     const hazir = out.filter((r) => r.veri);
     const yeni = hazir.filter((r) => !r.guncelleme).length;
     const kapasite =
@@ -240,6 +324,21 @@ export class PortfolioBulkService {
       hatalar: out
         .filter((r) => r.hata)
         .map(({ satir, arac, hata, aksiyon }) => ({ satir, arac, hata, aksiyon })),
+      /** Toplu yükleme yardımı (Karar 42): açık mı, kaç satır bağlandı, kaç açıklama taslağı */
+      asistan: yardim
+        ? {
+            baglanan: out.filter((r) => r.asistan).length,
+            aciklama: out.filter((r) => r.aciklamaTaslagi).length,
+          }
+        : null,
+      /** Yardımın dokunduğu satırlar (önizlemede gösterilir) */
+      bilgiler: out
+        .filter((r) => r.veri && (r.asistan || r.aciklamaTaslagi))
+        .map((r) => ({
+          satir: r.satir,
+          arac: r.arac,
+          not: [r.asistan, r.aciklamaTaslagi ? 'Açıklama taslağı yazıldı' : null].filter(Boolean).join(' · '),
+        })),
       satirlar: out,
     };
   }

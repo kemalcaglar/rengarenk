@@ -27,9 +27,9 @@ export interface AssistantParse {
 }
 
 const kucuk = (s: string) => s.toLocaleLowerCase('tr-TR');
-/** Harf olmayan sınırla kelime arama (Türkçe harfler \b ile çalışmaz) */
+/** Harf ve rakam olmayan sınırla kelime arama (Türkçe harfler \b ile çalışmaz; "2", "2019"un içinde bulunmaz) */
 export const kelimeVar = (metin: string, kelime: string) =>
-  new RegExp(`(?<![\\p{L}\\d])${kelime.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}])`, 'iu').test(
+  new RegExp(`(?<![\\p{L}\\d])${kelime.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\p{L}\\d])`, 'iu').test(
     metin,
   );
 

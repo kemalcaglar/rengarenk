@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AuditService } from '../audit/audit.service.js';
 import { AuthModule } from '../auth/auth.module.js';
+import { FlagsModule } from '../flags/flags.module.js';
 import { OutboxService } from '../outbox/outbox.service.js';
+import { BulkAssist } from './bulk-assist.js';
 import { EidsFactory } from './eids.js';
 import {
   ApiKeyGuard,
@@ -14,9 +16,17 @@ import { PortfolioBulkService } from './portfolio-bulk.service.js';
 
 /** Galeri portföyü (Aşama 4): araç, fotoğraf, ekspertiz, EİDS, toplu yükleme, API (Karar 07, 17). */
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, FlagsModule],
   controllers: [PortfolioController, PublicPortfolioController, IntegrationController],
-  providers: [PortfolioService, PortfolioBulkService, ApiKeyGuard, EidsFactory, AuditService, OutboxService],
+  providers: [
+    PortfolioService,
+    PortfolioBulkService,
+    BulkAssist,
+    ApiKeyGuard,
+    EidsFactory,
+    AuditService,
+    OutboxService,
+  ],
   exports: [PortfolioService],
 })
 export class PortfolioModule {}

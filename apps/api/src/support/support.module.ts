@@ -42,7 +42,23 @@ type AuthedRequest = { user: AccessClaims };
 @Controller('support/tickets')
 @UseGuards(AuthGuard)
 export class SupportController {
-  constructor(private readonly s: SupportService) {}
+  constructor(
+    private readonly s: SupportService,
+    private readonly ajan: SupportAgent,
+  ) {}
+
+  /**
+   * Destek sohbeti (Karar 42): talep açılmadan önce ajan sık sorulanlardan ve kişinin hesap bilgisinden hemen yanıt
+   * önerir; kişi "Yine de ekibe gönder" derse talep açılır. Yanıt yoksa ya da konu insana kalıyorsa boş döner.
+   */
+  @Post('oneri')
+  @HttpCode(200)
+  oneri(
+    @Req() req: AuthedRequest,
+    @Body(new ZodPipe(supportCreateSchema)) b: z.output<typeof supportCreateSchema>,
+  ) {
+    return this.ajan.hemenYanit(req.user.sub, b.konu, b.metin);
+  }
 
   @Post()
   create(

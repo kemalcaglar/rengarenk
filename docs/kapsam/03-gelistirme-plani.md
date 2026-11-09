@@ -138,6 +138,27 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
 - [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
 
+## Sprint 26 · kullanıcı tarafı yapay zekâ (Aşama 8 dokuzuncu bölüm, 9 Kasım 2026)
+
+- [x] Talep asistanı (`talep_asistani` anahtarı, Karar 42): serbest metinden yıl, bütçe, km, yakıt, vites, renk, hasar,
+  il ve ilçe, takas, kimden kurallarla (`parseDemandText`), marka/seri/model katalogdan; yapay zekâ önerisi şemayla
+  (`fieldValueSchema`) doğrulanır, araç her zaman katalogdan. Taslağı doldurur, yayınlamaz. Web ve mobil sihirbazın
+  Ana araç adımında "✦ Aradığın aracı kendi cümlelerinle yaz", doldurulan ve eksik alanların listesi
+- [x] İlk mesaj taslağı: pencere açılınca taslak; galeride eşleştirmenin en uygun portföy aracı önerilir; "✦ Taslağı
+  yeniden yaz" (GaleriMobil.dc.html); telefon, IBAN, bağlantı ya da kapora içeren yapay zekâ metni kullanılmaz; gönderen
+  her zaman satıcı (web, mobil)
+- [x] Mesaj güvenliği (`mesaj_guvenligi` anahtarı): para, teslim ya da iletişimle ilgili satıcı mesajı (işçide) kurallar
+  ve yapay zekâyla sınıflandırılır; şüpheliyse `supheli` işareti, alıcıya uyarı bandı, `mesaj.uyari`; gizleme ve askı yok
+- [x] Toplu yükleme yardımı (`toplu_portfoy` anahtarı): karışık araç adları kataloğa bağlanır ("VW passat", "3.20i",
+  model sütununda "BMW 320i"), açıklaması boş araca açıklama taslağı (yapay zekâ tek istekte, plaka ve şasi gönderilmez);
+  galeri panelinde önizlemede "✦ Asistan … bağladı" özeti
+- [x] Destek sohbeti: destek formunda "Gönder"den önce hemen yanıt (sık sorulanlar, hak bakiyesi, hesap durumu);
+  "Sorunum çözüldü" ya da "Yine de ekibe gönder"; iade ve hesap kapatma insana (web, mobil)
+- [x] İstemciler `x-rr-platform` başlığı gönderir (özellik anahtarları platforma göre)
+- [ ] İlk mesaj taslağı ve destek sohbeti yapay zekâ bütçesinde "Talep asistanı" ve "Destek" görevlerine yazılır
+  (tasarımdaki görev listesi değişmedi); Vertex AI hesabı açılınca gerçek modelle denenecek
+- [ ] Mobilde toplu yükleme ekranı yok (Excel yüklemesi web galeri panelinde)
+
 ## Sprint 25 · ajanın kalan işleri (Aşama 8 sekizinci bölüm, 9 Kasım 2026)
 
 - [x] Talep metni (Karar 41, 13.2): başlık ve açıklamadaki telefon, IBAN, e-posta ve bağlantı herkese açık her yerde
@@ -202,8 +223,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Ajanın kalan "sormadan yapar" işleri (Sprint 25): destek yanıtı, talep düzeltme isteği, spam kısıtlama, ana ölçü
   ve ödeme hata oranı uyarısı, SMS yedeğe geçişin akışa yazılması
 - [ ] Gönderim saati ve A/B kazananı: kampanyalar ve deneylerle (Aşama 9)
-- [ ] Kullanıcı tarafı yapay zekâ (Karar 42): talep asistanı, ilk mesaj taslağı, yapay zekâ destekli mesaj güvenliği,
-  toplu yükleme yardımı, destek sohbeti
+- [x] Kullanıcı tarafı yapay zekâ (Karar 42): Sprint 26
 - [x] Bütçe uyarısı, günlük özet ve ajanın durması sahibe iletiliyor (Sprint 24, çalışan uyarıları)
 
 ## Sprint 22 · saklama, imha, VERBİS; ihlal ve resmi talepler (Aşama 8 beşinci bölüm, 9 Kasım 2026)

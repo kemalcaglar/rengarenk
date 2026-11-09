@@ -7,6 +7,7 @@ import type { Db } from '../src/database/prisma.js';
 import { PortfolioService } from '../src/portfolio/portfolio.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
 import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
 let sms: MemorySmsSender;
@@ -319,6 +320,42 @@ describe('toplu yükleme ve API (Karar 07.2, 07.3)', () => {
     expect(Number((await db.portfolioVehicle.findUniqueOrThrow({ where: { id: v.id } })).priceTl)).toBe(
       2_350_000,
     );
+  });
+
+  it('toplu yükleme yardımı: karışık adlar kataloğa bağlanır, boş açıklamaya taslak (Karar 42)', async () => {
+    const g = await galeri('+905339990015', 'Yardım Oto');
+    const base = `/gallery/${g.accountId}/portfolio`;
+    const csv = [
+      BULK_COLUMNS.map(([b]) => b).join(';'),
+      'Y-1;Otomobil;bmw;3serisi;3.20i;;2020;62000;Benzin;Otomatik;Beyaz;2.390.000;16 ABC 223;A22345;15.03.2020;0;H;E;',
+      'Y-2;Otomobil;;;BMW 320i;;2021;30000;Dizel;Otomatik;Siyah;2.500.000;16 ABC 224;B22345;01.02.2021;8500;E;E;',
+    ].join('\n');
+    // Anahtar kapalıyken birebir ad gerekir
+    const kapali = await raw(`${base}/bulk?onizle=1`, g.token, Buffer.from(csv), 'text/csv');
+    expect(kapali.body.asistan).toBeNull();
+    expect(kapali.body.hatalar[0].hata).toContain('3serisi');
+
+    const sahip = (await loginAs(app, await createStaff(db, 'OWNER'))).token;
+    await staffCall(app, 'PATCH', '/staff/flags/toplu_portfoy', { enabled: true, percent: 100 }, sahip);
+    const on = await raw(`${base}/bulk?onizle=1`, g.token, Buffer.from(csv), 'text/csv');
+    expect(on.body).toMatchObject({ toplam: 2, hazir: 2, asistan: { baglanan: 2, aciklama: 2 } });
+    expect(on.body.bilgiler[0]).toEqual({
+      satir: 2,
+      arac: '2020 bmw 3serisi 3.20i',
+      not: 'Katalogla bağlandı: “bmw 3serisi 3.20i” → BMW 3 Serisi 320i · Açıklama taslağı yazıldı',
+    });
+    const ice = await raw(`${base}/bulk`, g.token, Buffer.from(csv), 'text/csv');
+    expect(ice.body).toMatchObject({ eklendi: 2 });
+    const [y1, y2] = await db.portfolioVehicle.findMany({
+      where: { accountId: g.accountId },
+      orderBy: { externalId: 'asc' },
+    });
+    expect(y1).toMatchObject({ makeKey: 'bmw', seriesKey: 'bmw/3-serisi', modelKey: 'bmw/3-serisi/320i' });
+    expect(y1?.description).toBe(
+      '2020 BMW 3 Serisi 320i · 62.000 km, benzin, otomatik, beyaz. Tramer kaydı yok.',
+    );
+    expect(y2).toMatchObject({ makeKey: 'bmw', seriesKey: 'bmw/3-serisi', modelKey: 'bmw/3-serisi/320i' });
+    expect(y2?.description).toContain('Tramer kaydı 8.500 TL. Takasa uygun.');
   });
 
   it('API anahtarı yalnızca Kurumsal pakette; stok no ile ekle, listele, satıldı', async () => {

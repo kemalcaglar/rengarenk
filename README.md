@@ -173,6 +173,17 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - **Eşleştirme ayarı:** ağırlıklar ikişer artar, taslağa yazılır ve şemayla aynı onaydan geçer. Skor işlevi
   `packages/shared/src/matching.ts` (Teknik tasarım §6). Deneme alanı talep ve portföy gelince çalışır.
 
+## Kullanıcı tarafı yapay zekâ (Sprint 26)
+
+- Talep asistanı: `parseDemandText` (`packages/shared/src/assistant.ts`), `DemandAssistant`
+  (`apps/api/src/demands/demand-assistant.ts`), `POST /demands/:id/asistan`; `GET /demands/:id` içinde `asistan`.
+- İlk mesaj taslağı: `FirstMessageDraft`, `POST /talepler/:no/mesaj/taslak { hesap?, aracId?, sira? }`.
+- Mesaj güvenliği: `MessageSafety` (işçi: `mesaj.ilk`, `mesaj.geldi`), kalıplar `SAFETY_PREFILTER`, `SAFETY_RISK`.
+- Toplu yükleme yardımı: `BulkAssist` (`apps/api/src/portfolio/bulk-assist.ts`); önizlemede `asistan` ve `bilgiler`.
+- Destek sohbeti: `POST /support/tickets/oneri` (`SupportAgent.hemenYanit`).
+- Yapay zekâ çıktısı her zaman doğrulanır (şema, katalog, `scanMessage`); okunamazsa ya da kurala takılırsa kural metni
+  kullanılır. Testte `FakeAiProvider.yanit` ile sağlayıcının kurala aykırı yanıtı denenir.
+
 ## Ajanın işleri (Sprint 25)
 
 - Talep metni: `scanDemandText`, `hideDemandText` (`packages/shared/src/moderation.ts`); herkese açık çıktıda gizleme,

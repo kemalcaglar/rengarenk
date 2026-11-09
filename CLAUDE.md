@@ -240,8 +240,13 @@ pnpm format        # Biome ile biçimlendir
   her zaman gizli (`hideDemandText`; yeni bir yerde talep başlığı gösterirken bunu kullan) ve ajan düzeltme ister;
   destek yanıtı (`support-agent.ts`, güven %90 eşiği, iade/hesap kapatma/dolandırıcılık insana, ajan iade önerisi
   açmaz); spam kısıtlama; SMS yedeğe geçiş akışa yazılır; ana ölçü uyarısı. API'de 167, ortak pakette 82 test.
-- **Sıradaki (Aşama 8 devamı):** kullanıcı tarafı yapay zekâ (Karar 42: talep asistanı, ilk mesaj taslağı, mesaj
-  güvenliği, toplu yükleme yardımı, destek sohbeti); galeri 1 yıldız itirazı, cihaz kara listesi, Ayarlar › İletişim; ya da
+- **Sprint 26 (9 Kasım 2026):** kullanıcı tarafı yapay zekâ (Karar 42): talep asistanı (`talep_asistani`), ilk mesaj
+  taslağı, mesaj güvenliği (`mesaj_guvenligi`, işçide), toplu yükleme yardımı (`toplu_portfoy`), destek sohbeti
+  (`/support/tickets/oneri`). Yapay zekâ çıktısı her zaman şema, katalog ve `scanMessage` ile doğrulanır. `kelimeVar`
+  harf ve rakam sınırıyla arar ("2" "2019"da bulunmaz); sayıdan ibaret seri adı ("3") tek başına aranmaz. API'de 172,
+  ortak pakette 86 test.
+- **Sıradaki (Aşama 8 devamı):** galeri 1 yıldız itirazı, cihaz kara listesi, Ayarlar › İletişim ve Hesap sekmeleri,
+  giriş bağlantısı gönderme; ya da
   sunucular gelince Radore'ye ilk dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan
   kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google

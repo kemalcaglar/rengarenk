@@ -80,8 +80,11 @@ export class DemandAssistant {
       const uyan = seriler
         .filter((s) => {
           const n = kucuk(s.name);
+          // "3 Serisi" → "3" tek başına aranmaz (bütçe ve yıldaki sayılarla karışır); model adı seriyi verir
+          const kisa = n.replace(/\s*serisi$/, '');
           return (
-            n.length >= (makeId ? 1 : 4) && (kelimeVar(t, n) || kelimeVar(t, n.replace(/\s*serisi$/, '')))
+            n.length >= (makeId ? 1 : 4) &&
+            (kelimeVar(t, n) || (kisa !== n && !/^\d+$/.test(kisa) && kelimeVar(t, kisa)))
           );
         })
         .sort((a, b) => b.name.length - a.name.length);
@@ -122,6 +125,10 @@ export class DemandAssistant {
       else alt[k] = v;
       yazilan.push(f);
     }
+    // Sihirbazın adım sırasıyla
+    const ADIM = ['ana_arac', 'kriterler', 'boya_hasar', 'konum_iletisim'];
+    const sira = (f: CategoryField) => ADIM.indexOf(f.step) * 1000 + alanlar.indexOf(f);
+    yazilan.sort((a, b) => sira(a) - sira(b));
     return {
       veri: { alanlar: talep, alternatifler: [alt, ...veri.alternatifler.slice(1)] },
       yazilan,

@@ -45,6 +45,10 @@ export default function Yardim() {
   });
   const [gonderildi, setGonderildi] = useState<string | null>(null);
   const [hata, setHata] = useState<string | null>(null);
+  // Destek sohbeti (Karar 42): gönderilmeden önce ajanın hemen yanıtı
+  const [oneri, setOneri] = useState<string | null>(null);
+  const [oneriSoruldu, setOneriSoruldu] = useState(false);
+  const [cozuldu, setCozuldu] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -55,13 +59,25 @@ export default function Yardim() {
     }, [durum, istek]),
   );
 
-  async function gonder() {
+  async function gonder(yineDe = false) {
     if (form.metin.trim().length < 10) {
       setHata('Açıklamayı en az 10 karakterle yaz.');
       return;
     }
     setHata(null);
+    setCozuldu(false);
     try {
+      if (!yineDe && !oneriSoruldu) {
+        setOneriSoruldu(true);
+        const o = await istek<{ yanit: string | null }>('/support/tickets/oneri', {
+          method: 'POST',
+          body: { konu: form.konu, metin: form.metin.trim() },
+        }).catch(() => ({ yanit: null }));
+        if (o.yanit) {
+          setOneri(o.yanit);
+          return;
+        }
+      }
       const r = await istek<{ no: number; numara: string }>('/support/tickets', {
         method: 'POST',
         body: {
@@ -71,6 +87,8 @@ export default function Yardim() {
         },
       });
       setGonderildi(r.numara);
+      setOneri(null);
+      setOneriSoruldu(false);
       setForm({ ...form, metin: '', referans: '' });
       setTalepler(await istek<Talep[]>('/support/tickets'));
     } catch (e) {
@@ -267,6 +285,13 @@ export default function Yardim() {
               <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 2, marginBottom: 10 }}>
                 Genellikle 1 iş günü içinde yanıtlıyoruz.
               </T>
+              {cozuldu ? (
+                <View style={{ backgroundColor: '#E7FAF0', borderRadius: 12, padding: 12, marginBottom: 10 }}>
+                  <T style={{ fontSize: 13.5, fontWeight: '800', color: '#11683F' }}>
+                    Sevindik. Başka bir sorunda yine buradan yazabilirsin.
+                  </T>
+                </View>
+              ) : null}
               {gonderildi ? (
                 <View style={{ backgroundColor: '#E7FAF0', borderRadius: 12, padding: 12, marginBottom: 10 }}>
                   <T style={{ fontSize: 13.5, fontWeight: '800', color: '#11683F' }}>
@@ -319,7 +344,11 @@ export default function Yardim() {
               <T style={{ fontSize: 13, fontWeight: '700', marginTop: 12 }}>Açıklama</T>
               <TInput
                 value={form.metin}
-                onChangeText={(v) => setForm({ ...form, metin: v })}
+                onChangeText={(v) => {
+                  setForm({ ...form, metin: v });
+                  setOneri(null);
+                  setOneriSoruldu(false);
+                }}
                 multiline
                 maxLength={2000}
                 accessibilityLabel="Açıklama"
@@ -339,19 +368,68 @@ export default function Yardim() {
                   {hata}
                 </T>
               ) : null}
-              <Pressable
-                accessibilityRole="button"
-                onPress={gonder}
-                style={{
-                  marginTop: 12,
-                  backgroundColor: colors.blue,
-                  borderRadius: 12,
-                  paddingVertical: 14,
-                  alignItems: 'center',
-                }}
-              >
-                <T style={{ fontSize: 15, fontWeight: '800' }}>Gönder</T>
-              </Pressable>
+              {oneri ? (
+                <View
+                  style={{
+                    marginTop: 12,
+                    borderWidth: 1.5,
+                    borderColor: '#C9B8FF',
+                    backgroundColor: '#FAF7FF',
+                    borderRadius: 12,
+                    padding: 12,
+                  }}
+                >
+                  <T style={{ fontSize: 12.5, fontWeight: '800', color: '#4B2FA6' }}>✦ Hemen yanıt</T>
+                  <T style={{ fontSize: 13.5, lineHeight: 20, marginTop: 4 }}>{oneri}</T>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={() => {
+                        setCozuldu(true);
+                        setOneri(null);
+                        setOneriSoruldu(false);
+                        setForm({ ...form, metin: '', referans: '' });
+                      }}
+                      style={{
+                        backgroundColor: '#3DD68C',
+                        borderRadius: 10,
+                        paddingVertical: 10,
+                        paddingHorizontal: 14,
+                      }}
+                    >
+                      <T style={{ fontSize: 13.5, fontWeight: '800' }}>Sorunum çözüldü</T>
+                    </Pressable>
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={() => gonder(true)}
+                      style={{
+                        borderWidth: 1,
+                        borderColor: '#D5DAE5',
+                        backgroundColor: colors.surface,
+                        borderRadius: 10,
+                        paddingVertical: 10,
+                        paddingHorizontal: 14,
+                      }}
+                    >
+                      <T style={{ fontSize: 13.5, fontWeight: '700' }}>Yine de ekibe gönder</T>
+                    </Pressable>
+                  </View>
+                </View>
+              ) : (
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => gonder()}
+                  style={{
+                    marginTop: 12,
+                    backgroundColor: colors.blue,
+                    borderRadius: 12,
+                    paddingVertical: 14,
+                    alignItems: 'center',
+                  }}
+                >
+                  <T style={{ fontSize: 15, fontWeight: '800' }}>Gönder</T>
+                </Pressable>
+              )}
             </>
           )}
         </View>
