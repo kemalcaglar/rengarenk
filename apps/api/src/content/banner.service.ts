@@ -5,8 +5,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { uuidv7 } from '@rengarenk/db';
+import { Prisma, uuidv7 } from '@rengarenk/db';
 import {
+  abSummary,
+  armOf,
   BANNER_AUDIENCES,
   BANNER_LIMIT,
   BANNER_PLACES,
@@ -19,10 +21,12 @@ import {
   bannerMatches,
   bannerStatus,
   ekle,
+  type Variant,
   VITRIN_YER,
   type Viewer,
 } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
+import { ExperimentService } from '../dashboard/experiments.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { RateLimiter } from '../ratelimit/rate-limiter.js';
 
@@ -45,6 +49,7 @@ export class BannerService {
     @Inject(PRISMA) private readonly db: Db,
     private readonly audit: AuditService,
     private readonly limiter: RateLimiter,
+    private readonly deneyler: ExperimentService,
   ) {}
 
   // ── Herkese açık ───────────────────────────────────────────
@@ -63,7 +68,17 @@ export class BannerService {
     return { kitle: 'bireysel', il: u?.il ?? null };
   }
 
-  async active(yer: BannerPlace, platform: 'web' | 'mobil', userId?: string, now = new Date()) {
+  /**
+   * A/B testindeki bannerda kol üyenin kimliğinden, ziyaretçide cihazdaki rastgele kimlikten (`anon`) hesaplanır; aynı
+   * kişi hep aynı sürümü görür. Kimlik yoksa A gösterilir.
+   */
+  async active(
+    yer: BannerPlace,
+    platform: 'web' | 'mobil',
+    userId?: string,
+    now = new Date(),
+    anon?: string,
+  ) {
     const v = await this.viewer(userId);
     const rows = await this.db.banner.findMany({
       where: {
@@ -79,18 +94,25 @@ export class BannerService {
     return rows
       .filter((b) => bannerMatches(b, { ...v, platform }))
       .slice(0, BANNER_LIMIT[yer])
-      .map((b) => ({
-        id: b.id,
-        baslik: b.title,
-        metin: b.body,
-        dugme: b.button,
-        url: b.url,
-        renk: b.color,
-        zemin: BANNER_TINTS[b.color as keyof typeof BANNER_TINTS] ?? '#EEF3FF',
-      }));
+      .map((b) => {
+        const v = b.variantB as unknown as Variant | null;
+        const kimlik = userId ?? anon;
+        const kol = v && !b.abEndedAt && kimlik ? armOf(kimlik, b.id) : 'A';
+        const icerik = kol === 'B' && v ? v : { baslik: b.title, metin: b.body, dugme: b.button };
+        return {
+          id: b.id,
+          kol,
+          baslik: icerik.baslik,
+          metin: icerik.metin,
+          dugme: icerik.dugme,
+          url: b.url,
+          renk: b.color,
+          zemin: BANNER_TINTS[b.color as keyof typeof BANNER_TINTS] ?? '#EEF3FF',
+        };
+      });
   }
 
-  async event(id: string, tur: 'gosterim' | 'tiklama', ip?: string) {
+  async event(id: string, tur: 'gosterim' | 'tiklama', ip?: string, kol: 'A' | 'B' = 'A') {
     if (ip) await this.limiter.hit(`banner:${tur}:${ip}`, 120, 3600);
     const b = await this.db.banner.findUnique({
       where: { id },
@@ -99,8 +121,14 @@ export class BannerService {
     if (!b || bannerStatus(b) !== 'yayinda') return { ok: false };
     const g = gun(new Date());
     await this.db.bannerStat.upsert({
-      where: { bannerId_day: { bannerId: id, day: g } },
-      create: { bannerId: id, day: g, views: tur === 'gosterim' ? 1 : 0, clicks: tur === 'tiklama' ? 1 : 0 },
+      where: { bannerId_day_arm: { bannerId: id, day: g, arm: kol } },
+      create: {
+        bannerId: id,
+        day: g,
+        arm: kol,
+        views: tur === 'gosterim' ? 1 : 0,
+        clicks: tur === 'tiklama' ? 1 : 0,
+      },
       update: tur === 'gosterim' ? { views: { increment: 1 } } : { clicks: { increment: 1 } },
     });
     return { ok: true };
@@ -121,6 +149,7 @@ export class BannerService {
       _sum: { views: true, clicks: true },
     });
     const s = new Map(st.map((x) => [x.bannerId, x._sum]));
+    const ab = await this.deneyler.bannerSonuc(rows.filter((r) => r.variantB !== null).map((r) => r.id));
     const sira: Record<string, number> = { yayinda: 0, zamanlandi: 1, taslak: 2, durduruldu: 3, bitti: 4 };
     const bannerlar = rows
       .map((b) => {
@@ -137,12 +166,16 @@ export class BannerService {
           tarih: bannerDateText(b.startsAt, b.endsAt),
           sonuc:
             durum === 'taslak'
-              ? 'Taslak · yayınlanınca gösterim ve tıklama sayılır'
-              : g
-                ? `${sayi(g)} gösterim · tıklama ${yuzde(c / g)}`
-                : durum === 'zamanlandi'
-                  ? 'Başlangıç tarihinde yayına girer, bitişte kendiliğinden kalkar'
-                  : 'Henüz gösterim yok',
+              ? `Taslak${b.variantB ? ' · A/B testi hazır' : ''} · yayınlanınca gösterim ve tıklama sayılır`
+              : ab.has(b.id)
+                ? b.abWinner
+                  ? `A/B bitti · ${b.abWinner} herkese açıldı · ${abSummary(ab.get(b.id) as never, 'tıklama').replace(/^A\/B · /, '')}`
+                  : abSummary(ab.get(b.id) as never, 'tıklama')
+                : g
+                  ? `${sayi(g)} gösterim · tıklama ${yuzde(c / g)}`
+                  : durum === 'zamanlandi'
+                    ? 'Başlangıç tarihinde yayına girer, bitişte kendiliğinden kalkar'
+                    : 'Henüz gösterim yok',
           durumKey: durum,
           durum: BANNER_STATUSES[durum].ad,
           bg: BANNER_STATUSES[durum].bg,
@@ -161,6 +194,7 @@ export class BannerService {
             renk: b.color,
             baslangic: b.startsAt?.toISOString() ?? null,
             bitis: b.endsAt?.toISOString() ?? null,
+            b: (b.variantB as unknown as Variant | null) ?? null,
           },
         };
       })
@@ -201,6 +235,7 @@ export class BannerService {
       color: b.renk,
       startsAt: b.baslangic ? new Date(b.baslangic) : null,
       endsAt: b.bitis ? new Date(b.bitis) : null,
+      variantB: b.b ? (b.b as unknown as Prisma.InputJsonValue) : Prisma.DbNull,
     };
     if (!id) {
       const yeni = uuidv7();
@@ -290,6 +325,7 @@ export class BannerService {
       renk: b.color as BannerInput['renk'],
       baslangic: null,
       bitis: null,
+      b: (b.variantB as unknown as Variant | null) ?? null,
     });
     return this.list();
   }
@@ -303,6 +339,47 @@ export class BannerService {
       action: 'banner_silindi',
       entityType: 'banner',
       entityId: id,
+    });
+    return this.list();
+  }
+
+  /**
+   * A/B testini bitirir: B kazandıysa bannerın içeriği B olur (ilk sürüm varyantın içinde saklanır), A kazandıysa
+   * içerik değişmez. Testten sonra herkes aynı sürümü görür.
+   */
+  async abWinner(staffId: string, id: string, kol: 'A' | 'B', ip?: string) {
+    const b = await this.db.banner.findUnique({ where: { id } });
+    if (!b?.variantB) throw new NotFoundException('A/B testi olan banner bulunamadı');
+    if (b.abEndedAt) throw new ConflictException('Test zaten bitti');
+    const v = b.variantB as unknown as Variant;
+    await this.db.$transaction(async (tx) => {
+      await tx.banner.update({
+        where: { id },
+        data: {
+          abEndedAt: new Date(),
+          abWinner: kol,
+          ...(kol === 'B'
+            ? {
+                title: v.baslik,
+                body: v.metin,
+                button: v.dugme,
+                variantB: { ...v, a: { baslik: b.title, metin: b.body, dugme: b.button } },
+              }
+            : {}),
+        },
+      });
+      await this.audit.record(
+        {
+          actorType: 'STAFF',
+          actorId: staffId,
+          action: 'ab_kazanan_acildi',
+          entityType: 'banner',
+          entityId: id,
+          after: { kol },
+          ip,
+        },
+        tx,
+      );
     });
     return this.list();
   }

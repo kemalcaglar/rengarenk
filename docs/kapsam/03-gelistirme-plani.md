@@ -183,7 +183,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   günlük gösterim ve tıklama (kişisel veri yok, IP başına sınır); web ve mobilde altı yerde (`components/banner.tsx`)
 - [x] Ana sayfa vitrini (konsolda): 17 yer, ücretli vitrin sayısı, "boş yerlere editör seçimi" anahtarı (kapalıyken
   yalnızca ücretli talepler görünür)
-- [ ] Banner A/B testi: deney altyapısıyla
+- [x] Banner A/B testi (yukarıda)
 - [x] Akış düzenleyicisi (YonetimKampanya.dc.html › akış; Karar 51; Teknik tasarım: JSON tanım, kişi başına durum):
   tetikleyici ve ilk ileti kodda; "Adım ekle" ile ilk iletiden sonra bekle (1 saat–30 gün), koşul (önceki ileti
   okunmadıysa, ticari onay varsa, doğrulanmış e-posta varsa; sağlanmazsa çıkış) ve ileti (başlık, metin, düğme;
@@ -214,7 +214,13 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   alınınca aynı işlemde; galeri paketinde yalnızca ilk ödeme (yenileme tam fiyat), galeri ek paketlerinde de geçer;
   fatura satırında kupon adı; kampanyaya bağlanır, kupon onaylanmadan kampanya gönderilmez, kupon geçersizse kampanya
   iptal olur; listede kullanım ve toplam indirim. Uygulama içi (mağaza) satın almada kupon yok
-- [ ] A/B testi: deney altyapısıyla; tasarımdaki tek şablon seçimi yerine içerik kampanyaya özel yazılıyor
+- [x] A/B testi (Karar 44, 46, 51): kampanyada ve bannerda ikinci sürüm (başlık, metin, düğme); kişi kimliğinden
+  (ziyaretçide cihazdaki rastgele kimlikten) sabit kol, %50 / %50; kampanyada ölçü uygulamada okunma, bannerda tıklama
+  (kol başına günlük sayım); iki oranlı z testi, her kolda en az 100 kişi ve güven %95 ile kazanan; Raporlar › Deneyler
+  kartları (tasarımdaki gibi), bannerda "B'yi herkese aç" (içerik B olur, ilk sürüm saklanır); ajan kazananı çalışan
+  uyarısıyla bildirir (`deney`). Güven aşağı kesilerek yazılır
+- [ ] Fiyat deneyleri (ör. ek ilk mesaj 99 / 119 TL): sahip onayıyla, ödeme ve fiyat listesine bağlı ayrı altyapı
+- [ ] Arayüz deneyleri (ör. sihirbazın bütçe adımı): özellik anahtarlarına kol eklenince
 - [ ] Kanal kırılımı (organik, reklam, bildirim): reklam ölçümüyle; ajanın yorumu yapay zekâyla (şimdilik kural)
 
 ## Sprint 27 · Aşama 8 kalanları (9 Kasım 2026)

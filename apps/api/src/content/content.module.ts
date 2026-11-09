@@ -31,6 +31,7 @@ import { AuditService } from '../audit/audit.service.js';
 import { AuthModule } from '../auth/auth.module.js';
 import { AuthService } from '../auth/auth.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
+import { ExperimentService } from '../dashboard/experiments.service.js';
 import { RequirePermission } from '../staff/permissions.js';
 import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
 import { StaffModule } from '../staff/staff.module.js';
@@ -51,6 +52,7 @@ export class ContentPublicController {
     @Query('yer') yer: string,
     @Query('platform') platform: string,
     @Headers('authorization') authorization?: string,
+    @Query('z') anon?: string,
   ) {
     if (!BANNER_PLACE_KEYS.includes(yer as BannerPlace)) throw new BadRequestException('Bilinmeyen yer');
     const viewer = authorization?.startsWith('Bearer ')
@@ -59,7 +61,9 @@ export class ContentPublicController {
           .then((c) => c.sub)
           .catch(() => undefined)
       : undefined;
-    return this.b.active(yer as BannerPlace, platform === 'mobil' ? 'mobil' : 'web', viewer);
+    // Ziyaretçi kimliği yalnızca A/B kolunu seçmek için (saklanmaz)
+    const z = anon && /^[A-Za-z0-9-]{8,64}$/.test(anon) ? anon : undefined;
+    return this.b.active(yer as BannerPlace, platform === 'mobil' ? 'mobil' : 'web', viewer, new Date(), z);
   }
 
   /** Ana sayfa: görüntüleyenin kitlesi, görünen bölümler ve kişiye özel veriler (YonetimIcerik › anasayfa) */
@@ -81,7 +85,7 @@ export class ContentPublicController {
     @Body(new ZodPipe(bannerEventSchema)) b: z.output<typeof bannerEventSchema>,
     @Ip() ip: string,
   ) {
-    return this.b.event(id, b.tur, ip);
+    return this.b.event(id, b.tur, ip, b.kol);
   }
 }
 
@@ -144,6 +148,19 @@ export class ContentStaffController {
     return this.b.remove(req.staff.staff.id, id);
   }
 
+  /** A/B testinin kazananını herkese aç (B) ya da A'da kalıp testi bitir */
+  @Post(':id/ab/:kol')
+  @HttpCode(200)
+  @RequirePermission('gorunum.duzenle')
+  abWinner(
+    @Req() req: StaffRequest,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Param('kol') kol: string,
+  ) {
+    if (kol !== 'A' && kol !== 'B') throw new BadRequestException('Kol A ya da B olmalı');
+    return this.b.abWinner(req.staff.staff.id, id, kol, req.ip);
+  }
+
   @Put('vitrin/editor')
   @RequirePermission('gorunum.duzenle')
   vitrinEditor(
@@ -187,7 +204,7 @@ export class HomeLayoutStaffController {
 @Module({
   imports: [AuthModule, StaffModule],
   controllers: [ContentPublicController, ContentStaffController, HomeLayoutStaffController],
-  providers: [BannerService, HomeService, AuditService],
+  providers: [BannerService, HomeService, ExperimentService, AuditService],
   exports: [BannerService],
 })
 export class ContentModule {}

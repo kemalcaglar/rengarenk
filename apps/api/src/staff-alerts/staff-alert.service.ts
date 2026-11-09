@@ -22,6 +22,7 @@ import {
 import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
 import { DashboardService } from '../dashboard/dashboard.service.js';
+import { ExperimentService } from '../dashboard/experiments.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { EMAIL_SENDER, type EmailSender } from '../notifications/channels.js';
 import { grantsFor } from '../staff/permissions.js';
@@ -99,6 +100,7 @@ export class StaffAlertService {
     private readonly audit: AuditService,
     @Optional() @Inject(EMAIL_SENDER) private readonly email?: EmailSender,
     @Optional() private readonly dashboard?: DashboardService,
+    @Optional() private readonly deneyler?: ExperimentService,
   ) {}
 
   private async acik(rule: StaffAlertKey) {
@@ -368,6 +370,7 @@ export class StaffAlertService {
       ajan: await this.ajanGeriAlma(now),
       olcu: await this.anaOlcu(now),
       hedef: await this.hedefSapma(now),
+      deney: await this.deneySonuc(now),
     };
     return sonuc;
   }
@@ -515,6 +518,21 @@ export class StaffAlertService {
         dedupe: `${ay}:${s.key}`,
         title: `${s.ad} hedefin gerisinde: ${s.mevcut} / ${s.hedef}`,
         body: `${ay} için ${s.ad.toLocaleLowerCase('tr-TR')} hedefi ${s.hedef}; şu an ${s.mevcut}. ${s.not}. Kontrol panelindeki neden analizine bakabilirsin.`,
+      });
+    }
+    return n;
+  }
+
+  /** A/B testinde kazanan belli olunca bir kez (Karar 51: ajan A/B kazananını bildirir) */
+  async deneySonuc(now = new Date()) {
+    if (!this.deneyler) return 0;
+    let n = 0;
+    for (const d of await this.deneyler.liste(now)) {
+      if (!d.kazanan || d.bitti) continue;
+      n += await this.raise('deney', {
+        dedupe: d.id,
+        title: `A/B sonucu: ${d.ad.slice(0, 120)}`,
+        body: `${d.sonuc}. ${d.tur === 'banner' ? 'Raporlar › Deneyler’den kazananı herkese açabilirsin.' : 'Kazanan sürümü sonraki kampanyalarda kullanabilirsin.'}`,
       });
     }
     return n;

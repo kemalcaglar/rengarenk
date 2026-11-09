@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { variantSchema } from './experiments.js';
 import { ilBul } from './iller.js';
 
 /**
@@ -80,6 +81,8 @@ export const bannerSchema = z
     renk: z.enum(BANNER_COLORS),
     baslangic: z.iso.datetime({ offset: true }).nullable().default(null),
     bitis: z.iso.datetime({ offset: true }).nullable().default(null),
+    /** A/B testi: ikinci sürüm (başlık, metin, düğme); ölçü tıklama oranı */
+    b: variantSchema.nullable().default(null),
   })
   .strict()
   .refine((b) => !b.dugme || b.url, { message: 'Düğme için bağlantı gerekli', path: ['url'] })
@@ -101,7 +104,9 @@ export const bannerSchema = z
   });
 export type BannerInput = z.output<typeof bannerSchema>;
 
-export const bannerEventSchema = z.object({ tur: z.enum(['gosterim', 'tiklama']) }).strict();
+export const bannerEventSchema = z
+  .object({ tur: z.enum(['gosterim', 'tiklama']), kol: z.enum(['A', 'B']).default('A') })
+  .strict();
 
 export type BannerStatus = 'taslak' | 'zamanlandi' | 'yayinda' | 'bitti' | 'durduruldu';
 export const BANNER_STATUSES: Record<BannerStatus, { ad: string; bg: string; fg: string }> = {

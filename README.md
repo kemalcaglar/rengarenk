@@ -218,6 +218,10 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   `COUPON_MAX_PERCENT`), `apps/api/src/payments/coupon.service.ts` (`resolve`, `apply`, `redeem` ödemede aynı işlemde;
   COUPON onay yürütücüsü); uçlar `POST /orders/kupon`, siparişte ve abonelikte `kupon`, konsol `/staff/coupons`;
   tablolar `coupons`, `coupon_redemptions`, `orders.coupon_id/discount_kurus`, `campaigns.coupon_id`.
+- A/B testleri: `packages/shared/src/experiments.ts` (`armOf`, `abTest`, `abSummary`), sonuçlar
+  `apps/api/src/dashboard/experiments.service.ts` (Raporlar › Deneyler, çalışan uyarısı `deney`); kampanya ve bannerda
+  `variant_b`, `banner_stats.arm`; `POST /staff/banners/:id/ab/:kol`. Ziyaretçi kolu web `localStorage.rr_z`, mobil ayrı
+  rastgele kimlik (`ziyaretciKimligi`).
 - Kampanyalar ve segmentler (Karar 49, 51): `packages/shared/src/campaigns.ts`, `apps/api/src/campaigns/`
   (`SegmentService.preview/reach`, `CampaignService.estimate/create/dispatchDue`, işçide dakikada bir); uçlar
   `/staff/segments`, `/staff/campaigns`; bildirimlerde `campaign_id`. Konsol `/segmentler`, `/kampanyalar`.

@@ -13,6 +13,19 @@ import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
 
+interface Deney {
+  id: string;
+  tur: 'banner' | 'kampanya';
+  ad: string;
+  durum: string;
+  bg: string;
+  fg: string;
+  olcu: string;
+  kollar: { ad: string; deger: string; w: number; renk: string }[];
+  sonuc: string;
+  eylem: { kol: 'A' | 'B'; yazi: string } | null;
+  bitti: boolean;
+}
 type Veri = Record<string, unknown> & {
   donem: string;
   filtreNotu: string | null;
@@ -76,6 +89,7 @@ export default function Raporlar() {
   const [panolar, setPanolar] = useState<Pano[]>([]);
   const [haritaOlcu, setHaritaOlcu] = useState<'bos' | 'sayi'>('bos');
   const [bilgi, setBilgi] = useState<string | null>(null);
+  const [tazele, setTazele] = useState(0);
   const [hata, setHata] = useState<string | null>(null);
 
   const sorgu = useCallback(
@@ -86,11 +100,28 @@ export default function Raporlar() {
     [],
   );
   useEffect(() => {
+    // "tazele" deney kazananı açılınca raporu yeniden yükler
+    if (tazele < 0) return;
     setV(null);
     yonetim<Veri>(`reports/${sekme}?${sorgu(f)}`)
       .then(setV)
       .catch((e: Error) => setHata(e.message));
-  }, [sekme, f, sorgu]);
+  }, [sekme, f, sorgu, tazele]);
+
+  async function kazanan(d: Deney) {
+    if (!d.eylem) return;
+    try {
+      await yonetim(`banners/${d.id}/ab/${d.eylem.kol}`, { method: 'POST', body: {} });
+      setBilgi(
+        d.eylem.kol === 'B'
+          ? 'B herkese açıldı; banner artık B sürümüyle görünüyor.'
+          : 'Test bitti; banner A sürümüyle devam ediyor.',
+      );
+      setTazele((x) => x + 1);
+    } catch (e) {
+      setHata((e as Error).message);
+    }
+  }
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'}/categories`)
       .then((r) => r.json() as Promise<{ slug: string; name?: string; ad?: string }[]>)
@@ -358,6 +389,94 @@ export default function Raporlar() {
           </h2>
           <p style={{ margin: '6px 0 0', fontSize: 14, color: '#3A4052', lineHeight: 1.55 }}>{gecerli.bos}</p>
         </section>
+      ) : null}
+
+      {gecerli && sekme === 'deney' && Array.isArray(gecerli.deneyler) && gecerli.deneyler.length ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {(gecerli.deneyler as Deney[]).map((d) => (
+            <article key={d.id} style={{ ...kart, padding: '16px 18px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 8,
+                }}
+              >
+                <span style={{ fontSize: 15.5, fontWeight: 800 }}>{d.ad}</span>
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 800,
+                    padding: '3px 9px',
+                    borderRadius: 999,
+                    background: d.bg,
+                    color: d.fg,
+                  }}
+                >
+                  {d.durum}
+                </span>
+              </div>
+              <p style={{ margin: '4px 0 12px', fontSize: 13, color: '#5A6073' }}>{d.olcu}</p>
+              {d.kollar.map((k) => (
+                <div key={k.ad} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                  <span style={{ flex: '0 0 260px', minWidth: 0, fontSize: 13.5, fontWeight: 700 }}>
+                    {k.ad}
+                  </span>
+                  <span style={{ flex: 1, minWidth: 0, height: 16 }}>
+                    <span
+                      style={{
+                        display: 'block',
+                        height: 16,
+                        width: `${k.w}%`,
+                        background: k.renk,
+                        borderRadius: '0 4px 4px 0',
+                      }}
+                    />
+                  </span>
+                  <span style={{ flex: '0 0 70px', fontSize: 13.5, fontWeight: 800, textAlign: 'right' }}>
+                    {k.deger}
+                  </span>
+                </div>
+              ))}
+              <div
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 8,
+                  marginTop: 6,
+                }}
+              >
+                <span style={{ fontSize: 13, color: '#3A4052' }}>{d.sonuc}</span>
+                {d.eylem && me.permissions['gorunum.duzenle'] === 'tam' ? (
+                  <button
+                    type="button"
+                    onClick={() => kazanan(d)}
+                    style={{
+                      border: 0,
+                      background: '#3DD68C',
+                      borderRadius: 10,
+                      padding: '9px 14px',
+                      fontSize: 13.5,
+                      fontWeight: 800,
+                      color: '#1E2333',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    {d.eylem.yazi}
+                  </button>
+                ) : null}
+                {d.bitti && d.tur === 'banner' ? (
+                  <span style={{ fontSize: 13.5, fontWeight: 800, color: '#11683F' }}>Herkese açıldı</span>
+                ) : null}
+              </div>
+            </article>
+          ))}
+        </div>
       ) : null}
 
       {gecerli && sekme === 'huni' && veri ? (

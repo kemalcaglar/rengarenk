@@ -27,6 +27,12 @@ interface Icerik {
   renk: string;
   baslangic: string | null;
   bitis: string | null;
+  b: Varyant | null;
+}
+interface Varyant {
+  baslik: string;
+  metin: string;
+  dugme: string;
 }
 interface Banner {
   id: string;
@@ -61,6 +67,7 @@ const BOS: Icerik = {
   renk: '#5B8CFF',
   baslangic: null,
   bitis: null,
+  b: null,
 };
 
 const etiket: CSSProperties = { fontSize: 13, fontWeight: 700 };
@@ -108,8 +115,8 @@ const gunOku = (g: string, bitis = false) => {
 
 /**
  * Görünüm › Banner, duyuru ve vitrin (YonetimIcerik.dc.html › banner; Karar 46). Taslak hazırlanır, tarih aralığıyla
- * yayınlanır; bitişte kendiliğinden kalkar. Gösterim ve tıklama günlük toplam (kişisel veri yok). A/B testi deney
- * altyapısıyla gelecek. Vitrinde ücretli talepler önce; boş yerlere editör seçimi açılıp kapatılır.
+ * yayınlanır; bitişte kendiliğinden kalkar. Gösterim ve tıklama günlük toplam (kişisel veri yok). A/B testinde ikinci
+ * sürüm yazılır; kazanan Raporlar › Deneyler'den herkese açılır. Vitrinde ücretli talepler önce; boş yerlere editör seçimi açılıp kapatılır.
  */
 export default function BannerVeVitrin() {
   const { me } = useKonsol();
@@ -311,7 +318,6 @@ export default function BannerVeVitrin() {
               />
             </label>
             <label
-              title="A/B testi deney altyapısı kurulunca açılacak"
               style={{
                 flex: 'none',
                 display: 'flex',
@@ -320,13 +326,68 @@ export default function BannerVeVitrin() {
                 fontSize: 13.5,
                 fontWeight: 700,
                 paddingBottom: 10,
-                color: '#9AA0B0',
               }}
             >
-              <input type="checkbox" disabled style={{ width: 18, height: 18 }} />
+              <input
+                type="checkbox"
+                checked={Boolean(f.b)}
+                onChange={(e) =>
+                  setForm({
+                    ...f,
+                    b: e.target.checked ? { baslik: f.baslik, metin: f.metin, dugme: f.dugme } : null,
+                  })
+                }
+                style={{ width: 18, height: 18 }}
+              />
               A/B testi
             </label>
           </div>
+          {f.b ? (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'flex-end',
+                gap: 12,
+                marginTop: 12,
+                padding: 12,
+                borderRadius: 12,
+                background: '#F3EFFF',
+              }}
+            >
+              <label style={{ ...etiket, flex: '2 1 240px' }}>
+                B · Başlık
+                <input
+                  value={f.b.baslik}
+                  maxLength={80}
+                  onChange={(e) => setForm({ ...f, b: { ...(f.b as Varyant), baslik: e.target.value } })}
+                  style={alan}
+                />
+              </label>
+              <label style={{ ...etiket, flex: '3 1 300px' }}>
+                B · Metin
+                <input
+                  value={f.b.metin}
+                  maxLength={160}
+                  onChange={(e) => setForm({ ...f, b: { ...(f.b as Varyant), metin: e.target.value } })}
+                  style={alan}
+                />
+              </label>
+              <label style={{ ...etiket, flex: '1 1 140px' }}>
+                B · Düğme
+                <input
+                  value={f.b.dugme}
+                  maxLength={30}
+                  onChange={(e) => setForm({ ...f, b: { ...(f.b as Varyant), dugme: e.target.value } })}
+                  style={alan}
+                />
+              </label>
+              <p style={{ flex: '1 1 100%', margin: 0, fontSize: 12.5, color: '#4B2FA6' }}>
+                Görenler yarı yarıya ayrılır; ölçü tıklama oranı. Kazanan Raporlar › Deneyler’den herkese
+                açılır.
+              </p>
+            </div>
+          ) : null}
           <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 12, marginTop: 12 }}>
             <label style={{ ...etiket, flex: '3 1 300px' }}>
               Metin

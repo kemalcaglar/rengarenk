@@ -11,6 +11,7 @@ export * from './content.js';
 export * from './coupons.js';
 export * from './dashboard.js';
 export * from './demand.js';
+export * from './experiments.js';
 export * from './flags.js';
 export * from './gallery.js';
 export * from './gallery-care.js';

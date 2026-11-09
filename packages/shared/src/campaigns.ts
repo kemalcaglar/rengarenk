@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { variantSchema } from './experiments.js';
 
 /**
  * Kampanyalar ve segmentler (Karar 49, 51; YonetimKampanya.dc.html › kampanya, segment). Segment kuralları "ve" ile
@@ -176,5 +177,11 @@ export const campaignSchema = z
     zaman: z.iso.datetime({ offset: true }),
     /** Bağlı kupon (Karar 51): kupon onaylanmadan kampanya gönderilmez */
     kuponId: z.uuid().nullable().default(null),
+    /** A/B testi: ikinci sürüm; kişiler yarı yarıya ayrılır, ölçü uygulamada okunma */
+    b: variantSchema.nullable().default(null),
   })
-  .strict();
+  .strict()
+  .refine((c) => !c.b || (c.b.metin.length >= 10 && c.b.dugme.length >= 2), {
+    message: 'B sürümünün metni ve düğmesi yazılmalı',
+    path: ['b'],
+  });

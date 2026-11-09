@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { type Prisma, uuidv7 } from '@rengarenk/db';
 import {
   changeText,
@@ -16,6 +16,7 @@ import {
 import { AuditService } from '../audit/audit.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { trGunBasi } from './dashboard.service.js';
+import { ExperimentService } from './experiments.service.js';
 import { type ReportTable, reportCsv } from './report-pdf.js';
 
 const HOUR = 3_600_000;
@@ -80,6 +81,7 @@ export class ReportService {
   constructor(
     @Inject(PRISMA) private readonly db: Db,
     private readonly audit: AuditService,
+    @Optional() private readonly deneyler?: ExperimentService,
   ) {}
 
   araliklar(f: ReportFilter, now = new Date()): { simdi: Aralik; once: Aralik | null; ad: string } {
@@ -163,11 +165,19 @@ export class ReportService {
           ...ortak,
           bos: 'Meta ve Google reklam hesapları bağlanınca harcama, üyelik, talep, yeni galeri, üye başı maliyet ve getiri her gece kendiliğinden çekilir (Karar 44). Hesaplar sahipte.',
         };
-      default:
+      default: {
+        const deneyler = (await this.deneyler?.liste(now)) ?? [];
         return {
           ...ortak,
-          bos: 'A/B ve fiyat deneyleri, deney altyapısı (özellik anahtarlarıyla yüzde dağıtım ve ölçüm) kurulunca burada görünür. Fiyat deneyleri sahip onayıyla açılır.',
+          filtreNotu: 'Deneyler tarih, il, kategori ve platform süzgecine bağlı değildir.',
+          deneyler,
+          ...(deneyler.length
+            ? {}
+            : {
+                bos: 'Henüz A/B testi yok. Kampanyalarda ve bannerlarda “A/B testi” ile ikinci sürüm yazılır; sonuç burada görünür. Fiyat deneyleri sahip onayıyla ayrıca gelecek.',
+              }),
         };
+      }
     }
   }
 

@@ -100,6 +100,7 @@ export default function Kampanyalar() {
   const [tahmin, setTahmin] = useState<Tahmin | null>(null);
   const [kuponlar, setKuponlar] = useState<Kupon[]>([]);
   const [kuponId, setKuponId] = useState('');
+  const [ab, setAb] = useState<{ baslik: string; metin: string; dugme: string } | null>(null);
   const [kuponForm, setKuponForm] = useState(false);
   const [yk, setYk] = useState({
     kod: '',
@@ -157,6 +158,7 @@ export default function Kampanyalar() {
           url,
           zaman: new Date(`${zaman}:00+03:00`).toISOString(),
           kuponId: kuponId || null,
+          b: ab,
         },
       });
       setListe(l);
@@ -166,6 +168,7 @@ export default function Kampanyalar() {
           ? 'Kampanya onay kuyruğuna gönderildi. Onaylanınca zamanında gider; sonucu listeye ve kontrol paneli grafiğine kendiliğinden düşer.'
           : 'Kampanya zamanlandı. Zamanında gider; sonucu listeye ve kontrol paneli grafiğine kendiliğinden düşer.',
       );
+      setAb(null);
       setAd('');
       setBaslik('');
       setMetin('');
@@ -492,10 +495,72 @@ export default function Kampanyalar() {
                   ))}
               </select>
             </label>
-            <span style={{ flex: 'none', fontSize: 12.5, color: '#5A6073', paddingTop: 30 }}>
-              A/B testi deney altyapısıyla gelecek
-            </span>
+            <label
+              style={{
+                flex: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                fontSize: 13.5,
+                fontWeight: 700,
+                paddingTop: 26,
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={Boolean(ab)}
+                onChange={(e) => setAb(e.target.checked ? { baslik, metin, dugme } : null)}
+                style={{ width: 18, height: 18 }}
+              />
+              A/B testi
+            </label>
           </div>
+          {ab ? (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 12,
+                marginTop: 12,
+                padding: 12,
+                borderRadius: 12,
+                background: '#F3EFFF',
+              }}
+            >
+              <label style={{ ...etiket, flex: '2 1 240px' }}>
+                B · Başlık
+                <input
+                  value={ab.baslik}
+                  maxLength={80}
+                  onChange={(e) => setAb({ ...ab, baslik: e.target.value })}
+                  style={girdi}
+                />
+              </label>
+              <label style={{ ...etiket, flex: '1 1 160px' }}>
+                B · Düğme
+                <input
+                  value={ab.dugme}
+                  maxLength={30}
+                  onChange={(e) => setAb({ ...ab, dugme: e.target.value })}
+                  style={girdi}
+                />
+              </label>
+              <label style={{ ...etiket, flex: '1 1 100%' }}>
+                B · Metin
+                <textarea
+                  value={ab.metin}
+                  maxLength={400}
+                  rows={2}
+                  onChange={(e) => setAb({ ...ab, metin: e.target.value })}
+                  style={{ ...girdi, resize: 'vertical' }}
+                />
+              </label>
+              <p style={{ margin: 0, fontSize: 12.5, color: '#4B2FA6' }}>
+                Segment yarı yarıya ayrılır (kişi hep aynı sürümü alır); ölçü bildirimi uygulamada açma oranı.
+                Sonuç Raporlar › Deneyler’de.
+              </p>
+            </div>
+          ) : null}
         </section>
 
         <section

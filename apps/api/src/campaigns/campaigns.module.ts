@@ -16,6 +16,7 @@ import { z } from 'zod';
 import { ApprovalsModule } from '../approvals/approvals.module.js';
 import { AuditService } from '../audit/audit.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
+import { ExperimentService } from '../dashboard/experiments.service.js';
 import { NotificationsModule, NotificationsWorkerModule } from '../notifications/notifications.module.js';
 import { RequirePermission } from '../staff/permissions.js';
 import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
@@ -109,14 +110,14 @@ export class CampaignsController {
 @Module({
   imports: [StaffModule, ApprovalsModule, NotificationsModule],
   controllers: [SegmentsController, CampaignsController],
-  providers: [SegmentService, CampaignService, AuditService],
+  providers: [SegmentService, CampaignService, ExperimentService, AuditService],
 })
 export class CampaignsModule {}
 
 /** İşçi: onaylanan toplu gönderimi zamanlar ve zamanı gelen kampanyaları gönderir */
 @Module({
   imports: [ApprovalsModule, NotificationsWorkerModule],
-  providers: [SegmentService, CampaignService, AuditService],
+  providers: [SegmentService, CampaignService, ExperimentService, AuditService],
   exports: [CampaignService],
 })
 export class CampaignsWorkerModule {}

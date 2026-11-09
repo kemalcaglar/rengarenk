@@ -152,6 +152,13 @@ export const STAFF_ALERT_RULES = {
     kritik: true,
     yol: '/yapay-zeka',
   },
+  deney: {
+    ad: 'A/B testinde kazanan',
+    kosul: 'Bir A/B testinde kazanan belli olursa (her kolda en az 100 kişi, güven %95)',
+    kritik: false,
+    izin: 'kampanya.hazirla',
+    yol: '/raporlar',
+  },
   // Bildirim ve katalog (Karar 49, 50; Teknik tasarım §5)
   ticari_durdu: {
     ad: 'Ticari e-posta durdu',

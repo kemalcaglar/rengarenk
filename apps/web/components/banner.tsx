@@ -7,6 +7,7 @@ import { API, istek } from '../lib/istemci';
 
 interface Banner {
   id: string;
+  kol: 'A' | 'B';
   baslik: string;
   metin: string;
   dugme: string;
@@ -15,13 +16,30 @@ interface Banner {
   zemin: string;
 }
 
-const olay = (id: string, tur: 'gosterim' | 'tiklama') =>
+const olay = (id: string, tur: 'gosterim' | 'tiklama', kol: 'A' | 'B') =>
   fetch(`${API}/icerik/banner/${id}/olay`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ tur }),
+    body: JSON.stringify({ tur, kol }),
     keepalive: true,
   }).catch(() => undefined);
+
+/**
+ * Ziyaretçi kimliği: yalnızca A/B testinde kolu sabit tutmak için tarayıcıda rastgele üretilir; sunucuda saklanmaz.
+ * Üye girişliyse kol hesabından hesaplanır.
+ */
+function ziyaretciKimligi() {
+  try {
+    let z = localStorage.getItem('rr_z');
+    if (!z) {
+      z = crypto.randomUUID();
+      localStorage.setItem('rr_z', z);
+    }
+    return z;
+  } catch {
+    return '';
+  }
+}
 
 /** Aynı sekmede aynı banner için tek gösterim sayılır */
 const sayilan = new Set<string>();
@@ -35,14 +53,15 @@ export function Banner({ yer, style }: { yer: BannerPlace; style?: CSSProperties
 
   useEffect(() => {
     let iptal = false;
-    istek<Banner[]>(`/icerik/banner?yer=${yer}&platform=web`)
+    const z = ziyaretciKimligi();
+    istek<Banner[]>(`/icerik/banner?yer=${yer}&platform=web${z ? `&z=${z}` : ''}`)
       .then((b) => {
         if (iptal) return;
         setListe(b);
         for (const x of b)
           if (!sayilan.has(x.id)) {
             sayilan.add(x.id);
-            olay(x.id, 'gosterim');
+            olay(x.id, 'gosterim', x.kol);
           }
       })
       .catch(() => undefined);
@@ -76,7 +95,7 @@ export function Banner({ yer, style }: { yer: BannerPlace; style?: CSSProperties
                 {' '}
                 <Link
                   href={b.url}
-                  onClick={() => olay(b.id, 'tiklama')}
+                  onClick={() => olay(b.id, 'tiklama', b.kol)}
                   style={{ fontWeight: 800, color: '#2450C8' }}
                 >
                   {b.dugme}
@@ -118,7 +137,7 @@ export function Banner({ yer, style }: { yer: BannerPlace; style?: CSSProperties
           {b.dugme && b.url ? (
             <Link
               href={b.url}
-              onClick={() => olay(b.id, 'tiklama')}
+              onClick={() => olay(b.id, 'tiklama', b.kol)}
               style={{
                 flex: 'none',
                 background: '#1E2333',

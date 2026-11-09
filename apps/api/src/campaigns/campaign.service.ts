@@ -8,8 +8,11 @@ import {
   NotFoundException,
   Optional,
 } from '@nestjs/common';
-import { type Approval, type Prisma, uuidv7 } from '@rengarenk/db';
+import { type Approval, Prisma, uuidv7 } from '@rengarenk/db';
 import {
+  type AbResult,
+  abSummary,
+  armOf,
   CAMPAIGN_APPROVAL_LIMIT,
   CAMPAIGN_CHANNELS,
   CAMPAIGN_GOALS,
@@ -19,12 +22,14 @@ import {
   type PermissionGrants,
   type SegmentRule,
   satisfies,
+  type Variant,
 } from '@rengarenk/shared';
 import { ApprovalService } from '../approvals/approval.service.js';
 import { ApprovalExecutor } from '../approvals/approval-executor.js';
 import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
 import { grafikNotu } from '../dashboard/dashboard.service.js';
+import { ExperimentService } from '../dashboard/experiments.service.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { isinmaLimiti } from '../notifications/commercial.js';
 import { NotificationService } from '../notifications/notification.service.js';
@@ -56,6 +61,7 @@ export class CampaignService {
     private readonly approvals: ApprovalService,
     private readonly audit: AuditService,
     executor: ApprovalExecutor,
+    private readonly deneyler: ExperimentService,
     @Optional() private readonly notifications?: NotificationService,
   ) {
     executor.register('BULK_SEND', (a, tx) => this.approved(a, tx));
@@ -129,6 +135,10 @@ export class CampaignService {
       ).map((a) => [a.id, a]),
     );
     const sonuc = await this.sonuclar(rows.filter((r) => r.status === 'gonderildi').map((r) => r.id));
+    const abSonuc = new Map<string, AbResult>();
+    for (const r of rows)
+      if (r.variantB !== null && r.status === 'gonderildi')
+        abSonuc.set(r.id, await this.deneyler.kampanyaSonuc(r.id));
     const kuponlar = new Map(
       (
         await this.db.coupon.findMany({
@@ -168,7 +178,13 @@ export class CampaignService {
         kitle: `${new Intl.NumberFormat('tr-TR').format(r.targetCount ?? r.segment.lastCount ?? 0)} kişi · ${r.segment.name}`,
         sonuc:
           durum === 'gonderildi' && r.sentAt
-            ? `${tarih(r.sentAt)} · ${new Intl.NumberFormat('tr-TR').format(r.sentCount ?? 0)} kişiye gitti${sn ? ` · uygulamada okunma %${sn.okunma} · e-posta ${sn.eposta}` : ''}`
+            ? `${tarih(r.sentAt)} · ${new Intl.NumberFormat('tr-TR').format(r.sentCount ?? 0)} kişiye gitti${
+                abSonuc.has(r.id)
+                  ? ` · ${abSummary(abSonuc.get(r.id) as AbResult, 'okunma')}`
+                  : sn
+                    ? ` · uygulamada okunma %${sn.okunma} · e-posta ${sn.eposta}`
+                    : ''
+              }`
             : durum === 'zamanlandi'
               ? `${tarih(r.scheduledAt)} gönderilecek${kuponNotu}`
               : durum === 'onay_bekliyor'
@@ -230,6 +246,7 @@ export class CampaignService {
       url: string;
       zaman: string;
       kuponId?: string | null;
+      b?: Variant | null;
     },
     ip?: string,
   ) {
@@ -264,6 +281,7 @@ export class CampaignService {
           url: b.url,
           scheduledAt: zaman,
           couponId: b.kuponId ?? null,
+          variantB: b.b ? (b.b as unknown as Prisma.InputJsonValue) : Prisma.DbNull,
           status: onayli ? 'onay_bekliyor' : 'zamanlandi',
           estimate: tahmin as unknown as Prisma.InputJsonValue,
           targetCount: tahmin.ulasilan,
@@ -361,16 +379,28 @@ export class CampaignService {
       });
       if (!k.count) continue;
       const ids = await this.segments.userIds(c.segment.rules as unknown as SegmentRule[], now);
+      // A/B: kişi kimliğinden sabit kol; B'ye ikinci sürüm gider (kol saklanmaz, sonuçta yeniden hesaplanır)
+      const v = c.variantB as unknown as Variant | null;
+      const kollar: [string[], { baslik: string; metin: string; dugme: string }][] = v
+        ? [
+            [
+              ids.filter((u) => armOf(u, c.id) === 'A'),
+              { baslik: c.title, metin: c.body, dugme: c.buttonText },
+            ],
+            [ids.filter((u) => armOf(u, c.id) === 'B'), { baslik: v.baslik, metin: v.metin, dugme: v.dugme }],
+          ]
+        : [[ids, { baslik: c.title, metin: c.body, dugme: c.buttonText }]];
       let gonderilen = 0;
-      for (let i = 0; i < ids.length; i += PARCA) {
-        gonderilen += await this.notifications.notify({
-          userIds: ids.slice(i, i + PARCA),
-          sablon: 'kampanya.duyuru',
-          veri: { baslik: c.title, metin: c.body, dugme: c.buttonText, url: c.url },
-          kanallar: c.channels as CampaignChannel[],
-          campaignId: c.id,
-        });
-      }
+      for (const [kisiler, icerik] of kollar)
+        for (let i = 0; i < kisiler.length; i += PARCA) {
+          gonderilen += await this.notifications.notify({
+            userIds: kisiler.slice(i, i + PARCA),
+            sablon: 'kampanya.duyuru',
+            veri: { ...icerik, url: c.url },
+            kanallar: c.channels as CampaignChannel[],
+            campaignId: c.id,
+          });
+        }
       await this.db.$transaction(async (tx) => {
         await tx.campaign.update({
           where: { id: c.id },

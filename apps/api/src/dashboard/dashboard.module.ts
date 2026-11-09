@@ -37,6 +37,7 @@ import { RequirePermission } from '../staff/permissions.js';
 import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
 import { StaffModule } from '../staff/staff.module.js';
 import { DashboardService } from './dashboard.service.js';
+import { ExperimentService } from './experiments.service.js';
 import { ReportService } from './report.service.js';
 import { ScheduledReportService } from './scheduled-report.service.js';
 
@@ -197,7 +198,10 @@ export class ScheduledReportsController {
 }
 
 /** Hesaplamalar (API ve işçideki hedef sapması denetimi) */
-@Module({ providers: [DashboardService, AuditService], exports: [DashboardService] })
+@Module({
+  providers: [DashboardService, ExperimentService, AuditService],
+  exports: [DashboardService, ExperimentService],
+})
 export class DashboardCoreModule {}
 
 @Module({

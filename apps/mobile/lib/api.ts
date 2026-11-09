@@ -39,6 +39,22 @@ export async function kurulumKimligi(): Promise<string> {
   return k;
 }
 
+let ziyaretci: string | null = null;
+/**
+ * A/B testinde kolu sabit tutan rastgele kimlik (giriş yapmamış kullanıcı); kurulum kimliğinden ayrıdır, sunucuda
+ * saklanmaz.
+ */
+export async function ziyaretciKimligi(): Promise<string> {
+  if (ziyaretci) return ziyaretci;
+  let z = await SecureStore.getItemAsync('ab');
+  if (!z) {
+    z = rastgeleKimlik();
+    await SecureStore.setItemAsync('ab', z);
+  }
+  ziyaretci = z;
+  return z;
+}
+
 /** Yenileme jetonu cihazın güvenli deposunda (Keychain / Keystore) tutulur. */
 export const tokens = {
   save: (refreshToken: string) => SecureStore.setItemAsync('refreshToken', refreshToken),

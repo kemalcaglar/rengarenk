@@ -1826,6 +1826,8 @@ model Campaign {
   approvalId  String?   @unique @map("approval_id") @db.Uuid
   /// Bağlı kupon: onaylanmadan kampanya gönderilmez
   couponId    String?   @map("coupon_id") @db.Uuid
+  /// A/B testi: ikinci sürüm { baslik, metin, dugme }
+  variantB    Json?     @map("variant_b")
   /// Gönderimden önceki tahmin (segment, kanal ulaşımı, sıklık sınırı)
   estimate    Json?
   targetCount Int?      @map("target_count")
@@ -1975,6 +1977,10 @@ model Banner {
   endsAt      DateTime? @map("ends_at") @db.Timestamptz(3)
   published   Boolean   @default(false)
   publishedBy String?   @map("published_by") @db.Uuid
+  /// A/B testi: ikinci sürüm; kazanan herkese açılınca içerik B olur ve test biter
+  variantB    Json?     @map("variant_b")
+  abEndedAt   DateTime? @map("ab_ended_at") @db.Timestamptz(3)
+  abWinner    String?   @map("ab_winner")
   stoppedAt   DateTime? @map("stopped_at") @db.Timestamptz(3)
   createdBy   String?   @map("created_by") @db.Uuid
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
@@ -1990,12 +1996,14 @@ model Banner {
 model BannerStat {
   bannerId String   @map("banner_id") @db.Uuid
   day      DateTime @db.Date
+  /// A/B kolu (testsiz bannerda hep A)
+  arm      String   @default("A")
   views    Int      @default(0)
   clicks   Int      @default(0)
 
   banner Banner @relation(fields: [bannerId], references: [id], onDelete: Cascade)
 
-  @@id([bannerId, day])
+  @@id([bannerId, day, arm])
   @@map("banner_stats")
 }
 
