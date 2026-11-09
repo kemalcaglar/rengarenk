@@ -245,6 +245,17 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - Sözleşme e-postası (Karar 39): `apps/api/src/payments/contract-mail.service.ts` (işçide `odeme.alindi` →
   `odeme-sozlesme`), PDF `apps/api/src/common/document-pdf.ts` (sürümlü yasal metnin basit Markdown'ı). Yalnızca web
   siparişi; `orders.contract_sent_at`, `contract_note`.
+- Rozet eşikleri (Karar 55, 56): fiyat listesinde `rozetler` (`BadgeThresholds`, `badgeRulesOf`; eski listede başlangıç
+  değerleri); `TrustService.kurallar()`, `badgesOf(f, kurallar)`. Konsol Kurallar ve fiyatlar › Rozet eşikleri.
+- Nesil fotoğrafı makyaj ve plaka (Karar 34): `catalog_images.facelift/edited/original_key/blur_areas`, seçim
+  `POST /staff/catalog/images/:id/select { makyaj }`, `.../blur { alanlar }`, `.../unblur`; görüntü işleme `sharp`.
+  Gösterimde `makyajFoto` (`apps/api/src/catalog/photo-pick.ts`).
+- Araç favorisi: `vehicle_favorites`, `PortfolioService.favoriEkle/favoriCikar/favoriMi/favoriler`; web
+  `arac/[no]/arac-istemci.tsx` (`AracFavori`), `favoriler/araclar.tsx`; mobil `app/arac/[no].tsx`, `app/favoriler.tsx`.
+- Fotoğraf kopya tespiti: `portfolio/photo-hash.ts` (`photoHash`, `PHOTO_HASH_DISTANCE`), `portfolio_photos.phash`;
+  şikâyet nedeni `kopya_foto` (kural).
+- Komşu il: `packages/shared/src/il-komsulari.ts` (`ilKomsulari`), kategori şemasında `konumKapsami` (`il` | `komsu`),
+  `konumKomsulari(fields)`; konsol Eşleştirme ayarı › Sert koşullar.
 - Taleplerim istatistikleri: `GET /demands/mine` → `istatistik` (görüntülenme `demands.view_count`, favori, sohbet,
   etkin eşleşme); görüntülenme `POST /talepler/:no/goruntu` (sahibi ve 24 saat içinde tekrar sayılmaz).
 - Kampanyalar ve segmentler (Karar 49, 51): `packages/shared/src/campaigns.ts`, `apps/api/src/campaigns/`

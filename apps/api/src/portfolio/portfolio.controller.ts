@@ -277,6 +277,33 @@ export class PublicPortfolioController {
     return this.portfolio.publicDetail(no);
   }
 
+  /** Favori araçlar (PortfoyArac.dc.html › "Favorilere ekle") */
+  @Get('favoriler/araclar')
+  @UseGuards(AuthGuard)
+  favorites(@Req() req: { user: AccessClaims }) {
+    return this.portfolio.favoriler(req.user.sub);
+  }
+
+  @Get('araclar/:no/favori')
+  @UseGuards(AuthGuard)
+  isFavorite(@Req() req: { user: AccessClaims }, @Param('no', new ParseIntPipe()) no: number) {
+    return this.portfolio.favoriMi(req.user.sub, no);
+  }
+
+  @Put('araclar/:no/favori')
+  @HttpCode(204)
+  @UseGuards(AuthGuard)
+  async addFavorite(@Req() req: { user: AccessClaims }, @Param('no', new ParseIntPipe()) no: number) {
+    await this.portfolio.favoriEkle(req.user.sub, no);
+  }
+
+  @Delete('araclar/:no/favori')
+  @HttpCode(204)
+  @UseGuards(AuthGuard)
+  async removeFavorite(@Req() req: { user: AccessClaims }, @Param('no', new ParseIntPipe()) no: number) {
+    await this.portfolio.favoriCikar(req.user.sub, no);
+  }
+
   /** "Telefonu göster": yalnızca girişli kullanıcıya */
   @Get('araclar/:no/iletisim')
   @UseGuards(AuthGuard)

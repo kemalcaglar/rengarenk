@@ -8,7 +8,7 @@ import {
 } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, View } from 'react-native';
+import { Alert, Image, Linking, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { Banner } from '../components/banner';
@@ -17,6 +17,8 @@ import { IlkMesaj } from '../components/ilk-mesaj';
 import { T } from '../components/t';
 import { API } from '../lib/api';
 import { basHarf, useOturum } from '../lib/oturum';
+
+const WEB = process.env.EXPO_PUBLIC_WEB_URL ?? 'http://localhost:3000';
 
 interface Panel {
   accountId: string;
@@ -620,7 +622,11 @@ export default function GaleriPaneli() {
                 </Pressable>
               );
             })}
-            <View
+            {/* GaleriMobil.dc.html: toplu yükleme web panelde; düğme web paneldeki Toplu yükleme bölümünü açar */}
+            <Pressable
+              accessibilityRole="link"
+              accessibilityHint="Tarayıcıda galeri panelini açar"
+              onPress={() => Linking.openURL(`${WEB}/galeri-paneli?bolum=toplu`)}
               style={{
                 borderWidth: 1,
                 borderStyle: 'dashed',
@@ -633,7 +639,7 @@ export default function GaleriPaneli() {
               <T style={{ fontSize: 14, fontWeight: '700', color: colors.link }}>
                 Excel/CSV ile toplu yükleme web panelde
               </T>
-            </View>
+            </Pressable>
           </>
         ) : null}
 

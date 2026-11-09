@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_CATEGORIES } from './category-defaults.js';
+import { diffDefinitions, effectiveFields } from './category-schema.js';
+import { IL_KOMSU_CIFT, ilKomsulari } from './il-komsulari.js';
 import {
   evaluateMatch,
   iyelik,
@@ -122,6 +124,33 @@ describe('eşleşme skoru (Teknik tasarım §6)', () => {
     const c = (key: string, fit: number): MatchCriterion => ({ key, ad: key, weight: 1, fit, secim: true });
     expect(matchCountText([c('yıl', 1), c('kilometre', 1), c('renk', 0)])).toBe(
       '3 kriterin 2’si tutuyor: yıl ve kilometre.',
+    );
+  });
+});
+
+describe('komşu il (Teknik tasarım §6: komşu il 0,5)', () => {
+  it('81 il, 200 komşu çifti, iki yönlü; İstanbul–Kırklareli kısa sınırı dahil', () => {
+    expect(IL_KOMSU_CIFT).toBe(200);
+    expect([...ilKomsulari('İstanbul')].sort()).toEqual(['Kocaeli', 'Kırklareli', 'Tekirdağ'].sort());
+    expect(ilKomsulari('Kilis')).toEqual(['Gaziantep']);
+    for (const il of ['Ankara', 'Hakkari', 'Batman', 'Mardin'])
+      for (const k of ilKomsulari(il)) expect(ilKomsulari(k)).toContain(il);
+    expect(ilKomsulari('Yok')).toEqual([]);
+  });
+
+  it('konum kapsamı "komşu": komşu ildeki araç 0,5 konum uyumuyla eşleşir, uzak il yine dışarıda', () => {
+    const komsu = { ...otomobil, konumKapsami: 'komsu' as const };
+    expect(effectiveFields(komsu).find((f) => f.key === 'konum')?.hard).toBe('no');
+    expect(evaluateMatch(otomobil, talep(), arac({ il: 'Kocaeli', ilce: 'İzmit' }))).toEqual({
+      ok: false,
+      reason: 'konum',
+    });
+    const r = evaluateMatch(komsu, talep(), arac({ il: 'Kocaeli', ilce: 'İzmit' }));
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.criteria.find((c) => c.key === 'konum')?.fit).toBe(0.5);
+    expect(evaluateMatch(komsu, talep(), arac({ il: 'Ankara' }))).toEqual({ ok: false, reason: 'konum' });
+    expect(diffDefinitions(otomobil, komsu).changes).toContain(
+      'Konum kapsamı: Yalnızca alıcının ili → Komşu iller de (konum uyumu 0,5)',
     );
   });
 });

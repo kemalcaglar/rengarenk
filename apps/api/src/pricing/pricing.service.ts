@@ -31,6 +31,20 @@ import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 
 const SUBJECT = 'price_book';
+
+/** Belirli bir andaki fiyat listesi; servisi olmayan yardımcılar için (ör. rozetler) */
+export async function kitapAninda(
+  db: Db | Tx,
+  at = new Date(),
+): Promise<{ book: PriceBook; id: string | null; since: Date | null }> {
+  const r = await db.priceBook.findFirst({
+    where: { status: 'zamanlandi', effectiveAt: { lte: at } },
+    orderBy: { effectiveAt: 'desc' },
+  });
+  return r
+    ? { book: r.data as unknown as PriceBook, id: r.id, since: r.effectiveAt }
+    : { book: DEFAULT_PRICE_BOOK, id: null, since: null };
+}
 const DAY = 86_400_000;
 /** Yürürlükteki liste bu kadar süre bellekte tutulur (API ve işçi ayrı süreçler) */
 const CACHE_MS = 60_000;
@@ -71,13 +85,7 @@ export class PricingService {
     at: Date,
     db: Db | Tx = this.db,
   ): Promise<{ book: PriceBook; id: string | null; since: Date | null }> {
-    const r = await db.priceBook.findFirst({
-      where: { status: 'zamanlandi', effectiveAt: { lte: at } },
-      orderBy: { effectiveAt: 'desc' },
-    });
-    return r
-      ? { book: r.data as unknown as PriceBook, id: r.id, since: r.effectiveAt }
-      : { book: DEFAULT_PRICE_BOOK, id: null, since: null };
+    return kitapAninda(db, at);
   }
 
   /** Yürürlükteki liste (kısa süre önbellekte) */

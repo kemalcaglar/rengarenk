@@ -27,7 +27,9 @@ import {
   PHOTO_MIN,
   PORTFOLIO_STATUS_NAMES,
   type PortfolioVehicleData,
+  PRIORITY_HOURS,
   portfolioRules,
+  REPORT_REASONS,
 } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
 import { sniff } from '../common/files.js';
@@ -36,6 +38,7 @@ import { OutboxService } from '../outbox/outbox.service.js';
 import { PricingService } from '../pricing/pricing.service.js';
 import { STORAGE, type Storage } from '../storage/storage.service.js';
 import { EidsFactory, type EidsProvider } from './eids.js';
+import { PHOTO_HASH_DISTANCE, photoHash } from './photo-hash.js';
 import { vehicleNames } from './vehicle-names.js';
 
 const AKTIF = ['DRAFT', 'PENDING_EIDS', 'PUBLISHED', 'PASSIVE'] as const;
@@ -307,20 +310,70 @@ export class PortfolioService {
     const pid = uuidv7();
     const storageKey = `portfoy/${id}/${pid}`;
     await this.storage.put(storageKey, body, mime);
-    await this.db.portfolioPhoto.create({
-      data: {
-        id: pid,
-        vehicleId: id,
-        storageKey,
-        mime,
-        size: body.byteLength,
-        sha256: createHash('sha256').update(body).digest('hex'),
-        sort: n,
-      },
+    const phash = await photoHash(body);
+    // İlan kopyalama (sazan sarmalı): başka bir galerinin aracındaki fotoğrafa çok benziyorsa kural şikâyeti
+    const kopyalar =
+      phash === null
+        ? []
+        : await this.db.$queryRaw<{ no: bigint; galeri: string | null }[]>`
+            SELECT DISTINCT v.no, g.display_name AS galeri
+            FROM portfolio_photos p
+            JOIN portfolio_vehicles v ON v.id = p.vehicle_id
+            LEFT JOIN galleries g ON g.account_id = v.account_id
+            WHERE v.account_id <> ${c.accountId}::uuid
+              AND p.phash IS NOT NULL
+              AND bit_count((p.phash # ${phash})::bit(64)) <= ${PHOTO_HASH_DISTANCE}
+            LIMIT 3`;
+    await this.db.$transaction(async (tx) => {
+      await tx.portfolioPhoto.create({
+        data: {
+          id: pid,
+          vehicleId: id,
+          storageKey,
+          mime,
+          size: body.byteLength,
+          sha256: createHash('sha256').update(body).digest('hex'),
+          phash,
+          sort: n,
+        },
+      });
+      if (kopyalar.length) await this.kopyaSikayeti(tx, v, kopyalar);
     });
     if (v.status === 'PUBLISHED')
       await this.db.$transaction((tx) => this.outbox.add(tx, 'portfoy.guncellendi', { vehicleId: id }));
     return this.detail(c, id);
+  }
+
+  /**
+   * Kopya fotoğraf kuralı (Karar 13, güvenlik önlemleri › ilan kopyalama): aynı araca açık kural şikâyeti varsa yenisi
+   * açılmaz. Hangi galerinin hangi ilanıyla eşleştiği işaret olarak yazılır; karar moderasyondadır (yükleme engellenmez).
+   */
+  private async kopyaSikayeti(
+    tx: Tx,
+    v: { id: string; accountId: string; assignedTo: string | null; createdBy: string },
+    kopyalar: { no: bigint; galeri: string | null }[],
+  ) {
+    const acik = await tx.report.findFirst({
+      where: { source: 'kural', targetType: 'arac', targetId: v.id, reason: 'kopya_foto', status: 'acik' },
+      select: { id: true },
+    });
+    if (acik) return;
+    const id = uuidv7();
+    await tx.report.create({
+      data: {
+        id,
+        source: 'kural',
+        targetType: 'arac',
+        targetId: v.id,
+        targetUserId: v.assignedTo ?? v.createdBy,
+        targetAccountId: v.accountId,
+        reason: 'kopya_foto',
+        priority: REPORT_REASONS.kopya_foto.oncelik,
+        signals: kopyalar.map((k) => `Araç No ${k.no}${k.galeri ? ` (${k.galeri})` : ''} ile aynı fotoğraf`),
+        dueAt: new Date(Date.now() + PRIORITY_HOURS[REPORT_REASONS.kopya_foto.oncelik] * 3_600_000),
+      },
+    });
+    await this.outbox.add(tx, 'sikayet.acildi', { reportId: id });
   }
 
   async removePhoto(c: Ctx, id: string, photoId: string) {
@@ -714,6 +767,79 @@ export class PortfolioService {
     });
     if (g?.account.status !== 'ACTIVE') throw new NotFoundException('Galeri bulunamadı');
     return this.publicList(g.accountId);
+  }
+
+  // ── Favori araçlar (PortfoyArac.dc.html › "Favorilere ekle") ─────
+
+  private async publicVehicle(no: number) {
+    const v = await this.db.portfolioVehicle.findUnique({
+      where: { no: BigInt(no) },
+      select: { id: true, status: true, accountId: true, account: { select: { status: true } } },
+    });
+    if (v?.status !== 'PUBLISHED' || v.account.status !== 'ACTIVE')
+      throw new NotFoundException('Araç bulunamadı');
+    return v;
+  }
+
+  async favoriEkle(userId: string, no: number) {
+    const v = await this.publicVehicle(no);
+    const uye = await this.db.accountMember.findUnique({
+      where: { accountId_userId: { accountId: v.accountId, userId } },
+    });
+    if (uye) throw new BadRequestException('Kendi galerinin aracını favoriye ekleyemezsin');
+    await this.db.vehicleFavorite.createMany({ data: [{ userId, vehicleId: v.id }], skipDuplicates: true });
+  }
+
+  /** Favoriden çıkarma satıştan kalkmış araçta da çalışır */
+  async favoriCikar(userId: string, no: number) {
+    const v = await this.db.portfolioVehicle.findUnique({ where: { no: BigInt(no) }, select: { id: true } });
+    if (v) await this.db.vehicleFavorite.deleteMany({ where: { userId, vehicleId: v.id } });
+  }
+
+  async favoriMi(userId: string, no: number) {
+    const v = await this.db.portfolioVehicle.findUnique({ where: { no: BigInt(no) }, select: { id: true } });
+    return {
+      favori: v
+        ? Boolean(
+            await this.db.vehicleFavorite.findUnique({
+              where: { userId_vehicleId: { userId, vehicleId: v.id } },
+            }),
+          )
+        : false,
+    };
+  }
+
+  /** Favoriler › Favori araçlar (tasarıma ek sekme): satıştan kalkan araç "Satışta değil" olarak kalır */
+  async favoriler(userId: string) {
+    const rows = await this.db.vehicleFavorite.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        vehicle: {
+          include: {
+            photos: { orderBy: { sort: 'asc' }, take: 1, select: { id: true } },
+            account: { select: { status: true, gallery: { select: { displayName: true, slug: true } } } },
+          },
+        },
+      },
+      take: 200,
+    });
+    const n = await this.names(rows.map((r) => r.vehicle));
+    return rows.map(({ vehicle: v, createdAt }) => {
+      const satista = v.status === 'PUBLISHED' && v.account.status === 'ACTIVE';
+      return {
+        no: Number(v.no),
+        ad: n(v).ad,
+        ozellik: this.ozet(v),
+        fiyat: satista ? Number(v.priceTl) : null,
+        foto: satista && v.photos[0] ? `/portfoy/fotolar/${v.photos[0].id}` : null,
+        galeri: v.account.gallery
+          ? { ad: v.account.gallery.displayName, slug: v.account.gallery.slug }
+          : null,
+        satista,
+        eklendi: createdAt,
+      };
+    });
   }
 
   /** Galeri profilindeki yayındaki araçlar (GaleriProfil.dc.html) */

@@ -27,6 +27,7 @@ import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
 import { CatalogAliasService } from './catalog-alias.service.js';
 import { CatalogImageService } from './catalog-image.service.js';
 import { CatalogPipelineService, STALE_HOURS } from './catalog-pipeline.service.js';
+import { makyajFoto } from './photo-pick.js';
 import { XLSX_MIME } from './xlsx-body.js';
 
 const categorySchema = z.enum(VEHICLE_CATEGORIES.map((c) => c.slug) as [string, ...string[]]).optional();
@@ -85,7 +86,19 @@ export class CatalogController {
       select: { key: true, name: true, license: true, attribution: true, url: true, notice: true },
     });
     const order = ['tsb', 'vehiclesdb', 'wikidata', 'vmm', 'yerli'];
-    return rows.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key));
+    return [
+      ...rows.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key)),
+      // İl komşulukları (eşleştirmede komşu il; `il-komsulari.ts`): il sınırlarından hesaplandı, katalog hattı değil
+      {
+        key: 'iller',
+        name: 'İl komşulukları (eşleştirme)',
+        license: 'CC BY-SA 2.0',
+        attribution:
+          'İl sınırları © OpenStreetMap katkıcıları, geoBoundaries (William & Mary geoLab) üzerinden',
+        url: 'https://www.geoboundaries.org',
+        notice: null,
+      },
+    ];
   }
 
   @Get('makes')
@@ -230,16 +243,21 @@ export class CatalogController {
     const selected = await this.db.catalogImage.findMany({
       where: { status: 'secildi', generationId: { in: codeRows.map((g) => g.id) } },
     });
-    const photoOf = new Map(
-      selected.flatMap((i) => {
-        const owner = codeRows.find((g) => g.id === i.generationId);
-        return owner?.wikidataId ? [[owner.wikidataId, CatalogImageService.publicPhoto(i)] as const] : [];
-      }),
-    );
+    // Makyaj başına fotoğraf (Karar 34): kuşağın makyajı, yoksa nesil geneli
+    const photoOf = (wikidataId: string | null, makyaj: number | null) => {
+      const owner = wikidataId ? codeRows.find((g) => g.wikidataId === wikidataId) : undefined;
+      const f = owner
+        ? makyajFoto(
+            selected.filter((i) => i.generationId === owner.id),
+            makyaj,
+          )
+        : undefined;
+      return f ? CatalogImageService.publicPhoto(f) : null;
+    };
     const generations = phases.map((g) => ({
       ...g,
       years: span(g),
-      photo: g.wikidataId ? (photoOf.get(g.wikidataId) ?? null) : null,
+      photo: photoOf(g.wikidataId, g.facelift),
     }));
     const codes = codeRows.map(
       ({ id: cid, code, name, startYear, endYear, wikidataId, commonsCategory }) => ({
@@ -250,7 +268,7 @@ export class CatalogController {
         endYear,
         wikidataId,
         commonsCategory,
-        photo: wikidataId ? (photoOf.get(wikidataId) ?? null) : null,
+        photo: photoOf(wikidataId, null),
       }),
     );
 
@@ -300,6 +318,21 @@ const aliasApproveSchema = z
   .optional()
   .transform((v) => v ?? {});
 
+const imageSelectSchema = z
+  .object({ makyaj: z.number().int().min(0).max(5).nullable().optional() })
+  .strict()
+  .optional()
+  .transform((v) => v ?? {});
+const oran = z.number().min(0).max(1);
+const imageBlurSchema = z
+  .object({
+    alanlar: z
+      .array(z.object({ x: oran, y: oran, w: oran.positive(), h: oran.positive() }).strict())
+      .min(1)
+      .max(6),
+  })
+  .strict();
+
 /** Yönetim: katalog kaynaklarını izleme (Karar 33: konsoldaki katalog bölümü yalnızca izleme içindir). */
 @Controller('staff/catalog')
 @UseGuards(StaffGuard)
@@ -323,8 +356,31 @@ export class StaffCatalogController {
   @Post('images/:id/select')
   @HttpCode(200)
   @RequirePermission('kategori.ayarla')
-  imageSelect(@Req() req: StaffRequest, @Param('id', new ParseUUIDPipe()) id: string) {
-    return this.images.select(id, req.staff.staff.id, req.ip);
+  imageSelect(
+    @Req() req: StaffRequest,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodPipe(imageSelectSchema)) body: z.output<typeof imageSelectSchema>,
+  ) {
+    return this.images.select(id, req.staff.staff.id, req.ip, body.makyaj ?? null);
+  }
+
+  /** Plaka bulanıklaştırma (Karar 34): alanlar fotoğrafa oranla */
+  @Post('images/:id/blur')
+  @HttpCode(200)
+  @RequirePermission('kategori.ayarla')
+  imageBlur(
+    @Req() req: StaffRequest,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodPipe(imageBlurSchema)) body: z.output<typeof imageBlurSchema>,
+  ) {
+    return this.images.blur(id, body.alanlar, req.staff.staff.id, req.ip);
+  }
+
+  @Post('images/:id/unblur')
+  @HttpCode(200)
+  @RequirePermission('kategori.ayarla')
+  imageUnblur(@Req() req: StaffRequest, @Param('id', new ParseUUIDPipe()) id: string) {
+    return this.images.unblur(id, req.staff.staff.id, req.ip);
   }
 
   @Post('images/:id/reject')

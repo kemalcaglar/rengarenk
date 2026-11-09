@@ -1,6 +1,7 @@
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
 import { strToU8, zipSync } from 'fflate';
+import sharp from 'sharp';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from '../src/app.module.js';
 import { CatalogImportService } from '../src/catalog/catalog-import.service.js';
@@ -211,7 +212,15 @@ const fakeCommons: CommonsClient = {
     });
     return [c('2019 BMW 320d Front.jpg', 65), c('2019 BMW 330i Rear.jpg', 40)];
   },
-  download: async () => ({ body: new Uint8Array([0xff, 0xd8, 0xff, 1, 2, 3]), contentType: 'image/jpeg' }),
+  // Gerçek küçük JPEG (plaka bulanıklaştırması görüntü işler)
+  download: async () => ({
+    body: new Uint8Array(
+      await sharp({ create: { width: 320, height: 200, channels: 3, background: '#5B8CFF' } })
+        .jpeg()
+        .toBuffer(),
+    ),
+    contentType: 'image/jpeg',
+  }),
 };
 const stored = new Map<string, Uint8Array>();
 const fakeStorage: Storage = {
@@ -546,7 +555,7 @@ describe('kasa kuşağı ve nesil kodu: Wikidata (Sprint 6)', () => {
 });
 
 describe('nesil fotoğrafları: Wikimedia Commons (Karar 34)', () => {
-  it('adaylar nesil kodunun kategorisinden; seçilen fotoğraf depoya alınır, atfıyla gösterilir, değiştirilemez', async () => {
+  it('adaylar nesil kodunun kategorisinden; nesil ve makyaj başına seçim, atıf, plaka bulanıklaştırma', async () => {
     const r = await staffCall(app, 'POST', '/staff/catalog/sources/commons/check', {}, owner);
     expect(r.body).toMatchObject({ durum: 'uygulandi', nesil: 2, aday: 2 });
     expect(commonsCalls.sort()).toEqual(['BMW E36', 'BMW G20']);
@@ -564,29 +573,65 @@ describe('nesil fotoğrafları: Wikimedia Commons (Karar 34)', () => {
     const sel = await staffCall(app, 'POST', `/staff/catalog/images/${best.id}/select`, {}, owner);
     expect(sel.body).toMatchObject({ status: 'secildi' });
     expect([...stored.keys()][0]).toMatch(/^katalog\/nesil\/[0-9a-f-]+\/[0-9a-f]{64}\.jpg$/);
-    // Bir kez seçilen fotoğraf o nesil için kalır
+    // Nesil geneli bir kez seçilir; ikinci fotoğraf makyajlı kasa için (Karar 34: nesil ve makyaj başına)
     expect((await staffCall(app, 'POST', `/staff/catalog/images/${other.id}/select`, {}, owner)).status).toBe(
       409,
     );
     expect(
-      (await staffCall(app, 'POST', `/staff/catalog/images/${other.id}/reject`, {}, owner)).body.status,
-    ).toBe('reddedildi');
+      (await staffCall(app, 'POST', `/staff/catalog/images/${other.id}/select`, { makyaj: 1 }, owner)).body,
+    ).toMatchObject({ status: 'secildi', facelift: 1 });
+    expect((await staffCall(app, 'POST', `/staff/catalog/images/${other.id}/reject`, {}, owner)).status).toBe(
+      409,
+    );
 
     const bmw = (await get('/catalog/makes')).body.find((m: { name: string }) => m.name === 'BMW');
     const s3 = (await get(`/catalog/makes/${bmw.id}/series`)).body.find(
       (x: { name: string }) => x.name === '3 Serisi',
     );
+    // 2022 kuşağı 1. makyaj: makyaj fotoğrafı; 2018 kuşağı makyaj öncesi: nesil geneli
     const d = (await get(`/catalog/series/${s3.id}?yil=2022`)).body;
-    expect(d.generations[0].photo).toMatchObject({
-      url: `/catalog/images/${best.id}`,
+    const kusak = (l: { facelift: number | null; photo: { url: string } }[], m: number) =>
+      l.find((g) => g.facelift === m)?.photo.url;
+    expect(kusak(d.generations, 1)).toContain(`/catalog/images/${other.id}`);
+    expect(kusak(d.generations, 0) ?? `/catalog/images/${best.id}`).toContain(best.id);
+    const d18 = (await get(`/catalog/series/${s3.id}?yil=2018`)).body;
+    expect(d18.generations[0].photo).toMatchObject({
+      url: expect.stringContaining(`/catalog/images/${best.id}?v=`),
       caption: 'Fotoğraf: Vauxford · CC BY-SA 4.0 · Wikimedia Commons · temsilî görsel',
       pageUrl: 'https://commons.wikimedia.org/wiki/File:2019 BMW 320d Front.jpg',
     });
+    expect(d18.codes[0].photo.url).toContain(best.id);
     const file = await app.inject({ method: 'GET', url: `/catalog/images/${best.id}` });
     expect(file.statusCode).toBe(200);
     expect(file.headers['content-type']).toBe('image/jpeg');
     expect(file.rawPayload.subarray(0, 3)).toEqual(Buffer.from([0xff, 0xd8, 0xff]));
-    expect((await app.inject({ method: 'GET', url: `/catalog/images/${other.id}` })).statusCode).toBe(404);
+
+    // Plaka bulanıklaştırma: düzenlenmiş kopya gösterilir, atıfta "düzenlendi"; geri alınabilir
+    const once = file.rawPayload;
+    const b = await staffCall(
+      app,
+      'POST',
+      `/staff/catalog/images/${best.id}/blur`,
+      { alanlar: [{ x: 0.3, y: 0.6, w: 0.3, h: 0.15 }] },
+      owner,
+    );
+    expect(b.body).toMatchObject({ edited: true });
+    expect(b.body.originalKey).toBeTruthy();
+    expect(
+      (await staffCall(app, 'POST', `/staff/catalog/images/${best.id}/blur`, { alanlar: [] }, owner)).status,
+    ).toBe(400);
+    const sonra = await app.inject({ method: 'GET', url: `/catalog/images/${best.id}` });
+    expect(sonra.rawPayload.equals(once)).toBe(false);
+    expect((await sharp(sonra.rawPayload).metadata()).width).toBe(320);
+    expect((await get(`/catalog/series/${s3.id}?yil=2018`)).body.generations[0].photo.caption).toBe(
+      'Fotoğraf: Vauxford · CC BY-SA 4.0 · Wikimedia Commons · temsilî görsel · düzenlendi',
+    );
+    expect(
+      (await staffCall(app, 'POST', `/staff/catalog/images/${best.id}/unblur`, {}, owner)).body,
+    ).toMatchObject({ edited: false });
+    expect(
+      (await app.inject({ method: 'GET', url: `/catalog/images/${best.id}` })).rawPayload.equals(once),
+    ).toBe(true);
 
     // Veritabanı da korur: NC lisans ve depoya alınmadan "seçildi" yazılamaz
     await expect(
@@ -685,6 +730,8 @@ describe('VehiclesDB: motosiklet, kamyon, otobüs, van (CC BY 4.0)', () => {
     const v = att.find((a: { key: string }) => a.key === 'vehiclesdb');
     expect(v).toMatchObject({ license: 'CC BY 4.0', attribution: 'Vehicle data by VehiclesDB' });
     expect(v.notice).toContain('Vehicle data by [VehiclesDB](https://vehiclesdb.com)');
+    // İl komşulukları (OpenStreetMap) her zaman listede
+    expect(att.find((a: { key: string }) => a.key === 'iller')?.attribution).toContain('OpenStreetMap');
     // Kapalı kaynak atıf listesinde de görünmez
     await staffCall(app, 'PATCH', '/staff/catalog/sources/vehiclesdb', { active: false }, owner);
     expect((await get('/catalog/attributions')).body.map((a: { key: string }) => a.key)).not.toContain(

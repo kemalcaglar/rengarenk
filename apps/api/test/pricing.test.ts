@@ -1,6 +1,6 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { uuidv7 } from '@rengarenk/db';
-import { DEFAULT_PRICE_BOOK, type PriceBook } from '@rengarenk/shared';
+import { DEFAULT_BADGE_THRESHOLDS, DEFAULT_PRICE_BOOK, type PriceBook } from '@rengarenk/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ApprovalExecutor } from '../src/approvals/approval-executor.js';
 import type { Db } from '../src/database/prisma.js';
@@ -9,6 +9,7 @@ import { NotificationEvents } from '../src/notifications/notification-events.js'
 import { PricingService } from '../src/pricing/pricing.service.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
+import { TrustService } from '../src/trust/trust.service.js';
 import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
@@ -40,6 +41,8 @@ describe('Kurallar ve fiyatlar (Karar 47, 56)', () => {
     yeni.paketler.profesyonel.aylik = 3990;
     yeni.paketler.profesyonel.portfoy = 120;
     yeni.urunler.ek_talep = 219;
+    // Rozet eşikleri aynı listeyle değişir (Karar 55, 56)
+    yeni.rozetler = { ...DEFAULT_BADGE_THRESHOLDS, hizliDakika: 30, guvenOrtalama: 4.6 };
     // Destek fiyat değiştiremez; geçmiş tarih ve geçersiz liste reddedilir
     expect(
       (await staffCall(app, 'POST', '/staff/pricing', { kitap: yeni, yururluk: gun(10) }, destek.token))
@@ -69,6 +72,8 @@ describe('Kurallar ve fiyatlar (Karar 47, 56)', () => {
       'Profesyonel · Aylık fiyat: 3.490 TL → 3.990 TL',
       'Profesyonel · Portföy araç sınırı: 100 → 120',
       'Ek talep hakkı · 1 adet: 199 TL → 219 TL',
+      'Hızlı yanıt · ortanca ilk yanıt: 60 → 30',
+      'Güvenilir satıcı · yıldız ortalaması: 4,5 → 4,6',
     ]);
     // Aynı anda ikinci öneri açılmaz
     expect(
@@ -138,6 +143,9 @@ describe('Kurallar ve fiyatlar (Karar 47, 56)', () => {
     pricing.forget();
     const sonra = await call(app, 'GET', '/orders/overview', undefined, t);
     expect(sonra.body.urunler.find((u: { key: string }) => u.key === 'ek_talep').kurus).toBe(21_900);
+    const rozet = await app.get(TrustService).kurallar();
+    expect(rozet.hizli.ortancaDakika).toBe(30);
+    expect(rozet.guven.enAzOrtalama).toBe(4.6);
     expect((await pricing.plans()).profesyonel).toMatchObject({
       aylik: 3990,
       portfoy: 120,

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { type CategoryDefinition, effectiveFields, fieldVisible } from '@rengarenk/shared';
+import { type CategoryDefinition, effectiveFields, fieldVisible, konumKomsulari } from '@rengarenk/shared';
 import { ENV, type Env } from '../config/env.js';
 
 /** Portföy aracının arama belgesi: yalnızca sert koşullarda kullanılan alanlar (kişisel veri yok) */
@@ -51,8 +51,9 @@ export function demandQuery(
   if (Array.isArray(kimden) && kimden.length && !kimden.includes('galeri')) return null;
   const filter: Query[] = [{ term: { kategori: categoryId } }];
   const konum = alanlar.konum as { il?: string } | undefined;
-  if (konum?.il) filter.push({ term: { il: konum.il } });
   const fields = effectiveFields(def);
+  // Konum sert koşul değilse komşu illerdeki araçlar da aday (skoru `evaluateMatch` verir)
+  if (konum?.il) filter.push({ terms: { il: [konum.il, ...konumKomsulari(fields)(konum.il)] } });
   const model = fields.find((f) => f.type === 'catalog');
   const make = model ? (alanlar[model.key] as { make?: string } | undefined)?.make : undefined;
   if (make) filter.push({ term: { marka: make } });

@@ -160,7 +160,9 @@ export function GaleriPaneli() {
   }, []);
 
   useEffect(() => {
-    if (giris === false) router.replace('/giris?sonra=/galeri-paneli');
+    // Uygulamadan "toplu yükleme web panelde" ile gelindiyse bölüm girişten sonra da korunur
+    if (giris === false)
+      router.replace(`/giris?sonra=${encodeURIComponent(`/galeri-paneli${window.location.search}`)}`);
     if (!giris) return;
     Promise.all([istek<{ accountId: string; ad: string }[]>('/gallery/mine'), istek<typeof me>('/me')])
       .then(async ([g, m]) => {

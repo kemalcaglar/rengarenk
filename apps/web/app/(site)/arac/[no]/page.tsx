@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { AracSemasiGorunum } from '../../../../components/arac-semasi';
 import { binlik } from '../../../../lib/talep-bicim';
-import { FotoGezgini, IlanSikayet, Iletisim, TalebineUyuyor } from './arac-istemci';
+import { AracFavori, FotoGezgini, IlanSikayet, Iletisim, TalebineUyuyor } from './arac-istemci';
 
 const API = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 const GENEL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
@@ -73,7 +73,7 @@ const DURUM_AD: Record<string, string> = {
 /**
  * Portföy aracı sayfası (tasarım: PortfoyArac.dc.html; Karar 07, 17). Yalnızca EİDS onaylı ve yayındaki araç görünür;
  * plakanın yalnızca il kodu yazılır. "Talebine uyuyor" bandı girişli alıcının yayındaki talepleriyle hesaplanır; mesaj
- * Aşama 5'in ikinci bölümünde, şikayet Aşama 8'de (Karar 53), araç favorisi sonra gelir.
+ * Aşama 5'in ikinci bölümünde, şikayet Aşama 8'de (Karar 53); araç favorisi "Favorilere ekle" (Favoriler › Favori araçlar).
  */
 export default async function AracSayfasi({ params }: { params: Promise<{ no: string }> }) {
   const a = await al((await params).no);
@@ -318,6 +318,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <Iletisim no={a.no} />
             </div>
+            <AracFavori no={a.no} />
             <p style={{ margin: '10px 0 0', fontSize: 12, color: '#5A6073' }}>
               {a.galeri.isletmeAdi}
               {a.galeri.yetkiNo ? ` · Yetki belgesi no ${a.galeri.yetkiNo}` : ''}

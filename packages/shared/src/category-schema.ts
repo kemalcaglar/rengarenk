@@ -256,6 +256,17 @@ export const BASE_FIELD_KEYS = BASE_FIELDS.map((f) => f.key);
 /** Taban alanlarda ağırlığı değişebilenler (Eşleştirme ayarı) */
 export const BASE_WEIGHTED = ['konum', 'butce'] as const;
 
+/**
+ * Konum kapsamı (Eşleştirme ayarı › Sert koşullar; Teknik tasarım §6): "il" yalnızca alıcının ilindeki galeriler (sert
+ * koşul, başlangıç); "komsu" komşu illerdeki galeriler de eşleşir, konum uyumu 0,5 (uzak iller yine dışarıda).
+ */
+export const LOCATION_SCOPES = ['il', 'komsu'] as const;
+export type LocationScope = (typeof LOCATION_SCOPES)[number];
+export const LOCATION_SCOPE_NAMES: Record<LocationScope, string> = {
+  il: 'Yalnızca alıcının ili',
+  komsu: 'Komşu iller de (konum uyumu 0,5)',
+};
+
 export const categoryDefinitionSchema = z
   .object({
     fields: z.array(categoryFieldSchema).max(60),
@@ -267,6 +278,8 @@ export const categoryDefinitionSchema = z
         butce: z.number().int().min(0).max(MAX_WEIGHT),
       })
       .strict(),
+    /** Konum kapsamı; yoksa "il" (eski sürümler) */
+    konumKapsami: z.enum(LOCATION_SCOPES).optional(),
   })
   .strict()
   .superRefine((def, ctx) => {
@@ -320,7 +333,15 @@ export type CategoryDefinition = z.infer<typeof categoryDefinitionSchema>;
 /** Taban alanlar (kategorinin ağırlıklarıyla) + kategori alanları: sihirbaz, doğrulama ve eşleşme bunu kullanır. */
 export function effectiveFields(def: CategoryDefinition): CategoryField[] {
   const base = BASE_FIELDS.map((f) =>
-    f.key === 'konum' || f.key === 'butce' ? { ...f, weight: def.baseWeights[f.key] } : { ...f },
+    f.key === 'konum'
+      ? {
+          ...f,
+          weight: def.baseWeights.konum,
+          hard: def.konumKapsami === 'komsu' ? ('no' as const) : f.hard,
+        }
+      : f.key === 'butce'
+        ? { ...f, weight: def.baseWeights.butce }
+        : { ...f },
   );
   return [...base, ...def.fields];
 }
@@ -470,6 +491,11 @@ export function diffDefinitions(
   const keptOld = before.fields.map((f) => f.key).filter((k) => now.has(k));
   const keptNew = after.fields.map((f) => f.key).filter((k) => old.has(k));
   if (!sameJson(keptOld, keptNew)) changes.push('Alan sırası değişti');
+  if ((before.konumKapsami ?? 'il') !== (after.konumKapsami ?? 'il')) {
+    changes.push(
+      `Konum kapsamı: ${LOCATION_SCOPE_NAMES[before.konumKapsami ?? 'il']} → ${LOCATION_SCOPE_NAMES[after.konumKapsami ?? 'il']}`,
+    );
+  }
   for (const k of BASE_WEIGHTED) {
     if (before.baseWeights[k] !== after.baseWeights[k]) {
       const ad = BASE_FIELDS.find((f) => f.key === k)?.matchName ?? k;

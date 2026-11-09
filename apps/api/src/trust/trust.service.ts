@@ -4,14 +4,17 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  Optional,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { Prisma, uuidv7 } from '@rengarenk/db';
 import {
-  BADGE_RULES,
   BADGES,
   type BadgeKey,
+  type BadgeRules,
+  badgeDescriptions,
   badgeProgress,
+  badgeRulesOf,
   badgesOf,
   median,
   RATING_FLAGS,
@@ -22,10 +25,12 @@ import {
   SCORE_WEIGHTS,
   type SellerFigures,
   sellerScore,
+  sureIlgi,
 } from '@rengarenk/shared';
 import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
+import { kitapAninda, PricingService } from '../pricing/pricing.service.js';
 import { SecretBox } from '../staff/secret-box.js';
 
 const DAY = 86_400_000;
@@ -45,6 +50,7 @@ export class TrustService {
     @Inject(PRISMA) private readonly db: Db,
     @Inject(ENV) env: Env,
     private readonly outbox: OutboxService,
+    @Optional() private readonly pricing?: PricingService,
   ) {
     this.box = SecretBox.forMessages(env);
   }
@@ -191,10 +197,16 @@ export class TrustService {
 
   // ── Göstergeler ───────────────────────────────────────────────
 
+  /** Yürürlükteki rozet eşikleri (Kurallar ve fiyatlar; Karar 55, 56) */
+  async kurallar(): Promise<BadgeRules> {
+    return badgeRulesOf(this.pricing ? await this.pricing.current() : (await kitapAninda(this.db)).book);
+  }
+
   /** Satıcının göstergelerini hesaplar ve saklar */
-  async recompute(accountId: string) {
+  async recompute(accountId: string, kural?: BadgeRules) {
+    const r = kural ?? (await this.kurallar());
     // Şikâyet oranı (Karar 55): son 90 günde karara bağlanan ve geri alınmayan şikâyetler / açılan sohbetler
-    const gun90 = new Date(Date.now() - BADGE_RULES.guven.gun * DAY);
+    const gun90 = new Date(Date.now() - r.guven.gun * DAY);
     const [sikayet, sohbet] = await Promise.all([
       this.db.report.count({
         where: {
@@ -227,7 +239,7 @@ export class TrustService {
           (SELECT min(m2.created_at) FROM messages m2
             WHERE m2.conversation_id = i.id AND m2.side = 'satici' AND m2.created_at > i.alici) AS yanit
         FROM ilk i
-        WHERE i.alici >= now() - make_interval(days => ${BADGE_RULES.hizli.gun}::int)`,
+        WHERE i.alici >= now() - make_interval(days => ${r.hizli.gun}::int)`,
     ]);
     if (!acc) return null;
     const dagilim = [0, 0, 0, 0, 0];
@@ -259,11 +271,11 @@ export class TrustService {
         : null,
       complaintRate: f.sikayetOrani,
       score: sellerScore(f),
-      badges: badgesOf(f),
+      badges: badgesOf(f, r),
       computedAt: new Date(),
     };
     await this.db.sellerStats.upsert({ where: { accountId }, create: { accountId, ...veri }, update: veri });
-    return { ...veri, figures: f };
+    return { ...veri, figures: f, kurallar: r };
   }
 
   /** Gecelik: satıcı olarak sohbeti ya da yıldızı olan bütün hesaplar ve bütün galeriler */
@@ -278,7 +290,8 @@ export class TrustService {
       ...b.map((x) => x.sellerAccountId),
       ...g.map((x) => x.accountId),
     ]);
-    for (const id of ids) await this.recompute(id);
+    const kural = await this.kurallar();
+    for (const id of ids) await this.recompute(id, kural);
     return ids.size;
   }
 
@@ -305,7 +318,11 @@ export class TrustService {
       ortalamaYanitDakika: s.responseAvg,
       ortancaYanitDakika: s.responseMedian,
       puan: s.score,
-      rozetler: badgeProgress(s.figures).map((p) => ({ ...p, ...BADGES[p.rozet] })),
+      rozetler: badgeProgress(s.figures, s.kurallar).map((p) => ({
+        ...p,
+        ...BADGES[p.rozet],
+        aciklama: badgeDescriptions(s.kurallar)[p.rozet],
+      })),
       takipci,
     };
   }
@@ -322,7 +339,10 @@ export class TrustService {
       select: { badges: true },
     });
     const sayi = (k: BadgeKey) => stats.filter((s) => s.badges.includes(k)).length;
-    const son90 = new Date(Date.now() - BADGE_RULES.guven.gun * DAY);
+    const r = await this.kurallar();
+    const aciklama = badgeDescriptions(r);
+    const ondalik = (n: number) => new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 2 }).format(n);
+    const son90 = new Date(Date.now() - r.guven.gun * DAY);
     const [dagilim, katilmayan, isaretli] = await Promise.all([
       this.db.rating.groupBy({
         by: ['stars'],
@@ -359,11 +379,12 @@ export class TrustService {
         },
         {
           ...BADGES.hizli,
+          aciklama: aciklama.hizli,
           key: 'hizli',
           sayi: sayi('hizli'),
           kosul: [
-            ['Ortanca ilk yanıt', '1 saatin altında'],
-            ['En az sohbet', `${BADGE_RULES.hizli.enAzSohbet} · son ${BADGE_RULES.hizli.gun} gün`],
+            ['Ortanca ilk yanıt', `${sureIlgi(r.hizli.ortancaDakika)} altında`],
+            ['En az sohbet', `${r.hizli.enAzSohbet} · son ${r.hizli.gun} gün`],
           ],
         },
         {
@@ -371,8 +392,8 @@ export class TrustService {
           key: 'guven',
           sayi: sayi('guven'),
           kosul: [
-            ['Yıldız ortalaması', `4,5 ve üstü · en az ${BADGE_RULES.guven.enAzYildiz}`],
-            ['Şikâyet oranı', `%1 altı · son ${BADGE_RULES.guven.gun} gün`],
+            ['Yıldız ortalaması', `${ondalik(r.guven.enAzOrtalama)} ve üstü · en az ${r.guven.enAzYildiz}`],
+            ['Şikâyet oranı', `%${ondalik(r.guven.sikayetOraniAlti * 100)} altı · son ${r.guven.gun} gün`],
             ['Onaylı galeri', 'Şart'],
           ],
         },

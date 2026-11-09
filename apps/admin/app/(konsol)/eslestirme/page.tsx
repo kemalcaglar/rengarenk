@@ -1,6 +1,14 @@
 'use client';
 
-import { BASE_WEIGHTED, type CategoryDefinition, effectiveFields, MAX_WEIGHT } from '@rengarenk/shared';
+import {
+  BASE_WEIGHTED,
+  type CategoryDefinition,
+  effectiveFields,
+  LOCATION_SCOPE_NAMES,
+  LOCATION_SCOPES,
+  type LocationScope,
+  MAX_WEIGHT,
+} from '@rengarenk/shared';
 import Link from 'next/link';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { yonetim } from '../../../lib/istemci';
@@ -363,6 +371,30 @@ export default function Eslestirme() {
           >
             <strong>Sert koşullar</strong> skordan önce uygulanır: konum (alıcının seçtiği il veya mesafe),
             bütçe üst sınırı (%5 tolerans), alıcı “kesin” dediyse vites ve yakıt.
+            {/* Konum kapsamı (tasarıma ek; Teknik tasarım §6 komşu il 0,5) */}
+            <label style={{ display: 'block', marginTop: 8, fontWeight: 700, color: '#1E2333' }}>
+              Konum{' '}
+              <select
+                value={def?.konumKapsami ?? 'il'}
+                disabled={busy || onayda || !def}
+                onChange={(e) => def && kaydet({ ...def, konumKapsami: e.target.value as LocationScope })}
+                style={{
+                  border: '1px solid #D5DAE5',
+                  borderRadius: 8,
+                  padding: '3px 6px',
+                  font: 'inherit',
+                  fontWeight: 600,
+                  background: '#FFFFFF',
+                  maxWidth: '100%',
+                }}
+              >
+                {LOCATION_SCOPES.map((k) => (
+                  <option key={k} value={k}>
+                    {LOCATION_SCOPE_NAMES[k]}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
         </section>
 

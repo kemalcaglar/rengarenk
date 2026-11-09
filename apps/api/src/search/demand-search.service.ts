@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { type CategoryDefinition, effectiveFields, hideDemandText } from '@rengarenk/shared';
+import { makyajFoto } from '../catalog/photo-pick.js';
 import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 
@@ -253,15 +254,14 @@ export class DemandSearchService {
       .filter(Boolean)
       .join(' · ');
     // Temsilî fotoğraf: alternatiflerdeki ilk kasa kodunun seçilmiş Commons fotoğrafı (talep sayfasıyla aynı kural)
-    const kodlar = [
-      ...new Set(
-        alts.flatMap((a) =>
-          ((a.kasa as string[] | undefined) ?? [])
-            .map((k) => /^([^:/]+):\d+$/.exec(k)?.[1])
-            .filter((x): x is string => x !== undefined),
-        ),
-      ),
-    ];
+    // Kasa "KOD:makyaj": ilk kasanın makyajına göre fotoğraf (Karar 34)
+    const kasalar = alts.flatMap((a) =>
+      ((a.kasa as string[] | undefined) ?? []).flatMap((k) => {
+        const m = /^([^:/]+):(\d+)$/.exec(k);
+        return m ? [{ kod: m[1] as string, makyaj: Number(m[2]) }] : [];
+      }),
+    );
+    const kodlar = [...new Set(kasalar.map((k) => k.kod))];
     const fotolar =
       d.seriesKey && kodlar.length
         ? await this.db.catalogImage.findMany({
@@ -269,14 +269,21 @@ export class DemandSearchService {
               status: 'secildi',
               generation: { source: 'wikidata', code: { in: kodlar }, series: { key: d.seriesKey } },
             },
-            select: { id: true, generation: { select: { code: true } } },
+            select: { id: true, facelift: true, generation: { select: { code: true } } },
           })
         : [];
     const wikidataAcik = fotolar.length
       ? Boolean(await this.db.catalogSource.findFirst({ where: { key: 'wikidata', active: true } }))
       : false;
     const foto = wikidataAcik
-      ? (kodlar.map((k) => fotolar.find((f) => f.generation.code === k)).find(Boolean)?.id ?? null)
+      ? (kasalar
+          .map((k) =>
+            makyajFoto(
+              fotolar.filter((f) => f.generation.code === k.kod),
+              k.makyaj,
+            ),
+          )
+          .find(Boolean)?.id ?? null)
       : null;
     return {
       no: Number(d.no),

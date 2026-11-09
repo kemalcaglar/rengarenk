@@ -136,7 +136,11 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Nesil fotoğrafları (Karar 34): nesil kodunun Commons kategorisinden aday (yalnızca kamu malı, CC0, CC BY, CC BY-SA; en az 1200 piksel), sıralama, konsolda seçim; seçilen fotoğraf SeaweedFS'e kopyalanır ve atfıyla sunulur. Veritabanı NC/ND lisansı, depoya alınmamış seçimi ve nesil başına ikinci fotoğrafı reddeder. İlk çalıştırmada 79 nesil için aday
 - [x] İçe aktarma tek veritabanı işleminde (katalog, kayıt, işlem kaydı, olay) ve kaynak başına kilitli
 - [ ] EEA teknik değerleri: sahip EEA'dan erişim istiyor (8 Kasım 2026 kararı). 2020 sonrası veri yalnızca Discodata'dan dağıtılıyor ve ağ geçidi sütun seçen, toplulaştıran ya da birden çok koşullu sorguları reddediyor; ayrı toplu dosya yok (ZIP yalnızca 2010–2019). Erişim biçimi netleşince hat yazılacak
-- [ ] Makyaj başına fotoğraf (şimdilik nesil başına); plaka bulanıklaştırma (şimdilik plakası okunan fotoğraf seçilmiyor)
+- [x] Makyaj başına fotoğraf ve plaka bulanıklaştırma (10 Kasım 2026, Karar 34): seçimde makyaj (nesil geneli, makyaj
+  öncesi, 1. ve 2. makyaj; `catalog_images.facelift`, nesil ve makyaj başına tek seçili). Gösterimde kasanın makyajı,
+  yoksa nesil geneli, yoksa en erken makyaj (`catalog/photo-pick.ts`; seri ayrıntısı, talep sayfası, liste). Konsolda
+  seçili fotoğrafta "Plakayı bulanıklaştır": kutu çizilir (en çok 6), API özgün kopyadan pikselleştirip bulanıklaştırır
+  (sharp), düzenlenmiş kopya gösterilir, atıfta "düzenlendi"; özgün kopya saklanır ve "Geri al" ile döner
 
 ## Sprint 28 · Aşama 9 · kontrol paneli ve raporlar (9 Kasım 2026)
 
@@ -299,7 +303,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   çalışan) yürürlükteki listeden; web sihirbazı ve Taleplerim `GET /fiyatlar` okur. Mobil fiyatlar mağazadan, yalnızca
   gösterilir. Kullanım kuralları gösterilir (ücretsiz ilk mesaj ve yayın süresi kategori kuralı)
 - [x] Fiyat değişikliğinin grafiklere not olarak düşmesi (Sprint 28)
-- [ ] Rozet eşiklerinin konsoldan
+- [x] Rozet eşiklerinin konsoldan (10 Kasım 2026: Kurallar ve fiyatlar › Rozet eşikleri; aynı liste, Sahip onayı, yürürlük tarihi)
   değiştirilmesi (tasarımın Kurallar ve fiyatlar ekranında yok)
 
 ## Sprint 26 · kullanıcı tarafı yapay zekâ (Aşama 8 dokuzuncu bölüm, 9 Kasım 2026)
@@ -321,7 +325,9 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] İstemciler `x-rr-platform` başlığı gönderir (özellik anahtarları platforma göre)
 - [ ] İlk mesaj taslağı ve destek sohbeti yapay zekâ bütçesinde "Talep asistanı" ve "Destek" görevlerine yazılır
   (tasarımdaki görev listesi değişmedi); Vertex AI hesabı açılınca gerçek modelle denenecek
-- [ ] Mobilde toplu yükleme ekranı yok (Excel yüklemesi web galeri panelinde)
+- [x] Mobilde toplu yükleme (10 Kasım 2026): GaleriMobil.dc.html'deki "Excel/CSV ile toplu yükleme web panelde"
+  düğmesi tarayıcıda web galeri panelinin Toplu yükleme bölümünü açar (`?bolum=toplu`, girişten sonra da korunur);
+  tasarım gereği ayrı mobil ekran yok
 
 ## Sprint 25 · ajanın kalan işleri (Aşama 8 sekizinci bölüm, 9 Kasım 2026)
 
@@ -618,7 +624,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   takip edilen galeriye eklenen ve yayındaki taleplere uyan araçlar her gece `takip.ozet` olayı (iletim Aşama 7)
 - [x] Çalışan başına günlük ilk mesaj sınırı (Karar 20): sahip Ekip'te koyar (işlem kaydına girer), "Günde en fazla N ilk
   mesaj"; paket hakkı ortak havuzdur
-- [ ] Şikâyet oranı moderasyonla (Aşama 8, yapıldı); galerinin 1 yıldıza itirazı (Sprint 27, yapıldı); rozet eşiklerinin
+- [x] Şikâyet oranı moderasyonla (Aşama 8, yapıldı); galerinin 1 yıldıza itirazı (Sprint 27, yapıldı); rozet eşiklerinin
   konsoldan değiştirilmesi (Kurallar ve fiyatlar, Karar 47, 56); ajanın yıldız incelemesi (Karar 41)
 - Kararlar: "Hızlı yanıt" bireysel satıcıya da verilir (Karar 55'te galeri şartı yalnızca Güvenilir satıcıda); profildeki
   "ortalama yanıt süresi" son 30 günde yanıtlanan sohbetlerin ortalamasıdır
@@ -677,8 +683,12 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Konsol › Eşleştirme ayarı › Deneme alanı: gerçek talep, taslak ve yayındaki ayarla skor, sıra değişimi, bildirim
   alacak galeri sayısı (YonetimIcerik.dc.html)
 - [ ] "Araç kartıyla mesaj at" / "İlk mesaj at": ilk mesaj ve haklarla (Aşama 5 ikinci bölüm); şimdilik pasif
-- [ ] Komşu il (0,5): sert koşul il olduğu için şimdilik uygulanmıyor; alıcıya mesafe seçimi gelince açılır. Wikidata'nın
-  il komşuluk verisi eksik (İstanbul–Kırklareli yok), kaynak ayrıca seçilmeli
+- [x] Komşu il (0,5) (10 Kasım 2026): il komşulukları `packages/shared/src/il-komsulari.ts` (geoBoundaries TUR ADM1,
+  OpenStreetMap, CC BY-SA; il sınırlarının ortak yayı ya da ~300 m ızgarada ortak noktası; 200 çift; Veri kaynakları'nda
+  atıf). Eşleştirme ayarı › Sert koşullar'da kategori başına "Konum: Yalnızca alıcının ili / Komşu iller de" (şema
+  sürümünde `konumKapsami`, dört göz onayıyla yayın). Başlangıç "il" (değişiklik yok); "komşu" seçilirse komşu ildeki
+  galeri eşleşir, konum uyumu 0,5, uzak il yine dışarıda (OpenSearch sorgusu da komşu illeri alır). Alıcının kendi mesafe
+  seçimi sihirbaz tasarımında yok
 - [ ] Galeri takibi (Karar 28) eşleşmeyle birlikte günlük özet; galeri ana sayfası düzeni (Karar 46) konsolla
 - Kararlar: alıcının seçtiği marka sert koşul sayıldı (başka markadan araç galeriye eşleşme diye düşmesin); sihirbazda
   "kesin" seçimi olmadığından vites ve yakıt yalnızca skora girer; katalogda paket sırası olmadığından farklı paket 0,4
@@ -703,8 +713,16 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Herkese açık araç sayfası web (PortfoyArac.dc.html) ve mobil (GaleriProfilMobil.dc.html): fotoğraflar, bilgiler,
   boya şeması ve hasar, ekspertiz, doğrulamalar; plakanın yalnızca il kodu; telefon ve WhatsApp girişli kullanıcıya;
   galeri profilinde yayındaki araçlar
-- [ ] Araç kartında "Talebine uyuyor", eşleşme sayısı ve mesaj (Aşama 5); araç favorisi; şikayet (Aşama 8); fotoğraf
-  kopya tespiti (özet saklanıyor); galeri fotoğrafının katalogda temsilî görsel olması (izin kaydediliyor)
+- [x] Araç kartında "Talebine uyuyor", eşleşme sayısı ve mesaj (Aşama 5); şikayet (Aşama 8)
+- [x] Araç favorisi (10 Kasım 2026; PortfoyArac.dc.html "♡ Favorilere ekle"): `vehicle_favorites`, uçlar
+  `PUT/DELETE/GET /araclar/:no/favori`, `GET /favoriler/araclar`; web araç sayfasında düğme, Favoriler'de "Favori araçlar"
+  sekmesi (tasarıma ek), mobilde araç başlığında kalp ve Favoriler'de sekme. Kendi galerisinin aracı eklenmez; satıştan
+  kalkan araç "Satışta değil" olarak kalır. Hesap kapatmada silinir, veri kopyasında var
+- [x] Fotoğraf kopya tespiti (10 Kasım 2026; güvenlik önlemleri › ilan kopyalama): yüklemede algısal özet (dHash 64 bit,
+  `portfolio_photos.phash`, `portfolio/photo-hash.ts`); başka galerinin aracındaki fotoğrafa en çok 5 bit farkla benzerse
+  yükleme olur, araca "Kopya fotoğraf" kural şikâyeti açılır (yüksek öncelik, araç başına bir açık şikâyet, işaret:
+  eşleşen araç no ve galeri). Aynı galerinin kendi fotoğrafı sayılmaz
+- [ ] Galeri fotoğrafının katalogda temsilî görsel olması (Karar 34: Commons'ta fotoğraf yoksa; izin kaydediliyor)
 - Tasarımdan farklar: araç formunda ilk tescil, vites, üretici fiyatı beyanı ve stok no; web formunda mobildeki
   "fotoğraflarım katalogda kullanılabilir" izni; motor ve şanzıman bilgisi katalogdan sonra gösterilecek; toplu
   yüklemede satır düzeltmesi dosyada yapılıp yeniden yüklenir; API anahtarı bölümü toplu yükleme ekranında

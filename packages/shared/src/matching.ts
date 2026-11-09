@@ -6,6 +6,7 @@ import {
   PAINT_PARTS,
   PAINT_STATES,
 } from './category-schema.js';
+import { ilKomsulari } from './il-komsulari.js';
 
 /**
  * Eşleşme skoru (Teknik tasarım §6): her ölçütün ağırlığı ile uyum değerinin (0–1) çarpımlarının toplamı,
@@ -91,6 +92,12 @@ export function locationFit(
 ): number {
   if (want.il === have.il) return want.ilce && have.ilce && want.ilce === have.ilce ? 1 : want.ilce ? 0.8 : 1;
   return neighbours(want.il).includes(have.il) ? 0.5 : 0;
+}
+
+/** Konum alanı sert koşul değilse komşu iller (il komşuluk listesi), sert koşulsa hiçbiri */
+export function konumKomsulari(fields: readonly CategoryField[]): (il: string) => readonly string[] {
+  const alan = fields.find((f) => f.key === 'konum');
+  return alan && alan.hard === 'no' ? ilKomsulari : () => [];
 }
 
 /** Kategori tanımındaki ağırlıklar: alan kodu → ağırlık (0 olanlar dahil değil) */
@@ -297,7 +304,11 @@ export function evaluateMatch(
   const fields = effectiveFields(def);
   const alanlar = demand.alanlar ?? {};
   const konum = alanlar.konum as { il?: string; ilce?: string } | undefined;
-  if (konum?.il && konum.il !== v.il) return { ok: false, reason: 'konum' };
+  // Konum (Teknik tasarım §6): sert koşulsa yalnızca alıcının ili; kategoride sert koşul kapatılmışsa komşu iller de
+  // (konum puanı 0,5), uzak iller yine dışarıda
+  const komsular = konumKomsulari(fields);
+  if (konum?.il && konum.il !== v.il && !komsular(konum.il).includes(v.il))
+    return { ok: false, reason: 'konum' };
   const kimden = asList(alanlar.kimden);
   if (kimden && !kimden.includes('galeri')) return { ok: false, reason: 'kimden' };
   const islem = fields.find((f) => f.key === 'islemKabul');
@@ -320,7 +331,11 @@ export function evaluateMatch(
     for (const f of fields) {
       if (f.key === 'konum') {
         if (!konum?.il) continue;
-        const fit = locationFit({ il: konum.il, ilce: konum.ilce }, { il: v.il, ilce: v.ilce ?? undefined });
+        const fit = locationFit(
+          { il: konum.il, ilce: konum.ilce },
+          { il: v.il, ilce: v.ilce ?? undefined },
+          komsular,
+        );
         criteria.push({ key: f.key, ad: 'konum', weight: f.weight, fit, secim: true });
         continue;
       }

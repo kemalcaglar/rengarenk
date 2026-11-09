@@ -1,10 +1,11 @@
 import { colors, MAX_SAVED_SEARCHES, SAVED_SEARCH_NOTIFY } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, Pressable, ScrollView, View } from 'react-native';
+import { Alert, Image, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ikon } from '../components/ikon';
 import { T } from '../components/t';
+import { API } from '../lib/api';
 import { useOturum } from '../lib/oturum';
 import { butceAraligi, yilAraligi } from '../lib/talep-bicim';
 
@@ -31,6 +32,15 @@ interface Arama {
   bildirim: string;
   toplam: number | null;
   yeni: number | null;
+}
+
+interface FavoriArac {
+  no: number;
+  ad: string;
+  ozellik: string;
+  fiyat: number | null;
+  foto: string | null;
+  satista: boolean;
 }
 
 const kart = { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line } as const;
@@ -61,15 +71,21 @@ const parametreler = (q: Record<string, unknown>) =>
 /** Favoriler ve kayıtlı aramalar (tasarım: HesapMobil, favori görünümü; Karar 06.4, 30) */
 export default function Favoriler() {
   const { durum, istek } = useOturum();
-  const [sekme, setSekme] = useState<'talep' | 'arama'>('talep');
+  const [sekme, setSekme] = useState<'talep' | 'arac' | 'arama'>('talep');
+  const [araclar, setAraclar] = useState<FavoriArac[] | null>(null);
   const [favoriler, setFavoriler] = useState<Favori[] | null>(null);
   const [aramalar, setAramalar] = useState<Arama[] | null>(null);
   const [acik, setAcik] = useState<string | null>(null);
 
   const yukle = useCallback(async () => {
-    const [f, a] = await Promise.all([istek<Favori[]>('/favorites'), istek<Arama[]>('/saved-searches')]);
+    const [f, a, v] = await Promise.all([
+      istek<Favori[]>('/favorites'),
+      istek<Arama[]>('/saved-searches'),
+      istek<FavoriArac[]>('/favoriler/araclar'),
+    ]);
     setFavoriler(f);
     setAramalar(a);
+    setAraclar(v);
   }, [istek]);
 
   // Talep sayfasından favori değiştirip dönünce liste yenilenir
@@ -92,6 +108,12 @@ export default function Favoriler() {
     dene(async () => {
       setFavoriler((l) => (l ?? []).filter((x) => x.no !== f.no));
       await istek(`/favorites/${f.no}`, { method: 'DELETE' });
+    });
+
+  const aracKaldir = (a: FavoriArac) =>
+    dene(async () => {
+      setAraclar((l) => (l ?? []).filter((x) => x.no !== a.no));
+      await istek(`/araclar/${a.no}/favori`, { method: 'DELETE' });
     });
 
   const bildirim = (a: Arama, key: string) =>
@@ -181,6 +203,7 @@ export default function Favoriler() {
               {(
                 [
                   ['talep', 'Favori talepler'],
+                  ['arac', 'Favori araçlar'],
                   ['arama', 'Kayıtlı aramalar'],
                 ] as const
               ).map(([k, ad]) => {
@@ -261,6 +284,68 @@ export default function Favoriler() {
                 {favoriler && favoriler.length === 0 ? (
                   <T style={{ marginTop: 16, marginHorizontal: 6, fontSize: 13.5, color: colors.muted }}>
                     Favori talebin yok. Talep sayfalarındaki kalp simgesiyle ekleyebilirsin.
+                  </T>
+                ) : null}
+              </>
+            ) : sekme === 'arac' ? (
+              <>
+                {(araclar ?? []).map((a) => (
+                  <Pressable
+                    key={a.no}
+                    accessibilityRole="link"
+                    disabled={!a.satista}
+                    onPress={() => router.push(`/arac/${a.no}`)}
+                    style={{
+                      ...kart,
+                      borderRadius: 16,
+                      paddingVertical: 12,
+                      paddingHorizontal: 14,
+                      marginTop: 8,
+                      flexDirection: 'row',
+                      gap: 12,
+                      opacity: a.satista ? 1 : 0.6,
+                    }}
+                  >
+                    <View
+                      style={{
+                        width: 76,
+                        height: 58,
+                        borderRadius: 12,
+                        backgroundColor: '#EEF3FF',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {a.foto ? (
+                        <Image
+                          source={{ uri: `${API}${a.foto}` }}
+                          style={{ width: '100%', height: '100%' }}
+                        />
+                      ) : null}
+                    </View>
+                    <View style={{ flex: 1, minWidth: 0 }}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
+                        <T style={{ flex: 1, fontSize: 14.5, fontWeight: '800', lineHeight: 20 }}>{a.ad}</T>
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityLabel="Favorilerden çıkar"
+                          hitSlop={10}
+                          onPress={() => aracKaldir(a)}
+                        >
+                          <T style={{ color: colors.pink, fontSize: 18 }}>♥</T>
+                        </Pressable>
+                      </View>
+                      <T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>{a.ozellik}</T>
+                      <T style={{ fontSize: 13.5, fontWeight: '800', color: colors.link, marginTop: 6 }}>
+                        {a.satista && a.fiyat !== null
+                          ? `${new Intl.NumberFormat('tr-TR').format(a.fiyat)} TL`
+                          : 'Satışta değil'}
+                      </T>
+                    </View>
+                  </Pressable>
+                ))}
+                {araclar && araclar.length === 0 ? (
+                  <T style={{ marginTop: 16, marginHorizontal: 6, fontSize: 13.5, color: colors.muted }}>
+                    Favori aracın yok. Galeri araç sayfalarındaki kalp simgesiyle ekleyebilirsin.
                   </T>
                 ) : null}
               </>

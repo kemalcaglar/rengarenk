@@ -92,6 +92,7 @@ model User {
   featureTester       FeatureTester?
   demands             Demand[]
   favorites           Favorite[]
+  vehicleFavorites VehicleFavorite[]
   savedSearches       SavedSearch[]
   galleryApplications GalleryApplication[]
   buyerConversations  Conversation[]            @relation("alici")
@@ -803,9 +804,17 @@ model CatalogImage {
   score        Int       @default(0)
   /// aday | secildi | reddedildi
   status       String    @default("aday")
-  /// Seçilince depodaki kopyanın anahtarı ve özeti
+  /// Seçilince depodaki kopyanın anahtarı ve özeti (plaka bulanıklaştırıldıysa düzenlenmiş kopya)
   storageKey   String?   @map("storage_key")
   sha256       String?
+  /// Fotoğrafın temsil ettiği makyaj (Karar 34: nesil ve makyaj başına): 0 makyaj öncesi, 1 ilk makyaj, 2 ikinci;
+  /// boşsa nesil geneli. Nesil ve makyaj başına tek seçili fotoğraf
+  facelift     Int?
+  /// Plaka bulanıklaştırıldı (Karar 34): atıfta "düzenlendi" yazar, aynı lisansla yayınlanır
+  edited       Boolean   @default(false)
+  /// Düzenlemeden önceki kopya (geri almak için) ve bulanıklaştırılan alanlar (0–1 oranlarıyla x, y, w, h)
+  originalKey  String?   @map("original_key")
+  blurAreas    Json?     @map("blur_areas")
   decidedBy    String?   @map("decided_by") @db.Uuid
   decidedAt    DateTime? @map("decided_at") @db.Timestamptz(3)
   createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
@@ -1119,6 +1128,20 @@ model Favorite {
   @@map("favorites")
 }
 
+/// Favori araçlar (PortfoyArac.dc.html › "Favorilere ekle"): alıcının beğendiği portföy araçları. Hesap kapanınca silinir.
+model VehicleFavorite {
+  userId    String   @map("user_id") @db.Uuid
+  vehicleId String   @map("vehicle_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vehicle PortfolioVehicle @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+
+  @@id([userId, vehicleId])
+  @@index([vehicleId])
+  @@map("vehicle_favorites")
+}
+
 /// Kayıtlı arama (Karar 30): en fazla 10; her biri için anlık, günlük özet ya da kapalı bildirim.
 model SavedSearch {
   id         String   @id @db.Uuid
@@ -1342,6 +1365,7 @@ model PortfolioVehicle {
   eidsChecks    EidsCheck[]
   matches       Match[]
   conversations Conversation[]
+  favorites     VehicleFavorite[]
 
   @@unique([accountId, externalId])
   @@index([accountId, status])
@@ -1357,6 +1381,8 @@ model PortfolioPhoto {
   mime       String
   size       Int
   sha256     String
+  /// Algısal özet (dHash, 64 bit): yeniden boyutlanmış ya da sıkıştırılmış kopyayı da yakalar (ilan kopyalama)
+  phash      BigInt?
   sort       Int
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 

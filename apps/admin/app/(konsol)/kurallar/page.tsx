@@ -1,6 +1,9 @@
 'use client';
 
 import {
+  BADGE_THRESHOLD_ROWS,
+  type BadgeThresholds,
+  badgeThresholdsOf,
   GALLERY_PLANS,
   PACKAGE_ROWS,
   PAID_PLAN_KEYS,
@@ -119,6 +122,11 @@ export default function Kurallar() {
 
   const kitap = taslak ?? o?.yururlukte.kitap;
   const duzen = taslak !== null;
+  // Rozet eşiği girişinin ham metni ("4," yazılırken virgül kaybolmasın)
+  const [rozetHam, setRozetHam] = useState<Partial<Record<keyof BadgeThresholds, string>>>({});
+  useEffect(() => {
+    if (!duzen) setRozetHam({});
+  }, [duzen]);
 
   function paketYaz(plan: (typeof PAID_PLAN_KEYS)[number], alan: keyof PackageTerms, v: string) {
     if (!taslak) return;
@@ -138,6 +146,15 @@ export default function Kurallar() {
         .replace(/[^\d.]/g, ''),
     );
     setTaslak({ ...taslak, urunler: { ...taslak.urunler, [key]: Number.isFinite(n) ? n : 0 } });
+  }
+  function rozetYaz(alan: keyof BadgeThresholds, v: string) {
+    if (!taslak) return;
+    setRozetHam((h) => ({ ...h, [alan]: v }));
+    const n = Number(v.replace(',', '.').replace(/[^\d.]/g, ''));
+    setTaslak({
+      ...taslak,
+      rozetler: { ...badgeThresholdsOf(taslak), [alan]: Number.isFinite(n) ? n : 0 },
+    });
   }
   async function gonder() {
     if (!taslak) return;
@@ -417,6 +434,52 @@ export default function Kurallar() {
               ))}
             </section>
           </div>
+
+          {/* Rozet eşikleri (Karar 55, 56; tasarıma ek): aynı listeyle ve aynı onayla değişir */}
+          <section style={{ ...kart, marginTop: 16 }} aria-labelledby="rozet">
+            <h2 id="rozet" style={baslik}>
+              Rozet eşikleri
+            </h2>
+            {BADGE_THRESHOLD_ROWS.map((r) => {
+              const deger = badgeThresholdsOf(kitap)[r.alan];
+              return (
+                <div
+                  key={r.alan}
+                  style={{
+                    ...satir,
+                    gridTemplateColumns: 'minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1.4fr)',
+                  }}
+                >
+                  <span style={{ fontWeight: 700 }}>{r.ad}</span>
+                  {duzen ? (
+                    <input
+                      aria-label={r.ad}
+                      inputMode="decimal"
+                      value={rozetHam[r.alan] ?? String(deger).replace('.', ',')}
+                      onChange={(e) => rozetYaz(r.alan, e.target.value)}
+                      style={{ ...kutu, textAlign: 'right' }}
+                    />
+                  ) : (
+                    <span style={{ textAlign: 'right', fontWeight: 800 }}>
+                      {new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 1 }).format(deger)}
+                    </span>
+                  )}
+                  <span style={{ color: '#5A6073' }}>{r.birim}</span>
+                </div>
+              );
+            })}
+            <p
+              style={{
+                margin: 0,
+                padding: '10px 18px',
+                fontSize: 12,
+                color: '#5A6073',
+                borderTop: '1px solid #EEF0F5',
+              }}
+            >
+              Rozetler her gece yeniden hesaplanır; değişiklik yürürlüğe girdiği gecenin hesabıyla görünür.
+            </p>
+          </section>
         </>
       ) : null}
 

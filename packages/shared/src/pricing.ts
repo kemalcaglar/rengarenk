@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { GALLERY_PLANS } from './gallery.js';
 import { PRODUCTS } from './payments.js';
+import { BADGE_RULES, type BadgeRules } from './ratings.js';
 
 /**
  * Kurallar ve fiyatlar (Karar 47, 56; YonetimSistem.dc.html › kural). Galeri paketlerinin fiyatı ve içeriği ile bireysel
@@ -24,11 +25,67 @@ export interface PackageTerms {
   calisan: number;
 }
 
+/**
+ * Rozet eşikleri (Karar 55, 56): Kurallar ve fiyatlar listesinin parçası; aynı onay ve yürürlük tarihiyle değişir.
+ * Ölçüm pencereleri (hızlı yanıtta 30, güvenilir satıcıda 90 gün) sabittir.
+ */
+export interface BadgeThresholds {
+  /** Hızlı yanıt: ortanca ilk yanıt bu dakikanın altında */
+  hizliDakika: number;
+  /** Hızlı yanıt: son 30 günde en az sohbet */
+  hizliSohbet: number;
+  /** Güvenilir satıcı: en az yıldız sayısı */
+  guvenYildiz: number;
+  /** Güvenilir satıcı: en düşük yıldız ortalaması */
+  guvenOrtalama: number;
+  /** Güvenilir satıcı: şikâyet oranı bu yüzdenin altında */
+  guvenSikayetYuzde: number;
+}
+
 export interface PriceBook {
   paketler: Record<PaidPlanKey, PackageTerms>;
   /** Ürün anahtarı → web fiyatı (TL, KDV dahil) */
   urunler: Record<string, number>;
+  /** Eski listelerde yok: başlangıç değerleri geçerli */
+  rozetler?: BadgeThresholds;
 }
+
+export const DEFAULT_BADGE_THRESHOLDS: BadgeThresholds = {
+  hizliDakika: BADGE_RULES.hizli.ortancaDakika,
+  hizliSohbet: BADGE_RULES.hizli.enAzSohbet,
+  guvenYildiz: BADGE_RULES.guven.enAzYildiz,
+  guvenOrtalama: BADGE_RULES.guven.enAzOrtalama,
+  guvenSikayetYuzde: BADGE_RULES.guven.sikayetOraniAlti * 100,
+};
+
+/** Listedeki rozet eşikleri (yoksa başlangıç değerleri) */
+export const badgeThresholdsOf = (book: PriceBook): BadgeThresholds => ({
+  ...DEFAULT_BADGE_THRESHOLDS,
+  ...book.rozetler,
+});
+
+/** Yürürlükteki listeden rozet kuralları (`badgesOf`, `badgeProgress`) */
+export function badgeRulesOf(book: PriceBook): BadgeRules {
+  const t = badgeThresholdsOf(book);
+  return {
+    hizli: { ortancaDakika: t.hizliDakika, enAzSohbet: t.hizliSohbet, gun: BADGE_RULES.hizli.gun },
+    guven: {
+      enAzYildiz: t.guvenYildiz,
+      enAzOrtalama: t.guvenOrtalama,
+      sikayetOraniAlti: t.guvenSikayetYuzde / 100,
+      gun: BADGE_RULES.guven.gun,
+    },
+  };
+}
+
+/** Konsoldaki rozet eşiği satırları (Kurallar ve fiyatlar › Rozet eşikleri; tasarıma ek) */
+export const BADGE_THRESHOLD_ROWS: { alan: keyof BadgeThresholds; ad: string; birim: string }[] = [
+  { alan: 'hizliDakika', ad: 'Hızlı yanıt · ortanca ilk yanıt', birim: 'dakikanın altında' },
+  { alan: 'hizliSohbet', ad: 'Hızlı yanıt · en az sohbet', birim: 'son 30 gün' },
+  { alan: 'guvenYildiz', ad: 'Güvenilir satıcı · en az yıldız', birim: 'adet' },
+  { alan: 'guvenOrtalama', ad: 'Güvenilir satıcı · yıldız ortalaması', birim: 've üstü' },
+  { alan: 'guvenSikayetYuzde', ad: 'Güvenilir satıcı · şikâyet oranı', birim: '% altında · son 90 gün' },
+];
 
 /** Paket tablosu (özellik adlarıyla); `galleryAccess`, `planNetKurus` ve `memberLimit` bunu alır */
 export type PlanTable = Record<
@@ -55,6 +112,7 @@ export const DEFAULT_PRICE_BOOK: PriceBook = {
     }),
   ) as Record<PaidPlanKey, PackageTerms>,
   urunler: Object.fromEntries(PRODUCTS.map((p) => [p.key, p.tl])),
+  rozetler: DEFAULT_BADGE_THRESHOLDS,
 };
 
 /** Fiyat listesinden paket tablosu: ad ve açık/kapalı özellikler koddan, fiyat ve sınırlar listeden */
@@ -95,6 +153,16 @@ const packageSchema = z
   })
   .strict();
 
+const badgeSchema = z
+  .object({
+    hizliDakika: tam(5, 24 * 60),
+    hizliSohbet: tam(1, 1_000),
+    guvenYildiz: tam(1, 1_000),
+    guvenOrtalama: z.number().min(3).max(5).multipleOf(0.1),
+    guvenSikayetYuzde: z.number().min(0.1).max(20).multipleOf(0.1),
+  })
+  .strict();
+
 export const priceBookSchema = z
   .object({
     paketler: z.object(
@@ -107,6 +175,7 @@ export const priceBookSchema = z
       .record(z.string(), z.number().positive().max(1_000_000))
       .refine((u) => PRODUCTS.every((p) => typeof u[p.key] === 'number'), 'Her ürünün fiyatı olmalı')
       .refine((u) => Object.keys(u).every((k) => PRODUCTS.some((p) => p.key === k)), 'Bilinmeyen ürün'),
+    rozetler: badgeSchema.optional(),
   })
   .strict()
   .superRefine((b, ctx) => {
@@ -165,6 +234,12 @@ export function priceChanges(a: PriceBook, b: PriceBook): string[] {
     const x = productPrice(a, p.key);
     const y = productPrice(b, p.key);
     if (x !== y) out.push(`${p.ad}: ${tl(x ?? 0)} → ${tl(y ?? 0)}`);
+  }
+  const ra = badgeThresholdsOf(a);
+  const rb = badgeThresholdsOf(b);
+  const sayi = (n: number) => new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 1 }).format(n);
+  for (const r of BADGE_THRESHOLD_ROWS) {
+    if (ra[r.alan] !== rb[r.alan]) out.push(`${r.ad}: ${sayi(ra[r.alan])} → ${sayi(rb[r.alan])}`);
   }
   return out;
 }

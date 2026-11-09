@@ -44,6 +44,8 @@ export const REPORT_REASONS = {
   yanlis_kategori: { ad: 'Yanlış kategori', oncelik: 'normal', hedefler: ['talep', 'arac'] },
   diger: { ad: 'Diğer', oncelik: 'normal', hedefler: ['mesaj', 'talep', 'arac'] },
   yasakli_kelime: { ad: 'Yasaklı kelime', oncelik: 'normal', hedefler: [] },
+  /** İlan kopyalama (sazan sarmalı): başka bir galerinin ilanındaki fotoğrafın kopyası; kural açar */
+  kopya_foto: { ad: 'Kopya fotoğraf', oncelik: 'yuksek', hedefler: [] },
 } as const satisfies Record<string, ReportReason>;
 export type ReportReasonKey = keyof typeof REPORT_REASONS;
 export const REPORT_REASON_KEYS = Object.keys(REPORT_REASONS) as ReportReasonKey[];

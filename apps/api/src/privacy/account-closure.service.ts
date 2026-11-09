@@ -192,6 +192,7 @@ export class AccountClosureService {
       await tx.device.updateMany({ where: { userId }, data: { pushToken: null } });
       await tx.pushToken.deleteMany({ where: { userId } });
       await tx.favorite.deleteMany({ where: { userId } });
+      await tx.vehicleFavorite.deleteMany({ where: { userId } });
       await tx.savedSearch.deleteMany({ where: { userId } });
       await tx.galleryFollow.deleteMany({ where: { userId } });
       await tx.userBlock.deleteMany({ where: { userId } });

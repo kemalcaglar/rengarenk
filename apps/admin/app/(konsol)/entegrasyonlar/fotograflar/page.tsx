@@ -3,6 +3,15 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { yonetim } from '../../../../lib/istemci';
+import { type Alan, PlakaDuzenle } from './plaka';
+
+const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+const MAKYAJLAR: [string, string][] = [
+  ['', 'Nesil geneli'],
+  ['0', 'Makyaj öncesi'],
+  ['1', '1. makyaj'],
+  ['2', '2. makyaj'],
+];
 
 interface Candidate {
   id: string;
@@ -15,6 +24,12 @@ interface Candidate {
   author: string;
   license: string;
   score: number;
+  /** Seçilende: temsil ettiği makyaj, depodaki kopya, plaka düzenlemesi */
+  facelift: number | null;
+  makyajAd: string | null;
+  kopya: string | null;
+  edited: boolean;
+  blurAreas: Alan[] | null;
 }
 
 interface Generation {
@@ -32,7 +47,8 @@ type Tab = 'bekleyen' | 'secili';
 
 /**
  * Nesil fotoğrafları (Karar 34): Commons'taki açık lisanslı gerçek fotoğraflar. Sistem adayları bulur ve sıralar;
- * katalog sorumlusu nesil başına birini seçer. Seçilen fotoğrafın kopyası atfıyla depoya alınır ve o nesil için kalır.
+ * katalog sorumlusu nesil ve makyaj başına birini seçer (nesil geneli, makyaj öncesi, 1. ve 2. makyaj). Seçilen
+ * fotoğrafın kopyası atfıyla depoya alınır ve kalır. Plakası okunan fotoğrafta plaka işaretlenip bulanıklaştırılır.
  */
 export default function Fotograflar() {
   const [tab, setTab] = useState<Tab>('bekleyen');
@@ -40,6 +56,8 @@ export default function Fotograflar() {
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [makyaj, setMakyaj] = useState<Record<string, string>>({});
+  const [plaka, setPlaka] = useState<{ g: Generation; i: Candidate } | null>(null);
 
   const load = useCallback(() => {
     setRows(null);
@@ -77,8 +95,10 @@ export default function Fotograflar() {
         <h1 className="k-h1">Nesil fotoğrafları</h1>
         <p className="k-sub">
           Talep sayfasındaki temsilî görsel Wikimedia Commons'tan gelir: yalnızca kamu malı, CC0, CC BY ve CC
-          BY-SA lisanslar. Tercih: dış çekim, ön çapraz açı, araç tam kadrajda, insan yok. Plakası okunan
-          fotoğrafı seçme. Seçtiğin fotoğraf o nesil için kalır ve altında yazar ile lisans yazar (Karar 34).
+          BY-SA lisanslar. Tercih: dış çekim, ön çapraz açı, araç tam kadrajda, insan yok. Her makyaj için
+          ayrı fotoğraf seçebilirsin; makyaj fotoğrafı yoksa nesil geneli gösterilir. Plakası okunan fotoğrafı
+          seçtikten sonra plakayı bulanıklaştır. Seçtiğin fotoğraf kalır ve altında yazar ile lisans yazar
+          (Karar 34).
         </p>
       </div>
       {error ? (
@@ -180,7 +200,7 @@ export default function Fotograflar() {
                   <a href={i.pageUrl} target="_blank" rel="noreferrer">
                     {/* biome-ignore lint/performance/noImgElement: Commons önizlemesi, Next görsel iyileştirmesi gerekmez */}
                     <img
-                      src={i.preview}
+                      src={i.kopya ? `${API}${i.kopya}` : i.preview}
                       alt={i.commonsFile}
                       loading="lazy"
                       style={{ width: '100%', aspectRatio: '3 / 2', objectFit: 'cover', display: 'block' }}
@@ -195,10 +215,48 @@ export default function Fotograflar() {
                     </span>
                     {i.status === 'secildi' ? (
                       <span
-                        className="k-pill"
-                        style={{ marginTop: 8, background: '#E7FAF0', color: '#11683F' }}
+                        style={{
+                          display: 'flex',
+                          gap: 6,
+                          marginTop: 8,
+                          flexWrap: 'wrap',
+                          alignItems: 'center',
+                        }}
                       >
-                        Seçildi
+                        <span className="k-pill" style={{ background: '#E7FAF0', color: '#11683F' }}>
+                          Seçildi · {i.makyajAd}
+                        </span>
+                        {i.edited ? (
+                          <span className="k-pill" style={{ background: '#FFEEF6', color: '#A0256A' }}>
+                            Plaka bulanık
+                          </span>
+                        ) : null}
+                        <button
+                          type="button"
+                          className="k-btn-line"
+                          style={{ fontSize: 13, padding: '6px 10px' }}
+                          disabled={busy !== null}
+                          onClick={() => setPlaka({ g, i })}
+                        >
+                          {i.edited ? 'Alanları düzenle' : 'Plakayı bulanıklaştır'}
+                        </button>
+                        {i.edited ? (
+                          <button
+                            type="button"
+                            className="k-btn-line"
+                            style={{ fontSize: 13, padding: '6px 10px' }}
+                            disabled={busy !== null}
+                            onClick={() =>
+                              act(i.id, async () => {
+                                await yonetim(`catalog/images/${i.id}/unblur`, { method: 'POST', body: {} });
+                                load();
+                                return 'Düzenleme geri alındı; özgün kopya gösteriliyor.';
+                              })
+                            }
+                          >
+                            Geri al
+                          </button>
+                        ) : null}
                       </span>
                     ) : (
                       <span style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
@@ -224,6 +282,23 @@ export default function Fotograflar() {
                         >
                           Ele
                         </button>
+                        <select
+                          aria-label={`Makyaj · ${i.commonsFile}`}
+                          value={makyaj[i.id] ?? ''}
+                          onChange={(e) => setMakyaj((m) => ({ ...m, [i.id]: e.target.value }))}
+                          style={{
+                            fontSize: 13,
+                            padding: '5px 6px',
+                            borderRadius: 8,
+                            border: '1px solid #D5DAE5',
+                          }}
+                        >
+                          {MAKYAJLAR.map(([v, ad]) => (
+                            <option key={v} value={v}>
+                              {ad}
+                            </option>
+                          ))}
+                        </select>
                         <button
                           type="button"
                           className="k-btn-ok"
@@ -231,9 +306,14 @@ export default function Fotograflar() {
                           disabled={busy !== null}
                           onClick={() =>
                             act(i.id, async () => {
-                              await yonetim(`catalog/images/${i.id}/select`, { method: 'POST', body: {} });
-                              setRows((rs) => rs?.filter((x) => x.id !== g.id) ?? null);
-                              return `${title(g)} için fotoğraf seçildi ve depoya alındı.`;
+                              const m = makyaj[i.id] ?? '';
+                              await yonetim(`catalog/images/${i.id}/select`, {
+                                method: 'POST',
+                                body: { makyaj: m === '' ? null : Number(m) },
+                              });
+                              load();
+                              const ad = MAKYAJLAR.find(([v]) => v === m)?.[1] ?? 'Nesil geneli';
+                              return `${title(g)} · ${ad.toLocaleLowerCase('tr-TR')} fotoğrafı seçildi ve depoya alındı. Diğer makyajlar için Seçilmiş sekmesinden devam edebilirsin.`;
                             })
                           }
                         >
@@ -248,6 +328,27 @@ export default function Fotograflar() {
           </section>
         ))
       )}
+      {plaka?.i.kopya ? (
+        <PlakaDuzenle
+          src={`${API}${plaka.i.kopya}`}
+          baslik={`${title(plaka.g)} · ${plaka.i.makyajAd ?? ''}`}
+          ilk={plaka.i.blurAreas ?? []}
+          kapat={() => setPlaka(null)}
+          kaydet={async (alanlar) => {
+            setError(null);
+            try {
+              await yonetim(`catalog/images/${plaka.i.id}/blur`, { method: 'POST', body: { alanlar } });
+              setPlaka(null);
+              setNotice(
+                'Plaka bulanıklaştırıldı; talep sayfasında düzenlenmiş kopya ve “düzenlendi” atfı gösteriliyor.',
+              );
+              load();
+            } catch (e) {
+              setError((e as Error).message);
+            }
+          }}
+        />
+      ) : null}
     </>
   );
 }

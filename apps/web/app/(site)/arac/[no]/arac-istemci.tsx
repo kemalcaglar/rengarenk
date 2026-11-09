@@ -268,6 +268,64 @@ export function Iletisim({ no }: { no: number }) {
   );
 }
 
+/** "♡ Favorilere ekle" (PortfoyArac.dc.html): girişsiz kullanıcı girişe gider */
+export function AracFavori({ no }: { no: number }) {
+  const giris = useGiris();
+  const [fav, setFav] = useState(false);
+  const [hata, setHata] = useState<string | null>(null);
+  useEffect(() => {
+    if (!giris) return;
+    istek<{ favori: boolean }>(`/araclar/${no}/favori`)
+      .then((r) => setFav(r.favori))
+      .catch(() => undefined);
+  }, [giris, no]);
+  return (
+    <>
+      <button
+        type="button"
+        aria-pressed={fav}
+        onClick={async () => {
+          if (!giris) {
+            window.location.href = `/giris?sonra=/arac/${no}`;
+            return;
+          }
+          const yeni = !fav;
+          setFav(yeni);
+          setHata(null);
+          try {
+            await istek(`/araclar/${no}/favori`, { method: yeni ? 'PUT' : 'DELETE' });
+          } catch (e) {
+            setFav(!yeni);
+            setHata((e as Error).message);
+          }
+        }}
+        style={{
+          width: '100%',
+          marginTop: 10,
+          border: 0,
+          background: 'transparent',
+          padding: 6,
+          fontSize: 14,
+          fontWeight: 700,
+          color: fav ? '#A3236A' : '#2450C8',
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+        }}
+      >
+        {fav ? '♥ Favorilerinde' : '♡ Favorilere ekle'}
+      </button>
+      {hata ? (
+        <span
+          role="alert"
+          style={{ display: 'block', fontSize: 12.5, color: '#A3271F', textAlign: 'center' }}
+        >
+          {hata}
+        </span>
+      ) : null}
+    </>
+  );
+}
+
 /**
  * "BMW 3 Serisi 320i talebine uyuyor. 6 kriterin 6’sı tutuyor: …" (PortfoyArac.dc.html): girişli alıcının yayındaki
  * taleplerinden bu araca en iyi uyanı. Uyan talep yoksa ya da giriş yapılmamışsa gösterilmez.

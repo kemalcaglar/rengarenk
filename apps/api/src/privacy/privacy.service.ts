@@ -182,6 +182,7 @@ export class PrivacyService {
       tercihler,
       aramalar,
       favoriler,
+      favoriAraclar,
       yildizlar,
       destek,
       kvkk,
@@ -246,6 +247,10 @@ export class PrivacyService {
         where: { userId },
         select: { demand: { select: { no: true } }, createdAt: true },
       }),
+      this.db.vehicleFavorite.findMany({
+        where: { userId },
+        select: { vehicle: { select: { no: true } }, createdAt: true },
+      }),
       this.db.rating.findMany({ where: { buyerUserId: userId }, select: { stars: true, createdAt: true } }),
       this.db.supportTicket.findMany({
         where: { userId },
@@ -302,6 +307,7 @@ export class PrivacyService {
         olusturma: a.createdAt,
       })),
       favoriler: favoriler.map((f) => ({ talep: f.demand ? Number(f.demand.no) : null, zaman: f.createdAt })),
+      favoriAraclar: favoriAraclar.map((f) => ({ arac: Number(f.vehicle.no), zaman: f.createdAt })),
       verdigimYildizlar: yildizlar,
       destek: destek.map((t) => ({
         no: `D-${t.no}`,

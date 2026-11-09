@@ -54,11 +54,31 @@ export const BADGES = {
 } as const;
 export type BadgeKey = keyof typeof BADGES;
 
-/** Rozet eşikleri (Karar 55) */
-export const BADGE_RULES = {
+/** Rozet eşikleri (Karar 55); yürürlükteki değerler Kurallar ve fiyatlar listesinden (`badgeRulesOf`) */
+export interface BadgeRules {
+  hizli: { ortancaDakika: number; enAzSohbet: number; gun: number };
+  guven: { enAzYildiz: number; enAzOrtalama: number; sikayetOraniAlti: number; gun: number };
+}
+/** Başlangıç değerleri; ölçüm pencereleri (30 ve 90 gün) sabittir */
+export const BADGE_RULES: BadgeRules = {
   hizli: { ortancaDakika: 60, enAzSohbet: 10, gun: 30 },
   guven: { enAzYildiz: 10, enAzOrtalama: 4.5, sikayetOraniAlti: 0.01, gun: 90 },
-} as const;
+};
+
+/** "1 saatin", "90 dakikanın" (ilgi hâli: "… altında") */
+export function sureIlgi(dakika: number): string {
+  return dakika % 60 === 0 ? `${dakika / 60} saatin` : `${dakika} dakikanın`;
+}
+const ondalik = (n: number) => new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 2 }).format(n);
+
+/** Rozet açıklamaları eşiklerle (alıcıya ve galeriye görünen) */
+export function badgeDescriptions(r: BadgeRules = BADGE_RULES): Record<BadgeKey, string> {
+  return {
+    onay: BADGES.onay.aciklama,
+    hizli: `Son ${r.hizli.gun} günde ortanca ilk yanıt ${sureIlgi(r.hizli.ortancaDakika)} altında`,
+    guven: BADGES.guven.aciklama,
+  };
+}
 
 /** İç puanın bileşenleri ve ağırlıkları (YonetimPazar.dc.html › Satıcı puanı) */
 export const SCORE_WEIGHTS = { yildiz: 40, yanit: 25, sikayet: 25, dogrulama: 10 } as const;
@@ -82,14 +102,14 @@ export interface SellerFigures {
 }
 
 /** Rozetler (Karar 55): onaylı galeri, hızlı yanıt, güvenilir satıcı */
-export function badgesOf(f: SellerFigures): BadgeKey[] {
+export function badgesOf(f: SellerFigures, r: BadgeRules = BADGE_RULES): BadgeKey[] {
   const out: BadgeKey[] = [];
   if (f.onayliGaleri) out.push('onay');
-  const h = BADGE_RULES.hizli;
+  const h = r.hizli;
   if (f.yanitSohbet >= h.enAzSohbet && f.ortancaDakika !== null && f.ortancaDakika < h.ortancaDakika) {
     out.push('hizli');
   }
-  const g = BADGE_RULES.guven;
+  const g = r.guven;
   if (
     f.onayliGaleri &&
     f.yildizSayisi >= g.enAzYildiz &&
@@ -118,23 +138,27 @@ export function sellerScore(f: SellerFigures): number {
 }
 
 /** Galeri paneli: "rozete ne kadar kaldı" (Karar 55) */
-export function badgeProgress(f: SellerFigures): { rozet: BadgeKey; var: boolean; eksik: string[] }[] {
-  const has = new Set(badgesOf(f));
-  const h = BADGE_RULES.hizli;
-  const g = BADGE_RULES.guven;
+export function badgeProgress(
+  f: SellerFigures,
+  r: BadgeRules = BADGE_RULES,
+): { rozet: BadgeKey; var: boolean; eksik: string[] }[] {
+  const has = new Set(badgesOf(f, r));
+  const h = r.hizli;
+  const g = r.guven;
   const hizliEksik: string[] = [];
   if (f.yanitSohbet < h.enAzSohbet)
-    hizliEksik.push(`son 30 günde ${h.enAzSohbet - f.yanitSohbet} sohbet daha`);
+    hizliEksik.push(`son ${h.gun} günde ${h.enAzSohbet - f.yanitSohbet} sohbet daha`);
   if (f.ortancaDakika === null || f.ortancaDakika >= h.ortancaDakika) {
-    hizliEksik.push('ortanca ilk yanıtın 1 saatin altına inmeli');
+    hizliEksik.push(`ortanca ilk yanıtın ${sureIlgi(h.ortancaDakika)} altına inmeli`);
   }
   const guvenEksik: string[] = [];
   if (!f.onayliGaleri) guvenEksik.push('onaylı galeri olmalı');
   if (f.yildizSayisi < g.enAzYildiz) guvenEksik.push(`${g.enAzYildiz - f.yildizSayisi} yıldız daha`);
   if (f.yildizSayisi > 0 && (f.yildizOrtalama ?? 0) < g.enAzOrtalama) {
-    guvenEksik.push('yıldız ortalaman 4,5 ve üstü olmalı');
+    guvenEksik.push(`yıldız ortalaman ${ondalik(g.enAzOrtalama)} ve üstü olmalı`);
   }
-  if (f.sikayetOrani >= g.sikayetOraniAlti) guvenEksik.push('şikâyet oranın %1’in altına inmeli');
+  if (f.sikayetOrani >= g.sikayetOraniAlti)
+    guvenEksik.push(`şikâyet oranın %${ondalik(g.sikayetOraniAlti * 100)} altına inmeli`);
   return [
     { rozet: 'onay', var: has.has('onay'), eksik: has.has('onay') ? [] : ['galeri doğrulaması'] },
     { rozet: 'hizli', var: has.has('hizli'), eksik: has.has('hizli') ? [] : hizliEksik },

@@ -288,8 +288,13 @@ pnpm format        # Biome ile biçimlendir
   arama günlüğü (`apps/api/src/analytics/`, çerezsiz, günlük tuz; `POST /analitik/ziyaret`, `POST /talepler/arama`;
   tablolar `web_traffic_daily`, `search_log_daily`) bitti. Sunucu tarafında çekilen listeyi sayma: arama istemciden
   bildirilir. 3) Ön bilgilendirme formu ve sözleşme PDF'i fatura e-postasına (`payments/contract-mail.service.ts`,
-  `common/document-pdf.ts`, işçide `odeme-sozlesme`) bitti. API'de 199 test. Sırada: 4) mobil toplu yükleme, 5) rozet eşikleri
-  konsoldan, makyaj başına fotoğraf, plaka bulanıklaştırma, 6) araç favorisi, fotoğraf kopya tespiti, 7) komşu il.
+  `common/document-pdf.ts`, işçide `odeme-sozlesme`) bitti. 4) Mobil toplu yükleme: tasarım gereği mobil düğme web
+  panelin Toplu yükleme bölümünü açar. 5) Rozet eşikleri fiyat listesinde (`rozetler`, `badgeRulesOf`; rozet okurken
+  `TrustService.kurallar()`), makyaj başına fotoğraf (`catalog_images.facelift`, gösterimde `makyajFoto`), plaka
+  bulanıklaştırma (sharp; özgün kopya saklanır). 6) Araç favorisi (`vehicle_favorites`), fotoğraf kopya tespiti (dHash
+  `portfolio_photos.phash`, kural şikâyeti `kopya_foto`). 7) Komşu il: `il-komsulari.ts` (OpenStreetMap kökenli, atıf
+  Veri kaynakları'nda), kategori şemasında `konumKapsami`; başlangıç "il", davranış değişmedi. Hepsi bitti. Açık kalan:
+  galeri fotoğrafının katalogda temsilî görsel olması (Karar 34). API'de 201, ortak pakette 120 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.

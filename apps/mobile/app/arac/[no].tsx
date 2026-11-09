@@ -2,6 +2,7 @@ import { colors, MESSAGE_MAX, PAINT_STATES } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
+  Alert,
   Dimensions,
   FlatList,
   Image,
@@ -76,6 +77,28 @@ export default function AracEkrani() {
   const [metin, setMetin] = useState('');
   const [hata, setHata] = useState<string | null>(null);
   const [mesgul, setMesgul] = useState(false);
+  // "Favorilere ekle" (PortfoyArac.dc.html; mobilde başlıkta kalp, tasarıma ek)
+  const [fav, setFav] = useState(false);
+  useEffect(() => {
+    if (durum !== 'uye') return;
+    istek<{ favori: boolean }>(`/araclar/${no}/favori`)
+      .then((r) => setFav(r.favori))
+      .catch(() => undefined);
+  }, [durum, istek, no]);
+  async function favori() {
+    if (durum !== 'uye') {
+      router.push('/giris');
+      return;
+    }
+    const yeni = !fav;
+    setFav(yeni);
+    try {
+      await istek(`/araclar/${no}/favori`, { method: yeni ? 'PUT' : 'DELETE' });
+    } catch (e) {
+      setFav(!yeni);
+      Alert.alert('Favori', (e as Error).message);
+    }
+  }
   async function gonder() {
     setMesgul(true);
     setHata(null);
@@ -135,6 +158,17 @@ export default function AracEkrani() {
         <T numberOfLines={1} accessibilityRole="header" style={{ flex: 1, fontSize: 16, fontWeight: '800' }}>
           {arac?.galeri.ad ?? 'Araç'}
         </T>
+        {arac ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={fav ? 'Favorilerinde · çıkar' : 'Favorilere ekle'}
+            accessibilityState={{ selected: fav }}
+            onPress={favori}
+            style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <T style={{ fontSize: 22, color: fav ? colors.pink : '#2450C8' }}>{fav ? '♥' : '♡'}</T>
+          </Pressable>
+        ) : null}
       </View>
       <ScrollView
         style={{ flex: 1, backgroundColor: colors.background }}

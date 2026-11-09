@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { HesabimMenu } from '../../../components/hesabim-menu';
 import { istek, useGiris } from '../../../lib/istemci';
 import { aramaAdresi, binlik, butceAraligi, uzunTarih, yilAraligi, zaman } from '../../../lib/talep-bicim';
+import { type FavoriArac, FavoriAraclar } from './araclar';
 
 /** Favoriler ve kayıtlı aramalar (Karar 06.4, 30) · Favoriler.dc.html */
 
@@ -65,22 +66,30 @@ const ozet = (f: Favori) =>
 export default function Favoriler() {
   const giris = useGiris();
   const router = useRouter();
-  const [sekme, setSekme] = useState<'fav' | 'ara'>('fav');
+  const [sekme, setSekme] = useState<'fav' | 'arac' | 'ara'>('fav');
+  const [araclar, setAraclar] = useState<FavoriArac[] | null>(null);
   const [favoriler, setFavoriler] = useState<Favori[] | null>(null);
   const [aramalar, setAramalar] = useState<Arama[] | null>(null);
   const [hata, setHata] = useState<string | null>(null);
   const [duzen, setDuzen] = useState<{ id: string; ad: string } | null>(null);
 
   const yukle = useCallback(async () => {
-    const [f, a] = await Promise.all([istek<Favori[]>('/favorites'), istek<Arama[]>('/saved-searches')]);
+    const [f, a, v] = await Promise.all([
+      istek<Favori[]>('/favorites'),
+      istek<Arama[]>('/saved-searches'),
+      istek<FavoriArac[]>('/favoriler/araclar'),
+    ]);
     setFavoriler(f);
     setAramalar(a);
+    setAraclar(v);
   }, []);
 
   useEffect(() => {
     if (giris === false) router.replace('/giris?sonra=/favoriler');
     if (!giris) return;
-    if (new URLSearchParams(window.location.search).get('sekme') === 'aramalar') setSekme('ara');
+    const q = new URLSearchParams(window.location.search).get('sekme');
+    if (q === 'aramalar') setSekme('ara');
+    if (q === 'araclar') setSekme('arac');
     yukle().catch((e: Error) => setHata(e.message));
   }, [giris, router, yukle]);
 
@@ -98,6 +107,12 @@ export default function Favoriler() {
     dene(async () => {
       setFavoriler((l) => (l ?? []).filter((x) => x.no !== f.no));
       await istek(`/favorites/${f.no}`, { method: 'DELETE' });
+    });
+
+  const aracKaldir = (a: FavoriArac) =>
+    dene(async () => {
+      setAraclar((l) => (l ?? []).filter((x) => x.no !== a.no));
+      await istek(`/araclar/${a.no}/favori`, { method: 'DELETE' });
     });
 
   const bildirim = (a: Arama, key: string) =>
@@ -127,8 +142,10 @@ export default function Favoriler() {
       setDuzen(null);
     });
 
-  const sekmeler: ['fav' | 'ara', string, number | null][] = [
+  // "Favori araçlar" tasarıma ek sekme (araç sayfasındaki "Favorilere ekle")
+  const sekmeler: ['fav' | 'arac' | 'ara', string, number | null][] = [
     ['fav', 'Favori talepler', favoriler?.length ?? null],
+    ['arac', 'Favori araçlar', araclar?.length ?? null],
     ['ara', 'Kayıtlı aramalar', aramalar?.length ?? null],
   ];
 
@@ -333,6 +350,8 @@ export default function Favoriler() {
               </div>
             ) : null}
           </>
+        ) : sekme === 'arac' ? (
+          <FavoriAraclar liste={araclar} kaldir={aracKaldir} />
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {aramalar && aramalar.length === 0 ? (

@@ -2,6 +2,7 @@ import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { readFirstSheet } from '@rengarenk/catalog';
 import { uuidv7 } from '@rengarenk/db';
 import { BULK_COLUMNS, gallerySlug } from '@rengarenk/shared';
+import sharp from 'sharp';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Db } from '../src/database/prisma.js';
 import { PortfolioService } from '../src/portfolio/portfolio.service.js';
@@ -383,5 +384,92 @@ describe('toplu yükleme ve API (Karar 07.2, 07.3)', () => {
 
     await call(app, 'DELETE', `${base}/api-keys/${k.body.id}`, undefined, g.token);
     expect((await api('GET', '/entegrasyon/v1/araclar')).status).toBe(403);
+  });
+
+  it('kopya fotoğraf: başka galerinin ilanındaki fotoğrafın küçültülmüş kopyası kural şikâyeti açar', async () => {
+    // Desenli gerçek görsel: sol yarı açık, sağ yarı koyu, ortada şerit
+    const desen = (w: number, h: number) =>
+      sharp({ create: { width: w, height: h, channels: 3, background: '#F0F0F0' } })
+        .composite([
+          {
+            input: { create: { width: Math.round(w / 2), height: h, channels: 3, background: '#202020' } },
+            left: Math.round(w / 2),
+            top: 0,
+          },
+          {
+            input: {
+              create: { width: w, height: Math.round(h / 8), channels: 3, background: '#808080' },
+            },
+            left: 0,
+            top: Math.round(h / 3),
+          },
+        ])
+        .jpeg({ quality: 90 })
+        .toBuffer();
+    const a = await galeri('+905339990091', 'Asıl Otomotiv');
+    const b = await galeri('+905339990092', 'Kopya Otomotiv');
+    const ca = await call(
+      app,
+      'POST',
+      `/gallery/${a.accountId}/portfolio`,
+      arac({ plaka: '34 KPY 001' }),
+      a.token,
+    );
+    const cb = await call(
+      app,
+      'POST',
+      `/gallery/${b.accountId}/portfolio`,
+      arac({ plaka: '34 KPY 002' }),
+      b.token,
+    );
+    const yukle = (g: { token: string; accountId: string }, id: string, body: Buffer) =>
+      raw(`/gallery/${g.accountId}/portfolio/${id}/photos`, g.token, body, 'image/jpeg');
+    expect((await yukle(a, ca.body.id, await desen(1200, 800))).status).toBe(201);
+    // Aynı galerinin kendi fotoğrafını tekrar kullanması şikâyet açmaz
+    const ca2 = await call(
+      app,
+      'POST',
+      `/gallery/${a.accountId}/portfolio`,
+      arac({ plaka: '34 KPY 003' }),
+      a.token,
+    );
+    expect((await yukle(a, ca2.body.id, await desen(1200, 800))).status).toBe(201);
+    expect(await db.report.count({ where: { reason: 'kopya_foto' } })).toBe(0);
+
+    // Başka galeri küçültülmüş kopyayı yükler: yükleme olur, şikâyet açılır (bir kez)
+    expect((await yukle(b, cb.body.id, await desen(600, 400))).status).toBe(201);
+    expect((await yukle(b, cb.body.id, await desen(800, 533))).status).toBe(201);
+    const r = await db.report.findMany({ where: { reason: 'kopya_foto' } });
+    expect(r).toHaveLength(1);
+    expect(r[0]).toMatchObject({
+      source: 'kural',
+      targetType: 'arac',
+      targetId: cb.body.id,
+      targetAccountId: b.accountId,
+      priority: 'yuksek',
+    });
+    expect(r[0]?.signals[0]).toMatch(/^Araç No \d+ \(Asıl Otomotiv\) ile aynı fotoğraf$/);
+    expect(await db.outboxEvent.count({ where: { type: 'sikayet.acildi' } })).toBeGreaterThan(0);
+
+    // Farklı görsel şikâyet açmaz
+    const farkli = await sharp({ create: { width: 800, height: 600, channels: 3, background: '#3366FF' } })
+      .composite([
+        {
+          input: { create: { width: 200, height: 600, channels: 3, background: '#FFCC00' } },
+          left: 0,
+          top: 0,
+        },
+      ])
+      .jpeg()
+      .toBuffer();
+    const cb2 = await call(
+      app,
+      'POST',
+      `/gallery/${b.accountId}/portfolio`,
+      arac({ plaka: '34 KPY 004' }),
+      b.token,
+    );
+    expect((await yukle(b, cb2.body.id, farkli)).status).toBe(201);
+    expect(await db.report.count({ where: { reason: 'kopya_foto' } })).toBe(1);
   });
 });

@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { badgeProgress, badgesOf, median, type SellerFigures, sellerScore } from './ratings.js';
+import { badgeRulesOf, DEFAULT_PRICE_BOOK, priceBookSchema } from './pricing.js';
+import {
+  badgeDescriptions,
+  badgeProgress,
+  badgesOf,
+  median,
+  type SellerFigures,
+  sellerScore,
+} from './ratings.js';
 
 const galeri = (f: Partial<SellerFigures> = {}): SellerFigures => ({
   yildizSayisi: 12,
@@ -39,5 +47,34 @@ describe('satıcı puanı ve rozetler (Karar 55)', () => {
     expect(median([5, 1, 3])).toBe(3);
     expect(median([4, 1, 3, 2])).toBe(2.5);
     expect(median([])).toBeNull();
+  });
+
+  it('eşikler Kurallar ve fiyatlar listesinden (Karar 56)', () => {
+    const kitap = {
+      ...DEFAULT_PRICE_BOOK,
+      rozetler: {
+        hizliDakika: 30,
+        hizliSohbet: 5,
+        guvenYildiz: 20,
+        guvenOrtalama: 4.8,
+        guvenSikayetYuzde: 0.5,
+      },
+    };
+    expect(priceBookSchema.safeParse(kitap).success).toBe(true);
+    expect(
+      priceBookSchema.safeParse({ ...kitap, rozetler: { ...kitap.rozetler, guvenOrtalama: 6 } }).success,
+    ).toBe(false);
+    const r = badgeRulesOf(kitap);
+    expect(badgesOf(galeri({ ortancaDakika: 40, yanitSohbet: 6 }), r)).toEqual(['onay']);
+    expect(
+      badgesOf(galeri({ ortancaDakika: 20, yanitSohbet: 6, yildizSayisi: 20, yildizOrtalama: 4.9 }), r),
+    ).toEqual(['onay', 'hizli', 'guven']);
+    expect(badgeProgress(galeri({ ortancaDakika: 40 }), r).find((x) => x.rozet === 'hizli')?.eksik).toEqual([
+      'ortanca ilk yanıtın 30 dakikanın altına inmeli',
+    ]);
+    expect(badgeDescriptions(r).hizli).toBe('Son 30 günde ortanca ilk yanıt 30 dakikanın altında');
+    // Eski listede rozet yok: başlangıç değerleri
+    const { rozetler: _r, ...eski } = DEFAULT_PRICE_BOOK;
+    expect(badgeRulesOf(eski).hizli.ortancaDakika).toBe(60);
   });
 });
