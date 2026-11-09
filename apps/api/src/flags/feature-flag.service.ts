@@ -27,6 +27,7 @@ import { AuditService } from '../audit/audit.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { REDIS, ready } from '../redis/redis.module.js';
+import { uiDeneySenkron } from './ui-experiments.js';
 
 interface FlagState {
   enabled: boolean;
@@ -206,6 +207,8 @@ export class FeatureFlagService {
       const before = await tx.featureFlag.findUnique({ where: { key } });
       const data = { ...patch, updatedBy: actor.staff.id };
       const after = await tx.featureFlag.upsert({ where: { key }, create: { key, ...data }, update: data });
+      // Arayüz deneyi (Karar 44): yüzde 1–99 dönemi açar, %100 ya da kapatma kazananıyla bitirir
+      await uiDeneySenkron(tx, key, after);
       const pick = (r: typeof after | null) =>
         r
           ? { acik: r.enabled, kitle: r.audience, yuzde: r.percent, platform: r.platforms, duyuru: r.note }

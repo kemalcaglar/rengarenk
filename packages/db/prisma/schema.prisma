@@ -102,6 +102,7 @@ model User {
   attribution         UserAttribution?
   adEvents            AdEvent[]
   priceExposures      PriceExperimentExposure[]
+  uiExperimentEvents  UiExperimentEvent[]
 
   @@map("users")
 }
@@ -2988,4 +2989,38 @@ model PriceExperimentExposure {
 
   @@id([experimentId, userId])
   @@map("price_experiment_exposures")
+}
+
+// ── Arayüz deneyleri (Karar 44) ───────────────────────────────────
+
+/// Özellik anahtarıyla yürüyen deney dönemi: anahtar açık ve yüzde 1–99 iken açılır, %100 (B herkese) ya da kapatma
+/// (A'da kal) ile biter. Kol kullanıcı kimliğinden hesaplanır (rolloutBucket).
+model UiExperimentRun {
+  id        String    @id @db.Uuid
+  flagKey   String    @map("flag_key")
+  percent   Int
+  startedAt DateTime  @default(now()) @map("started_at") @db.Timestamptz(3)
+  endedAt   DateTime? @map("ended_at") @db.Timestamptz(3)
+  /// A | B (bitince)
+  winner    String?
+
+  events UiExperimentEvent[]
+
+  @@index([flagKey, endedAt])
+  @@map("ui_experiment_runs")
+}
+
+/// Deneydeki adımı gören (ve geçen) kullanıcı; kullanıcı başına bir satır
+model UiExperimentEvent {
+  runId    String    @map("run_id") @db.Uuid
+  userId   String    @map("user_id") @db.Uuid
+  arm      String
+  seenAt   DateTime  @default(now()) @map("seen_at") @db.Timestamptz(3)
+  passedAt DateTime? @map("passed_at") @db.Timestamptz(3)
+
+  run  UiExperimentRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  user User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([runId, userId])
+  @@map("ui_experiment_events")
 }

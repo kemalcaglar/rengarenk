@@ -280,9 +280,11 @@ pnpm format        # Biome ile biçimlendir
   açılışta gece harcama çekimini çalıştırır; sahte sağlayıcı boş döndüğü için dünün `ad_spend` satırları silinir.
   Fiyat deneyleri (`pricing/price-experiments.service.ts`): bireysel web fiyatını okurken `pricing.current()` yerine
   `pricing.bookFor(userId, true)` kullan (galeri ve mağaza liste fiyatı); deney Sahip onayıyla başlar.
-  API'de 195, ortak pakette 117 test.
-- **Sıradaki:** Aşama 9 devamı
-  (arayüz deneyleri); ya da sunucular gelince Radore'ye ilk
+  Arayüz deneyi (`flags/ui-experiments.ts`): yeni deney için `UI_EXPERIMENTS`'e tanım ekle, istemcide kolu `GET /flags`
+  ile oku, adımı görme ve geçmeyi `POST /flags/deney/:anahtar` ile bildir; deney anahtarın yüzdesi 1–99 iken sürer.
+  API'de 196, ortak pakette 117 test.
+- **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
+  yapay zekâ yorumu, web analitiği ve arama günlüğü); sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

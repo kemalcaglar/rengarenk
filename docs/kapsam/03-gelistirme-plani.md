@@ -239,7 +239,12 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   mağazada ve herkese açık listede liste fiyatı. Fiyatı ilk görüş kaydedilir; ölçü o andan deney sonuna kadarki web
   ürün ödemesiyle kullanıcı başına gelir (Welch, her kolda en az 100 kişi, güven %95). Raporlar › Deneyler'de kart;
   biten deneyde B kazandıysa "B fiyatını öner" fiyat listesine öneri açar (yine Sahip onaylar); ajan kazananı bildirir
-- [ ] Arayüz deneyleri (ör. sihirbazın bütçe adımı): özellik anahtarlarına kol eklenince
+- [x] Arayüz deneyleri (Karar 44; YonetimSistem › "Sihirbaz bütçe adımı · B kolu", YonetimRapor › deney kartı):
+  deney tanımı özellik anahtarında (`UI_EXPERIMENTS`); anahtar açık, kitle Herkes ve yüzde 1–99 iken deney dönemi
+  açılır (`ui_experiment_runs`, anahtar değişikliğiyle aynı işlemde), dilimi yüzdenin altındaki kullanıcı B'yi görür.
+  Web sihirbazında bütçe adımı: A kaydırıcı, B tasarımdaki iki kutu; `butce_b` başlangıçta %100 açık (tasarım). Adımı
+  görme ve geçme `POST /flags/deney/:anahtar` (yalnızca web, kişi başı tek satır); ölçü geçen oranı. Raporlar ›
+  Deneyler'de kart; "B'yi herkese aç" anahtarı %100'e, "A'da kal" kapatır, dönem kazananla biter; ajan kazananı bildirir
 - [x] Raporlar › Reklam ve edinim (YonetimRapor.dc.html › reklam): toplam harcama, galeri başına edinme, üye başına
   maliyet, reklam getirisi; kanal ve kampanya tablosu (üyeler ilk temaslarının kampanyasına bağlanır; harcama, üyelik,
   talep, yeni galeri, üye başı, 30 günlük ödeme ÷ harcama), son çekim notu, ajanın kural tabanlı bütçe yorumu; kanal

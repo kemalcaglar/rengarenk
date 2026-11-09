@@ -19,6 +19,7 @@ import { Logo } from '../logo';
 import { Alan, Anahtar, Cip, etiket, Konum, kutu, secimKutusu } from './alan';
 import { Asistan } from './asistan';
 import { type BoyaDegeri, BoyaSemasi, boyaOzeti } from './boya';
+import { ButceKoluSaglayici, butceOlayi, useDeneyKolu } from './deney';
 import { type KatalogDegeri, katalogKategorisi, useKatalog } from './katalog';
 
 const TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0', '#F3EFFF', '#FFF0EA'];
@@ -124,6 +125,9 @@ export function Sihirbaz() {
   const [galeriler, setGaleriler] = useState<{ accountId: string; ad: string }[]>([]);
   const [hesap, setHesap] = useState<string | null>(null);
   const kirli = useRef(false);
+  // Bütçe adımı deneyi (Karar 44): üyenin kolu ve adımı görme / geçme olayları
+  const butceKolu = useDeneyKolu(giris);
+  const oncekiAdim = useRef<AdimKey>(adim);
   // Asistan formu doldurunca katalog seçicisi yeniden kurulur
   const [asistanSurum, setAsistanSurum] = useState(0);
 
@@ -199,6 +203,15 @@ export function Sihirbaz() {
     }
   });
   const tanim = ADIMLAR.find((a) => a.key === adim) ?? ADIMLAR[0];
+
+  useEffect(() => {
+    const once = oncekiAdim.current;
+    oncekiAdim.current = adim;
+    if (!taslak || duzenle || !alanlar.some((f) => f.key === 'butce' && f.step === 'kriterler')) return;
+    const sira = (k: AdimKey) => ADIMLAR.findIndex((a) => a.key === k);
+    if (adim === 'kriterler') butceOlayi('gorus');
+    else if (once === 'kriterler' && sira(adim) > sira('kriterler')) butceOlayi('gecis');
+  }, [adim, taslak, duzenle, alanlar]);
 
   // Taslağı kaydet: her değişiklikten 700 ms sonra (Karar 21: yarım kalan talep taslak olarak saklanır)
   useEffect(() => {
@@ -361,673 +374,680 @@ export function Sihirbaz() {
   const katUst = kat && kat.slug !== taslak?.category.slug ? kat.slug : null;
 
   return (
-    <div style={{ background: '#F6F8FD', minHeight: '100vh' }}>
-      <header style={{ background: '#FFFFFF', borderBottom: '1px solid #E3E6EF' }}>
-        <div
-          style={{
-            maxWidth: 1360,
-            margin: '0 auto',
-            padding: '14px 24px',
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
-          }}
-        >
-          <Logo />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            {kayit ? (
-              <span
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  fontSize: 13.5,
-                  color: kayit === 'hata' ? '#A3271F' : kayit === 'kaydediliyor' ? '#5A6073' : '#11683F',
-                  fontWeight: 600,
-                }}
-              >
-                {kayit === 'kaydedildi' ? (
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M5 12l5 5 9-10" />
-                  </svg>
-                ) : null}
-                {kayit === 'kaydedildi'
-                  ? 'Taslak kaydedildi'
-                  : kayit === 'kaydediliyor'
-                    ? 'Kaydediliyor…'
-                    : 'Kaydedilemedi'}
-              </span>
-            ) : null}
-            <Link
-              href="/taleplerim"
-              style={{
-                fontSize: 14.5,
-                fontWeight: 700,
-                color: '#1E2333',
-                border: '1px solid #E3E6EF',
-                borderRadius: 12,
-                padding: '10px 16px',
-                textDecoration: 'none',
-              }}
-            >
-              {duzenle ? 'Vazgeç' : 'Kaydet ve çık'}
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E3E6EF' }}>
-        <ol
-          aria-label="Adımlar"
-          style={{
-            maxWidth: 1360,
-            margin: '0 auto',
-            padding: '14px 24px',
-            listStyle: 'none',
-            display: 'grid',
-            gridTemplateColumns: `repeat(${gorunen.length}, minmax(0, 1fr))`,
-            gap: 8,
-          }}
-        >
-          {gorunen.map((a, i) => {
-            const done = i < sira;
-            const cur = i === sira;
-            return (
-              <li key={a.key}>
-                <button
-                  type="button"
-                  onClick={() => git(a.key)}
-                  aria-current={cur ? 'step' : undefined}
+    <ButceKoluSaglayici kol={butceKolu}>
+      <div style={{ background: '#F6F8FD', minHeight: '100vh' }}>
+        <header style={{ background: '#FFFFFF', borderBottom: '1px solid #E3E6EF' }}>
+          <div
+            style={{
+              maxWidth: 1360,
+              margin: '0 auto',
+              padding: '14px 24px',
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+            }}
+          >
+            <Logo />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              {kayit ? (
+                <span
                   style={{
-                    width: '100%',
-                    border: 0,
-                    background: 'transparent',
-                    padding: '6px 0',
-                    cursor: 'pointer',
-                    textAlign: 'left',
                     display: 'flex',
-                    flexDirection: 'column',
-                    gap: 8,
-                    fontFamily: 'inherit',
+                    alignItems: 'center',
+                    gap: 6,
+                    fontSize: 13.5,
+                    color: kayit === 'hata' ? '#A3271F' : kayit === 'kaydediliyor' ? '#5A6073' : '#11683F',
+                    fontWeight: 600,
                   }}
                 >
-                  <span
-                    style={{
-                      display: 'block',
-                      height: 6,
-                      borderRadius: 3,
-                      background: done || cur ? '#5B8CFF' : '#E3E6EF',
-                    }}
-                  />
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span
-                      style={{
-                        width: 26,
-                        height: 26,
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 13,
-                        fontWeight: 800,
-                        background: done ? '#5B8CFF' : cur ? '#FFFFFF' : '#F3F5FA',
-                        color: done ? '#1E2333' : cur ? '#2450C8' : '#5A6073',
-                        border: `2px solid ${done || cur ? '#5B8CFF' : '#E3E6EF'}`,
-                        boxSizing: 'border-box',
-                        flex: 'none',
-                      }}
+                  {kayit === 'kaydedildi' ? (
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
                     >
-                      {done ? '✓' : i + 1}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: 13.5,
-                        fontWeight: cur ? 800 : 600,
-                        color: cur || done ? '#1E2333' : '#5A6073',
-                      }}
-                    >
-                      {a.ad}
-                    </span>
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ol>
-      </div>
-
-      <main
-        style={{
-          maxWidth: 1360,
-          margin: '0 auto',
-          padding: '28px 24px 64px',
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'flex-start',
-          gap: 24,
-        }}
-      >
-        <div style={{ ...kart, flex: '999 1 640px', minWidth: 0, padding: 28 }}>
-          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#2450C8' }}>
-            Adım {sira + 1} / {gorunen.length}
-          </p>
-          <h1 style={{ margin: '4px 0 6px', fontSize: 26, fontWeight: 800, letterSpacing: -0.3 }}>
-            {tanim.baslik}
-          </h1>
-          <p style={{ margin: '0 0 24px', fontSize: 14.5, color: '#5A6073' }}>
-            {adim === 'onizleme'
-              ? `Her şey doğruysa talebini yayınla; ${taslak?.schema?.rules.listingDays ?? 30} gün boyunca satıcılar seni bulsun.`
-              : tanim.alt}
-          </p>
-
-          {uyari ? (
-            <div
-              role="alert"
-              style={{
-                marginBottom: 18,
-                background: '#FDECEC',
-                border: '1px solid #F5C2BE',
-                borderRadius: 12,
-                padding: '12px 14px',
-                fontSize: 14,
-                color: '#A3271F',
-                fontWeight: 600,
-              }}
-            >
-              {uyari}
-              {hatalar.length > 1 ? (
-                <ul style={{ margin: '6px 0 0', paddingLeft: 18, fontWeight: 500 }}>
-                  {hatalar.slice(0, 6).map((h) => (
-                    <li key={h.path}>{h.message}</li>
-                  ))}
-                </ul>
+                      <path d="M5 12l5 5 9-10" />
+                    </svg>
+                  ) : null}
+                  {kayit === 'kaydedildi'
+                    ? 'Taslak kaydedildi'
+                    : kayit === 'kaydediliyor'
+                      ? 'Kaydediliyor…'
+                      : 'Kaydedilemedi'}
+                </span>
               ) : null}
+              <Link
+                href="/taleplerim"
+                style={{
+                  fontSize: 14.5,
+                  fontWeight: 700,
+                  color: '#1E2333',
+                  border: '1px solid #E3E6EF',
+                  borderRadius: 12,
+                  padding: '10px 16px',
+                  textDecoration: 'none',
+                }}
+              >
+                {duzenle ? 'Vazgeç' : 'Kaydet ve çık'}
+              </Link>
             </div>
-          ) : null}
+          </div>
+        </header>
 
-          {adim === 'kategori' ? (
-            <>
-              {galeriler.length && (!taslak || taslak.hesap) ? (
-                <fieldset style={{ border: 0, padding: 0, margin: '0 0 18px' }}>
-                  <legend style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>Kimin adına?</legend>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {[{ accountId: null as string | null, ad: 'Kendi adıma' }, ...galeriler].map((g) => {
-                      const on = (taslak ? (taslak.hesap?.id ?? null) : hesap) === g.accountId;
-                      return (
-                        <button
-                          key={g.accountId ?? 'ben'}
-                          type="button"
-                          aria-pressed={on}
-                          disabled={!!taslak}
-                          onClick={() => setHesap(g.accountId)}
-                          style={{
-                            border: on ? '2px solid #5B8CFF' : '1px solid #D5DAE5',
-                            background: on ? '#EEF3FF' : '#FFFFFF',
-                            borderRadius: 999,
-                            padding: on ? '8px 14px' : '9px 15px',
-                            fontSize: 14,
-                            fontWeight: 700,
-                            color: '#1E2333',
-                            cursor: taslak ? 'default' : 'pointer',
-                            fontFamily: 'inherit',
-                          }}
-                        >
-                          {g.accountId ? `${g.ad} adına` : g.ad}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <p style={{ margin: '8px 0 0', fontSize: 13, color: '#5A6073' }}>
-                    {taslak
-                      ? 'Taslak açıldıktan sonra hesap değişmez.'
-                      : 'Galeri adına talepte paketin talep hakkı kullanılır ve alıcı olarak galerinin adı görünür.'}
-                  </p>
-                </fieldset>
-              ) : null}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-                  gap: 12,
-                }}
-              >
-                {(kategoriler ?? []).map((c) => {
-                  const sel = taslak?.category.slug === c.slug || katUst === c.slug || ust === c.slug;
-                  const ti = Math.max(0, (DOTS as readonly string[]).indexOf(c.color));
-                  return (
-                    <button
-                      key={c.slug}
-                      type="button"
-                      aria-pressed={sel}
-                      disabled={busy}
-                      onClick={() => (c.children.length ? setUst(c.slug) : kategoriSec(c.slug))}
-                      style={{
-                        textAlign: 'left',
-                        border: sel ? '2px solid #5B8CFF' : '1px solid #E3E6EF',
-                        background: sel ? '#EEF3FF' : '#FFFFFF',
-                        borderRadius: 16,
-                        padding: sel ? 16 : 17,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 10,
-                        fontFamily: 'inherit',
-                      }}
-                    >
-                      {sel ? (
-                        <span
-                          aria-hidden="true"
-                          style={{ width: 34, height: 34, borderRadius: 10, background: c.color }}
-                        />
-                      ) : (
-                        <span
-                          aria-hidden="true"
-                          style={{
-                            width: 34,
-                            height: 34,
-                            borderRadius: 10,
-                            background: TINTS[ti],
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <span style={{ width: 12, height: 12, borderRadius: '50%', background: c.color }} />
-                        </span>
-                      )}
-                      <span style={{ fontSize: 15, fontWeight: sel ? 800 : 700, color: '#1E2333' }}>
-                        {c.name}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-              {(() => {
-                const u = kategoriler?.find((c) => c.slug === (ust ?? katUst));
-                if (!u?.children.length) return null;
-                return (
-                  <div style={{ marginTop: 22 }}>
-                    <span style={etiket}>{u.name} · alt kategori</span>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                      {u.children.map((x) => (
-                        <Cip
-                          key={x.slug}
-                          on={taslak?.category.slug === x.slug}
-                          onClick={() => kategoriSec(x.slug)}
-                        >
-                          {x.name}
-                        </Cip>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-            </>
-          ) : null}
-
-          {adim === 'ana_arac' && taslak?.asistan && !duzenle ? (
-            <Asistan
-              taslakId={taslak.id}
-              doldu={async () => {
-                kirli.current = false;
-                await yukle(taslak.id);
-                setAdim('ana_arac');
-                setAsistanSurum((n) => n + 1);
-              }}
-            />
-          ) : null}
-          {adim === 'ana_arac' && taslak ? (
-            <AnaArac
-              key={asistanSurum}
-              alanlar={adimAlanlari('ana_arac')}
-              veri={veri}
-              kategori={katalogKategorisi(taslak.category.slug, katUst, veri.alanlar.aracTuru)}
-              deger={deger}
-              yaz={yaz}
-              gorunur={gorunur}
-              hataOf={hataOf}
-            />
-          ) : null}
-
-          {adim === 'kriterler' && taslak ? (
-            <>
-              <div
-                role="tablist"
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: 6,
-                  borderBottom: '1px solid #E3E6EF',
-                  marginBottom: 22,
-                }}
-              >
-                {veri.alternatifler.map((_, i) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: alternatiflerin kimliği sırasıdır (Alternatif 1, 2 …)
-                  <span key={i} style={{ display: 'flex', alignItems: 'center' }}>
-                    <button
-                      type="button"
-                      role="tab"
-                      aria-selected={alt === i}
-                      onClick={() => setAlt(i)}
-                      style={{
-                        border: 0,
-                        borderRadius: '12px 12px 0 0',
-                        padding: '11px 18px',
-                        fontSize: 14.5,
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        marginBottom: -1,
-                        background: alt === i ? '#EEF3FF' : 'transparent',
-                        color: alt === i ? '#1E2333' : '#5A6073',
-                        borderBottom: `3px solid ${alt === i ? '#5B8CFF' : 'transparent'}`,
-                        fontFamily: 'inherit',
-                      }}
-                    >
-                      Alternatif {i + 1}
-                    </button>
-                    {i > 0 && alt === i ? (
-                      <button
-                        type="button"
-                        aria-label={`Alternatif ${i + 1} kaldır`}
-                        onClick={() => {
-                          degistir((d) => ({
-                            ...d,
-                            alternatifler: d.alternatifler.filter((_, n) => n !== i),
-                          }));
-                          setAlt(i - 1);
-                        }}
-                        style={{
-                          border: 0,
-                          background: 'transparent',
-                          color: '#5A6073',
-                          fontSize: 16,
-                          cursor: 'pointer',
-                          padding: '0 6px',
-                        }}
-                      >
-                        ×
-                      </button>
-                    ) : null}
-                  </span>
-                ))}
-                {veri.alternatifler.length < MAX_ALTERNATIVES ? (
+        <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E3E6EF' }}>
+          <ol
+            aria-label="Adımlar"
+            style={{
+              maxWidth: 1360,
+              margin: '0 auto',
+              padding: '14px 24px',
+              listStyle: 'none',
+              display: 'grid',
+              gridTemplateColumns: `repeat(${gorunen.length}, minmax(0, 1fr))`,
+              gap: 8,
+            }}
+          >
+            {gorunen.map((a, i) => {
+              const done = i < sira;
+              const cur = i === sira;
+              return (
+                <li key={a.key}>
                   <button
                     type="button"
-                    onClick={() => {
-                      // Yeni alternatif bir öncekinin kopyasıyla başlar; değişeni düzeltmek yeterli
-                      degistir((d) => ({
-                        ...d,
-                        alternatifler: [...d.alternatifler, { ...(d.alternatifler[alt] ?? {}) }],
-                      }));
-                      setAlt(veri.alternatifler.length);
-                    }}
+                    onClick={() => git(a.key)}
+                    aria-current={cur ? 'step' : undefined}
                     style={{
+                      width: '100%',
                       border: 0,
                       background: 'transparent',
-                      color: '#2450C8',
-                      fontWeight: 700,
-                      fontSize: 14.5,
-                      padding: '11px 12px',
+                      padding: '6px 0',
                       cursor: 'pointer',
+                      textAlign: 'left',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 8,
                       fontFamily: 'inherit',
                     }}
                   >
-                    + Alternatif ekle
+                    <span
+                      style={{
+                        display: 'block',
+                        height: 6,
+                        borderRadius: 3,
+                        background: done || cur ? '#5B8CFF' : '#E3E6EF',
+                      }}
+                    />
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span
+                        style={{
+                          width: 26,
+                          height: 26,
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 13,
+                          fontWeight: 800,
+                          background: done ? '#5B8CFF' : cur ? '#FFFFFF' : '#F3F5FA',
+                          color: done ? '#1E2333' : cur ? '#2450C8' : '#5A6073',
+                          border: `2px solid ${done || cur ? '#5B8CFF' : '#E3E6EF'}`,
+                          boxSizing: 'border-box',
+                          flex: 'none',
+                        }}
+                      >
+                        {done ? '✓' : i + 1}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 13.5,
+                          fontWeight: cur ? 800 : 600,
+                          color: cur || done ? '#1E2333' : '#5A6073',
+                        }}
+                      >
+                        {a.ad}
+                      </span>
+                    </span>
                   </button>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+
+        <main
+          style={{
+            maxWidth: 1360,
+            margin: '0 auto',
+            padding: '28px 24px 64px',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'flex-start',
+            gap: 24,
+          }}
+        >
+          <div style={{ ...kart, flex: '999 1 640px', minWidth: 0, padding: 28 }}>
+            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#2450C8' }}>
+              Adım {sira + 1} / {gorunen.length}
+            </p>
+            <h1 style={{ margin: '4px 0 6px', fontSize: 26, fontWeight: 800, letterSpacing: -0.3 }}>
+              {tanim.baslik}
+            </h1>
+            <p style={{ margin: '0 0 24px', fontSize: 14.5, color: '#5A6073' }}>
+              {adim === 'onizleme'
+                ? `Her şey doğruysa talebini yayınla; ${taslak?.schema?.rules.listingDays ?? 30} gün boyunca satıcılar seni bulsun.`
+                : tanim.alt}
+            </p>
+
+            {uyari ? (
+              <div
+                role="alert"
+                style={{
+                  marginBottom: 18,
+                  background: '#FDECEC',
+                  border: '1px solid #F5C2BE',
+                  borderRadius: 12,
+                  padding: '12px 14px',
+                  fontSize: 14,
+                  color: '#A3271F',
+                  fontWeight: 600,
+                }}
+              >
+                {uyari}
+                {hatalar.length > 1 ? (
+                  <ul style={{ margin: '6px 0 0', paddingLeft: 18, fontWeight: 500 }}>
+                    {hatalar.slice(0, 6).map((h) => (
+                      <li key={h.path}>{h.message}</li>
+                    ))}
+                  </ul>
                 ) : null}
               </div>
-              <Kriterler
-                alanlar={adimAlanlari('kriterler')}
+            ) : null}
+
+            {adim === 'kategori' ? (
+              <>
+                {galeriler.length && (!taslak || taslak.hesap) ? (
+                  <fieldset style={{ border: 0, padding: 0, margin: '0 0 18px' }}>
+                    <legend style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>Kimin adına?</legend>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {[{ accountId: null as string | null, ad: 'Kendi adıma' }, ...galeriler].map((g) => {
+                        const on = (taslak ? (taslak.hesap?.id ?? null) : hesap) === g.accountId;
+                        return (
+                          <button
+                            key={g.accountId ?? 'ben'}
+                            type="button"
+                            aria-pressed={on}
+                            disabled={!!taslak}
+                            onClick={() => setHesap(g.accountId)}
+                            style={{
+                              border: on ? '2px solid #5B8CFF' : '1px solid #D5DAE5',
+                              background: on ? '#EEF3FF' : '#FFFFFF',
+                              borderRadius: 999,
+                              padding: on ? '8px 14px' : '9px 15px',
+                              fontSize: 14,
+                              fontWeight: 700,
+                              color: '#1E2333',
+                              cursor: taslak ? 'default' : 'pointer',
+                              fontFamily: 'inherit',
+                            }}
+                          >
+                            {g.accountId ? `${g.ad} adına` : g.ad}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p style={{ margin: '8px 0 0', fontSize: 13, color: '#5A6073' }}>
+                      {taslak
+                        ? 'Taslak açıldıktan sonra hesap değişmez.'
+                        : 'Galeri adına talepte paketin talep hakkı kullanılır ve alıcı olarak galerinin adı görünür.'}
+                    </p>
+                  </fieldset>
+                ) : null}
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+                    gap: 12,
+                  }}
+                >
+                  {(kategoriler ?? []).map((c) => {
+                    const sel = taslak?.category.slug === c.slug || katUst === c.slug || ust === c.slug;
+                    const ti = Math.max(0, (DOTS as readonly string[]).indexOf(c.color));
+                    return (
+                      <button
+                        key={c.slug}
+                        type="button"
+                        aria-pressed={sel}
+                        disabled={busy}
+                        onClick={() => (c.children.length ? setUst(c.slug) : kategoriSec(c.slug))}
+                        style={{
+                          textAlign: 'left',
+                          border: sel ? '2px solid #5B8CFF' : '1px solid #E3E6EF',
+                          background: sel ? '#EEF3FF' : '#FFFFFF',
+                          borderRadius: 16,
+                          padding: sel ? 16 : 17,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 10,
+                          fontFamily: 'inherit',
+                        }}
+                      >
+                        {sel ? (
+                          <span
+                            aria-hidden="true"
+                            style={{ width: 34, height: 34, borderRadius: 10, background: c.color }}
+                          />
+                        ) : (
+                          <span
+                            aria-hidden="true"
+                            style={{
+                              width: 34,
+                              height: 34,
+                              borderRadius: 10,
+                              background: TINTS[ti],
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <span
+                              style={{ width: 12, height: 12, borderRadius: '50%', background: c.color }}
+                            />
+                          </span>
+                        )}
+                        <span style={{ fontSize: 15, fontWeight: sel ? 800 : 700, color: '#1E2333' }}>
+                          {c.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {(() => {
+                  const u = kategoriler?.find((c) => c.slug === (ust ?? katUst));
+                  if (!u?.children.length) return null;
+                  return (
+                    <div style={{ marginTop: 22 }}>
+                      <span style={etiket}>{u.name} · alt kategori</span>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                        {u.children.map((x) => (
+                          <Cip
+                            key={x.slug}
+                            on={taslak?.category.slug === x.slug}
+                            onClick={() => kategoriSec(x.slug)}
+                          >
+                            {x.name}
+                          </Cip>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </>
+            ) : null}
+
+            {adim === 'ana_arac' && taslak?.asistan && !duzenle ? (
+              <Asistan
+                taslakId={taslak.id}
+                doldu={async () => {
+                  kirli.current = false;
+                  await yukle(taslak.id);
+                  setAdim('ana_arac');
+                  setAsistanSurum((n) => n + 1);
+                }}
+              />
+            ) : null}
+            {adim === 'ana_arac' && taslak ? (
+              <AnaArac
+                key={asistanSurum}
+                alanlar={adimAlanlari('ana_arac')}
                 veri={veri}
-                alt={alt}
                 kategori={katalogKategorisi(taslak.category.slug, katUst, veri.alanlar.aracTuru)}
                 deger={deger}
                 yaz={yaz}
                 gorunur={gorunur}
                 hataOf={hataOf}
               />
-            </>
-          ) : null}
+            ) : null}
 
-          {adim === 'boya_hasar' && taslak ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              {adimAlanlari('boya_hasar')
-                .filter(gorunur)
-                .map((f) =>
-                  f.type === 'paint' ? (
-                    <BoyaSemasi key={f.key} value={deger(f) as BoyaDegeri | undefined} onChange={yaz(f)} />
-                  ) : f.key === 'islemKabul' ? (
-                    <HasarGecmisi
-                      key={f.key}
-                      f={f}
-                      value={deger(f) as string[] | undefined}
-                      onChange={yaz(f)}
-                    />
-                  ) : (
-                    <Alan key={f.key} f={f} value={deger(f)} onChange={yaz(f)} hata={hataOf(f)} />
-                  ),
-                )}
-            </div>
-          ) : null}
-
-          {adim === 'konum_iletisim' && taslak ? (
-            <>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 16 }}>
-                {alanlar
-                  .filter((f) => f.key === 'konum')
-                  .map((f) => (
-                    <Konum key={f.key} f={f} value={deger(f)} onChange={yaz(f)} hata={hataOf(f)} />
+            {adim === 'kriterler' && taslak ? (
+              <>
+                <div
+                  role="tablist"
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 6,
+                    borderBottom: '1px solid #E3E6EF',
+                    marginBottom: 22,
+                  }}
+                >
+                  {veri.alternatifler.map((_, i) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: alternatiflerin kimliği sırasıdır (Alternatif 1, 2 …)
+                    <span key={i} style={{ display: 'flex', alignItems: 'center' }}>
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={alt === i}
+                        onClick={() => setAlt(i)}
+                        style={{
+                          border: 0,
+                          borderRadius: '12px 12px 0 0',
+                          padding: '11px 18px',
+                          fontSize: 14.5,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          marginBottom: -1,
+                          background: alt === i ? '#EEF3FF' : 'transparent',
+                          color: alt === i ? '#1E2333' : '#5A6073',
+                          borderBottom: `3px solid ${alt === i ? '#5B8CFF' : 'transparent'}`,
+                          fontFamily: 'inherit',
+                        }}
+                      >
+                        Alternatif {i + 1}
+                      </button>
+                      {i > 0 && alt === i ? (
+                        <button
+                          type="button"
+                          aria-label={`Alternatif ${i + 1} kaldır`}
+                          onClick={() => {
+                            degistir((d) => ({
+                              ...d,
+                              alternatifler: d.alternatifler.filter((_, n) => n !== i),
+                            }));
+                            setAlt(i - 1);
+                          }}
+                          style={{
+                            border: 0,
+                            background: 'transparent',
+                            color: '#5A6073',
+                            fontSize: 16,
+                            cursor: 'pointer',
+                            padding: '0 6px',
+                          }}
+                        >
+                          ×
+                        </button>
+                      ) : null}
+                    </span>
                   ))}
-                <div style={{ gridColumn: 'span 2' }}>
-                  <label htmlFor="baslik" style={{ ...etiket, marginBottom: 6 }}>
-                    Talep başlığı
-                  </label>
-                  <input
-                    id="baslik"
-                    maxLength={120}
-                    value={baslik}
-                    placeholder={taslak.category.name}
-                    onChange={(e) => {
-                      kirli.current = true;
-                      setBaslik(e.target.value);
-                    }}
-                    style={kutu}
-                  />
-                </div>
-                {alanlar
-                  .filter((f) => f.step === 'konum_iletisim' && f.key !== 'konum' && gorunur(f))
-                  .map((f) => (
-                    <div key={f.key} style={{ gridColumn: f.type === 'text' ? 'span 2' : undefined }}>
-                      <Alan f={f} value={deger(f)} onChange={yaz(f)} hata={hataOf(f)} />
-                    </div>
-                  ))}
-              </div>
-              <h2 style={{ margin: '26px 0 12px', fontSize: 18, fontWeight: 700 }}>
-                Satıcılar sana nasıl ulaşsın?
-              </h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <Satir
-                  baslik="Uygulama içi mesaj"
-                  alt="Her talepte açık; satıcılar tek ilk mesaj atabilir."
-                  sag={
-                    <span
+                  {veri.alternatifler.length < MAX_ALTERNATIVES ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Yeni alternatif bir öncekinin kopyasıyla başlar; değişeni düzeltmek yeterli
+                        degistir((d) => ({
+                          ...d,
+                          alternatifler: [...d.alternatifler, { ...(d.alternatifler[alt] ?? {}) }],
+                        }));
+                        setAlt(veri.alternatifler.length);
+                      }}
                       style={{
-                        fontSize: 13,
+                        border: 0,
+                        background: 'transparent',
+                        color: '#2450C8',
                         fontWeight: 700,
-                        color: '#11683F',
-                        background: '#E7FAF0',
-                        padding: '5px 10px',
-                        borderRadius: 999,
+                        fontSize: 14.5,
+                        padding: '11px 12px',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
                       }}
                     >
-                      Her zaman açık
-                    </span>
-                  }
+                      + Alternatif ekle
+                    </button>
+                  ) : null}
+                </div>
+                <Kriterler
+                  alanlar={adimAlanlari('kriterler')}
+                  veri={veri}
+                  alt={alt}
+                  kategori={katalogKategorisi(taslak.category.slug, katUst, veri.alanlar.aracTuru)}
+                  deger={deger}
+                  yaz={yaz}
+                  gorunur={gorunur}
+                  hataOf={hataOf}
                 />
-                <Satir
-                  baslik="Telefon numaramı göster"
-                  alt={`${haklar?.telefonMaske ?? 'Numaran'} · Numaran talep sayfasında giriş yapmış kullanıcılara görünür ve satıcılar mesaj limiti olmadan arayabilir.`}
-                  sag={
-                    <Anahtar
-                      on={iletisim.phoneVisible}
-                      label="Telefon numaramı göster"
-                      onClick={() => {
-                        kirli.current = true;
-                        setIletisim((c) => ({
-                          ...c,
-                          phoneVisible: !c.phoneVisible,
-                          whatsappVisible: c.phoneVisible ? false : c.whatsappVisible,
-                        }));
-                      }}
-                    />
-                  }
-                />
-                <Satir
-                  baslik="WhatsApp'tan yazılabilsin"
-                  alt="Yalnızca telefon numarası açıkken kullanılabilir."
-                  sag={
-                    <Anahtar
-                      on={iletisim.whatsappVisible}
-                      renk="#3DD68C"
-                      label="WhatsApp'tan yazılabilsin"
-                      disabled={!iletisim.phoneVisible}
-                      onClick={() => {
-                        kirli.current = true;
-                        setIletisim((c) => ({ ...c, whatsappVisible: c.phoneVisible && !c.whatsappVisible }));
-                      }}
-                    />
-                  }
-                />
-                <Satir
-                  baslik="Adım talep sayfasında kısaltılsın"
-                  alt="Açıksa soyadının yalnızca baş harfi görünür (ör. Ayşe Y.)."
-                  sag={
-                    <Anahtar
-                      on={iletisim.nameMode === 'kisa'}
-                      label="Adım kısaltılsın"
-                      onClick={() => {
-                        kirli.current = true;
-                        setIletisim((c) => ({ ...c, nameMode: c.nameMode === 'kisa' ? 'tam' : 'kisa' }));
-                      }}
-                    />
-                  }
-                />
+              </>
+            ) : null}
+
+            {adim === 'boya_hasar' && taslak ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+                {adimAlanlari('boya_hasar')
+                  .filter(gorunur)
+                  .map((f) =>
+                    f.type === 'paint' ? (
+                      <BoyaSemasi key={f.key} value={deger(f) as BoyaDegeri | undefined} onChange={yaz(f)} />
+                    ) : f.key === 'islemKabul' ? (
+                      <HasarGecmisi
+                        key={f.key}
+                        f={f}
+                        value={deger(f) as string[] | undefined}
+                        onChange={yaz(f)}
+                      />
+                    ) : (
+                      <Alan key={f.key} f={f} value={deger(f)} onChange={yaz(f)} hata={hataOf(f)} />
+                    ),
+                  )}
               </div>
-            </>
-          ) : null}
+            ) : null}
 
-          {adim === 'onizleme' && taslak ? (
-            <Onizleme
-              taslak={taslak}
-              veri={veri}
-              baslik={baslik}
-              iletisim={iletisim}
-              haklar={duzenle ? null : haklar}
-              duzenle={duzenle}
-              oneCikar={oneCikar}
-              setOneCikar={setOneCikar}
-            />
-          ) : null}
+            {adim === 'konum_iletisim' && taslak ? (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 16 }}>
+                  {alanlar
+                    .filter((f) => f.key === 'konum')
+                    .map((f) => (
+                      <Konum key={f.key} f={f} value={deger(f)} onChange={yaz(f)} hata={hataOf(f)} />
+                    ))}
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <label htmlFor="baslik" style={{ ...etiket, marginBottom: 6 }}>
+                      Talep başlığı
+                    </label>
+                    <input
+                      id="baslik"
+                      maxLength={120}
+                      value={baslik}
+                      placeholder={taslak.category.name}
+                      onChange={(e) => {
+                        kirli.current = true;
+                        setBaslik(e.target.value);
+                      }}
+                      style={kutu}
+                    />
+                  </div>
+                  {alanlar
+                    .filter((f) => f.step === 'konum_iletisim' && f.key !== 'konum' && gorunur(f))
+                    .map((f) => (
+                      <div key={f.key} style={{ gridColumn: f.type === 'text' ? 'span 2' : undefined }}>
+                        <Alan f={f} value={deger(f)} onChange={yaz(f)} hata={hataOf(f)} />
+                      </div>
+                    ))}
+                </div>
+                <h2 style={{ margin: '26px 0 12px', fontSize: 18, fontWeight: 700 }}>
+                  Satıcılar sana nasıl ulaşsın?
+                </h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <Satir
+                    baslik="Uygulama içi mesaj"
+                    alt="Her talepte açık; satıcılar tek ilk mesaj atabilir."
+                    sag={
+                      <span
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 700,
+                          color: '#11683F',
+                          background: '#E7FAF0',
+                          padding: '5px 10px',
+                          borderRadius: 999,
+                        }}
+                      >
+                        Her zaman açık
+                      </span>
+                    }
+                  />
+                  <Satir
+                    baslik="Telefon numaramı göster"
+                    alt={`${haklar?.telefonMaske ?? 'Numaran'} · Numaran talep sayfasında giriş yapmış kullanıcılara görünür ve satıcılar mesaj limiti olmadan arayabilir.`}
+                    sag={
+                      <Anahtar
+                        on={iletisim.phoneVisible}
+                        label="Telefon numaramı göster"
+                        onClick={() => {
+                          kirli.current = true;
+                          setIletisim((c) => ({
+                            ...c,
+                            phoneVisible: !c.phoneVisible,
+                            whatsappVisible: c.phoneVisible ? false : c.whatsappVisible,
+                          }));
+                        }}
+                      />
+                    }
+                  />
+                  <Satir
+                    baslik="WhatsApp'tan yazılabilsin"
+                    alt="Yalnızca telefon numarası açıkken kullanılabilir."
+                    sag={
+                      <Anahtar
+                        on={iletisim.whatsappVisible}
+                        renk="#3DD68C"
+                        label="WhatsApp'tan yazılabilsin"
+                        disabled={!iletisim.phoneVisible}
+                        onClick={() => {
+                          kirli.current = true;
+                          setIletisim((c) => ({
+                            ...c,
+                            whatsappVisible: c.phoneVisible && !c.whatsappVisible,
+                          }));
+                        }}
+                      />
+                    }
+                  />
+                  <Satir
+                    baslik="Adım talep sayfasında kısaltılsın"
+                    alt="Açıksa soyadının yalnızca baş harfi görünür (ör. Ayşe Y.)."
+                    sag={
+                      <Anahtar
+                        on={iletisim.nameMode === 'kisa'}
+                        label="Adım kısaltılsın"
+                        onClick={() => {
+                          kirli.current = true;
+                          setIletisim((c) => ({ ...c, nameMode: c.nameMode === 'kisa' ? 'tam' : 'kisa' }));
+                        }}
+                      />
+                    }
+                  />
+                </div>
+              </>
+            ) : null}
 
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 12,
-              marginTop: 30,
-              paddingTop: 20,
-              borderTop: '1px solid #EEF0F5',
-            }}
-          >
-            {sira > 0 ? (
-              <button
-                type="button"
-                onClick={() => git(gorunen[sira - 1]?.key ?? 'kategori')}
-                style={{
-                  border: '1px solid #D5DAE5',
-                  background: '#FFFFFF',
-                  borderRadius: 14,
-                  padding: '13px 22px',
-                  fontSize: 15,
-                  fontWeight: 700,
-                  color: '#1E2333',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
-              >
-                Geri
-              </button>
-            ) : (
-              <span />
-            )}
-            {adim === 'onizleme' ? (
-              <button
-                type="button"
-                disabled={busy || (!duzenle && (!haklar || haklar.talep < 1))}
-                onClick={yayinla}
-                style={{
-                  border: 0,
-                  background: '#5B8CFF',
-                  borderRadius: 14,
-                  padding: '14px 28px',
-                  fontSize: 15.5,
-                  fontWeight: 800,
-                  color: '#1E2333',
-                  cursor: 'pointer',
-                  opacity: busy || (!duzenle && (!haklar || haklar.talep < 1)) ? 0.55 : 1,
-                  fontFamily: 'inherit',
-                }}
-              >
-                {busy
-                  ? duzenle
-                    ? 'Kaydediliyor…'
-                    : 'Yayınlanıyor…'
-                  : duzenle
-                    ? 'Değişiklikleri kaydet'
-                    : haklar?.ucretsizTalep
-                      ? 'Ücretsiz yayınla'
-                      : 'Yayınla'}
-              </button>
-            ) : (
-              <button
-                type="button"
-                disabled={!taslak || busy}
-                onClick={() => git(gorunen[sira + 1]?.key ?? 'onizleme')}
-                style={{
-                  border: 0,
-                  background: '#5B8CFF',
-                  borderRadius: 14,
-                  padding: '14px 28px',
-                  fontSize: 15.5,
-                  fontWeight: 800,
-                  color: '#1E2333',
-                  cursor: taslak ? 'pointer' : 'default',
-                  opacity: taslak ? 1 : 0.55,
-                  fontFamily: 'inherit',
-                }}
-              >
-                Devam et
-              </button>
-            )}
+            {adim === 'onizleme' && taslak ? (
+              <Onizleme
+                taslak={taslak}
+                veri={veri}
+                baslik={baslik}
+                iletisim={iletisim}
+                haklar={duzenle ? null : haklar}
+                duzenle={duzenle}
+                oneCikar={oneCikar}
+                setOneCikar={setOneCikar}
+              />
+            ) : null}
+
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 12,
+                marginTop: 30,
+                paddingTop: 20,
+                borderTop: '1px solid #EEF0F5',
+              }}
+            >
+              {sira > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => git(gorunen[sira - 1]?.key ?? 'kategori')}
+                  style={{
+                    border: '1px solid #D5DAE5',
+                    background: '#FFFFFF',
+                    borderRadius: 14,
+                    padding: '13px 22px',
+                    fontSize: 15,
+                    fontWeight: 700,
+                    color: '#1E2333',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  Geri
+                </button>
+              ) : (
+                <span />
+              )}
+              {adim === 'onizleme' ? (
+                <button
+                  type="button"
+                  disabled={busy || (!duzenle && (!haklar || haklar.talep < 1))}
+                  onClick={yayinla}
+                  style={{
+                    border: 0,
+                    background: '#5B8CFF',
+                    borderRadius: 14,
+                    padding: '14px 28px',
+                    fontSize: 15.5,
+                    fontWeight: 800,
+                    color: '#1E2333',
+                    cursor: 'pointer',
+                    opacity: busy || (!duzenle && (!haklar || haklar.talep < 1)) ? 0.55 : 1,
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  {busy
+                    ? duzenle
+                      ? 'Kaydediliyor…'
+                      : 'Yayınlanıyor…'
+                    : duzenle
+                      ? 'Değişiklikleri kaydet'
+                      : haklar?.ucretsizTalep
+                        ? 'Ücretsiz yayınla'
+                        : 'Yayınla'}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={!taslak || busy}
+                  onClick={() => git(gorunen[sira + 1]?.key ?? 'onizleme')}
+                  style={{
+                    border: 0,
+                    background: '#5B8CFF',
+                    borderRadius: 14,
+                    padding: '14px 28px',
+                    fontSize: 15.5,
+                    fontWeight: 800,
+                    color: '#1E2333',
+                    cursor: taslak ? 'pointer' : 'default',
+                    opacity: taslak ? 1 : 0.55,
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  Devam et
+                </button>
+              )}
+            </div>
           </div>
-        </div>
 
-        <Ozet taslak={taslak} veri={veri} iletisim={iletisim} katUst={katUst} kategoriler={kategoriler} />
-      </main>
-    </div>
+          <Ozet taslak={taslak} veri={veri} iletisim={iletisim} katUst={katUst} kategoriler={kategoriler} />
+        </main>
+      </div>
+    </ButceKoluSaglayici>
   );
 }
 

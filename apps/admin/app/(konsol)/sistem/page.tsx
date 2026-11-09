@@ -1,11 +1,13 @@
 'use client';
 
 import {
+  type FeatureFlagKey,
   FLAG_AUDIENCE_NAMES,
   FLAG_AUDIENCES,
   FLAG_PLATFORMS,
   type FlagAudience,
   type FlagPlatform,
+  UI_EXPERIMENTS,
 } from '@rengarenk/shared';
 import { type FormEvent, useCallback, useEffect, useState } from 'react';
 import { tarih, yonetim } from '../../../lib/istemci';
@@ -141,6 +143,13 @@ export default function Sistem() {
                   <span style={{ display: 'block', fontSize: 12.5, color: '#3A4052', marginTop: 2 }}>
                     {f.not}
                   </span>
+                  {UI_EXPERIMENTS[f.key as FeatureFlagKey] ? (
+                    <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 2 }}>
+                      {f.enabled && f.audience === 'ALL' && f.percent > 0 && f.percent < 100
+                        ? 'Deney sürüyor · sonuç Raporlar › Deneyler’de'
+                        : 'Yüzde 1–99 arası deney başlatır (kitle Herkes); sonuç Raporlar › Deneyler’de'}
+                    </span>
+                  ) : null}
                 </span>
                 <button
                   type="button"

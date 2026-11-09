@@ -71,6 +71,33 @@ export interface ClientFlags {
   duyuru: string | null;
 }
 
+/**
+ * Arayüz deneyleri (Karar 44; YonetimSistem › özellik anahtarları "B kolu", YonetimRapor › deney). Anahtar açık ve
+ * yüzdesi 1–99 arasındayken deney sürer: dilimi yüzdenin altında kalan kullanıcı B kolunu (anahtar açık), diğerleri A
+ * kolunu görür. Deney yalnızca kitle "Herkes" iken ve tanımdaki platformda ölçülür. Yüzde 100'e çekilince B herkese
+ * açılmış, anahtar kapanınca A'da kalınmış olur; ikisinde de deney biter.
+ */
+export interface UiExperiment {
+  soru: string;
+  a: string;
+  b: string;
+  /** Ölçü: görenlerden geçenlerin oranı */
+  olcu: string;
+  platform: FlagPlatform;
+}
+export const UI_EXPERIMENTS: Partial<Record<FeatureFlagKey, UiExperiment>> = {
+  butce_b: {
+    soru: 'Sihirbaz bütçe adımı: kaydırıcı mı, iki kutu mu?',
+    a: 'kaydırıcı',
+    b: 'en az / en çok iki kutu',
+    olcu: 'bütçe adımını geçen kullanıcı oranı',
+    platform: 'WEB',
+  },
+};
+
+/** İstemcinin deney olayı: adımı gördü ya da geçti (kol sunucuda hesaplanır) */
+export const uiExperimentEventSchema = z.object({ tur: z.enum(['gorus', 'gecis']) }).strict();
+
 /** Bir kullanıcının yüzde dilimindeki yeri (0–99); aynı kullanıcı aynı anahtarda hep aynı sonucu alır. */
 export function rolloutBucket(key: string, userId: string): number {
   // FNV-1a: tarayıcı, mobil ve sunucuda aynı sonucu veren küçük bir özet.

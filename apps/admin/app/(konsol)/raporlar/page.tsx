@@ -15,7 +15,8 @@ import { useKonsol } from '../kabuk';
 
 interface Deney {
   id: string;
-  tur: 'banner' | 'kampanya' | 'fiyat';
+  tur: 'banner' | 'kampanya' | 'fiyat' | 'arayuz';
+  anahtar?: string;
   ad: string;
   durum: string;
   bg: string;
@@ -117,6 +118,17 @@ export default function Raporlar() {
         await yonetim(`pricing/experiments/${d.id}/propose`, { method: 'POST', body: {} });
         setBilgi(
           'Kazanan fiyat, fiyat değişikliği olarak sahibin onayına gönderildi (Kurallar ve fiyatlar).',
+        );
+        setTazele((x) => x + 1);
+        return;
+      }
+      if (d.tur === 'arayuz') {
+        // Arayüz deneyi: B herkese açılır (anahtar %100) ya da A'da kalınır (anahtar kapanır)
+        await yonetim(`flags/${d.anahtar}/deney/${d.eylem.kol}`, { method: 'POST', body: {} });
+        setBilgi(
+          d.eylem.kol === 'B'
+            ? 'B herkese açıldı; özellik anahtarı %100.'
+            : 'Deney bitti; anahtar kapandı, herkes A’yı görüyor.',
         );
         setTazele((x) => x + 1);
         return;
@@ -464,7 +476,9 @@ export default function Raporlar() {
                 {d.eylem &&
                 (d.tur === 'fiyat'
                   ? ['tam', 'oneri'].includes(me.permissions['fiyat.degistir'] ?? '')
-                  : me.permissions['gorunum.duzenle'] === 'tam') ? (
+                  : d.tur === 'arayuz'
+                    ? me.permissions['sistem.ayarla'] === 'tam'
+                    : me.permissions['gorunum.duzenle'] === 'tam') ? (
                   <button
                     type="button"
                     onClick={() => kazanan(d)}

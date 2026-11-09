@@ -1,7 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@rengarenk/db';
-import { type AbResult, abTest, armOf, guvenYaz, tlYaz, type Variant } from '@rengarenk/shared';
+import {
+  type AbResult,
+  abTest,
+  armOf,
+  type FeatureFlagKey,
+  guvenYaz,
+  tlYaz,
+  UI_EXPERIMENTS,
+  type Variant,
+} from '@rengarenk/shared';
 import { type Db, PRISMA } from '../database/prisma.js';
+import { uiDeneySonuc } from '../flags/ui-experiments.js';
 import { priceExpResult, priceExpStatus } from '../pricing/price-experiments.service.js';
 
 const DAY = 86_400_000;
@@ -12,7 +22,9 @@ const puan = (x: number) => new Intl.NumberFormat('tr-TR', { maximumFractionDigi
 
 export interface Deney {
   id: string;
-  tur: 'banner' | 'kampanya' | 'fiyat';
+  tur: 'banner' | 'kampanya' | 'fiyat' | 'arayuz';
+  /** Arayüz deneyinde özellik anahtarı */
+  anahtar?: string;
   ad: string;
   durum: string;
   bg: string;
@@ -68,7 +80,14 @@ export class ExperimentService {
   }
 
   private kart(
-    base: { id: string; tur: 'banner' | 'kampanya'; ad: string; a: string; b: string; olcu: string },
+    base: {
+      id: string;
+      tur: 'banner' | 'kampanya' | 'arayuz';
+      ad: string;
+      a: string;
+      b: string;
+      olcu: string;
+    },
     r: AbResult,
     durum: { suruyor: boolean; kalanGun: number | null; bitti: boolean; kazanan: string | null },
   ): Deney {
@@ -114,7 +133,7 @@ export class ExperimentService {
             : `${onde ?? 'B'} önde · fark henüz anlamlı değil · güven ${guvenYaz(r.guven)}`,
       kazanan: r.kazanan,
       eylem:
-        base.tur === 'banner' && sonucHazir && r.kazanan
+        (base.tur === 'banner' || base.tur === 'arayuz') && sonucHazir && r.kazanan
           ? { kol: r.kazanan, yazi: r.kazanan === 'B' ? 'B’yi herkese aç' : 'A’da kal, testi bitir' }
           : null,
       bitti: durum.bitti,
@@ -187,7 +206,44 @@ export class ExperimentService {
         ),
       );
     }
+    out.push(...(await this.arayuzKartlari(now)));
     out.push(...(await this.fiyatKartlari(now)));
+    return out;
+  }
+
+  /**
+   * Arayüz deneyleri (Karar 44): özellik anahtarının yüzde 1–99 dönemi. Ölçü adımı görenlerden geçenlerin oranı.
+   * Kazanan B ise "B'yi herkese aç" anahtarı yüzde 100'e, A ise "A'da kal" anahtarı kapatır.
+   */
+  private async arayuzKartlari(now: Date): Promise<Deney[]> {
+    const runs = await this.db.uiExperimentRun.findMany({ orderBy: { startedAt: 'desc' }, take: 20 });
+    const out: Deney[] = [];
+    for (const run of runs) {
+      const t = UI_EXPERIMENTS[run.flagKey as FeatureFlagKey];
+      if (!t) continue;
+      const bitis = run.endedAt ?? now;
+      const gun = Math.max(1, Math.ceil((bitis.getTime() - run.startedAt.getTime()) / DAY));
+      const k = this.kart(
+        {
+          id: run.id,
+          tur: 'arayuz',
+          ad: t.soru,
+          a: run.flagKey === 'butce_b' ? `${t.a} (şu anki)` : t.a,
+          b: t.b,
+          olcu: `Ölçü: ${t.olcu} · ${gun} gün`,
+        },
+        await uiDeneySonuc(this.db, run.id),
+        { suruyor: !run.endedAt, kalanGun: null, bitti: Boolean(run.endedAt), kazanan: run.winner },
+      );
+      if (run.endedAt)
+        k.sonuc =
+          run.winner === 'B'
+            ? `${k.sonuc} · B herkese açıldı`
+            : run.winner === 'A'
+              ? `${k.sonuc} · A’da kalındı`
+              : k.sonuc;
+      out.push({ ...k, anahtar: run.flagKey });
+    }
     return out;
   }
 

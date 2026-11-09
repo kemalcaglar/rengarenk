@@ -3,6 +3,7 @@
 import { type CategoryField, ILLER } from '@rengarenk/shared';
 import type { CSSProperties, ReactNode } from 'react';
 import { binlik, sayiOku } from '../../lib/istemci';
+import { ButceKaydirici, useButceKolu } from './deney';
 
 /** Sihirbazdaki ortak ölçüler (Sihirbaz.dc.html) */
 export const etiket: CSSProperties = { display: 'block', fontSize: 13.5, fontWeight: 700, marginBottom: 8 };
@@ -160,6 +161,7 @@ export function Alan({
 }) {
   const id = `alan-${f.key}`;
   const ad = `${f.label}${f.unit && f.type !== 'number' ? ` (${f.unit})` : ''}`;
+  const butceKolu = useButceKolu();
   const alt = hata ? (
     <span
       role="alert"
@@ -241,6 +243,18 @@ export function Alan({
         </div>
         {alt}
       </div>
+    );
+  }
+  // Bütçe adımı deneyinin A kolu: kaydırıcı (B kolu ve varsayılan: tasarımdaki iki kutu)
+  if (f.type === 'range' && f.key === 'butce' && butceKolu === 'A') {
+    return (
+      <ButceKaydirici
+        id={id}
+        ad={ad}
+        deger={(value as Aralik | undefined) ?? {}}
+        onChange={onChange}
+        alt={alt}
+      />
     );
   }
   if (f.type === 'range') {

@@ -533,7 +533,7 @@ export class StaffAlertService {
         dedupe: d.id,
         title: `A/B sonucu: ${d.ad.slice(0, 120)}`,
         body: `${d.sonuc}. ${
-          d.tur === 'banner'
+          d.tur === 'banner' || d.tur === 'arayuz'
             ? 'Raporlar › Deneyler’den kazananı herkese açabilirsin.'
             : d.tur === 'fiyat'
               ? 'Deney bitince kazanan fiyatı Raporlar › Deneyler’den fiyat listesine önerebilirsin; değişikliği sen onaylarsın.'

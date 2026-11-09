@@ -222,6 +222,10 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   `apps/api/src/dashboard/experiments.service.ts` (Raporlar › Deneyler, çalışan uyarısı `deney`); kampanya ve bannerda
   `variant_b`, `banner_stats.arm`; `POST /staff/banners/:id/ab/:kol`. Ziyaretçi kolu web `localStorage.rr_z`, mobil ayrı
   rastgele kimlik (`ziyaretciKimligi`).
+- Arayüz deneyleri (Karar 44): `UI_EXPERIMENTS` (`packages/shared/src/flags.ts`), `apps/api/src/flags/ui-experiments.ts`
+  (`uiDeneySenkron` anahtar değişikliğiyle aynı işlemde, `uiDeneyOlayi`, `uiDeneySonuc`); uçlar `POST /flags/deney/:anahtar`,
+  `POST /staff/flags/:anahtar/deney/:kol`. Tablolar `ui_experiment_runs`, `ui_experiment_events`. Web
+  `components/sihirbaz/deney.tsx` (bütçe adımı kolu, kaydırıcı, olaylar).
 - Fiyat deneyleri (Karar 56): `packages/shared/src/price-experiments.ts`, `meanTest` (`experiments.ts`),
   `apps/api/src/pricing/price-experiments.service.ts` (`PriceExperimentsModule`; onay yürütücüsü
   `PRICE_CHANGE:price_experiment`); kullanıcıya göre fiyat `PricingService.bookFor(userId, kaydet)`; uçlar
