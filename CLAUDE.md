@@ -263,9 +263,12 @@ pnpm format        # Biome ile biçimlendir
   (her dosya şemayı sıfırlayıp bütün göçleri uygular). Kampanyalar ve segmentler (`apps/api/src/campaigns/`, konsol
   `/segmentler`, `/kampanyalar`): gönderim bildirim katmanından (`notify({ kanallar, campaignId })`), 1.000 kişi üstü
   BULK_SEND onayı. Açılış sayfaları (`apps/api/src/landing/`, konsol `/acilis-sayfalari`; web kök adreste yakalama
-  rotasından; yeni bir site rotası eklersen `LANDING_RESERVED`'a da ekle). API'de 184 test.
+  rotasından; yeni bir site rotası eklersen `LANDING_RESERVED`'a da ekle). Zamanlanmış raporlar
+  (`scheduled-report.service.ts`, konsol `/zamanlanmis-raporlar`): haftalık ve aylık rapor e-postası PDF ekiyle
+  (`report-pdf.ts`, pdfkit + `apps/api/assets/fonts/`), yeni rapor, galerilere aranan modeller (açmak BULK_SEND onayı).
+  Aynı onay türünü iki modül kullanırsa `executor.register(tür, işlev, konu)`. API'de 186, ortak pakette 96 test.
 - **Sıradaki:** Aşama 9 devamı
-  (haftalık/aylık rapor e-postası, akış düzenleyicisi, reklam ölçümü, kupon ve A/B, ana sayfa düzeni, banner); ya da sunucular gelince Radore'ye ilk
+  (akış düzenleyicisi, ana sayfa düzeni ve banner, kupon ve A/B, reklam ölçümü); ya da sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

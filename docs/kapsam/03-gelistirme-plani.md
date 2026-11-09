@@ -157,7 +157,18 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   "Excel'e aktar" (CSV; sahip, yönetici, finans; kişisel veri yok; işlem kaydı)
 - [ ] Reklam ve edinim (Meta, Google harcama çekimi), deneyler (A/B ve fiyat deneyleri), ziyaretçi sayısı (web analitiği),
   model aramaları (arama günlüğü): bağlantılar ve altyapıyla. Sekmeler şimdilik açıklama gösteriyor
-- [ ] Haftalık ve aylık rapor e-postası, galerilere "aranan modeller" raporu
+- [x] Zamanlanmış raporlar (YonetimRapor.dc.html › zaman; Karar 44): haftalık rapor (her pazartesi 09.30; sahip,
+  yönetici, pazarlama; ana ölçü ve altı ölçü, huni, aylık hedefler, reklam ve deneyler) ve aylık rapor (her ayın 1'i
+  10.00; sahip, finans; geçen ayın geliri, birim ekonomisi, kohort) şirket e-postasına PDF ekiyle (Plus Jakarta Sans
+  gömülü; aylıkta dışa aktarma yetkisi olana Excel de); "Yeni zamanlanmış rapor" (rapor sekmesi ya da kayıtlı pano,
+  sıklık, saat, alıcılar yalnızca raporları gören çalışanlar); rapor ve zaman başına tek gönderim; son ve sıradaki
+  gönderim; hazır raporları sahip ve yönetici, yenisini ekleyen açıp kapatır; kayıtlı panolar listesi (Raporlar'da
+  `?pano=` ile açılır). Rapor kişisel veri içermez
+- [x] Galerilere "aranan modeller" raporu: her ayın 3'ü 10.00, ücretli galerilerin sahip ve yöneticilerine
+  `galeri.aranan_modeller` şablonuyla (galeri konusu; ayarlardan kapatılabilir): galerinin ilinde son 30 günde en çok
+  talep edilen 5 model (ilde 5 talepten azsa Türkiye geneli), portföydeki araç sayısı ve ajanın kural tabanlı önerisi.
+  Varsayılan kapalı; açmak toplu gönderim onayı (BULK_SEND) ister
+- [ ] Galeri ana sayfasında "Bölgende aranan modeller" bölümü: ana sayfa düzeniyle
 - [x] Segmentler (YonetimKampanya.dc.html › segment; Karar 51): rol, aktif talep, son giriş, il, talep kategorisi, ödeme,
   platform, açık sohbet, galeri paketi; "ve" ile birleşir; her kuraldan sonra kişi sayısı; kanal ulaşımı (ticari onay,
   kampanya bildirimi izni, push cihazı, doğrulanmış e-posta) ve haftalık sınıra takılanlar; kayıtlı segmentler
@@ -279,8 +290,8 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   kanal ve alıcılar
 - [x] Kritik uyarı SMS olarak gönderilmez (sahip kararı, 9 Kasım 2026): konsol ve şirket e-postası yeterli; e-posta
   telefonda bildirim olarak düşer
-- [ ] Haftalık ve aylık raporlar, galerilere "aranan modeller" raporu, yeni zamanlanmış rapor ve kayıtlı panolar:
-  Raporlar ekranıyla (Aşama 9). "Hedef geride kalırsa" uyarısı hedeflerle gelir ("ana ölçü düşerse" Sprint 25'te)
+- [x] Haftalık ve aylık raporlar, galerilere "aranan modeller" raporu, yeni zamanlanmış rapor ve kayıtlı panolar
+  (Sprint 28). "Hedef geride kalırsa" uyarısı hedeflerle geldi ("ana ölçü düşerse" Sprint 25'te)
 
 ## Sprint 23 · Rengarenk Ajanı ve yapay zekâ bütçesi (Aşama 8 altıncı bölüm, 9 Kasım 2026)
 

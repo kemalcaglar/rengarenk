@@ -30,7 +30,7 @@ const KALEM_AD: Record<string, string> = { urun: 'Bireysel ürünler', abonelik:
 /** Türkiye saatiyle günün başı (Türkiye UTC+3, yaz saati yok) */
 export const trGunBasi = (d: Date) =>
   new Date(`${new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Istanbul' }).format(d)}T00:00:00+03:00`);
-const trAy = (d: Date) =>
+export const trAy = (d: Date) =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Istanbul', year: 'numeric', month: '2-digit' }).format(
     d,
   );
@@ -179,7 +179,8 @@ export class DashboardService {
     return { toplam, oran: toplam ? Number(r?.alan ?? 0) / toplam : null };
   }
 
-  async overview(staff: { id: string }, donem: DashPeriod, now = new Date()) {
+  /** Altı ölçü ve önceki eşit dönemle fark (panel ve haftalık rapor) */
+  async olcumler(donem: DashPeriod, now = new Date()) {
     const [simdi, once] = this.araliklar(donem, now);
     const per = DASH_PERIODS.find((p) => p.key === donem) ?? DASH_PERIODS[2];
     const olcumler = [];
@@ -194,8 +195,24 @@ export class DashboardService {
         yazi: m.birim === '₺' ? tlYaz(Math.round(deger * 100)) : new Intl.NumberFormat('tr-TR').format(deger),
         fark: changeText(deger, onceki),
         karsi: per.karsi,
+        onceki,
       });
     }
+    return olcumler;
+  }
+
+  /** Ana ölçü: son 30 gün (48 saat kaydırılmış) ve önceki 30 gün */
+  async anaOzet(now = new Date()) {
+    const kayik = now.getTime() - MAIN_METRIC_HOURS * HOUR;
+    const [ana, anaOnce] = await Promise.all([
+      this.anaOlcu(new Date(kayik - 30 * DAY), new Date(kayik)),
+      this.anaOlcu(new Date(kayik - 60 * DAY), new Date(kayik - 30 * DAY)),
+    ]);
+    return { ...ana, once: anaOnce.oran };
+  }
+
+  async overview(staff: { id: string }, donem: DashPeriod, now = new Date()) {
+    const olcumler = await this.olcumler(donem, now);
     // Ana ölçü: son 30 gün (48 saat kaydırılmış) ve önceki 30 gün; 12 haftalık eğilim
     const kayik = now.getTime() - MAIN_METRIC_HOURS * HOUR;
     const [ana, anaOnce] = await Promise.all([

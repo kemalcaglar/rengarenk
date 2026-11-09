@@ -249,6 +249,25 @@ export const NOTIFY_TEMPLATES = {
       dugme: { yazi: 'Eşleşmeleri gör', url: '/galeri-paneli?bolum=eslesme' },
     },
   },
+  'galeri.aranan_modeller': {
+    ad: 'Galeri: bölgende aranan modeller (aylık rapor)',
+    konu: 'galeri',
+    grup: 'galeri',
+    baslik: '{{bolge}} en çok aranan modeller',
+    metin: '{{ilkModel}} başta olmak üzere son 30 günün talepleri ve ajan önerisi.',
+    url: '/galeri-paneli?bolum=portfoy',
+    ekip: true,
+    eposta: {
+      konu: '{{ay}} raporu: {{bolge}} en çok aranan modeller',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        '{{bolge}} son 30 günde en çok talep edilen modeller: {{#each modeller}}{{this}}{{#unless @last}} · {{/unless}}{{/each}}.',
+        'Ajan önerisi: {{oneri}}',
+        'Bu rapor her ay gönderilir; Ayarlar › Bildirimler’deki galeri satırından kapatabilirsin.',
+      ],
+      dugme: { yazi: 'Portföyüne araç ekle', url: '/galeri-paneli?bolum=portfoy' },
+    },
+  },
   'takip.ozet': {
     ad: 'Takip ettiğin galeriden yeni araç',
     konu: 'arama',

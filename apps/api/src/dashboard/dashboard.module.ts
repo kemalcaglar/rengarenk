@@ -25,15 +25,20 @@ import {
   type ReportTab,
   reportFilterSchema,
   reportViewSchema,
+  scheduledReportSchema,
+  scheduledSwitchSchema,
 } from '@rengarenk/shared';
 import type { z } from 'zod';
+import { ApprovalsModule } from '../approvals/approvals.module.js';
 import { AuditService } from '../audit/audit.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
+import { NotificationsWorkerModule } from '../notifications/notifications.module.js';
 import { RequirePermission } from '../staff/permissions.js';
 import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
 import { StaffModule } from '../staff/staff.module.js';
 import { DashboardService } from './dashboard.service.js';
 import { ReportService } from './report.service.js';
+import { ScheduledReportService } from './scheduled-report.service.js';
 
 const donemOf = (d?: string): DashPeriod =>
   DASH_PERIODS.some((p) => p.key === d) ? (d as DashPeriod) : 'bugun';
@@ -117,6 +122,13 @@ export class ReportsController {
     return this.r.saveView(req.staff.staff.id, b);
   }
 
+  /** Kayıtlı pano (Zamanlanmış raporlar ekranındaki takım panoları buradan açılır) */
+  @Get('views/:id')
+  @RequirePermission('rapor.gor')
+  view(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.r.view(id);
+  }
+
   @Delete('views/:id')
   @RequirePermission('rapor.gor')
   removeView(@Req() req: StaffRequest, @Param('id', new ParseUUIDPipe()) id: string) {
@@ -141,13 +153,64 @@ export class ReportsController {
   }
 }
 
+/**
+ * Büyüme › Zamanlanmış raporlar (YonetimRapor.dc.html › zaman; Karar 44). Ayrıntılı yetki serviste: hazır raporları
+ * sahip ve yönetici, galeri raporunu toplu gönderim yetkisi olan açar; yeni raporu ekleyen ya da yönetici değiştirir.
+ */
+@Controller('staff/scheduled-reports')
+@UseGuards(StaffGuard)
+export class ScheduledReportsController {
+  constructor(private readonly s: ScheduledReportService) {}
+
+  @Get()
+  @RequirePermission('rapor.gor')
+  list(@Req() req: StaffRequest) {
+    return this.s.list(req.staff);
+  }
+
+  @Post()
+  @HttpCode(200)
+  @RequirePermission('rapor.gor')
+  create(
+    @Req() req: StaffRequest,
+    @Body(new ZodPipe(scheduledReportSchema)) b: z.output<typeof scheduledReportSchema>,
+  ) {
+    return this.s.create(req.staff, b, req.ip);
+  }
+
+  @Post(':id/switch')
+  @HttpCode(200)
+  @RequirePermission('rapor.gor')
+  setEnabled(
+    @Req() req: StaffRequest,
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body(new ZodPipe(scheduledSwitchSchema)) b: z.output<typeof scheduledSwitchSchema>,
+  ) {
+    return this.s.setEnabled(req.staff, id, b.acik, req.ip);
+  }
+
+  @Delete(':id')
+  @RequirePermission('rapor.gor')
+  remove(@Req() req: StaffRequest, @Param('id', new ParseUUIDPipe()) id: string) {
+    return this.s.remove(req.staff, id, req.ip);
+  }
+}
+
 /** Hesaplamalar (API ve işçideki hedef sapması denetimi) */
 @Module({ providers: [DashboardService, AuditService], exports: [DashboardService] })
 export class DashboardCoreModule {}
 
 @Module({
-  imports: [StaffModule, DashboardCoreModule],
-  controllers: [DashboardController, ReportsController],
-  providers: [ReportService, AuditService],
+  imports: [StaffModule, DashboardCoreModule, ApprovalsModule],
+  controllers: [DashboardController, ReportsController, ScheduledReportsController],
+  providers: [ReportService, ScheduledReportService, AuditService],
 })
 export class DashboardModule {}
+
+/** İşçi: zamanı gelen raporları gönderir; galeri raporunun onayını yürütür */
+@Module({
+  imports: [DashboardCoreModule, ApprovalsModule, NotificationsWorkerModule],
+  providers: [ReportService, ScheduledReportService, AuditService],
+  exports: [ScheduledReportService],
+})
+export class ScheduledReportsWorkerModule {}

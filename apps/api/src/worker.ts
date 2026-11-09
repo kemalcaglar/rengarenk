@@ -6,6 +6,7 @@ import { ApprovalService } from './approvals/approval.service.js';
 import { ApprovalExecutor } from './approvals/approval-executor.js';
 import { CampaignService } from './campaigns/campaign.service.js';
 import { CatalogPipelineService } from './catalog/catalog-pipeline.service.js';
+import { ScheduledReportService } from './dashboard/scheduled-report.service.js';
 import { type Db, PRISMA } from './database/prisma.js';
 import { DemandService } from './demands/demand.service.js';
 import { GalleryService } from './galleries/gallery.service.js';
@@ -53,6 +54,7 @@ const subscriptions = app.get(SubscriptionsService);
 const bildirimOlaylari = app.get(NotificationEvents);
 const teslim = app.get(DeliveryService);
 const kampanyalar = app.get(CampaignService);
+const zamanliRaporlar = app.get(ScheduledReportService);
 const ticari = app.get(CommercialService);
 const akislar = app.get(AutomationService);
 const moderasyon = app.get(ModerationService);
@@ -228,6 +230,7 @@ let lastTeslim = 0;
 // Zamanı gelen kampanyalar dakikada bir (Karar 51)
 const KAMPANYA_MS = 60_000;
 let lastKampanya = 0;
+let lastZamanliRapor = 0;
 const ITIBAR_MS = 3_600_000;
 let lastItibar = 0;
 const UYARI_DENETIM_MS = 3_600_000;
@@ -309,6 +312,16 @@ while (!stopping) {
   if (Date.now() - lastKampanya > KAMPANYA_MS) {
     lastKampanya = Date.now();
     await kampanyalar.dispatchDue().catch((err: Error) => log.error(`kampanya: ${err.message}`));
+  }
+  // Zamanlanmış raporlar: haftalık, aylık, eklenen raporlar ve galerilere aranan modeller (Karar 44)
+  if (Date.now() - lastZamanliRapor > KAMPANYA_MS) {
+    lastZamanliRapor = Date.now();
+    await zamanliRaporlar
+      .dispatchDue()
+      .then((n) => {
+        if (n) log.log(`zamanlanmış rapor: ${n} gönderim`);
+      })
+      .catch((err: Error) => log.error(`zamanlanmış rapor: ${err.message}`));
   }
   // Teslim: zamanı gelen push, e-posta ve SMS (gecikmeli e-posta, ticari iletide sessiz saat)
   if (Date.now() - lastTeslim > TESLIM_MS) {

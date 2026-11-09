@@ -28,6 +28,7 @@ export * from './ratings.js';
 export * from './refunds.js';
 export * from './reports.js';
 export * from './retention.js';
+export * from './scheduled-reports.js';
 export * from './staff.js';
 export * from './staff-alerts.js';
 export * from './subscriptions.js';

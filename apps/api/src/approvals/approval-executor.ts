@@ -20,17 +20,18 @@ export type ExecutionOutcome = 'yurutuldu' | 'zaten_yurutuldu' | 'atlandi' | 'yu
 @Injectable()
 export class ApprovalExecutor {
   private readonly log = new Logger(ApprovalExecutor.name);
-  private readonly handlers = new Map<ApprovalKindKey, ApprovalHandler>();
+  /** Tür ya da "tür:konu" (aynı türü iki modül kullanırsa; ör. kampanya ve zamanlanmış rapor BULK_SEND) */
+  private readonly handlers = new Map<string, ApprovalHandler>();
 
   constructor(
     @Inject(PRISMA) private readonly db: Db,
     private readonly audit: AuditService,
   ) {}
 
-  register(kind: ApprovalKindKey, handler: ApprovalHandler) {
+  register(kind: ApprovalKindKey, handler: ApprovalHandler, subjectType?: string) {
     if (kind === 'REFUND')
       throw new Error('İade onay yürütücüsünden yapılamaz (iade yürütücü ayrı süreçtir)');
-    this.handlers.set(kind, handler);
+    this.handlers.set(subjectType ? `${kind}:${subjectType}` : kind, handler);
   }
 
   async execute(approvalId: string): Promise<ExecutionOutcome> {
@@ -39,7 +40,7 @@ export class ApprovalExecutor {
     const done = await this.db.approvalResult.findFirst({ where: { approvalId, outcome: 'SUCCEEDED' } });
     if (done) return 'zaten_yurutuldu';
 
-    const handler = this.handlers.get(a.kind as ApprovalKindKey);
+    const handler = this.handlers.get(`${a.kind}:${a.subjectType}`) ?? this.handlers.get(a.kind);
     if (!handler) {
       // Türün modülü henüz yazılmadıysa onay kayıtta kalır; modül eklenince yeniden yürütülebilir.
       this.log.warn(`onay ${a.id} (${a.kind}) için yürütücü tanımlı değil`);

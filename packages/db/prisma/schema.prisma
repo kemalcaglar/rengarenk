@@ -1902,6 +1902,54 @@ model ReportView {
   @@map("report_views")
 }
 
+/// Zamanlanmış rapor (Karar 44; YonetimRapor › zaman): hazır raporlar (haftalık, aylık, galeri) `key` ile; yenileri
+/// bir rapor sekmesi ya da kayıtlı panodan. Alıcılar raporları görebilen çalışanlardır (hazırlarda role göre).
+model ScheduledReport {
+  id         String    @id @db.Uuid
+  /// haftalik | aylik | galeri (hazır rapor); yenilerde boş
+  key        String?   @unique
+  name       String
+  /// { tur: 'sekme', sekme } | { tur: 'pano', panoId }; hazırlarda { tur: 'hazir' }
+  source     Json
+  /// gun | hafta:1..7 | ay:1..28
+  frequency  String
+  /// SS:DD (Türkiye saati)
+  time       String
+  /// Çalışan kimlikleri (hazır çalışan raporlarında boş: role göre)
+  recipients String[]  @db.Uuid
+  enabled    Boolean   @default(true)
+  /// Galeri raporu açılırken toplu gönderim onayı
+  approvalId String?   @map("approval_id") @db.Uuid
+  createdBy  String?   @map("created_by") @db.Uuid
+  lastRunAt  DateTime? @map("last_run_at") @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  runs ScheduledReportRun[]
+
+  @@map("scheduled_reports")
+}
+
+/// Zamanlanmış raporun bir gönderimi: rapor ve zaman başına bir kez (işçi birden çok olsa da)
+model ScheduledReportRun {
+  id         String    @id @db.Uuid
+  reportId   String    @map("report_id") @db.Uuid
+  slot       DateTime  @db.Timestamptz(3)
+  /// calisiyor | tamam | hata
+  status     String    @default("calisiyor")
+  /// Alıcı ve başarılı gönderim sayısı
+  recipients Int       @default(0)
+  sent       Int       @default(0)
+  error      String?
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  finishedAt DateTime? @map("finished_at") @db.Timestamptz(3)
+
+  report ScheduledReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@unique([reportId, slot])
+  @@map("scheduled_report_runs")
+}
+
 /// Grafik notu (Karar 44): elle ya da fiyat, kural ve kampanya değişikliğinde kendiliğinden
 model ChartNote {
   id        String   @id @db.Uuid

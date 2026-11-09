@@ -99,6 +99,16 @@ export default function Raporlar() {
     yonetim<Pano[]>('reports/views')
       .then(setPanolar)
       .catch(() => undefined);
+    // Zamanlanmış raporlar ekranındaki kayıtlı panodan gelindiyse o görünüm açılır
+    const pano = new URLSearchParams(window.location.search).get('pano');
+    if (pano)
+      yonetim<Pano>(`reports/views/${pano}`)
+        .then((p) => {
+          setSekme(p.tab);
+          setF(p.filter);
+          setBilgi(`Kayıtlı pano açıldı: “${p.name}”.`);
+        })
+        .catch((e: Error) => setHata(e.message));
   }, []);
 
   async function panoyaKaydet() {

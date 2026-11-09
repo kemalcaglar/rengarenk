@@ -16,6 +16,7 @@ import {
 import { AuditService } from '../audit/audit.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { trGunBasi } from './dashboard.service.js';
+import { type ReportTable, reportCsv } from './report-pdf.js';
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
@@ -594,53 +595,125 @@ export class ReportService {
     };
   }
 
+  /**
+   * Raporun tabloları (PDF ve Excel aynı satırları kullanır). Reklam ve deneyler bağlantı kurulunca dolar; o
+   * sekmelerde tablo yoktur. Kişisel veri içermez.
+   */
+  tablolar(tab: ReportTab, r: Record<string, unknown>): ReportTable[] {
+    const yorum = (r.yorum as string | undefined) ?? null;
+    switch (tab) {
+      case 'huni':
+        return [
+          {
+            baslik: 'Huni',
+            kolonlar: ['Adım', 'Sayı', 'Önceki dönem', 'Not'],
+            satirlar: (
+              r.huni as {
+                ad: string;
+                sayi: number;
+                once: number | null;
+                not: string;
+                fark: { metin: string } | null;
+              }[]
+            ).map((x) => [x.ad, x.sayi, x.once, x.not]),
+            not: yorum,
+          },
+        ];
+      case 'harita': {
+        const k = r.kategoriler as string[];
+        return [
+          {
+            baslik: 'İl × kategori: talep ve 48 saatte mesaj almayan oran',
+            kolonlar: ['İl', ...k],
+            satirlar: (r.satirlar as { il: string; hucre: { sayi: number; bos: number | null }[] }[]).map(
+              (s) => [
+                s.il,
+                ...s.hucre.map((h) =>
+                  h.bos === null ? `${h.sayi}` : `${h.sayi} · %${Math.round(h.bos * 100)}`,
+                ),
+              ],
+            ),
+          },
+          {
+            baslik: 'En büyük arz açıkları',
+            kolonlar: ['Yer', 'Mesaj almayan', 'Not'],
+            satirlar: (r.aciklar as { yer: string; oran: string; not: string }[]).map((a) => [
+              a.yer,
+              a.oran,
+              a.not,
+            ]),
+            not: yorum,
+          },
+        ];
+      }
+      case 'gelir':
+        return [
+          {
+            baslik: 'Gelir',
+            kolonlar: ['Ölçü', 'Değer', 'Not'],
+            satirlar: (r.sayilar as { ad: string; deger: string; not: string }[]).map((x) => [
+              x.ad,
+              x.deger,
+              x.not,
+            ]),
+          },
+          {
+            baslik: 'Gelir kalemleri',
+            kolonlar: ['Kalem', 'Tutar'],
+            satirlar: (r.kalemler as { ad: string; tutar: string }[]).map((x) => [x.ad, x.tutar]),
+            not: (r.platformPayi as string | undefined) ?? null,
+          },
+          {
+            baslik: 'Aylık tekrarlayan gelir (son 6 ay)',
+            kolonlar: ['Ay', 'Tutar'],
+            satirlar: (r.mrr as { ay: string; tutar: string }[]).map((x) => [x.ay, x.tutar]),
+          },
+        ];
+      case 'model':
+        return [
+          {
+            baslik: 'En çok talep edilen modeller',
+            kolonlar: ['Sıra', 'Model', 'Talep', 'Uygun araç', 'Durum'],
+            satirlar: (
+              r.modeller as { sira: number; ad: string; talep: number; arac: number; durum: string }[]
+            ).map((x) => [x.sira, x.ad, x.talep, x.arac, x.durum]),
+            not: yorum,
+          },
+        ];
+      case 'birim': {
+        const baslik = r.kohortBaslik as string[];
+        return [
+          {
+            baslik: 'Birim ekonomisi',
+            kolonlar: ['Ölçü', 'Değer', 'Not'],
+            satirlar: (r.sayilar as { ad: string; deger: string; not: string }[]).map((x) => [
+              x.ad,
+              x.deger,
+              x.not,
+            ]),
+          },
+          {
+            baslik: 'Ücretli galeri kohortu (hâlâ ücretli olanların payı)',
+            kolonlar: ['Ay', 'Galeri', ...baslik.slice(1)],
+            satirlar: (r.kohort as { ay: string; adet: number; hucre: { v: number | null }[] }[]).map((k) => [
+              k.ay,
+              k.adet,
+              ...k.hucre.slice(1).map((h) => (h.v === null ? null : `%${h.v}`)),
+            ]),
+          },
+        ];
+      }
+      default:
+        return [];
+    }
+  }
+
   /** CSV (Excel açar): kişisel veri içermez; dışa aktarma işlem kaydına girer */
   async export(staffId: string, tab: ReportTab, f: ReportFilter, ip?: string) {
     const r = (await this.report(tab, f)) as Record<string, unknown>;
-    const satirlar: (string | number)[][] = [];
-    const ekle2 = (baslik: string[], rows: (string | number | null)[][]) => {
-      satirlar.push(baslik, ...rows.map((x) => x.map((v) => v ?? '')));
-    };
-    if (tab === 'huni')
-      ekle2(
-        ['Adım', 'Sayı', 'Not'],
-        (r.huni as { ad: string; sayi: number; not: string }[]).map((x) => [x.ad, x.sayi, x.not]),
-      );
-    else if (tab === 'harita') {
-      const k = r.kategoriler as string[];
-      ekle2(
-        ['İl', ...k.flatMap((x) => [`${x} talep`, `${x} mesaj almayan`])],
-        (r.satirlar as { il: string; hucre: { sayi: number; bos: number | null }[] }[]).map((s) => [
-          s.il,
-          ...s.hucre.flatMap((h) => [h.sayi, h.bos === null ? '' : `%${Math.round(h.bos * 100)}`]),
-        ]),
-      );
-    } else if (tab === 'gelir') {
-      ekle2(
-        ['Ölçü', 'Değer', 'Not'],
-        (r.sayilar as { ad: string; deger: string; not: string }[]).map((x) => [x.ad, x.deger, x.not]),
-      );
-      satirlar.push([]);
-      ekle2(
-        ['Kalem', 'Tutar'],
-        (r.kalemler as { ad: string; tutar: string }[]).map((x) => [x.ad, x.tutar]),
-      );
-    } else if (tab === 'model')
-      ekle2(
-        ['Sıra', 'Model', 'Talep', 'Uygun araç', 'Durum'],
-        (r.modeller as { sira: number; ad: string; talep: number; arac: number; durum: string }[]).map(
-          (x) => [x.sira, x.ad, x.talep, x.arac, x.durum],
-        ),
-      );
-    else if (tab === 'birim')
-      ekle2(
-        ['Ölçü', 'Değer', 'Not'],
-        (r.sayilar as { ad: string; deger: string; not: string }[]).map((x) => [x.ad, x.deger, x.not]),
-      );
-    else throw new NotFoundException('Bu sekmede dışa aktarılacak veri yok');
-    const csv = `﻿${satirlar
-      .map((x) => x.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(';'))
-      .join('\r\n')}`;
+    const t = this.tablolar(tab, r);
+    if (!t.length) throw new NotFoundException('Bu sekmede dışa aktarılacak veri yok');
+    const csv = reportCsv(t);
     await this.audit.record({
       actorType: 'STAFF',
       actorId: staffId,
@@ -671,6 +744,12 @@ export class ReportService {
       },
     });
     return this.views(staffId);
+  }
+
+  async view(id: string) {
+    const v = await this.db.reportView.findUnique({ where: { id } });
+    if (!v) throw new NotFoundException('Kayıtlı pano bulunamadı');
+    return v;
   }
 
   async removeView(staffId: string, id: string) {

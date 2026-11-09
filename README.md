@@ -197,6 +197,11 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   (`grafikNotu(tx, …)` fiyat ve kural değişikliğinde). Konsol `/panel`.
 - Raporlar: `packages/shared/src/reports.ts`, `apps/api/src/dashboard/report.service.ts`; `GET /staff/reports/:sekme`,
   `GET /staff/reports/:sekme/export` (rapor.disa_aktar), `GET/POST/DELETE /staff/reports/views`. Konsol `/raporlar`.
+- Zamanlanmış raporlar (Karar 44): `packages/shared/src/scheduled-reports.ts` (`lastSlot`, `nextSlot`, `scheduleText`,
+  `BUILTIN_REPORTS`), `apps/api/src/dashboard/scheduled-report.service.ts` (işçide dakikada bir `dispatchDue`; rapor ve
+  zaman başına tek gönderim `scheduled_report_runs`), PDF `report-pdf.ts` (pdfkit, Plus Jakarta Sans gömülü:
+  `apps/api/assets/fonts/`, SIL OFL). Uçlar `/staff/scheduled-reports`; galeri raporunu açmak BULK_SEND onayı
+  (`ApprovalExecutor.register(tür, işlev, konu)`). Konsol `/zamanlanmis-raporlar`.
 - Kampanyalar ve segmentler (Karar 49, 51): `packages/shared/src/campaigns.ts`, `apps/api/src/campaigns/`
   (`SegmentService.preview/reach`, `CampaignService.estimate/create/dispatchDue`, işçide dakikada bir); uçlar
   `/staff/segments`, `/staff/campaigns`; bildirimlerde `campaign_id`. Konsol `/segmentler`, `/kampanyalar`.

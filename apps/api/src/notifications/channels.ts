@@ -11,6 +11,8 @@ export interface EmailMessage {
   html: string;
   text: string;
   headers?: Record<string, string>;
+  /** Ek (ör. zamanlanmış raporun PDF'i ve Excel'i) */
+  attachments?: { filename: string; content: Buffer | string; contentType: string }[];
 }
 
 export interface EmailResult {
