@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { CSSProperties, ReactNode } from 'react';
 import { Suspense } from 'react';
+import { Banner } from '../../../components/banner';
 import { getCategories } from '../../../lib/kategoriler';
 import { binlik, butceAraligi, yilAraligi, zaman } from '../../../lib/talep-bicim';
 import { AramaKaydet } from './arama-kaydet';
@@ -151,6 +152,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
 
   return (
     <main style={{ maxWidth: 1360, margin: '0 auto', padding: '20px 24px 64px' }}>
+      <Banner yer="talep_listesi" style={{ marginBottom: 14 }} />
       <nav
         aria-label="Konum"
         style={{

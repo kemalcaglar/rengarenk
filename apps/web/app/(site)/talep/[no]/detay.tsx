@@ -10,6 +10,7 @@ import {
 import Link from 'next/link';
 import { type CSSProperties, useEffect, useState } from 'react';
 import { AracSemasiGorunum } from '../../../../components/arac-semasi';
+import { Banner } from '../../../../components/banner';
 import { IlkMesaj } from '../../../../components/ilk-mesaj';
 import { Sikayet } from '../../../../components/sikayet';
 import { API, istek, useGiris } from '../../../../lib/istemci';
@@ -252,6 +253,7 @@ export function TalepDetay({
 
   return (
     <div style={{ flex: '999 1 760px', minWidth: 0 }}>
+      <Banner yer="talep_detay" style={{ marginBottom: 14 }} />
       <nav
         aria-label="Konum"
         style={{ fontSize: 13.5, color: '#5A6073', display: 'flex', flexWrap: 'wrap', gap: 6 }}

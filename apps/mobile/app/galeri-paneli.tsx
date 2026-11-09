@@ -11,6 +11,7 @@ import { useCallback, useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
+import { Banner } from '../components/banner';
 import { BirYildiz } from '../components/bir-yildiz';
 import { IlkMesaj } from '../components/ilk-mesaj';
 import { T } from '../components/t';
@@ -286,6 +287,7 @@ export default function GaleriPaneli() {
         style={{ flex: 1, backgroundColor: colors.background }}
         contentContainerStyle={{ paddingTop: 14, paddingHorizontal: 12, paddingBottom: 24 }}
       >
+        <Banner yer="galeri_paneli" style={{ marginBottom: 12 }} />
         {hata ? (
           <T
             style={{

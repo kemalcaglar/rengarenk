@@ -206,6 +206,10 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   `flowVariables`), motor `apps/api/src/notifications/flows.ts` (`FlowService.baslat` tetikleyicide ilk iletiden sonra,
   `tick` işçide dakikada bir); tablolar `automation_flows`, `automation_runs`. Uçlar
   `PUT /staff/notifications/automations/:key/steps`, `POST /staff/notifications/automations/:key/test`. Konsol `/akislar`.
+- Banner, duyuru ve vitrin (Karar 46): `packages/shared/src/content.ts` (`bannerSchema`, `bannerStatus`, `bannerMatches`),
+  `apps/api/src/content/` (`GET /icerik/banner?yer=&platform=`, `POST /icerik/banner/:id/olay`, konsol `/staff/banners`,
+  `PUT /staff/banners/vitrin/editor`); tablolar `banners`, `banner_stats`, `content_settings`. Web ve mobil
+  `components/banner.tsx`. Konsol `/banner-ve-vitrin`.
 - Kampanyalar ve segmentler (Karar 49, 51): `packages/shared/src/campaigns.ts`, `apps/api/src/campaigns/`
   (`SegmentService.preview/reach`, `CampaignService.estimate/create/dispatchDue`, işçide dakikada bir); uçlar
   `/staff/segments`, `/staff/campaigns`; bildirimlerde `campaign_id`. Konsol `/segmentler`, `/kampanyalar`.

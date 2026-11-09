@@ -10,6 +10,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, Linking, Pressable, ScrollView, Share, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Banner } from '../../components/banner';
 import { Ikon } from '../../components/ikon';
 import { IlkMesaj } from '../../components/ilk-mesaj';
 import { Sikayet } from '../../components/sikayet';
@@ -234,6 +235,7 @@ export default function TalepDetay() {
         </View>
       </View>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
+        <Banner yer="talep_detay" style={{ marginBottom: 12 }} />
         <View
           style={{
             height: 190,

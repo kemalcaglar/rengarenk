@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { Banner } from '../components/banner';
 import { getClientFlags } from '../lib/bakim';
 import './globals.css';
 
@@ -35,7 +36,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             </div>
           </main>
         ) : (
-          children
+          <>
+            <Banner yer="ust_serit" />
+            {children}
+          </>
         )}
       </body>
     </html>

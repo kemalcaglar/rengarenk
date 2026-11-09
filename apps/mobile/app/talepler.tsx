@@ -3,6 +3,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, FlatList, Modal, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Banner } from '../components/banner';
 import { Ikon } from '../components/ikon';
 import { Logo } from '../components/logo';
 import { MenuCekmecesi } from '../components/menu-cekmecesi';
@@ -256,6 +257,7 @@ export default function Talepler() {
         }}
         ListHeaderComponent={
           <View style={{ marginBottom: 2 }}>
+            <Banner yer="talep_listesi" style={{ marginBottom: 10 }} />
             <T style={{ fontSize: 12.5, color: colors.muted, marginBottom: 4 }}>
               {['Vasıta', kat?.name, altKat?.name, markaAd].filter(Boolean).join(' › ')}
             </T>

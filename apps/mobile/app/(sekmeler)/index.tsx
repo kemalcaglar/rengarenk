@@ -3,6 +3,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Image, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Banner } from '../../components/banner';
 import { Ikon } from '../../components/ikon';
 import { Logo } from '../../components/logo';
 import { MenuCekmecesi } from '../../components/menu-cekmecesi';
@@ -217,6 +218,8 @@ export default function Home() {
             <T style={{ fontSize: 10.5, fontWeight: '700', lineHeight: 13 }}>ilk talep ücretsiz</T>
           </Pressable>
         </View>
+        <Banner yer="anasayfa_ust" style={{ marginHorizontal: 12, marginTop: 12 }} />
+        <Banner yer="duyuru" style={{ marginHorizontal: 12, marginTop: 12 }} />
 
         {vitrin?.sonuclar.length ? (
           <View style={{ marginTop: 14 }}>

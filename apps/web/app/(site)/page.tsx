@@ -1,5 +1,6 @@
 import { colors, compactBudget, DOTS, ONE_CIKARMA, tints } from '@rengarenk/shared';
 import Link from 'next/link';
+import { Banner } from '../../components/banner';
 import { getCategories } from '../../lib/kategoriler';
 import { butceAraligi, zaman } from '../../lib/talep-bicim';
 import { KayitliAramalarim } from './kayitli-aramalarim';
@@ -157,6 +158,7 @@ export default async function Home() {
       </aside>
 
       <div style={{ flex: '999 1 760px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 22 }}>
+        <Banner yer="anasayfa_ust" />
         <section
           style={{
             ...card,
@@ -244,6 +246,7 @@ export default async function Home() {
           </ol>
         </section>
 
+        <Banner yer="duyuru" />
         <PortfoyEslesmeleri />
 
         <KayitliAramalarim />

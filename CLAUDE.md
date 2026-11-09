@@ -268,9 +268,11 @@ pnpm format        # Biome ile biçimlendir
   (`report-pdf.ts`, pdfkit + `apps/api/assets/fonts/`), yeni rapor, galerilere aranan modeller (açmak BULK_SEND onayı).
   Aynı onay türünü iki modül kullanırsa `executor.register(tür, işlev, konu)`. Akış düzenleyicisi (`notifications/flows.ts`):
   tetikleyici ilk iletiyi gönderince `flows.baslat(akış, kişiler, bağlam, ref)`; yeni akış tetikleyicisi eklersen hedefini
-  `FlowService.hedefte`'ye, adım şablonunu `akis.adim.<akış>` olarak ekle. API'de 187, ortak pakette 99 test.
+  `FlowService.hedefte`'ye, adım şablonunu `akis.adim.<akış>` olarak ekle. Banner ve vitrin (`apps/api/src/content/`,
+  konsol `/banner-ve-vitrin`): web ve mobil `components/banner.tsx` (yer: ana sayfa, galeri paneli, talep listesi ve
+  detayı, duyuru, üst şerit). API'de 188, ortak pakette 102 test.
 - **Sıradaki:** Aşama 9 devamı
-  (ana sayfa düzeni ve banner, kupon ve A/B, reklam ölçümü); ya da sunucular gelince Radore'ye ilk
+  (ana sayfa düzeni, kupon ve A/B, reklam ölçümü); ya da sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu

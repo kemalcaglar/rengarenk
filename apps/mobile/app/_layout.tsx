@@ -11,6 +11,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Banner } from '../components/banner';
 import { T } from '../components/t';
 import { useClientFlags } from '../lib/bakim';
 import { OturumProvider } from '../lib/oturum';
@@ -56,7 +57,12 @@ export default function RootLayout() {
           <T style={{ color: colors.muted, marginTop: 8, textAlign: 'center' }}>{durum.duyuru}</T>
         </View>
       ) : (
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }} />
+        <>
+          <Banner yer="ust_serit" />
+          <Stack
+            screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}
+          />
+        </>
       )}
     </OturumProvider>
   );

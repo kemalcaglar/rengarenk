@@ -468,8 +468,14 @@ export class DemandSearchService {
    * Ana sayfa vitrini (Karar 12.6, 46): sıra her açılışta karışır. Ücretli vitrin ödeme modülüyle (Aşama 6) gelince
    * önce o talepler gösterilecek; boş yerler yayındaki taleplerle dolar, fotoğraflı olanlar önce.
    */
+  /**
+   * Ana sayfa vitrini: ücretli vitrin her zaman önce; "boş yerlere editör seçimi" açıksa (konsol › Banner ve vitrin)
+   * boş yerleri fotoğraflı ve yayındaki talepler karışık sırayla doldurur, kapalıysa yalnızca ücretliler görünür.
+   */
   async vitrin(boyut: number) {
     await this.ensureIndex();
+    const ayar = await this.db.contentSetting.findUnique({ where: { key: 'vitrin_editor' } });
+    const editor = ayar ? ayar.value === true : true;
     const r = await this.os<{
       hits: { total: { value: number }; hits: { _source: Record<string, unknown> }[] };
     }>('POST', '/_search', {
@@ -477,7 +483,7 @@ export class DemandSearchService {
       track_total_hits: true,
       query: {
         function_score: {
-          query: { match_all: {} },
+          query: editor ? { match_all: {} } : { range: { vitrin: { gt: 'now' } } },
           functions: [
             { random_score: { seed: Date.now(), field: '_seq_no' } },
             { filter: { exists: { field: 'foto' } }, weight: 2 },

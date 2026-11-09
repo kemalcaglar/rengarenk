@@ -12,6 +12,7 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { Banner } from '../../components/banner';
 import { API, istek, useGiris } from '../../lib/istemci';
 import { AracFormu } from './arac-formu';
 import { Eslesmeler, type EslesmeVerisi } from './eslesmeler';
@@ -420,6 +421,7 @@ export function GaleriPaneli() {
         </nav>
 
         <main style={{ flex: '999 1 760px', minWidth: 0 }}>
+          <Banner yer="galeri_paneli" style={{ marginBottom: 14 }} />
           {hata ? (
             <p
               role="alert"

@@ -1951,6 +1951,59 @@ model ScheduledReportRun {
   @@map("scheduled_report_runs")
 }
 
+/// Banner ve duyuru (Karar 46; YonetimIcerik › banner): yer, kitle, platform ve tarih aralığı. Yayınlanmamışsa taslak.
+model Banner {
+  id          String    @id @db.Uuid
+  title       String
+  body        String    @default("")
+  button      String    @default("")
+  url         String    @default("")
+  /// anasayfa_ust | galeri_paneli | talep_listesi | talep_detay | duyuru | ust_serit
+  place       String
+  /// herkes | ziyaretci | bireysel | galeri
+  audience    String
+  il          String?
+  /// hepsi | web | mobil
+  platform    String
+  color       String
+  startsAt    DateTime? @map("starts_at") @db.Timestamptz(3)
+  endsAt      DateTime? @map("ends_at") @db.Timestamptz(3)
+  published   Boolean   @default(false)
+  publishedBy String?   @map("published_by") @db.Uuid
+  stoppedAt   DateTime? @map("stopped_at") @db.Timestamptz(3)
+  createdBy   String?   @map("created_by") @db.Uuid
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  stats BannerStat[]
+
+  @@index([place, published])
+  @@map("banners")
+}
+
+/// Bannerın günlük gösterim ve tıklaması (kişisel veri yok)
+model BannerStat {
+  bannerId String   @map("banner_id") @db.Uuid
+  day      DateTime @db.Date
+  views    Int      @default(0)
+  clicks   Int      @default(0)
+
+  banner Banner @relation(fields: [bannerId], references: [id], onDelete: Cascade)
+
+  @@id([bannerId, day])
+  @@map("banner_stats")
+}
+
+/// İçerik ayarları (ör. vitrinde boş yerlere editör seçimi)
+model ContentSetting {
+  key       String   @id
+  value     Json
+  updatedBy String?  @map("updated_by") @db.Uuid
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("content_settings")
+}
+
 /// Grafik notu (Karar 44): elle ya da fiyat, kural ve kampanya değişikliğinde kendiliğinden
 model ChartNote {
   id        String   @id @db.Uuid

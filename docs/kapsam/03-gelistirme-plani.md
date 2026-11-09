@@ -169,6 +169,14 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   talep edilen 5 model (ilde 5 talepten azsa Türkiye geneli), portföydeki araç sayısı ve ajanın kural tabanlı önerisi.
   Varsayılan kapalı; açmak toplu gönderim onayı (BULK_SEND) ister
 - [ ] Galeri ana sayfasında "Bölgende aranan modeller" bölümü: ana sayfa düzeniyle
+- [x] Banner ve duyuru (YonetimIcerik.dc.html › banner; Karar 46): yer (ana sayfa üstü, galeri paneli üstü, talep
+  listesi üstü, talep detayı, uygulama içi duyuru, bütün sayfalar üst şerit), kitle (herkes, ziyaretçi, bireysel üye,
+  galeri; üye ve galeride isteğe bağlı il), platform, tarih aralığı (en çok 90 gün), renk; taslak öneri düzeyiyle,
+  yayın ve durdurma görünüm yetkisi "tam"; yayındaki değişmez (durdur, kopyala); bitişte kendiliğinden kalkar;
+  günlük gösterim ve tıklama (kişisel veri yok, IP başına sınır); web ve mobilde altı yerde (`components/banner.tsx`)
+- [x] Ana sayfa vitrini (konsolda): 17 yer, ücretli vitrin sayısı, "boş yerlere editör seçimi" anahtarı (kapalıyken
+  yalnızca ücretli talepler görünür)
+- [ ] Banner A/B testi: deney altyapısıyla
 - [x] Akış düzenleyicisi (YonetimKampanya.dc.html › akış; Karar 51; Teknik tasarım: JSON tanım, kişi başına durum):
   tetikleyici ve ilk ileti kodda; "Adım ekle" ile ilk iletiden sonra bekle (1 saat–30 gün), koşul (önceki ileti
   okunmadıysa, ticari onay varsa, doğrulanmış e-posta varsa; sağlanmazsa çıkış) ve ileti (başlık, metin, düğme;
