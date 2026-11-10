@@ -815,6 +815,13 @@ model CatalogImage {
   /// Düzenlemeden önceki kopya (geri almak için) ve bulanıklaştırılan alanlar (0–1 oranlarıyla x, y, w, h)
   originalKey  String?   @map("original_key")
   blurAreas    Json?     @map("blur_areas")
+  /// Kaynak (Karar 34): commons; Commons'ta fotoğraf yoksa galeri (izin verilen portföy fotoğrafı, galeri adı atfıyla).
+  /// Galeri fotoğrafında commonsFile "galeri:<foto id>", author galeri adı, pageUrl galeri profili
+  origin       String    @default("commons")
+  /// Galeri fotoğrafı: kaynak portföy fotoğrafı, aracı ve galeri hesabı (izin kalkınca fotoğraf geri çekilir)
+  portfolioPhotoId   String? @map("portfolio_photo_id") @db.Uuid
+  portfolioVehicleId String? @map("portfolio_vehicle_id") @db.Uuid
+  galleryAccountId   String? @map("gallery_account_id") @db.Uuid
   decidedBy    String?   @map("decided_by") @db.Uuid
   decidedAt    DateTime? @map("decided_at") @db.Timestamptz(3)
   createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
@@ -823,6 +830,7 @@ model CatalogImage {
 
   @@unique([generationId, commonsFile])
   @@index([status])
+  @@index([portfolioVehicleId])
   @@map("catalog_images")
 }
 

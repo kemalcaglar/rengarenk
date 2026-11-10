@@ -141,6 +141,16 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   yoksa nesil geneli, yoksa en erken makyaj (`catalog/photo-pick.ts`; seri ayrıntısı, talep sayfası, liste). Konsolda
   seçili fotoğrafta "Plakayı bulanıklaştır": kutu çizilir (en çok 6), API özgün kopyadan pikselleştirip bulanıklaştırır
   (sharp), düzenlenmiş kopya gösterilir, atıfta "düzenlendi"; özgün kopya saklanır ve "Geri al" ile döner
+- [x] Galeri fotoğrafı ve önceki nesil (10 Kasım 2026, Karar 34 "Commons'ta fotoğraf yoksa"): Commons adayı ya da
+  seçili Commons fotoğrafı olmayan nesle, yayındaki ve "Fotoğraflarım katalogda … kullanılabilir" işaretli portföy
+  aracının ilk fotoğrafları aday olur (`catalog_images.origin = galeri`, kaynak foto, araç ve hesap; Commons kontrolüyle
+  birlikte toplanır). Konsolda "Galeri fotoğrafı" etiketi; "Plakayı işaretle ve seç" (bulanıklaştırma seçimle aynı
+  adımda, plakalı kopya yayına çıkmaz) ya da "Plaka görünmüyor, seç"; geri alma yok. Atıf "Fotoğraf: [galeri adı] ·
+  galeri portföyü · temsilî görsel". İzin kapatılınca, fotoğraf silinince, araç moderasyonla kaldırılınca ya da hesap
+  kapanınca aynı işlemde "geri_alindi" (`catalog/galeri-foto.ts`), artık gösterilmez; izin yeniden açılırsa aday geri
+  gelir. Nesilde hiç fotoğraf yoksa talep sayfasında (web, mobil) aynı serinin en yakın önceki neslinin fotoğrafı
+  "Temsili görsel · önceki nesil" etiketiyle (önceki yoksa sonraki nesil; `nesilFoto`). Liste ve vitrin kartları
+  yalnızca neslin kendi fotoğrafını gösterir (kartta atıf satırı yok)
 
 ## Sprint 28 · Aşama 9 · kontrol paneli ve raporlar (9 Kasım 2026)
 
@@ -722,7 +732,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   `portfolio_photos.phash`, `portfolio/photo-hash.ts`); başka galerinin aracındaki fotoğrafa en çok 5 bit farkla benzerse
   yükleme olur, araca "Kopya fotoğraf" kural şikâyeti açılır (yüksek öncelik, araç başına bir açık şikâyet, işaret:
   eşleşen araç no ve galeri). Aynı galerinin kendi fotoğrafı sayılmaz
-- [ ] Galeri fotoğrafının katalogda temsilî görsel olması (Karar 34: Commons'ta fotoğraf yoksa; izin kaydediliyor)
+- [x] Galeri fotoğrafının katalogda temsilî görsel olması (10 Kasım 2026, Karar 34; ayrıntı Sprint 6 › Galeri fotoğrafı ve önceki nesil)
 - Tasarımdan farklar: araç formunda ilk tescil, vites, üretici fiyatı beyanı ve stok no; web formunda mobildeki
   "fotoğraflarım katalogda kullanılabilir" izni; motor ve şanzıman bilgisi katalogdan sonra gösterilecek; toplu
   yüklemede satır düzeltmesi dosyada yapılıp yeniden yüklenir; API anahtarı bölümü toplu yükleme ekranında

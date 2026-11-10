@@ -31,7 +31,7 @@ import { AdsService, olayPlatformu } from '../ads/ads.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { sha256 } from '../auth/tokens.js';
 import { CatalogImageService } from '../catalog/catalog-image.service.js';
-import { makyajFoto } from '../catalog/photo-pick.js';
+import { nesilFoto } from '../catalog/photo-pick.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { EntitlementService } from '../entitlements/entitlement.service.js';
 import { ContentRulesService } from '../moderation/content-rules.service.js';
@@ -336,17 +336,20 @@ export class DemandService {
         const bas = grup.length ? Math.min(...grup.map((g) => g.startYear)) : null;
         const son = grup.length ? Math.max(...grup.map((g) => g.endYear ?? yil)) : null;
         const kod = m ? gens.find((g) => g.source === 'wikidata' && g.code === m[1]) : undefined;
-        const foto = kod
-          ? makyajFoto(
-              fotolar.filter((f) => f.generationId === kod.id),
-              m ? Number(m[2]) : null,
+        // Nesilde fotoğraf yoksa en yakın neslin fotoğrafı "önceki nesil" etiketiyle (Karar 34); yalnızca kodlu kasada
+        const secim = m
+          ? nesilFoto(
+              gens.filter((g) => g.source === 'wikidata'),
+              fotolar,
+              { id: kod?.id, startYear: kod?.startYear ?? bas },
+              Number(m[2]),
             )
           : undefined;
         return {
           value: v,
           label: m ? `${m[1]} ${m[2] === '0' ? 'makyajsız' : 'makyajlı'}` : (grup[0]?.body ?? 'Kasa'),
           yillar: bas === null ? null : son !== null && son >= yil ? `${bas} ve sonrası` : `${bas}–${son}`,
-          foto: foto ? CatalogImageService.publicPhoto(foto) : null,
+          foto: secim ? CatalogImageService.publicPhoto(secim.foto, secim.yakin) : null,
         };
       });
       const paketKeys = (a.paket as string[] | undefined) ?? [];

@@ -250,6 +250,10 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 - Nesil fotoğrafı makyaj ve plaka (Karar 34): `catalog_images.facelift/edited/original_key/blur_areas`, seçim
   `POST /staff/catalog/images/:id/select { makyaj }`, `.../blur { alanlar }`, `.../unblur`; görüntü işleme `sharp`.
   Gösterimde `makyajFoto` (`apps/api/src/catalog/photo-pick.ts`).
+- Galeri fotoğrafı temsilî görsel (Karar 34): `catalog_images.origin` (`commons` | `galeri`), `portfolio_photo_id`,
+  `portfolio_vehicle_id`, `gallery_account_id`; adaylar `CatalogImageService.galleryCandidates` (Commons kontrolüyle),
+  seçim `select { makyaj, alanlar | plakaYok }`; izin kalkınca `galeriFotoGeriCek(tx, …)` (`catalog/galeri-foto.ts`).
+  Nesilde fotoğraf yoksa `nesilFoto` en yakın neslin fotoğrafını `nesil: 'onceki' | 'sonraki'` ile döndürür.
 - Araç favorisi: `vehicle_favorites`, `PortfolioService.favoriEkle/favoriCikar/favoriMi/favoriler`; web
   `arac/[no]/arac-istemci.tsx` (`AracFavori`), `favoriler/araclar.tsx`; mobil `app/arac/[no].tsx`, `app/favoriler.tsx`.
 - Fotoğraf kopya tespiti: `portfolio/photo-hash.ts` (`photoHash`, `PHOTO_HASH_DISTANCE`), `portfolio_photos.phash`;

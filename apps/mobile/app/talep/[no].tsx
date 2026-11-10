@@ -39,7 +39,7 @@ interface Talep {
         value: string;
         label: string;
         yillar: string | null;
-        foto: { url: string; caption: string } | null;
+        foto: { url: string; caption: string; nesil?: 'onceki' | 'sonraki' | null } | null;
       }[];
       paket: string[];
       teknik: { label: string; value: string }[];
@@ -271,6 +271,7 @@ export default function TalepDetay() {
               }}
             >
               Temsili görsel
+              {foto?.nesil ? ` · ${foto.nesil === 'onceki' ? 'önceki' : 'sonraki'} nesil` : ''}
             </T>
             {t.data.alternatifler.length > 1 ? (
               <T

@@ -47,6 +47,7 @@ import { AgentService } from '../agent/agent.service.js';
 import { ApprovalService } from '../approvals/approval.service.js';
 import { ApprovalExecutor } from '../approvals/approval-executor.js';
 import { AuditService } from '../audit/audit.service.js';
+import { galeriFotoGeriCek } from '../catalog/galeri-foto.js';
 import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
@@ -1037,6 +1038,8 @@ export class ModerationService {
         },
       });
       if (v.status === 'PUBLISHED') await this.outbox.add(tx, 'portfoy.kalkti', { vehicleId: r.targetId });
+      // Moderasyonla kaldırılan aracın fotoğrafı katalogda temsilî görsel olarak kalmaz (Karar 34)
+      await galeriFotoGeriCek(tx, { vehicleId: r.targetId });
     }
   }
 

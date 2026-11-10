@@ -1,5 +1,6 @@
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
+import { uuidv7 } from '@rengarenk/db';
 import { strToU8, zipSync } from 'fflate';
 import sharp from 'sharp';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -7,12 +8,15 @@ import { AppModule } from '../src/app.module.js';
 import { CatalogImportService } from '../src/catalog/catalog-import.service.js';
 import { CatalogPipelineService } from '../src/catalog/catalog-pipeline.service.js';
 import { COMMONS_CLIENT, type CommonsClient } from '../src/catalog/commons-client.js';
+import { galeriFotoGeriCek } from '../src/catalog/galeri-foto.js';
+import { nesilFoto } from '../src/catalog/photo-pick.js';
 import { TSB_CLIENT, type TsbClient } from '../src/catalog/tsb-client.js';
 import { VEHICLESDB_CLIENT, type VehiclesDbClient } from '../src/catalog/vehiclesdb-client.js';
 import { VMM_CLIENT, type VmmClient } from '../src/catalog/vmm-client.js';
 import { WIKIDATA_CLIENT, type WikidataClient } from '../src/catalog/wikidata-client.js';
 import { registerXlsxBody, XLSX_MIME } from '../src/catalog/xlsx-body.js';
 import { type Db, PRISMA } from '../src/database/prisma.js';
+import { type Ctx, PortfolioService } from '../src/portfolio/portfolio.service.js';
 import { STORAGE, type Storage } from '../src/storage/storage.service.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
@@ -650,6 +654,170 @@ describe('nesil fotoğrafları: Wikimedia Commons (Karar 34)', () => {
         },
       }),
     ).rejects.toThrow();
+  });
+});
+
+describe("galeri fotoğrafı temsilî görsel (Karar 34: Commons'ta fotoğraf yoksa)", () => {
+  it('izinli portföy fotoğrafı Commons adayı olmayan nesle aday olur; plakayla seçilir, galeri adıyla atıf, silinince geri çekilir', async () => {
+    const seri = await db.catalogSeries.findFirstOrThrow({
+      where: { name: '3 Serisi' },
+      select: { id: true, key: true },
+    });
+    const e36 = await db.catalogGeneration.findFirstOrThrow({ where: { source: 'wikidata', code: 'E36' } });
+    const userId = uuidv7();
+    await db.user.create({ data: { id: userId, phone: '+905339990001' } });
+    const accountId = uuidv7();
+    await db.account.create({
+      data: { id: accountId, kind: 'BUSINESS', name: 'Kaynak Oto', businessKind: 'DEALER' },
+    });
+    await db.accountMember.create({ data: { accountId, userId, role: 'OWNER' } });
+    const applicationId = uuidv7();
+    await db.galleryApplication.create({
+      data: {
+        id: applicationId,
+        userId,
+        status: 'APPROVED',
+        submittedAt: new Date(),
+        decidedAt: new Date(),
+        accountId,
+        data: {},
+      },
+    });
+    await db.gallery.create({
+      data: {
+        accountId,
+        slug: 'kaynak-oto',
+        businessKind: 'DEALER',
+        displayName: 'Kaynak Oto',
+        legalName: 'Kaynak Otomotiv Ltd. Şti.',
+        taxNo: '1234567891',
+        taxOffice: 'Kadıköy',
+        mersisNo: '0123456789000016',
+        il: 'İstanbul',
+        ilce: 'Kadıköy',
+        address: 'Moda Cad. No: 2',
+        plan: 'profesyonel',
+        applicationId,
+        approvedAt: new Date(),
+      },
+    });
+    const kategori = await db.category.findFirstOrThrow({ where: { slug: 'otomobil' } });
+    const arac = async (izin: boolean, plaka: string) => {
+      const id = uuidv7();
+      await db.portfolioVehicle.create({
+        data: {
+          id,
+          accountId,
+          categoryId: kategori.id,
+          seriesKey: seri.key,
+          generationKey: 'E36:0',
+          makeName: 'BMW',
+          modelName: '318i',
+          year: 1996,
+          km: 210_000,
+          priceTl: 450_000n,
+          damage: { parcalar: {} },
+          status: 'PUBLISHED',
+          publishedAt: new Date(),
+          photoCatalogOk: izin,
+          createdBy: userId,
+        },
+      });
+      const jpeg = await sharp({ create: { width: 400, height: 300, channels: 3, background: '#FF6FB5' } })
+        .jpeg()
+        .toBuffer();
+      stored.set(`portfoy/${plaka}.jpg`, new Uint8Array(jpeg));
+      const fotoId = uuidv7();
+      await db.portfolioPhoto.create({
+        data: {
+          id: fotoId,
+          vehicleId: id,
+          storageKey: `portfoy/${plaka}.jpg`,
+          mime: 'image/jpeg',
+          size: jpeg.byteLength,
+          sha256: plaka,
+          sort: 0,
+        },
+      });
+      return { id, fotoId };
+    };
+    const izinli = await arac(true, 'izinli');
+    await arac(false, 'izinsiz');
+
+    // Commons'ta E36 için aday yok: yalnızca izin veren galerinin fotoğrafı aday olur
+    const r = await staffCall(app, 'POST', '/staff/catalog/sources/commons/check', {}, owner);
+    expect(r.body.galeri).toBe(1);
+    expect(
+      (await staffCall(app, 'POST', '/staff/catalog/sources/commons/check', {}, owner)).body.galeri,
+    ).toBe(0);
+    const aday = await db.catalogImage.findFirstOrThrow({ where: { origin: 'galeri' } });
+    expect(aday).toMatchObject({
+      generationId: e36.id,
+      author: 'Kaynak Oto',
+      license: 'Galeri izniyle',
+      pageUrl: '/galeri/kaynak-oto',
+      facelift: 0,
+      status: 'aday',
+      width: 400,
+      portfolioPhotoId: izinli.fotoId,
+    });
+    const review = (await staffCall(app, 'GET', '/staff/catalog/images', undefined, owner)).body;
+    const g = review.find((x: { code: string }) => x.code === 'E36');
+    expect(g.images[0]).toMatchObject({ origin: 'galeri', preview: `/portfoy/fotolar/${izinli.fotoId}` });
+
+    // Plaka işaretlenmeden ya da "görünmüyor" onaylanmadan seçilmez; plakalı kopya yayına çıkmaz
+    const url = `/staff/catalog/images/${aday.id}/select`;
+    expect((await staffCall(app, 'POST', url, { makyaj: null }, owner)).status).toBe(400);
+    const sel = await staffCall(
+      app,
+      'POST',
+      url,
+      { makyaj: null, alanlar: [{ x: 0.4, y: 0.7, w: 0.2, h: 0.1 }] },
+      owner,
+    );
+    expect(sel.body).toMatchObject({ status: 'secildi', edited: true });
+    expect(sel.body.storageKey).toMatch(/-duzenlendi\.jpg$/);
+    expect((await staffCall(app, 'POST', `/staff/catalog/images/${aday.id}/unblur`, {}, owner)).status).toBe(
+      409,
+    );
+    const d = (await get(`/catalog/series/${seri.id}?yil=1996`)).body;
+    expect(d.generations[0].photo).toMatchObject({
+      kaynak: 'galeri',
+      caption: 'Fotoğraf: Kaynak Oto · galeri portföyü · temsilî görsel · düzenlendi',
+    });
+
+    // Filtresiz geri çekme hiçbir şeye dokunmaz
+    expect(await galeriFotoGeriCek(db, {})).toBe(0);
+    // Galeri fotoğrafı silince temsilî görsel geri çekilir
+    await db.portfolioVehicle.update({ where: { id: izinli.id }, data: { status: 'PASSIVE' } });
+    const ctx = { userId, accountId, role: 'OWNER' } as unknown as Ctx;
+    await app.get(PortfolioService).removePhoto(ctx, izinli.id, izinli.fotoId);
+    expect((await db.catalogImage.findUniqueOrThrow({ where: { id: aday.id } })).status).toBe('geri_alindi');
+    expect((await app.inject({ method: 'GET', url: `/catalog/images/${aday.id}` })).statusCode).toBe(404);
+    expect((await get(`/catalog/series/${seri.id}?yil=1996`)).body.generations[0].photo).toBeNull();
+  });
+
+  it('nesilde fotoğraf yoksa en yakın neslin fotoğrafı: önce önceki nesil (son makyajı), yoksa sonraki', () => {
+    const nesiller = [
+      { id: 'e90', startYear: 2005 },
+      { id: 'f30', startYear: 2012 },
+      { id: 'g20', startYear: 2019 },
+    ];
+    const f = (id: string, generationId: string, facelift: number | null) => ({ id, generationId, facelift });
+    const fotolar = [f('a', 'e90', 0), f('b', 'e90', 1), f('c', 'g20', 0)];
+    expect(nesilFoto(nesiller, fotolar, { id: 'g20', startYear: 2019 }, 0)).toEqual({
+      foto: fotolar[2],
+      yakin: null,
+    });
+    expect(nesilFoto(nesiller, fotolar, { id: 'f30', startYear: 2012 }, 0)).toEqual({
+      foto: fotolar[1],
+      yakin: 'onceki',
+    });
+    expect(nesilFoto(nesiller, fotolar.slice(2), { id: 'f30', startYear: 2012 }, 1)).toEqual({
+      foto: fotolar[2],
+      yakin: 'sonraki',
+    });
+    expect(nesilFoto(nesiller, [], { id: 'f30', startYear: 2012 }, 0)).toBeUndefined();
   });
 });
 

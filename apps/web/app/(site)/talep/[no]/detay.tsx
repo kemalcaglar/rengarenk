@@ -20,6 +20,8 @@ type Values = Record<string, unknown>;
 interface Foto {
   url: string;
   caption: string;
+  /** Nesilde fotoğraf yoksa en yakın neslin fotoğrafı (Karar 34) */
+  nesil?: 'onceki' | 'sonraki' | null;
 }
 export interface TalepVeri {
   no: number;
@@ -468,6 +470,7 @@ export function TalepDetay({
                 }}
               >
                 Temsili görsel
+                {foto?.nesil ? ` · ${foto.nesil === 'onceki' ? 'önceki' : 'sonraki'} nesil` : ''}
               </span>
               {t.data.alternatifler.length > 1 ? (
                 <span
@@ -558,7 +561,7 @@ export function TalepDetay({
                 <div style={{ fontSize: 13, color: '#5A6073', marginTop: 2 }}>
                   Temsilî {foto ? 'fotoğraf' : 'görsel'}
                   {g?.kasa.length ? ', kasa ve makyaja göre seçildi' : ''}; satıcının aracı değildir.
-                  {foto ? ` ${foto.caption.replace(/ · temsilî görsel$/, '')}` : ''}
+                  {foto ? ` ${foto.caption.replace(' · temsilî görsel', '')}` : ''}
                 </div>
               </div>
               {renkler.length ? (

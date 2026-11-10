@@ -6,6 +6,7 @@ import { yonetim } from '../../../../lib/istemci';
 import { type Alan, PlakaDuzenle } from './plaka';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+const WEB = process.env.NEXT_PUBLIC_WEB_URL ?? 'http://localhost:3000';
 const MAKYAJLAR: [string, string][] = [
   ['', 'Nesil geneli'],
   ['0', 'Makyaj öncesi'],
@@ -16,6 +17,8 @@ const MAKYAJLAR: [string, string][] = [
 interface Candidate {
   id: string;
   status: 'aday' | 'secildi';
+  /** commons; galeri: Commons'ta fotoğraf yokken galerinin izin verdiği portföy fotoğrafı (Karar 34) */
+  origin: 'commons' | 'galeri';
   commonsFile: string;
   pageUrl: string;
   preview: string;
@@ -57,7 +60,8 @@ export default function Fotograflar() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [makyaj, setMakyaj] = useState<Record<string, string>>({});
-  const [plaka, setPlaka] = useState<{ g: Generation; i: Candidate } | null>(null);
+  /** Plaka düzenleyici: seçili fotoğrafta düzenleme ya da galeri adayında "işaretle ve seç" */
+  const [plaka, setPlaka] = useState<{ g: Generation; i: Candidate; sec?: boolean } | null>(null);
 
   const load = useCallback(() => {
     setRows(null);
@@ -82,6 +86,28 @@ export default function Fotograflar() {
 
   const title = (g: Generation) =>
     `${g.series.make.name} ${g.series.name} ${g.code ?? ''} · ${g.startYear}–${g.endYear ?? '…'}`;
+  const galeri = (i: Candidate) => i.origin === 'galeri';
+  // Galeri adayında makyaj aracın kasasından gelir
+  const makyajOf = (i: Candidate) =>
+    makyaj[i.id] ?? (galeri(i) && i.facelift !== null ? String(i.facelift) : '');
+  const onizleme = (i: Candidate) =>
+    i.kopya ? `${API}${i.kopya}` : galeri(i) ? `${API}${i.preview}` : i.preview;
+
+  /** Adayı seç; galeri fotoğrafında plaka alanları ya da "plaka görünmüyor" onayıyla (Karar 34) */
+  function sec(g: Generation, i: Candidate, plakaBilgi: { alanlar?: Alan[]; plakaYok?: boolean } = {}) {
+    return act(i.id, async () => {
+      const m = makyajOf(i);
+      await yonetim(`catalog/images/${i.id}/select`, {
+        method: 'POST',
+        body: { makyaj: m === '' ? null : Number(m), ...plakaBilgi },
+      });
+      load();
+      const ad = MAKYAJLAR.find(([v]) => v === m)?.[1] ?? 'Nesil geneli';
+      return `${title(g)} · ${ad.toLocaleLowerCase('tr-TR')} fotoğrafı seçildi ve depoya alındı.${
+        galeri(i) ? ' Atıfta galeri adı yazar.' : ''
+      } Diğer makyajlar için Seçilmiş sekmesinden devam edebilirsin.`;
+    });
+  }
 
   return (
     <>
@@ -97,8 +123,10 @@ export default function Fotograflar() {
           Talep sayfasındaki temsilî görsel Wikimedia Commons'tan gelir: yalnızca kamu malı, CC0, CC BY ve CC
           BY-SA lisanslar. Tercih: dış çekim, ön çapraz açı, araç tam kadrajda, insan yok. Her makyaj için
           ayrı fotoğraf seçebilirsin; makyaj fotoğrafı yoksa nesil geneli gösterilir. Plakası okunan fotoğrafı
-          seçtikten sonra plakayı bulanıklaştır. Seçtiğin fotoğraf kalır ve altında yazar ile lisans yazar
-          (Karar 34).
+          seçtikten sonra plakayı bulanıklaştır. Seçtiğin fotoğraf kalır ve altında yazar ile lisans yazar.
+          Commons'ta fotoğrafı olmayan nesillerde, galerilerin izin verdiği portföy fotoğrafları da aday olur:
+          plakayı işaretleyerek seçersin, atıfta galeri adı yazar; galeri izni kaldırırsa fotoğraf
+          kendiliğinden geri çekilir (Karar 34).
         </p>
       </div>
       {error ? (
@@ -138,12 +166,15 @@ export default function Fotograflar() {
           disabled={busy !== null}
           onClick={() =>
             act('ara', async () => {
-              const r = await yonetim<{ nesil: number; aday: number }>('catalog/sources/commons/check', {
-                method: 'POST',
-                body: {},
-              });
+              const r = await yonetim<{ nesil: number; aday: number; galeri?: number }>(
+                'catalog/sources/commons/check',
+                {
+                  method: 'POST',
+                  body: {},
+                },
+              );
               load();
-              return `${r.nesil} nesil için Commons'a bakıldı, ${r.aday} yeni aday eklendi.`;
+              return `${r.nesil} nesil için Commons'a bakıldı, ${r.aday} yeni aday eklendi; galeri portföylerinden ${r.galeri ?? 0} aday.`;
             })
           }
         >
@@ -197,21 +228,34 @@ export default function Fotograflar() {
                     background: '#fff',
                   }}
                 >
-                  <a href={i.pageUrl} target="_blank" rel="noreferrer">
+                  <a href={galeri(i) ? `${WEB}${i.pageUrl}` : i.pageUrl} target="_blank" rel="noreferrer">
                     {/* biome-ignore lint/performance/noImgElement: Commons önizlemesi, Next görsel iyileştirmesi gerekmez */}
                     <img
-                      src={i.kopya ? `${API}${i.kopya}` : i.preview}
-                      alt={i.commonsFile}
+                      src={onizleme(i)}
+                      alt={galeri(i) ? `${i.author} portföy fotoğrafı` : i.commonsFile}
                       loading="lazy"
                       style={{ width: '100%', aspectRatio: '3 / 2', objectFit: 'cover', display: 'block' }}
                     />
                   </a>
                   <figcaption style={{ padding: 10, fontSize: 12, color: '#3A4052' }}>
+                    {galeri(i) ? (
+                      <span
+                        className="k-pill"
+                        style={{
+                          background: '#FFF6DD',
+                          color: '#7A5A00',
+                          marginBottom: 6,
+                          display: 'inline-block',
+                        }}
+                      >
+                        Galeri fotoğrafı
+                      </span>
+                    ) : null}
                     <span style={{ display: 'block', fontWeight: 700, overflowWrap: 'anywhere' }}>
-                      {i.commonsFile}
+                      {galeri(i) ? i.author : i.commonsFile}
                     </span>
                     <span style={{ display: 'block', color: '#5A6073' }}>
-                      {i.author} · {i.license} · {i.width}×{i.height}
+                      {galeri(i) ? 'Galeri portföyü' : i.author} · {i.license} · {i.width}×{i.height}
                     </span>
                     {i.status === 'secildi' ? (
                       <span
@@ -240,7 +284,7 @@ export default function Fotograflar() {
                         >
                           {i.edited ? 'Alanları düzenle' : 'Plakayı bulanıklaştır'}
                         </button>
-                        {i.edited ? (
+                        {i.edited && !galeri(i) ? (
                           <button
                             type="button"
                             className="k-btn-line"
@@ -284,7 +328,7 @@ export default function Fotograflar() {
                         </button>
                         <select
                           aria-label={`Makyaj · ${i.commonsFile}`}
-                          value={makyaj[i.id] ?? ''}
+                          value={makyajOf(i)}
                           onChange={(e) => setMakyaj((m) => ({ ...m, [i.id]: e.target.value }))}
                           style={{
                             fontSize: 13,
@@ -299,26 +343,38 @@ export default function Fotograflar() {
                             </option>
                           ))}
                         </select>
-                        <button
-                          type="button"
-                          className="k-btn-ok"
-                          style={{ fontSize: 13, padding: '6px 10px' }}
-                          disabled={busy !== null}
-                          onClick={() =>
-                            act(i.id, async () => {
-                              const m = makyaj[i.id] ?? '';
-                              await yonetim(`catalog/images/${i.id}/select`, {
-                                method: 'POST',
-                                body: { makyaj: m === '' ? null : Number(m) },
-                              });
-                              load();
-                              const ad = MAKYAJLAR.find(([v]) => v === m)?.[1] ?? 'Nesil geneli';
-                              return `${title(g)} · ${ad.toLocaleLowerCase('tr-TR')} fotoğrafı seçildi ve depoya alındı. Diğer makyajlar için Seçilmiş sekmesinden devam edebilirsin.`;
-                            })
-                          }
-                        >
-                          {busy === i.id ? 'Alınıyor…' : 'Bunu seç'}
-                        </button>
+                        {galeri(i) ? (
+                          <>
+                            <button
+                              type="button"
+                              className="k-btn-ok"
+                              style={{ fontSize: 13, padding: '6px 10px' }}
+                              disabled={busy !== null}
+                              onClick={() => setPlaka({ g, i, sec: true })}
+                            >
+                              Plakayı işaretle ve seç
+                            </button>
+                            <button
+                              type="button"
+                              className="k-btn-line"
+                              style={{ fontSize: 13, padding: '6px 10px' }}
+                              disabled={busy !== null}
+                              onClick={() => sec(g, i, { plakaYok: true })}
+                            >
+                              {busy === i.id ? 'Alınıyor…' : 'Plaka görünmüyor, seç'}
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            type="button"
+                            className="k-btn-ok"
+                            style={{ fontSize: 13, padding: '6px 10px' }}
+                            disabled={busy !== null}
+                            onClick={() => sec(g, i)}
+                          >
+                            {busy === i.id ? 'Alınıyor…' : 'Bunu seç'}
+                          </button>
+                        )}
                       </span>
                     )}
                   </figcaption>
@@ -328,10 +384,24 @@ export default function Fotograflar() {
           </section>
         ))
       )}
-      {plaka?.i.kopya ? (
+      {plaka?.sec ? (
+        <PlakaDuzenle
+          src={onizleme(plaka.i)}
+          baslik={`${title(plaka.g)} · ${plaka.i.author}`}
+          galeri
+          ilk={[]}
+          kapat={() => setPlaka(null)}
+          kaydet={async (alanlar) => {
+            const { g, i } = plaka;
+            setPlaka(null);
+            await sec(g, i, { alanlar });
+          }}
+        />
+      ) : plaka?.i.kopya ? (
         <PlakaDuzenle
           src={`${API}${plaka.i.kopya}`}
           baslik={`${title(plaka.g)} · ${plaka.i.makyajAd ?? ''}`}
+          galeri={galeri(plaka.i)}
           ilk={plaka.i.blurAreas ?? []}
           kapat={() => setPlaka(null)}
           kaydet={async (alanlar) => {

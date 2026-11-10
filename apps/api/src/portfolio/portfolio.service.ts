@@ -32,6 +32,7 @@ import {
   REPORT_REASONS,
 } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
+import { galeriFotoGeriCek } from '../catalog/galeri-foto.js';
 import { sniff } from '../common/files.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
@@ -262,6 +263,8 @@ export class PortfolioService {
         },
       });
       if (yeniden) await this.openEids(tx, id, cols.plate as string);
+      // Katalog izni kapatıldı: galeri fotoğrafı temsilî görselden geri çekilir (Karar 34)
+      if (v.photoCatalogOk && !cols.photoCatalogOk) await galeriFotoGeriCek(tx, { vehicleId: id });
       await this.audit.record(
         {
           actorType: 'USER',
@@ -382,7 +385,12 @@ export class PortfolioService {
     if (v.status === 'PUBLISHED' && n <= PHOTO_MIN) {
       throw new ConflictException(`Yayındaki araçta en az ${PHOTO_MIN} fotoğraf olmalı`);
     }
-    const r = await this.db.portfolioPhoto.deleteMany({ where: { id: photoId, vehicleId: id } });
+    const r = await this.db.$transaction(async (tx) => {
+      const sil = await tx.portfolioPhoto.deleteMany({ where: { id: photoId, vehicleId: id } });
+      // Silinen fotoğraf katalogda temsilî görselse geri çekilir (Karar 34)
+      if (sil.count) await galeriFotoGeriCek(tx, { photoId });
+      return sil;
+    });
     if (!r.count) throw new NotFoundException('Fotoğraf bulunamadı');
     const kalan = await this.db.portfolioPhoto.findMany({
       where: { vehicleId: id },

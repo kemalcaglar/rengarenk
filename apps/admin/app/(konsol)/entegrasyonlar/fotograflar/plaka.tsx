@@ -16,12 +16,15 @@ export interface Alan {
 export function PlakaDuzenle({
   src,
   baslik,
+  galeri = false,
   ilk,
   kaydet,
   kapat,
 }: {
   src: string;
   baslik: string;
+  /** Galeri fotoğrafı: plakasız gösterilmez, geri alma yok (Karar 34) */
+  galeri?: boolean;
   ilk: Alan[];
   kaydet: (alanlar: Alan[]) => Promise<void>;
   kapat: () => void;
@@ -104,8 +107,9 @@ export function PlakaDuzenle({
         <h2 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>Plakayı bulanıklaştır</h2>
         <p className="k-sub" style={{ margin: '0 0 12px' }}>
           {baslik}. Plakanın çevresine sürükleyerek kutu çiz; okunan her plaka ve kişi için ayrı kutu.
-          Kaydedince alanlar pikselleştirilir, atıfta “düzenlendi” yazar ve özgün kopya saklanır (geri
-          alınabilir).
+          {galeri
+            ? 'Kaydedince alanlar pikselleştirilmiş olarak yayına çıkar; atıfta galeri adı ve “düzenlendi” yazar. Galeri fotoğrafının plakalı kopyası gösterilmez.'
+            : 'Kaydedince alanlar pikselleştirilir, atıfta “düzenlendi” yazar ve özgün kopya saklanır (geri alınabilir).'}
         </p>
         <div
           ref={kutu}

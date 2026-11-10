@@ -5,6 +5,7 @@ import { AgentService } from '../agent/agent.service.js';
 import { ajanAktor } from '../approvals/agent-actor.js';
 import { AuditService } from '../audit/audit.service.js';
 import { AuthService } from '../auth/auth.service.js';
+import { galeriFotoGeriCek } from '../catalog/galeri-foto.js';
 import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
@@ -183,6 +184,8 @@ export class AccountClosureService {
           await this.outbox.add(tx, 'portfoy.kalkti', { vehicleId: v.id });
         }
         await tx.account.update({ where: { id: hesap }, data: { status: 'CLOSED' } });
+        // Hesabın fotoğrafları katalogda temsilî görsel olarak kalmaz (Karar 34)
+        await galeriFotoGeriCek(tx, { accountId: hesap });
       }
       // Galeri ekibinden çıkar (sahiplik engelde denetlendi)
       await tx.accountMember.deleteMany({ where: { userId, role: { not: 'OWNER' } } });

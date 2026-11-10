@@ -318,18 +318,21 @@ const aliasApproveSchema = z
   .optional()
   .transform((v) => v ?? {});
 
+const oran = z.number().min(0).max(1);
+const blurAreaSchema = z.object({ x: oran, y: oran, w: oran.positive(), h: oran.positive() }).strict();
+/** Galeri fotoğrafında plaka alanları ya da "plaka görünmüyor" onayı zorunlu (Karar 34) */
 const imageSelectSchema = z
-  .object({ makyaj: z.number().int().min(0).max(5).nullable().optional() })
+  .object({
+    makyaj: z.number().int().min(0).max(5).nullable().optional(),
+    alanlar: z.array(blurAreaSchema).max(6).optional(),
+    plakaYok: z.boolean().optional(),
+  })
   .strict()
   .optional()
   .transform((v) => v ?? {});
-const oran = z.number().min(0).max(1);
 const imageBlurSchema = z
   .object({
-    alanlar: z
-      .array(z.object({ x: oran, y: oran, w: oran.positive(), h: oran.positive() }).strict())
-      .min(1)
-      .max(6),
+    alanlar: z.array(blurAreaSchema).min(1).max(6),
   })
   .strict();
 
@@ -361,7 +364,10 @@ export class StaffCatalogController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodPipe(imageSelectSchema)) body: z.output<typeof imageSelectSchema>,
   ) {
-    return this.images.select(id, req.staff.staff.id, req.ip, body.makyaj ?? null);
+    return this.images.select(id, req.staff.staff.id, req.ip, body.makyaj ?? null, {
+      alanlar: body.alanlar,
+      plakaYok: body.plakaYok,
+    });
   }
 
   /** Plaka bulanıklaştırma (Karar 34): alanlar fotoğrafa oranla */

@@ -293,8 +293,12 @@ pnpm format        # Biome ile biçimlendir
   `TrustService.kurallar()`), makyaj başına fotoğraf (`catalog_images.facelift`, gösterimde `makyajFoto`), plaka
   bulanıklaştırma (sharp; özgün kopya saklanır). 6) Araç favorisi (`vehicle_favorites`), fotoğraf kopya tespiti (dHash
   `portfolio_photos.phash`, kural şikâyeti `kopya_foto`). 7) Komşu il: `il-komsulari.ts` (OpenStreetMap kökenli, atıf
-  Veri kaynakları'nda), kategori şemasında `konumKapsami`; başlangıç "il", davranış değişmedi. Hepsi bitti. Açık kalan:
-  galeri fotoğrafının katalogda temsilî görsel olması (Karar 34). API'de 201, ortak pakette 120 test.
+  Veri kaynakları'nda), kategori şemasında `konumKapsami`; başlangıç "il", davranış değişmedi. Hepsi bitti. Galeri fotoğrafı
+  temsilî görsel (Karar 34): Commons'ta adayı olmayan nesle izinli portföy fotoğrafı aday (`catalog_images.origin`),
+  plaka seçimle birlikte bulanıklaşır; izin, fotoğraf, moderasyon ya da hesap kapanışında aynı işlemde
+  `galeriFotoGeriCek` (yeni bir izin kaldırma yolu eklersen bunu çağır). `catalog_images` yalnızca ekleme kabul eder
+  (silme yok, durum değişir). Nesilde fotoğraf yoksa talep sayfasında "önceki nesil" (`nesilFoto`). API'de 203,
+  ortak pakette 120 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
