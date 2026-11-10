@@ -4,8 +4,9 @@ import { colors, type HomeResponse, tints } from '@rengarenk/shared';
 import Link from 'next/link';
 import { Fragment, type ReactNode, useEffect, useState } from 'react';
 import { Banner } from '../../components/banner';
-import { API, istek, useGiris } from '../../lib/istemci';
+import { istek, useGiris } from '../../lib/istemci';
 import { Baslik, kart, type SonKart, SonTalepler } from './ana-bolumler';
+import { talepleriAl } from './ana-yedek';
 import { KayitliAramalarim } from './kayitli-aramalarim';
 import { PortfoyEslesmeleri } from './portfoy-eslesmeleri';
 
@@ -290,21 +291,30 @@ function GelenMesajlar({ liste }: { liste: NonNullable<HomeResponse['mesajlar']>
   );
 }
 
-/** Galeri: kendi ilindeki son talepler */
+/** Galeri: kendi ilindeki son talepler; ilinde talep yoksa bütün Türkiye'nin son talepleri (bölüm boş kalmaz) */
 function BolgeSon({ il }: { il: string }) {
-  const [liste, setListe] = useState<SonKart[]>([]);
+  const [v, setV] = useState<{ liste: SonKart[]; il: boolean } | null>(null);
   useEffect(() => {
-    fetch(`${API}/talepler?il=${encodeURIComponent(il)}&sira=yeni&boyut=6`)
-      .then((r) => (r.ok ? (r.json() as Promise<{ sonuclar: SonKart[] }>) : { sonuclar: [] }))
-      .then((r) => setListe(r.sonuclar))
-      .catch(() => undefined);
+    let canli = true;
+    (async () => {
+      const bolge = await talepleriAl(`/talepler?il=${encodeURIComponent(il)}&sira=yeni&boyut=6`);
+      if (bolge?.sonuclar.length) return { liste: bolge.sonuclar, il: true };
+      const genel = await talepleriAl('/talepler?sira=yeni&boyut=6');
+      return { liste: genel?.sonuclar ?? [], il: false };
+    })().then((x) => canli && setV(x));
+    return () => {
+      canli = false;
+    };
   }, [il]);
-  return (
+  if (!v) return null;
+  return v.il ? (
     <SonTalepler
-      liste={liste}
+      liste={v.liste}
       baslik={`Son talepler · ${il}`}
       tumu={`/talepler?il=${encodeURIComponent(il)}&sira=yeni`}
     />
+  ) : (
+    <SonTalepler liste={v.liste} baslik="Son talepler" tumu="/talepler?sira=yeni" />
   );
 }
 

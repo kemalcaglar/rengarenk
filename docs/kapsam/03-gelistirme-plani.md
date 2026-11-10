@@ -165,6 +165,12 @@ sistem sağlığı, tasarım değerleri.
   ve yeni oturum verilir, kullanıldıysa yine çalınma). Oturuma bakılırken üst çubukta "Giriş yap" yanıp sönmez.
   Hesabım açılır menüsü (üzerine gelince ya da tıklayınca; tasarıma ek) ve "Çıkış yap"; çıkış ucu gövdesiz isteği JSON
   diye bildirdiği için API'de oturumu kapatmıyordu (400), düzeldi
+- [x] Ana sayfada vitrin ve son talepler bazen görünmüyordu (10 Kasım 2026): sunucu API'ye ulaşamayınca (yeniden başlama,
+  yavaşlık) iki bölümü sessizce gizliyordu. Sunucu bir kez daha dener; yine olmazsa bölüm tarayıcıda yaklaşık bir dakika
+  aralıklarla yeniden çekilir (`ana-yedek.tsx`, vitrin `vitrin.tsx`'e taşındı); mobilde de aynı yeniden deneme. Galeri
+  düzenine Anasayfa.dc.html'deki gibi vitrin eklendi (konsol tasarımının galeri listesinde yoktu); galerinin ilinde talep
+  yoksa son talepler bütün Türkiye'den. Yayındaki eski düzen yeni bölümle tamamlanır (`completeHomeLayout`; eskiden şemaya
+  uymayan sürüm varsayılana dönüyordu ve konsolda yapılan düzen kayboluyordu)
 - [ ] Yardım ve yasal metinler (YonetimIcerik.dc.html, Karar 46, 59): yasal metinler `consent_texts`'te sürümlü
   (taslak, yayında, eski) ve şimdilik `yasal-yukle` komutuyla yükleniyor. Yapılacak: konsolda metin listesi, taslak
   düzenleme, önceki sürümle madde madde karşılaştırma, "esaslı değişiklik" işareti, yayın Sahip onayıyla (dört göz),

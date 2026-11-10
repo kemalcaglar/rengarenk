@@ -62,7 +62,15 @@ export const HOME_SECTIONS: Record<HomeAudience, HomeSection[]> = {
     b('hak', 'Kalan ilk mesaj hakkı', 'Paket ve ek haklar', '#FFC84A', 34),
     b('aranan', 'Bölgende aranan modeller', 'Son 30 günün talepleri ve portföyün', '#FF6FB5', 50),
     b('duyuru', 'Duyuru', 'Galeri duyuruları', '#9B7BFF', 30),
-    b('son', 'Son talepler · bölgen', 'Galerinin ilindeki en yeni talepler', '#5B8CFF', 56),
+    // Anasayfa.dc.html: vitrin galeriye de görünür (konsol tasarımının galeri listesinde yoktu; sayfa tasarımına uyuldu)
+    b('vitrin', 'Vitrin talepleri', '17 yer · ücretliler önce', '#FF6FB5', 56),
+    b(
+      'son',
+      'Son talepler · bölgen',
+      'Galerinin ilindeki en yeni talepler; ilinde yoksa tüm Türkiye',
+      '#5B8CFF',
+      56,
+    ),
   ],
 };
 
@@ -138,6 +146,36 @@ export const homePublishSchema = z
     zaman: z.iso.datetime({ offset: true }).nullable().default(null),
   })
   .strict();
+
+/**
+ * Yayındaki eski düzeni bugünkü bölüm listesine tamamlar: sonradan eklenen bölüm (ör. galeride vitrin) varsayılan
+ * sıradaki yerine açık olarak girer, artık olmayan bölüm düşer. Böylece yeni bölüm eklenince konsolda yapılmış düzen
+ * kaybolmaz (eskiden şemaya uymayan sürüm bütünüyle varsayılana dönüyordu).
+ */
+export function completeHomeLayout(raw: unknown): unknown {
+  if (!raw || typeof raw !== 'object') return raw;
+  const v = raw as Record<string, Record<string, { sira?: unknown; gizli?: unknown }>>;
+  const out: Record<string, Record<string, AudienceLayout>> = {};
+  const varsayilan = defaultHomeLayout();
+  for (const k of HOME_AUDIENCE_KEYS) {
+    out[k] = {};
+    for (const p of HOME_PLATFORM_KEYS) {
+      const d = v[k]?.[p];
+      if (!d || !Array.isArray(d.sira) || !Array.isArray(d.gizli)) return raw;
+      const anahtarlar = HOME_SECTIONS[k].map((s) => s.key);
+      const sira = (d.sira as string[]).filter((s) => anahtarlar.includes(s));
+      const ref = varsayilan[k][p].sira;
+      for (const yeni of ref) {
+        if (sira.includes(yeni)) continue;
+        // Varsayılan sırada kendinden sonra gelen ilk bölümün önüne
+        const sonraki = ref.slice(ref.indexOf(yeni) + 1).find((s) => sira.includes(s));
+        sira.splice(sonraki ? sira.indexOf(sonraki) : sira.length, 0, yeni);
+      }
+      out[k][p] = { sira, gizli: (d.gizli as string[]).filter((s) => anahtarlar.includes(s)) };
+    }
+  }
+  return out;
+}
 
 /** Görünen bölümler, sırasıyla */
 export const visibleSections = (d: AudienceLayout) => d.sira.filter((s) => !d.gizli.includes(s));

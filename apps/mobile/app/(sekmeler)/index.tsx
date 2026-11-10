@@ -55,10 +55,19 @@ const FOTO_YOK = ['#DCE3F0', '#E4DFEE', '#DCEAE3', '#EEE8DC'];
 const BOS = ['bos1', 'bos2'];
 const VITRIN_FIYAT = ONE_CIKARMA.find((o) => o.key === 'vitrin')?.mobil ?? 359.99;
 
-const al = (yol: string) =>
-  fetch(`${API}${yol}`)
-    .then((r) => (r.ok ? (r.json() as Promise<Yanit>) : null))
-    .catch(() => null);
+/** Talepler; API'ye ulaşılamazsa yaklaşık bir dakika boyunca aralıklarla (1, 2, 4, 8, 15, 30 sn) yeniden dener (vitrin ve son talepler kaybolmasın) */
+async function al(yol: string): Promise<Yanit | null> {
+  for (const bekle of [0, 1000, 2000, 4000, 8000, 15000, 30000]) {
+    if (bekle) await new Promise((r) => setTimeout(r, bekle));
+    try {
+      const r = await fetch(`${API}${yol}`);
+      if (r.ok) return (await r.json()) as Yanit;
+    } catch {
+      // yeniden dener
+    }
+  }
+  return null;
+}
 
 const ADIMLAR = [
   {
@@ -124,8 +133,24 @@ export default function Home() {
   useEffect(() => {
     al('/talepler/vitrin?boyut=17').then(setVitrin);
   }, []);
+  // Galeri: kendi ilindeki son talepler; ilinde talep yoksa bütün Türkiye
+  const [sonIl, setSonIl] = useState(false);
   useEffect(() => {
-    al(`/talepler?sira=yeni&boyut=5${galeriIl ? `&il=${encodeURIComponent(galeriIl)}` : ''}`).then(setSon);
+    let canli = true;
+    (async () => {
+      if (galeriIl) {
+        const bolge = await al(`/talepler?sira=yeni&boyut=5&il=${encodeURIComponent(galeriIl)}`);
+        if (bolge?.sonuclar.length) return { y: bolge, il: true };
+      }
+      return { y: await al('/talepler?sira=yeni&boyut=5'), il: false };
+    })().then((x) => {
+      if (!canli) return;
+      setSon(x.y);
+      setSonIl(x.il);
+    });
+    return () => {
+      canli = false;
+    };
   }, [galeriIl]);
   const hucre = (width - 2) / 3;
   const vitrinSayi = (vitrin?.sonuclar.length ?? 0) + 1;
@@ -294,15 +319,14 @@ export default function Home() {
               }}
             >
               <T accessibilityRole="header" style={{ fontSize: 17, fontWeight: '800' }}>
-                {v.kitle === 'galeri' && v.galeri ? `Son talepler · ${v.galeri.il}` : 'Son talepler'}
+                {sonIl && v.galeri ? `Son talepler · ${v.galeri.il}` : 'Son talepler'}
               </T>
               <T
                 accessibilityRole="link"
                 onPress={() =>
                   router.push({
                     pathname: '/talepler',
-                    params:
-                      v.kitle === 'galeri' && v.galeri ? { sira: 'yeni', il: v.galeri.il } : { sira: 'yeni' },
+                    params: sonIl && v.galeri ? { sira: 'yeni', il: v.galeri.il } : { sira: 'yeni' },
                   })
                 }
                 style={{ fontSize: 13.5, fontWeight: '700', color: colors.link }}

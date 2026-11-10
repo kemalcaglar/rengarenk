@@ -145,7 +145,7 @@ describe('Ana sayfa düzeni (Karar 46)', () => {
     });
     const g = await anasayfa(sahip.token);
     expect(g.body.kitle).toBe('galeri');
-    expect(g.body.sira).toEqual(['karsi', 'eslesme', 'hak', 'aranan', 'duyuru', 'son']);
+    expect(g.body.sira).toEqual(['karsi', 'eslesme', 'hak', 'aranan', 'duyuru', 'vitrin', 'son']);
     expect(g.body.galeri).toMatchObject({
       ad: 'Ege Oto',
       paket: 'Deneme',

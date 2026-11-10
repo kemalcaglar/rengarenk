@@ -1,6 +1,7 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { type Prisma, uuidv7 } from '@rengarenk/db';
 import {
+  completeHomeLayout,
   defaultHomeLayout,
   galleryAccess,
   HOME_SECTIONS,
@@ -58,7 +59,7 @@ export class HomeService {
       orderBy: { version: 'desc' },
     });
     if (!v) return { surum: 0, duzen: defaultHomeLayout() };
-    const p = homeLayoutSchema.safeParse(v.layout);
+    const p = homeLayoutSchema.safeParse(completeHomeLayout(v.layout));
     return { surum: v.version, duzen: p.success ? (p.data as HomeLayout) : defaultHomeLayout() };
   }
 
@@ -187,7 +188,7 @@ export class HomeService {
         ? {
             surum: zamanli.version,
             zaman: tarih(zamanli.publishAt),
-            duzen: zamanli.layout as unknown as HomeLayout,
+            duzen: completeHomeLayout(zamanli.layout) as HomeLayout,
           }
         : null,
       surumler: satirlar.map((s) => ({
@@ -252,7 +253,7 @@ export class HomeService {
   async rollback(staffId: string, surum: number, ip?: string) {
     const v = await this.db.homeLayoutVersion.findUnique({ where: { version: surum } });
     if (!v || v.publishAt > new Date()) throw new NotFoundException('Sürüm bulunamadı');
-    const p = homeLayoutSchema.safeParse(v.layout);
+    const p = homeLayoutSchema.safeParse(completeHomeLayout(v.layout));
     if (!p.success) throw new BadRequestException('Sürüm okunamadı');
     return this.publish(staffId, p.data as HomeLayout, null, ip, `s.${surum} sürümüne dönüldü`);
   }
