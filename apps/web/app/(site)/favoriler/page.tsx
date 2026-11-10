@@ -178,8 +178,8 @@ export default function Favoriler() {
             display: 'flex',
             gap: 6,
             background: '#FFFFFF',
-            border: '1px solid #E3E6EF',
-            borderRadius: 14,
+            border: '1px solid var(--rr-cizgi, #E3E6EF)',
+            borderRadius: 'var(--rr-buton-kose)',
             padding: 6,
             marginBottom: 16,
             maxWidth: 520,
@@ -202,12 +202,12 @@ export default function Favoriler() {
                   padding: '11px 12px',
                   fontSize: 14.5,
                   fontWeight: on ? 800 : 600,
-                  color: on ? '#1E2333' : '#3A4052',
+                  color: on ? 'var(--rr-murekkep, #1E2333)' : '#3A4052',
                   cursor: 'pointer',
                   fontFamily: 'inherit',
                 }}
               >
-                {ad} <span style={{ color: on ? '#2450C8' : '#5A6073' }}>{n ?? ''}</span>
+                {ad} <span style={{ color: on ? 'var(--rr-baglanti, #2450C8)' : '#5A6073' }}>{n ?? ''}</span>
               </button>
             );
           })}
@@ -220,7 +220,7 @@ export default function Favoriler() {
               margin: '0 0 14px',
               background: '#FFF0EE',
               border: '1px solid #F5C6C0',
-              borderRadius: 12,
+              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
               padding: '10px 14px',
               fontSize: 14,
               color: '#A3271F',
@@ -240,8 +240,8 @@ export default function Favoriler() {
                     key={f.no}
                     style={{
                       background: '#FFFFFF',
-                      border: '1px solid #E3E6EF',
-                      borderRadius: 18,
+                      border: '1px solid var(--rr-cizgi, #E3E6EF)',
+                      borderRadius: 'var(--rr-kart-kose)',
                       padding: 16,
                       display: 'flex',
                       flexDirection: 'column',
@@ -262,7 +262,7 @@ export default function Favoriler() {
                           fontSize: 12,
                           fontWeight: 800,
                           padding: '3px 9px',
-                          borderRadius: 999,
+                          borderRadius: 'var(--rr-etiket-kose)',
                           background: bg,
                           color: fg,
                         }}
@@ -297,7 +297,7 @@ export default function Favoriler() {
                     </div>
                     <Link
                       href={`/talep/${f.no}`}
-                      style={{ fontSize: 16.5, fontWeight: 800, color: '#1E2333' }}
+                      style={{ fontSize: 16.5, fontWeight: 800, color: 'var(--rr-murekkep, #1E2333)' }}
                     >
                       {f.baslik}
                     </Link>
@@ -314,12 +314,12 @@ export default function Favoriler() {
                         <Link
                           href={`/talep/${f.no}`}
                           style={{
-                            background: '#5B8CFF',
+                            background: 'var(--rr-mavi, #5B8CFF)',
                             borderRadius: 10,
                             padding: '9px 14px',
                             fontSize: 13.5,
                             fontWeight: 800,
-                            color: '#1E2333',
+                            color: 'var(--rr-murekkep, #1E2333)',
                           }}
                         >
                           Mesaj gönder
@@ -339,7 +339,7 @@ export default function Favoriler() {
                 style={{
                   background: '#FFFFFF',
                   border: '1px dashed #C9CFDB',
-                  borderRadius: 18,
+                  borderRadius: 'var(--rr-kart-kose)',
                   padding: '36px 20px',
                   textAlign: 'center',
                   fontSize: 15,
@@ -359,7 +359,7 @@ export default function Favoriler() {
                 style={{
                   background: '#FFFFFF',
                   border: '1px dashed #C9CFDB',
-                  borderRadius: 18,
+                  borderRadius: 'var(--rr-kart-kose)',
                   padding: '36px 20px',
                   textAlign: 'center',
                   fontSize: 15,
@@ -375,8 +375,8 @@ export default function Favoriler() {
                 key={a.id}
                 style={{
                   background: '#FFFFFF',
-                  border: '1px solid #E3E6EF',
-                  borderRadius: 18,
+                  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+                  borderRadius: 'var(--rr-kart-kose)',
                   padding: 18,
                   display: 'flex',
                   flexWrap: 'wrap',
@@ -407,7 +407,7 @@ export default function Favoriler() {
                             padding: '8px 10px',
                             fontSize: 15,
                             fontWeight: 700,
-                            color: '#1E2333',
+                            color: 'var(--rr-murekkep, #1E2333)',
                           }}
                         />
                         <button
@@ -416,8 +416,8 @@ export default function Favoriler() {
                           style={{
                             border: 0,
                             borderRadius: 9,
-                            background: '#5B8CFF',
-                            color: '#1E2333',
+                            background: 'var(--rr-mavi, #5B8CFF)',
+                            color: 'var(--rr-murekkep, #1E2333)',
                             fontWeight: 700,
                             fontSize: 14,
                             padding: '9px 16px',
@@ -455,7 +455,7 @@ export default function Favoriler() {
                           fontSize: 12.5,
                           fontWeight: 800,
                           padding: '3px 10px',
-                          borderRadius: 999,
+                          borderRadius: 'var(--rr-etiket-kose)',
                           background: '#FFEEF6',
                           color: '#A3236A',
                         }}
@@ -470,7 +470,7 @@ export default function Favoriler() {
                         key={c}
                         style={{
                           background: '#F3F5FA',
-                          borderRadius: 999,
+                          borderRadius: 'var(--rr-etiket-kose)',
                           padding: '5px 11px',
                           fontSize: 12.5,
                           fontWeight: 600,
@@ -503,7 +503,13 @@ export default function Favoriler() {
                   <div
                     role="radiogroup"
                     aria-label={`${a.ad} bildirimi`}
-                    style={{ display: 'flex', gap: 4, background: '#F3F5FA', borderRadius: 12, padding: 4 }}
+                    style={{
+                      display: 'flex',
+                      gap: 4,
+                      background: '#F3F5FA',
+                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                      padding: 4,
+                    }}
                   >
                     {SAVED_SEARCH_NOTIFY.map((b) => {
                       const on = a.bildirim === b.key;
@@ -523,7 +529,7 @@ export default function Favoriler() {
                             padding: '8px 6px',
                             fontSize: 13,
                             fontWeight: on ? 800 : 600,
-                            color: '#1E2333',
+                            color: 'var(--rr-murekkep, #1E2333)',
                             cursor: 'pointer',
                             fontFamily: 'inherit',
                             whiteSpace: 'nowrap',
@@ -554,7 +560,7 @@ export default function Favoriler() {
                         padding: 0,
                         fontSize: 13.5,
                         fontWeight: 700,
-                        color: '#2450C8',
+                        color: 'var(--rr-baglanti, #2450C8)',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                       }}

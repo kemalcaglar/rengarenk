@@ -59,10 +59,10 @@ export function PortfoyEslesmeleri() {
             style={{
               display: 'block',
               background: '#FFFFFF',
-              border: '1px solid #E3E6EF',
+              border: '1px solid var(--rr-cizgi, #E3E6EF)',
               borderRadius: 16,
               padding: 16,
-              color: '#1E2333',
+              color: 'var(--rr-murekkep, #1E2333)',
               textDecoration: 'none',
             }}
           >
@@ -76,7 +76,7 @@ export function PortfoyEslesmeleri() {
                 fontSize: 12,
                 fontWeight: 700,
                 padding: '4px 10px',
-                borderRadius: 999,
+                borderRadius: 'var(--rr-etiket-kose)',
               }}
             >
               Portföyünüzdeki {e.arac} uyuyor
@@ -90,7 +90,13 @@ export function PortfoyEslesmeleri() {
               {[[e.il, e.ilce].filter(Boolean).join(', '), zaman(e.yayin)].filter(Boolean).join(' · ')}
             </span>
             <span
-              style={{ display: 'block', fontSize: 15, fontWeight: 800, color: '#2450C8', marginTop: 10 }}
+              style={{
+                display: 'block',
+                fontSize: 15,
+                fontWeight: 800,
+                color: 'var(--rr-baglanti, #2450C8)',
+                marginTop: 10,
+              }}
             >
               {butceAraligi(e.butceMin, e.butceMax)}
             </span>

@@ -1,5 +1,5 @@
-import { colors } from '@rengarenk/shared';
 import Link from 'next/link';
+import { colors } from '../lib/renk';
 
 const BARS = [colors.blue, colors.pink, colors.yellow, colors.green];
 
@@ -8,7 +8,7 @@ export function Logo() {
   return (
     <Link
       href="/"
-      style={{ display: 'flex', alignItems: 'center', gap: 8, color: colors.ink, textDecoration: 'none' }}
+      style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'inherit', textDecoration: 'none' }}
       aria-label="Rengarenk ana sayfa"
     >
       <span style={{ display: 'flex', gap: 3 }} aria-hidden="true">

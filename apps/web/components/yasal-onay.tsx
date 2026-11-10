@@ -1,8 +1,9 @@
 'use client';
 
-import { colors, LEGAL_PATHS, type PendingLegal } from '@rengarenk/shared';
+import { LEGAL_PATHS, type PendingLegal } from '@rengarenk/shared';
 import { useEffect, useState } from 'react';
 import { cikisYap, istek, useGiris } from '../lib/istemci';
+import { colors } from '../lib/renk';
 
 /**
  * Yasal metin güncellemesi (Karar 46): esaslı değişiklikten sonra girişte yeni sürüm onaylatılır. Zorunlu metinler kabul
@@ -68,7 +69,7 @@ export function YasalOnay() {
           maxHeight: '100%',
           overflow: 'auto',
           background: colors.surface,
-          borderRadius: 18,
+          borderRadius: 'var(--rr-kart-kose)',
           padding: 22,
           boxShadow: '0 20px 48px rgba(30,35,51,0.25)',
         }}
@@ -84,7 +85,12 @@ export function YasalOnay() {
           <section
             key={x.key}
             aria-label={x.ad}
-            style={{ border: `1px solid ${colors.line}`, borderRadius: 14, padding: 14, marginBottom: 10 }}
+            style={{
+              border: `1px solid ${colors.line}`,
+              borderRadius: 'var(--rr-buton-kose)',
+              padding: 14,
+              marginBottom: 10,
+            }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
               <strong style={{ fontSize: 15 }}>
@@ -158,7 +164,7 @@ export function YasalOnay() {
             style={{
               border: `1px solid ${colors.line}`,
               background: colors.surface,
-              borderRadius: 12,
+              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
               padding: '11px 16px',
               fontSize: 14.5,
               fontWeight: 700,
@@ -175,7 +181,7 @@ export function YasalOnay() {
               border: 0,
               background: hazir ? colors.blue : '#C9D3E6',
               color: colors.ink,
-              borderRadius: 12,
+              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
               padding: '11px 18px',
               fontSize: 14.5,
               fontWeight: 800,

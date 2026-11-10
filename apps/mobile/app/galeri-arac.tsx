@@ -10,6 +10,7 @@ import {
   portfolioRules,
   portfolioVehicleSchema,
   type RuleResult,
+  radii,
 } from '@rengarenk/shared';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
@@ -227,7 +228,7 @@ export default function GaleriArac() {
               marginBottom: 10,
               backgroundColor: '#FFF0EE',
               color: '#A3271F',
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               padding: 12,
             }}
           >
@@ -441,7 +442,7 @@ export default function GaleriArac() {
                   fontWeight: '700',
                   paddingVertical: 4,
                   paddingHorizontal: 8,
-                  borderRadius: 999,
+                  borderRadius: radii.etiket,
                   overflow: 'hidden',
                   backgroundColor: r.ok ? '#E7FAF0' : r.engel ? '#FDECEC' : '#FFF6DF',
                   color: r.ok ? '#11683F' : r.engel ? '#A3271F' : '#7A5300',
@@ -548,7 +549,7 @@ export default function GaleriArac() {
               marginTop: 10,
               borderWidth: 1,
               borderColor: '#D5DAE5',
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               padding: 12,
               alignItems: 'center',
             }}
@@ -606,7 +607,7 @@ export default function GaleriArac() {
             flex: 1,
             borderWidth: 1,
             borderColor: '#D5DAE5',
-            borderRadius: 14,
+            borderRadius: radii.buton,
             paddingVertical: 14,
             alignItems: 'center',
           }}
@@ -632,7 +633,7 @@ export default function GaleriArac() {
             style={{
               flex: 2,
               backgroundColor: colors.blue,
-              borderRadius: 14,
+              borderRadius: radii.buton,
               paddingVertical: 14,
               alignItems: 'center',
             }}

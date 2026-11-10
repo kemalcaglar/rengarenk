@@ -29,7 +29,7 @@ interface Yazisma {
 
 const DURUM: Record<string, [string, string]> = {
   acik: ['#FFF6DF', '#7A5300'],
-  yanitlandi: ['#EEF3FF', '#2450C8'],
+  yanitlandi: ['#EEF3FF', 'var(--rr-baglanti, #2450C8)'],
   cozuldu: ['#E7FAF0', '#11683F'],
 };
 const zaman = (iso: string) =>
@@ -152,8 +152,8 @@ export default function Destek() {
                 maxWidth: 320,
                 minWidth: 0,
                 background: '#FFFFFF',
-                border: '1px solid #E3E6EF',
-                borderRadius: 18,
+                border: '1px solid var(--rr-cizgi, #E3E6EF)',
+                borderRadius: 'var(--rr-kart-kose)',
                 padding: 8,
               }}
             >
@@ -172,10 +172,10 @@ export default function Destek() {
                       textAlign: 'left',
                       border: 0,
                       background: on ? '#F3EFFF' : 'transparent',
-                      borderRadius: 12,
+                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                       padding: '10px 12px',
                       cursor: 'pointer',
-                      color: '#1E2333',
+                      color: 'var(--rr-murekkep, #1E2333)',
                       fontFamily: 'inherit',
                     }}
                   >
@@ -191,7 +191,14 @@ export default function Destek() {
                       <span style={{ color: '#5A6073' }}>
                         {s.numara} · {s.konu}
                       </span>
-                      <span style={{ padding: '1px 8px', borderRadius: 999, background: bg, color: fg }}>
+                      <span
+                        style={{
+                          padding: '1px 8px',
+                          borderRadius: 'var(--rr-etiket-kose)',
+                          background: bg,
+                          color: fg,
+                        }}
+                      >
                         {s.durumAd}
                       </span>
                     </span>
@@ -221,8 +228,8 @@ export default function Destek() {
                 flex: '999 1 420px',
                 minWidth: 0,
                 background: '#FFFFFF',
-                border: '1px solid #E3E6EF',
-                borderRadius: 18,
+                border: '1px solid var(--rr-cizgi, #E3E6EF)',
+                borderRadius: 'var(--rr-kart-kose)',
                 overflow: 'hidden',
               }}
             >
@@ -237,7 +244,7 @@ export default function Destek() {
               <div
                 style={{
                   padding: '14px 18px',
-                  background: '#F6F8FD',
+                  background: 'var(--rr-zemin, #F6F8FD)',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 8,
@@ -254,9 +261,9 @@ export default function Destek() {
                     <div
                       style={{
                         maxWidth: '80%',
-                        background: m.taraf === 'kullanici' ? '#5B8CFF' : '#FFFFFF',
-                        border: m.taraf === 'kullanici' ? 0 : '1px solid #E3E6EF',
-                        borderRadius: 14,
+                        background: m.taraf === 'kullanici' ? 'var(--rr-mavi, #5B8CFF)' : '#FFFFFF',
+                        border: m.taraf === 'kullanici' ? 0 : '1px solid var(--rr-cizgi, #E3E6EF)',
+                        borderRadius: 'var(--rr-buton-kose)',
                         padding: '9px 12px',
                         fontSize: 14,
                         lineHeight: 1.55,
@@ -289,7 +296,7 @@ export default function Destek() {
                           width: 44,
                           height: 44,
                           border: '1px solid #D5DAE5',
-                          borderRadius: 12,
+                          borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                           background: '#FFFFFF',
                           fontSize: 16,
                           fontWeight: 800,
@@ -344,7 +351,7 @@ export default function Destek() {
                     flex: 1,
                     minWidth: 0,
                     border: '1px solid #D5DAE5',
-                    borderRadius: 12,
+                    borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                     padding: '11px 12px',
                     fontSize: 14.5,
                     fontFamily: 'inherit',
@@ -354,12 +361,12 @@ export default function Destek() {
                   type="submit"
                   style={{
                     border: 0,
-                    background: '#5B8CFF',
-                    borderRadius: 12,
+                    background: 'var(--rr-mavi, #5B8CFF)',
+                    borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                     padding: '11px 18px',
                     fontSize: 14.5,
                     fontWeight: 800,
-                    color: '#1E2333',
+                    color: 'var(--rr-murekkep, #1E2333)',
                     cursor: 'pointer',
                     fontFamily: 'inherit',
                   }}

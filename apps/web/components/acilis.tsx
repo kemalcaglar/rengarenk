@@ -4,8 +4,17 @@ import type { LandingBlock } from '@rengarenk/shared';
 import { type CSSProperties, useEffect } from 'react';
 import { API } from '../lib/istemci';
 
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 20 };
-const RENK = ['#5B8CFF', '#FF6FB5', '#FFC84A', '#3DD68C'];
+const kart: CSSProperties = {
+  background: '#FFFFFF',
+  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+  borderRadius: 20,
+};
+const RENK = [
+  'var(--rr-mavi, #5B8CFF)',
+  'var(--rr-pembe, #FF6FB5)',
+  'var(--rr-sari, #FFC84A)',
+  'var(--rr-yesil, #3DD68C)',
+];
 const NOKTA = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0'];
 
 const olay = (slug: string, tur: 'ziyaret' | 'tiklama') =>
@@ -47,9 +56,9 @@ function Dugme({
       }}
       style={{
         display: 'inline-block',
-        background: '#5B8CFF',
-        color: '#1E2333',
-        borderRadius: 14,
+        background: 'var(--rr-mavi, #5B8CFF)',
+        color: 'var(--rr-murekkep, #1E2333)',
+        borderRadius: 'var(--rr-buton-kose)',
         padding: '14px 22px',
         fontSize: 16,
         fontWeight: 800,
@@ -87,7 +96,7 @@ export function AcilisSayfasi({
           style={{
             background: '#FFF6DF',
             color: '#7A5300',
-            borderRadius: 12,
+            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
             padding: '10px 14px',
             fontWeight: 700,
           }}
@@ -118,7 +127,10 @@ function Blok({ b, slug, onizleme }: { b: LandingBlock; slug: string; onizleme: 
         >
           <div style={{ display: 'flex', gap: 6, marginBottom: 18 }} aria-hidden="true">
             {RENK.map((r) => (
-              <span key={r} style={{ width: 28, height: 8, borderRadius: 999, background: r }} />
+              <span
+                key={r}
+                style={{ width: 28, height: 8, borderRadius: 'var(--rr-etiket-kose)', background: r }}
+              />
             ))}
           </div>
           <h1
@@ -205,7 +217,7 @@ function Blok({ b, slug, onizleme }: { b: LandingBlock; slug: string; onizleme: 
                     height: 30,
                     borderRadius: '50%',
                     background: RENK[i % 4],
-                    color: '#1E2333',
+                    color: 'var(--rr-murekkep, #1E2333)',
                     fontWeight: 800,
                     display: 'flex',
                     alignItems: 'center',
@@ -234,7 +246,7 @@ function Blok({ b, slug, onizleme }: { b: LandingBlock; slug: string; onizleme: 
             ...kart,
             padding: 24,
             marginBottom: 18,
-            border: '1.5px solid #5B8CFF',
+            border: '1.5px solid var(--rr-mavi, #5B8CFF)',
             display: 'flex',
             flexWrap: 'wrap',
             alignItems: 'center',
@@ -276,7 +288,7 @@ function Blok({ b, slug, onizleme }: { b: LandingBlock; slug: string; onizleme: 
               style={{
                 background: '#E7FAF0',
                 color: '#11683F',
-                borderRadius: 999,
+                borderRadius: 'var(--rr-etiket-kose)',
                 padding: '8px 14px',
                 fontSize: 14,
                 fontWeight: 800,

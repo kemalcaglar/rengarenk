@@ -1,4 +1,4 @@
-import { colors, HELP_TOPICS, type HomeResponse, type PublicCategory, tints } from '@rengarenk/shared';
+import { colors, HELP_TOPICS, type HomeResponse, type PublicCategory, radii, tints } from '@rengarenk/shared';
 import { type Href, router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
@@ -56,7 +56,7 @@ const kucukDugme = (yazi: string, git: () => void, rozet?: number) => (
       gap: 6,
       borderWidth: 1,
       borderColor: colors.line,
-      borderRadius: 12,
+      borderRadius: radii.buton - 2,
       paddingVertical: 9,
       paddingHorizontal: 12,
       backgroundColor: colors.surface,
@@ -64,7 +64,7 @@ const kucukDugme = (yazi: string, git: () => void, rozet?: number) => (
   >
     <T style={{ fontSize: 13.5, fontWeight: '700' }}>{yazi}</T>
     {rozet ? (
-      <View style={{ backgroundColor: colors.pink, borderRadius: 999, paddingHorizontal: 7 }}>
+      <View style={{ backgroundColor: colors.pink, borderRadius: radii.etiket, paddingHorizontal: 7 }}>
         <T style={{ fontSize: 12, fontWeight: '800' }}>{rozet}</T>
       </View>
     ) : null}
@@ -115,7 +115,7 @@ export function HakKarti({ g }: { g: Galeri }) {
         <View
           style={{
             height: 8,
-            borderRadius: 999,
+            borderRadius: radii.etiket,
             backgroundColor: '#FFFFFF',
             marginTop: 8,
             overflow: 'hidden',
@@ -165,7 +165,7 @@ export function ArananModeller({ a }: { a: NonNullable<HomeResponse['aranan']> }
                 fontWeight: '800',
                 paddingVertical: 3,
                 paddingHorizontal: 8,
-                borderRadius: 999,
+                borderRadius: radii.etiket,
                 overflow: 'hidden',
                 backgroundColor: m.arac ? '#E7FAF0' : '#FFF6DF',
                 color: m.arac ? '#11683F' : '#7A5300',
@@ -397,7 +397,7 @@ export function GuvenRozetleri() {
           style={{
             backgroundColor: '#E7FAF0',
             color: '#11683F',
-            borderRadius: 999,
+            borderRadius: radii.etiket,
             overflow: 'hidden',
             paddingVertical: 7,
             paddingHorizontal: 12,

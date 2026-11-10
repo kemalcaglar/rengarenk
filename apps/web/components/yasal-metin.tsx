@@ -1,4 +1,4 @@
-import { colors } from '@rengarenk/shared';
+import { colors } from '../lib/renk';
 import { Markdown } from './markdown';
 
 const API = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
@@ -35,7 +35,7 @@ export async function YasalMetin({ textKey }: { textKey: string }) {
             maxWidth: 860,
             background: colors.surface,
             border: `1px solid ${colors.line}`,
-            borderRadius: 18,
+            borderRadius: 'var(--rr-kart-kose)',
             padding: '28px 32px',
           }}
           aria-labelledby="baslik"
@@ -51,7 +51,7 @@ export async function YasalMetin({ textKey }: { textKey: string }) {
                   fontSize: 12,
                   fontWeight: 800,
                   padding: '3px 9px',
-                  borderRadius: 999,
+                  borderRadius: 'var(--rr-etiket-kose)',
                   background: '#FFF6DF',
                   color: '#7A5300',
                 }}
@@ -70,7 +70,7 @@ export async function YasalMetin({ textKey }: { textKey: string }) {
             maxWidth: 860,
             background: colors.surface,
             border: `1px solid ${colors.line}`,
-            borderRadius: 18,
+            borderRadius: 'var(--rr-kart-kose)',
             padding: 24,
           }}
         >

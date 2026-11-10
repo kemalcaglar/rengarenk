@@ -22,13 +22,18 @@ export function FotoGezgini({ fotolar, ad }: { fotolar: string[]; ad: string }) 
     background: 'rgba(255,255,255,0.95)',
     fontSize: 20,
     fontWeight: 800,
-    color: '#1E2333',
+    color: 'var(--rr-murekkep, #1E2333)',
     cursor: 'pointer',
   } as const;
   return (
     <section
       aria-label="Fotoğraflar"
-      style={{ background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18, overflow: 'hidden' }}
+      style={{
+        background: '#FFFFFF',
+        border: '1px solid var(--rr-cizgi, #E3E6EF)',
+        borderRadius: 'var(--rr-kart-kose)',
+        overflow: 'hidden',
+      }}
     >
       <div
         style={{
@@ -110,7 +115,7 @@ export function FotoGezgini({ fotolar, ad }: { fotolar: string[]; ad: string }) 
               width: 92,
               height: 62,
               borderRadius: 10,
-              border: j === i ? '2px solid #5B8CFF' : '1px solid #E3E6EF',
+              border: j === i ? '2px solid var(--rr-mavi, #5B8CFF)' : '1px solid var(--rr-cizgi, #E3E6EF)',
               padding: 0,
               overflow: 'hidden',
               cursor: 'pointer',
@@ -168,7 +173,7 @@ export function Iletisim({ no }: { no: number }) {
   const kutu = {
     display: 'block',
     textAlign: 'center',
-    borderRadius: 12,
+    borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
     padding: 12,
     fontSize: 15,
     fontWeight: 800,
@@ -194,7 +199,7 @@ export function Iletisim({ no }: { no: number }) {
               width: '100%',
               boxSizing: 'border-box',
               border: '1px solid #D5DAE5',
-              borderRadius: 12,
+              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
               padding: 10,
               fontSize: 14.5,
               lineHeight: 1.5,
@@ -217,8 +222,8 @@ export function Iletisim({ no }: { no: number }) {
             style={{
               ...kutu,
               border: 0,
-              background: '#5B8CFF',
-              color: '#1E2333',
+              background: 'var(--rr-mavi, #5B8CFF)',
+              color: 'var(--rr-murekkep, #1E2333)',
               opacity: mesgul || !metin.trim() ? 0.6 : 1,
             }}
           >
@@ -232,7 +237,12 @@ export function Iletisim({ no }: { no: number }) {
             if (!giris) window.location.href = `/giris?sonra=/arac/${no}`;
             else setYaz(true);
           }}
-          style={{ ...kutu, border: 0, background: '#5B8CFF', color: '#1E2333' }}
+          style={{
+            ...kutu,
+            border: 0,
+            background: 'var(--rr-mavi, #5B8CFF)',
+            color: 'var(--rr-murekkep, #1E2333)',
+          }}
         >
           Bu araç için mesaj gönder
         </button>
@@ -240,7 +250,12 @@ export function Iletisim({ no }: { no: number }) {
       {t?.phone ? (
         <a
           href={`tel:${t.phone}`}
-          style={{ ...kutu, border: '1px solid #D5DAE5', background: '#FFFFFF', color: '#1E2333' }}
+          style={{
+            ...kutu,
+            border: '1px solid #D5DAE5',
+            background: '#FFFFFF',
+            color: 'var(--rr-murekkep, #1E2333)',
+          }}
         >
           {telefon(t.phone)}
           {t.ad ? ` · ${t.ad}` : ''}
@@ -249,7 +264,12 @@ export function Iletisim({ no }: { no: number }) {
         <button
           type="button"
           onClick={goster}
-          style={{ ...kutu, border: '1px solid #D5DAE5', background: '#FFFFFF', color: '#1E2333' }}
+          style={{
+            ...kutu,
+            border: '1px solid #D5DAE5',
+            background: '#FFFFFF',
+            color: 'var(--rr-murekkep, #1E2333)',
+          }}
         >
           Telefonu göster
         </button>
@@ -259,7 +279,7 @@ export function Iletisim({ no }: { no: number }) {
           href={`https://wa.me/${t.phone.replace(/\D/g, '')}`}
           rel="noreferrer"
           target="_blank"
-          style={{ ...kutu, border: '1px solid #3DD68C', color: '#11683F' }}
+          style={{ ...kutu, border: '1px solid var(--rr-yesil, #3DD68C)', color: '#11683F' }}
         >
           WhatsApp
         </a>
@@ -307,7 +327,7 @@ export function AracFavori({ no }: { no: number }) {
           padding: 6,
           fontSize: 14,
           fontWeight: 700,
-          color: fav ? '#A3236A' : '#2450C8',
+          color: fav ? '#A3236A' : 'var(--rr-baglanti, #2450C8)',
           cursor: 'pointer',
           fontFamily: 'inherit',
         }}

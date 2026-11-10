@@ -1,4 +1,4 @@
-import { colors, REPORT_REASONS, type ReportTarget, reasonsFor } from '@rengarenk/shared';
+import { colors, REPORT_REASONS, type ReportTarget, radii, reasonsFor } from '@rengarenk/shared';
 import { useState } from 'react';
 import { Modal, Pressable, ScrollView, View } from 'react-native';
 import { useOturum } from '../lib/oturum';
@@ -109,7 +109,7 @@ export function Sikayet({
                       borderWidth: 1.5,
                       borderColor: on ? colors.blue : '#E3E6EF',
                       backgroundColor: on ? '#EEF3FF' : colors.surface,
-                      borderRadius: 12,
+                      borderRadius: radii.buton - 2,
                       paddingVertical: 12,
                       paddingHorizontal: 12,
                     }}
@@ -140,7 +140,7 @@ export function Sikayet({
                 marginTop: 6,
                 borderWidth: 1,
                 borderColor: '#D5DAE5',
-                borderRadius: 12,
+                borderRadius: radii.buton - 2,
                 padding: 12,
                 minHeight: 72,
                 fontSize: 14.5,
@@ -163,7 +163,7 @@ export function Sikayet({
                   flex: 1,
                   borderWidth: 1,
                   borderColor: '#D5DAE5',
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   paddingVertical: 14,
                   alignItems: 'center',
                 }}
@@ -177,7 +177,7 @@ export function Sikayet({
                 style={{
                   flex: 1,
                   backgroundColor: neden ? '#E5484D' : '#F3C9C7',
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   paddingVertical: 15,
                   alignItems: 'center',
                 }}
@@ -200,7 +200,7 @@ export function Sikayet({
               style={{
                 marginTop: 16,
                 backgroundColor: colors.blue,
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 paddingVertical: 15,
                 alignItems: 'center',
               }}

@@ -1,4 +1,4 @@
-import { colors, DOTS } from '@rengarenk/shared';
+import { colors, DOTS, radii } from '@rengarenk/shared';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Linking, Modal, Pressable, ScrollView, View } from 'react-native';
@@ -77,7 +77,7 @@ export function MenuCekmecesi({ acik, kapat }: { acik: boolean; kapat: () => voi
             style={{
               width: 44,
               height: 44,
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -99,7 +99,7 @@ export function MenuCekmecesi({ acik, kapat }: { acik: boolean; kapat: () => voi
             paddingVertical: 10,
             paddingHorizontal: 12,
             backgroundColor: colors.background,
-            borderRadius: 14,
+            borderRadius: radii.buton,
           }}
         >
           <View
@@ -217,7 +217,7 @@ export function MenuCekmecesi({ acik, kapat }: { acik: boolean; kapat: () => voi
                   fontWeight: '800',
                   paddingVertical: 3,
                   paddingHorizontal: 8,
-                  borderRadius: 999,
+                  borderRadius: radii.etiket,
                   overflow: 'hidden',
                   backgroundColor: '#F3F5FA',
                   color: colors.muted,

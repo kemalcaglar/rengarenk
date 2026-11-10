@@ -163,6 +163,12 @@ export const DEFAULT_DESIGN: DesignTokens = {
   temalar: [],
 };
 
+/**
+ * Köşeler (mobil): yayındaki tasarım değerleriyle güncellenir (`applyDesignColors`). Web CSS değişkeni kullanır
+ * (`--rr-kart-kose` …); mobil bileşenler `radii.kart` gibi okur.
+ */
+export const radii = { kart: 18, buton: 14, etiket: 999 };
+
 /** Varsayılan renkler (değişmeden önceki değerler; e-posta ve mobil sıfırlama için) */
 const BASLANGIC = { ...colors };
 
@@ -262,6 +268,9 @@ export function applyDesignColors(t: DesignTokens | null) {
     const a = DESIGN_COLORS[k].anahtar;
     hedef[a] = t ? t.renkler[k] : ((BASLANGIC as Record<string, string>)[a] as string);
   }
+  radii.kart = t?.kartKose ?? DEFAULT_DESIGN.kartKose;
+  radii.buton = t?.butonKose ?? DEFAULT_DESIGN.butonKose;
+  radii.etiket = t?.etiketKose ?? DEFAULT_DESIGN.etiketKose;
 }
 
 /** Herkese açık yanıt (GET /tasarim) */

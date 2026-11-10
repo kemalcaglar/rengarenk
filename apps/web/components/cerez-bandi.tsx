@@ -1,9 +1,9 @@
 'use client';
 
-import { colors } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { type CerezTercihi, cerezTercihi, tercihDegisti } from '../lib/olcum';
+import { colors } from '../lib/renk';
 import { OnayKutusu } from './onay-kutusu';
 
 const COOKIE = 'rr_cerez';
@@ -41,7 +41,7 @@ function Kutu({ on, label, onClick }: { on: boolean; label: string; onClick: () 
 const outline = {
   border: `1.5px solid ${colors.ink}`,
   background: '#FFFFFF',
-  borderRadius: 12,
+  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
   padding: '10px 18px',
   fontSize: 14,
   fontWeight: 800,
@@ -89,7 +89,7 @@ export function CerezBandi() {
         margin: '0 auto',
         background: '#FFFFFF',
         border: `1px solid ${colors.line}`,
-        borderRadius: 18,
+        borderRadius: 'var(--rr-kart-kose)',
         padding: '18px 20px',
         boxShadow: '0 12px 32px rgba(30,35,51,0.14)',
         display: 'flex',

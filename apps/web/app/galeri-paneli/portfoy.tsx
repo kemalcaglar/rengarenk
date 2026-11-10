@@ -36,18 +36,18 @@ const EIDS: Record<string, [string, string, string]> = {
 const ikincil: CSSProperties = {
   border: '1px solid #D5DAE5',
   background: '#FFFFFF',
-  borderRadius: 12,
+  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
   padding: '11px 16px',
   fontSize: 14.5,
   fontWeight: 700,
-  color: '#1E2333',
+  color: 'var(--rr-murekkep, #1E2333)',
   cursor: 'pointer',
   fontFamily: 'inherit',
 };
 const birincil: CSSProperties = {
   ...ikincil,
   border: 0,
-  background: '#5B8CFF',
+  background: 'var(--rr-mavi, #5B8CFF)',
   fontWeight: 800,
   padding: '12px 18px',
 };
@@ -122,7 +122,7 @@ export function Portfoy({
           style={{
             margin: '0 0 14px',
             background: '#FFF0EE',
-            borderRadius: 12,
+            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
             padding: '10px 14px',
             fontSize: 14,
             color: '#A3271F',
@@ -132,7 +132,12 @@ export function Portfoy({
         </p>
       ) : null}
       <div
-        style={{ background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18, overflow: 'hidden' }}
+        style={{
+          background: '#FFFFFF',
+          border: '1px solid var(--rr-cizgi, #E3E6EF)',
+          borderRadius: 'var(--rr-kart-kose)',
+          overflow: 'hidden',
+        }}
       >
         <div
           style={{
@@ -235,7 +240,7 @@ export function Portfoy({
                       fontSize: 12.5,
                       fontWeight: 700,
                       padding: '4px 10px',
-                      borderRadius: 999,
+                      borderRadius: 'var(--rr-etiket-kose)',
                       background: e[1],
                       color: e[2],
                     }}
@@ -270,7 +275,7 @@ export function Portfoy({
                       padding: 0,
                       fontSize: 13.5,
                       fontWeight: 700,
-                      color: '#2450C8',
+                      color: 'var(--rr-baglanti, #2450C8)',
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                     }}
@@ -427,7 +432,8 @@ export function TopluYukleme({
     <li
       style={{
         background: durum === 'simdi' ? '#EEF3FF' : '#FFFFFF',
-        border: durum === 'simdi' ? '2px solid #5B8CFF' : '1px solid #E3E6EF',
+        border:
+          durum === 'simdi' ? '2px solid var(--rr-mavi, #5B8CFF)' : '1px solid var(--rr-cizgi, #E3E6EF)',
         borderRadius: 16,
         padding: durum === 'simdi' ? 15 : 16,
       }}
@@ -436,7 +442,8 @@ export function TopluYukleme({
         style={{
           fontSize: 12.5,
           fontWeight: 800,
-          color: durum === 'tamam' ? '#11683F' : durum === 'simdi' ? '#2450C8' : '#5A6073',
+          color:
+            durum === 'tamam' ? '#11683F' : durum === 'simdi' ? 'var(--rr-baglanti, #2450C8)' : '#5A6073',
         }}
       >
         {n} · {durum === 'tamam' ? 'Tamamlandı' : durum === 'simdi' ? 'Şimdi' : 'Sırada'}
@@ -477,7 +484,7 @@ export function TopluYukleme({
               padding: 0,
               fontSize: 13.5,
               fontWeight: 700,
-              color: '#2450C8',
+              color: 'var(--rr-baglanti, #2450C8)',
               cursor: 'pointer',
               fontFamily: 'inherit',
             }}
@@ -498,7 +505,7 @@ export function TopluYukleme({
               padding: 0,
               fontSize: 13.5,
               fontWeight: 700,
-              color: dosya ? '#3A4052' : '#2450C8',
+              color: dosya ? '#3A4052' : 'var(--rr-baglanti, #2450C8)',
               cursor: 'pointer',
               fontFamily: 'inherit',
               textAlign: 'left',
@@ -526,7 +533,7 @@ export function TopluYukleme({
           style={{
             margin: '0 0 14px',
             background: '#FFF0EE',
-            borderRadius: 12,
+            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
             padding: '10px 14px',
             fontSize: 14,
             color: '#A3271F',
@@ -541,10 +548,10 @@ export function TopluYukleme({
             margin: '0 0 14px',
             border: '1.5px solid #C9B8FF',
             background: '#FAF7FF',
-            borderRadius: 14,
+            borderRadius: 'var(--rr-buton-kose)',
             padding: '10px 14px',
             fontSize: 13.5,
-            color: '#1E2333',
+            color: 'var(--rr-murekkep, #1E2333)',
           }}
         >
           <summary style={{ cursor: 'pointer', fontWeight: 800, color: '#4B2FA6' }}>
@@ -568,7 +575,12 @@ export function TopluYukleme({
       ) : null}
       {on ? (
         <div
-          style={{ background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18, overflow: 'hidden' }}
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid var(--rr-cizgi, #E3E6EF)',
+            borderRadius: 'var(--rr-kart-kose)',
+            overflow: 'hidden',
+          }}
         >
           {on.hatalar.length ? (
             <>
@@ -598,7 +610,7 @@ export function TopluYukleme({
                     padding: 0,
                     fontSize: 13.5,
                     fontWeight: 700,
-                    color: '#2450C8',
+                    color: 'var(--rr-baglanti, #2450C8)',
                     cursor: 'pointer',
                     fontFamily: 'inherit',
                   }}
@@ -640,7 +652,7 @@ export function TopluYukleme({
               alignItems: 'center',
               gap: 12,
               padding: '16px 18px',
-              background: '#F6F8FD',
+              background: 'var(--rr-zemin, #F6F8FD)',
             }}
           >
             <span style={{ fontSize: 14, color: '#3A4052' }}>
@@ -708,8 +720,8 @@ function ApiAnahtarlari({ accountId, acik }: { accountId: string; acik: boolean 
       style={{
         marginTop: 22,
         background: '#FFFFFF',
-        border: '1px solid #E3E6EF',
-        borderRadius: 18,
+        border: '1px solid var(--rr-cizgi, #E3E6EF)',
+        borderRadius: 'var(--rr-kart-kose)',
         padding: 20,
       }}
       aria-labelledby="api"
@@ -734,7 +746,7 @@ function ApiAnahtarlari({ accountId, acik }: { accountId: string; acik: boolean 
               style={{
                 margin: '0 0 12px',
                 background: '#E7FAF0',
-                borderRadius: 12,
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: '10px 14px',
                 fontSize: 13.5,
                 color: '#11683F',
@@ -771,7 +783,7 @@ function ApiAnahtarlari({ accountId, acik }: { accountId: string; acik: boolean 
               style={{
                 flex: '1 1 220px',
                 border: '1px solid #D5DAE5',
-                borderRadius: 12,
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: '10px 12px',
                 fontSize: 14.5,
                 fontFamily: 'inherit',

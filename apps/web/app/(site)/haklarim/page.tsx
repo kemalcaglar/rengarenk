@@ -39,7 +39,11 @@ interface Ozet {
 }
 type Adim = 'magaza' | 'odeme' | 'tamam';
 
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 };
+const kart: CSSProperties = {
+  background: '#FFFFFF',
+  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+  borderRadius: 'var(--rr-kart-kose)',
+};
 const girdi: CSSProperties = {
   display: 'block',
   width: '100%',
@@ -52,7 +56,12 @@ const girdi: CSSProperties = {
   fontFamily: 'inherit',
   background: '#FFFFFF',
 };
-const RENK = ['#5B8CFF', '#FF6FB5', '#FFC84A', '#3DD68C'];
+const RENK = [
+  'var(--rr-mavi, #5B8CFF)',
+  'var(--rr-pembe, #FF6FB5)',
+  'var(--rr-sari, #FFC84A)',
+  'var(--rr-yesil, #3DD68C)',
+];
 const tarih = (iso: string) =>
   new Intl.DateTimeFormat('tr-TR', {
     timeZone: 'Europe/Istanbul',
@@ -253,7 +262,7 @@ export default function Haklarim() {
               margin: '0 0 14px',
               background: '#FFF0EE',
               border: '1px solid #F5C6C0',
-              borderRadius: 12,
+              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
               padding: '10px 14px',
               fontSize: 14,
               color: '#A3271F',
@@ -306,7 +315,7 @@ export default function Haklarim() {
                         fontSize: 12,
                         fontWeight: 800,
                         padding: '3px 9px',
-                        borderRadius: 999,
+                        borderRadius: 'var(--rr-etiket-kose)',
                         background: '#FFEEF6',
                         color: '#A3236A',
                       }}
@@ -325,7 +334,7 @@ export default function Haklarim() {
                 style={{
                   margin: '12px 0 0',
                   background: '#FFF6DF',
-                  borderRadius: 12,
+                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                   padding: '10px 14px',
                   fontSize: 14,
                   color: '#5A3D00',
@@ -431,13 +440,13 @@ export default function Haklarim() {
                               style={{
                                 flex: 'none',
                                 width: 104,
-                                border: on ? 0 : '1px solid #5B8CFF',
+                                border: on ? 0 : '1px solid var(--rr-mavi, #5B8CFF)',
                                 background: on ? '#E7FAF0' : '#FFFFFF',
                                 borderRadius: 10,
                                 padding: on ? '9px 0' : '8px 0',
                                 fontSize: 13.5,
                                 fontWeight: 800,
-                                color: on ? '#11683F' : '#2450C8',
+                                color: on ? '#11683F' : 'var(--rr-baglanti, #2450C8)',
                                 cursor: pasif && !on ? 'default' : 'pointer',
                                 opacity: pasif && !on ? 0.5 : 1,
                                 fontFamily: 'inherit',
@@ -514,12 +523,12 @@ export default function Haklarim() {
                       style={{
                         width: '100%',
                         border: 0,
-                        background: '#5B8CFF',
-                        borderRadius: 12,
+                        background: 'var(--rr-mavi, #5B8CFF)',
+                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                         padding: 13,
                         fontSize: 15,
                         fontWeight: 800,
-                        color: '#1E2333',
+                        color: 'var(--rr-murekkep, #1E2333)',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                       }}
@@ -584,7 +593,7 @@ export default function Haklarim() {
                         padding: 0,
                         fontSize: 14,
                         fontWeight: 700,
-                        color: '#2450C8',
+                        color: 'var(--rr-baglanti, #2450C8)',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                       }}
@@ -614,7 +623,7 @@ export default function Haklarim() {
                 padding: 0,
                 fontSize: 14,
                 fontWeight: 700,
-                color: '#2450C8',
+                color: 'var(--rr-baglanti, #2450C8)',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
               }}
@@ -731,7 +740,7 @@ export default function Haklarim() {
                         padding: 0,
                         fontSize: 13.5,
                         fontWeight: 700,
-                        color: '#2450C8',
+                        color: 'var(--rr-baglanti, #2450C8)',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                       }}
@@ -761,7 +770,7 @@ export default function Haklarim() {
                         color: '#11683F',
                         background: '#E7FAF0',
                         padding: '4px 10px',
-                        borderRadius: 999,
+                        borderRadius: 'var(--rr-etiket-kose)',
                       }}
                     >
                       PayTR güvenli ödeme · 3D Secure
@@ -771,13 +780,18 @@ export default function Haklarim() {
                     <iframe
                       title="PayTR ödeme çerçevesi"
                       src={siparis.odemeAdresi}
-                      style={{ width: '100%', height: 560, border: '1px solid #D5DAE5', borderRadius: 14 }}
+                      style={{
+                        width: '100%',
+                        height: 560,
+                        border: '1px solid #D5DAE5',
+                        borderRadius: 'var(--rr-buton-kose)',
+                      }}
                     />
                   ) : (
                     <div
                       style={{
                         border: '1px dashed #AEB5C4',
-                        borderRadius: 14,
+                        borderRadius: 'var(--rr-buton-kose)',
                         padding: 16,
                         background: '#FBFCFE',
                       }}
@@ -839,7 +853,7 @@ export default function Haklarim() {
                           padding: 0,
                           fontSize: 14,
                           lineHeight: 1.45,
-                          color: '#1E2333',
+                          color: 'var(--rr-murekkep, #1E2333)',
                           cursor: 'pointer',
                           fontFamily: 'inherit',
                         }}
@@ -850,8 +864,8 @@ export default function Haklarim() {
                             width: 20,
                             height: 20,
                             borderRadius: 6,
-                            border: `2px solid ${on ? '#5B8CFF' : '#AEB5C4'}`,
-                            background: on ? '#5B8CFF' : '#FFFFFF',
+                            border: `2px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}`,
+                            background: on ? 'var(--rr-mavi, #5B8CFF)' : '#FFFFFF',
                             color: '#FFFFFF',
                             fontSize: 13,
                             fontWeight: 800,
@@ -975,7 +989,7 @@ export default function Haklarim() {
                           padding: '9px 14px',
                           fontSize: 14,
                           fontWeight: 700,
-                          color: '#1E2333',
+                          color: 'var(--rr-murekkep, #1E2333)',
                           cursor: 'pointer',
                           fontFamily: 'inherit',
                           opacity: kuponKod.trim().length < 4 ? 0.5 : 1,
@@ -1024,7 +1038,14 @@ export default function Haklarim() {
                     : 'Ek talep ve mesaj hakları kullanılmadıysa 14 gün içinde iade edilebilir; hakların süresi dolmaz.'}
                 </p>
                 {siparis ? (
-                  <p style={{ margin: '14px 0 0', fontSize: 13.5, fontWeight: 700, color: '#2450C8' }}>
+                  <p
+                    style={{
+                      margin: '14px 0 0',
+                      fontSize: 13.5,
+                      fontWeight: 700,
+                      color: 'var(--rr-baglanti, #2450C8)',
+                    }}
+                  >
                     Kart bilgilerini soldaki ödeme çerçevesine gir. Ödeme onaylanınca bu sayfa kendiliğinden
                     ilerler.
                   </p>
@@ -1037,12 +1058,12 @@ export default function Haklarim() {
                       width: '100%',
                       marginTop: 14,
                       border: 0,
-                      background: '#3DD68C',
-                      borderRadius: 12,
+                      background: 'var(--rr-yesil, #3DD68C)',
+                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                       padding: 13,
                       fontSize: 15,
                       fontWeight: 800,
-                      color: '#1E2333',
+                      color: 'var(--rr-murekkep, #1E2333)',
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                     }}
@@ -1058,8 +1079,8 @@ export default function Haklarim() {
                         width: '100%',
                         marginTop: 14,
                         border: 0,
-                        background: '#E3E6EF',
-                        borderRadius: 12,
+                        background: 'var(--rr-cizgi, #E3E6EF)',
+                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                         padding: 13,
                         fontSize: 15,
                         fontWeight: 800,
@@ -1132,12 +1153,12 @@ export default function Haklarim() {
               <Link
                 href="/taleplerim"
                 style={{
-                  background: '#5B8CFF',
-                  borderRadius: 12,
+                  background: 'var(--rr-mavi, #5B8CFF)',
+                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                   padding: '12px 18px',
                   fontSize: 14.5,
                   fontWeight: 800,
-                  color: '#1E2333',
+                  color: 'var(--rr-murekkep, #1E2333)',
                   textDecoration: 'none',
                 }}
               >
@@ -1155,11 +1176,11 @@ export default function Haklarim() {
                 style={{
                   border: '1px solid #D5DAE5',
                   background: '#FFFFFF',
-                  borderRadius: 12,
+                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                   padding: '12px 18px',
                   fontSize: 14.5,
                   fontWeight: 700,
-                  color: '#1E2333',
+                  color: 'var(--rr-murekkep, #1E2333)',
                   cursor: 'pointer',
                   fontFamily: 'inherit',
                 }}

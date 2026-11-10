@@ -22,8 +22,8 @@ export function HesabimMenu({ aktif }: { aktif: string }) {
         maxWidth: 250,
         minWidth: 0,
         background: '#FFFFFF',
-        border: '1px solid #E3E6EF',
-        borderRadius: 18,
+        border: '1px solid var(--rr-cizgi, #E3E6EF)',
+        borderRadius: 'var(--rr-kart-kose)',
         padding: 12,
       }}
     >
@@ -49,11 +49,11 @@ export function HesabimMenu({ aktif }: { aktif: string }) {
             style={{
               display: 'block',
               background: o.href === aktif ? '#EEF3FF' : 'transparent',
-              borderRadius: 12,
+              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
               padding: '11px 12px',
               fontSize: 14.5,
               fontWeight: o.href === aktif ? 800 : 600,
-              color: o.href === aktif ? '#1E2333' : '#3A4052',
+              color: o.href === aktif ? 'var(--rr-murekkep, #1E2333)' : '#3A4052',
               textDecoration: 'none',
             }}
           >
@@ -64,7 +64,7 @@ export function HesabimMenu({ aktif }: { aktif: string }) {
             key={o.ad}
             style={{
               display: 'block',
-              borderRadius: 12,
+              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
               padding: '11px 12px',
               fontSize: 14.5,
               fontWeight: 600,

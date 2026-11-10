@@ -1,4 +1,4 @@
-import { colors } from '@rengarenk/shared';
+import { colors, radii } from '@rengarenk/shared';
 import { router } from 'expo-router';
 import type { BottomTabBarProps } from 'expo-router/build/layouts/Tabs';
 import { Pressable, View } from 'react-native';
@@ -75,7 +75,7 @@ export function SekmeCubugu({ state, emitter, navigateToTab }: BottomTabBarProps
             width: 52,
             height: 52,
             marginTop: -18,
-            borderRadius: 18,
+            borderRadius: radii.kart,
             backgroundColor: colors.blue,
             alignItems: 'center',
             justifyContent: 'center',

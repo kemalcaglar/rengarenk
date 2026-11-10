@@ -28,11 +28,11 @@ export function BoyaSemasi({
   const ikincil = {
     border: '1px solid #D5DAE5',
     background: '#FFFFFF',
-    borderRadius: 999,
+    borderRadius: 'var(--rr-etiket-kose)',
     padding: '8px 14px',
     fontSize: 13.5,
     fontWeight: 700,
-    color: '#1E2333',
+    color: 'var(--rr-murekkep, #1E2333)',
     cursor: 'pointer',
     fontFamily: 'inherit',
   } as const;
@@ -85,13 +85,13 @@ export function BoyaSemasi({
             <path d="M224 178L238 184V196L224 198Z" fill="#DDE2EC" stroke="#AEB5C4" strokeWidth="1.2" />
             <path
               d="M58 46C70 26 100 18 130 18C160 18 190 26 202 46L196 58C176 50 154 46 130 46C106 46 84 50 64 58Z"
-              fill={bd('onTampon')}
+              style={{ fill: bd('onTampon') }}
               stroke="#AEB5C4"
               strokeWidth="1.5"
             />
             <path
               d="M64 62C86 54 108 50 130 50C152 50 174 54 196 62L190 160C172 154 152 152 130 152C108 152 88 154 70 160Z"
-              fill={bd('motorKaputu')}
+              style={{ fill: bd('motorKaputu') }}
               stroke="#AEB5C4"
               strokeWidth="1.5"
             />
@@ -103,7 +103,7 @@ export function BoyaSemasi({
             />
             <path
               d="M86 214C100 210 114 208 130 208C146 208 160 210 174 214V318C160 322 146 324 130 324C114 324 100 322 86 318Z"
-              fill={bd('tavan')}
+              style={{ fill: bd('tavan') }}
               stroke="#AEB5C4"
               strokeWidth="1.5"
             />
@@ -115,51 +115,61 @@ export function BoyaSemasi({
             />
             <path
               d="M72 368C92 374 110 376 130 376C150 376 168 374 188 368L194 440C176 446 154 448 130 448C106 448 84 446 66 440Z"
-              fill={bd('arkaKaput')}
+              style={{ fill: bd('arkaKaput') }}
               stroke="#AEB5C4"
               strokeWidth="1.5"
             />
             <path
               d="M64 454C84 460 106 462 130 462C154 462 176 460 196 454L202 468C190 490 162 500 130 500C98 500 70 490 58 468Z"
-              fill={bd('arkaTampon')}
+              style={{ fill: bd('arkaTampon') }}
               stroke="#AEB5C4"
               strokeWidth="1.5"
             />
             <path
               d="M58 50L64 64L70 164H36V100C36 80 44 62 58 50Z"
-              fill={bd('solOnCamurluk')}
+              style={{ fill: bd('solOnCamurluk') }}
               stroke="#AEB5C4"
               strokeWidth="1.5"
             />
-            <path d="M36 170H76L86 212V268H36Z" fill={bd('solOnKapi')} stroke="#AEB5C4" strokeWidth="1.5" />
-            <path d="M36 274H86V318L76 360H36Z" fill={bd('solArkaKapi')} stroke="#AEB5C4" strokeWidth="1.5" />
+            <path
+              d="M36 170H76L86 212V268H36Z"
+              style={{ fill: bd('solOnKapi') }}
+              stroke="#AEB5C4"
+              strokeWidth="1.5"
+            />
+            <path
+              d="M36 274H86V318L76 360H36Z"
+              style={{ fill: bd('solArkaKapi') }}
+              stroke="#AEB5C4"
+              strokeWidth="1.5"
+            />
             <path
               d="M36 366H74L68 446L60 462C46 452 36 432 36 412Z"
-              fill={bd('solArkaCamurluk')}
+              style={{ fill: bd('solArkaCamurluk') }}
               stroke="#AEB5C4"
               strokeWidth="1.5"
             />
             <path
               d="M202 50L196 64L190 164H224V100C224 80 216 62 202 50Z"
-              fill={bd('sagOnCamurluk')}
+              style={{ fill: bd('sagOnCamurluk') }}
               stroke="#AEB5C4"
               strokeWidth="1.5"
             />
             <path
               d="M224 170H184L174 212V268H224Z"
-              fill={bd('sagOnKapi')}
+              style={{ fill: bd('sagOnKapi') }}
               stroke="#AEB5C4"
               strokeWidth="1.5"
             />
             <path
               d="M224 274H174V318L184 360H224Z"
-              fill={bd('sagArkaKapi')}
+              style={{ fill: bd('sagArkaKapi') }}
               stroke="#AEB5C4"
               strokeWidth="1.5"
             />
             <path
               d="M224 366H186L192 446L200 462C214 452 224 432 224 412Z"
-              fill={bd('sagArkaCamurluk')}
+              style={{ fill: bd('sagArkaCamurluk') }}
               stroke="#AEB5C4"
               strokeWidth="1.5"
             />
@@ -199,7 +209,7 @@ export function BoyaSemasi({
               display: 'flex',
               flexDirection: 'column',
               border: '1px solid #EEF0F5',
-              borderRadius: 14,
+              borderRadius: 'var(--rr-buton-kose)',
               overflow: 'hidden',
             }}
           >
@@ -236,7 +246,7 @@ export function BoyaSemasi({
                           padding: on ? '6px 9px' : '6.5px 9.5px',
                           fontSize: 12.5,
                           fontWeight: on ? 800 : 600,
-                          color: on ? '#1E2333' : '#5A6073',
+                          color: on ? 'var(--rr-murekkep, #1E2333)' : '#5A6073',
                           cursor: 'pointer',
                           fontFamily: 'inherit',
                         }}
@@ -258,7 +268,7 @@ export function BoyaSemasi({
                 gap: 12,
                 marginTop: 14,
                 background: '#F3F5FA',
-                borderRadius: 12,
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: '12px 14px',
               }}
             >

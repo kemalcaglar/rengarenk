@@ -1,5 +1,5 @@
-import { colors } from '@rengarenk/shared';
 import Link from 'next/link';
+import { colors } from '../../lib/renk';
 
 /** Bulunamayan sayfa: sitenin çerçevesi içinde, tasarımın kart ölçüleriyle. */
 export default function NotFound() {
@@ -27,7 +27,7 @@ export default function NotFound() {
             fontWeight: 800,
             fontSize: 15,
             padding: '13px 20px',
-            borderRadius: 14,
+            borderRadius: 'var(--rr-buton-kose)',
             textDecoration: 'none',
           }}
         >

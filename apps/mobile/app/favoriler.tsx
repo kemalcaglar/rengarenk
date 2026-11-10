@@ -1,4 +1,4 @@
-import { colors, MAX_SAVED_SEARCHES, SAVED_SEARCH_NOTIFY } from '@rengarenk/shared';
+import { colors, MAX_SAVED_SEARCHES, radii, SAVED_SEARCH_NOTIFY } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, View } from 'react-native';
@@ -159,7 +159,13 @@ export default function Favoriler() {
           accessibilityRole="button"
           accessibilityLabel="Geri"
           onPress={() => router.back()}
-          style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: radii.buton - 2,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
           <Ikon d="geri" />
         </Pressable>
@@ -180,7 +186,7 @@ export default function Favoriler() {
               style={{
                 marginTop: 12,
                 backgroundColor: colors.blue,
-                borderRadius: 12,
+                borderRadius: radii.buton - 2,
                 paddingVertical: 12,
                 alignItems: 'center',
               }}
@@ -196,7 +202,7 @@ export default function Favoriler() {
                 flexDirection: 'row',
                 gap: 6,
                 backgroundColor: '#E9ECF4',
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 padding: 4,
               }}
             >
@@ -310,7 +316,7 @@ export default function Favoriler() {
                       style={{
                         width: 76,
                         height: 58,
-                        borderRadius: 12,
+                        borderRadius: radii.buton - 2,
                         backgroundColor: '#EEF3FF',
                         overflow: 'hidden',
                       }}
@@ -374,7 +380,7 @@ export default function Favoriler() {
                       {a.yeni ? (
                         <View
                           style={{
-                            borderRadius: 999,
+                            borderRadius: radii.etiket,
                             backgroundColor: '#EEF3FF',
                             paddingVertical: 4,
                             paddingHorizontal: 9,
@@ -409,7 +415,7 @@ export default function Favoriler() {
                             flexDirection: 'row',
                             gap: 4,
                             backgroundColor: '#F3F5FA',
-                            borderRadius: 12,
+                            borderRadius: radii.buton - 2,
                             padding: 4,
                             marginTop: 6,
                           }}

@@ -63,8 +63,8 @@ export default async function TalepSayfasi({ params }: { params: Promise<{ no: s
           maxWidth: 250,
           minWidth: 0,
           background: '#FFFFFF',
-          border: '1px solid #E3E6EF',
-          borderRadius: 18,
+          border: '1px solid var(--rr-cizgi, #E3E6EF)',
+          borderRadius: 'var(--rr-kart-kose)',
           padding: '18px 12px',
         }}
       >
@@ -89,7 +89,7 @@ export default async function TalepSayfasi({ params }: { params: Promise<{ no: s
             padding: '10px 8px',
             fontSize: 15.5,
             fontWeight: 800,
-            color: '#1E2333',
+            color: 'var(--rr-murekkep, #1E2333)',
             textDecoration: 'none',
           }}
         >
@@ -127,7 +127,7 @@ export default async function TalepSayfasi({ params }: { params: Promise<{ no: s
                       background: on ? '#EEF3FF' : 'transparent',
                       fontSize: 14,
                       fontWeight: on ? 700 : 500,
-                      color: on ? '#1E2333' : '#3A4052',
+                      color: on ? 'var(--rr-murekkep, #1E2333)' : '#3A4052',
                       textDecoration: 'none',
                     }}
                   >
@@ -163,7 +163,7 @@ export default async function TalepSayfasi({ params }: { params: Promise<{ no: s
                   color: '#5A6073',
                   background: '#F3F5FA',
                   padding: '3px 8px',
-                  borderRadius: 999,
+                  borderRadius: 'var(--rr-etiket-kose)',
                 }}
               >
                 Yakında

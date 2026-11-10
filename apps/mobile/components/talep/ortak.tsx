@@ -1,4 +1,4 @@
-import { type CategoryField, colors, ILLER, PAINT_PARTS, PAINT_STATES } from '@rengarenk/shared';
+import { type CategoryField, colors, ILLER, PAINT_PARTS, PAINT_STATES, radii } from '@rengarenk/shared';
 import { type ReactNode, useState } from 'react';
 import { FlatList, Modal, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -26,7 +26,7 @@ export const kartStil = {
 export const girdiStil = {
   borderWidth: 1,
   borderColor: '#D5DAE5',
-  borderRadius: 12,
+  borderRadius: radii.buton - 2,
   padding: 11,
   fontSize: 15,
   backgroundColor: colors.surface,
@@ -56,7 +56,7 @@ export function Cip({
         borderWidth: on ? 2 : 1,
         borderColor: on ? colors.blue : '#D5DAE5',
         backgroundColor: on ? '#EEF3FF' : colors.surface,
-        borderRadius: 999,
+        borderRadius: radii.etiket,
         paddingVertical: on ? 7 : 8,
         paddingHorizontal: on ? 11 : 12,
       }}
@@ -99,7 +99,7 @@ export function Anahtar({
       style={{
         width: 52,
         height: 30,
-        borderRadius: 999,
+        borderRadius: radii.etiket,
         backgroundColor: on ? colors.green : '#C9CEDB',
         justifyContent: 'center',
       }}
@@ -110,7 +110,7 @@ export function Anahtar({
           left: on ? 25 : 3,
           width: 24,
           height: 24,
-          borderRadius: 12,
+          borderRadius: radii.buton - 2,
           backgroundColor: colors.surface,
         }}
       />
@@ -611,7 +611,7 @@ export function ParcaSecimi({
               gap: 12,
               marginTop: 12,
               backgroundColor: '#F3F5FA',
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               padding: 12,
             }}
           >

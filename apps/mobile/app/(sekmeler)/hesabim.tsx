@@ -1,4 +1,4 @@
-import { colors } from '@rengarenk/shared';
+import { colors, radii } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Linking, Pressable, ScrollView, View } from 'react-native';
@@ -117,7 +117,7 @@ export default function Hesabim() {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }} edges={['top']}>
         <View style={{ flex: 1, backgroundColor: colors.background, padding: 12, paddingTop: 18 }}>
-          <View style={{ ...kart, borderRadius: 18, padding: 18 }}>
+          <View style={{ ...kart, borderRadius: radii.kart, padding: 18 }}>
             <T accessibilityRole="header" style={{ fontSize: 19, fontWeight: '800' }}>
               Hesabım
             </T>
@@ -130,7 +130,7 @@ export default function Hesabim() {
               style={{
                 marginTop: 16,
                 backgroundColor: colors.blue,
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 paddingVertical: 15,
                 alignItems: 'center',
               }}
@@ -190,7 +190,7 @@ export default function Hesabim() {
               style={{
                 ...kart,
                 flex: 1,
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 paddingVertical: 12,
                 paddingHorizontal: 10,
                 alignItems: 'center',

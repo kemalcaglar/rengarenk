@@ -1,4 +1,4 @@
-import { colors, RATING_LABELS } from '@rengarenk/shared';
+import { colors, RATING_LABELS, radii } from '@rengarenk/shared';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Modal, Pressable, View } from 'react-native';
@@ -122,7 +122,7 @@ export function PuanVer({
                     style={{
                       width: 54,
                       height: 54,
-                      borderRadius: 14,
+                      borderRadius: radii.buton,
                       backgroundColor: on ? '#FFF6DF' : '#F6F8FD',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -144,7 +144,9 @@ export function PuanVer({
             <T style={{ textAlign: 'center', fontSize: 14.5, fontWeight: '800', minHeight: 20 }}>
               {RATING_LABELS[yildiz]}
             </T>
-            <View style={{ marginTop: 16, backgroundColor: '#F6F8FD', borderRadius: 14, padding: 12 }}>
+            <View
+              style={{ marginTop: 16, backgroundColor: '#F6F8FD', borderRadius: radii.buton, padding: 12 }}
+            >
               <T style={{ fontSize: 12.5, color: '#3A4052', lineHeight: 18 }}>
                 Yalnızca yıldız verilir, yorum yazılmaz. Puanın satıcıya isimsiz gider; profilinde tek tek
                 puan değil,{' '}
@@ -166,7 +168,7 @@ export function PuanVer({
                   flex: 1,
                   borderWidth: 1,
                   borderColor: '#D5DAE5',
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   paddingVertical: 14,
                   alignItems: 'center',
                 }}
@@ -180,7 +182,7 @@ export function PuanVer({
                 style={{
                   flex: 2,
                   backgroundColor: yildiz ? colors.blue : '#E3E6EF',
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   paddingVertical: 15,
                   alignItems: 'center',
                 }}
@@ -241,7 +243,7 @@ export function PuanVer({
                   flex: 1,
                   borderWidth: 1,
                   borderColor: '#D5DAE5',
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   paddingVertical: 14,
                   alignItems: 'center',
                 }}
@@ -257,7 +259,7 @@ export function PuanVer({
                 style={{
                   flex: 1,
                   backgroundColor: colors.green,
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   paddingVertical: 14,
                   alignItems: 'center',
                 }}

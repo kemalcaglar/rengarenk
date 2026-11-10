@@ -9,8 +9,8 @@ import { Anahtar } from './iletisim';
 
 const kart: CSSProperties = {
   background: '#FFFFFF',
-  border: '1px solid #E3E6EF',
-  borderRadius: 18,
+  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+  borderRadius: 'var(--rr-kart-kose)',
   padding: 20,
 };
 const satir: CSSProperties = {
@@ -29,7 +29,7 @@ const ikincil: CSSProperties = {
   padding: '8px 12px',
   fontSize: 13.5,
   fontWeight: 700,
-  color: '#1E2333',
+  color: 'var(--rr-murekkep, #1E2333)',
   cursor: 'pointer',
   fontFamily: 'inherit',
 };
@@ -255,7 +255,13 @@ export function KisiselVerilerim({
         type="button"
         onClick={onayla}
         disabled={kod.length !== 6 || (adim === 'kvkk' && metin.trim().length < 10)}
-        style={{ ...ikincil, background: '#5B8CFF', border: 0, padding: '11px 16px', fontWeight: 800 }}
+        style={{
+          ...ikincil,
+          background: 'var(--rr-mavi, #5B8CFF)',
+          border: 0,
+          padding: '11px 16px',
+          fontWeight: 800,
+        }}
       >
         Onayla
       </button>
@@ -349,7 +355,13 @@ export function KisiselVerilerim({
                 type="button"
                 onClick={() => kodIste('kvkk')}
                 disabled={metin.trim().length < 10}
-                style={{ ...ikincil, marginTop: 10, background: '#5B8CFF', border: 0, fontWeight: 800 }}
+                style={{
+                  ...ikincil,
+                  marginTop: 10,
+                  background: 'var(--rr-mavi, #5B8CFF)',
+                  border: 0,
+                  fontWeight: 800,
+                }}
               >
                 Doğrulama kodu gönder
               </button>

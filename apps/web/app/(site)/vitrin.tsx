@@ -1,5 +1,6 @@
-import { colors, compactBudget, ONE_CIKARMA, tints } from '@rengarenk/shared';
+import { compactBudget, ONE_CIKARMA, tints } from '@rengarenk/shared';
 import Link from 'next/link';
+import { colors } from '../../lib/renk';
 
 /** Görseller tarayıcıdan istenir: genel API adresi */
 const GORSEL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';

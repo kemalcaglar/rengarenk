@@ -104,7 +104,7 @@ function Isaret({
         gap: 10,
         padding: '7px 2px',
         fontSize: 14,
-        color: '#1E2333',
+        color: 'var(--rr-murekkep, #1E2333)',
         cursor: 'pointer',
       }}
     >
@@ -201,8 +201,8 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
             maxWidth: 290,
             minWidth: 0,
             background: '#FFFFFF',
-            border: '1px solid #E3E6EF',
-            borderRadius: 18,
+            border: '1px solid var(--rr-cizgi, #E3E6EF)',
+            borderRadius: 'var(--rr-kart-kose)',
             padding: 18,
           }}
         >
@@ -391,7 +391,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                 padding: '11px 10px',
                 fontSize: 14,
                 background: '#FFFFFF',
-                color: '#1E2333',
+                color: 'var(--rr-murekkep, #1E2333)',
                 marginBottom: 16,
                 fontFamily: 'inherit',
               }}
@@ -415,12 +415,12 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
               style={{
                 width: '100%',
                 border: 0,
-                background: '#5B8CFF',
-                borderRadius: 12,
+                background: 'var(--rr-mavi, #5B8CFF)',
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: 13,
                 fontSize: 15,
                 fontWeight: 800,
-                color: '#1E2333',
+                color: 'var(--rr-murekkep, #1E2333)',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
               }}
@@ -468,7 +468,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                   alignItems: 'center',
                   gap: 6,
                   background: '#EEF3FF',
-                  borderRadius: 999,
+                  borderRadius: 'var(--rr-etiket-kose)',
                   padding: '6px 12px',
                   fontSize: 13,
                   fontWeight: 700,
@@ -482,8 +482,8 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
           <div
             style={{
               background: '#FFFFFF',
-              border: '1px solid #E3E6EF',
-              borderRadius: 18,
+              border: '1px solid var(--rr-cizgi, #E3E6EF)',
+              borderRadius: 'var(--rr-kart-kose)',
               overflow: 'hidden',
             }}
           >
@@ -540,7 +540,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                   style={{
                     flex: '0 0 96px',
                     height: 64,
-                    borderRadius: 12,
+                    borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                     background: TINTS[i % TINTS.length],
                     display: 'flex',
                     alignItems: 'center',
@@ -594,7 +594,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                       display: 'block',
                       fontSize: 15,
                       fontWeight: 800,
-                      color: '#1E2333',
+                      color: 'var(--rr-murekkep, #1E2333)',
                       lineHeight: 1.35,
                     }}
                   >
@@ -612,7 +612,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                           fontSize: 12,
                           fontWeight: 700,
                           padding: '3px 9px',
-                          borderRadius: 999,
+                          borderRadius: 'var(--rr-etiket-kose)',
                         }}
                       >
                         Acil arıyorum
@@ -626,7 +626,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                           fontSize: 12,
                           fontWeight: 700,
                           padding: '3px 9px',
-                          borderRadius: 999,
+                          borderRadius: 'var(--rr-etiket-kose)',
                         }}
                       >
                         Öne çıkan
@@ -643,7 +643,14 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                 <span style={{ flex: '1 1 100px', fontSize: 14, fontWeight: 600 }}>
                   {t.kmMax ? `${binlik(t.kmMax)} km` : '—'}
                 </span>
-                <span style={{ flex: '1 1 170px', fontSize: 14.5, fontWeight: 800, color: '#2450C8' }}>
+                <span
+                  style={{
+                    flex: '1 1 170px',
+                    fontSize: 14.5,
+                    fontWeight: 800,
+                    color: 'var(--rr-baglanti, #2450C8)',
+                  }}
+                >
                   {butceAraligi(t.butceMin, t.butceMax)}
                 </span>
                 <span style={{ flex: '1 1 120px', fontSize: 13.5, color: '#3A4052' }}>
@@ -669,7 +676,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                       minWidth: 40,
                       height: 40,
                       borderRadius: 10,
-                      background: '#5B8CFF',
+                      background: 'var(--rr-mavi, #5B8CFF)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -687,12 +694,12 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                       height: 40,
                       borderRadius: 10,
                       background: '#FFFFFF',
-                      border: '1px solid #E3E6EF',
+                      border: '1px solid var(--rr-cizgi, #E3E6EF)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontWeight: 700,
-                      color: '#1E2333',
+                      color: 'var(--rr-murekkep, #1E2333)',
                     }}
                   >
                     {n}
@@ -707,12 +714,12 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                     height: 40,
                     borderRadius: 10,
                     background: '#FFFFFF',
-                    border: '1px solid #E3E6EF',
+                    border: '1px solid var(--rr-cizgi, #E3E6EF)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontWeight: 700,
-                    color: '#1E2333',
+                    color: 'var(--rr-murekkep, #1E2333)',
                   }}
                 >
                   Sonraki

@@ -91,26 +91,30 @@ const basHarf = (ad: string) =>
     .map((p) => p[0]?.toLocaleUpperCase('tr-TR'))
     .join('');
 
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 16 };
+const kart: CSSProperties = {
+  background: '#FFFFFF',
+  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+  borderRadius: 16,
+};
 const birincil: CSSProperties = {
   border: 0,
-  background: '#5B8CFF',
-  borderRadius: 12,
+  background: 'var(--rr-mavi, #5B8CFF)',
+  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
   padding: '12px 18px',
   fontSize: 14.5,
   fontWeight: 800,
-  color: '#1E2333',
+  color: 'var(--rr-murekkep, #1E2333)',
   cursor: 'pointer',
   fontFamily: 'inherit',
 };
 const ikincil: CSSProperties = {
   border: '1px solid #D5DAE5',
   background: '#FFFFFF',
-  borderRadius: 12,
+  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
   padding: '11px 16px',
   fontSize: 14,
   fontWeight: 700,
-  color: '#1E2333',
+  color: 'var(--rr-murekkep, #1E2333)',
   cursor: 'pointer',
   fontFamily: 'inherit',
 };
@@ -118,7 +122,7 @@ const girdi: CSSProperties = {
   width: '100%',
   boxSizing: 'border-box',
   border: '1px solid #D5DAE5',
-  borderRadius: 12,
+  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
   padding: 12,
   fontSize: 15,
   fontFamily: 'inherit',
@@ -238,8 +242,14 @@ export function GaleriPaneli() {
   const benimAd = [me?.firstName, me?.lastName].filter(Boolean).join(' ') || 'Sen';
 
   return (
-    <div style={{ background: '#F6F8FD', minHeight: '100vh', color: '#1E2333' }}>
-      <header style={{ background: '#FFFFFF', borderBottom: '1px solid #E3E6EF' }}>
+    <div
+      style={{
+        background: 'var(--rr-zemin, #F6F8FD)',
+        minHeight: '100vh',
+        color: 'var(--rr-murekkep, #1E2333)',
+      }}
+    >
+      <header style={{ background: '#FFFFFF', borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)' }}>
         <div
           style={{
             maxWidth: 1360,
@@ -258,13 +268,18 @@ export function GaleriPaneli() {
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              color: '#1E2333',
+              color: 'var(--rr-murekkep, #1E2333)',
               textDecoration: 'none',
             }}
             aria-label="Rengarenk ana sayfa"
           >
             <span style={{ display: 'flex', gap: 3 }} aria-hidden="true">
-              {['#5B8CFF', '#FF6FB5', '#FFC84A', '#3DD68C'].map((c) => (
+              {[
+                'var(--rr-mavi, #5B8CFF)',
+                'var(--rr-pembe, #FF6FB5)',
+                'var(--rr-sari, #FFC84A)',
+                'var(--rr-yesil, #3DD68C)',
+              ].map((c) => (
                 <span key={c} style={{ width: 10, height: 22, borderRadius: 5, background: c }} />
               ))}
             </span>
@@ -276,7 +291,7 @@ export function GaleriPaneli() {
                 background: '#FFF6DF',
                 color: '#7A5300',
                 padding: '4px 10px',
-                borderRadius: 999,
+                borderRadius: 'var(--rr-etiket-kose)',
                 marginLeft: 4,
               }}
             >
@@ -352,8 +367,8 @@ export function GaleriPaneli() {
             maxWidth: 250,
             minWidth: 0,
             background: '#FFFFFF',
-            border: '1px solid #E3E6EF',
-            borderRadius: 18,
+            border: '1px solid var(--rr-cizgi, #E3E6EF)',
+            borderRadius: 'var(--rr-kart-kose)',
             padding: 12,
           }}
         >
@@ -392,11 +407,11 @@ export function GaleriPaneli() {
                       gap: 10,
                       border: 0,
                       background: on ? '#EEF3FF' : 'transparent',
-                      borderRadius: 12,
+                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                       padding: 12,
                       fontSize: 14.5,
                       fontWeight: on ? 800 : 600,
-                      color: m.sonra ? '#8A91A3' : on ? '#1E2333' : '#3A4052',
+                      color: m.sonra ? '#8A91A3' : on ? 'var(--rr-murekkep, #1E2333)' : '#3A4052',
                       cursor: m.sonra ? 'default' : 'pointer',
                       textAlign: 'left',
                       fontFamily: 'inherit',
@@ -431,7 +446,7 @@ export function GaleriPaneli() {
                 margin: '0 0 14px',
                 background: '#FFF0EE',
                 border: '1px solid #F5C6C0',
-                borderRadius: 12,
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: '10px 14px',
                 fontSize: 14,
                 color: '#A3271F',
@@ -446,7 +461,7 @@ export function GaleriPaneli() {
               style={{
                 margin: '0 0 14px',
                 background: '#E7FAF0',
-                borderRadius: 12,
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: '10px 14px',
                 fontSize: 14,
                 color: '#11683F',
@@ -462,7 +477,7 @@ export function GaleriPaneli() {
               style={{
                 margin: '0 0 14px',
                 background: '#FDECEC',
-                borderRadius: 12,
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: '10px 14px',
                 fontSize: 14,
                 color: '#A3271F',
@@ -625,7 +640,7 @@ function Ozet({
           style={{
             margin: '0 0 16px',
             background: '#FFF6DF',
-            borderRadius: 12,
+            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
             padding: '10px 14px',
             fontSize: 14,
             color: '#7A5300',
@@ -643,7 +658,7 @@ function Ozet({
               padding: 0,
               font: 'inherit',
               fontWeight: 800,
-              color: '#2450C8',
+              color: 'var(--rr-baglanti, #2450C8)',
               cursor: 'pointer',
             }}
           >
@@ -725,7 +740,10 @@ function Ozet({
 
       {guven ? <Guven v={guven} hesap={p.accountId} /> : null}
 
-      <section style={{ ...kart, borderRadius: 18, padding: 20, marginTop: 16 }} aria-labelledby="profil">
+      <section
+        style={{ ...kart, borderRadius: 'var(--rr-kart-kose)', padding: 20, marginTop: 16 }}
+        aria-labelledby="profil"
+      >
         <div
           style={{
             display: 'flex',
@@ -865,7 +883,7 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
               return x;
             }, 'Davet gönderildi. Çalışan bu numarayla giriş yapınca daveti kabul eder.');
           }}
-          style={{ ...kart, borderRadius: 18, padding: 18, marginBottom: 16 }}
+          style={{ ...kart, borderRadius: 'var(--rr-kart-kose)', padding: 18, marginBottom: 16 }}
         >
           <h2 style={{ margin: '0 0 12px', fontSize: 17, fontWeight: 800 }}>Çalışan davet et</h2>
           <div className="rr-iki-sutun" style={{ gap: 12 }}>
@@ -923,7 +941,7 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
         </form>
       ) : null}
 
-      <div style={{ ...kart, borderRadius: 18, overflow: 'hidden' }}>
+      <div style={{ ...kart, borderRadius: 'var(--rr-kart-kose)', overflow: 'hidden' }}>
         {p.ekip.map((u, i) => (
           <div key={u.userId} style={{ borderBottom: '1px solid #EEF0F5' }}>
             <div
@@ -978,7 +996,7 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
                     padding: 0,
                     fontSize: 13.5,
                     fontWeight: 700,
-                    color: '#2450C8',
+                    color: 'var(--rr-baglanti, #2450C8)',
                     cursor: 'pointer',
                     fontFamily: 'inherit',
                   }}
@@ -1148,7 +1166,7 @@ function Davetler({
       <p style={{ margin: '0 0 16px', fontSize: 14.5, color: '#5A6073' }}>
         Kabul edince galerinin paneline erişirsin; mesajlarda galeri adıyla birlikte kendi adın görünür.
       </p>
-      <div style={{ ...kart, borderRadius: 18, overflow: 'hidden' }}>
+      <div style={{ ...kart, borderRadius: 'var(--rr-kart-kose)', overflow: 'hidden' }}>
         {davetler.length === 0 ? (
           <p style={{ margin: 0, padding: 18, fontSize: 14, color: '#5A6073' }}>
             Bekleyen davetin kalmadı. <Link href="/kurumsal-basvuru">Kendi galerin için başvur</Link>

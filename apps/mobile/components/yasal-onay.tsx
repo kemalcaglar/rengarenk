@@ -1,4 +1,4 @@
-import { colors, LEGAL_PATHS, type PendingLegal } from '@rengarenk/shared';
+import { colors, LEGAL_PATHS, type PendingLegal, radii } from '@rengarenk/shared';
 import { useEffect, useState } from 'react';
 import { Linking, Modal, Pressable, ScrollView, View } from 'react-native';
 import { useOturum } from '../lib/oturum';
@@ -76,7 +76,7 @@ export function YasalOnay() {
         style={{ flex: 1, backgroundColor: 'rgba(30,35,51,0.45)', justifyContent: 'center', padding: 16 }}
         accessibilityViewIsModal
       >
-        <View style={{ backgroundColor: colors.surface, borderRadius: 18, maxHeight: '90%' }}>
+        <View style={{ backgroundColor: colors.surface, borderRadius: radii.kart, maxHeight: '90%' }}>
           <ScrollView contentContainerStyle={{ padding: 18 }}>
             <T accessibilityRole="header" style={{ fontSize: 19, fontWeight: '800' }}>
               Metinlerimizi güncelledik
@@ -93,7 +93,7 @@ export function YasalOnay() {
                 style={{
                   borderWidth: 1,
                   borderColor: colors.line,
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   padding: 12,
                   marginBottom: 10,
                 }}
@@ -136,7 +136,7 @@ export function YasalOnay() {
               onPress={() => void gonder()}
               style={{
                 backgroundColor: hazir ? colors.blue : '#C9D3E6',
-                borderRadius: 12,
+                borderRadius: radii.buton - 2,
                 paddingVertical: 13,
                 alignItems: 'center',
                 marginTop: 4,

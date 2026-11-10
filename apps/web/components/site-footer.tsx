@@ -1,5 +1,5 @@
-import { colors } from '@rengarenk/shared';
 import Link from 'next/link';
+import { colors } from '../lib/renk';
 import { CerezTercihleri } from './cerez-tercihleri';
 
 /**

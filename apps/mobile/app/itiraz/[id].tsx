@@ -1,4 +1,4 @@
-import { colors } from '@rengarenk/shared';
+import { colors, radii } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
@@ -72,7 +72,7 @@ export default function Itiraz() {
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.line,
-    borderRadius: 18,
+    borderRadius: radii.kart,
     padding: 16,
     marginTop: 12,
   } as const;
@@ -94,7 +94,13 @@ export default function Itiraz() {
           accessibilityRole="button"
           accessibilityLabel="Geri"
           onPress={() => router.back()}
-          style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: radii.buton - 2,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
           <Ikon d="geri" />
         </Pressable>
@@ -178,7 +184,7 @@ export default function Itiraz() {
                       marginTop: 10,
                       borderWidth: 1,
                       borderColor: '#D5DAE5',
-                      borderRadius: 12,
+                      borderRadius: radii.buton - 2,
                       padding: 12,
                       minHeight: 110,
                       fontSize: 14.5,
@@ -200,7 +206,7 @@ export default function Itiraz() {
                     style={{
                       marginTop: 12,
                       backgroundColor: colors.blue,
-                      borderRadius: 14,
+                      borderRadius: radii.buton,
                       paddingVertical: 15,
                       alignItems: 'center',
                     }}

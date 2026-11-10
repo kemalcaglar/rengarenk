@@ -77,29 +77,29 @@ type Secim =
 
 const kart: CSSProperties = {
   background: '#FFFFFF',
-  border: '1px solid #E3E6EF',
-  borderRadius: 18,
+  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+  borderRadius: 'var(--rr-kart-kose)',
   padding: 22,
 };
 const birincil: CSSProperties = {
   border: 0,
-  background: '#5B8CFF',
-  borderRadius: 12,
+  background: 'var(--rr-mavi, #5B8CFF)',
+  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
   padding: '12px 18px',
   fontSize: 14.5,
   fontWeight: 800,
-  color: '#1E2333',
+  color: 'var(--rr-murekkep, #1E2333)',
   cursor: 'pointer',
   fontFamily: 'inherit',
 };
 const ikincil: CSSProperties = {
   border: '1px solid #D5DAE5',
   background: '#FFFFFF',
-  borderRadius: 12,
+  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
   padding: '12px 16px',
   fontSize: 14.5,
   fontWeight: 700,
-  color: '#1E2333',
+  color: 'var(--rr-murekkep, #1E2333)',
   cursor: 'pointer',
   fontFamily: 'inherit',
 };
@@ -109,7 +109,7 @@ const baglanti: CSSProperties = {
   padding: 0,
   fontSize: 14,
   fontWeight: 700,
-  color: '#2450C8',
+  color: 'var(--rr-baglanti, #2450C8)',
   cursor: 'pointer',
   fontFamily: 'inherit',
 };
@@ -388,7 +388,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
             margin: '0 0 14px',
             background: '#E7FAF0',
             color: '#11683F',
-            borderRadius: 12,
+            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
             padding: '10px 14px',
             fontWeight: 700,
             fontSize: 14,
@@ -404,7 +404,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
             margin: '0 0 14px',
             background: '#FDECEC',
             color: '#A3271F',
-            borderRadius: 12,
+            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
             padding: '10px 14px',
             fontWeight: 700,
             fontSize: 14,
@@ -420,7 +420,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
             margin: '0 0 14px',
             background: '#FDECEC',
             color: '#A3271F',
-            borderRadius: 12,
+            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
             padding: '12px 14px',
             fontSize: 14,
             display: 'flex',
@@ -460,7 +460,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
           style={{
             margin: '0 0 14px',
             background: '#FFF6DF',
-            borderRadius: 12,
+            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
             padding: '10px 14px',
             fontSize: 14,
             color: '#7A5300',
@@ -475,9 +475,11 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
         <section
           aria-labelledby="pk"
-          style={{ ...kart, flex: '2 1 380px', minWidth: 0, border: '2px solid #5B8CFF' }}
+          style={{ ...kart, flex: '2 1 380px', minWidth: 0, border: '2px solid var(--rr-mavi, #5B8CFF)' }}
         >
-          <span style={{ fontSize: 12.5, fontWeight: 800, color: '#2450C8' }}>Mevcut paket</span>
+          <span style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--rr-baglanti, #2450C8)' }}>
+            Mevcut paket
+          </span>
           {a && mevcut ? (
             <>
               <h2 id="pk" style={{ margin: '4px 0 2px', fontSize: 24, fontWeight: 800 }}>
@@ -669,7 +671,10 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
               <div
                 key={p.key}
                 style={{
-                  border: p.degisim === 'ayni' ? '2px solid #5B8CFF' : '1px solid #E3E6EF',
+                  border:
+                    p.degisim === 'ayni'
+                      ? '2px solid var(--rr-mavi, #5B8CFF)'
+                      : '1px solid var(--rr-cizgi, #E3E6EF)',
                   borderRadius: 16,
                   padding: 16,
                   display: 'flex',
@@ -703,7 +708,9 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                   </p>
                 ) : null}
                 {p.degisim === 'ayni' ? (
-                  <span style={{ fontSize: 13.5, fontWeight: 800, color: '#2450C8' }}>Mevcut paketin</span>
+                  <span style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--rr-baglanti, #2450C8)' }}>
+                    Mevcut paketin
+                  </span>
                 ) : p.degisim === 'yeni' ? (
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                     <button
@@ -758,7 +765,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
         <section
           id="odeme"
           aria-labelledby="od"
-          style={{ ...kart, marginTop: 16, border: '2px solid #FFC84A' }}
+          style={{ ...kart, marginTop: 16, border: '2px solid var(--rr-sari, #FFC84A)' }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
             <h2 id="od" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
@@ -771,7 +778,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                 color: '#11683F',
                 background: '#E7FAF0',
                 padding: '4px 10px',
-                borderRadius: 999,
+                borderRadius: 'var(--rr-etiket-kose)',
               }}
             >
               PayTR güvenli ödeme · 3D Secure
@@ -842,7 +849,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                     padding: '9px 14px',
                     fontSize: 14,
                     fontWeight: 700,
-                    color: '#1E2333',
+                    color: 'var(--rr-murekkep, #1E2333)',
                     cursor: 'pointer',
                     fontFamily: 'inherit',
                     opacity: kuponKod.trim().length < 4 ? 0.5 : 1,
@@ -868,7 +875,12 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
             <iframe
               title="PayTR kart bilgileri"
               src={siparis.odemeAdresi}
-              style={{ width: '100%', height: 560, border: '1px solid #D5DAE5', borderRadius: 14 }}
+              style={{
+                width: '100%',
+                height: 560,
+                border: '1px solid #D5DAE5',
+                borderRadius: 'var(--rr-buton-kose)',
+              }}
             />
           ) : (
             <form
@@ -891,7 +903,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                     boxSizing: 'border-box',
                     marginTop: 6,
                     border: '1px solid #D5DAE5',
-                    borderRadius: 12,
+                    borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                     padding: 12,
                     fontSize: 15,
                     fontFamily: 'inherit',
@@ -966,8 +978,8 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
         style={{
           marginTop: 16,
           background: '#FFFFFF',
-          border: '1px solid #E3E6EF',
-          borderRadius: 18,
+          border: '1px solid var(--rr-cizgi, #E3E6EF)',
+          borderRadius: 'var(--rr-kart-kose)',
           overflow: 'hidden',
         }}
       >

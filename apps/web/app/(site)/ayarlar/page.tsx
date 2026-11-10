@@ -44,7 +44,11 @@ const BOLUMLER: [Bolum, string][] = [
   ['hesap', 'Hesap'],
 ];
 
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 };
+const kart: CSSProperties = {
+  background: '#FFFFFF',
+  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+  borderRadius: 'var(--rr-kart-kose)',
+};
 const girdi: CSSProperties = {
   display: 'block',
   width: '100%',
@@ -63,7 +67,7 @@ const ikincil: CSSProperties = {
   padding: '8px 12px',
   fontSize: 13.5,
   fontWeight: 700,
-  color: '#1E2333',
+  color: 'var(--rr-murekkep, #1E2333)',
   cursor: 'pointer',
   fontFamily: 'inherit',
 };
@@ -74,7 +78,7 @@ const satir: CSSProperties = {
   alignItems: 'center',
   gap: 8,
   border: '1px solid #EEF0F5',
-  borderRadius: 12,
+  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
   padding: '12px 14px',
 };
 const PLATFORM: Record<string, string> = {
@@ -182,8 +186,8 @@ export default function Ayarlar() {
             flexWrap: 'wrap',
             gap: 6,
             background: '#FFFFFF',
-            border: '1px solid #E3E6EF',
-            borderRadius: 14,
+            border: '1px solid var(--rr-cizgi, #E3E6EF)',
+            borderRadius: 'var(--rr-buton-kose)',
             padding: 6,
             marginBottom: 16,
           }}
@@ -203,7 +207,7 @@ export default function Ayarlar() {
                 padding: '11px 10px',
                 fontSize: 14.5,
                 fontWeight: bolum === k ? 800 : 600,
-                color: bolum === k ? '#1E2333' : '#3A4052',
+                color: bolum === k ? 'var(--rr-murekkep, #1E2333)' : '#3A4052',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
               }}
@@ -218,7 +222,7 @@ export default function Ayarlar() {
             style={{
               background: '#E7FAF0',
               color: '#11683F',
-              borderRadius: 12,
+              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
               padding: '10px 14px',
               fontWeight: 700,
             }}
@@ -232,7 +236,7 @@ export default function Ayarlar() {
             style={{
               background: '#FDECEC',
               color: '#A3271F',
-              borderRadius: 12,
+              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
               padding: '10px 14px',
               fontWeight: 700,
             }}
@@ -482,8 +486,8 @@ export default function Ayarlar() {
                         width: 24,
                         height: 24,
                         borderRadius: 7,
-                        border: `2px solid ${k.acik ? '#5B8CFF' : '#AEB5C4'}`,
-                        background: k.acik ? '#5B8CFF' : '#FFFFFF',
+                        border: `2px solid ${k.acik ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}`,
+                        background: k.acik ? 'var(--rr-mavi, #5B8CFF)' : '#FFFFFF',
                         color: '#FFFFFF',
                         fontSize: 14,
                         fontWeight: 800,

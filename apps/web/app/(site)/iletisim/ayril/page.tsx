@@ -15,7 +15,14 @@ export default function Ayril() {
   }, []);
   return (
     <main style={{ maxWidth: 560, margin: '48px auto', padding: '0 24px' }}>
-      <section style={{ background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18, padding: 24 }}>
+      <section
+        style={{
+          background: '#FFFFFF',
+          border: '1px solid var(--rr-cizgi, #E3E6EF)',
+          borderRadius: 'var(--rr-kart-kose)',
+          padding: 24,
+        }}
+      >
         <h1 style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 800 }}>Kampanya e-postaları</h1>
         <p role="status" style={{ margin: 0, fontSize: 15, color: durum === 'hata' ? '#A3271F' : '#11683F' }}>
           {durum === 'bekliyor'

@@ -54,7 +54,7 @@ const ETIKET: Record<Talep['status'], [string, string, string]> = {
   PUBLISHED: ['Yayında', '#E7FAF0', '#11683F'],
   PASSIVE: ['Pasif', '#FFF6DF', '#7A5300'],
   DRAFT: ['Taslak', '#F3F5FA', '#3A4052'],
-  COMPLETED: ['Tamamlandı', '#EEF3FF', '#2450C8'],
+  COMPLETED: ['Tamamlandı', '#EEF3FF', 'var(--rr-baglanti, #2450C8)'],
   CLOSED: ['Kapatıldı', '#F3F5FA', '#3A4052'],
 };
 const TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0', '#F3EFFF', '#FFF0EA'];
@@ -187,7 +187,7 @@ export default function Taleplerim() {
     padding: '10px 12px',
     fontSize: 14,
     fontWeight: 800,
-    color: '#1E2333',
+    color: 'var(--rr-murekkep, #1E2333)',
     cursor: 'pointer',
     fontFamily: 'inherit',
   });
@@ -199,7 +199,7 @@ export default function Taleplerim() {
     padding: '9px 12px',
     fontSize: 14,
     fontWeight: 700,
-    color: '#1E2333',
+    color: 'var(--rr-murekkep, #1E2333)',
     textDecoration: 'none',
   };
   const yalin = (renk: string): CSSProperties => ({
@@ -242,7 +242,7 @@ export default function Taleplerim() {
             <div>
               <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, letterSpacing: -0.4 }}>Taleplerim</h1>
               <p style={{ margin: '4px 0 0', fontSize: 14.5, color: '#5A6073' }}>
-                Kalan talep hakkın: <strong style={{ color: '#1E2333' }}>{hak}</strong>
+                Kalan talep hakkın: <strong style={{ color: 'var(--rr-murekkep, #1E2333)' }}>{hak}</strong>
                 {haklar && haklar.talep === 0
                   ? ` · ek talep ${fiyat('ek_talep', BIREYSEL_FIYATLAR.ekTalep.tl)} TL (ödeme altyapısı açılınca)`
                   : ''}
@@ -256,7 +256,7 @@ export default function Taleplerim() {
               style={{
                 margin: '0 0 14px',
                 background: '#FDECEC',
-                borderRadius: 12,
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: '12px 14px',
                 fontSize: 14,
                 fontWeight: 600,
@@ -293,7 +293,7 @@ export default function Taleplerim() {
                 onClick={() =>
                   islem(doldu, 'extend', `${doldu.baslik} talebi uzatıldı.`, undefined, 'yayinda')
                 }
-                style={{ ...btn('#FFC84A'), padding: '9px 14px' }}
+                style={{ ...btn('var(--rr-sari, #FFC84A)'), padding: '9px 14px' }}
               >
                 Ücretsiz uzat
               </button>
@@ -308,8 +308,8 @@ export default function Taleplerim() {
               flexWrap: 'wrap',
               gap: 6,
               background: '#FFFFFF',
-              border: '1px solid #E3E6EF',
-              borderRadius: 14,
+              border: '1px solid var(--rr-cizgi, #E3E6EF)',
+              borderRadius: 'var(--rr-buton-kose)',
               padding: 6,
               marginBottom: 16,
             }}
@@ -331,12 +331,13 @@ export default function Taleplerim() {
                     padding: '11px 12px',
                     fontSize: 14.5,
                     fontWeight: on ? 800 : 600,
-                    color: on ? '#1E2333' : '#3A4052',
+                    color: on ? 'var(--rr-murekkep, #1E2333)' : '#3A4052',
                     cursor: 'pointer',
                     fontFamily: 'inherit',
                   }}
                 >
-                  {ad} <span style={{ color: on ? '#2450C8' : '#5A6073' }}>{sayilar[k]}</span>
+                  {ad}{' '}
+                  <span style={{ color: on ? 'var(--rr-baglanti, #2450C8)' : '#5A6073' }}>{sayilar[k]}</span>
                 </button>
               );
             })}
@@ -347,7 +348,7 @@ export default function Taleplerim() {
               style={{
                 background: '#FFFFFF',
                 border: '1px dashed #C9CFDB',
-                borderRadius: 18,
+                borderRadius: 'var(--rr-kart-kose)',
                 padding: '40px 20px',
                 textAlign: 'center',
                 fontSize: 15,
@@ -375,8 +376,8 @@ export default function Taleplerim() {
                   key={t.id}
                   style={{
                     background: '#FFFFFF',
-                    border: '1px solid #E3E6EF',
-                    borderRadius: 18,
+                    border: '1px solid var(--rr-cizgi, #E3E6EF)',
+                    borderRadius: 'var(--rr-kart-kose)',
                     padding: 18,
                     display: 'flex',
                     flexWrap: 'wrap',
@@ -388,7 +389,7 @@ export default function Taleplerim() {
                     style={{
                       flex: '0 0 150px',
                       height: 100,
-                      borderRadius: 14,
+                      borderRadius: 'var(--rr-buton-kose)',
                       background:
                         t.status === 'COMPLETED' || t.status === 'CLOSED'
                           ? '#F3F5FA'
@@ -401,7 +402,7 @@ export default function Taleplerim() {
                     <svg width="112" height="46" viewBox="0 0 112 46" fill="none" aria-hidden="true">
                       <path
                         d="M8 34c0-6 4-9 10-10l14-10c4-3 8-4 13-4h22c6 0 10 2 14 6l8 8c8 1 15 3 15 10v4H8z"
-                        fill={t.status === 'COMPLETED' || t.status === 'CLOSED' ? '#AEB5C4' : ink}
+                        style={{ fill: t.status === 'COMPLETED' || t.status === 'CLOSED' ? '#AEB5C4' : ink }}
                         opacity="0.85"
                       />
                       <circle cx="30" cy="38" r="7" fill="#1E2333" />
@@ -417,7 +418,7 @@ export default function Taleplerim() {
                           fontSize: 12,
                           fontWeight: 800,
                           padding: '3px 9px',
-                          borderRadius: 999,
+                          borderRadius: 'var(--rr-etiket-kose)',
                           background: dBg,
                           color: dFg,
                         }}
@@ -433,7 +434,7 @@ export default function Taleplerim() {
                             fontSize: 12,
                             fontWeight: 800,
                             padding: '3px 9px',
-                            borderRadius: 999,
+                            borderRadius: 'var(--rr-etiket-kose)',
                             background: '#FFF6DF',
                             color: '#7A5300',
                           }}
@@ -446,7 +447,7 @@ export default function Taleplerim() {
                       {t.status === 'DRAFT' ? (
                         t.baslik
                       ) : (
-                        <Link href={`/talep/${t.no}`} style={{ color: '#1E2333' }}>
+                        <Link href={`/talep/${t.no}`} style={{ color: 'var(--rr-murekkep, #1E2333)' }}>
                           {t.baslik}
                         </Link>
                       )}
@@ -478,18 +479,25 @@ export default function Taleplerim() {
                         }}
                       >
                         <span>
-                          <strong style={{ color: '#1E2333' }}>{binlik(t.istatistik.goruntu)}</strong>{' '}
+                          <strong style={{ color: 'var(--rr-murekkep, #1E2333)' }}>
+                            {binlik(t.istatistik.goruntu)}
+                          </strong>{' '}
                           görüntülenme
                         </span>
                         <span>
-                          <strong style={{ color: '#1E2333' }}>{binlik(t.istatistik.favori)}</strong> favori
+                          <strong style={{ color: 'var(--rr-murekkep, #1E2333)' }}>
+                            {binlik(t.istatistik.favori)}
+                          </strong>{' '}
+                          favori
                         </span>
-                        <Link href="/mesajlarim" style={{ color: '#2450C8' }}>
+                        <Link href="/mesajlarim" style={{ color: 'var(--rr-baglanti, #2450C8)' }}>
                           <strong>{binlik(t.istatistik.mesaj)}</strong> mesaj
                         </Link>
                         <span>
-                          <strong style={{ color: '#1E2333' }}>{binlik(t.istatistik.eslesen)}</strong> uyan
-                          portföy aracı
+                          <strong style={{ color: 'var(--rr-murekkep, #1E2333)' }}>
+                            {binlik(t.istatistik.eslesen)}
+                          </strong>{' '}
+                          uyan portföy aracı
                         </span>
                       </div>
                     ) : null}
@@ -536,7 +544,7 @@ export default function Taleplerim() {
                           type="button"
                           disabled={busy === t.id}
                           onClick={() => setDlg(t)}
-                          style={btn('#3DD68C')}
+                          style={btn('var(--rr-yesil, #3DD68C)')}
                         >
                           Aracı buldum
                         </button>
@@ -553,7 +561,7 @@ export default function Taleplerim() {
                               onClick={() =>
                                 islem(t, 'promote', `${PROMOTION_NAMES[k]} 7 gün uygulandı.`, { tur: k })
                               }
-                              style={yalin('#2450C8')}
+                              style={yalin('var(--rr-baglanti, #2450C8)')}
                             >
                               {PROMOTION_NAMES[k]} · hakkını kullan ({t.oneCikarmaHakki[k]})
                             </button>
@@ -563,7 +571,7 @@ export default function Taleplerim() {
                             type="button"
                             disabled={busy === t.id || (!ucretsiz && (haklar?.uzatma ?? 0) < 1)}
                             onClick={() => islem(t, 'extend', 'Talep uzatıldı.')}
-                            style={yalin('#2450C8')}
+                            style={yalin('var(--rr-baglanti, #2450C8)')}
                           >
                             {ucretsiz
                               ? 'Ücretsiz uzat'
@@ -605,7 +613,7 @@ export default function Taleplerim() {
                             }
                             onClick={() => islem(t, 'extend', 'Talep yeniden yayında.', undefined, 'yayinda')}
                             style={{
-                              ...btn('#5B8CFF'),
+                              ...btn('var(--rr-mavi, #5B8CFF)'),
                               opacity: !ucretsiz && (haklar?.uzatma ?? 0) < 1 ? 0.55 : 1,
                             }}
                           >
@@ -620,7 +628,7 @@ export default function Taleplerim() {
                             onClick={() =>
                               islem(t, 'activate', 'Talep yeniden yayında.', undefined, 'yayinda')
                             }
-                            style={btn('#5B8CFF')}
+                            style={btn('var(--rr-mavi, #5B8CFF)')}
                           >
                             Yeniden yayınla
                           </button>
@@ -648,7 +656,12 @@ export default function Taleplerim() {
                       <>
                         <Link
                           href={`/talep-olustur?id=${t.id}`}
-                          style={{ ...cizgili, border: 0, background: '#5B8CFF', fontWeight: 800 }}
+                          style={{
+                            ...cizgili,
+                            border: 0,
+                            background: 'var(--rr-mavi, #5B8CFF)',
+                            fontWeight: 800,
+                          }}
                         >
                           Kaldığın yerden devam et
                         </Link>
@@ -659,7 +672,7 @@ export default function Taleplerim() {
                               textAlign: 'center',
                               fontSize: 13,
                               fontWeight: 600,
-                              color: '#2450C8',
+                              color: 'var(--rr-baglanti, #2450C8)',
                             }}
                           >
                             Yayınlamak için talep hakkı gerekiyor
@@ -736,13 +749,13 @@ export default function Taleplerim() {
                       alignItems: 'center',
                       gap: 10,
                       textAlign: 'left',
-                      border: on ? '1.5px solid #5B8CFF' : '1px solid #D5DAE5',
+                      border: on ? '1.5px solid var(--rr-mavi, #5B8CFF)' : '1px solid #D5DAE5',
                       background: on ? '#EEF3FF' : '#FFFFFF',
-                      borderRadius: 12,
+                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                       padding: '12px 14px',
                       fontSize: 14.5,
                       fontWeight: 600,
-                      color: '#1E2333',
+                      color: 'var(--rr-murekkep, #1E2333)',
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                     }}
@@ -753,9 +766,9 @@ export default function Taleplerim() {
                         width: 18,
                         height: 18,
                         borderRadius: '50%',
-                        border: `2px solid ${on ? '#5B8CFF' : '#AEB5C4'}`,
+                        border: `2px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}`,
                         boxShadow: 'inset 0 0 0 3px #FFFFFF',
-                        background: on ? '#5B8CFF' : '#FFFFFF',
+                        background: on ? 'var(--rr-mavi, #5B8CFF)' : '#FFFFFF',
                       }}
                     />
                     {o.ad}
@@ -773,11 +786,11 @@ export default function Taleplerim() {
                 style={{
                   border: '1px solid #D5DAE5',
                   background: '#FFFFFF',
-                  borderRadius: 12,
+                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                   padding: '11px 16px',
                   fontSize: 14.5,
                   fontWeight: 700,
-                  color: '#1E2333',
+                  color: 'var(--rr-murekkep, #1E2333)',
                   cursor: 'pointer',
                   fontFamily: 'inherit',
                 }}
@@ -790,7 +803,12 @@ export default function Taleplerim() {
                 onClick={() =>
                   islem(dlg, 'complete', 'Talep kapatıldı. Hayırlı olsun!', { foundVia: secim }, 'bitti')
                 }
-                style={{ ...btn('#3DD68C'), borderRadius: 12, padding: '11px 18px', fontSize: 14.5 }}
+                style={{
+                  ...btn('var(--rr-yesil, #3DD68C)'),
+                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                  padding: '11px 18px',
+                  fontSize: 14.5,
+                }}
               >
                 Talebi kapat
               </button>
@@ -807,9 +825,9 @@ export default function Taleplerim() {
             left: '50%',
             bottom: 28,
             transform: 'translateX(-50%)',
-            background: '#1E2333',
+            background: 'var(--rr-murekkep, #1E2333)',
             color: '#FFFFFF',
-            borderRadius: 14,
+            borderRadius: 'var(--rr-buton-kose)',
             padding: '13px 18px',
             fontSize: 14.5,
             fontWeight: 600,

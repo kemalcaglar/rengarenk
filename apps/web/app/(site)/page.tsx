@@ -1,6 +1,7 @@
-import { colors, defaultHomeLayout, type HomeResponse, tints, visibleSections } from '@rengarenk/shared';
+import { defaultHomeLayout, type HomeResponse, tints, visibleSections } from '@rengarenk/shared';
 import Link from 'next/link';
 import { getCategories } from '../../lib/kategoriler';
+import { colors } from '../../lib/renk';
 import { GaleriCagri, GuvenRozetleri, NasilCalisir, SikSorulanlar, SonTalepler } from './ana-bolumler';
 import { AnaDuzen } from './ana-duzen';
 import { IstemciSon, IstemciVitrin } from './ana-yedek';
@@ -65,7 +66,7 @@ export default async function Home() {
         flex: '1 1 220px',
         maxWidth: 250,
         minWidth: 0,
-        borderRadius: 18,
+        borderRadius: 'var(--rr-kart-kose)',
         padding: '18px 12px',
       }}
       aria-label="Kategoriler"
@@ -132,7 +133,7 @@ export default async function Home() {
                 color: colors.muted,
                 background: '#F3F5FA',
                 padding: '3px 8px',
-                borderRadius: 999,
+                borderRadius: 'var(--rr-etiket-kose)',
               }}
             >
               Yakında
@@ -177,7 +178,7 @@ export default async function Home() {
             fontWeight: 800,
             fontSize: 16,
             padding: '15px 24px',
-            borderRadius: 14,
+            borderRadius: 'var(--rr-buton-kose)',
             textDecoration: 'none',
           }}
         >
@@ -204,7 +205,7 @@ export default async function Home() {
               gap: 12,
               alignItems: 'center',
               background: a.tint,
-              borderRadius: 14,
+              borderRadius: 'var(--rr-buton-kose)',
               padding: '12px 14px',
             }}
           >

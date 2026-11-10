@@ -24,7 +24,11 @@ export interface GuvenVerisi {
   takipci: number;
 }
 
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 };
+const kart: CSSProperties = {
+  background: '#FFFFFF',
+  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+  borderRadius: 'var(--rr-kart-kose)',
+};
 const sure = (dk: number | null) =>
   dk === null ? '—' : dk < 60 ? `${Math.max(1, Math.round(dk))} dk` : `${Math.round(dk / 60)} sa`;
 
@@ -72,7 +76,7 @@ export function Guven({ v, hesap }: { v: GuvenVerisi; hesap: string }) {
                         display: 'block',
                         height: 8,
                         borderRadius: 4,
-                        background: '#FFC84A',
+                        background: 'var(--rr-sari, #FFC84A)',
                         width: `${(adet / enCok) * 100}%`,
                       }}
                     />
@@ -93,7 +97,7 @@ export function Guven({ v, hesap }: { v: GuvenVerisi; hesap: string }) {
                   fontSize: 12.5,
                   fontWeight: 800,
                   padding: '4px 10px',
-                  borderRadius: 999,
+                  borderRadius: 'var(--rr-etiket-kose)',
                   background: r.var ? r.bg : '#F3F5FA',
                   color: r.var ? r.renk : '#8A91A3',
                 }}
@@ -196,7 +200,14 @@ function BirYildiz({ hesap }: { hesap: string }) {
         {d.yildizlar.map((y) => {
           const durum = y.itiraz ? DURUM[y.itiraz.durum] : null;
           return (
-            <div key={y.id} style={{ border: '1px solid #E3E6EF', borderRadius: 14, padding: '10px 14px' }}>
+            <div
+              key={y.id}
+              style={{
+                border: '1px solid var(--rr-cizgi, #E3E6EF)',
+                borderRadius: 'var(--rr-buton-kose)',
+                padding: '10px 14px',
+              }}
+            >
               <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 12px' }}>
                 <span style={{ flex: '1 1 200px', fontSize: 13.5 }}>
                   <span style={{ color: '#E0A100', fontWeight: 800 }}>★</span>{' '}
@@ -209,7 +220,7 @@ function BirYildiz({ hesap }: { hesap: string }) {
                       fontSize: 12.5,
                       fontWeight: 800,
                       padding: '4px 10px',
-                      borderRadius: 999,
+                      borderRadius: 'var(--rr-etiket-kose)',
                       background: durum[1],
                       color: durum[2],
                     }}
@@ -257,7 +268,7 @@ function BirYildiz({ hesap }: { hesap: string }) {
                       boxSizing: 'border-box',
                       marginTop: 6,
                       border: '1px solid #D5DAE5',
-                      borderRadius: 12,
+                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                       padding: '10px 12px',
                       fontSize: 14,
                       fontFamily: 'inherit',
@@ -279,12 +290,12 @@ function BirYildiz({ hesap }: { hesap: string }) {
                       disabled={mesgul}
                       style={{
                         border: 0,
-                        background: '#5B8CFF',
-                        borderRadius: 12,
+                        background: 'var(--rr-mavi, #5B8CFF)',
+                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                         padding: '9px 16px',
                         fontSize: 13.5,
                         fontWeight: 800,
-                        color: '#1E2333',
+                        color: 'var(--rr-murekkep, #1E2333)',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                       }}

@@ -1,4 +1,4 @@
-import { colors, MESSAGE_MAX, PAINT_STATES } from '@rengarenk/shared';
+import { colors, MESSAGE_MAX, PAINT_STATES, radii } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -206,7 +206,7 @@ export default function AracEkrani() {
                   fontWeight: '800',
                   paddingVertical: 4,
                   paddingHorizontal: 10,
-                  borderRadius: 999,
+                  borderRadius: radii.etiket,
                   overflow: 'hidden',
                   backgroundColor: 'rgba(30,35,51,0.72)',
                   color: '#FFFFFF',
@@ -329,7 +329,7 @@ export default function AracEkrani() {
                     paddingHorizontal: 12,
                     borderWidth: 1,
                     borderColor: colors.line,
-                    borderRadius: 12,
+                    borderRadius: radii.buton - 2,
                   }}
                 >
                   <T style={{ fontSize: 13, fontWeight: '700' }}>
@@ -409,7 +409,7 @@ export default function AracEkrani() {
               flex: 1,
               borderWidth: 1,
               borderColor: '#D5DAE5',
-              borderRadius: 14,
+              borderRadius: radii.buton,
               paddingVertical: 14,
               alignItems: 'center',
             }}
@@ -422,7 +422,7 @@ export default function AracEkrani() {
             style={{
               flex: 2,
               backgroundColor: '#5B8CFF',
-              borderRadius: 14,
+              borderRadius: radii.buton,
               paddingVertical: 15,
               paddingHorizontal: 8,
               alignItems: 'center',
@@ -469,7 +469,7 @@ export default function AracEkrani() {
                 marginTop: 12,
                 borderWidth: 1,
                 borderColor: '#D5DAE5',
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 padding: 12,
                 fontSize: 14.5,
                 textAlignVertical: 'top',
@@ -492,7 +492,7 @@ export default function AracEkrani() {
               style={{
                 marginTop: 14,
                 backgroundColor: '#5B8CFF',
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 paddingVertical: 14,
                 alignItems: 'center',
                 opacity: mesgul || !metin.trim() ? 0.55 : 1,

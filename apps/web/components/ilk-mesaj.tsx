@@ -21,7 +21,7 @@ interface PortfoyAraci {
 
 const dugme: CSSProperties = {
   border: 0,
-  borderRadius: 14,
+  borderRadius: 'var(--rr-buton-kose)',
   padding: '13px 16px',
   fontSize: 15,
   fontWeight: 800,
@@ -172,7 +172,7 @@ export function IlkMesaj({
           background: '#FFFFFF',
           borderRadius: 22,
           padding: '22px 22px 20px',
-          color: '#1E2333',
+          color: 'var(--rr-murekkep, #1E2333)',
         }}
       >
         <h2 id="ilk-baslik" style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>
@@ -196,7 +196,7 @@ export function IlkMesaj({
                 width: '100%',
                 marginTop: 6,
                 border: '1px solid #D5DAE5',
-                borderRadius: 12,
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: 11,
                 fontSize: 15,
                 background: '#FFFFFF',
@@ -223,7 +223,7 @@ export function IlkMesaj({
                 width: '100%',
                 marginTop: 6,
                 border: '1px solid #D5DAE5',
-                borderRadius: 12,
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: 11,
                 fontSize: 15,
                 background: '#FFFFFF',
@@ -245,7 +245,7 @@ export function IlkMesaj({
                   gap: 10,
                   marginTop: 8,
                   background: '#FFF6DF',
-                  borderRadius: 12,
+                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                   padding: '10px 12px',
                   fontWeight: 600,
                 }}
@@ -293,7 +293,7 @@ export function IlkMesaj({
             width: '100%',
             boxSizing: 'border-box',
             border: '1px solid #D5DAE5',
-            borderRadius: 14,
+            borderRadius: 'var(--rr-buton-kose)',
             padding: 12,
             fontSize: 15,
             lineHeight: 1.5,
@@ -316,7 +316,7 @@ export function IlkMesaj({
               padding: '6px 0',
               fontSize: 13,
               fontWeight: 700,
-              color: '#2450C8',
+              color: 'var(--rr-baglanti, #2450C8)',
               cursor: yaziyor ? 'default' : 'pointer',
               fontFamily: 'inherit',
             }}
@@ -339,7 +339,7 @@ export function IlkMesaj({
               lineHeight: 1.5,
               color: '#3A4052',
               background: '#F3F5FA',
-              borderRadius: 12,
+              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
               padding: '10px 12px',
             }}
           >
@@ -363,7 +363,7 @@ export function IlkMesaj({
               margin: '10px 0 0',
               background: '#FFF0EE',
               border: '1px solid #F5C6C0',
-              borderRadius: 12,
+              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
               padding: '10px 12px',
               fontSize: 13.5,
               color: '#A3271F',
@@ -376,7 +376,13 @@ export function IlkMesaj({
           <button
             type="button"
             onClick={kapat}
-            style={{ ...dugme, flex: '0 0 auto', background: '#F3F5FA', color: '#1E2333', fontWeight: 700 }}
+            style={{
+              ...dugme,
+              flex: '0 0 auto',
+              background: '#F3F5FA',
+              color: 'var(--rr-murekkep, #1E2333)',
+              fontWeight: 700,
+            }}
           >
             Vazgeç
           </button>
@@ -387,8 +393,8 @@ export function IlkMesaj({
             style={{
               ...dugme,
               flex: 1,
-              background: '#5B8CFF',
-              color: '#1E2333',
+              background: 'var(--rr-mavi, #5B8CFF)',
+              color: 'var(--rr-murekkep, #1E2333)',
               opacity: mesgul || !metin.trim() || !d || d.engel || !hakVar ? 0.55 : 1,
             }}
           >

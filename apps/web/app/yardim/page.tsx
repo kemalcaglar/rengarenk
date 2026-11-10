@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  colors,
   HELP_TOPICS,
   type PublicHelpTopic,
   SUPPORT_TOPIC_KEYS,
@@ -12,6 +11,7 @@ import Link from 'next/link';
 import { type CSSProperties, useEffect, useMemo, useState } from 'react';
 import { CerezBandi } from '../../components/cerez-bandi';
 import { API, istek, useGiris } from '../../lib/istemci';
+import { colors } from '../../lib/renk';
 
 const BARS = [colors.blue, colors.pink, colors.yellow, colors.green];
 const girdi: CSSProperties = {
@@ -149,8 +149,14 @@ export default function Yardim() {
   }
 
   return (
-    <div style={{ background: '#F6F8FD', minHeight: '100vh', color: '#1E2333' }}>
-      <header style={{ background: '#FFFFFF', borderBottom: '1px solid #E3E6EF' }}>
+    <div
+      style={{
+        background: 'var(--rr-zemin, #F6F8FD)',
+        minHeight: '100vh',
+        color: 'var(--rr-murekkep, #1E2333)',
+      }}
+    >
+      <header style={{ background: '#FFFFFF', borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)' }}>
         <div
           style={{
             maxWidth: 1360,
@@ -170,7 +176,7 @@ export default function Yardim() {
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              color: '#1E2333',
+              color: 'var(--rr-murekkep, #1E2333)',
               textDecoration: 'none',
             }}
           >
@@ -189,7 +195,7 @@ export default function Yardim() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 8,
-                color: '#1E2333',
+                color: 'var(--rr-murekkep, #1E2333)',
                 fontWeight: 600,
                 fontSize: 14.5,
                 padding: '8px 6px',
@@ -247,7 +253,7 @@ export default function Yardim() {
               alignItems: 'center',
               gap: 8,
               background: '#FFFFFF',
-              border: '1px solid #E3E6EF',
+              border: '1px solid var(--rr-cizgi, #E3E6EF)',
               borderRadius: 16,
               padding: '6px 6px 6px 18px',
             }}
@@ -275,7 +281,7 @@ export default function Yardim() {
                 padding: '12px 0',
                 outline: 'none',
                 background: 'transparent',
-                color: '#1E2333',
+                color: 'var(--rr-murekkep, #1E2333)',
                 fontFamily: 'inherit',
               }}
             />
@@ -283,12 +289,12 @@ export default function Yardim() {
               type="submit"
               style={{
                 border: 0,
-                background: '#5B8CFF',
-                borderRadius: 12,
+                background: 'var(--rr-mavi, #5B8CFF)',
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: '12px 20px',
                 fontSize: 15,
                 fontWeight: 800,
-                color: '#1E2333',
+                color: 'var(--rr-murekkep, #1E2333)',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
               }}
@@ -324,11 +330,11 @@ export default function Yardim() {
                 style={{
                   textAlign: 'left',
                   background: '#FFFFFF',
-                  border: on ? `2px solid ${t.renk}` : '1px solid #E3E6EF',
-                  borderRadius: 18,
+                  border: on ? `2px solid ${t.renk}` : '1px solid var(--rr-cizgi, #E3E6EF)',
+                  borderRadius: 'var(--rr-kart-kose)',
                   padding: on ? 17 : 18,
                   cursor: 'pointer',
-                  color: '#1E2333',
+                  color: 'var(--rr-murekkep, #1E2333)',
                   fontFamily: 'inherit',
                 }}
               >
@@ -358,8 +364,8 @@ export default function Yardim() {
               flex: '999 1 560px',
               minWidth: 0,
               background: '#FFFFFF',
-              border: '1px solid #E3E6EF',
-              borderRadius: 18,
+              border: '1px solid var(--rr-cizgi, #E3E6EF)',
+              borderRadius: 'var(--rr-kart-kose)',
               overflow: 'hidden',
             }}
           >
@@ -403,7 +409,7 @@ export default function Yardim() {
                       padding: '16px 20px',
                       fontSize: 15,
                       fontWeight: 700,
-                      color: '#1E2333',
+                      color: 'var(--rr-murekkep, #1E2333)',
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                     }}
@@ -457,11 +463,11 @@ export default function Yardim() {
                                   style={{
                                     border: '1px solid #D5DAE5',
                                     background: '#FFFFFF',
-                                    borderRadius: 999,
+                                    borderRadius: 'var(--rr-etiket-kose)',
                                     padding: '4px 12px',
                                     fontSize: 13,
                                     fontWeight: 700,
-                                    color: '#1E2333',
+                                    color: 'var(--rr-murekkep, #1E2333)',
                                     cursor: 'pointer',
                                     fontFamily: 'inherit',
                                   }}
@@ -485,7 +491,12 @@ export default function Yardim() {
           >
             <section
               aria-labelledby="gv"
-              style={{ background: '#FFF6DF', border: '1px solid #F4DC9A', borderRadius: 18, padding: 20 }}
+              style={{
+                background: '#FFF6DF',
+                border: '1px solid #F4DC9A',
+                borderRadius: 'var(--rr-kart-kose)',
+                padding: 20,
+              }}
             >
               <h2 id="gv" style={{ margin: '0 0 10px', fontSize: 17, fontWeight: 800 }}>
                 Güvenli alışveriş için
@@ -499,7 +510,12 @@ export default function Yardim() {
             </section>
             <section
               aria-labelledby="ds"
-              style={{ background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18, padding: 20 }}
+              style={{
+                background: '#FFFFFF',
+                border: '1px solid var(--rr-cizgi, #E3E6EF)',
+                borderRadius: 'var(--rr-kart-kose)',
+                padding: 20,
+              }}
             >
               <h2 id="ds" style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 800 }}>
                 Destek talebi oluştur
@@ -510,7 +526,7 @@ export default function Yardim() {
                   style={{
                     marginTop: 10,
                     background: '#E7FAF0',
-                    borderRadius: 12,
+                    borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                     padding: 14,
                     fontSize: 14,
                     lineHeight: 1.5,
@@ -525,7 +541,7 @@ export default function Yardim() {
                   style={{
                     marginTop: 10,
                     background: '#E7FAF0',
-                    borderRadius: 12,
+                    borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                     padding: 14,
                     fontSize: 14,
                     lineHeight: 1.5,
@@ -604,7 +620,7 @@ export default function Yardim() {
                         marginTop: 12,
                         border: '1.5px solid #C9B8FF',
                         background: '#FAF7FF',
-                        borderRadius: 12,
+                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                         padding: '12px 14px',
                         fontSize: 13.5,
                         lineHeight: 1.55,
@@ -624,12 +640,12 @@ export default function Yardim() {
                           }}
                           style={{
                             border: 0,
-                            background: '#3DD68C',
+                            background: 'var(--rr-yesil, #3DD68C)',
                             borderRadius: 10,
                             padding: '9px 14px',
                             fontSize: 13.5,
                             fontWeight: 800,
-                            color: '#1E2333',
+                            color: 'var(--rr-murekkep, #1E2333)',
                             cursor: 'pointer',
                             fontFamily: 'inherit',
                           }}
@@ -647,7 +663,7 @@ export default function Yardim() {
                             padding: '9px 14px',
                             fontSize: 13.5,
                             fontWeight: 700,
-                            color: '#1E2333',
+                            color: 'var(--rr-murekkep, #1E2333)',
                             cursor: 'pointer',
                             fontFamily: 'inherit',
                           }}
@@ -666,12 +682,12 @@ export default function Yardim() {
                         width: '100%',
                         marginTop: 12,
                         border: 0,
-                        background: '#5B8CFF',
-                        borderRadius: 12,
+                        background: 'var(--rr-mavi, #5B8CFF)',
+                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                         padding: 13,
                         fontSize: 15,
                         fontWeight: 800,
-                        color: '#1E2333',
+                        color: 'var(--rr-murekkep, #1E2333)',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                       }}

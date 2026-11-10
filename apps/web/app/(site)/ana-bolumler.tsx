@@ -1,6 +1,7 @@
-import { colors, DOTS, HELP_TOPICS, tints } from '@rengarenk/shared';
+import { DOTS, HELP_TOPICS, tints } from '@rengarenk/shared';
 import Link from 'next/link';
 import type { CSSProperties, ReactNode } from 'react';
+import { colors } from '../../lib/renk';
 import { butceAraligi, zaman } from '../../lib/talep-bicim';
 
 /**
@@ -11,7 +12,7 @@ import { butceAraligi, zaman } from '../../lib/talep-bicim';
 export const kart: CSSProperties = {
   background: colors.surface,
   border: `1px solid ${colors.line}`,
-  borderRadius: 18,
+  borderRadius: 'var(--rr-kart-kose)',
 };
 
 export function Baslik({ id, children, sag }: { id: string; children: ReactNode; sag?: ReactNode }) {
@@ -132,7 +133,7 @@ export function NasilCalisir() {
       </h2>
       <ol className="rr-uc-sutun" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {ADIMLAR.map((a) => (
-          <li key={a.no} style={{ background: a.tint, borderRadius: 14, padding: 16 }}>
+          <li key={a.no} style={{ background: a.tint, borderRadius: 'var(--rr-buton-kose)', padding: 16 }}>
             <span style={{ display: 'block', fontSize: 13, fontWeight: 800, color: colors.muted }}>
               {a.no}
             </span>
@@ -171,7 +172,7 @@ export function GuvenRozetleri() {
           style={{
             background: '#E7FAF0',
             color: '#11683F',
-            borderRadius: 999,
+            borderRadius: 'var(--rr-etiket-kose)',
             padding: '8px 14px',
             fontSize: 14,
             fontWeight: 800,
@@ -221,7 +222,7 @@ export function GaleriCagri() {
         justifyContent: 'space-between',
         gap: '10px 16px',
         background: '#F3EFFF',
-        border: '1px solid #E3E6EF',
+        border: '1px solid var(--rr-cizgi, #E3E6EF)',
         borderLeft: '6px solid #9B7BFF',
         borderRadius: 16,
         padding: '16px 20px',
@@ -241,7 +242,7 @@ export function GaleriCagri() {
           flex: 'none',
           background: colors.ink,
           color: '#FFFFFF',
-          borderRadius: 12,
+          borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
           padding: '11px 18px',
           fontSize: 14.5,
           fontWeight: 800,

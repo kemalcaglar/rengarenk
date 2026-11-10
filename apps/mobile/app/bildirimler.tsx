@@ -1,4 +1,4 @@
-import { colors } from '@rengarenk/shared';
+import { colors, radii } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
@@ -97,7 +97,13 @@ export default function Bildirimler() {
           accessibilityRole="button"
           accessibilityLabel="Geri"
           onPress={() => router.back()}
-          style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: radii.buton - 2,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
           <Ikon d="geri" />
         </Pressable>
@@ -139,7 +145,7 @@ export default function Bildirimler() {
                 borderWidth: on ? 0 : 1,
                 borderColor: '#D5DAE5',
                 backgroundColor: on ? colors.ink : colors.surface,
-                borderRadius: 999,
+                borderRadius: radii.etiket,
                 paddingVertical: on ? 9 : 8,
                 paddingHorizontal: on ? 14 : 13,
               }}
@@ -213,7 +219,7 @@ export default function Bildirimler() {
                         style={{
                           width: 38,
                           height: 38,
-                          borderRadius: 12,
+                          borderRadius: radii.buton - 2,
                           backgroundColor: b.tint,
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -238,7 +244,7 @@ export default function Bildirimler() {
                               marginTop: 5,
                               paddingVertical: 2,
                               paddingHorizontal: 7,
-                              borderRadius: 999,
+                              borderRadius: radii.etiket,
                               backgroundColor: '#F3F5FA',
                             }}
                           >

@@ -37,18 +37,18 @@ const girdi: CSSProperties = {
   width: '100%',
   boxSizing: 'border-box',
   border: '1px solid #D5DAE5',
-  borderRadius: 12,
+  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
   padding: '11px 12px',
   fontSize: 14.5,
   fontFamily: 'inherit',
   background: '#FFFFFF',
-  color: '#1E2333',
+  color: 'var(--rr-murekkep, #1E2333)',
 };
 const etiket: CSSProperties = { display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6 };
 const bolum: CSSProperties = {
   background: '#FFFFFF',
-  border: '1px solid #E3E6EF',
-  borderRadius: 18,
+  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+  borderRadius: 'var(--rr-kart-kose)',
   padding: 20,
 };
 const BOS_HASAR: Damage = {
@@ -188,7 +188,7 @@ export function AracFormu({
             margin: '0 0 14px',
             background: '#FFF0EE',
             border: '1px solid #F5C6C0',
-            borderRadius: 12,
+            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
             padding: '10px 14px',
             fontSize: 14,
             color: '#A3271F',
@@ -380,7 +380,14 @@ export function AracFormu({
             </Alan>
           </div>
           {katalogsuz ? null : (
-            <p style={{ margin: '10px 0 0', fontSize: 13, color: '#2450C8', fontWeight: 600 }}>
+            <p
+              style={{
+                margin: '10px 0 0',
+                fontSize: 13,
+                color: 'var(--rr-baglanti, #2450C8)',
+                fontWeight: 600,
+              }}
+            >
               Model yılından kasa ve makyaj otomatik bulunur; paket listesi bu kasa için katalogdan gelir.
               Temsilî fotoğraf, açık lisanslı kaynaktan (Wikimedia Commons) atfıyla otomatik eklenir.
             </p>
@@ -538,7 +545,7 @@ export function AracFormu({
                   fontSize: 13,
                   fontWeight: 700,
                   padding: '6px 12px',
-                  borderRadius: 999,
+                  borderRadius: 'var(--rr-etiket-kose)',
                 }}
               >
                 {r.metin}
@@ -633,13 +640,13 @@ export function AracFormu({
               onClick={() => fotoRef.current?.click()}
               style={{
                 border: '2px dashed #AEB5C4',
-                background: '#F6F8FD',
+                background: 'var(--rr-zemin, #F6F8FD)',
                 borderRadius: 16,
                 padding: 26,
                 cursor: 'pointer',
                 fontSize: 14.5,
                 fontWeight: 700,
-                color: '#1E2333',
+                color: 'var(--rr-murekkep, #1E2333)',
                 fontFamily: 'inherit',
               }}
             >
@@ -654,7 +661,7 @@ export function AracFormu({
             <div
               style={{
                 border: '2px dashed #AEB5C4',
-                background: '#F6F8FD',
+                background: 'var(--rr-zemin, #F6F8FD)',
                 borderRadius: 16,
                 padding: 18,
                 textAlign: 'center',
@@ -732,14 +739,15 @@ export function AracFormu({
                       objectFit: 'cover',
                       borderRadius: 10,
                       display: 'block',
-                      border: i === 0 ? '2px solid #5B8CFF' : '1px solid #E3E6EF',
+                      border:
+                        i === 0 ? '2px solid var(--rr-mavi, #5B8CFF)' : '1px solid var(--rr-cizgi, #E3E6EF)',
                     }}
                   />
                   <span
                     style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 12 }}
                   >
                     {i === 0 ? (
-                      <span style={{ fontWeight: 800, color: '#2450C8' }}>Kapak</span>
+                      <span style={{ fontWeight: 800, color: 'var(--rr-baglanti, #2450C8)' }}>Kapak</span>
                     ) : (
                       <button
                         type="button"
@@ -761,7 +769,7 @@ export function AracFormu({
                           padding: 0,
                           fontSize: 12,
                           fontWeight: 700,
-                          color: '#2450C8',
+                          color: 'var(--rr-baglanti, #2450C8)',
                           cursor: 'pointer',
                         }}
                       >
@@ -803,11 +811,11 @@ export function AracFormu({
             style={{
               border: '1px solid #D5DAE5',
               background: '#FFFFFF',
-              borderRadius: 14,
+              borderRadius: 'var(--rr-buton-kose)',
               padding: '13px 20px',
               fontSize: 15,
               fontWeight: 700,
-              color: '#1E2333',
+              color: 'var(--rr-murekkep, #1E2333)',
               cursor: 'pointer',
               fontFamily: 'inherit',
             }}
@@ -826,11 +834,11 @@ export function AracFormu({
             style={{
               border: '1px solid #D5DAE5',
               background: '#FFFFFF',
-              borderRadius: 14,
+              borderRadius: 'var(--rr-buton-kose)',
               padding: '13px 20px',
               fontSize: 15,
               fontWeight: 700,
-              color: '#1E2333',
+              color: 'var(--rr-murekkep, #1E2333)',
               cursor: 'pointer',
               fontFamily: 'inherit',
             }}
@@ -855,12 +863,12 @@ export function AracFormu({
               }
               style={{
                 border: 0,
-                background: '#5B8CFF',
-                borderRadius: 14,
+                background: 'var(--rr-mavi, #5B8CFF)',
+                borderRadius: 'var(--rr-buton-kose)',
                 padding: '14px 24px',
                 fontSize: 15,
                 fontWeight: 800,
-                color: '#1E2333',
+                color: 'var(--rr-murekkep, #1E2333)',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
               }}

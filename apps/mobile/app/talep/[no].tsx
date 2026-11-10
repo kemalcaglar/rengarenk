@@ -4,6 +4,7 @@ import {
   colors,
   PAINT_PARTS,
   PAINT_STATES,
+  radii,
   saatYaz,
 } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -176,7 +177,7 @@ export default function TalepDetay() {
   const boya = t.data.alanlar.boya as { limit: number; parts: Record<string, string> } | undefined;
   const islem = f.find((x) => x.key === 'islemKabul');
   const kabul = (t.data.alanlar.islemKabul as string[] | undefined) ?? [];
-  const bolum = { ...kartStil, borderRadius: 18, padding: 16, marginTop: 12 } as const;
+  const bolum = { ...kartStil, borderRadius: radii.kart, padding: 16, marginTop: 12 } as const;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top', 'bottom']}>
@@ -211,7 +212,7 @@ export default function TalepDetay() {
               style={{
                 width: 44,
                 height: 44,
-                borderRadius: 12,
+                borderRadius: radii.buton - 2,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
@@ -266,7 +267,7 @@ export default function TalepDetay() {
                 fontWeight: '700',
                 paddingVertical: 4,
                 paddingHorizontal: 9,
-                borderRadius: 999,
+                borderRadius: radii.etiket,
                 overflow: 'hidden',
               }}
             >
@@ -281,7 +282,7 @@ export default function TalepDetay() {
                   fontWeight: '700',
                   paddingVertical: 4,
                   paddingHorizontal: 9,
-                  borderRadius: 999,
+                  borderRadius: radii.etiket,
                   overflow: 'hidden',
                 }}
               >{`Alternatif ${alt + 1}`}</T>
@@ -304,7 +305,7 @@ export default function TalepDetay() {
               fontWeight: '700',
               paddingVertical: 5,
               paddingHorizontal: 11,
-              borderRadius: 999,
+              borderRadius: radii.etiket,
               overflow: 'hidden',
             }}
           >
@@ -361,7 +362,7 @@ export default function TalepDetay() {
                 style={{
                   width: '48.5%',
                   backgroundColor: TINTS[i % TINTS.length],
-                  borderRadius: 12,
+                  borderRadius: radii.buton - 2,
                   padding: 10,
                 }}
               >
@@ -404,7 +405,7 @@ export default function TalepDetay() {
                 alignItems: 'center',
                 marginTop: 4,
                 backgroundColor: '#EEF3FF',
-                borderRadius: 12,
+                borderRadius: radii.buton - 2,
                 padding: 12,
               }}
             >
@@ -480,7 +481,7 @@ export default function TalepDetay() {
                         fontWeight: '700',
                         paddingVertical: 4,
                         paddingHorizontal: 9,
-                        borderRadius: 999,
+                        borderRadius: radii.etiket,
                         overflow: 'hidden',
                         backgroundColor: ok ? '#E7FAF0' : '#FDECEC',
                         color: ok ? '#11683F' : '#A3271F',
@@ -511,7 +512,7 @@ export default function TalepDetay() {
                     width: '48.5%',
                     borderWidth: 1,
                     borderColor: '#EEF0F5',
-                    borderRadius: 12,
+                    borderRadius: radii.buton - 2,
                     padding: 10,
                   }}
                 >
@@ -565,7 +566,7 @@ export default function TalepDetay() {
             style={{
               borderWidth: 1,
               borderColor: '#D5DAE5',
-              borderRadius: 14,
+              borderRadius: radii.buton,
               paddingVertical: 14,
               alignItems: 'center',
             }}
@@ -594,7 +595,7 @@ export default function TalepDetay() {
                 style={{
                   flex: 2,
                   backgroundColor: colors.blue,
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   paddingVertical: 14,
                   alignItems: 'center',
                   opacity: durum === 'uye' && !yayinda && !mesaj?.yazildi ? 0.55 : 1,
@@ -620,7 +621,7 @@ export default function TalepDetay() {
                     flex: 1,
                     borderWidth: 1.5,
                     borderColor: '#25A35A',
-                    borderRadius: 14,
+                    borderRadius: radii.buton,
                     paddingVertical: 13,
                     alignItems: 'center',
                   }}

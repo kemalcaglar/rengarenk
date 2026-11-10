@@ -75,10 +75,10 @@ export function KayitliAramalarim() {
               justifyContent: 'space-between',
               gap: 12,
               background: '#FFFFFF',
-              border: '1px solid #E3E6EF',
+              border: '1px solid var(--rr-cizgi, #E3E6EF)',
               borderRadius: 16,
               padding: 16,
-              color: '#1E2333',
+              color: 'var(--rr-murekkep, #1E2333)',
               textDecoration: 'none',
             }}
           >
@@ -95,7 +95,7 @@ export function KayitliAramalarim() {
                 fontSize: 12.5,
                 fontWeight: 800,
                 padding: '6px 10px',
-                borderRadius: 999,
+                borderRadius: 'var(--rr-etiket-kose)',
               }}
             >
               {a.yeni ?? 0} yeni

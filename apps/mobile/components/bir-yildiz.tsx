@@ -1,4 +1,4 @@
-import { colors } from '@rengarenk/shared';
+import { colors, radii } from '@rengarenk/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { useOturum } from '../lib/oturum';
@@ -81,7 +81,13 @@ export function BirYildiz({ hesap }: { hesap: string }) {
         return (
           <View
             key={y.id}
-            style={{ marginTop: 8, borderWidth: 1, borderColor: '#E3E6EF', borderRadius: 12, padding: 10 }}
+            style={{
+              marginTop: 8,
+              borderWidth: 1,
+              borderColor: '#E3E6EF',
+              borderRadius: radii.buton - 2,
+              padding: 10,
+            }}
           >
             <View
               style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}
@@ -97,7 +103,7 @@ export function BirYildiz({ hesap }: { hesap: string }) {
                     fontWeight: '800',
                     paddingVertical: 4,
                     paddingHorizontal: 8,
-                    borderRadius: 999,
+                    borderRadius: radii.etiket,
                     overflow: 'hidden',
                     backgroundColor: durum[1],
                     color: durum[2],
@@ -143,7 +149,7 @@ export function BirYildiz({ hesap }: { hesap: string }) {
                     marginTop: 10,
                     borderWidth: 1,
                     borderColor: '#D5DAE5',
-                    borderRadius: 12,
+                    borderRadius: radii.buton - 2,
                     padding: 12,
                     minHeight: 90,
                     fontSize: 14,
@@ -163,7 +169,7 @@ export function BirYildiz({ hesap }: { hesap: string }) {
                     style={{
                       flex: 1,
                       backgroundColor: colors.blue,
-                      borderRadius: 12,
+                      borderRadius: radii.buton - 2,
                       paddingVertical: 12,
                       alignItems: 'center',
                     }}

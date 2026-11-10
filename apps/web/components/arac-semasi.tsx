@@ -12,7 +12,7 @@ export function AracSemasiGorunum({
 }) {
   const renk = (k: string) => PAINT_STATES.find((s) => s.key === (parts[k] ?? 'orijinal'))?.renk ?? '#EEF0F5';
   const P = (d: string, k: string, ad: string) => (
-    <path d={d} fill={renk(k)} stroke="#AEB5C4" strokeWidth="1.5">
+    <path d={d} style={{ fill: renk(k) }} stroke="#AEB5C4" strokeWidth="1.5">
       <title>{ad}</title>
     </path>
   );

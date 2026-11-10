@@ -1,4 +1,4 @@
-import { colors } from '@rengarenk/shared';
+import { colors, radii } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
@@ -168,7 +168,7 @@ export default function Mesajlar() {
                   borderWidth: 1,
                   borderColor: on ? colors.ink : '#D5DAE5',
                   backgroundColor: on ? colors.ink : colors.surface,
-                  borderRadius: 999,
+                  borderRadius: radii.etiket,
                   paddingVertical: 8,
                   paddingHorizontal: 13,
                 }}
@@ -319,7 +319,7 @@ export default function Mesajlar() {
                                 fontWeight: '800',
                                 paddingVertical: 2,
                                 paddingHorizontal: 7,
-                                borderRadius: 999,
+                                borderRadius: radii.etiket,
                                 overflow: 'hidden',
                                 backgroundColor: r.bg,
                                 color: r.renk,
@@ -342,7 +342,7 @@ export default function Mesajlar() {
                           minWidth: 20,
                           height: 20,
                           paddingHorizontal: 5,
-                          borderRadius: 999,
+                          borderRadius: radii.etiket,
                           backgroundColor: '#5B8CFF',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -375,7 +375,7 @@ export default function Mesajlar() {
               style={{
                 width: 40,
                 height: 40,
-                borderRadius: 12,
+                borderRadius: radii.buton - 2,
                 backgroundColor: '#FFF6DF',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -394,7 +394,7 @@ export default function Mesajlar() {
               onPress={() => setPuanAcik(true)}
               style={{
                 backgroundColor: colors.ink,
-                borderRadius: 12,
+                borderRadius: radii.buton - 2,
                 paddingVertical: 10,
                 paddingHorizontal: 14,
               }}

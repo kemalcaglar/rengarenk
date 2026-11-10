@@ -5,6 +5,7 @@ import {
   fiyatYaz,
   type HomeResponse,
   ONE_CIKARMA,
+  radii,
   tints,
   visibleSections,
 } from '@rengarenk/shared';
@@ -35,6 +36,7 @@ import { useCanli } from '../../lib/canli';
 import { useKategoriler } from '../../lib/kategoriler';
 import { useOturum } from '../../lib/oturum';
 import { yilAraligi, zaman } from '../../lib/talep-bicim';
+import { aktifTema } from '../../lib/tasarim';
 
 interface Kart {
   no: number;
@@ -186,7 +188,7 @@ export default function Home() {
               onPress={() => router.push(durum === 'uye' ? '/talep-olustur' : '/giris')}
               style={{
                 backgroundColor: colors.blue,
-                borderRadius: 12,
+                borderRadius: radii.buton - 2,
                 paddingVertical: 11,
                 paddingHorizontal: 12,
                 alignItems: 'center',
@@ -354,7 +356,7 @@ export default function Home() {
                     style={{
                       width: 74,
                       height: 74,
-                      borderRadius: 12,
+                      borderRadius: radii.buton - 2,
                       overflow: 'hidden',
                       backgroundColor: '#E6EAF3',
                     }}
@@ -396,7 +398,7 @@ export default function Home() {
               backgroundColor: colors.surface,
               borderWidth: 1,
               borderColor: colors.line,
-              borderRadius: 18,
+              borderRadius: radii.kart,
               padding: 16,
             }}
           >
@@ -409,7 +411,7 @@ export default function Home() {
                   style={{
                     width: 28,
                     height: 28,
-                    borderRadius: 14,
+                    borderRadius: radii.buton,
                     backgroundColor: a.renk,
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -449,11 +451,13 @@ export default function Home() {
         return null;
     }
   };
+  const tema = aktifTema();
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }} edges={['top']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: tema?.ustBant ?? colors.surface }} edges={['top']}>
       <View
         style={{
-          backgroundColor: colors.surface,
+          // Mevsimsel tema (Karar 46): tarih aralığında üst bölüm bant renginde, logonun yanında rozet
+          backgroundColor: tema?.ustBant ?? colors.surface,
           borderBottomWidth: 1,
           borderBottomColor: colors.line,
           paddingTop: 10,
@@ -471,14 +475,19 @@ export default function Home() {
               style={{
                 width: 44,
                 height: 44,
-                borderRadius: 12,
+                borderRadius: radii.buton - 2,
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Ikon d="menu" />
+              <Ikon d="menu" color={tema?.ustYazi} />
             </Pressable>
-            <Logo />
+            <Logo renk={tema?.ustYazi} />
+            {tema?.rozet ? (
+              <T style={{ fontSize: 12, fontWeight: '700', color: tema.ustYazi, marginLeft: 4 }}>
+                {tema.rozet}
+              </T>
+            ) : null}
           </View>
           <Pressable
             accessibilityRole="button"
@@ -487,7 +496,7 @@ export default function Home() {
             style={{
               width: 44,
               height: 44,
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               backgroundColor: '#F3F5FA',
               alignItems: 'center',
               justifyContent: 'center',
@@ -502,7 +511,7 @@ export default function Home() {
                   right: 6,
                   minWidth: 18,
                   height: 18,
-                  borderRadius: 999,
+                  borderRadius: radii.etiket,
                   backgroundColor: colors.pink,
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -524,7 +533,7 @@ export default function Home() {
             backgroundColor: '#F3F5FA',
             borderWidth: 1,
             borderColor: colors.line,
-            borderRadius: 12,
+            borderRadius: radii.buton - 2,
             paddingHorizontal: 12,
           }}
         >

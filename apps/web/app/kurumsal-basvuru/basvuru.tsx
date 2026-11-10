@@ -40,11 +40,11 @@ const girdi: CSSProperties = {
   width: '100%',
   boxSizing: 'border-box',
   border: '1px solid #D5DAE5',
-  borderRadius: 12,
+  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
   padding: 12,
   fontSize: 15,
   fontFamily: 'inherit',
-  color: '#1E2333',
+  color: 'var(--rr-murekkep, #1E2333)',
   background: '#FFFFFF',
 };
 const etiket: CSSProperties = { display: 'block', fontSize: 13.5, fontWeight: 700, marginBottom: 6 };
@@ -265,8 +265,14 @@ export function KurumsalBasvuru() {
   const durumGorunumu = b && !duzenlenebilir;
 
   return (
-    <div style={{ background: '#F6F8FD', minHeight: '100vh', color: '#1E2333' }}>
-      <header style={{ background: '#FFFFFF', borderBottom: '1px solid #E3E6EF' }}>
+    <div
+      style={{
+        background: 'var(--rr-zemin, #F6F8FD)',
+        minHeight: '100vh',
+        color: 'var(--rr-murekkep, #1E2333)',
+      }}
+    >
+      <header style={{ background: '#FFFFFF', borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)' }}>
         <div
           style={{
             maxWidth: 1360,
@@ -284,13 +290,18 @@ export function KurumsalBasvuru() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: 8,
-              color: '#1E2333',
+              color: 'var(--rr-murekkep, #1E2333)',
               textDecoration: 'none',
             }}
             aria-label="Rengarenk ana sayfa"
           >
             <span style={{ display: 'flex', gap: 3 }} aria-hidden="true">
-              {['#5B8CFF', '#FF6FB5', '#FFC84A', '#3DD68C'].map((c) => (
+              {[
+                'var(--rr-mavi, #5B8CFF)',
+                'var(--rr-pembe, #FF6FB5)',
+                'var(--rr-sari, #FFC84A)',
+                'var(--rr-yesil, #3DD68C)',
+              ].map((c) => (
                 <span key={c} style={{ width: 10, height: 22, borderRadius: 5, background: c }} />
               ))}
             </span>
@@ -302,7 +313,7 @@ export function KurumsalBasvuru() {
                 background: '#FFF6DF',
                 color: '#7A5300',
                 padding: '4px 10px',
-                borderRadius: 999,
+                borderRadius: 'var(--rr-etiket-kose)',
                 marginLeft: 4,
               }}
             >
@@ -352,7 +363,7 @@ export function KurumsalBasvuru() {
                       display: 'block',
                       height: 6,
                       borderRadius: 3,
-                      background: on ? '#5B8CFF' : '#E3E6EF',
+                      background: on ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-cizgi, #E3E6EF)',
                     }}
                   />
                   <span
@@ -361,7 +372,7 @@ export function KurumsalBasvuru() {
                       marginTop: 8,
                       fontSize: 13.5,
                       fontWeight: gecerli ? 800 : 600,
-                      color: on ? '#1E2333' : '#5A6073',
+                      color: on ? 'var(--rr-murekkep, #1E2333)' : '#5A6073',
                     }}
                   >
                     {n}. {l}
@@ -372,7 +383,14 @@ export function KurumsalBasvuru() {
           })}
         </ol>
 
-        <div style={{ background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 22, padding: 28 }}>
+        <div
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid var(--rr-cizgi, #E3E6EF)',
+            borderRadius: 22,
+            padding: 28,
+          }}
+        >
           {hata ? (
             <p
               role="alert"
@@ -380,7 +398,7 @@ export function KurumsalBasvuru() {
                 margin: '0 0 16px',
                 background: '#FFF0EE',
                 border: '1px solid #F5C6C0',
-                borderRadius: 12,
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: '10px 14px',
                 fontSize: 14,
                 color: '#A3271F',
@@ -395,7 +413,7 @@ export function KurumsalBasvuru() {
               style={{
                 margin: '0 0 16px',
                 background: '#FFF6DF',
-                borderRadius: 12,
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: '10px 14px',
                 fontSize: 14,
                 color: '#7A5300',
@@ -429,7 +447,9 @@ export function KurumsalBasvuru() {
                       }}
                       style={{
                         textAlign: 'left',
-                        border: on ? '2px solid #5B8CFF' : '1px solid #E3E6EF',
+                        border: on
+                          ? '2px solid var(--rr-mavi, #5B8CFF)'
+                          : '1px solid var(--rr-cizgi, #E3E6EF)',
                         background: on ? '#EEF3FF' : '#FFFFFF',
                         borderRadius: 16,
                         padding: on ? 16 : 17,
@@ -452,7 +472,7 @@ export function KurumsalBasvuru() {
                           display: 'block',
                           fontSize: 15.5,
                           fontWeight: on ? 800 : 700,
-                          color: '#1E2333',
+                          color: 'var(--rr-murekkep, #1E2333)',
                           marginTop: 12,
                         }}
                       >
@@ -555,7 +575,14 @@ export function KurumsalBasvuru() {
               <h2 style={{ margin: '0 0 6px', fontSize: 21, fontWeight: 800 }}>Yetki ve belgeler</h2>
               <p style={{ margin: '0 0 18px', fontSize: 14.5, color: '#5A6073' }}>{tur.belgeNotu}</p>
               {tur.yetkiVar ? (
-                <div style={{ border: '1px solid #E3E6EF', borderRadius: 16, padding: 18, marginBottom: 14 }}>
+                <div
+                  style={{
+                    border: '1px solid var(--rr-cizgi, #E3E6EF)',
+                    borderRadius: 16,
+                    padding: 18,
+                    marginBottom: 14,
+                  }}
+                >
                   <label
                     htmlFor="yetki"
                     style={{ display: 'block', fontSize: 14, fontWeight: 800, marginBottom: 6 }}
@@ -578,12 +605,12 @@ export function KurumsalBasvuru() {
                       disabled={busy === 'dogrula' || !veri.yetkiNo?.trim()}
                       style={{
                         border: 0,
-                        background: '#5B8CFF',
-                        borderRadius: 12,
+                        background: 'var(--rr-mavi, #5B8CFF)',
+                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                         padding: '12px 18px',
                         fontSize: 14.5,
                         fontWeight: 800,
-                        color: '#1E2333',
+                        color: 'var(--rr-murekkep, #1E2333)',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                       }}
@@ -605,7 +632,7 @@ export function KurumsalBasvuru() {
                             : dogru.sonuc === 'kaldi'
                               ? '#FDECEC'
                               : '#FFF6DF',
-                        borderRadius: 12,
+                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                         padding: '11px 14px',
                         fontSize: 14,
                         color:
@@ -668,15 +695,22 @@ export function KurumsalBasvuru() {
                       disabled={busy === d.key}
                       style={{
                         textAlign: 'left',
-                        border: y ? '2px solid #3DD68C' : '2px dashed #AEB5C4',
-                        background: y ? '#E7FAF0' : '#F6F8FD',
+                        border: y ? '2px solid var(--rr-yesil, #3DD68C)' : '2px dashed #AEB5C4',
+                        background: y ? '#E7FAF0' : 'var(--rr-zemin, #F6F8FD)',
                         borderRadius: 16,
                         padding: 18,
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                       }}
                     >
-                      <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800, color: '#1E2333' }}>
+                      <span
+                        style={{
+                          display: 'block',
+                          fontSize: 14.5,
+                          fontWeight: 800,
+                          color: 'var(--rr-murekkep, #1E2333)',
+                        }}
+                      >
                         {d.ad}
                       </span>
                       <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 4 }}>
@@ -688,7 +722,7 @@ export function KurumsalBasvuru() {
                           marginTop: 10,
                           fontSize: 13,
                           fontWeight: 700,
-                          color: y ? '#11683F' : '#2450C8',
+                          color: y ? '#11683F' : 'var(--rr-baglanti, #2450C8)',
                         }}
                       >
                         {busy === d.key ? 'Yükleniyor…' : y ? '✓ Yüklendi · değiştir' : 'Dosya yükle'}
@@ -741,7 +775,12 @@ export function KurumsalBasvuru() {
                   <label htmlFor="stel" style={etiket}>
                     Cep telefonu
                   </label>
-                  <input id="stel" value={telefon} readOnly style={{ ...girdi, background: '#F6F8FD' }} />
+                  <input
+                    id="stel"
+                    value={telefon}
+                    readOnly
+                    style={{ ...girdi, background: 'var(--rr-zemin, #F6F8FD)' }}
+                  />
                 </div>
                 <div style={{ display: 'flex', alignItems: 'flex-end' }}>
                   <span
@@ -752,7 +791,7 @@ export function KurumsalBasvuru() {
                       width: '100%',
                       boxSizing: 'border-box',
                       background: '#E7FAF0',
-                      borderRadius: 12,
+                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                       padding: '12px 14px',
                       fontSize: 14,
                       color: '#11683F',
@@ -838,7 +877,7 @@ export function KurumsalBasvuru() {
                 style={{
                   margin: 0,
                   gap: 0,
-                  border: '1px solid #E3E6EF',
+                  border: '1px solid var(--rr-cizgi, #E3E6EF)',
                   borderRadius: 16,
                   overflow: 'hidden',
                 }}
@@ -884,11 +923,11 @@ export function KurumsalBasvuru() {
                   style={{
                     border: '1px solid #D5DAE5',
                     background: '#FFFFFF',
-                    borderRadius: 14,
+                    borderRadius: 'var(--rr-buton-kose)',
                     padding: '13px 22px',
                     fontSize: 15,
                     fontWeight: 700,
-                    color: '#1E2333',
+                    color: 'var(--rr-murekkep, #1E2333)',
                     cursor: 'pointer',
                     fontFamily: 'inherit',
                   }}
@@ -904,12 +943,12 @@ export function KurumsalBasvuru() {
                 disabled={busy === 'ileri'}
                 style={{
                   border: 0,
-                  background: '#5B8CFF',
-                  borderRadius: 14,
+                  background: 'var(--rr-mavi, #5B8CFF)',
+                  borderRadius: 'var(--rr-buton-kose)',
                   padding: '14px 26px',
                   fontSize: 15.5,
                   fontWeight: 800,
-                  color: '#1E2333',
+                  color: 'var(--rr-murekkep, #1E2333)',
                   cursor: 'pointer',
                   fontFamily: 'inherit',
                 }}
@@ -991,8 +1030,14 @@ function DurumGorunumu({ b, yeniBasvuru, busy }: { b: Basvuru; yeniBasvuru: () =
                   width: 30,
                   height: 30,
                   borderRadius: '50%',
-                  background: kirmizi ? '#E5484D' : a.bitti ? '#5B8CFF' : sira ? '#FFFFFF' : '#F3F5FA',
-                  border: `2px solid ${kirmizi ? '#E5484D' : a.bitti || sira ? '#5B8CFF' : '#E3E6EF'}`,
+                  background: kirmizi
+                    ? '#E5484D'
+                    : a.bitti
+                      ? 'var(--rr-mavi, #5B8CFF)'
+                      : sira
+                        ? '#FFFFFF'
+                        : '#F3F5FA',
+                  border: `2px solid ${kirmizi ? '#E5484D' : a.bitti || sira ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-cizgi, #E3E6EF)'}`,
                   boxSizing: 'border-box',
                   display: 'flex',
                   alignItems: 'center',
@@ -1000,7 +1045,7 @@ function DurumGorunumu({ b, yeniBasvuru, busy }: { b: Basvuru; yeniBasvuru: () =
                   fontSize: 13,
                   fontWeight: 800,
                   flex: 'none',
-                  color: kirmizi ? '#FFFFFF' : '#1E2333',
+                  color: kirmizi ? '#FFFFFF' : 'var(--rr-murekkep, #1E2333)',
                 }}
               >
                 {kirmizi ? '✕' : a.bitti ? '✓' : i + 1}
@@ -1028,12 +1073,12 @@ function DurumGorunumu({ b, yeniBasvuru, busy }: { b: Basvuru; yeniBasvuru: () =
           style={{
             display: 'inline-block',
             marginTop: 4,
-            background: '#5B8CFF',
-            borderRadius: 14,
+            background: 'var(--rr-mavi, #5B8CFF)',
+            borderRadius: 'var(--rr-buton-kose)',
             padding: '14px 26px',
             fontSize: 15.5,
             fontWeight: 800,
-            color: '#1E2333',
+            color: 'var(--rr-murekkep, #1E2333)',
             textDecoration: 'none',
           }}
         >
@@ -1048,12 +1093,12 @@ function DurumGorunumu({ b, yeniBasvuru, busy }: { b: Basvuru; yeniBasvuru: () =
           style={{
             marginTop: 4,
             border: 0,
-            background: '#5B8CFF',
-            borderRadius: 14,
+            background: 'var(--rr-mavi, #5B8CFF)',
+            borderRadius: 'var(--rr-buton-kose)',
             padding: '14px 26px',
             fontSize: 15.5,
             fontWeight: 800,
-            color: '#1E2333',
+            color: 'var(--rr-murekkep, #1E2333)',
             cursor: 'pointer',
             fontFamily: 'inherit',
           }}

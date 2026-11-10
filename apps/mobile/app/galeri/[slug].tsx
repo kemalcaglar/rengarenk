@@ -1,4 +1,4 @@
-import { colors } from '@rengarenk/shared';
+import { colors, radii } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, Linking, Pressable, ScrollView, Share, View } from 'react-native';
@@ -102,7 +102,13 @@ export default function GaleriProfili() {
           accessibilityRole="button"
           accessibilityLabel="Geri"
           onPress={() => router.back()}
-          style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: radii.buton - 2,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
           <Ikon d="geri" />
         </Pressable>
@@ -121,7 +127,7 @@ export default function GaleriProfili() {
             style={{
               width: 44,
               height: 44,
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -160,7 +166,7 @@ export default function GaleriProfili() {
                   style={{
                     width: 64,
                     height: 64,
-                    borderRadius: 18,
+                    borderRadius: radii.kart,
                     backgroundColor: '#FFF6DF',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -180,7 +186,7 @@ export default function GaleriProfili() {
                     fontWeight: '800',
                     paddingVertical: 4,
                     paddingHorizontal: 10,
-                    borderRadius: 999,
+                    borderRadius: radii.etiket,
                     overflow: 'hidden',
                     backgroundColor: '#E7FAF0',
                     color: '#11683F',
@@ -198,7 +204,7 @@ export default function GaleriProfili() {
                         fontWeight: '800',
                         paddingVertical: 4,
                         paddingHorizontal: 10,
-                        borderRadius: 999,
+                        borderRadius: radii.etiket,
                         overflow: 'hidden',
                         backgroundColor: '#FFF6DF',
                         color: '#7A5200',
@@ -226,7 +232,7 @@ export default function GaleriProfili() {
                     style={{
                       flex: 1,
                       backgroundColor: '#F6F8FD',
-                      borderRadius: 12,
+                      borderRadius: radii.buton - 2,
                       padding: 10,
                       alignItems: 'center',
                     }}
@@ -243,7 +249,7 @@ export default function GaleriProfili() {
                 style={{
                   marginTop: 12,
                   backgroundColor: takip ? '#E7FAF0' : colors.blue,
-                  borderRadius: 12,
+                  borderRadius: radii.buton - 2,
                   paddingVertical: 11,
                   alignItems: 'center',
                 }}

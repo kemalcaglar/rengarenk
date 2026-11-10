@@ -11,7 +11,11 @@ export interface IletisimTercihi {
   callTo: number;
 }
 
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 };
+const kart: CSSProperties = {
+  background: '#FFFFFF',
+  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+  borderRadius: 'var(--rr-kart-kose)',
+};
 const secim: CSSProperties = {
   border: '1px solid #D5DAE5',
   borderRadius: 10,
@@ -27,7 +31,7 @@ const ikincil: CSSProperties = {
   padding: '8px 12px',
   fontSize: 13.5,
   fontWeight: 700,
-  color: '#1E2333',
+  color: 'var(--rr-murekkep, #1E2333)',
   cursor: 'pointer',
   fontFamily: 'inherit',
 };
@@ -53,8 +57,8 @@ export function Anahtar({ acik, ad, onClick }: { acik: boolean; ad: string; onCl
         width: 52,
         height: 30,
         border: 0,
-        borderRadius: 999,
-        background: acik ? '#5B8CFF' : '#C9CFDB',
+        borderRadius: 'var(--rr-etiket-kose)',
+        background: acik ? 'var(--rr-mavi, #5B8CFF)' : '#C9CFDB',
         position: 'relative',
         cursor: 'pointer',
       }}
@@ -235,12 +239,12 @@ export function GorunenAd({
               style={{
                 flex: '1 1 220px',
                 textAlign: 'left',
-                border: on ? '1.5px solid #5B8CFF' : '1px solid #D5DAE5',
+                border: on ? '1.5px solid var(--rr-mavi, #5B8CFF)' : '1px solid #D5DAE5',
                 background: on ? '#EEF3FF' : '#FFFFFF',
-                borderRadius: 12,
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: '12px 14px',
                 cursor: 'pointer',
-                color: '#1E2333',
+                color: 'var(--rr-murekkep, #1E2333)',
                 fontFamily: 'inherit',
               }}
             >
@@ -357,7 +361,11 @@ export function NumaraDegistir({ bitti }: { bitti: (mesaj: string) => void }) {
             onChange={(e) => setKod(e.target.value.replace(/\D/g, ''))}
             style={{ ...girdi, width: 140 }}
           />
-          <button type="submit" disabled={mesgul} style={{ ...ikincil, background: '#5B8CFF', border: 0 }}>
+          <button
+            type="submit"
+            disabled={mesgul}
+            style={{ ...ikincil, background: 'var(--rr-mavi, #5B8CFF)', border: 0 }}
+          >
             Doğrula
           </button>
           <span style={{ fontSize: 12.5, color: '#5A6073' }}>

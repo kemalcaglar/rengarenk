@@ -2,6 +2,7 @@ import {
   colors,
   HELP_TOPICS,
   type PublicHelpTopic,
+  radii,
   SUPPORT_TOPIC_KEYS,
   SUPPORT_TOPICS,
   type SupportTopic,
@@ -37,7 +38,7 @@ const kart = {
   backgroundColor: colors.surface,
   borderWidth: 1,
   borderColor: colors.line,
-  borderRadius: 18,
+  borderRadius: radii.kart,
 } as const;
 
 /**
@@ -145,7 +146,13 @@ export default function Yardim() {
           accessibilityRole="button"
           accessibilityLabel="Geri"
           onPress={() => router.back()}
-          style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: radii.buton - 2,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
           <Ikon d="geri" />
         </Pressable>
@@ -285,7 +292,7 @@ export default function Yardim() {
                               style={{
                                 borderWidth: 1,
                                 borderColor: '#D5DAE5',
-                                borderRadius: 999,
+                                borderRadius: radii.etiket,
                                 paddingVertical: 4,
                                 paddingHorizontal: 12,
                               }}
@@ -308,7 +315,7 @@ export default function Yardim() {
             backgroundColor: '#FFF6DF',
             borderWidth: 1,
             borderColor: '#F4DC9A',
-            borderRadius: 18,
+            borderRadius: radii.kart,
             padding: 16,
           }}
         >
@@ -345,14 +352,28 @@ export default function Yardim() {
                 Genellikle 1 iş günü içinde yanıtlıyoruz.
               </T>
               {cozuldu ? (
-                <View style={{ backgroundColor: '#E7FAF0', borderRadius: 12, padding: 12, marginBottom: 10 }}>
+                <View
+                  style={{
+                    backgroundColor: '#E7FAF0',
+                    borderRadius: radii.buton - 2,
+                    padding: 12,
+                    marginBottom: 10,
+                  }}
+                >
                   <T style={{ fontSize: 13.5, fontWeight: '800', color: '#11683F' }}>
                     Sevindik. Başka bir sorunda yine buradan yazabilirsin.
                   </T>
                 </View>
               ) : null}
               {gonderildi ? (
-                <View style={{ backgroundColor: '#E7FAF0', borderRadius: 12, padding: 12, marginBottom: 10 }}>
+                <View
+                  style={{
+                    backgroundColor: '#E7FAF0',
+                    borderRadius: radii.buton - 2,
+                    padding: 12,
+                    marginBottom: 10,
+                  }}
+                >
                   <T style={{ fontSize: 13.5, fontWeight: '800', color: '#11683F' }}>
                     Destek talebin alındı · No {gonderildi}
                   </T>
@@ -375,7 +396,7 @@ export default function Yardim() {
                         borderWidth: 1.5,
                         borderColor: on ? colors.blue : '#D5DAE5',
                         backgroundColor: on ? '#EEF3FF' : colors.surface,
-                        borderRadius: 999,
+                        borderRadius: radii.etiket,
                         paddingVertical: 8,
                         paddingHorizontal: 12,
                       }}
@@ -434,7 +455,7 @@ export default function Yardim() {
                     borderWidth: 1.5,
                     borderColor: '#C9B8FF',
                     backgroundColor: '#FAF7FF',
-                    borderRadius: 12,
+                    borderRadius: radii.buton - 2,
                     padding: 12,
                   }}
                 >
@@ -481,7 +502,7 @@ export default function Yardim() {
                   style={{
                     marginTop: 12,
                     backgroundColor: colors.blue,
-                    borderRadius: 12,
+                    borderRadius: radii.buton - 2,
                     paddingVertical: 14,
                     alignItems: 'center',
                   }}

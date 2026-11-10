@@ -1,4 +1,4 @@
-import { colors } from '@rengarenk/shared';
+import { colors, radii } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
@@ -91,7 +91,13 @@ export default function Ayarlar() {
           accessibilityRole="button"
           accessibilityLabel="Geri"
           onPress={() => router.back()}
-          style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: radii.buton - 2,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
           <Ikon d="geri" />
         </Pressable>
@@ -146,7 +152,7 @@ export default function Ayarlar() {
                 marginTop: 10,
                 borderWidth: 1,
                 borderColor: '#D5DAE5',
-                borderRadius: 12,
+                borderRadius: radii.buton - 2,
                 padding: 12,
                 fontSize: 15,
               }}
@@ -158,7 +164,7 @@ export default function Ayarlar() {
               style={{
                 marginTop: 8,
                 backgroundColor: colors.blue,
-                borderRadius: 12,
+                borderRadius: radii.buton - 2,
                 paddingVertical: 12,
                 alignItems: 'center',
                 opacity: mesgul || !eposta.includes('@') ? 0.5 : 1,

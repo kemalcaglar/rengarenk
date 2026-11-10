@@ -9,6 +9,7 @@ import {
 import { colors } from '@rengarenk/shared';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Banner } from '../components/banner';
@@ -17,6 +18,7 @@ import { YasalOnay } from '../components/yasal-onay';
 import { useClientFlags } from '../lib/bakim';
 import { OturumProvider } from '../lib/oturum';
 import { PushKaydi } from '../lib/push';
+import { tasarimYukle } from '../lib/tasarim';
 
 /** Kök düzen: tasarımın yazı tipi (Plus Jakarta Sans), oturum, bakım duyurusu ve tam bakım ekranı. */
 export default function RootLayout() {
@@ -28,8 +30,13 @@ export default function RootLayout() {
     PlusJakartaSans_700Bold,
     PlusJakartaSans_800ExtraBold,
   });
+  // Tasarım değerleri (Karar 46): renkler, köşeler ve yazı tipi ilk çizimden önce
+  const [tasarim, setTasarim] = useState(false);
+  useEffect(() => {
+    void tasarimYukle().finally(() => setTasarim(true));
+  }, []);
   // Yazı tipi yüklenmeden çizilirse sistem yazısıyla görünür; açılış ekranı yazı tipini bekler.
-  if (!fontlar) return <View style={{ flex: 1, backgroundColor: colors.background }} />;
+  if (!fontlar || !tasarim) return <View style={{ flex: 1, backgroundColor: colors.background }} />;
   return (
     <OturumProvider>
       <PushKaydi />

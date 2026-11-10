@@ -66,13 +66,20 @@ export function Eslesmeler({
       <h1 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 800 }}>Eşleşmeler</h1>
       <p style={{ margin: '0 0 18px', fontSize: 14.5, color: '#5A6073' }}>
         Portföyündeki araçlara uyan alıcı talepleri. Bugün kalan ilk mesaj hakkın:{' '}
-        <strong style={{ color: '#1E2333' }}>
+        <strong style={{ color: 'var(--rr-murekkep, #1E2333)' }}>
           {veri?.kalanMesaj ?? 0} / {veri?.gunlukMesaj ?? 0}
         </strong>
       </p>
       {!veri ? <p style={{ color: '#5A6073' }}>Yükleniyor…</p> : null}
       {veri && !veri.eslesme ? (
-        <div style={{ background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18, padding: 18 }}>
+        <div
+          style={{
+            background: '#FFFFFF',
+            border: '1px solid var(--rr-cizgi, #E3E6EF)',
+            borderRadius: 'var(--rr-kart-kose)',
+            padding: 18,
+          }}
+        >
           <p style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>Otomatik eşleşme paketinde yok</p>
           <p style={{ margin: '6px 0 0', fontSize: 14, color: '#5A6073', lineHeight: 1.5 }}>
             Portföyüne uyan talepler Profesyonel ve Kurumsal paketlerde listelenir. Talepleri arayarak bulup
@@ -91,7 +98,7 @@ export function Eslesmeler({
           style={{
             background: '#FFFFFF',
             border: '1px dashed #C9CFDB',
-            borderRadius: 18,
+            borderRadius: 'var(--rr-kart-kose)',
             padding: 20,
             fontSize: 14,
             color: '#5A6073',
@@ -107,8 +114,8 @@ export function Eslesmeler({
                 key={e.id}
                 style={{
                   background: '#FFFFFF',
-                  border: '1px solid #E3E6EF',
-                  borderRadius: 18,
+                  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+                  borderRadius: 'var(--rr-kart-kose)',
                   padding: '16px 18px',
                   display: 'flex',
                   flexWrap: 'wrap',
@@ -121,7 +128,7 @@ export function Eslesmeler({
                     flex: '1 1 220px',
                     minWidth: 0,
                     background: '#FFF6DF',
-                    borderRadius: 14,
+                    borderRadius: 'var(--rr-buton-kose)',
                     padding: '12px 14px',
                   }}
                 >
@@ -135,7 +142,7 @@ export function Eslesmeler({
                       fontSize: 14.5,
                       fontWeight: 800,
                       marginTop: 2,
-                      color: '#1E2333',
+                      color: 'var(--rr-murekkep, #1E2333)',
                       textDecoration: 'none',
                     }}
                   >
@@ -158,7 +165,12 @@ export function Eslesmeler({
                 <div style={{ flex: '2 1 300px', minWidth: 0 }}>
                   <Link
                     href={`/talep/${e.talep.no}`}
-                    style={{ display: 'block', fontSize: 15, fontWeight: 800, color: '#1E2333' }}
+                    style={{
+                      display: 'block',
+                      fontSize: 15,
+                      fontWeight: 800,
+                      color: 'var(--rr-murekkep, #1E2333)',
+                    }}
                   >
                     {e.talep.baslik}
                   </Link>
@@ -176,7 +188,7 @@ export function Eslesmeler({
                       fontSize: 12,
                       fontWeight: 700,
                       padding: '3px 9px',
-                      borderRadius: 999,
+                      borderRadius: 'var(--rr-etiket-kose)',
                     }}
                   >
                     {e.uyum}
@@ -196,12 +208,12 @@ export function Eslesmeler({
                     style={{
                       flex: 'none',
                       border: 0,
-                      background: '#5B8CFF',
-                      borderRadius: 12,
+                      background: 'var(--rr-mavi, #5B8CFF)',
+                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                       padding: '12px 16px',
                       fontSize: 14,
                       fontWeight: 800,
-                      color: '#1E2333',
+                      color: 'var(--rr-murekkep, #1E2333)',
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                     }}

@@ -1,10 +1,10 @@
 'use client';
 
-import { colors } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useCanli } from '../lib/canli';
 import { cikisYap, istek, useGiris } from '../lib/istemci';
+import { colors } from '../lib/renk';
 import { OGELER } from './hesabim-menu';
 
 interface Ben {
@@ -62,11 +62,11 @@ export function HesapMenusu() {
             position: 'relative',
             width: 40,
             height: 40,
-            borderRadius: 12,
+            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: colors.ink,
+            color: 'var(--rr-ust-yazi)',
           }}
         >
           <svg
@@ -111,7 +111,10 @@ export function HesapMenusu() {
       {giris && ad ? (
         <HesapAcilir ad={ad} bas={bas} />
       ) : giris === false ? (
-        <Link href="/giris" style={{ color: colors.ink, fontWeight: 600, fontSize: 15, padding: '10px 6px' }}>
+        <Link
+          href="/giris"
+          style={{ color: 'var(--rr-ust-yazi)', fontWeight: 600, fontSize: 15, padding: '10px 6px' }}
+        >
           Giriş yap
         </Link>
       ) : (
@@ -131,7 +134,7 @@ export function HesapMenusu() {
           fontWeight: 700,
           fontSize: 15,
           padding: '11px 18px',
-          borderRadius: 12,
+          borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
           textDecoration: 'none',
         }}
       >
@@ -190,7 +193,7 @@ function HesapAcilir({ ad, bas }: { ad: string; bas: string }) {
           display: 'flex',
           alignItems: 'center',
           gap: 8,
-          color: colors.ink,
+          color: 'var(--rr-ust-yazi)',
           fontWeight: 600,
           fontSize: 14.5,
           padding: '8px 6px',
@@ -243,7 +246,7 @@ function HesapAcilir({ ad, bas }: { ad: string; bas: string }) {
               minWidth: 230,
               background: colors.surface,
               border: `1px solid ${colors.line}`,
-              borderRadius: 14,
+              borderRadius: 'var(--rr-buton-kose)',
               boxShadow: '0 12px 32px rgba(30,35,51,0.14)',
               padding: 8,
             }}

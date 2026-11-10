@@ -1,4 +1,4 @@
-import { colors, demandOwnerName, saatYaz } from '@rengarenk/shared';
+import { colors, demandOwnerName, radii, saatYaz } from '@rengarenk/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 import { useOturum } from '../lib/oturum';
@@ -29,7 +29,7 @@ const kart = {
 const girdi = {
   borderWidth: 1,
   borderColor: '#D5DAE5',
-  borderRadius: 12,
+  borderRadius: radii.buton - 2,
   padding: 12,
   fontSize: 15,
 } as const;
@@ -142,7 +142,7 @@ export function ProfilVeIletisim() {
             marginTop: 10,
             borderWidth: 1,
             borderColor: '#D5DAE5',
-            borderRadius: 12,
+            borderRadius: radii.buton - 2,
             paddingVertical: 11,
             alignItems: 'center',
           }}
@@ -176,7 +176,7 @@ export function ProfilVeIletisim() {
                   borderWidth: on ? 1.5 : 1,
                   borderColor: on ? colors.blue : '#D5DAE5',
                   backgroundColor: on ? '#EEF3FF' : colors.surface,
-                  borderRadius: 12,
+                  borderRadius: radii.buton - 2,
                   paddingVertical: 11,
                   paddingHorizontal: 14,
                 }}
@@ -195,7 +195,7 @@ export function ProfilVeIletisim() {
             marginTop: 16,
             borderWidth: 1,
             borderColor: '#EEF0F5',
-            borderRadius: 12,
+            borderRadius: radii.buton - 2,
             padding: 12,
           }}
         >
@@ -285,7 +285,7 @@ export function ProfilVeIletisim() {
                   style={{
                     flex: 1,
                     backgroundColor: colors.blue,
-                    borderRadius: 12,
+                    borderRadius: radii.buton - 2,
                     paddingVertical: 11,
                     alignItems: 'center',
                   }}

@@ -114,7 +114,12 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
     <div style={{ maxWidth: 1360, margin: '0 auto', padding: '24px 24px 64px' }}>
       <section
         aria-labelledby="gad"
-        style={{ background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 22, overflow: 'hidden' }}
+        style={{
+          background: '#FFFFFF',
+          border: '1px solid var(--rr-cizgi, #E3E6EF)',
+          borderRadius: 22,
+          overflow: 'hidden',
+        }}
       >
         <div
           aria-hidden="true"
@@ -162,7 +167,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
                   fontSize: 12.5,
                   fontWeight: 800,
                   padding: '4px 10px',
-                  borderRadius: 999,
+                  borderRadius: 'var(--rr-etiket-kose)',
                   background: '#E7FAF0',
                   color: '#11683F',
                 }}
@@ -175,9 +180,9 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
                     fontSize: 12.5,
                     fontWeight: 800,
                     padding: '4px 10px',
-                    borderRadius: 999,
+                    borderRadius: 'var(--rr-etiket-kose)',
                     background: '#EEF3FF',
-                    color: '#2450C8',
+                    color: 'var(--rr-baglanti, #2450C8)',
                   }}
                 >
                   Yetki belgesi doğrulandı
@@ -193,7 +198,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
                       fontSize: 12.5,
                       fontWeight: 800,
                       padding: '4px 10px',
-                      borderRadius: 999,
+                      borderRadius: 'var(--rr-etiket-kose)',
                       background: r.bg,
                       color: r.renk,
                     }}
@@ -206,7 +211,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
                   fontSize: 12.5,
                   fontWeight: 700,
                   padding: '4px 10px',
-                  borderRadius: 999,
+                  borderRadius: 'var(--rr-etiket-kose)',
                   background: '#F3F5FA',
                   color: '#3A4052',
                 }}
@@ -250,10 +255,10 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
               style={{
                 display: 'block',
                 background: '#FFFFFF',
-                border: '1px solid #E3E6EF',
-                borderRadius: 18,
+                border: '1px solid var(--rr-cizgi, #E3E6EF)',
+                borderRadius: 'var(--rr-kart-kose)',
                 overflow: 'hidden',
-                color: '#1E2333',
+                color: 'var(--rr-murekkep, #1E2333)',
                 textDecoration: 'none',
               }}
             >
@@ -281,7 +286,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
                     fontSize: 12,
                     fontWeight: 800,
                     padding: '4px 9px',
-                    borderRadius: 999,
+                    borderRadius: 'var(--rr-etiket-kose)',
                     background: '#FFFFFF',
                     color: '#11683F',
                   }}
@@ -328,7 +333,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
             margin: '22px 0 14px',
             background: '#FFFFFF',
             border: '1px dashed #C9CFDB',
-            borderRadius: 18,
+            borderRadius: 'var(--rr-kart-kose)',
             padding: '36px 20px',
             textAlign: 'center',
             fontSize: 15,
@@ -344,8 +349,8 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
         style={{
           marginTop: 24,
           background: '#FFFFFF',
-          border: '1px solid #E3E6EF',
-          borderRadius: 18,
+          border: '1px solid var(--rr-cizgi, #E3E6EF)',
+          borderRadius: 'var(--rr-kart-kose)',
           padding: 22,
         }}
       >

@@ -202,9 +202,18 @@ sistem sağlığı, tasarım değerleri.
   outbox. Tasarımdaki RabbitMQ yerine pg-boss yazıyor. Yedek bölümü `backup_runs`'tan; kayıtları sunucudaki pgBackRest
   betiği yazar (`deploy/README.md`), sunucu yokken "Sunucu kurulunca başlar". "Geri yükleme testini şimdi başlat" istek
   kaydı açar; sunucudaki görev alıp ayrı ortamda yürütür
-- [ ] Tasarım değerleri (YonetimIcerik.dc.html, Karar 46): renkler (Gökkuşağı), yazı, köşe ve logo, mevsimsel temalar
-  (tarihli), canlı önizleme, değişiklik onayla. Değerler şimdi `packages/shared/src/tokens.ts`'te sabit: sürümlü olarak
-  veritabanına alınır, web (CSS değişkenleri), mobil (açılışta okunur) ve e-posta şablonları API'den aynı değerleri alır
+- [x] Tasarım değerleri (10 Kasım 2026; YonetimIcerik.dc.html › tasarim, Karar 46): konsol `/tasarim-degerleri`
+  (yetki `tasarim_yasal.duzenle`). Paletin sekiz rengi (renk seçici ve kod; mürekkep ve bağlantıda zemine karşıtlık notu),
+  yazı tipi (Google Fonts kataloğundan doğrulanmış, Türkçe karakterli ve 400/700 kalınlıklı 70 seçenek; düz, tırnaklı,
+  gösterişli gruplar, canlı örnek), kart, buton ve etiket köşeleri, logo sabit, tarihli mevsimsel temalar (üst bant ve
+  yazı rengi, logonun yanında rozet, e-posta başlığı; ana sayfa bannerı Banner ve vitrin'den), taslak değerlerle canlı
+  önizleme ve tema anahtarı. Okunmayan renk (metin ve bağlantı zemine ve beyaza karşı 4,5:1 altı, tema yazısı banda karşı)
+  onaya gönderilemez. "Onaya gönder" sahip ya da yönetici onayı (DESIGN_TOKENS; isteyen kendi isteğini onaylayamaz,
+  sahip hariç), işçi yayına alır; yayınlanan sürüm değişmez (RR043). `GET /tasarim` herkese açık. Web: kök düzen değerleri
+  `:root` CSS değişkeni yazar ve yazı tipini yükler; sayfalardaki palet renkleri ve köşeler değişkene çevrildi (`lib/renk.ts`,
+  `--rr-*`); mevsimsel temada üst çubuk bant renginde ve rozetli. Mobil: açılışta değerler okunur, ortak renkler ve köşeler
+  (`radii`) güncellenir, yazı tipi TTF olarak yüklenir (API Google Fonts'tan çözer), ana sayfa üst bölümü temada.
+  E-posta: yazı tipi, köşe, renkler ve tema başlığı yayındaki değerlerden. Konsolun kendi renkleri sabit kalır
 
 ## Sprint 28 · Aşama 9 · kontrol paneli ve raporlar (9 Kasım 2026)
 

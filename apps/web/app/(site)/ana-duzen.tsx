@@ -1,10 +1,11 @@
 'use client';
 
-import { colors, type HomeResponse, tints } from '@rengarenk/shared';
+import { type HomeResponse, tints } from '@rengarenk/shared';
 import Link from 'next/link';
 import { Fragment, type ReactNode, useEffect, useState } from 'react';
 import { Banner } from '../../components/banner';
 import { istek, useGiris } from '../../lib/istemci';
+import { colors } from '../../lib/renk';
 import { Baslik, kart, type SonKart, SonTalepler } from './ana-bolumler';
 import { talepleriAl } from './ana-yedek';
 import { KayitliAramalarim } from './kayitli-aramalarim';
@@ -15,7 +16,7 @@ const dugme = {
   fontWeight: 700,
   color: colors.ink,
   border: `1px solid ${colors.line}`,
-  borderRadius: 12,
+  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
   padding: '11px 16px',
   textDecoration: 'none',
   background: '#FFFFFF',
@@ -68,7 +69,7 @@ function GaleriKarsilama({ g }: { g: Galeri }) {
             <span
               style={{
                 background: colors.pink,
-                borderRadius: 999,
+                borderRadius: 'var(--rr-etiket-kose)',
                 padding: '2px 8px',
                 marginLeft: 6,
                 fontSize: 12.5,
@@ -114,7 +115,7 @@ function HakKarti({ g }: { g: Galeri }) {
             style={{
               display: 'block',
               height: 8,
-              borderRadius: 999,
+              borderRadius: 'var(--rr-etiket-kose)',
               background: '#FFFFFF',
               marginTop: 8,
               overflow: 'hidden',
@@ -176,7 +177,7 @@ function ArananModeller({ a }: { a: NonNullable<HomeResponse['aranan']> }) {
                 fontSize: 12.5,
                 fontWeight: 800,
                 padding: '3px 9px',
-                borderRadius: 999,
+                borderRadius: 'var(--rr-etiket-kose)',
                 background: m.arac ? '#E7FAF0' : '#FFF6DF',
                 color: m.arac ? '#11683F' : '#7A5300',
               }}
@@ -186,7 +187,13 @@ function ArananModeller({ a }: { a: NonNullable<HomeResponse['aranan']> }) {
           </div>
         ))}
         <p
-          style={{ margin: 0, padding: '12px 18px', fontSize: 13.5, background: '#F6F8FD', lineHeight: 1.5 }}
+          style={{
+            margin: 0,
+            padding: '12px 18px',
+            fontSize: 13.5,
+            background: 'var(--rr-zemin, #F6F8FD)',
+            lineHeight: 1.5,
+          }}
         >
           <strong>Ajan:</strong> {a.oneri}
         </p>

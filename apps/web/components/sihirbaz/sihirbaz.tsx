@@ -92,7 +92,11 @@ interface Haklar {
   galeri: string | null;
 }
 
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 20 };
+const kart: CSSProperties = {
+  background: '#FFFFFF',
+  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+  borderRadius: 20,
+};
 
 /**
  * Talep oluşturma sihirbazı (tasarım: Sihirbaz.dc.html; Karar 04, 05, 21, 32). Alanlar kategorinin yayındaki
@@ -375,8 +379,8 @@ export function Sihirbaz() {
 
   return (
     <ButceKoluSaglayici kol={butceKolu}>
-      <div style={{ background: '#F6F8FD', minHeight: '100vh' }}>
-        <header style={{ background: '#FFFFFF', borderBottom: '1px solid #E3E6EF' }}>
+      <div style={{ background: 'var(--rr-zemin, #F6F8FD)', minHeight: '100vh' }}>
+        <header style={{ background: '#FFFFFF', borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)' }}>
           <div
             style={{
               maxWidth: 1360,
@@ -429,9 +433,9 @@ export function Sihirbaz() {
                 style={{
                   fontSize: 14.5,
                   fontWeight: 700,
-                  color: '#1E2333',
-                  border: '1px solid #E3E6EF',
-                  borderRadius: 12,
+                  color: 'var(--rr-murekkep, #1E2333)',
+                  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                   padding: '10px 16px',
                   textDecoration: 'none',
                 }}
@@ -442,7 +446,7 @@ export function Sihirbaz() {
           </div>
         </header>
 
-        <div style={{ background: '#FFFFFF', borderBottom: '1px solid #E3E6EF' }}>
+        <div style={{ background: '#FFFFFF', borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)' }}>
           <ol
             aria-label="Adımlar"
             style={{
@@ -482,7 +486,7 @@ export function Sihirbaz() {
                         display: 'block',
                         height: 6,
                         borderRadius: 3,
-                        background: done || cur ? '#5B8CFF' : '#E3E6EF',
+                        background: done || cur ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-cizgi, #E3E6EF)',
                       }}
                     />
                     <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -496,9 +500,13 @@ export function Sihirbaz() {
                           justifyContent: 'center',
                           fontSize: 13,
                           fontWeight: 800,
-                          background: done ? '#5B8CFF' : cur ? '#FFFFFF' : '#F3F5FA',
-                          color: done ? '#1E2333' : cur ? '#2450C8' : '#5A6073',
-                          border: `2px solid ${done || cur ? '#5B8CFF' : '#E3E6EF'}`,
+                          background: done ? 'var(--rr-mavi, #5B8CFF)' : cur ? '#FFFFFF' : '#F3F5FA',
+                          color: done
+                            ? 'var(--rr-murekkep, #1E2333)'
+                            : cur
+                              ? 'var(--rr-baglanti, #2450C8)'
+                              : '#5A6073',
+                          border: `2px solid ${done || cur ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-cizgi, #E3E6EF)'}`,
                           boxSizing: 'border-box',
                           flex: 'none',
                         }}
@@ -509,7 +517,7 @@ export function Sihirbaz() {
                         style={{
                           fontSize: 13.5,
                           fontWeight: cur ? 800 : 600,
-                          color: cur || done ? '#1E2333' : '#5A6073',
+                          color: cur || done ? 'var(--rr-murekkep, #1E2333)' : '#5A6073',
                         }}
                       >
                         {a.ad}
@@ -534,7 +542,7 @@ export function Sihirbaz() {
           }}
         >
           <div style={{ ...kart, flex: '999 1 640px', minWidth: 0, padding: 28 }}>
-            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#2450C8' }}>
+            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: 'var(--rr-baglanti, #2450C8)' }}>
               Adım {sira + 1} / {gorunen.length}
             </p>
             <h1 style={{ margin: '4px 0 6px', fontSize: 26, fontWeight: 800, letterSpacing: -0.3 }}>
@@ -553,7 +561,7 @@ export function Sihirbaz() {
                   marginBottom: 18,
                   background: '#FDECEC',
                   border: '1px solid #F5C2BE',
-                  borderRadius: 12,
+                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                   padding: '12px 14px',
                   fontSize: 14,
                   color: '#A3271F',
@@ -587,13 +595,13 @@ export function Sihirbaz() {
                             disabled={!!taslak}
                             onClick={() => setHesap(g.accountId)}
                             style={{
-                              border: on ? '2px solid #5B8CFF' : '1px solid #D5DAE5',
+                              border: on ? '2px solid var(--rr-mavi, #5B8CFF)' : '1px solid #D5DAE5',
                               background: on ? '#EEF3FF' : '#FFFFFF',
-                              borderRadius: 999,
+                              borderRadius: 'var(--rr-etiket-kose)',
                               padding: on ? '8px 14px' : '9px 15px',
                               fontSize: 14,
                               fontWeight: 700,
-                              color: '#1E2333',
+                              color: 'var(--rr-murekkep, #1E2333)',
                               cursor: taslak ? 'default' : 'pointer',
                               fontFamily: 'inherit',
                             }}
@@ -629,7 +637,9 @@ export function Sihirbaz() {
                         onClick={() => (c.children.length ? setUst(c.slug) : kategoriSec(c.slug))}
                         style={{
                           textAlign: 'left',
-                          border: sel ? '2px solid #5B8CFF' : '1px solid #E3E6EF',
+                          border: sel
+                            ? '2px solid var(--rr-mavi, #5B8CFF)'
+                            : '1px solid var(--rr-cizgi, #E3E6EF)',
                           background: sel ? '#EEF3FF' : '#FFFFFF',
                           borderRadius: 16,
                           padding: sel ? 16 : 17,
@@ -663,7 +673,13 @@ export function Sihirbaz() {
                             />
                           </span>
                         )}
-                        <span style={{ fontSize: 15, fontWeight: sel ? 800 : 700, color: '#1E2333' }}>
+                        <span
+                          style={{
+                            fontSize: 15,
+                            fontWeight: sel ? 800 : 700,
+                            color: 'var(--rr-murekkep, #1E2333)',
+                          }}
+                        >
                           {c.name}
                         </span>
                       </button>
@@ -725,7 +741,7 @@ export function Sihirbaz() {
                     display: 'flex',
                     flexWrap: 'wrap',
                     gap: 6,
-                    borderBottom: '1px solid #E3E6EF',
+                    borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)',
                     marginBottom: 22,
                   }}
                 >
@@ -746,8 +762,8 @@ export function Sihirbaz() {
                           cursor: 'pointer',
                           marginBottom: -1,
                           background: alt === i ? '#EEF3FF' : 'transparent',
-                          color: alt === i ? '#1E2333' : '#5A6073',
-                          borderBottom: `3px solid ${alt === i ? '#5B8CFF' : 'transparent'}`,
+                          color: alt === i ? 'var(--rr-murekkep, #1E2333)' : '#5A6073',
+                          borderBottom: `3px solid ${alt === i ? 'var(--rr-mavi, #5B8CFF)' : 'transparent'}`,
                           fontFamily: 'inherit',
                         }}
                       >
@@ -792,7 +808,7 @@ export function Sihirbaz() {
                       style={{
                         border: 0,
                         background: 'transparent',
-                        color: '#2450C8',
+                        color: 'var(--rr-baglanti, #2450C8)',
                         fontWeight: 700,
                         fontSize: 14.5,
                         padding: '11px 12px',
@@ -885,7 +901,7 @@ export function Sihirbaz() {
                           color: '#11683F',
                           background: '#E7FAF0',
                           padding: '5px 10px',
-                          borderRadius: 999,
+                          borderRadius: 'var(--rr-etiket-kose)',
                         }}
                       >
                         Her zaman açık
@@ -978,11 +994,11 @@ export function Sihirbaz() {
                   style={{
                     border: '1px solid #D5DAE5',
                     background: '#FFFFFF',
-                    borderRadius: 14,
+                    borderRadius: 'var(--rr-buton-kose)',
                     padding: '13px 22px',
                     fontSize: 15,
                     fontWeight: 700,
-                    color: '#1E2333',
+                    color: 'var(--rr-murekkep, #1E2333)',
                     cursor: 'pointer',
                     fontFamily: 'inherit',
                   }}
@@ -999,12 +1015,12 @@ export function Sihirbaz() {
                   onClick={yayinla}
                   style={{
                     border: 0,
-                    background: '#5B8CFF',
-                    borderRadius: 14,
+                    background: 'var(--rr-mavi, #5B8CFF)',
+                    borderRadius: 'var(--rr-buton-kose)',
                     padding: '14px 28px',
                     fontSize: 15.5,
                     fontWeight: 800,
-                    color: '#1E2333',
+                    color: 'var(--rr-murekkep, #1E2333)',
                     cursor: 'pointer',
                     opacity: busy || (!duzenle && (!haklar || haklar.talep < 1)) ? 0.55 : 1,
                     fontFamily: 'inherit',
@@ -1027,12 +1043,12 @@ export function Sihirbaz() {
                   onClick={() => git(gorunen[sira + 1]?.key ?? 'onizleme')}
                   style={{
                     border: 0,
-                    background: '#5B8CFF',
-                    borderRadius: 14,
+                    background: 'var(--rr-mavi, #5B8CFF)',
+                    borderRadius: 'var(--rr-buton-kose)',
                     padding: '14px 28px',
                     fontSize: 15.5,
                     fontWeight: 800,
-                    color: '#1E2333',
+                    color: 'var(--rr-murekkep, #1E2333)',
                     cursor: taslak ? 'pointer' : 'default',
                     opacity: taslak ? 1 : 0.55,
                     fontFamily: 'inherit',
@@ -1060,7 +1076,7 @@ function Satir({ baslik, alt, sag }: { baslik: string; alt: string; sag: ReactNo
         justifyContent: 'space-between',
         gap: 12,
         border: '1px solid #EEF0F5',
-        borderRadius: 14,
+        borderRadius: 'var(--rr-buton-kose)',
         padding: '14px 16px',
       }}
     >
@@ -1314,7 +1330,7 @@ function Kriterler({
                     style={{
                       border: 0,
                       background: 'transparent',
-                      color: '#2450C8',
+                      color: 'var(--rr-baglanti, #2450C8)',
                       fontWeight: 700,
                       fontSize: 14,
                       cursor: 'pointer',
@@ -1369,7 +1385,13 @@ function Kriterler({
             <Alan f={f} value={deger(f)} onChange={yaz(f)} hata={hataOf(f)} />
             {f.key === 'yil' && seciliKusak.length ? (
               <span
-                style={{ display: 'block', fontSize: 12.5, color: '#2450C8', fontWeight: 600, marginTop: 6 }}
+                style={{
+                  display: 'block',
+                  fontSize: 12.5,
+                  color: 'var(--rr-baglanti, #2450C8)',
+                  fontWeight: 600,
+                  marginTop: 6,
+                }}
               >
                 {seciliKusak.map((x) => x.label).join(', ')} kasalarının yılları
               </span>
@@ -1422,7 +1444,7 @@ function HasarGecmisi({
                 justifyContent: 'space-between',
                 gap: 10,
                 border: '1px solid #EEF0F5',
-                borderRadius: 14,
+                borderRadius: 'var(--rr-buton-kose)',
                 padding: '12px 14px',
               }}
             >
@@ -1516,7 +1538,13 @@ function Onizleme({
   );
   return (
     <>
-      <div style={{ border: '1px solid #E3E6EF', borderRadius: 18, overflow: 'hidden' }}>
+      <div
+        style={{
+          border: '1px solid var(--rr-cizgi, #E3E6EF)',
+          borderRadius: 'var(--rr-kart-kose)',
+          overflow: 'hidden',
+        }}
+      >
         <div
           style={{
             background: '#EEF3FF',
@@ -1600,7 +1628,7 @@ function Onizleme({
             lineHeight: 1.55,
             color: '#7A5300',
             background: '#FFF6DF',
-            borderRadius: 12,
+            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
             padding: '12px 14px',
           }}
         >
@@ -1614,7 +1642,7 @@ function Onizleme({
             fontSize: 14,
             color: '#3A4052',
             background: '#EEF3FF',
-            borderRadius: 12,
+            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
             padding: '12px 14px',
           }}
         >
@@ -1639,15 +1667,22 @@ function Onizleme({
                   onClick={() => setOneCikar(on ? oneCikar.filter((k) => k !== b.key) : [...oneCikar, b.key])}
                   style={{
                     textAlign: 'left',
-                    border: on ? '2px solid #5B8CFF' : '1px solid #E3E6EF',
+                    border: on ? '2px solid var(--rr-mavi, #5B8CFF)' : '1px solid var(--rr-cizgi, #E3E6EF)',
                     background: on ? '#EEF3FF' : '#FFFFFF',
-                    borderRadius: 14,
+                    borderRadius: 'var(--rr-buton-kose)',
                     padding: on ? 14 : 15,
                     cursor: 'pointer',
                     fontFamily: 'inherit',
                   }}
                 >
-                  <span style={{ display: 'block', fontSize: 15, fontWeight: 700, color: '#1E2333' }}>
+                  <span
+                    style={{
+                      display: 'block',
+                      fontSize: 15,
+                      fontWeight: 700,
+                      color: 'var(--rr-murekkep, #1E2333)',
+                    }}
+                  >
                     {b.ad}
                   </span>
                   <span style={{ display: 'block', fontSize: 13, color: '#5A6073', marginTop: 3 }}>
@@ -1658,7 +1693,7 @@ function Onizleme({
                       display: 'block',
                       fontSize: 15,
                       fontWeight: 800,
-                      color: '#1E2333',
+                      color: 'var(--rr-murekkep, #1E2333)',
                       marginTop: 8,
                     }}
                   >
@@ -1684,7 +1719,7 @@ function Onizleme({
               alignItems: 'center',
               gap: 12,
               background: '#E7FAF0',
-              borderRadius: 14,
+              borderRadius: 'var(--rr-buton-kose)',
               padding: '14px 16px',
             }}
           >
@@ -1715,7 +1750,7 @@ function Onizleme({
             style={{
               marginTop: 18,
               background: '#FFF6DF',
-              borderRadius: 14,
+              borderRadius: 'var(--rr-buton-kose)',
               padding: '14px 16px',
               fontSize: 14.5,
               color: '#7A5300',
@@ -1733,7 +1768,7 @@ function Onizleme({
             style={{
               marginTop: 18,
               background: '#FFF6DF',
-              borderRadius: 14,
+              borderRadius: 'var(--rr-buton-kose)',
               padding: '14px 16px',
               fontSize: 14.5,
               color: '#7A5300',

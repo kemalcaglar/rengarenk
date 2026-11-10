@@ -1,4 +1,4 @@
-import { colors, fiyatYaz, STORE_NOTES } from '@rengarenk/shared';
+import { colors, fiyatYaz, radii, STORE_NOTES } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, View } from 'react-native';
@@ -122,7 +122,13 @@ export default function Haklarim() {
           accessibilityRole="button"
           accessibilityLabel="Geri"
           onPress={() => router.back()}
-          style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: radii.buton - 2,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
           <Ikon d="geri" />
         </Pressable>
@@ -159,7 +165,7 @@ export default function Haklarim() {
                     ...kart,
                     borderTopWidth: 4,
                     borderTopColor: renk,
-                    borderRadius: 14,
+                    borderRadius: radii.buton,
                     padding: 12,
                     flexBasis: '47%',
                     flexGrow: 1,
@@ -249,7 +255,7 @@ export default function Haklarim() {
                             borderWidth: 1,
                             borderColor: on ? colors.blue : colors.line,
                             backgroundColor: on ? '#EEF3FF' : colors.surface,
-                            borderRadius: 999,
+                            borderRadius: radii.etiket,
                             paddingVertical: 8,
                             paddingHorizontal: 12,
                           }}
@@ -343,7 +349,7 @@ export default function Haklarim() {
               onPress={al}
               style={{
                 backgroundColor: colors.blue,
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 paddingVertical: 15,
                 alignItems: 'center',
                 opacity: mesgul || !o.magaza.acik || talepYok ? 0.5 : 1,

@@ -1,11 +1,12 @@
 'use client';
 
-import { colors, tints } from '@rengarenk/shared';
+import { tints } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type FormEvent, useEffect, useState } from 'react';
 import { OnayKutusu } from '../../components/onay-kutusu';
 import { olcumOlayi, temasGonder } from '../../lib/olcum';
+import { colors } from '../../lib/renk';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
@@ -59,7 +60,7 @@ const primary = (enabled = true) =>
     width: '100%',
     border: 0,
     background: enabled ? colors.blue : '#C9CFDB',
-    borderRadius: 14,
+    borderRadius: 'var(--rr-buton-kose)',
     padding: 15,
     fontSize: 16,
     fontWeight: 800,
@@ -72,7 +73,7 @@ const field = {
   width: '100%',
   boxSizing: 'border-box',
   border: '1px solid #D5DAE5',
-  borderRadius: 12,
+  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
   padding: 13,
   fontSize: 15,
   fontFamily: 'inherit',
@@ -311,7 +312,7 @@ export default function Giris() {
                   display: 'flex',
                   alignItems: 'center',
                   border: '1px solid #D5DAE5',
-                  borderRadius: 12,
+                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                   padding: '0 14px',
                   fontSize: 15,
                   fontWeight: 700,
@@ -333,7 +334,7 @@ export default function Giris() {
                   flex: 1,
                   minWidth: 0,
                   border: `1.5px solid ${colors.blue}`,
-                  borderRadius: 12,
+                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                   padding: 14,
                   fontSize: 16,
                   letterSpacing: 0.5,
@@ -403,7 +404,7 @@ export default function Giris() {
                 width: '100%',
                 boxSizing: 'border-box',
                 border: `1.5px solid ${colors.blue}`,
-                borderRadius: 14,
+                borderRadius: 'var(--rr-buton-kose)',
                 padding: 16,
                 fontSize: 26,
                 fontWeight: 800,
@@ -498,7 +499,7 @@ export default function Giris() {
                 gap: 12,
                 alignItems: 'center',
                 background: tints.green,
-                borderRadius: 14,
+                borderRadius: 'var(--rr-buton-kose)',
                 padding: '14px 16px',
                 margin: '20px 0 22px',
               }}

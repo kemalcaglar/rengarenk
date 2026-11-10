@@ -24,7 +24,7 @@ const girdi: CSSProperties = {
 const kapatDugme: CSSProperties = {
   border: '1px solid #E5A6A1',
   background: '#FFFFFF',
-  borderRadius: 12,
+  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
   padding: '12px 18px',
   fontSize: 14.5,
   fontWeight: 800,
@@ -94,7 +94,12 @@ export function HesabiKapat({
   const iade = o?.iade;
   return (
     <section
-      style={{ background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18, padding: 22 }}
+      style={{
+        background: '#FFFFFF',
+        border: '1px solid var(--rr-cizgi, #E3E6EF)',
+        borderRadius: 'var(--rr-kart-kose)',
+        padding: 22,
+      }}
       aria-labelledby="hk"
     >
       <h2 id="hk" style={{ margin: '0 0 10px', fontSize: 18, fontWeight: 800 }}>
@@ -123,7 +128,14 @@ export function HesabiKapat({
         </p>
       ) : null}
       {adim ? (
-        <div style={{ background: '#FDECEC', borderRadius: 14, padding: 16, marginBottom: 14 }}>
+        <div
+          style={{
+            background: '#FDECEC',
+            borderRadius: 'var(--rr-buton-kose)',
+            padding: 16,
+            marginBottom: 14,
+          }}
+        >
           <label htmlFor="neden" style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6 }}>
             Neden ayrılıyorsun? (isteğe bağlı)
           </label>

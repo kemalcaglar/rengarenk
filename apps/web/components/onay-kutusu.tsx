@@ -1,5 +1,5 @@
-import { colors } from '@rengarenk/shared';
 import type { CSSProperties, ReactNode } from 'react';
+import { colors } from '../lib/renk';
 
 /**
  * Tasarımdaki onay kutusu (Giris.dc.html, Anasayfa.dc.html çerez paneli): gerçek bir checkbox, üstünde tasarımın

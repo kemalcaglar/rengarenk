@@ -9,6 +9,7 @@ import {
   MAX_ALTERNATIVES,
   ONE_CIKARMA,
   PAINT_PARTS,
+  radii,
 } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { type ComponentRef, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
@@ -407,7 +408,7 @@ export default function TalepOlustur() {
             style={{
               width: 44,
               height: 44,
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -462,7 +463,12 @@ export default function TalepOlustur() {
         {uyari ? (
           <View
             accessibilityRole="alert"
-            style={{ marginBottom: 14, backgroundColor: '#FDECEC', borderRadius: 12, padding: 12 }}
+            style={{
+              marginBottom: 14,
+              backgroundColor: '#FDECEC',
+              borderRadius: radii.buton - 2,
+              padding: 12,
+            }}
           >
             <T style={{ color: '#A3271F', fontWeight: '700', fontSize: 13.5 }}>{uyari}</T>
             {hatalar.slice(1, 5).map((h) => (
@@ -495,7 +501,7 @@ export default function TalepOlustur() {
                           borderWidth: on ? 2 : 1,
                           borderColor: on ? colors.blue : colors.line,
                           backgroundColor: on ? '#EEF3FF' : colors.surface,
-                          borderRadius: 999,
+                          borderRadius: radii.etiket,
                           paddingVertical: on ? 8 : 9,
                           paddingHorizontal: on ? 13 : 14,
                         }}
@@ -521,7 +527,7 @@ export default function TalepOlustur() {
                 flexDirection: 'row',
                 gap: 6,
                 backgroundColor: '#E9ECF4',
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 padding: 4,
               }}
             >
@@ -1046,7 +1052,7 @@ export default function TalepOlustur() {
                         backgroundColor: '#E7FAF0',
                         paddingVertical: 4,
                         paddingHorizontal: 9,
-                        borderRadius: 999,
+                        borderRadius: radii.etiket,
                       }}
                     >
                       Her zaman açık
@@ -1158,7 +1164,7 @@ export default function TalepOlustur() {
             flex: 1,
             borderWidth: 1,
             borderColor: '#D5DAE5',
-            borderRadius: 14,
+            borderRadius: radii.buton,
             paddingVertical: 14,
             alignItems: 'center',
           }}
@@ -1172,7 +1178,7 @@ export default function TalepOlustur() {
           style={{
             flex: 2,
             backgroundColor: colors.blue,
-            borderRadius: 14,
+            borderRadius: radii.buton,
             paddingVertical: 15,
             alignItems: 'center',
             opacity: busy || !taslak || yayinlanamaz ? 0.55 : 1,
@@ -1266,7 +1272,7 @@ function Onizleme({
   const rules = taslak.schema?.rules;
   return (
     <>
-      <View style={{ ...kartStil, padding: 0, overflow: 'hidden', borderRadius: 18 }}>
+      <View style={{ ...kartStil, padding: 0, overflow: 'hidden', borderRadius: radii.kart }}>
         <View style={{ height: 168, backgroundColor: '#DCE3F0' }} />
         <View style={{ padding: 14 }}>
           <T style={{ fontSize: 16.5, fontWeight: '800', lineHeight: 22 }}>
@@ -1301,7 +1307,9 @@ function Onizleme({
         ))}
       </View>
       {rules?.legalNotice ? (
-        <View style={{ marginTop: 12, backgroundColor: '#FFF6DF', borderRadius: 12, padding: 12 }}>
+        <View
+          style={{ marginTop: 12, backgroundColor: '#FFF6DF', borderRadius: radii.buton - 2, padding: 12 }}
+        >
           <T style={{ fontSize: 13, color: '#7A5300', lineHeight: 18 }}>{rules.legalNotice}</T>
         </View>
       ) : null}
@@ -1322,7 +1330,7 @@ function Onizleme({
                   borderWidth: 1,
                   borderColor: colors.line,
                   backgroundColor: colors.surface,
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   padding: 14,
                   opacity: 0.7,
                 }}
@@ -1352,7 +1360,7 @@ function Onizleme({
               flexDirection: 'row',
               gap: 10,
               backgroundColor: '#E7FAF0',
-              borderRadius: 14,
+              borderRadius: radii.buton,
               padding: 13,
             }}
           >
@@ -1368,7 +1376,7 @@ function Onizleme({
             </T>
           </View>
         ) : (
-          <View style={{ marginTop: 14, backgroundColor: '#FFF6DF', borderRadius: 14, padding: 13 }}>
+          <View style={{ marginTop: 14, backgroundColor: '#FFF6DF', borderRadius: radii.buton, padding: 13 }}>
             <T style={{ fontSize: 13.5, color: '#7A5300', fontWeight: '600', lineHeight: 19 }}>
               {/* Karar 38: galeri hesabında uygulamada satın alma yönlendirmesi yok */}
               {haklar.galeri
@@ -1425,7 +1433,7 @@ function Asistan({ doldur }: { doldur: (metin: string) => Promise<AsistanSonucu>
         style={{
           borderWidth: 1,
           borderColor: '#D5DAE5',
-          borderRadius: 14,
+          borderRadius: radii.buton,
           padding: 12,
           fontSize: 14.5,
           minHeight: 72,

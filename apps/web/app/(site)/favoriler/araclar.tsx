@@ -32,7 +32,7 @@ export function FavoriAraclar({
         style={{
           background: '#FFFFFF',
           border: '1px dashed #C9CFDB',
-          borderRadius: 18,
+          borderRadius: 'var(--rr-kart-kose)',
           padding: '36px 20px',
           textAlign: 'center',
           fontSize: 15,
@@ -49,8 +49,8 @@ export function FavoriAraclar({
           key={a.no}
           style={{
             background: '#FFFFFF',
-            border: '1px solid #E3E6EF',
-            borderRadius: 18,
+            border: '1px solid var(--rr-cizgi, #E3E6EF)',
+            borderRadius: 'var(--rr-kart-kose)',
             padding: 16,
             display: 'flex',
             gap: 14,
@@ -61,7 +61,7 @@ export function FavoriAraclar({
             style={{
               flex: '0 0 112px',
               height: 84,
-              borderRadius: 12,
+              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
               background: '#EEF3FF',
               overflow: 'hidden',
             }}
@@ -82,7 +82,7 @@ export function FavoriAraclar({
                   fontSize: 12,
                   fontWeight: 800,
                   padding: '3px 9px',
-                  borderRadius: 999,
+                  borderRadius: 'var(--rr-etiket-kose)',
                   background: a.satista ? '#E7FAF0' : '#F3F5FA',
                   color: a.satista ? '#11683F' : '#5A6073',
                   alignSelf: 'flex-start',
@@ -111,7 +111,10 @@ export function FavoriAraclar({
               </button>
             </div>
             {a.satista ? (
-              <Link href={`/arac/${a.no}`} style={{ fontSize: 16.5, fontWeight: 800, color: '#1E2333' }}>
+              <Link
+                href={`/arac/${a.no}`}
+                style={{ fontSize: 16.5, fontWeight: 800, color: 'var(--rr-murekkep, #1E2333)' }}
+              >
                 {a.ad}
               </Link>
             ) : (

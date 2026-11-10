@@ -5,13 +5,25 @@ import { StyleSheet, Text, TextInput, type TextInputProps, type TextProps } from
  * Plus Jakarta Sans (tasarımın yazı tipi). React Native'de her kalınlık ayrı bir ailedir; `fontWeight` doğru
  * aileye çevrilir, böylece iOS ve Android'de tasarımdaki kalınlık görünür.
  */
-const FAMILY: Record<string, string> = {
+let FAMILY: Record<string, string> = {
   '400': 'PlusJakartaSans_400Regular',
   '500': 'PlusJakartaSans_500Medium',
   '600': 'PlusJakartaSans_600SemiBold',
   '700': 'PlusJakartaSans_700Bold',
   '800': 'PlusJakartaSans_800ExtraBold',
 };
+
+/** Yayındaki tasarımın yazı tipi yüklendiyse kalınlık → aile (Karar 46); eksik kalınlık en yakınla */
+export function setFontAilesi(aile: Record<string, string>) {
+  const yeni: Record<string, string> = {};
+  for (const w of ['400', '500', '600', '700', '800']) {
+    const yakin = Object.keys(aile).sort(
+      (a, b) => Math.abs(Number(a) - Number(w)) - Math.abs(Number(b) - Number(w)),
+    )[0];
+    yeni[w] = (yakin && aile[yakin]) ?? (FAMILY[w] as string);
+  }
+  FAMILY = yeni;
+}
 
 export function fontFor(weight?: string | number) {
   const w = String(weight ?? '400');

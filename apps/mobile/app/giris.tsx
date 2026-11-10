@@ -1,4 +1,4 @@
-import { colors, tints } from '@rengarenk/shared';
+import { colors, radii, tints } from '@rengarenk/shared';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, View } from 'react-native';
@@ -15,7 +15,7 @@ const label = { fontSize: 13.5, fontWeight: '700', marginBottom: 6 } as const;
 const birincil = (aktif = true) =>
   ({
     backgroundColor: aktif ? colors.blue : '#C9CFDB',
-    borderRadius: 14,
+    borderRadius: radii.buton,
     paddingVertical: 16,
     alignItems: 'center',
   }) as const;
@@ -133,7 +133,7 @@ export default function Giris() {
                 {[tints.blue, tints.pink, tints.yellow, tints.green].map((c) => (
                   <View
                     key={c}
-                    style={{ width: '48.5%', height: 74, borderRadius: 18, backgroundColor: c }}
+                    style={{ width: '48.5%', height: 74, borderRadius: radii.kart, backgroundColor: c }}
                   />
                 ))}
               </View>
@@ -160,7 +160,7 @@ export default function Giris() {
                     justifyContent: 'center',
                     borderWidth: 1,
                     borderColor: '#D5DAE5',
-                    borderRadius: 12,
+                    borderRadius: radii.buton - 2,
                     paddingHorizontal: 12,
                     backgroundColor: '#F3F5FA',
                   }}
@@ -179,7 +179,7 @@ export default function Giris() {
                     flex: 1,
                     borderWidth: 1.5,
                     borderColor: colors.blue,
-                    borderRadius: 12,
+                    borderRadius: radii.buton - 2,
                     padding: 14,
                     fontSize: 16,
                   }}
@@ -237,7 +237,7 @@ export default function Giris() {
                   width: 44,
                   height: 44,
                   marginLeft: -10,
-                  borderRadius: 12,
+                  borderRadius: radii.buton - 2,
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
@@ -272,7 +272,7 @@ export default function Giris() {
                 style={{
                   borderWidth: 1.5,
                   borderColor: colors.blue,
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   padding: 16,
                   fontSize: 26,
                   fontWeight: '800',
@@ -350,7 +350,7 @@ export default function Giris() {
                       style={{
                         borderWidth: 1,
                         borderColor: '#D5DAE5',
-                        borderRadius: 12,
+                        borderRadius: radii.buton - 2,
                         padding: 13,
                         fontSize: 15,
                       }}
@@ -364,7 +364,7 @@ export default function Giris() {
                   gap: 12,
                   alignItems: 'center',
                   backgroundColor: tints.green,
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   paddingVertical: 14,
                   paddingHorizontal: 16,
                   marginTop: 20,

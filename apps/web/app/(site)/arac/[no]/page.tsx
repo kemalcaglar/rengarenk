@@ -62,7 +62,11 @@ const basHarf = (ad: string) =>
     .slice(0, 2)
     .map((x) => x[0]?.toLocaleUpperCase('tr-TR'))
     .join('');
-const kart = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 } as const;
+const kart = {
+  background: '#FFFFFF',
+  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+  borderRadius: 'var(--rr-kart-kose)',
+} as const;
 const DURUM_AD: Record<string, string> = {
   orijinal: 'Orijinal',
   lokal: 'Lokal boyalı',
@@ -166,7 +170,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
                         justifyContent: 'space-between',
                         gap: 12,
                         border: '1px solid #EEF0F5',
-                        borderRadius: 12,
+                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                         padding: '11px 14px',
                       }}
                     >
@@ -184,7 +188,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
                       justifyContent: 'space-between',
                       gap: 12,
                       border: '1px solid #EEF0F5',
-                      borderRadius: 12,
+                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                       padding: '11px 14px',
                     }}
                   >
@@ -204,7 +208,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
                       justifyContent: 'space-between',
                       gap: 12,
                       background: '#EEF3FF',
-                      borderRadius: 12,
+                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                       padding: '12px 14px',
                       fontSize: 14.5,
                       fontWeight: 800,
@@ -276,7 +280,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
                   flex: 'none',
                   width: 48,
                   height: 48,
-                  borderRadius: 14,
+                  borderRadius: 'var(--rr-buton-kose)',
                   background: '#FFF6DF',
                   color: '#7A5300',
                   display: 'flex',
@@ -290,7 +294,12 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
               <span style={{ minWidth: 0 }}>
                 <Link
                   href={`/galeri/${a.galeri.slug}`}
-                  style={{ display: 'block', fontSize: 16, fontWeight: 800, color: '#1E2333' }}
+                  style={{
+                    display: 'block',
+                    fontSize: 16,
+                    fontWeight: 800,
+                    color: 'var(--rr-murekkep, #1E2333)',
+                  }}
                 >
                   {a.galeri.ad}
                 </Link>
@@ -306,7 +315,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
                     fontSize: 12,
                     fontWeight: 800,
                     padding: '3px 9px',
-                    borderRadius: 999,
+                    borderRadius: 'var(--rr-etiket-kose)',
                     background: '#E7FAF0',
                     color: '#11683F',
                   }}
@@ -324,7 +333,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
               {a.galeri.yetkiNo ? ` · Yetki belgesi no ${a.galeri.yetkiNo}` : ''}
             </p>
           </section>
-          <section style={{ background: '#E7FAF0', borderRadius: 18, padding: 18 }}>
+          <section style={{ background: '#E7FAF0', borderRadius: 'var(--rr-kart-kose)', padding: 18 }}>
             <h2 style={{ margin: '0 0 8px', fontSize: 15.5, fontWeight: 800, color: '#11683F' }}>
               Doğrulamalar
             </h2>
@@ -346,7 +355,13 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
             </ul>
           </section>
           <section
-            style={{ background: '#FFF6DF', borderRadius: 18, padding: 18, fontSize: 13.5, lineHeight: 1.5 }}
+            style={{
+              background: '#FFF6DF',
+              borderRadius: 'var(--rr-kart-kose)',
+              padding: 18,
+              fontSize: 13.5,
+              lineHeight: 1.5,
+            }}
           >
             <strong style={{ display: 'block', marginBottom: 4 }}>Güvenli alışveriş</strong>
             Aracı görmeden kapora veya ön ödeme gönderme. Ödemeyi noterde satış sırasında yap.

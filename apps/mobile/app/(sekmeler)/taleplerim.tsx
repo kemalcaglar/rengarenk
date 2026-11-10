@@ -6,6 +6,7 @@ import {
   type FoundViaKey,
   fiyatYaz,
   PROMOTION_NAMES,
+  radii,
 } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -149,7 +150,7 @@ export default function Taleplerim() {
             style={{
               width: 40,
               height: 40,
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               backgroundColor: colors.blue,
               alignItems: 'center',
               justifyContent: 'center',
@@ -210,7 +211,7 @@ export default function Taleplerim() {
               backgroundColor: '#FFF6DF',
               borderWidth: 1,
               borderColor: '#F4DC9A',
-              borderRadius: 14,
+              borderRadius: radii.buton,
               padding: 12,
             }}
           >
@@ -259,7 +260,7 @@ export default function Taleplerim() {
                 style={{
                   width: 76,
                   height: 58,
-                  borderRadius: 12,
+                  borderRadius: radii.buton - 2,
                   backgroundColor: TINTS[i % TINTS.length],
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -285,7 +286,7 @@ export default function Taleplerim() {
                       fontWeight: '800',
                       paddingVertical: 2,
                       paddingHorizontal: 8,
-                      borderRadius: 999,
+                      borderRadius: radii.etiket,
                       overflow: 'hidden',
                       backgroundColor:
                         t.status === 'PUBLISHED'
@@ -656,7 +657,7 @@ export default function Taleplerim() {
                     borderWidth: on ? 1.5 : 1,
                     borderColor: on ? colors.blue : '#D5DAE5',
                     backgroundColor: on ? '#EEF3FF' : colors.surface,
-                    borderRadius: 12,
+                    borderRadius: radii.buton - 2,
                     padding: 12,
                     marginBottom: 8,
                   }}
@@ -691,7 +692,7 @@ export default function Taleplerim() {
                   flex: 1,
                   borderWidth: 1,
                   borderColor: '#D5DAE5',
-                  borderRadius: 12,
+                  borderRadius: radii.buton - 2,
                   paddingVertical: 12,
                   alignItems: 'center',
                 }}
@@ -705,7 +706,7 @@ export default function Taleplerim() {
                 style={{
                   flex: 1,
                   backgroundColor: colors.green,
-                  borderRadius: 12,
+                  borderRadius: radii.buton - 2,
                   paddingVertical: 12,
                   alignItems: 'center',
                 }}

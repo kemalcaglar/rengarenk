@@ -123,8 +123,8 @@ export function PuanVer({
                       width: 54,
                       height: 54,
                       border: 0,
-                      borderRadius: 14,
-                      background: on ? '#FFF6DF' : '#F6F8FD',
+                      borderRadius: 'var(--rr-buton-kose)',
+                      background: on ? '#FFF6DF' : 'var(--rr-zemin, #F6F8FD)',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
@@ -134,7 +134,7 @@ export function PuanVer({
                     <svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true">
                       <path
                         d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"
-                        fill={on ? '#FFC84A' : '#FFFFFF'}
+                        style={{ fill: on ? 'var(--rr-sari, #FFC84A)' : '#FFFFFF' }}
                         stroke={on ? '#B07A00' : '#AEB5C4'}
                         strokeWidth="1.6"
                         strokeLinejoin="round"
@@ -150,8 +150,8 @@ export function PuanVer({
             <div
               style={{
                 marginTop: 16,
-                background: '#F6F8FD',
-                borderRadius: 14,
+                background: 'var(--rr-zemin, #F6F8FD)',
+                borderRadius: 'var(--rr-buton-kose)',
                 padding: '12px 14px',
                 fontSize: 12.5,
                 color: '#3A4052',
@@ -173,11 +173,11 @@ export function PuanVer({
                 style={{
                   border: '1px solid #D5DAE5',
                   background: '#FFFFFF',
-                  borderRadius: 14,
+                  borderRadius: 'var(--rr-buton-kose)',
                   padding: '14px 8px',
                   fontSize: 15,
                   fontWeight: 700,
-                  color: '#1E2333',
+                  color: 'var(--rr-murekkep, #1E2333)',
                   cursor: 'pointer',
                   fontFamily: 'inherit',
                 }}
@@ -190,12 +190,12 @@ export function PuanVer({
                 onClick={gonder}
                 style={{
                   border: 0,
-                  background: yildiz ? '#5B8CFF' : '#E3E6EF',
-                  borderRadius: 14,
+                  background: yildiz ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-cizgi, #E3E6EF)',
+                  borderRadius: 'var(--rr-buton-kose)',
                   padding: '15px 8px',
                   fontSize: 15.5,
                   fontWeight: 800,
-                  color: yildiz ? '#1E2333' : '#5A6073',
+                  color: yildiz ? 'var(--rr-murekkep, #1E2333)' : '#5A6073',
                   cursor: yildiz ? 'pointer' : 'default',
                   fontFamily: 'inherit',
                 }}
@@ -256,11 +256,11 @@ export function PuanVer({
                 style={{
                   border: '1px solid #D5DAE5',
                   background: '#FFFFFF',
-                  borderRadius: 14,
+                  borderRadius: 'var(--rr-buton-kose)',
                   padding: '14px 8px',
                   fontSize: 14.5,
                   fontWeight: 700,
-                  color: '#1E2333',
+                  color: 'var(--rr-murekkep, #1E2333)',
                   cursor: 'pointer',
                   fontFamily: 'inherit',
                 }}
@@ -272,12 +272,12 @@ export function PuanVer({
                 style={{
                   display: 'block',
                   textAlign: 'center',
-                  borderRadius: 14,
+                  borderRadius: 'var(--rr-buton-kose)',
                   padding: '14px 8px',
                   fontSize: 14.5,
                   fontWeight: 800,
-                  color: '#1E2333',
-                  background: '#3DD68C',
+                  color: 'var(--rr-murekkep, #1E2333)',
+                  background: 'var(--rr-yesil, #3DD68C)',
                   textDecoration: 'none',
                 }}
               >

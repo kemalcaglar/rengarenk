@@ -79,7 +79,7 @@ export function ButceKaydirici({
         step={ADIM}
         value={v}
         onChange={(e) => yaz(k, Number(e.target.value))}
-        style={{ flex: 1, minWidth: 0, accentColor: '#5B8CFF' }}
+        style={{ flex: 1, minWidth: 0, accentColor: 'var(--rr-mavi, #5B8CFF)' }}
       />
       <span style={{ flex: 'none', width: 120, textAlign: 'right', fontSize: 14, fontWeight: 800 }}>
         {binlik(v)} TL{k === 'max' && v >= UST ? '+' : ''}

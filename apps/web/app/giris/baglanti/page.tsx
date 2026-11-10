@@ -1,9 +1,9 @@
 'use client';
 
-import { colors } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { colors } from '../../../lib/renk';
 
 /**
  * Giriş bağlantısı (Karar 52): destek ekibinin kişinin doğrulanmış e-postasına gönderdiği tek kullanımlık bağlantı.
@@ -76,9 +76,9 @@ export default function GirisBaglantisi() {
               href="/giris"
               style={{
                 display: 'inline-block',
-                background: '#5B8CFF',
-                color: '#1E2333',
-                borderRadius: 14,
+                background: 'var(--rr-mavi, #5B8CFF)',
+                color: 'var(--rr-murekkep, #1E2333)',
+                borderRadius: 'var(--rr-buton-kose)',
                 padding: '12px 20px',
                 fontWeight: 800,
                 textDecoration: 'none',
@@ -88,7 +88,7 @@ export default function GirisBaglantisi() {
             </Link>
             <p style={{ margin: '14px 0 0', fontSize: 13.5, color: '#5A6073' }}>
               Telefonuna ulaşamıyorsan{' '}
-              <Link href="/yardim" style={{ color: '#2450C8', fontWeight: 700 }}>
+              <Link href="/yardim" style={{ color: 'var(--rr-baglanti, #2450C8)', fontWeight: 700 }}>
                 destek ekibimize yaz
               </Link>
               .

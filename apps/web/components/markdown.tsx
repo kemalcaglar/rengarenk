@@ -1,5 +1,5 @@
-import { colors } from '@rengarenk/shared';
 import type { ReactNode } from 'react';
+import { colors } from '../lib/renk';
 
 /** Satır içi: **kalın** ve [metin](https://…) bağlantı; HTML yorumlanmaz. */
 function inline(text: string, key: string): ReactNode[] {
@@ -78,7 +78,12 @@ export function Markdown({ text }: { text: string }) {
                     {head.map(({ c, id }) => (
                       <th
                         key={id}
-                        style={{ ...cell, fontWeight: 800, color: colors.ink, background: '#F6F8FD' }}
+                        style={{
+                          ...cell,
+                          fontWeight: 800,
+                          color: colors.ink,
+                          background: 'var(--rr-zemin, #F6F8FD)',
+                        }}
                       >
                         {inline(c, id)}
                       </th>
@@ -131,8 +136,8 @@ export function Markdown({ text }: { text: string }) {
               style={{
                 margin: '12px 0',
                 padding: '12px 16px',
-                background: '#F6F8FD',
-                borderRadius: 14,
+                background: 'var(--rr-zemin, #F6F8FD)',
+                borderRadius: 'var(--rr-buton-kose)',
                 color: colors.ink,
                 fontWeight: 600,
               }}

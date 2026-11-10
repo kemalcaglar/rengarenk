@@ -57,7 +57,11 @@ export interface TalepVeri {
 }
 
 const TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0'];
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 };
+const kart: CSSProperties = {
+  background: '#FFFFFF',
+  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+  borderRadius: 'var(--rr-kart-kose)',
+};
 const BOYA_AD: Record<string, string> = {
   orijinal: 'Orijinal olmalı',
   lokal: 'Lokal boya kabul',
@@ -246,17 +250,17 @@ export function TalepDetay({
     cursor: 'pointer',
     marginBottom: -1,
     background: on ? '#EEF3FF' : 'transparent',
-    color: on ? '#1E2333' : '#5A6073',
-    borderBottom: `3px solid ${on ? '#5B8CFF' : 'transparent'}`,
+    color: on ? 'var(--rr-murekkep, #1E2333)' : '#5A6073',
+    borderBottom: `3px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : 'transparent'}`,
     fontFamily: 'inherit',
   });
   const etiketSag: CSSProperties = {
     background: '#EEF3FF',
-    color: '#1E2333',
+    color: 'var(--rr-murekkep, #1E2333)',
     fontSize: 12.5,
     fontWeight: 700,
     padding: '5px 11px',
-    borderRadius: 999,
+    borderRadius: 'var(--rr-etiket-kose)',
   };
 
   return (
@@ -322,7 +326,7 @@ export function TalepDetay({
                   fontSize: 13,
                   fontWeight: 700,
                   padding: '5px 12px',
-                  borderRadius: 999,
+                  borderRadius: 'var(--rr-etiket-kose)',
                 }}
               >
                 <span
@@ -341,7 +345,7 @@ export function TalepDetay({
                   fontSize: 13,
                   fontWeight: 700,
                   padding: '5px 12px',
-                  borderRadius: 999,
+                  borderRadius: 'var(--rr-etiket-kose)',
                 }}
               >
                 {t.status === 'PASSIVE'
@@ -372,12 +376,12 @@ export function TalepDetay({
                 alignItems: 'center',
                 gap: 7,
                 background: '#FFFFFF',
-                border: '1px solid #E3E6EF',
-                borderRadius: 12,
+                border: '1px solid var(--rr-cizgi, #E3E6EF)',
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: '11px 14px',
                 fontSize: 14,
                 fontWeight: 600,
-                color: '#1E2333',
+                color: 'var(--rr-murekkep, #1E2333)',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
               }}
@@ -386,7 +390,7 @@ export function TalepDetay({
                 width="18"
                 height="18"
                 viewBox="0 0 24 24"
-                fill={sahip.favori ? '#FF6FB5' : 'none'}
+                fill={sahip.favori ? 'var(--rr-pembe, #FF6FB5)' : 'none'}
                 stroke={sahip.favori ? '#E0479A' : 'currentColor'}
                 strokeWidth="2"
                 strokeLinejoin="round"
@@ -416,9 +420,9 @@ export function TalepDetay({
               width: 46,
               height: 46,
               background: '#FFFFFF',
-              border: '1px solid #E3E6EF',
-              borderRadius: 12,
-              color: '#1E2333',
+              border: '1px solid var(--rr-cizgi, #E3E6EF)',
+              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+              color: 'var(--rr-murekkep, #1E2333)',
               cursor: 'pointer',
             }}
           >
@@ -466,7 +470,7 @@ export function TalepDetay({
                   fontSize: 12.5,
                   fontWeight: 700,
                   padding: '6px 11px',
-                  borderRadius: 999,
+                  borderRadius: 'var(--rr-etiket-kose)',
                 }}
               >
                 Temsili görsel
@@ -483,7 +487,7 @@ export function TalepDetay({
                     fontSize: 12.5,
                     fontWeight: 700,
                     padding: '6px 11px',
-                    borderRadius: 999,
+                    borderRadius: 'var(--rr-etiket-kose)',
                   }}
                 >
                   {altAd}
@@ -619,7 +623,11 @@ export function TalepDetay({
               {anaArac.map((x, i) => (
                 <div
                   key={x.label}
-                  style={{ background: TINTS[i % TINTS.length], borderRadius: 14, padding: '12px 14px' }}
+                  style={{
+                    background: TINTS[i % TINTS.length],
+                    borderRadius: 'var(--rr-buton-kose)',
+                    padding: '12px 14px',
+                  }}
                 >
                   <div style={{ fontSize: 12.5, fontWeight: 600, color: '#4A5064' }}>{x.label}</div>
                   <div style={{ fontSize: 17, fontWeight: 800, marginTop: 2 }}>{x.value}</div>
@@ -678,7 +686,12 @@ export function TalepDetay({
             </h2>
             <div
               role="tablist"
-              style={{ display: 'flex', gap: 6, padding: '14px 14px 0', borderBottom: '1px solid #E3E6EF' }}
+              style={{
+                display: 'flex',
+                gap: 6,
+                padding: '14px 14px 0',
+                borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)',
+              }}
             >
               {t.data.alternatifler.map((_, i) => (
                 <button
@@ -729,7 +742,7 @@ export function TalepDetay({
               }}
             >
               <span style={{ fontSize: 14, fontWeight: 600, color: '#3A4052' }}>Bütçe</span>
-              <span style={{ fontSize: 22, fontWeight: 800, color: '#2450C8' }}>
+              <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--rr-baglanti, #2450C8)' }}>
                 {butceAraligi(butce?.min, butce?.max) || '—'}
               </span>
             </div>
@@ -783,7 +796,11 @@ export function TalepDetay({
                       return (
                         <div
                           key={o.value}
-                          style={{ border: '1px solid #EEF0F5', borderRadius: 14, padding: 14 }}
+                          style={{
+                            border: '1px solid #EEF0F5',
+                            borderRadius: 'var(--rr-buton-kose)',
+                            padding: 14,
+                          }}
                         >
                           <svg
                             width="22"
@@ -809,7 +826,7 @@ export function TalepDetay({
                               fontSize: 12.5,
                               fontWeight: 700,
                               padding: '4px 10px',
-                              borderRadius: 999,
+                              borderRadius: 'var(--rr-etiket-kose)',
                             }}
                           >
                             {ok ? 'Kabul ediyor' : 'Kabul etmiyor'}
@@ -827,7 +844,7 @@ export function TalepDetay({
                         justifyContent: 'space-between',
                         gap: 8,
                         marginTop: 12,
-                        borderRadius: 12,
+                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                         background: '#F3F5FA',
                         padding: '12px 14px',
                       }}
@@ -877,7 +894,11 @@ export function TalepDetay({
                 {g.teknik.map((x) => (
                   <div
                     key={x.label}
-                    style={{ border: '1px solid #EEF0F5', borderRadius: 12, padding: '11px 13px' }}
+                    style={{
+                      border: '1px solid #EEF0F5',
+                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                      padding: '11px 13px',
+                    }}
                   >
                     <div style={{ fontSize: 12.5, color: '#5A6073' }}>{x.label}</div>
                     <div style={{ fontSize: 15, fontWeight: 700, marginTop: 3 }}>{x.value}</div>
@@ -908,7 +929,7 @@ export function TalepDetay({
                       ...kart,
                       borderRadius: 16,
                       padding: 16,
-                      color: '#1E2333',
+                      color: 'var(--rr-murekkep, #1E2333)',
                       textDecoration: 'none',
                     }}
                   >
@@ -919,7 +940,11 @@ export function TalepDetay({
                         width: 32,
                         height: 6,
                         borderRadius: 3,
-                        background: ['#FF6FB5', '#FFC84A', '#3DD68C'][i % 3],
+                        background: [
+                          'var(--rr-pembe, #FF6FB5)',
+                          'var(--rr-sari, #FFC84A)',
+                          'var(--rr-yesil, #3DD68C)',
+                        ][i % 3],
                         marginBottom: 12,
                       }}
                     />
@@ -956,7 +981,7 @@ export function TalepDetay({
                   height: 52,
                   borderRadius: '50%',
                   background: '#EEF3FF',
-                  color: '#2450C8',
+                  color: 'var(--rr-baglanti, #2450C8)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -1010,11 +1035,11 @@ export function TalepDetay({
                   gap: 9,
                   marginTop: 18,
                   border: '1px solid #D5DAE5',
-                  color: '#1E2333',
+                  color: 'var(--rr-murekkep, #1E2333)',
                   fontWeight: 800,
                   fontSize: 16,
                   padding: 15,
-                  borderRadius: 14,
+                  borderRadius: 'var(--rr-buton-kose)',
                   textDecoration: 'none',
                 }}
               >
@@ -1036,12 +1061,12 @@ export function TalepDetay({
                   justifyContent: 'center',
                   gap: 9,
                   marginTop: 18,
-                  background: '#5B8CFF',
-                  color: '#1E2333',
+                  background: 'var(--rr-mavi, #5B8CFF)',
+                  color: 'var(--rr-murekkep, #1E2333)',
                   fontWeight: 800,
                   fontSize: 16,
                   padding: 15,
-                  borderRadius: 14,
+                  borderRadius: 'var(--rr-buton-kose)',
                   border: 0,
                   opacity: giris && (!yayinda || !mesaj) && !mesaj?.yazildi ? 0.55 : 1,
                   cursor: 'pointer',
@@ -1067,8 +1092,8 @@ export function TalepDetay({
               <div
                 style={{
                   marginTop: 10,
-                  border: '1px solid #E3E6EF',
-                  borderRadius: 14,
+                  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+                  borderRadius: 'var(--rr-buton-kose)',
                   padding: '12px 14px',
                   display: 'flex',
                   alignItems: 'center',
@@ -1109,7 +1134,7 @@ export function TalepDetay({
                     style={{
                       border: 0,
                       background: 'transparent',
-                      color: '#2450C8',
+                      color: 'var(--rr-baglanti, #2450C8)',
                       fontWeight: 700,
                       fontSize: 14,
                       padding: '8px 4px',
@@ -1122,7 +1147,12 @@ export function TalepDetay({
                 ) : (
                   <Link
                     href={`/giris?sonra=/talep/${t.no}`}
-                    style={{ color: '#2450C8', fontWeight: 700, fontSize: 14, padding: '8px 4px' }}
+                    style={{
+                      color: 'var(--rr-baglanti, #2450C8)',
+                      fontWeight: 700,
+                      fontSize: 14,
+                      padding: '8px 4px',
+                    }}
                   >
                     Görmek için giriş yap
                   </Link>
@@ -1133,8 +1163,8 @@ export function TalepDetay({
               <p
                 style={{
                   margin: '10px 0 0',
-                  border: '1px solid #E3E6EF',
-                  borderRadius: 14,
+                  border: '1px solid var(--rr-cizgi, #E3E6EF)',
+                  borderRadius: 'var(--rr-buton-kose)',
                   padding: '12px 14px',
                   fontSize: 13.5,
                   color: '#3A4052',
@@ -1163,7 +1193,7 @@ export function TalepDetay({
                   fontWeight: 700,
                   fontSize: 15,
                   padding: 13,
-                  borderRadius: 14,
+                  borderRadius: 'var(--rr-buton-kose)',
                   textDecoration: 'none',
                 }}
               >
@@ -1192,7 +1222,7 @@ export function TalepDetay({
                   {mesaj.hesaplar.length === 1 && !mesaj.hesaplar[0]?.galeri
                     ? 'Bugün kalan ücretsiz mesaj hakkınız: '
                     : 'Bugün kalan mesaj hakkınız: '}
-                  <strong style={{ color: '#1E2333' }}>
+                  <strong style={{ color: 'var(--rr-murekkep, #1E2333)' }}>
                     {mesaj.gunluk.kalan} / {mesaj.gunluk.toplam}
                   </strong>
                 </>
@@ -1214,7 +1244,7 @@ export function TalepDetay({
 
           <section
             aria-labelledby="guvenlik"
-            style={{ background: '#FFF6DF', borderRadius: 18, padding: '18px 20px' }}
+            style={{ background: '#FFF6DF', borderRadius: 'var(--rr-kart-kose)', padding: '18px 20px' }}
           >
             <h2 id="guvenlik" style={{ margin: '0 0 8px', fontSize: 15, fontWeight: 800, color: '#5C3F00' }}>
               Güvenliğiniz için
@@ -1233,7 +1263,7 @@ export function TalepDetay({
                 lineHeight: 1.55,
                 color: '#3A4052',
                 background: '#F3F5FA',
-                borderRadius: 14,
+                borderRadius: 'var(--rr-buton-kose)',
                 padding: '12px 14px',
               }}
             >

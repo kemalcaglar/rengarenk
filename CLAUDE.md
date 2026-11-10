@@ -310,7 +310,11 @@ pnpm format        # Biome ile biçimlendir
   `moderation/listings.service.ts` (gizleme çalışan kaynaklı moderasyon kaydı + `decide`; düzeltme `correction_note`,
   kategori önerisi `suggested_category_id`). Sistem sağlığı bitti: `health/system-health.service.ts` (işçide dakikalık
   yoklama, `health_samples`), istek özeti `observability/request-stats.ts` (Redis tembel bağlanır: önce `redisHazir`),
-  yedek `backup_runs` (yazan sunucudaki betik). API'de 209 test.
+  yedek `backup_runs` (yazan sunucudaki betik). Tasarım değerleri bitti: `content/design.service.ts`, ortak `design.ts`
+  (`FONTS` 70 yazı tipi, `designProblems`, `applyDesignColors`, `radii`). Web'de renk için `lib/renk.ts`'teki `colors`'ı
+  kullan (paletin sekiz rengi `var(--rr-*)`) ve köşede `var(--rr-kart-kose)` / `--rr-buton-kose` / `--rr-etiket-kose`;
+  yeni gömülü palet hex kodu yazma. SVG niteliğinde (`fill=`, `stroke=`) CSS değişkeni çalışmaz, `style={{ fill }}`
+  kullan. Mobilde köşe `radii.kart` / `radii.buton` / `radii.etiket`. Sprint 29 bitti. API'de 210, ortak pakette 125 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.

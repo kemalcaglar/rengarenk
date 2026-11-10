@@ -11,11 +11,11 @@ export const kutu: CSSProperties = {
   width: '100%',
   boxSizing: 'border-box',
   border: '1px solid #D5DAE5',
-  borderRadius: 12,
+  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
   padding: 12,
   fontSize: 15,
   background: '#FFFFFF',
-  color: '#1E2333',
+  color: 'var(--rr-murekkep, #1E2333)',
   fontFamily: 'inherit',
 };
 export const secimKutusu: CSSProperties = { ...kutu, padding: '13px 12px' };
@@ -52,7 +52,7 @@ export function Cip({
         alignItems: 'center',
         gap: 7,
         textAlign: 'left',
-        border: on ? '1.5px solid #5B8CFF' : '1px solid #D5DAE5',
+        border: on ? '1.5px solid var(--rr-mavi, #5B8CFF)' : '1px solid #D5DAE5',
         background: on ? '#EEF3FF' : '#FFFFFF',
         borderRadius: kare ? 14 : 999,
         padding: kare
@@ -68,7 +68,7 @@ export function Cip({
               : '8.5px 14.5px',
         fontSize: 14,
         fontWeight: on ? 700 : 600,
-        color: on ? '#1E2333' : '#3A4052',
+        color: on ? 'var(--rr-murekkep, #1E2333)' : '#3A4052',
         cursor: 'pointer',
         fontFamily: 'inherit',
       }}
@@ -86,7 +86,7 @@ export function Cip({
             display: 'block',
             fontSize: 12,
             fontWeight: on ? 600 : 500,
-            color: on ? '#2450C8' : '#5A6073',
+            color: on ? 'var(--rr-baglanti, #2450C8)' : '#5A6073',
             marginTop: 1,
           }}
         >
@@ -101,7 +101,7 @@ export function Cip({
 export function Anahtar({
   on,
   label,
-  renk = '#5B8CFF',
+  renk = 'var(--rr-mavi, #5B8CFF)',
   disabled,
   onClick,
 }: {
@@ -124,7 +124,7 @@ export function Anahtar({
         width: 52,
         height: 30,
         border: 0,
-        borderRadius: 999,
+        borderRadius: 'var(--rr-etiket-kose)',
         background: on ? renk : '#C9CFDB',
         position: 'relative',
         cursor: disabled ? 'default' : 'pointer',

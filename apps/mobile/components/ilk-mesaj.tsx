@@ -1,4 +1,4 @@
-import { colors, MESSAGE_MAX } from '@rengarenk/shared';
+import { colors, MESSAGE_MAX, radii } from '@rengarenk/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { useOturum } from '../lib/oturum';
@@ -151,7 +151,7 @@ export function IlkMesaj({
                   gap: 10,
                   marginTop: 12,
                   backgroundColor: '#FFF6DF',
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   padding: 10,
                 }}
               >
@@ -182,7 +182,7 @@ export function IlkMesaj({
                 minHeight: 120,
                 borderWidth: 1,
                 borderColor: '#D5DAE5',
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 padding: 12,
                 fontSize: 14.5,
                 lineHeight: 21,
@@ -235,7 +235,7 @@ export function IlkMesaj({
                 onPress={kapat}
                 style={{
                   backgroundColor: '#F3F5FA',
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   paddingVertical: 14,
                   paddingHorizontal: 18,
                 }}
@@ -250,7 +250,7 @@ export function IlkMesaj({
                 style={{
                   flex: 1,
                   backgroundColor: colors.blue,
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   paddingVertical: 14,
                   alignItems: 'center',
                   opacity: pasif ? 0.55 : 1,

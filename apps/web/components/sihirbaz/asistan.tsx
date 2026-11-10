@@ -69,7 +69,7 @@ export function Asistan({ taslakId, doldu }: { taslakId: string; doldu: () => Pr
           width: '100%',
           boxSizing: 'border-box',
           border: '1px solid #D5DAE5',
-          borderRadius: 14,
+          borderRadius: 'var(--rr-buton-kose)',
           padding: 12,
           fontSize: 14.5,
           lineHeight: 1.5,
@@ -97,7 +97,7 @@ export function Asistan({ taslakId, doldu }: { taslakId: string; doldu: () => Pr
             padding: '6px 0',
             fontSize: 13.5,
             fontWeight: 800,
-            color: '#2450C8',
+            color: 'var(--rr-baglanti, #2450C8)',
             cursor: busy ? 'default' : 'pointer',
             opacity: metin.trim().length < 5 ? 0.55 : 1,
             fontFamily: 'inherit',
@@ -115,7 +115,10 @@ export function Asistan({ taslakId, doldu }: { taslakId: string; doldu: () => Pr
         </p>
       ) : null}
       {sonuc ? (
-        <div role="status" style={{ marginTop: 10, fontSize: 13, lineHeight: 1.5, color: '#1E2333' }}>
+        <div
+          role="status"
+          style={{ marginTop: 10, fontSize: 13, lineHeight: 1.5, color: 'var(--rr-murekkep, #1E2333)' }}
+        >
           {sonuc.doldurulan.length ? (
             <>
               <strong>Asistan doldurdu:</strong>{' '}

@@ -1,4 +1,4 @@
-import { colors, MESSAGE_MAX } from '@rengarenk/shared';
+import { colors, MESSAGE_MAX, radii } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { type ComponentRef, useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -219,7 +219,7 @@ export default function SohbetEkrani() {
                         fontWeight: '800',
                         paddingVertical: 2,
                         paddingHorizontal: 7,
-                        borderRadius: 999,
+                        borderRadius: radii.etiket,
                         overflow: 'hidden',
                         backgroundColor: r.bg,
                         color: r.renk,
@@ -263,7 +263,7 @@ export default function SohbetEkrani() {
               backgroundColor: '#F6F8FD',
               borderWidth: 1,
               borderColor: colors.line,
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               paddingVertical: 8,
               paddingHorizontal: 10,
             }}
@@ -319,7 +319,7 @@ export default function SohbetEkrani() {
                       backgroundColor: '#F3F5FA',
                       paddingVertical: 4,
                       paddingHorizontal: 11,
-                      borderRadius: 999,
+                      borderRadius: radii.etiket,
                       overflow: 'hidden',
                     }}
                   >
@@ -354,7 +354,7 @@ export default function SohbetEkrani() {
                 onPress={() => setYanitla(true)}
                 style={{
                   backgroundColor: colors.blue,
-                  borderRadius: 12,
+                  borderRadius: radii.buton - 2,
                   paddingVertical: 11,
                   paddingHorizontal: 18,
                 }}
@@ -369,7 +369,7 @@ export default function SohbetEkrani() {
                   borderWidth: 1,
                   borderColor: '#D9C48A',
                   backgroundColor: colors.surface,
-                  borderRadius: 12,
+                  borderRadius: radii.buton - 2,
                   paddingVertical: 11,
                   paddingHorizontal: 16,
                 }}
@@ -499,7 +499,7 @@ function MesajBalonu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
           fontSize: 12.5,
           color: '#3A4052',
           backgroundColor: '#EEF3FF',
-          borderRadius: 12,
+          borderRadius: radii.buton - 2,
           overflow: 'hidden',
           paddingVertical: 9,
           paddingHorizontal: 12,
@@ -518,7 +518,7 @@ function MesajBalonu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
           width: 260,
           borderWidth: 1,
           borderColor: colors.line,
-          borderRadius: 14,
+          borderRadius: radii.buton,
           overflow: 'hidden',
           backgroundColor: colors.surface,
         }}
@@ -545,7 +545,7 @@ function MesajBalonu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
               fontWeight: '700',
               paddingVertical: 3,
               paddingHorizontal: 8,
-              borderRadius: 999,
+              borderRadius: radii.etiket,
               overflow: 'hidden',
               backgroundColor: k.satista ? '#E7FAF0' : '#F3F5FA',
               color: k.satista ? '#11683F' : colors.muted,
@@ -640,7 +640,7 @@ function MesajBalonu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
             gap: 10,
             alignItems: 'flex-start',
             backgroundColor: '#FDECEC',
-            borderRadius: 14,
+            borderRadius: radii.buton,
             padding: 12,
           }}
         >

@@ -1,4 +1,4 @@
-import { colors, ILLER, searchQueryKey } from '@rengarenk/shared';
+import { colors, ILLER, radii, searchQueryKey } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, FlatList, Modal, Pressable, View } from 'react-native';
@@ -172,7 +172,7 @@ export default function Talepler() {
             style={{
               width: 44,
               height: 44,
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               backgroundColor: colors.blue,
               alignItems: 'center',
               justifyContent: 'center',
@@ -190,7 +190,7 @@ export default function Talepler() {
             backgroundColor: '#F3F5FA',
             borderWidth: 1,
             borderColor: colors.line,
-            borderRadius: 12,
+            borderRadius: radii.buton - 2,
             paddingHorizontal: 12,
           }}
         >
@@ -229,7 +229,7 @@ export default function Talepler() {
               flex: 1,
               borderWidth: 1,
               borderColor: '#D5DAE5',
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               paddingVertical: 11,
               alignItems: 'center',
             }}
@@ -247,7 +247,7 @@ export default function Talepler() {
             borderWidth: kayit ? 1.5 : 1,
             borderColor: kayit ? '#25A35A' : '#D5DAE5',
             backgroundColor: kayit ? '#E7FAF0' : colors.surface,
-            borderRadius: 12,
+            borderRadius: radii.buton - 2,
             paddingVertical: kayit ? 10.5 : 11,
             alignItems: 'center',
           }}
@@ -314,7 +314,7 @@ export default function Talepler() {
               style={{
                 width: 86,
                 height: 86,
-                borderRadius: 12,
+                borderRadius: radii.buton - 2,
                 backgroundColor: TINTS[index % TINTS.length],
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -348,7 +348,7 @@ export default function Talepler() {
                       fontWeight: '700',
                       paddingVertical: 3,
                       paddingHorizontal: 8,
-                      borderRadius: 999,
+                      borderRadius: radii.etiket,
                       overflow: 'hidden',
                     }}
                   >
@@ -364,7 +364,7 @@ export default function Talepler() {
                       fontWeight: '700',
                       paddingVertical: 3,
                       paddingHorizontal: 8,
-                      borderRadius: 999,
+                      borderRadius: radii.etiket,
                       overflow: 'hidden',
                     }}
                   >
@@ -555,7 +555,7 @@ function Filtreler({
             }}
             style={{
               backgroundColor: colors.blue,
-              borderRadius: 14,
+              borderRadius: radii.buton,
               paddingVertical: 15,
               alignItems: 'center',
             }}

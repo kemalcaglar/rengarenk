@@ -114,7 +114,7 @@ export default function Bildirimler() {
               padding: '10px 6px',
               fontSize: 13.5,
               fontWeight: 700,
-              color: '#2450C8',
+              color: 'var(--rr-baglanti, #2450C8)',
               cursor: 'pointer',
               fontFamily: 'inherit',
             }}
@@ -131,12 +131,12 @@ export default function Bildirimler() {
               onClick={() => setFiltre(k)}
               style={{
                 border: filtre === k ? 0 : '1px solid #D5DAE5',
-                background: filtre === k ? '#1E2333' : '#FFFFFF',
-                borderRadius: 999,
+                background: filtre === k ? 'var(--rr-murekkep, #1E2333)' : '#FFFFFF',
+                borderRadius: 'var(--rr-etiket-kose)',
                 padding: filtre === k ? '9px 14px' : '8px 13px',
                 fontSize: 13.5,
                 fontWeight: filtre === k ? 800 : 700,
-                color: filtre === k ? '#FFFFFF' : '#1E2333',
+                color: filtre === k ? '#FFFFFF' : 'var(--rr-murekkep, #1E2333)',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
               }}
@@ -168,7 +168,7 @@ export default function Bildirimler() {
               <div
                 style={{
                   background: '#FFFFFF',
-                  border: '1px solid #E3E6EF',
+                  border: '1px solid var(--rr-cizgi, #E3E6EF)',
                   borderRadius: 16,
                   overflow: 'hidden',
                 }}
@@ -187,7 +187,7 @@ export default function Bildirimler() {
                       border: 0,
                       borderBottom: '1px solid #EEF0F5',
                       background: b.okundu ? '#FFFFFF' : '#F8FAFF',
-                      color: '#1E2333',
+                      color: 'var(--rr-murekkep, #1E2333)',
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                     }}
@@ -198,7 +198,7 @@ export default function Bildirimler() {
                         flex: 'none',
                         width: 38,
                         height: 38,
-                        borderRadius: 12,
+                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                         background: b.tint,
                         display: 'flex',
                         alignItems: 'center',
@@ -234,7 +234,7 @@ export default function Bildirimler() {
                             fontSize: 11,
                             fontWeight: 800,
                             padding: '2px 7px',
-                            borderRadius: 999,
+                            borderRadius: 'var(--rr-etiket-kose)',
                             background: '#F3F5FA',
                             color: '#5A6073',
                           }}

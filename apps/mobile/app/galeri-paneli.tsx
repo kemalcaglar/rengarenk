@@ -5,6 +5,7 @@ import {
   GALLERY_TRIAL,
   MEMBER_ROLE_NAMES,
   type MemberRoleKey,
+  radii,
 } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -238,7 +239,7 @@ export default function GaleriPaneli() {
           style={{
             width: 40,
             height: 40,
-            borderRadius: 12,
+            borderRadius: radii.buton - 2,
             backgroundColor: '#FFF6DF',
             alignItems: 'center',
             justifyContent: 'center',
@@ -296,7 +297,7 @@ export default function GaleriPaneli() {
               marginBottom: 10,
               backgroundColor: '#FFF0EE',
               color: '#A3271F',
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               padding: 12,
             }}
           >
@@ -331,7 +332,7 @@ export default function GaleriPaneli() {
                       flex: 1,
                       borderWidth: 1,
                       borderColor: '#D5DAE5',
-                      borderRadius: 12,
+                      borderRadius: radii.buton - 2,
                       paddingVertical: 11,
                       alignItems: 'center',
                     }}
@@ -344,7 +345,7 @@ export default function GaleriPaneli() {
                     style={{
                       flex: 2,
                       backgroundColor: colors.blue,
-                      borderRadius: 12,
+                      borderRadius: radii.buton - 2,
                       paddingVertical: 11,
                       alignItems: 'center',
                     }}
@@ -363,7 +364,7 @@ export default function GaleriPaneli() {
               marginBottom: 10,
               backgroundColor: '#FDECEC',
               color: '#A3271F',
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               padding: 12,
               fontWeight: '700',
             }}
@@ -377,7 +378,7 @@ export default function GaleriPaneli() {
               marginBottom: 10,
               backgroundColor: '#FFF6DF',
               color: '#7A5300',
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               padding: 12,
               fontWeight: '700',
             }}
@@ -392,7 +393,7 @@ export default function GaleriPaneli() {
             <View
               style={{
                 ...kart,
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 paddingVertical: 12,
                 paddingHorizontal: 14,
                 flexDirection: 'row',
@@ -423,7 +424,7 @@ export default function GaleriPaneli() {
                         borderWidth: 1,
                         borderColor: secili ? colors.ink : '#D5DAE5',
                         backgroundColor: secili ? colors.ink : colors.surface,
-                        borderRadius: 999,
+                        borderRadius: radii.etiket,
                         paddingVertical: 8,
                         paddingHorizontal: 12,
                       }}
@@ -462,7 +463,7 @@ export default function GaleriPaneli() {
                       backgroundColor: '#E7FAF0',
                       paddingVertical: 3,
                       paddingHorizontal: 8,
-                      borderRadius: 999,
+                      borderRadius: radii.etiket,
                       overflow: 'hidden',
                     }}
                   >
@@ -531,7 +532,7 @@ export default function GaleriPaneli() {
                       onPress={() => setYaz(e)}
                       style={{
                         backgroundColor: '#5B8CFF',
-                        borderRadius: 12,
+                        borderRadius: radii.buton - 2,
                         paddingVertical: 10,
                         paddingHorizontal: 12,
                       }}
@@ -609,7 +610,7 @@ export default function GaleriPaneli() {
                           fontWeight: '800',
                           paddingVertical: 3,
                           paddingHorizontal: 8,
-                          borderRadius: 999,
+                          borderRadius: radii.etiket,
                           overflow: 'hidden',
                           backgroundColor: bg,
                           color: fg,
@@ -631,7 +632,7 @@ export default function GaleriPaneli() {
                 borderWidth: 1,
                 borderStyle: 'dashed',
                 borderColor: '#A9B6D6',
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 padding: 13,
                 alignItems: 'center',
               }}
@@ -653,7 +654,7 @@ export default function GaleriPaneli() {
               gap: 10,
               alignItems: 'center',
               backgroundColor: '#FFF6DF',
-              borderRadius: 14,
+              borderRadius: radii.buton,
               paddingVertical: 12,
               paddingHorizontal: 14,
             }}
@@ -765,7 +766,7 @@ export default function GaleriPaneli() {
                         backgroundColor: '#E7FAF0',
                         paddingVertical: 3,
                         paddingHorizontal: 8,
-                        borderRadius: 999,
+                        borderRadius: radii.etiket,
                         overflow: 'hidden',
                       }}
                     >
@@ -805,7 +806,7 @@ export default function GaleriPaneli() {
                         fontWeight: '800',
                         paddingVertical: 5,
                         paddingHorizontal: 10,
-                        borderRadius: 999,
+                        borderRadius: radii.etiket,
                         overflow: 'hidden',
                         backgroundColor: r.rozet === 'onay' ? '#E7FAF0' : '#FFF6DF',
                         color: r.rozet === 'onay' ? '#11683F' : '#7A5200',
@@ -896,7 +897,7 @@ export default function GaleriPaneli() {
                   width: 52,
                   height: 52,
                   marginTop: -18,
-                  borderRadius: 18,
+                  borderRadius: radii.kart,
                   backgroundColor: colors.green,
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -926,7 +927,7 @@ export default function GaleriPaneli() {
                       minWidth: 16,
                       height: 16,
                       paddingHorizontal: 3,
-                      borderRadius: 999,
+                      borderRadius: radii.etiket,
                       backgroundColor: '#FF6FB5',
                       alignItems: 'center',
                       justifyContent: 'center',

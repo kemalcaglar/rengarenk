@@ -1,6 +1,6 @@
-import { colors } from '@rengarenk/shared';
 import type { Metadata } from 'next';
 import { Markdown } from '../../../components/markdown';
+import { colors } from '../../../lib/renk';
 
 export const metadata: Metadata = {
   title: 'Rengarenk · Veri kaynakları',
@@ -34,7 +34,7 @@ async function sources(): Promise<Source[] | null> {
 const card = {
   background: colors.surface,
   border: `1px solid ${colors.line}`,
-  borderRadius: 18,
+  borderRadius: 'var(--rr-kart-kose)',
 } as const;
 
 /**

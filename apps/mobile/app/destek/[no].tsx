@@ -1,4 +1,4 @@
-import { colors } from '@rengarenk/shared';
+import { colors, radii } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { type ComponentRef, useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
@@ -87,7 +87,7 @@ export default function DestekYazisma() {
             style={{
               width: 44,
               height: 44,
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -127,7 +127,7 @@ export default function DestekYazisma() {
                   backgroundColor: ben ? colors.blue : colors.surface,
                   borderWidth: ben ? 0 : 1,
                   borderColor: colors.line,
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   paddingVertical: 9,
                   paddingHorizontal: 12,
                 }}
@@ -140,7 +140,14 @@ export default function DestekYazisma() {
             );
           })}
           {y?.puanVerebilir ? (
-            <View style={{ backgroundColor: colors.surface, borderRadius: 14, padding: 12, marginTop: 6 }}>
+            <View
+              style={{
+                backgroundColor: colors.surface,
+                borderRadius: radii.buton,
+                padding: 12,
+                marginTop: 6,
+              }}
+            >
               <T style={{ fontSize: 14, fontWeight: '800' }}>Sorunun nasıl çözüldü?</T>
               <View
                 accessibilityLabel="Puan, 5 üzerinden"
@@ -157,7 +164,7 @@ export default function DestekYazisma() {
                       height: 44,
                       borderWidth: 1,
                       borderColor: '#D5DAE5',
-                      borderRadius: 12,
+                      borderRadius: radii.buton - 2,
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
@@ -194,7 +201,7 @@ export default function DestekYazisma() {
               flex: 1,
               borderWidth: 1,
               borderColor: '#D5DAE5',
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               paddingVertical: 10,
               paddingHorizontal: 12,
               fontSize: 14.5,
@@ -206,7 +213,7 @@ export default function DestekYazisma() {
             onPress={gonder}
             style={{
               backgroundColor: colors.blue,
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               paddingVertical: 12,
               paddingHorizontal: 16,
             }}

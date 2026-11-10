@@ -1,20 +1,20 @@
 :root {
-  --blue: #5b8cff;
-  --pink: #ff6fb5;
-  --yellow: #ffc84a;
-  --green: #3dd68c;
-  --ink: #1e2333;
+  --blue: var(--rr-mavi, #5b8cff);
+  --pink: var(--rr-pembe, #ff6fb5);
+  --yellow: var(--rr-sari, #ffc84a);
+  --green: var(--rr-yesil, #3dd68c);
+  --ink: var(--rr-murekkep, #1e2333);
   --muted: #5a6073;
-  --line: #e3e6ef;
-  --bg: #f6f8fd;
-  --link: #2450c8;
+  --line: var(--rr-cizgi, #e3e6ef);
+  --bg: var(--rr-zemin, #f6f8fd);
+  --link: var(--rr-baglanti, #2450c8);
 }
 * {
   box-sizing: border-box;
 }
 body {
   margin: 0;
-  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-family: var(--rr-font, "Plus Jakarta Sans", system-ui, sans-serif);
   color: var(--ink);
   background: var(--bg);
 }
@@ -109,7 +109,7 @@ textarea {
 }
 /* Onay kutusu: gizli gerçek checkbox klavyeyle seçilince tasarımın kutusu odak çerçevesi alır */
 .sr-only:focus-visible + .onay-kutu {
-  outline: 2px solid #2450c8;
+  outline: 2px solid var(--rr-baglanti, #2450c8);
   outline-offset: 2px;
 }
 
@@ -128,7 +128,7 @@ textarea {
   cursor: pointer;
 }
 .rr-isaret:checked {
-  border-color: #5b8cff;
+  border-color: var(--rr-mavi, #5b8cff);
   background: #5b8cff;
 }
 .rr-isaret:checked::after {
@@ -139,7 +139,7 @@ textarea {
   line-height: 1;
 }
 .rr-isaret:focus-visible {
-  outline: 2px solid #2450c8;
+  outline: 2px solid var(--rr-baglanti, #2450c8);
   outline-offset: 2px;
 }
 

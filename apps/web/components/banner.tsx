@@ -85,7 +85,7 @@ export function Banner({ yer, style }: { yer: BannerPlace; style?: CSSProperties
               padding: '9px 16px',
               textAlign: 'center',
               fontSize: 14,
-              color: '#1E2333',
+              color: 'var(--rr-murekkep, #1E2333)',
             }}
           >
             <strong>{b.baslik}</strong>
@@ -96,7 +96,7 @@ export function Banner({ yer, style }: { yer: BannerPlace; style?: CSSProperties
                 <Link
                   href={b.url}
                   onClick={() => olay(b.id, 'tiklama', b.kol)}
-                  style={{ fontWeight: 800, color: '#2450C8' }}
+                  style={{ fontWeight: 800, color: 'var(--rr-baglanti, #2450C8)' }}
                 >
                   {b.dugme}
                 </Link>
@@ -120,7 +120,7 @@ export function Banner({ yer, style }: { yer: BannerPlace; style?: CSSProperties
             justifyContent: 'space-between',
             gap: '10px 16px',
             background: b.zemin,
-            border: '1px solid #E3E6EF',
+            border: '1px solid var(--rr-cizgi, #E3E6EF)',
             borderLeft: `6px solid ${b.renk}`,
             borderRadius: 16,
             padding: '14px 18px',
@@ -140,9 +140,9 @@ export function Banner({ yer, style }: { yer: BannerPlace; style?: CSSProperties
               onClick={() => olay(b.id, 'tiklama', b.kol)}
               style={{
                 flex: 'none',
-                background: '#1E2333',
+                background: 'var(--rr-murekkep, #1E2333)',
                 color: '#FFFFFF',
-                borderRadius: 12,
+                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                 padding: '10px 16px',
                 fontSize: 14,
                 fontWeight: 800,

@@ -84,7 +84,12 @@ export default function Itiraz() {
       {k ? (
         <>
           <section
-            style={{ background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18, padding: 20 }}
+            style={{
+              background: '#FFFFFF',
+              border: '1px solid var(--rr-cizgi, #E3E6EF)',
+              borderRadius: 'var(--rr-kart-kose)',
+              padding: 20,
+            }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
               <h2 style={{ margin: 0, fontSize: 19, fontWeight: 800 }}>{k.kararAd}</h2>
@@ -94,7 +99,7 @@ export default function Itiraz() {
                     fontSize: 12,
                     fontWeight: 800,
                     padding: '4px 10px',
-                    borderRadius: 999,
+                    borderRadius: 'var(--rr-etiket-kose)',
                     background: '#E7FAF0',
                     color: '#11683F',
                   }}
@@ -133,8 +138,8 @@ export default function Itiraz() {
             style={{
               marginTop: 16,
               background: '#FFFFFF',
-              border: '1px solid #E3E6EF',
-              borderRadius: 18,
+              border: '1px solid var(--rr-cizgi, #E3E6EF)',
+              borderRadius: 'var(--rr-kart-kose)',
               padding: 20,
             }}
           >
@@ -186,7 +191,7 @@ export default function Itiraz() {
                     boxSizing: 'border-box',
                     marginTop: 6,
                     border: '1px solid #D5DAE5',
-                    borderRadius: 12,
+                    borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
                     padding: '10px 12px',
                     fontSize: 14.5,
                     fontFamily: 'inherit',
@@ -208,12 +213,12 @@ export default function Itiraz() {
                   style={{
                     marginTop: 12,
                     border: 0,
-                    background: '#5B8CFF',
-                    borderRadius: 14,
+                    background: 'var(--rr-mavi, #5B8CFF)',
+                    borderRadius: 'var(--rr-buton-kose)',
                     padding: '12px 20px',
                     fontSize: 15,
                     fontWeight: 800,
-                    color: '#1E2333',
+                    color: 'var(--rr-murekkep, #1E2333)',
                     cursor: 'pointer',
                     fontFamily: 'inherit',
                   }}

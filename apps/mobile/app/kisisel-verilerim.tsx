@@ -6,6 +6,7 @@ import {
   KVKK_KIND_KEYS,
   KVKK_KINDS,
   type KvkkKind,
+  radii,
   tlYaz,
 } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
@@ -39,7 +40,7 @@ const kart = {
   backgroundColor: colors.surface,
   borderWidth: 1,
   borderColor: colors.line,
-  borderRadius: 18,
+  borderRadius: radii.kart,
   padding: 16,
 } as const;
 const tarih = (iso: string) =>
@@ -188,7 +189,13 @@ export default function KisiselVerilerim() {
           accessibilityRole="button"
           accessibilityLabel="Geri"
           onPress={() => router.back()}
-          style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
+          style={{
+            width: 44,
+            height: 44,
+            borderRadius: radii.buton - 2,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
           <Ikon d="geri" />
         </Pressable>
@@ -297,7 +304,7 @@ export default function KisiselVerilerim() {
                     borderWidth: 1.5,
                     borderColor: on ? colors.blue : '#D5DAE5',
                     backgroundColor: on ? '#EEF3FF' : colors.surface,
-                    borderRadius: 999,
+                    borderRadius: radii.etiket,
                     paddingVertical: 8,
                     paddingHorizontal: 12,
                   }}
@@ -413,7 +420,9 @@ export default function KisiselVerilerim() {
                 {kapanis.engel}
               </T>
             ) : (
-              <View style={{ backgroundColor: '#FDECEC', borderRadius: 14, padding: 12, marginTop: 12 }}>
+              <View
+                style={{ backgroundColor: '#FDECEC', borderRadius: radii.buton, padding: 12, marginTop: 12 }}
+              >
                 <T style={{ fontSize: 13, fontWeight: '700' }}>Neden ayrılıyorsun? (isteğe bağlı)</T>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
                   {CLOSE_REASON_KEYS.map((k) => {
@@ -428,7 +437,7 @@ export default function KisiselVerilerim() {
                           borderWidth: 1.5,
                           borderColor: on ? '#A3271F' : '#E5A6A1',
                           backgroundColor: colors.surface,
-                          borderRadius: 999,
+                          borderRadius: radii.etiket,
                           paddingVertical: 7,
                           paddingHorizontal: 11,
                         }}
@@ -453,7 +462,7 @@ export default function KisiselVerilerim() {
                         borderWidth: 1,
                         borderColor: '#E5A6A1',
                         backgroundColor: colors.surface,
-                        borderRadius: 12,
+                        borderRadius: radii.buton - 2,
                         paddingVertical: 12,
                         alignItems: 'center',
                       }}

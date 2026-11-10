@@ -6,6 +6,7 @@ import {
   type GalleryApplicationDraft,
   galleryApplicationSchema,
   maskTrMobile,
+  radii,
 } from '@rengarenk/shared';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
@@ -249,7 +250,7 @@ export default function KurumsalBasvuru() {
             style={{
               width: 44,
               height: 44,
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -299,7 +300,7 @@ export default function KurumsalBasvuru() {
               marginBottom: 12,
               backgroundColor: '#FFF0EE',
               color: '#A3271F',
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               padding: 12,
               fontSize: 13.5,
             }}
@@ -313,7 +314,7 @@ export default function KurumsalBasvuru() {
               marginBottom: 12,
               backgroundColor: '#FFF6DF',
               color: '#7A5300',
-              borderRadius: 12,
+              borderRadius: radii.buton - 2,
               padding: 12,
               fontSize: 13.5,
               fontWeight: '700',
@@ -368,7 +369,7 @@ export default function KurumsalBasvuru() {
                     style={{
                       width: 40,
                       height: 40,
-                      borderRadius: 12,
+                      borderRadius: radii.buton - 2,
                       backgroundColor: t.tint,
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -441,7 +442,7 @@ export default function KurumsalBasvuru() {
                       marginTop: 10,
                       backgroundColor: '#E7FAF0',
                       color: '#11683F',
-                      borderRadius: 12,
+                      borderRadius: radii.buton - 2,
                       padding: 10,
                       fontSize: 13,
                       fontWeight: '700',
@@ -460,7 +461,7 @@ export default function KurumsalBasvuru() {
                         marginTop: 10,
                         borderWidth: 1,
                         borderColor: colors.ink,
-                        borderRadius: 12,
+                        borderRadius: radii.buton - 2,
                         padding: 12,
                         alignItems: 'center',
                       }}
@@ -573,7 +574,7 @@ export default function KurumsalBasvuru() {
                     borderWidth: 1,
                     borderColor: colors.line,
                     backgroundColor: '#F6F8FD',
-                    borderRadius: 12,
+                    borderRadius: radii.buton - 2,
                     padding: 12,
                   }}
                 >
@@ -676,7 +677,9 @@ export default function KurumsalBasvuru() {
               ))}
             </View>
             {eksikBelgeler.length ? (
-              <View style={{ marginTop: 12, backgroundColor: '#FFF6DF', borderRadius: 14, padding: 12 }}>
+              <View
+                style={{ marginTop: 12, backgroundColor: '#FFF6DF', borderRadius: radii.buton, padding: 12 }}
+              >
                 <T style={{ fontSize: 13, color: '#5A3D00', lineHeight: 19 }}>
                   <T style={{ fontSize: 13, fontWeight: '800', color: '#5A3D00' }}>
                     Eksik: {eksikBelgeler.map((d) => d.ad).join(', ')}.
@@ -696,7 +699,9 @@ export default function KurumsalBasvuru() {
                 </T>
               </View>
             ) : null}
-            <View style={{ marginTop: 12, backgroundColor: '#EEF3FF', borderRadius: 14, padding: 12 }}>
+            <View
+              style={{ marginTop: 12, backgroundColor: '#EEF3FF', borderRadius: radii.buton, padding: 12 }}
+            >
               <T style={{ fontSize: 13, color: '#1E3A8A', lineHeight: 19 }}>
                 Onaylanınca{' '}
                 <T style={{ fontSize: 13, fontWeight: '800', color: '#1E3A8A' }}>
@@ -730,7 +735,7 @@ export default function KurumsalBasvuru() {
               style={{
                 flex: 1,
                 backgroundColor: colors.blue,
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 paddingVertical: 14,
                 alignItems: 'center',
               }}
@@ -756,7 +761,7 @@ export default function KurumsalBasvuru() {
               style={{
                 flex: 1,
                 backgroundColor: colors.blue,
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 paddingVertical: 14,
                 alignItems: 'center',
               }}
@@ -771,7 +776,7 @@ export default function KurumsalBasvuru() {
                 flex: 1,
                 borderWidth: 1,
                 borderColor: '#D5DAE5',
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 paddingVertical: 14,
                 alignItems: 'center',
               }}
@@ -788,7 +793,7 @@ export default function KurumsalBasvuru() {
                 style={{
                   borderWidth: 1,
                   borderColor: '#D5DAE5',
-                  borderRadius: 14,
+                  borderRadius: radii.buton,
                   paddingVertical: 14,
                   paddingHorizontal: 20,
                 }}
@@ -803,7 +808,7 @@ export default function KurumsalBasvuru() {
               style={{
                 flex: 1,
                 backgroundColor: colors.blue,
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 paddingVertical: 14,
                 alignItems: 'center',
               }}
@@ -873,7 +878,7 @@ function MobilDurum({ b }: { b: Basvuru }) {
               style={{
                 width: 28,
                 height: 28,
-                borderRadius: 14,
+                borderRadius: radii.buton,
                 borderWidth: 2,
                 borderColor: kirmizi ? '#E5484D' : a.bitti ? colors.blue : colors.line,
                 backgroundColor: kirmizi ? '#E5484D' : a.bitti ? colors.blue : colors.surface,
