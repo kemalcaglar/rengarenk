@@ -136,6 +136,7 @@ export const APPROVAL_KINDS = [
   'ACCOUNT_DELETE',
   'CATEGORY_SCHEMA',
   'LEGAL_TEXT',
+  'DESIGN_TOKENS',
 ] as const;
 export type ApprovalKindKey = (typeof APPROVAL_KINDS)[number];
 
@@ -197,6 +198,12 @@ export const APPROVAL_POLICIES: Record<ApprovalKindKey, ApprovalPolicy> = {
     approvers: ['OWNER'],
     kural:
       'Yasal metnin yayını sahip onayı ister; esaslı değişiklikte kullanıcılar yeniden onaylar (Karar 46).',
+  },
+  DESIGN_TOKENS: {
+    ad: 'Tasarım değerleri',
+    permission: 'tasarim_yasal.duzenle',
+    approvers: ['OWNER', 'ADMIN'],
+    kural: 'Renk, yazı tipi, köşe ve tema değişikliği sahip veya yönetici onayı ister (Karar 46).',
   },
 };
 

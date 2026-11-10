@@ -1,8 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { colors, type NotifyTemplate, templateOf } from '@rengarenk/shared';
+import { Inject, Injectable, Optional } from '@nestjs/common';
+import { colors, DEFAULT_DESIGN, type NotifyTemplate, templateOf } from '@rengarenk/shared';
 import Handlebars from 'handlebars';
 import mjml2html from 'mjml';
 import { ENV, type Env } from '../config/env.js';
+import { DesignService } from '../content/design.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 
 export interface Rendered {
@@ -40,6 +41,7 @@ export class TemplatesService {
   constructor(
     @Inject(PRISMA) private readonly db: Db,
     @Inject(ENV) private readonly env: Env,
+    @Optional() private readonly design?: DesignService,
   ) {}
 
   /** En yeni sürüm (konsoldaki değişiklik bir dakika içinde geçerli olur) */
@@ -96,17 +98,25 @@ export class TemplatesService {
           `<span style="display:inline-block;width:10px;height:22px;border-radius:5px;background:${c};margin-right:3px"></span>`,
       )
       .join('');
+    // Tasarım değerleri (Karar 46): yazı tipi, köşeler ve geçerli mevsimsel temanın başlığı; renkler `colors`'ta
+    const tasarim = this.design ? await this.design.publicDesign() : null;
+    const t = tasarim?.degerler ?? DEFAULT_DESIGN;
+    const tema = tasarim?.tema ?? null;
     const mjml = `<mjml>
   <mj-head>
     <mj-title>${konu.replace(/</g, '&lt;')}</mj-title>
-    <mj-attributes><mj-all font-family="'Plus Jakarta Sans', Arial, sans-serif" /><mj-text color="${colors.ink}" font-size="15px" line-height="1.6" /></mj-attributes>
+    <mj-attributes><mj-all font-family="'${t.yaziTipi}', Arial, sans-serif" /><mj-text color="${colors.ink}" font-size="15px" line-height="1.6" /></mj-attributes>
   </mj-head>
   <mj-body background-color="${colors.background}">
-    <mj-section padding="24px 0 8px"><mj-column><mj-text font-size="22px" font-weight="800">${serit} rengarenk</mj-text></mj-column></mj-section>
-    <mj-section background-color="#FFFFFF" border-radius="18px" padding="20px 8px">
+    ${
+      tema
+        ? `<mj-section background-color="${tema.ustBant}" padding="14px 0"><mj-column><mj-text font-size="22px" font-weight="800" color="${tema.ustYazi}">${serit} rengarenk <span style="font-size:13px;font-weight:700">${tema.rozet.replace(/</g, '&lt;')}</span></mj-text></mj-column></mj-section>`
+        : `<mj-section padding="24px 0 8px"><mj-column><mj-text font-size="22px" font-weight="800">${serit} rengarenk</mj-text></mj-column></mj-section>`
+    }
+    <mj-section background-color="#FFFFFF" border-radius="${t.kartKose}px" padding="20px 8px">
       <mj-column>
         ${paragraflar.map((p) => `<mj-text>${p}</mj-text>`).join('\n        ')}
-        ${dugme ? `<mj-button href="${dugme.url}" background-color="${colors.blue}" color="${colors.ink}" font-weight="800" border-radius="12px" align="left">${dugme.yazi}</mj-button>` : ''}
+        ${dugme ? `<mj-button href="${dugme.url}" background-color="${colors.blue}" color="${colors.ink}" font-weight="800" border-radius="${t.butonKose}px" align="left">${dugme.yazi}</mj-button>` : ''}
       </mj-column>
     </mj-section>
     <mj-section padding="12px 0"><mj-column><mj-text font-size="12px" color="${colors.muted}">Bu e-posta Rengarenk hesabınla ilgili olduğu için gönderildi. Bildirim tercihlerini Ayarlar › Bildirimler'den değiştirebilirsin.${ayrilma ? ` Kampanya e-postalarından <a href="${ayrilma}">tek tıkla ayrıl</a>.` : ''}</mj-text></mj-column></mj-section>

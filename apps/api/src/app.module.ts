@@ -10,6 +10,7 @@ import { CategoriesModule } from './categories/categories.module.js';
 import { ConsentModule } from './consents/consent.module.js';
 import { LegalModule } from './consents/legal.module.js';
 import { ContentModule } from './content/content.module.js';
+import { DesignModule } from './content/design.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { DemandsModule } from './demands/demands.module.js';
@@ -77,6 +78,7 @@ import { TrustModule } from './trust/trust.module.js';
     ConsentModule,
     LegalModule,
     SystemHealthModule,
+    DesignModule,
     CatalogModule,
     CategoriesModule,
     DemandsModule,

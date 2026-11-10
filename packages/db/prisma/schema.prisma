@@ -474,6 +474,7 @@ enum ApprovalKind {
   ACCOUNT_DELETE
   CATEGORY_SCHEMA
   LEGAL_TEXT
+  DESIGN_TOKENS
 }
 
 enum ApprovalStatus {
@@ -3159,4 +3160,26 @@ model BackupRun {
 
   @@index([kind, createdAt])
   @@map("backup_runs")
+}
+
+/// Tasarım değerleri sürümü (Karar 46; YonetimIcerik.dc.html › Tasarım değerleri): renkler, yazı tipi, köşeler ve
+/// mevsimsel temalar. Taslak düzenlenir, sahip ya da yönetici onaylar (DESIGN_TOKENS), işçi yayına alır; önceki "eski"
+/// olur. Web, mobil ve e-posta yayındaki sürümü okur. Yayınlanmış sürüm değişmez.
+model DesignVersion {
+  id          String    @id @db.Uuid
+  version     Int       @unique
+  /// designTokensSchema
+  tokens      Json
+  /// taslak | yayinda | eski
+  status      String    @default("taslak")
+  changeNote  String?   @map("change_note")
+  approvalId  String?   @map("approval_id") @db.Uuid
+  /// Mobil için yazı tipi dosyaları (kalınlık → TTF adresi); yayında çözülür
+  fontFiles   Json?     @map("font_files")
+  createdBy   String?   @map("created_by") @db.Uuid
+  publishedBy String?   @map("published_by") @db.Uuid
+  publishedAt DateTime? @map("published_at") @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("design_versions")
 }

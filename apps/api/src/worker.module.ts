@@ -8,6 +8,7 @@ import { CatalogPipelineModule } from './catalog/catalog.module.js';
 import { CategoriesWorkerModule } from './categories/categories.module.js';
 import { ConsentModule } from './consents/consent.module.js';
 import { LegalWorkerModule } from './consents/legal.module.js';
+import { DesignCoreModule } from './content/design.module.js';
 import { ScheduledReportsWorkerModule } from './dashboard/dashboard.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { DemandsWorkerModule } from './demands/demands.module.js';
@@ -58,6 +59,7 @@ import { TrustWorkerModule } from './trust/trust.module.js';
     CategoriesWorkerModule,
     LegalWorkerModule,
     SystemHealthCoreModule,
+    DesignCoreModule,
     DemandsWorkerModule,
     GalleriesWorkerModule,
     PortfolioWorkerModule,
