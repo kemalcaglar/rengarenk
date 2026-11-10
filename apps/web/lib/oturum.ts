@@ -15,7 +15,8 @@ export async function api(req: NextRequest, path: string, body: unknown, token?:
   return fetch(`${API}${path}`, {
     method: 'POST',
     headers: {
-      'content-type': 'application/json',
+      // Gövdesiz istekte (çıkış) JSON türü bildirilmez; API boş JSON gövdesini 400 ile reddeder
+      ...(body === undefined ? {} : { 'content-type': 'application/json' }),
       ...(fwd ? { 'x-forwarded-for': fwd } : {}),
       ...(token ? { authorization: `Bearer ${token}` } : {}),
     },

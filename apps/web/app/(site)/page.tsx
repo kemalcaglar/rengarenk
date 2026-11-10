@@ -112,7 +112,7 @@ export default async function Home() {
         {kategoriler.map((c) => (
           <li key={c.slug}>
             <Link
-              href={`/kategori/${c.slug}`}
+              href={`/talepler?kategori=${c.slug}`}
               className="kategori"
               style={{
                 display: 'flex',

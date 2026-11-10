@@ -16,7 +16,9 @@ let pending: Promise<string | null> | null = null;
 export function yenile(): Promise<string | null> {
   if (pending) return pending;
   const run = async () => {
-    const r = await fetch('/api/oturum/yenile', { method: 'POST' });
+    // keepalive: yenileme sürerken sayfa değişse de istek tamamlanır ve tarayıcı yeni çerezi alır (yoksa sunucu
+    // jetonu döndürmüş ama tarayıcı eskisinde kalmış olur)
+    const r = await fetch('/api/oturum/yenile', { method: 'POST', keepalive: true });
     access = r.ok ? ((await r.json()) as { accessToken: string }).accessToken : null;
     return access;
   };
@@ -96,6 +98,17 @@ export async function dosyaYukle<T>(path: string, file: File): Promise<T> {
     );
   }
   return data as T;
+}
+
+/** Çıkış: oturum API'de kapanır, yenileme çerezi silinir, ana sayfa açılır */
+export async function cikisYap() {
+  const token = access;
+  await fetch('/api/oturum/cikis', {
+    method: 'POST',
+    headers: token ? { authorization: `Bearer ${token}` } : {},
+  }).catch(() => undefined);
+  access = null;
+  window.location.href = '/';
 }
 
 /** Sayfa açılınca oturum var mı? `null`: bakılıyor, `false`: misafir. */

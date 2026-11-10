@@ -2,9 +2,10 @@
 
 import { colors } from '@rengarenk/shared';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCanli } from '../lib/canli';
-import { istek, useGiris } from '../lib/istemci';
+import { cikisYap, istek, useGiris } from '../lib/istemci';
+import { OGELER } from './hesabim-menu';
 
 interface Ben {
   firstName: string | null;
@@ -12,7 +13,10 @@ interface Ben {
   displayName: string | null;
 }
 
-/** Üst çubuğun hesap bölümü: girişliyse avatar ve ad (Taleplerim'e gider), değilse "Giriş yap"; ve "Talep oluştur". */
+/**
+ * Üst çubuğun hesap bölümü: girişliyse zil, avatar ve ad (üzerine gelince ya da tıklayınca Hesabım menüsü ve "Çıkış
+ * yap"), değilse "Giriş yap"; ve "Talep oluştur". Oturuma bakılırken yer tutucu gösterilir ("Giriş yap" yanıp sönmez).
+ */
 export function HesapMenusu() {
   const giris = useGiris();
   const [ben, setBen] = useState<Ben | null>(null);
@@ -20,7 +24,8 @@ export function HesapMenusu() {
     if (giris)
       istek<Ben>('/me')
         .then(setBen)
-        .catch(() => undefined);
+        // Profil okunamazsa da girişli görünür
+        .catch(() => setBen({ firstName: null, lastName: null, displayName: null }));
   }, [giris]);
   const ad = ben
     ? [ben.firstName, ben.lastName].filter(Boolean).join(' ') || ben.displayName || 'Hesabım'
@@ -103,43 +108,17 @@ export function HesapMenusu() {
           ) : null}
         </Link>
       ) : null}
-      {ad ? (
-        <Link
-          href="/taleplerim"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            color: colors.ink,
-            fontWeight: 600,
-            fontSize: 14.5,
-            padding: '8px 6px',
-            textDecoration: 'none',
-          }}
-        >
-          <span
-            aria-hidden="true"
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: '50%',
-              background: '#FFEEF6',
-              color: '#A3236A',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: 800,
-              fontSize: 13,
-            }}
-          >
-            {bas}
-          </span>
-          {ad}
-        </Link>
-      ) : (
+      {giris && ad ? (
+        <HesapAcilir ad={ad} bas={bas} />
+      ) : giris === false ? (
         <Link href="/giris" style={{ color: colors.ink, fontWeight: 600, fontSize: 15, padding: '10px 6px' }}>
           Giriş yap
         </Link>
+      ) : (
+        <span
+          aria-hidden="true"
+          style={{ width: 34, height: 34, borderRadius: '50%', background: '#EEF1F7', margin: '0 6px' }}
+        />
       )}
       <Link
         href="/talep-olustur"
@@ -171,5 +150,167 @@ export function HesapMenusu() {
         Talep oluştur
       </Link>
     </nav>
+  );
+}
+
+/** Hesabım açılır menüsü: üzerine gelince (ya da tıklayınca, dokunmatikte) açılır; Esc ve dışarı tıklama kapatır. */
+function HesapAcilir({ ad, bas }: { ad: string; bas: string }) {
+  const [acik, setAcik] = useState(false);
+  const [cikiyor, setCikiyor] = useState(false);
+  const kutu = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!acik) return;
+    const disari = (e: PointerEvent) => {
+      if (!kutu.current?.contains(e.target as Node)) setAcik(false);
+    };
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setAcik(false);
+    };
+    document.addEventListener('pointerdown', disari);
+    document.addEventListener('keydown', esc);
+    return () => {
+      document.removeEventListener('pointerdown', disari);
+      document.removeEventListener('keydown', esc);
+    };
+  }, [acik]);
+  return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: üzerine gelme yalnızca kolaylık; düğme klavyeyle de açar
+    <div
+      ref={kutu}
+      style={{ position: 'relative' }}
+      onMouseEnter={() => setAcik(true)}
+      onMouseLeave={() => setAcik(false)}
+    >
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={acik}
+        onClick={() => setAcik((x) => !x)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          color: colors.ink,
+          fontWeight: 600,
+          fontSize: 14.5,
+          padding: '8px 6px',
+          background: 'transparent',
+          border: 0,
+          cursor: 'pointer',
+          fontFamily: 'inherit',
+        }}
+      >
+        <span
+          aria-hidden="true"
+          style={{
+            width: 34,
+            height: 34,
+            borderRadius: '50%',
+            background: '#FFEEF6',
+            color: '#A3236A',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 800,
+            fontSize: 13,
+          }}
+        >
+          {bas}
+        </span>
+        {ad}
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          style={{ transform: acik ? 'rotate(180deg)' : undefined, transition: 'transform .15s' }}
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      {acik ? (
+        // Üst boşluk düğmeyle menü arasında fareyi kaybetmemek için (paddingTop)
+        <div style={{ position: 'absolute', right: 0, top: '100%', paddingTop: 6, zIndex: 50 }}>
+          <div
+            role="menu"
+            aria-label="Hesabım"
+            style={{
+              minWidth: 230,
+              background: colors.surface,
+              border: `1px solid ${colors.line}`,
+              borderRadius: 14,
+              boxShadow: '0 12px 32px rgba(30,35,51,0.14)',
+              padding: 8,
+            }}
+          >
+            <span
+              style={{
+                display: 'block',
+                padding: '8px 10px 8px',
+                fontSize: 12,
+                fontWeight: 800,
+                letterSpacing: 0.6,
+                textTransform: 'uppercase',
+                color: colors.muted,
+              }}
+            >
+              Hesabım
+            </span>
+            {OGELER.filter((o) => o.href).map((o) => (
+              <Link
+                key={o.ad}
+                href={o.href as string}
+                role="menuitem"
+                className="hesap-oge"
+                onClick={() => setAcik(false)}
+                style={{
+                  display: 'block',
+                  borderRadius: 10,
+                  padding: '9px 10px',
+                  fontSize: 14.5,
+                  fontWeight: 600,
+                  color: colors.inkSoft,
+                  textDecoration: 'none',
+                }}
+              >
+                {o.ad}
+              </Link>
+            ))}
+            <div style={{ borderTop: `1px solid ${colors.line}`, margin: '6px 4px' }} />
+            <button
+              type="button"
+              role="menuitem"
+              className="hesap-oge"
+              disabled={cikiyor}
+              onClick={() => {
+                setCikiyor(true);
+                void cikisYap();
+              }}
+              style={{
+                display: 'block',
+                width: '100%',
+                textAlign: 'left',
+                borderRadius: 10,
+                padding: '9px 10px',
+                fontSize: 14.5,
+                fontWeight: 700,
+                color: '#A3271F',
+                background: 'transparent',
+                border: 0,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
+            >
+              {cikiyor ? 'Çıkılıyor…' : 'Çıkış yap'}
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </div>
   );
 }

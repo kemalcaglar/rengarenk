@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 /** Hesabım menüsü (Taleplerim.dc.html, Favoriler.dc.html). Henüz yapılmamış ekranlar soluk ve tıklanmaz. */
-const OGELER: { ad: string; href?: string }[] = [
+export const OGELER: { ad: string; href?: string }[] = [
   { ad: 'Taleplerim', href: '/taleplerim' },
   { ad: 'Mesajlarım', href: '/mesajlarim' },
   { ad: 'Favoriler ve aramalar', href: '/favoriler' },

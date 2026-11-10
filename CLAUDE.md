@@ -299,6 +299,10 @@ pnpm format        # Biome ile biçimlendir
   `galeriFotoGeriCek` (yeni bir izin kaldırma yolu eklersen bunu çağır). `catalog_images` yalnızca ekleme kabul eder
   (silme yok, durum değişir). Nesilde fotoğraf yoksa talep sayfasında "önceki nesil" (`nesilFoto`). API'de 203,
   ortak pakette 120 test.
+- **Sprint 29 (10 Kasım 2026) web düzeltmeleri:** kaybolan yenileme yanıtı için 2 dk hoşgörü (`REUSE_GRACE_MS`,
+  `sessions.replaced_by`; yerine açılan oturum kullanıldıysa yine çalınma sayılır), yenileme `keepalive`, Hesabım açılır
+  menüsü ve "Çıkış yap" (`cikisYap`), çıkış ucu gövdesiz istekte JSON türü göndermez. Konsolun "sonra" duran dört ekranı
+  (yasal metinler ve yardım, talepler ve portföy, sistem sağlığı, tasarım değerleri) planda Sprint 29'da. API'de 204 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.

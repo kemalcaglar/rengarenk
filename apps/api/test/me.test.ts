@@ -73,11 +73,13 @@ describe('profil ve oturumlar', () => {
     // Elle kapatılan oturumun jetonu yalnızca reddedilir
     const yeni = await call(app, 'POST', '/auth/refresh', { refreshToken: a.refreshToken });
     expect(yeni.status).toBe(200);
-    // Yenilenmiş (kullanılmış) jeton tekrar gelirse bütün oturumlar kapanır
+    // Yeni jeton kullanıldıktan sonra eski jeton tekrar gelirse çalınma sayılır, bütün oturumlar kapanır
+    const sonraki = await call(app, 'POST', '/auth/refresh', { refreshToken: yeni.body.refreshToken });
+    expect(sonraki.status).toBe(200);
     expect((await call(app, 'POST', '/auth/refresh', { refreshToken: a.refreshToken })).status).toBe(401);
-    expect((await call(app, 'POST', '/auth/refresh', { refreshToken: yeni.body.refreshToken })).status).toBe(
-      401,
-    );
+    expect(
+      (await call(app, 'POST', '/auth/refresh', { refreshToken: sonraki.body.refreshToken })).status,
+    ).toBe(401);
   });
 
   it('başkasının oturumunu kapatamaz', async () => {

@@ -183,6 +183,9 @@ model Session {
   /// Jeton yenilenince (döndürme) true: bu jeton yeniden gelirse çalınmış sayılır ve bütün oturumlar kapanır.
   /// Elle kapatılan oturumun (Ayarlar, numara değişikliği, çalışan) jetonu yalnızca reddedilir.
   rotated          Boolean   @default(false)
+  /// Döndürmede yerine açılan oturum. Yanıt tarayıcıya ulaşmadan sayfa değişirse eski jeton kısa süre içinde yeniden
+  /// gelir; yerine açılan oturum hiç kullanılmadıysa bu çalınma sayılmaz (kaybolan yanıt, `REUSE_GRACE_MS`)
+  replacedBy       String?   @map("replaced_by") @db.Uuid
   createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)

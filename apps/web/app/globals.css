@@ -204,3 +204,10 @@ textarea {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* Hesabım açılır menüsü */
+.hesap-oge:hover,
+.hesap-oge:focus-visible {
+  background: #eef3ff;
+  text-decoration: none;
+}

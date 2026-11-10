@@ -152,6 +152,36 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   "Temsili görsel · önceki nesil" etiketiyle (önceki yoksa sonraki nesil; `nesilFoto`). Liste ve vitrin kartları
   yalnızca neslin kendi fotoğrafını gösterir (kartta atıf satırı yok)
 
+## Sprint 29 · konsolun kalan dört ekranı ve web düzeltmeleri (10 Kasım 2026)
+
+Konsolda "sonra" diye duran dört ekranın tasarımı hazır (YonetimPazar, YonetimIcerik, YonetimSistem); ekranlar ve
+arkalarındaki işler yapılmadı. Sıra: önce yasal metinler (avukat metni gelince yayın buradan), sonra talepler ve portföy,
+sistem sağlığı, tasarım değerleri.
+
+- [x] Web düzeltmeleri (10 Kasım 2026): ana sayfa sol menüsündeki kategori bağlantısı olmayan `/kategori/…` adresine
+  gidiyordu, talep listesine (`/talepler?kategori=…`) bağlandı. Yenileme sürerken sayfa değişince yeni jeton tarayıcıya
+  ulaşmıyor, eski jeton çalınma sayılıp bütün oturumlar kapanıyordu: yenileme isteği `keepalive`, API'de kaybolan yanıt
+  için 2 dakikalık hoşgörü (`REUSE_GRACE_MS`, `sessions.replaced_by`; yerine açılan oturum hiç kullanılmadıysa o kapanır
+  ve yeni oturum verilir, kullanıldıysa yine çalınma). Oturuma bakılırken üst çubukta "Giriş yap" yanıp sönmez.
+  Hesabım açılır menüsü (üzerine gelince ya da tıklayınca; tasarıma ek) ve "Çıkış yap"; çıkış ucu gövdesiz isteği JSON
+  diye bildirdiği için API'de oturumu kapatmıyordu (400), düzeldi
+- [ ] Yardım ve yasal metinler (YonetimIcerik.dc.html, Karar 46, 59): yasal metinler `consent_texts`'te sürümlü
+  (taslak, yayında, eski) ve şimdilik `yasal-yukle` komutuyla yükleniyor. Yapılacak: konsolda metin listesi, taslak
+  düzenleme, önceki sürümle madde madde karşılaştırma, "esaslı değişiklik" işareti, yayın Sahip onayıyla (dört göz),
+  esaslı değişiklikte kullanıcıya bildirim ve sonraki girişte yeni sürümü onaylatma (web ve mobil). Yardım makaleleri
+  şimdi kodda (`HELP_TOPICS`): veritabanına taşınır, konsolda ekle ve düzenle, okunma ve "faydalı oldu" sayıları, ajanın
+  destek taleplerinden eksik makale önerisi ve taslağı (yayın onayla)
+- [ ] Talepler ve portföy (YonetimPazar.dc.html, Karar 53): Talepler ve Portföy sekmeleri, arama ve filtre, satır seçimi
+  ve toplu işlem. Talepte "Düzeltme iste", "Gizle", "Kategori değiştir"; araçta "Gizle", "Belge iste", "Galeriye bildir".
+  Gizleme moderasyon kaydıyla (itiraz yolu açık), sahibine gerekçe şablonla bildirilir; her işlem işlem kaydına
+- [ ] Sistem sağlığı ve yedek (YonetimSistem.dc.html, Karar 56): çalışma süresi, hata oranı, yanıt süresi (p95), kuyruk
+  (pg-boss; tasarımdaki RabbitMQ yerine), servis durumları (web, API, PostgreSQL, OpenSearch, Redis, SeaweedFS, e-posta),
+  yedek bilgileri ve "geri yükleme testini başlat". Ölçüler ve servis yoklaması şimdi yapılabilir; yedek ve geri yükleme
+  testi pgBackRest ile sunucu kurulunca bağlanır (o zamana kadar "sunucu bekleniyor")
+- [ ] Tasarım değerleri (YonetimIcerik.dc.html, Karar 46): renkler (Gökkuşağı), yazı, köşe ve logo, mevsimsel temalar
+  (tarihli), canlı önizleme, değişiklik onayla. Değerler şimdi `packages/shared/src/tokens.ts`'te sabit: sürümlü olarak
+  veritabanına alınır, web (CSS değişkenleri), mobil (açılışta okunur) ve e-posta şablonları API'den aynı değerleri alır
+
 ## Sprint 28 · Aşama 9 · kontrol paneli ve raporlar (9 Kasım 2026)
 
 - [x] Kontrol paneli (YonetimRapor.dc.html › panel; Karar 44): ana ölçü (son 30 gün, 48 saati dolan talepler; önceki 30

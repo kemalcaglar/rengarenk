@@ -32,6 +32,7 @@ import {
   OTP_MAX_PER_HOUR,
   OTP_TTL_SECONDS,
   REFRESH_TTL_DAYS,
+  REUSE_GRACE_MS,
   safeEqualHex,
   sha256,
 } from './tokens.js';
@@ -349,6 +350,12 @@ export class AuthService {
     const s = await this.db.session.findUnique({ where: { refreshTokenHash: hash } });
     if (!s || s.expiresAt < new Date()) throw new UnauthorizedException('Oturum süresi doldu');
     if (s.revokedAt) {
+      // Kaybolan yanıt: yenileme sürerken sayfa değişti, yeni jeton tarayıcıya ulaşmadı ve eski jeton kısa süre içinde
+      // yeniden geldi. Yerine açılan oturum hiç kullanılmadıysa o kapatılır, yeni oturum verilir.
+      if (s.rotated) {
+        const kurtar = await this.lostResponse(s);
+        if (kurtar) return kurtar;
+      }
       // Yenilenmiş (kullanılmış) jeton tekrar geldi: jeton çalınmış olabilir, kullanıcının tüm oturumları kapanır.
       // Elle kapatılan oturumun jetonu yalnızca reddedilir; diğer cihazlar açık kalır.
       if (s.rotated) {
@@ -365,7 +372,35 @@ export class AuthService {
         data: { revokedAt: new Date(), rotated: true },
       });
       if (revoked.count !== 1) throw new UnauthorizedException('Oturum kapatıldı');
-      return this.openSession(tx, s.userId, s.deviceId);
+      const yeni = uuidv7();
+      await tx.session.update({ where: { id: s.id }, data: { replacedBy: yeni } });
+      return this.openSession(tx, s.userId, s.deviceId, yeni);
+    });
+  }
+
+  /**
+   * Kaybolan yenileme yanıtı (`REUSE_GRACE_MS` içinde): yerine açılan oturum hiç yenilenmemiş ve açıksa kapatılır,
+   * aynı cihaza yeni oturum açılır. Süre ilk döndürmeden sayılır (tekrar tekrar uzamaz). Yerine açılan oturum
+   * kullanılmışsa ya da süre geçtiyse `null`: jeton çalınmış sayılır.
+   */
+  private async lostResponse(s: {
+    id: string;
+    userId: string;
+    deviceId: string | null;
+    revokedAt: Date | null;
+    replacedBy: string | null;
+  }): Promise<TokenPair | null> {
+    const halef = s.replacedBy;
+    if (!halef || !s.revokedAt || Date.now() - s.revokedAt.getTime() > REUSE_GRACE_MS) return null;
+    return this.db.$transaction(async (tx) => {
+      const kapandi = await tx.session.updateMany({
+        where: { id: halef, revokedAt: null, rotated: false },
+        data: { revokedAt: new Date() },
+      });
+      if (kapandi.count !== 1) return null;
+      const yeni = uuidv7();
+      await tx.session.update({ where: { id: s.id }, data: { replacedBy: yeni } });
+      return this.openSession(tx, s.userId, s.deviceId, yeni);
     });
   }
 
@@ -384,11 +419,16 @@ export class AuthService {
     }
   }
 
-  private async openSession(tx: Tx, userId: string, deviceId: string | null): Promise<TokenPair> {
+  private async openSession(
+    tx: Tx,
+    userId: string,
+    deviceId: string | null,
+    id: string = uuidv7(),
+  ): Promise<TokenPair> {
     const refreshToken = newRefreshToken();
     const session = await tx.session.create({
       data: {
-        id: uuidv7(),
+        id,
         userId,
         deviceId,
         refreshTokenHash: sha256(refreshToken),

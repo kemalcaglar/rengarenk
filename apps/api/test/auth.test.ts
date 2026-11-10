@@ -83,11 +83,44 @@ describe('telefon ve SMS koduyla giriş', () => {
     const r1 = await call(app, 'POST', '/auth/refresh', { refreshToken: first });
     expect(r1.status).toBe(200);
     expect(r1.body.refreshToken).not.toBe(first);
+    // Yeni jeton kullanıldı; eski jeton artık yalnızca çalınmış olabilir
+    const r2 = await call(app, 'POST', '/auth/refresh', { refreshToken: r1.body.refreshToken });
+    expect(r2.status).toBe(200);
 
     const reuse = await call(app, 'POST', '/auth/refresh', { refreshToken: first });
     expect(reuse.status).toBe(401);
-    const afterTheft = await call(app, 'POST', '/auth/refresh', { refreshToken: r1.body.refreshToken });
+    const afterTheft = await call(app, 'POST', '/auth/refresh', { refreshToken: r2.body.refreshToken });
     expect(afterTheft.status).toBe(401);
+  });
+
+  it('kaybolan yanıt: yeni jeton hiç kullanılmadan eski jeton kısa sürede tekrar gelirse oturum sürer; süre geçince çalınma sayılır', async () => {
+    const phone = '+905324445567';
+    const req = await call(app, 'POST', '/auth/otp/request', { phone });
+    const login = await call(app, 'POST', '/auth/otp/verify', {
+      challengeId: req.body.challengeId,
+      code: sms.lastCode(phone),
+      consents: SIGNUP_CONSENTS,
+    });
+    const first = login.body.refreshToken as string;
+    // Yenileme yapıldı ama yanıt tarayıcıya ulaşmadı (sayfa değişti)
+    const kayip = await call(app, 'POST', '/auth/refresh', { refreshToken: first });
+    expect(kayip.status).toBe(200);
+    // Tarayıcı eski çerezle yeniden dener: yeni oturum verilir, ulaşmayan jeton kapanır
+    const tekrar = await call(app, 'POST', '/auth/refresh', { refreshToken: first });
+    expect(tekrar.status).toBe(200);
+    expect((await call(app, 'POST', '/auth/refresh', { refreshToken: kayip.body.refreshToken })).status).toBe(
+      401,
+    );
+    // Hoşgörü ilk döndürmeden sayılır: süre geçince eski jeton çalınma sayılır, bütün oturumlar kapanır
+    const user = await db.user.findUniqueOrThrow({ where: { phone } });
+    await db.session.updateMany({
+      where: { userId: user.id, rotated: true },
+      data: { revokedAt: new Date(Date.now() - 3 * 60_000) },
+    });
+    expect((await call(app, 'POST', '/auth/refresh', { refreshToken: first })).status).toBe(401);
+    expect(
+      (await call(app, 'POST', '/auth/refresh', { refreshToken: tekrar.body.refreshToken })).status,
+    ).toBe(401);
   });
 
   it('jetonsuz istekleri reddeder', async () => {

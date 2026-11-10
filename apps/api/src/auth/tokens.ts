@@ -20,3 +20,8 @@ export function safeEqualHex(a: string, b: string) {
   const bb = Buffer.from(b, 'hex');
   return ba.length === bb.length && timingSafeEqual(ba, bb);
 }
+/**
+ * Kaybolan yenileme yanıtı için hoşgörü: döndürülmüş jeton bu süre içinde yeniden gelirse ve yerine açılan oturum hiç
+ * kullanılmadıysa çalınma sayılmaz (yenileme sürerken sayfa değişince tarayıcı yeni çerezi alamaz).
+ */
+export const REUSE_GRACE_MS = 2 * 60_000;
