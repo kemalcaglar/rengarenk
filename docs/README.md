@@ -8,6 +8,8 @@ tarihli kopyasıdır. Amaç, IDE içinde çalışırken her şeyin depoda okunab
 - PDF (v0.59, 71 sayfa, ekran görüntüleriyle): depo kökündeki `Rengarenk_Urun_Kapsam_Dokumani_v0.59.pdf`
   (git'e eklenmez, yalnızca bu bilgisayarda durur)
 
+**Güncel durum, kalan işler, mobil test ve demo giriş bilgileri:** [`DURUM-VE-TEST.md`](DURUM-VE-TEST.md).
+
 ## kapsam/
 
 | Dosya | İçerik |

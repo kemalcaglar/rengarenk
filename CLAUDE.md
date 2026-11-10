@@ -323,6 +323,10 @@ pnpm format        # Biome ile biçimlendir
   getter (`get borderColor() { return colors.line; }`). Yeni tasarım rengi eklerken `DESIGN_COLORS` ve `colors`'a ekle;
   eski sürümler `hex.default` ile tamamlanır. Yerel Docker servisleri `restart: unless-stopped`; ana sayfa API'ye
   ulaşamazsa açık kaldıkça yeniden dener. API'de 212, ortak pakette 128 test.
+- **Durum belgesi ve demo veri (10 Kasım 2026):** `docs/DURUM-VE-TEST.md` (biten/kalan işler, kararlar, mobil test,
+  giriş bilgileri); iş bitince bunu da güncelle. Demo veri `pnpm --filter @rengarenk/api demo` (`src/cli/demo-veri.ts`,
+  uçlardan kurar, yarıda kalırsa devam eder; numaralar 0555 100 00 0x bireysel, 0555 200 00 0x galeri; çalışanlar
+  `*@rengarenk.com.tr`, o anki doğrulama kodu `demo kod <e-posta>`).
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
