@@ -1,4 +1,4 @@
-import { colors, radii } from '@rengarenk/shared';
+import { butonOran, colors, kartOran, radii } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, Linking, Pressable, ScrollView, Share, View } from 'react-native';
@@ -105,7 +105,7 @@ export default function GaleriProfili() {
           style={{
             width: 44,
             height: 44,
-            borderRadius: radii.buton - 2,
+            borderRadius: butonOran(12),
             alignItems: 'center',
             justifyContent: 'center',
           }}
@@ -127,7 +127,7 @@ export default function GaleriProfili() {
             style={{
               width: 44,
               height: 44,
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -232,7 +232,7 @@ export default function GaleriProfili() {
                     style={{
                       flex: 1,
                       backgroundColor: '#F6F8FD',
-                      borderRadius: radii.buton - 2,
+                      borderRadius: butonOran(12),
                       padding: 10,
                       alignItems: 'center',
                     }}
@@ -249,12 +249,12 @@ export default function GaleriProfili() {
                 style={{
                   marginTop: 12,
                   backgroundColor: takip ? '#E7FAF0' : colors.blue,
-                  borderRadius: radii.buton - 2,
+                  borderRadius: butonOran(12),
                   paddingVertical: 11,
                   alignItems: 'center',
                 }}
               >
-                <T style={{ fontSize: 14.5, fontWeight: '800' }}>
+                <T style={{ fontSize: 14.5, fontWeight: '800', color: takip ? colors.ink : colors.onBlue }}>
                   {takip ? '✓ Takip ediliyor' : 'Galeriyi takip et'}
                 </T>
               </Pressable>
@@ -299,7 +299,7 @@ export default function GaleriProfili() {
                       backgroundColor: colors.surface,
                       borderWidth: 1,
                       borderColor: colors.line,
-                      borderRadius: 16,
+                      borderRadius: kartOran(16),
                       overflow: 'hidden',
                     }}
                   >
@@ -333,7 +333,7 @@ export default function GaleriProfili() {
                   borderWidth: 1,
                   borderStyle: 'dashed',
                   borderColor: '#C9CFDB',
-                  borderRadius: 16,
+                  borderRadius: kartOran(16),
                   padding: 20,
                   alignItems: 'center',
                 }}
@@ -349,7 +349,7 @@ export default function GaleriProfili() {
                 backgroundColor: colors.surface,
                 borderWidth: 1,
                 borderColor: colors.line,
-                borderRadius: 16,
+                borderRadius: kartOran(16),
                 padding: 14,
               }}
             >

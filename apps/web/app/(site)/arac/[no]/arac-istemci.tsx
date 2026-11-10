@@ -29,7 +29,7 @@ export function FotoGezgini({ fotolar, ad }: { fotolar: string[]; ad: string }) 
     <section
       aria-label="Fotoğraflar"
       style={{
-        background: '#FFFFFF',
+        background: 'var(--rr-kart, #FFFFFF)',
         border: '1px solid var(--rr-cizgi, #E3E6EF)',
         borderRadius: 'var(--rr-kart-kose)',
         overflow: 'hidden',
@@ -81,7 +81,7 @@ export function FotoGezgini({ fotolar, ad }: { fotolar: string[]; ad: string }) 
             fontSize: 13,
             fontWeight: 700,
             padding: '4px 10px',
-            borderRadius: 8,
+            borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
             background: 'rgba(255,255,255,0.95)',
           }}
         >
@@ -95,9 +95,9 @@ export function FotoGezgini({ fotolar, ad }: { fotolar: string[]; ad: string }) 
             fontSize: 12,
             fontWeight: 600,
             padding: '4px 10px',
-            borderRadius: 8,
+            borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
             background: 'rgba(255,255,255,0.95)',
-            color: '#5A6073',
+            color: 'var(--rr-soluk, #5A6073)',
           }}
         >
           Galerinin yüklediği fotoğraflar
@@ -114,7 +114,7 @@ export function FotoGezgini({ fotolar, ad }: { fotolar: string[]; ad: string }) 
               flex: 'none',
               width: 92,
               height: 62,
-              borderRadius: 10,
+              borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
               border: j === i ? '2px solid var(--rr-mavi, #5B8CFF)' : '1px solid var(--rr-cizgi, #E3E6EF)',
               padding: 0,
               overflow: 'hidden',
@@ -173,7 +173,7 @@ export function Iletisim({ no }: { no: number }) {
   const kutu = {
     display: 'block',
     textAlign: 'center',
-    borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+    borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
     padding: 12,
     fontSize: 15,
     fontWeight: 800,
@@ -199,7 +199,7 @@ export function Iletisim({ no }: { no: number }) {
               width: '100%',
               boxSizing: 'border-box',
               border: '1px solid #D5DAE5',
-              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
               padding: 10,
               fontSize: 14.5,
               lineHeight: 1.5,
@@ -207,7 +207,7 @@ export function Iletisim({ no }: { no: number }) {
               fontFamily: 'inherit',
             }}
           />
-          <span style={{ fontSize: 12, color: '#5A6073' }}>
+          <span style={{ fontSize: 12, color: 'var(--rr-soluk, #5A6073)' }}>
             Sohbet bu aracın kartıyla başlar. {DEPOSIT_NOTE}
           </span>
           {hata ? (
@@ -223,7 +223,7 @@ export function Iletisim({ no }: { no: number }) {
               ...kutu,
               border: 0,
               background: 'var(--rr-mavi, #5B8CFF)',
-              color: 'var(--rr-murekkep, #1E2333)',
+              color: 'var(--rr-maviYazi, #1E2333)',
               opacity: mesgul || !metin.trim() ? 0.6 : 1,
             }}
           >
@@ -241,7 +241,7 @@ export function Iletisim({ no }: { no: number }) {
             ...kutu,
             border: 0,
             background: 'var(--rr-mavi, #5B8CFF)',
-            color: 'var(--rr-murekkep, #1E2333)',
+            color: 'var(--rr-maviYazi, #1E2333)',
           }}
         >
           Bu araç için mesaj gönder
@@ -253,7 +253,7 @@ export function Iletisim({ no }: { no: number }) {
           style={{
             ...kutu,
             border: '1px solid #D5DAE5',
-            background: '#FFFFFF',
+            background: 'var(--rr-kart, #FFFFFF)',
             color: 'var(--rr-murekkep, #1E2333)',
           }}
         >
@@ -267,7 +267,7 @@ export function Iletisim({ no }: { no: number }) {
           style={{
             ...kutu,
             border: '1px solid #D5DAE5',
-            background: '#FFFFFF',
+            background: 'var(--rr-kart, #FFFFFF)',
             color: 'var(--rr-murekkep, #1E2333)',
           }}
         >
@@ -370,7 +370,7 @@ export function TalebineUyuyor({ no }: { no: number }) {
         gap: 10,
         background: '#FFEEF6',
         border: '1px solid #FFC2DF',
-        borderRadius: 16,
+        borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
         padding: '12px 18px',
         marginBottom: 16,
       }}

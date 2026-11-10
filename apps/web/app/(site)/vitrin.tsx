@@ -63,7 +63,7 @@ export function VitrinBolumu({ vitrin }: { vitrin: TalepYaniti }) {
             href={`/talep/${v.no}`}
             style={{
               display: 'block',
-              background: '#FFFFFF',
+              background: 'var(--rr-kart, #FFFFFF)',
               padding: '8px 8px 10px',
               color: colors.ink,
               textDecoration: 'none',
@@ -75,7 +75,7 @@ export function VitrinBolumu({ vitrin }: { vitrin: TalepYaniti }) {
                 display: 'block',
                 position: 'relative',
                 aspectRatio: '4 / 3',
-                borderRadius: 8,
+                borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
                 overflow: 'hidden',
                 background: FOTO_YOK[i % FOTO_YOK.length],
               }}
@@ -160,7 +160,7 @@ export function VitrinBolumu({ vitrin }: { vitrin: TalepYaniti }) {
             key={k}
             aria-hidden="true"
             className={i < (3 - ((vitrin.sonuclar.length + 1) % 3)) % 3 ? undefined : 'rr-genis'}
-            style={{ background: '#FFFFFF' }}
+            style={{ background: 'var(--rr-kart, #FFFFFF)' }}
           />
         ))}
       </div>

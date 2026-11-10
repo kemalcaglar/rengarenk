@@ -30,13 +30,13 @@ export function FavoriAraclar({
     return (
       <div
         style={{
-          background: '#FFFFFF',
+          background: 'var(--rr-kart, #FFFFFF)',
           border: '1px dashed #C9CFDB',
           borderRadius: 'var(--rr-kart-kose)',
           padding: '36px 20px',
           textAlign: 'center',
           fontSize: 15,
-          color: '#5A6073',
+          color: 'var(--rr-soluk, #5A6073)',
         }}
       >
         Favori aracın yok. Galeri araç sayfalarındaki “Favorilere ekle” ile ekleyebilirsin.
@@ -48,7 +48,7 @@ export function FavoriAraclar({
         <article
           key={a.no}
           style={{
-            background: '#FFFFFF',
+            background: 'var(--rr-kart, #FFFFFF)',
             border: '1px solid var(--rr-cizgi, #E3E6EF)',
             borderRadius: 'var(--rr-kart-kose)',
             padding: 16,
@@ -61,7 +61,7 @@ export function FavoriAraclar({
             style={{
               flex: '0 0 112px',
               height: 84,
-              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
               background: '#EEF3FF',
               overflow: 'hidden',
             }}
@@ -84,7 +84,7 @@ export function FavoriAraclar({
                   padding: '3px 9px',
                   borderRadius: 'var(--rr-etiket-kose)',
                   background: a.satista ? '#E7FAF0' : '#F3F5FA',
-                  color: a.satista ? '#11683F' : '#5A6073',
+                  color: a.satista ? '#11683F' : 'var(--rr-soluk, #5A6073)',
                   alignSelf: 'flex-start',
                 }}
               >
@@ -121,7 +121,7 @@ export function FavoriAraclar({
               <span style={{ fontSize: 16.5, fontWeight: 800 }}>{a.ad}</span>
             )}
             <span style={{ fontSize: 13.5, color: '#3A4052' }}>{a.ozellik}</span>
-            <span style={{ fontSize: 12.5, color: '#5A6073' }}>
+            <span style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
               {[a.fiyat !== null ? `${binlik(a.fiyat)} TL` : null, a.galeri?.ad].filter(Boolean).join(' · ')}
             </span>
           </div>

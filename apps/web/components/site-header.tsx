@@ -45,7 +45,7 @@ export async function SiteHeader() {
             gap: 8,
             background: '#F3F5FA',
             border: `1px solid ${colors.line}`,
-            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
             padding: '0 8px 0 14px',
           }}
         >
@@ -86,9 +86,9 @@ export async function SiteHeader() {
             type="submit"
             style={{
               border: 0,
-              borderRadius: 9,
+              borderRadius: 'calc(var(--rr-buton-kose) * 9 / 14)',
               background: colors.blue,
-              color: colors.ink,
+              color: 'var(--rr-maviYazi, #1E2333)',
               fontWeight: 700,
               fontSize: 14,
               padding: '9px 16px',

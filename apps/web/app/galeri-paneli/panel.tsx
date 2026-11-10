@@ -92,25 +92,25 @@ const basHarf = (ad: string) =>
     .join('');
 
 const kart: CSSProperties = {
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   border: '1px solid var(--rr-cizgi, #E3E6EF)',
-  borderRadius: 16,
+  borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
 };
 const birincil: CSSProperties = {
   border: 0,
   background: 'var(--rr-mavi, #5B8CFF)',
-  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
   padding: '12px 18px',
   fontSize: 14.5,
   fontWeight: 800,
-  color: 'var(--rr-murekkep, #1E2333)',
+  color: 'var(--rr-maviYazi, #1E2333)',
   cursor: 'pointer',
   fontFamily: 'inherit',
 };
 const ikincil: CSSProperties = {
   border: '1px solid #D5DAE5',
-  background: '#FFFFFF',
-  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+  background: 'var(--rr-kart, #FFFFFF)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
   padding: '11px 16px',
   fontSize: 14,
   fontWeight: 700,
@@ -122,11 +122,11 @@ const girdi: CSSProperties = {
   width: '100%',
   boxSizing: 'border-box',
   border: '1px solid #D5DAE5',
-  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
   padding: 12,
   fontSize: 15,
   fontFamily: 'inherit',
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
 };
 
 /**
@@ -249,7 +249,9 @@ export function GaleriPaneli() {
         color: 'var(--rr-murekkep, #1E2333)',
       }}
     >
-      <header style={{ background: '#FFFFFF', borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)' }}>
+      <header
+        style={{ background: 'var(--rr-kart, #FFFFFF)', borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)' }}
+      >
         <div
           style={{
             maxWidth: 1360,
@@ -280,7 +282,15 @@ export function GaleriPaneli() {
                 'var(--rr-sari, #FFC84A)',
                 'var(--rr-yesil, #3DD68C)',
               ].map((c) => (
-                <span key={c} style={{ width: 10, height: 22, borderRadius: 5, background: c }} />
+                <span
+                  key={c}
+                  style={{
+                    width: 10,
+                    height: 22,
+                    borderRadius: 'calc(var(--rr-buton-kose) * 5 / 14)',
+                    background: c,
+                  }}
+                />
               ))}
             </span>
             <span style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>rengarenk</span>
@@ -340,7 +350,7 @@ export function GaleriPaneli() {
                 ) : (
                   <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>{p.galeri.ad}</span>
                 )}
-                <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073' }}>
+                <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
                   {benimAd} · {MEMBER_ROLE_NAMES[p.rol]}
                 </span>
               </span>
@@ -366,7 +376,7 @@ export function GaleriPaneli() {
             flex: '1 1 220px',
             maxWidth: 250,
             minWidth: 0,
-            background: '#FFFFFF',
+            background: 'var(--rr-kart, #FFFFFF)',
             border: '1px solid var(--rr-cizgi, #E3E6EF)',
             borderRadius: 'var(--rr-kart-kose)',
             padding: 12,
@@ -407,7 +417,7 @@ export function GaleriPaneli() {
                       gap: 10,
                       border: 0,
                       background: on ? '#EEF3FF' : 'transparent',
-                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                       padding: 12,
                       fontSize: 14.5,
                       fontWeight: on ? 800 : 600,
@@ -429,7 +439,9 @@ export function GaleriPaneli() {
                       />
                       {m.ad}
                     </span>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: '#5A6073' }}>{rozet}</span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--rr-soluk, #5A6073)' }}>
+                      {rozet}
+                    </span>
                   </button>
                 </li>
               );
@@ -446,7 +458,7 @@ export function GaleriPaneli() {
                 margin: '0 0 14px',
                 background: '#FFF0EE',
                 border: '1px solid #F5C6C0',
-                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                 padding: '10px 14px',
                 fontSize: 14,
                 color: '#A3271F',
@@ -461,7 +473,7 @@ export function GaleriPaneli() {
               style={{
                 margin: '0 0 14px',
                 background: '#E7FAF0',
-                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                 padding: '10px 14px',
                 fontSize: 14,
                 color: '#11683F',
@@ -477,7 +489,7 @@ export function GaleriPaneli() {
               style={{
                 margin: '0 0 14px',
                 background: '#FDECEC',
-                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                 padding: '10px 14px',
                 fontSize: 14,
                 color: '#A3271F',
@@ -502,7 +514,7 @@ export function GaleriPaneli() {
               }}
             />
           ) : null}
-          {!p && !davetler ? <p style={{ color: '#5A6073' }}>Yükleniyor…</p> : null}
+          {!p && !davetler ? <p style={{ color: 'var(--rr-soluk, #5A6073)' }}>Yükleniyor…</p> : null}
           {p && gorunum === 'ozet' ? (
             <Ozet
               p={p}
@@ -546,7 +558,9 @@ export function GaleriPaneli() {
             portfoy?.toplu ? (
               <TopluYukleme accountId={p.accountId} api={portfoy.api} bitti={portfoyBitti} />
             ) : (
-              <p style={{ color: '#5A6073' }}>Toplu yükleme Profesyonel ve Kurumsal paketlerdedir.</p>
+              <p style={{ color: 'var(--rr-soluk, #5A6073)' }}>
+                Toplu yükleme Profesyonel ve Kurumsal paketlerdedir.
+              </p>
             )
           ) : null}
           {p && gorunum === 'ekip' ? <Ekip p={p} islem={islem} /> : null}
@@ -627,7 +641,7 @@ function Ozet({
   return (
     <>
       <h1 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 800 }}>Özet</h1>
-      <p style={{ margin: '0 0 20px', fontSize: 14.5, color: '#5A6073' }}>
+      <p style={{ margin: '0 0 20px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
         {deneme
           ? `Ücretsiz deneme · ${p.paket.denemeKalanGun} gün kaldı (bitiş ${tarih(p.paket.denemeBitis)})`
           : plan
@@ -640,7 +654,7 @@ function Ozet({
           style={{
             margin: '0 0 16px',
             background: '#FFF6DF',
-            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
             padding: '10px 14px',
             fontSize: 14,
             color: '#7A5300',
@@ -669,23 +683,32 @@ function Ozet({
       <div className="rr-dort-sutun">
         {kotalar.map((k, i) => (
           <div key={k.label} style={{ ...kart, padding: 16 }}>
-            <div style={{ fontSize: 13, color: '#5A6073', fontWeight: 600 }}>{k.label}</div>
+            <div style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)', fontWeight: 600 }}>{k.label}</div>
             <div style={{ fontSize: 24, fontWeight: 800, marginTop: 4 }}>
-              {k.value} <span style={{ fontSize: 14, color: '#5A6073', fontWeight: 600 }}>/ {k.max}</span>
+              {k.value}{' '}
+              <span style={{ fontSize: 14, color: 'var(--rr-soluk, #5A6073)', fontWeight: 600 }}>
+                / {k.max}
+              </span>
             </div>
             <div
-              style={{ height: 8, borderRadius: 4, background: '#EEF0F5', marginTop: 10, overflow: 'hidden' }}
+              style={{
+                height: 8,
+                borderRadius: 'calc(var(--rr-buton-kose) * 4 / 14)',
+                background: '#EEF0F5',
+                marginTop: 10,
+                overflow: 'hidden',
+              }}
             >
               <div
                 style={{
                   height: 8,
-                  borderRadius: 4,
+                  borderRadius: 'calc(var(--rr-buton-kose) * 4 / 14)',
                   background: DOTS[i],
                   width: `${k.max === 'sınırsız' || !Number.parseInt(k.max, 10) ? 0 : Math.min(100, (k.value / Number.parseInt(k.max, 10)) * 100)}%`,
                 }}
               />
             </div>
-            <div style={{ fontSize: 12.5, color: '#5A6073', marginTop: 8 }}>{k.not}</div>
+            <div style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 8 }}>{k.not}</div>
           </div>
         ))}
       </div>
@@ -694,7 +717,7 @@ function Ozet({
           <Link href={`/talep-olustur?hesap=${p.accountId}`} style={{ fontWeight: 800 }}>
             Galerin adına talep aç
           </Link>{' '}
-          <span style={{ color: '#5A6073' }}>
+          <span style={{ color: 'var(--rr-soluk, #5A6073)' }}>
             · aradığın aracı satıcılar bulsun; paketin talep hakkı kullanılır, alıcı olarak galerinin adı
             görünür
           </span>
@@ -716,7 +739,11 @@ function Ozet({
             <>
               <span style={{ display: 'block', fontSize: 30, fontWeight: 800, color: renk }}>{n}</span>
               <span style={{ display: 'block', fontSize: 15, fontWeight: 700, marginTop: 2 }}>{ad}</span>
-              <span style={{ display: 'block', fontSize: 13, color: '#5A6073', marginTop: 4 }}>{alt}</span>
+              <span
+                style={{ display: 'block', fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 4 }}
+              >
+                {alt}
+              </span>
             </>
           );
           return hedef ? (
@@ -760,7 +787,7 @@ function Ozet({
             Profili gör
           </Link>
         </div>
-        <p style={{ margin: '6px 0 14px', fontSize: 13.5, color: '#5A6073' }}>
+        <p style={{ margin: '6px 0 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
           {p.galeri.isletmeAdi}
           {p.galeri.yetkiNo ? ` · Yetki belgesi no ${p.galeri.yetkiNo}` : ''} · {p.galeri.il}, {p.galeri.ilce}
           {guven ? ` · ${guven.takipci} takipçi` : ''}
@@ -848,7 +875,7 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
       >
         <div>
           <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Ekip</h1>
-          <p style={{ margin: '3px 0 0', fontSize: 14.5, color: '#5A6073' }}>
+          <p style={{ margin: '3px 0 0', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
             {p.ekip.length} / {p.paket.calisan} kullanıcı · Mesaj ve talep hakları ekip genelinde ortaktır
           </p>
         </div>
@@ -922,7 +949,7 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
               </select>
             </div>
           </div>
-          <p style={{ margin: '8px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+          <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
             {MEMBER_ROLE_NOTES[davet.rol]}
           </p>
           {hata ? (
@@ -973,9 +1000,18 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
               <span style={{ flex: '999 1 200px', minWidth: 0 }}>
                 <span style={{ display: 'block', fontSize: 15, fontWeight: 800 }}>
                   {u.ad}
-                  {u.sen ? <span style={{ fontWeight: 600, color: '#5A6073' }}> · sen</span> : null}
+                  {u.sen ? (
+                    <span style={{ fontWeight: 600, color: 'var(--rr-soluk, #5A6073)' }}> · sen</span>
+                  ) : null}
                 </span>
-                <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+                <span
+                  style={{
+                    display: 'block',
+                    fontSize: 12.5,
+                    color: 'var(--rr-soluk, #5A6073)',
+                    marginTop: 2,
+                  }}
+                >
                   Telefon doğrulandı · {u.telefon}
                 </span>
               </span>
@@ -1145,7 +1181,7 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
         ))}
       </div>
       {doluKoltuk >= p.paket.calisan && davetEder ? (
-        <p style={{ margin: '10px 2px 0', fontSize: 13, color: '#5A6073' }}>
+        <p style={{ margin: '10px 2px 0', fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
           Paketindeki kullanıcı sınırına ulaştın. Daha büyük bir pakete geçince yeni çalışan ekleyebilirsin.
         </p>
       ) : null}
@@ -1163,12 +1199,12 @@ function Davetler({
   return (
     <>
       <h1 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 800 }}>Galeri davetlerin</h1>
-      <p style={{ margin: '0 0 16px', fontSize: 14.5, color: '#5A6073' }}>
+      <p style={{ margin: '0 0 16px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
         Kabul edince galerinin paneline erişirsin; mesajlarda galeri adıyla birlikte kendi adın görünür.
       </p>
       <div style={{ ...kart, borderRadius: 'var(--rr-kart-kose)', overflow: 'hidden' }}>
         {davetler.length === 0 ? (
-          <p style={{ margin: 0, padding: 18, fontSize: 14, color: '#5A6073' }}>
+          <p style={{ margin: 0, padding: 18, fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
             Bekleyen davetin kalmadı. <Link href="/kurumsal-basvuru">Kendi galerin için başvur</Link>
           </p>
         ) : null}
@@ -1186,7 +1222,9 @@ function Davetler({
           >
             <span style={{ flex: '999 1 240px', minWidth: 0 }}>
               <span style={{ display: 'block', fontSize: 15, fontWeight: 800 }}>{d.galeri}</span>
-              <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+              <span
+                style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}
+              >
                 {d.rolAd} olarak davet edildin · {tarih(d.bitis)} tarihine kadar geçerli
               </span>
             </span>

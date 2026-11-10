@@ -1,8 +1,10 @@
 import {
+  butonOran,
   colors,
   compactBudget,
   DOTS,
   GALLERY_TRIAL,
+  kartOran,
   MEMBER_ROLE_NAMES,
   type MemberRoleKey,
   radii,
@@ -109,7 +111,15 @@ const SEKME: { ad: string; key: string; d: string; orta?: true; acik?: true }[] 
   { ad: 'Mesajlar', key: 'mesaj', d: 'M4 5h16v11H9l-5 4z', acik: true },
 ];
 
-const kart = { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line } as const;
+const kart = {
+  get backgroundColor() {
+    return colors.surface;
+  },
+  borderWidth: 1,
+  get borderColor() {
+    return colors.line;
+  },
+} as const;
 
 /**
  * Galeri paneli (tasarım: GaleriMobil.dc.html; Karar 12.5, 20, 38). Uygulamada paket fiyatı ve satın alma
@@ -239,7 +249,7 @@ export default function GaleriPaneli() {
           style={{
             width: 40,
             height: 40,
-            borderRadius: radii.buton - 2,
+            borderRadius: butonOran(12),
             backgroundColor: '#FFF6DF',
             alignItems: 'center',
             justifyContent: 'center',
@@ -277,7 +287,7 @@ export default function GaleriPaneli() {
           style={{
             borderWidth: 1,
             borderColor: '#D5DAE5',
-            borderRadius: 10,
+            borderRadius: butonOran(10),
             paddingVertical: 9,
             paddingHorizontal: 10,
           }}
@@ -297,7 +307,7 @@ export default function GaleriPaneli() {
               marginBottom: 10,
               backgroundColor: '#FFF0EE',
               color: '#A3271F',
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               padding: 12,
             }}
           >
@@ -319,7 +329,7 @@ export default function GaleriPaneli() {
               Kabul edince galerinin paneline erişirsin; mesajlarda galeri adıyla birlikte kendi adın görünür.
             </T>
             {davetler.map((d) => (
-              <View key={d.id} style={{ ...kart, borderRadius: 16, padding: 14, marginBottom: 8 }}>
+              <View key={d.id} style={{ ...kart, borderRadius: kartOran(16), padding: 14, marginBottom: 8 }}>
                 <T style={{ fontSize: 15, fontWeight: '800' }}>{d.galeri}</T>
                 <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 2 }}>
                   {d.rolAd} olarak davet edildin
@@ -332,7 +342,7 @@ export default function GaleriPaneli() {
                       flex: 1,
                       borderWidth: 1,
                       borderColor: '#D5DAE5',
-                      borderRadius: radii.buton - 2,
+                      borderRadius: butonOran(12),
                       paddingVertical: 11,
                       alignItems: 'center',
                     }}
@@ -345,12 +355,12 @@ export default function GaleriPaneli() {
                     style={{
                       flex: 2,
                       backgroundColor: colors.blue,
-                      borderRadius: radii.buton - 2,
+                      borderRadius: butonOran(12),
                       paddingVertical: 11,
                       alignItems: 'center',
                     }}
                   >
-                    <T style={{ fontWeight: '800' }}>Kabul et</T>
+                    <T style={{ color: colors.onBlue, fontWeight: '800' }}>Kabul et</T>
                   </Pressable>
                 </View>
               </View>
@@ -364,7 +374,7 @@ export default function GaleriPaneli() {
               marginBottom: 10,
               backgroundColor: '#FDECEC',
               color: '#A3271F',
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               padding: 12,
               fontWeight: '700',
             }}
@@ -378,7 +388,7 @@ export default function GaleriPaneli() {
               marginBottom: 10,
               backgroundColor: '#FFF6DF',
               color: '#7A5300',
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               padding: 12,
               fontWeight: '700',
             }}
@@ -438,7 +448,7 @@ export default function GaleriPaneli() {
               </ScrollView>
             ) : null}
             {eslesme && !eslesme.eslesme ? (
-              <View style={{ ...kart, borderRadius: 16, padding: 14, marginTop: 8 }}>
+              <View style={{ ...kart, borderRadius: kartOran(16), padding: 14, marginTop: 8 }}>
                 <T style={{ fontSize: 13.5, color: colors.muted, lineHeight: 19 }}>
                   Otomatik eşleşme Profesyonel ve Kurumsal paketlerdedir. Talepleri arayarak bulup
                   yazabilirsin.
@@ -446,14 +456,14 @@ export default function GaleriPaneli() {
               </View>
             ) : null}
             {eslesme?.eslesme && !eslesmeListe.length ? (
-              <View style={{ ...kart, borderRadius: 16, padding: 14, marginTop: 8 }}>
+              <View style={{ ...kart, borderRadius: kartOran(16), padding: 14, marginTop: 8 }}>
                 <T style={{ fontSize: 13.5, color: colors.muted, lineHeight: 19 }}>
                   Henüz eşleşme yok. Yayındaki araçlarına uyan yeni talepler burada görünür.
                 </T>
               </View>
             ) : null}
             {eslesmeListe.map((e) => (
-              <View key={e.id} style={{ ...kart, borderRadius: 16, padding: 14, marginTop: 8 }}>
+              <View key={e.id} style={{ ...kart, borderRadius: kartOran(16), padding: 14, marginTop: 8 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
                   <T
                     style={{
@@ -503,7 +513,7 @@ export default function GaleriPaneli() {
                     style={{
                       width: 46,
                       height: 34,
-                      borderRadius: 8,
+                      borderRadius: butonOran(8),
                       overflow: 'hidden',
                       backgroundColor: '#DCE3F0',
                     }}
@@ -532,7 +542,7 @@ export default function GaleriPaneli() {
                       onPress={() => setYaz(e)}
                       style={{
                         backgroundColor: '#5B8CFF',
-                        borderRadius: radii.buton - 2,
+                        borderRadius: butonOran(12),
                         paddingVertical: 10,
                         paddingHorizontal: 12,
                       }}
@@ -568,7 +578,7 @@ export default function GaleriPaneli() {
                     ...kart,
                     flexDirection: 'row',
                     gap: 12,
-                    borderRadius: 16,
+                    borderRadius: kartOran(16),
                     padding: 10,
                     marginBottom: 8,
                     opacity: a.durum === 'SOLD' ? 0.6 : 1,
@@ -578,7 +588,7 @@ export default function GaleriPaneli() {
                     style={{
                       width: 88,
                       height: 66,
-                      borderRadius: 10,
+                      borderRadius: butonOran(10),
                       overflow: 'hidden',
                       backgroundColor: '#DCE3F0',
                     }}
@@ -680,7 +690,7 @@ export default function GaleriPaneli() {
           <>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {haklar.map((h, i) => (
-                <View key={h.ad} style={{ ...kart, borderRadius: 16, padding: 12, width: '48.5%' }}>
+                <View key={h.ad} style={{ ...kart, borderRadius: kartOran(16), padding: 12, width: '48.5%' }}>
                   <T style={{ fontSize: 12, fontWeight: '700', color: colors.muted }}>{h.ad}</T>
                   <T style={{ marginTop: 4 }}>
                     <T style={{ fontSize: 22, fontWeight: '800' }}>{'deger' in h ? h.deger : 0}</T>
@@ -689,7 +699,7 @@ export default function GaleriPaneli() {
                   <View
                     style={{
                       height: 6,
-                      borderRadius: 3,
+                      borderRadius: Math.min(radii.etiket, 3),
                       backgroundColor: '#EEF0F5',
                       marginTop: 8,
                       overflow: 'hidden',
@@ -733,7 +743,7 @@ export default function GaleriPaneli() {
                   onPress={() => router.push(`/talep/${e.talep.no}`)}
                   style={{
                     ...kart,
-                    borderRadius: 16,
+                    borderRadius: kartOran(16),
                     paddingVertical: 12,
                     paddingHorizontal: 14,
                     marginBottom: 8,
@@ -779,7 +789,7 @@ export default function GaleriPaneli() {
                 </Pressable>
               ))
             ) : (
-              <View style={{ ...kart, borderRadius: 16, padding: 14 }}>
+              <View style={{ ...kart, borderRadius: kartOran(16), padding: 14 }}>
                 <T style={{ fontSize: 13, color: colors.muted, lineHeight: 19 }}>
                   {eslesme && !eslesme.eslesme
                     ? 'Otomatik eşleşme Profesyonel ve Kurumsal paketlerdedir.'
@@ -794,7 +804,7 @@ export default function GaleriPaneli() {
             >
               Rozetlerin
             </T>
-            <View style={{ ...kart, borderRadius: 16, padding: 14 }}>
+            <View style={{ ...kart, borderRadius: kartOran(16), padding: 14 }}>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                 {(guven?.rozetler ?? [{ rozet: 'onay', var: true, eksik: [] }])
                   .filter((r) => r.var)
@@ -843,7 +853,7 @@ export default function GaleriPaneli() {
               <BirYildiz hesap={p.accountId} />
             </View>
 
-            <View style={{ ...kart, borderRadius: 16, padding: 14, marginTop: 12 }}>
+            <View style={{ ...kart, borderRadius: kartOran(16), padding: 14, marginTop: 12 }}>
               <T style={{ fontSize: 14, fontWeight: '800' }}>
                 Ekip · {p.ekip.length} / {p.paket.calisan} kullanıcı
               </T>

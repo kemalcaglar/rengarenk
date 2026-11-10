@@ -315,6 +315,14 @@ pnpm format        # Biome ile biçimlendir
   kullan (paletin sekiz rengi `var(--rr-*)`) ve köşede `var(--rr-kart-kose)` / `--rr-buton-kose` / `--rr-etiket-kose`;
   yeni gömülü palet hex kodu yazma. SVG niteliğinde (`fill=`, `stroke=`) CSS değişkeni çalışmaz, `style={{ fill }}`
   kullan. Mobilde köşe `radii.kart` / `radii.buton` / `radii.etiket`. Sprint 29 bitti. API'de 210, ortak pakette 125 test.
+- **Tasarım değerleri 2 (10 Kasım 2026):** köşe sayıyla yazılmaz: web `calc(var(--rr-kart-kose) * N / 18)` (kart, 16 px ve
+  üstü) ya da `calc(var(--rr-buton-kose) * N / 14)`, mobil `kartOran(N)` / `butonOran(N)`, hap `Math.min(radii.etiket, N)`;
+  tam daire (`'50%'`, mobilde genişliğin yarısı) sayı kalır. Renkli zeminde yazı `colors.onBlue` / `onPink` / `onYellow` /
+  `onGreen` (web `var(--rr-maviYazi)` …), kart zemini `colors.surface` (`--rr-kart`), ikincil metin `colors.muted`
+  (`--rr-soluk`). Mobilde modül düzeyindeki sabite `colors.`/`radii.` yazma (yükleme anında bir kez okunur); gerekirse
+  getter (`get borderColor() { return colors.line; }`). Yeni tasarım rengi eklerken `DESIGN_COLORS` ve `colors`'a ekle;
+  eski sürümler `hex.default` ile tamamlanır. Yerel Docker servisleri `restart: unless-stopped`; ana sayfa API'ye
+  ulaşamazsa açık kaldıkça yeniden dener. API'de 212, ortak pakette 128 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.

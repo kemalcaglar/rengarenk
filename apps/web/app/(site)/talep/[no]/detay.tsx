@@ -58,7 +58,7 @@ export interface TalepVeri {
 
 const TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0'];
 const kart: CSSProperties = {
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   border: '1px solid var(--rr-cizgi, #E3E6EF)',
   borderRadius: 'var(--rr-kart-kose)',
 };
@@ -243,14 +243,14 @@ export function TalepDetay({
 
   const secmeli = (on: boolean): CSSProperties => ({
     border: 0,
-    borderRadius: '12px 12px 0 0',
+    borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14) calc(var(--rr-buton-kose) * 12 / 14) 0 0',
     padding: '12px 20px',
     fontSize: 15,
     fontWeight: 700,
     cursor: 'pointer',
     marginBottom: -1,
     background: on ? '#EEF3FF' : 'transparent',
-    color: on ? 'var(--rr-murekkep, #1E2333)' : '#5A6073',
+    color: on ? 'var(--rr-murekkep, #1E2333)' : 'var(--rr-soluk, #5A6073)',
     borderBottom: `3px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : 'transparent'}`,
     fontFamily: 'inherit',
   });
@@ -268,7 +268,13 @@ export function TalepDetay({
       <Banner yer="talep_detay" style={{ marginBottom: 14 }} />
       <nav
         aria-label="Konum"
-        style={{ fontSize: 13.5, color: '#5A6073', display: 'flex', flexWrap: 'wrap', gap: 6 }}
+        style={{
+          fontSize: 13.5,
+          color: 'var(--rr-soluk, #5A6073)',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 6,
+        }}
       >
         <Link href="/talepler">Vasıta</Link>
         {ustKategori ? (
@@ -359,7 +365,7 @@ export function TalepDetay({
           <h1 style={{ margin: 0, fontSize: 30, lineHeight: 1.25, fontWeight: 800, letterSpacing: -0.4 }}>
             {t.baslik}
           </h1>
-          <p style={{ margin: '10px 0 0', fontSize: 14, color: '#5A6073' }}>
+          <p style={{ margin: '10px 0 0', fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
             Talep no {t.no} · Yayın tarihi {uzunTarih(t.publishedAt)}
             {t.il ? ` · ${[t.il, t.ilce].filter(Boolean).join(', ')}` : ''}
           </p>
@@ -375,9 +381,9 @@ export function TalepDetay({
                 display: 'flex',
                 alignItems: 'center',
                 gap: 7,
-                background: '#FFFFFF',
+                background: 'var(--rr-kart, #FFFFFF)',
                 border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                 padding: '11px 14px',
                 fontSize: 14,
                 fontWeight: 600,
@@ -419,9 +425,9 @@ export function TalepDetay({
               justifyContent: 'center',
               width: 46,
               height: 46,
-              background: '#FFFFFF',
+              background: 'var(--rr-kart, #FFFFFF)',
               border: '1px solid var(--rr-cizgi, #E3E6EF)',
-              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
               color: 'var(--rr-murekkep, #1E2333)',
               cursor: 'pointer',
             }}
@@ -465,7 +471,7 @@ export function TalepDetay({
                   position: 'absolute',
                   top: 16,
                   left: 16,
-                  background: '#FFFFFF',
+                  background: 'var(--rr-kart, #FFFFFF)',
                   color: '#3A4052',
                   fontSize: 12.5,
                   fontWeight: 700,
@@ -482,7 +488,7 @@ export function TalepDetay({
                     position: 'absolute',
                     top: 16,
                     right: 16,
-                    background: '#FFFFFF',
+                    background: 'var(--rr-kart, #FFFFFF)',
                     color: '#3A4052',
                     fontSize: 12.5,
                     fontWeight: 700,
@@ -503,7 +509,7 @@ export function TalepDetay({
                     maxWidth: '100%',
                     aspectRatio: '560 / 206',
                     objectFit: 'cover',
-                    borderRadius: 10,
+                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                   }}
                 />
               ) : (
@@ -518,7 +524,7 @@ export function TalepDetay({
                     width: 560,
                     maxWidth: '100%',
                     aspectRatio: '560 / 206',
-                    borderRadius: 10,
+                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                     background: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)',
                   }}
                 >
@@ -562,7 +568,7 @@ export function TalepDetay({
                       }`
                     : ''}
                 </div>
-                <div style={{ fontSize: 13, color: '#5A6073', marginTop: 2 }}>
+                <div style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}>
                   Temsilî {foto ? 'fotoğraf' : 'görsel'}
                   {g?.kasa.length ? ', kasa ve makyaja göre seçildi' : ''}; satıcının aracı değildir.
                   {foto ? ` ${foto.caption.replace(' · temsilî görsel', '')}` : ''}
@@ -607,7 +613,7 @@ export function TalepDetay({
             <h2 id="ana-arac" style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 700 }}>
               Aranan araç
             </h2>
-            <p style={{ margin: '0 0 16px', fontSize: 14, color: '#5A6073' }}>
+            <p style={{ margin: '0 0 16px', fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
               Ana araç sabit;{' '}
               {t.data.alternatifler.length > 1
                 ? `diğer kriterler ${t.data.alternatifler.length} alternatif halinde.`
@@ -654,7 +660,7 @@ export function TalepDetay({
                     alignItems: 'center',
                     gap: 7,
                     background: '#F3F5FA',
-                    borderRadius: 10,
+                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                     padding: '8px 12px',
                     fontSize: 13.5,
                     fontWeight: 600,
@@ -725,7 +731,7 @@ export function TalepDetay({
                     borderBottom: '1px solid #EEF0F5',
                   }}
                 >
-                  <dt style={{ fontSize: 14, color: '#5A6073' }}>{r.label}</dt>
+                  <dt style={{ fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>{r.label}</dt>
                   <dd style={{ margin: 0, fontSize: 14, fontWeight: 700, textAlign: 'right' }}>{r.value}</dd>
                 </div>
               ))}
@@ -844,7 +850,7 @@ export function TalepDetay({
                         justifyContent: 'space-between',
                         gap: 8,
                         marginTop: 12,
-                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                         background: '#F3F5FA',
                         padding: '12px 14px',
                       }}
@@ -880,7 +886,7 @@ export function TalepDetay({
                 </h2>
                 {t.data.alternatifler.length > 1 ? <span style={etiketSag}>{altAd}</span> : null}
               </div>
-              <p style={{ margin: '6px 0 16px', fontSize: 13.5, color: '#5A6073' }}>
+              <p style={{ margin: '6px 0 16px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
                 Katalogdaki örnek donanım: {g.teknikOrnek}
                 {g.kasa[0] ? ` · ${g.kasa[0].label} kasa` : ''}. Değerler donanıma göre değişebilir.
               </p>
@@ -896,11 +902,11 @@ export function TalepDetay({
                     key={x.label}
                     style={{
                       border: '1px solid #EEF0F5',
-                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                       padding: '11px 13px',
                     }}
                   >
-                    <div style={{ fontSize: 12.5, color: '#5A6073' }}>{x.label}</div>
+                    <div style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>{x.label}</div>
                     <div style={{ fontSize: 15, fontWeight: 700, marginTop: 3 }}>{x.value}</div>
                   </div>
                 ))}
@@ -927,7 +933,7 @@ export function TalepDetay({
                     style={{
                       display: 'block',
                       ...kart,
-                      borderRadius: 16,
+                      borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
                       padding: 16,
                       color: 'var(--rr-murekkep, #1E2333)',
                       textDecoration: 'none',
@@ -939,7 +945,7 @@ export function TalepDetay({
                         display: 'block',
                         width: 32,
                         height: 6,
-                        borderRadius: 3,
+                        borderRadius: 'calc(var(--rr-buton-kose) * 3 / 14)',
                         background: [
                           'var(--rr-pembe, #FF6FB5)',
                           'var(--rr-sari, #FFC84A)',
@@ -951,7 +957,14 @@ export function TalepDetay({
                     <span style={{ display: 'block', fontSize: 15, fontWeight: 700, lineHeight: 1.35 }}>
                       {b.baslik}
                     </span>
-                    <span style={{ display: 'block', fontSize: 13, color: '#5A6073', marginTop: 6 }}>
+                    <span
+                      style={{
+                        display: 'block',
+                        fontSize: 13,
+                        color: 'var(--rr-soluk, #5A6073)',
+                        marginTop: 6,
+                      }}
+                    >
                       {[b.il, b.yilMin ? `${b.yilMin} ve sonrası` : null].filter(Boolean).join(' · ')}
                     </span>
                   </Link>
@@ -993,7 +1006,7 @@ export function TalepDetay({
               </span>
               <div>
                 <div style={{ fontSize: 17, fontWeight: 800 }}>{sahip.name}</div>
-                <div style={{ fontSize: 13, color: '#5A6073', marginTop: 2 }}>
+                <div style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}>
                   {uyelik(sahip.memberSince)}
                 </div>
               </div>
@@ -1062,7 +1075,7 @@ export function TalepDetay({
                   gap: 9,
                   marginTop: 18,
                   background: 'var(--rr-mavi, #5B8CFF)',
-                  color: 'var(--rr-murekkep, #1E2333)',
+                  color: 'var(--rr-maviYazi, #1E2333)',
                   fontWeight: 800,
                   fontSize: 16,
                   padding: 15,
@@ -1187,7 +1200,7 @@ export function TalepDetay({
                   justifyContent: 'center',
                   gap: 9,
                   marginTop: 10,
-                  background: '#FFFFFF',
+                  background: 'var(--rr-kart, #FFFFFF)',
                   border: '1.5px solid #25A35A',
                   color: '#11683F',
                   fontWeight: 700,
@@ -1212,7 +1225,9 @@ export function TalepDetay({
                 WhatsApp'tan yaz
               </a>
             ) : null}
-            <p style={{ margin: '14px 0 0', fontSize: 13, lineHeight: 1.5, color: '#5A6073' }}>
+            <p
+              style={{ margin: '14px 0 0', fontSize: 13, lineHeight: 1.5, color: 'var(--rr-soluk, #5A6073)' }}
+            >
               {yayinda
                 ? 'Bu talebe yalnızca bir ilk mesaj atabilirsiniz.'
                 : 'Bu talep şu an yayında değil; satıcılar mesaj atamaz.'}
@@ -1283,7 +1298,7 @@ export function TalepDetay({
                 gap: 8,
                 fontSize: 14,
                 fontWeight: 600,
-                color: '#5A6073',
+                color: 'var(--rr-soluk, #5A6073)',
                 padding: '6px 4px',
                 border: 0,
                 background: 'transparent',
@@ -1344,7 +1359,7 @@ function BoyaGorunumu({ boya }: { boya: { limit: number; parts: Record<string, s
                 style={{
                   width: 22,
                   height: 22,
-                  borderRadius: 6,
+                  borderRadius: 'calc(var(--rr-buton-kose) * 6 / 14)',
                   background: s.renk,
                   border: '1px solid #AEB5C4',
                   flex: 'none',
@@ -1357,7 +1372,7 @@ function BoyaGorunumu({ boya }: { boya: { limit: number; parts: Record<string, s
                   style={{
                     display: 'block',
                     fontSize: 13.5,
-                    color: '#5A6073',
+                    color: 'var(--rr-soluk, #5A6073)',
                     marginTop: 2,
                     lineHeight: 1.45,
                   }}

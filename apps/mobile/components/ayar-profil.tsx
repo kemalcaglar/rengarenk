@@ -1,4 +1,4 @@
-import { colors, demandOwnerName, radii, saatYaz } from '@rengarenk/shared';
+import { butonOran, colors, demandOwnerName, kartOran, saatYaz } from '@rengarenk/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 import { useOturum } from '../lib/oturum';
@@ -20,16 +20,24 @@ interface Ben {
 type Iletisim = Pick<Ben, 'phoneVisible' | 'whatsappVisible' | 'callFrom' | 'callTo'>;
 
 const kart = {
-  backgroundColor: colors.surface,
+  get backgroundColor() {
+    return colors.surface;
+  },
   borderWidth: 1,
-  borderColor: colors.line,
-  borderRadius: 16,
+  get borderColor() {
+    return colors.line;
+  },
+  get borderRadius() {
+    return kartOran(16);
+  },
   padding: 14,
 } as const;
 const girdi = {
   borderWidth: 1,
   borderColor: '#D5DAE5',
-  borderRadius: radii.buton - 2,
+  get borderRadius() {
+    return butonOran(12);
+  },
   padding: 12,
   fontSize: 15,
 } as const;
@@ -142,7 +150,7 @@ export function ProfilVeIletisim() {
             marginTop: 10,
             borderWidth: 1,
             borderColor: '#D5DAE5',
-            borderRadius: radii.buton - 2,
+            borderRadius: butonOran(12),
             paddingVertical: 11,
             alignItems: 'center',
           }}
@@ -176,7 +184,7 @@ export function ProfilVeIletisim() {
                   borderWidth: on ? 1.5 : 1,
                   borderColor: on ? colors.blue : '#D5DAE5',
                   backgroundColor: on ? '#EEF3FF' : colors.surface,
-                  borderRadius: radii.buton - 2,
+                  borderRadius: butonOran(12),
                   paddingVertical: 11,
                   paddingHorizontal: 14,
                 }}
@@ -195,7 +203,7 @@ export function ProfilVeIletisim() {
             marginTop: 16,
             borderWidth: 1,
             borderColor: '#EEF0F5',
-            borderRadius: radii.buton - 2,
+            borderRadius: butonOran(12),
             padding: 12,
           }}
         >
@@ -214,7 +222,7 @@ export function ProfilVeIletisim() {
                 alignSelf: 'flex-start',
                 borderWidth: 1,
                 borderColor: '#D5DAE5',
-                borderRadius: 10,
+                borderRadius: butonOran(10),
                 paddingVertical: 8,
                 paddingHorizontal: 12,
               }}
@@ -285,7 +293,7 @@ export function ProfilVeIletisim() {
                   style={{
                     flex: 1,
                     backgroundColor: colors.blue,
-                    borderRadius: radii.buton - 2,
+                    borderRadius: butonOran(12),
                     paddingVertical: 11,
                     alignItems: 'center',
                   }}

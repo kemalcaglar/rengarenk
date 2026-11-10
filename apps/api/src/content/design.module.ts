@@ -48,6 +48,13 @@ export class DesignStaffController {
   submit(@Req() req: StaffRequest) {
     return this.d.submit(req.staff, req.ip);
   }
+
+  /** Onaydaki taslağı geri çeker; değerler yeniden düzenlenebilir */
+  @Post('geri-cek')
+  @RequirePermission('tasarim_yasal.duzenle', 'oneri')
+  geriCek(@Req() req: StaffRequest) {
+    return this.d.geriCek(req.staff, req.ip);
+  }
 }
 
 /** Tasarım değerleri her süreçte (API, işçi): e-posta şablonu ve onay yürütücüsü kullanır */

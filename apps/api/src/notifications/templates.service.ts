@@ -113,10 +113,10 @@ export class TemplatesService {
         ? `<mj-section background-color="${tema.ustBant}" padding="14px 0"><mj-column><mj-text font-size="22px" font-weight="800" color="${tema.ustYazi}">${serit} rengarenk <span style="font-size:13px;font-weight:700">${tema.rozet.replace(/</g, '&lt;')}</span></mj-text></mj-column></mj-section>`
         : `<mj-section padding="24px 0 8px"><mj-column><mj-text font-size="22px" font-weight="800">${serit} rengarenk</mj-text></mj-column></mj-section>`
     }
-    <mj-section background-color="#FFFFFF" border-radius="${t.kartKose}px" padding="20px 8px">
+    <mj-section background-color="${colors.surface}" border-radius="${t.kartKose}px" padding="20px 8px">
       <mj-column>
         ${paragraflar.map((p) => `<mj-text>${p}</mj-text>`).join('\n        ')}
-        ${dugme ? `<mj-button href="${dugme.url}" background-color="${colors.blue}" color="${colors.ink}" font-weight="800" border-radius="${t.butonKose}px" align="left">${dugme.yazi}</mj-button>` : ''}
+        ${dugme ? `<mj-button href="${dugme.url}" background-color="${colors.blue}" color="${colors.onBlue}" font-weight="800" border-radius="${t.butonKose}px" align="left">${dugme.yazi}</mj-button>` : ''}
       </mj-column>
     </mj-section>
     <mj-section padding="12px 0"><mj-column><mj-text font-size="12px" color="${colors.muted}">Bu e-posta Rengarenk hesabınla ilgili olduğu için gönderildi. Bildirim tercihlerini Ayarlar › Bildirimler'den değiştirebilirsin.${ayrilma ? ` Kampanya e-postalarından <a href="${ayrilma}">tek tıkla ayrıl</a>.` : ''}</mj-text></mj-column></mj-section>

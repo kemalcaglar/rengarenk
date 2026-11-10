@@ -69,8 +69,8 @@ export function PuanVer({
         style={{
           width: '100%',
           maxWidth: 420,
-          background: '#FFFFFF',
-          borderRadius: 24,
+          background: 'var(--rr-kart, #FFFFFF)',
+          borderRadius: 'calc(var(--rr-kart-kose) * 24 / 18)',
           padding: '20px 20px 24px',
         }}
       >
@@ -98,7 +98,14 @@ export function PuanVer({
                 <h2 id="puan-baslik" style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
                   {ad} nasıldı?
                 </h2>
-                <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+                <span
+                  style={{
+                    display: 'block',
+                    fontSize: 12.5,
+                    color: 'var(--rr-soluk, #5A6073)',
+                    marginTop: 2,
+                  }}
+                >
                   {alt}
                 </span>
               </span>
@@ -172,7 +179,7 @@ export function PuanVer({
                 onClick={kapat}
                 style={{
                   border: '1px solid #D5DAE5',
-                  background: '#FFFFFF',
+                  background: 'var(--rr-kart, #FFFFFF)',
                   borderRadius: 'var(--rr-buton-kose)',
                   padding: '14px 8px',
                   fontSize: 15,
@@ -195,7 +202,7 @@ export function PuanVer({
                   padding: '15px 8px',
                   fontSize: 15.5,
                   fontWeight: 800,
-                  color: yildiz ? 'var(--rr-murekkep, #1E2333)' : '#5A6073',
+                  color: yildiz ? 'var(--rr-maviYazi, #1E2333)' : 'var(--rr-soluk, #5A6073)',
                   cursor: yildiz ? 'pointer' : 'default',
                   fontFamily: 'inherit',
                 }}
@@ -246,7 +253,7 @@ export function PuanVer({
               </svg>
             </span>
             <h2 style={{ margin: '12px 0 4px', fontSize: 18, fontWeight: 800 }}>Teşekkürler</h2>
-            <p style={{ margin: 0, fontSize: 13.5, color: '#5A6073' }}>
+            <p style={{ margin: 0, fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
               Puanın kaydedildi. Aracı bulduysan talebini kapatabilirsin; satıcılar sana yazmayı bırakır.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 18 }}>
@@ -255,7 +262,7 @@ export function PuanVer({
                 onClick={kapat}
                 style={{
                   border: '1px solid #D5DAE5',
-                  background: '#FFFFFF',
+                  background: 'var(--rr-kart, #FFFFFF)',
                   borderRadius: 'var(--rr-buton-kose)',
                   padding: '14px 8px',
                   fontSize: 14.5,
@@ -276,7 +283,7 @@ export function PuanVer({
                   padding: '14px 8px',
                   fontSize: 14.5,
                   fontWeight: 800,
-                  color: 'var(--rr-murekkep, #1E2333)',
+                  color: 'var(--rr-yesilYazi, #1E2333)',
                   background: 'var(--rr-yesil, #3DD68C)',
                   textDecoration: 'none',
                 }}

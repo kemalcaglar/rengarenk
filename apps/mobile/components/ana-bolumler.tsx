@@ -1,4 +1,13 @@
-import { colors, HELP_TOPICS, type HomeResponse, type PublicCategory, radii, tints } from '@rengarenk/shared';
+import {
+  butonOran,
+  colors,
+  HELP_TOPICS,
+  type HomeResponse,
+  kartOran,
+  type PublicCategory,
+  radii,
+  tints,
+} from '@rengarenk/shared';
 import { type Href, router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
@@ -11,10 +20,16 @@ import { T } from './t';
  */
 
 const kart = {
-  backgroundColor: colors.surface,
+  get backgroundColor() {
+    return colors.surface;
+  },
   borderWidth: 1,
-  borderColor: colors.line,
-  borderRadius: 16,
+  get borderColor() {
+    return colors.line;
+  },
+  get borderRadius() {
+    return kartOran(16);
+  },
 } as const;
 
 export function Baslik({ yazi, sag, git }: { yazi: string; sag?: string; git?: () => void }) {
@@ -56,7 +71,7 @@ const kucukDugme = (yazi: string, git: () => void, rozet?: number) => (
       gap: 6,
       borderWidth: 1,
       borderColor: colors.line,
-      borderRadius: radii.buton - 2,
+      borderRadius: butonOran(12),
       paddingVertical: 9,
       paddingHorizontal: 12,
       backgroundColor: colors.surface,
@@ -65,7 +80,7 @@ const kucukDugme = (yazi: string, git: () => void, rozet?: number) => (
     <T style={{ fontSize: 13.5, fontWeight: '700' }}>{yazi}</T>
     {rozet ? (
       <View style={{ backgroundColor: colors.pink, borderRadius: radii.etiket, paddingHorizontal: 7 }}>
-        <T style={{ fontSize: 12, fontWeight: '800' }}>{rozet}</T>
+        <T style={{ color: colors.onPink, fontSize: 12, fontWeight: '800' }}>{rozet}</T>
       </View>
     ) : null}
   </Pressable>

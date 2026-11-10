@@ -20,10 +20,10 @@ const girdi: CSSProperties = {
   boxSizing: 'border-box',
   marginTop: 5,
   border: '1px solid #D5DAE5',
-  borderRadius: 10,
+  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
   padding: 11,
   fontSize: 14.5,
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   fontFamily: 'inherit',
 };
 const tr = (s: string) => s.toLocaleLowerCase('tr-TR');
@@ -156,7 +156,9 @@ export default function Yardim() {
         color: 'var(--rr-murekkep, #1E2333)',
       }}
     >
-      <header style={{ background: '#FFFFFF', borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)' }}>
+      <header
+        style={{ background: 'var(--rr-kart, #FFFFFF)', borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)' }}
+      >
         <div
           style={{
             maxWidth: 1360,
@@ -182,11 +184,21 @@ export default function Yardim() {
           >
             <span style={{ display: 'flex', gap: 3 }} aria-hidden="true">
               {BARS.map((c) => (
-                <span key={c} style={{ width: 10, height: 22, borderRadius: 5, background: c }} />
+                <span
+                  key={c}
+                  style={{
+                    width: 10,
+                    height: 22,
+                    borderRadius: 'calc(var(--rr-buton-kose) * 5 / 14)',
+                    background: c,
+                  }}
+                />
               ))}
             </span>
             <span style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>rengarenk</span>
-            <span style={{ fontSize: 15, fontWeight: 700, color: '#5A6073', marginLeft: 4 }}>Yardım</span>
+            <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--rr-soluk, #5A6073)', marginLeft: 4 }}>
+              Yardım
+            </span>
           </Link>
           {ben ? (
             <Link
@@ -252,9 +264,9 @@ export default function Yardim() {
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              background: '#FFFFFF',
+              background: 'var(--rr-kart, #FFFFFF)',
               border: '1px solid var(--rr-cizgi, #E3E6EF)',
-              borderRadius: 16,
+              borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
               padding: '6px 6px 6px 18px',
             }}
           >
@@ -290,11 +302,11 @@ export default function Yardim() {
               style={{
                 border: 0,
                 background: 'var(--rr-mavi, #5B8CFF)',
-                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                 padding: '12px 20px',
                 fontSize: 15,
                 fontWeight: 800,
-                color: 'var(--rr-murekkep, #1E2333)',
+                color: 'var(--rr-maviYazi, #1E2333)',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
               }}
@@ -329,7 +341,7 @@ export default function Yardim() {
                 }}
                 style={{
                   textAlign: 'left',
-                  background: '#FFFFFF',
+                  background: 'var(--rr-kart, #FFFFFF)',
                   border: on ? `2px solid ${t.renk}` : '1px solid var(--rr-cizgi, #E3E6EF)',
                   borderRadius: 'var(--rr-kart-kose)',
                   padding: on ? 17 : 18,
@@ -343,13 +355,20 @@ export default function Yardim() {
                     display: 'block',
                     width: 36,
                     height: 6,
-                    borderRadius: 3,
+                    borderRadius: 'calc(var(--rr-buton-kose) * 3 / 14)',
                     background: t.renk,
                     marginBottom: 12,
                   }}
                 />
                 <span style={{ display: 'block', fontSize: 16, fontWeight: 800 }}>{t.ad}</span>
-                <span style={{ display: 'block', fontSize: 13.5, color: '#5A6073', marginTop: 4 }}>
+                <span
+                  style={{
+                    display: 'block',
+                    fontSize: 13.5,
+                    color: 'var(--rr-soluk, #5A6073)',
+                    marginTop: 4,
+                  }}
+                >
                   {t.not}
                 </span>
               </button>
@@ -363,7 +382,7 @@ export default function Yardim() {
             style={{
               flex: '999 1 560px',
               minWidth: 0,
-              background: '#FFFFFF',
+              background: 'var(--rr-kart, #FFFFFF)',
               border: '1px solid var(--rr-cizgi, #E3E6EF)',
               borderRadius: 'var(--rr-kart-kose)',
               overflow: 'hidden',
@@ -382,7 +401,9 @@ export default function Yardim() {
               {sonuc ? `“${aranan}” için sonuçlar` : `${k.ad} · sık sorulanlar`}
             </h2>
             {sorular.length === 0 ? (
-              <p style={{ margin: 0, padding: '16px 20px', fontSize: 14.5, color: '#5A6073' }}>
+              <p
+                style={{ margin: 0, padding: '16px 20px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}
+              >
                 Sonuç bulunamadı. Destek talebi oluşturarak bize yazabilirsin.
               </p>
             ) : null}
@@ -415,7 +436,14 @@ export default function Yardim() {
                     }}
                   >
                     {m.soru}
-                    <span style={{ flex: 'none', fontSize: 20, fontWeight: 600, color: '#5A6073' }}>
+                    <span
+                      style={{
+                        flex: 'none',
+                        fontSize: 20,
+                        fontWeight: 600,
+                        color: 'var(--rr-soluk, #5A6073)',
+                      }}
+                    >
                       {on ? '−' : '+'}
                     </span>
                   </button>
@@ -441,7 +469,7 @@ export default function Yardim() {
                             gap: 8,
                             marginTop: 10,
                             fontSize: 13,
-                            color: '#5A6073',
+                            color: 'var(--rr-soluk, #5A6073)',
                             flexWrap: 'wrap',
                           }}
                         >
@@ -462,7 +490,7 @@ export default function Yardim() {
                                   onClick={() => oyla(m, v)}
                                   style={{
                                     border: '1px solid #D5DAE5',
-                                    background: '#FFFFFF',
+                                    background: 'var(--rr-kart, #FFFFFF)',
                                     borderRadius: 'var(--rr-etiket-kose)',
                                     padding: '4px 12px',
                                     fontSize: 13,
@@ -511,7 +539,7 @@ export default function Yardim() {
             <section
               aria-labelledby="ds"
               style={{
-                background: '#FFFFFF',
+                background: 'var(--rr-kart, #FFFFFF)',
                 border: '1px solid var(--rr-cizgi, #E3E6EF)',
                 borderRadius: 'var(--rr-kart-kose)',
                 padding: 20,
@@ -526,7 +554,7 @@ export default function Yardim() {
                   style={{
                     marginTop: 10,
                     background: '#E7FAF0',
-                    borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                    borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                     padding: 14,
                     fontSize: 14,
                     lineHeight: 1.5,
@@ -541,7 +569,7 @@ export default function Yardim() {
                   style={{
                     marginTop: 10,
                     background: '#E7FAF0',
-                    borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                    borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                     padding: 14,
                     fontSize: 14,
                     lineHeight: 1.5,
@@ -565,7 +593,7 @@ export default function Yardim() {
                 </p>
               ) : (
                 <>
-                  <p style={{ margin: '0 0 12px', fontSize: 13, color: '#5A6073' }}>
+                  <p style={{ margin: '0 0 12px', fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
                     Genellikle 1 iş günü içinde yanıtlıyoruz.
                   </p>
                   <label style={{ display: 'block', fontSize: 13, fontWeight: 700 }}>
@@ -620,7 +648,7 @@ export default function Yardim() {
                         marginTop: 12,
                         border: '1.5px solid #C9B8FF',
                         background: '#FAF7FF',
-                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                         padding: '12px 14px',
                         fontSize: 13.5,
                         lineHeight: 1.55,
@@ -641,11 +669,11 @@ export default function Yardim() {
                           style={{
                             border: 0,
                             background: 'var(--rr-yesil, #3DD68C)',
-                            borderRadius: 10,
+                            borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                             padding: '9px 14px',
                             fontSize: 13.5,
                             fontWeight: 800,
-                            color: 'var(--rr-murekkep, #1E2333)',
+                            color: 'var(--rr-yesilYazi, #1E2333)',
                             cursor: 'pointer',
                             fontFamily: 'inherit',
                           }}
@@ -658,8 +686,8 @@ export default function Yardim() {
                           disabled={mesgul}
                           style={{
                             border: '1px solid #D5DAE5',
-                            background: '#FFFFFF',
-                            borderRadius: 10,
+                            background: 'var(--rr-kart, #FFFFFF)',
+                            borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                             padding: '9px 14px',
                             fontSize: 13.5,
                             fontWeight: 700,
@@ -683,11 +711,11 @@ export default function Yardim() {
                         marginTop: 12,
                         border: 0,
                         background: 'var(--rr-mavi, #5B8CFF)',
-                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                         padding: 13,
                         fontSize: 15,
                         fontWeight: 800,
-                        color: 'var(--rr-murekkep, #1E2333)',
+                        color: 'var(--rr-maviYazi, #1E2333)',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                       }}
@@ -698,7 +726,7 @@ export default function Yardim() {
                 </>
               )}
             </section>
-            <p style={{ margin: 0, padding: '0 4px', fontSize: 13, color: '#5A6073' }}>
+            <p style={{ margin: 0, padding: '0 4px', fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
               Acil bir dolandırıcılık durumunda önce bankanı ara, sonra mesajı “Şikayet et” ile bize bildir.
             </p>
           </aside>

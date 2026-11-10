@@ -189,3 +189,31 @@ describe('bakım modu', () => {
     await staffCall(app, 'PUT', '/staff/flags/bakim/odeme', { enabled: false }, owner);
   });
 });
+
+describe('veritabanı kısa süre ulaşılamazsa', () => {
+  it('bakım denetimi son bilinen durumla devam eder; ilk okuma yapılamamışsa hata verir', async () => {
+    const svc = flags as unknown as {
+      memo?: { at: number; snap: unknown };
+      redis: { get: (k: string) => Promise<string | null> };
+      db: { featureFlag: { findMany: () => Promise<unknown> } };
+    };
+    await flags.invalidate();
+    const once = await flags.snapshot();
+    // Önbellekler eskidi, veritabanı ve Redis yanıt vermiyor
+    svc.memo = { at: 0, snap: once };
+    const redisGet = svc.redis.get;
+    const findMany = svc.db.featureFlag.findMany;
+    svc.redis.get = () => Promise.reject(new Error('redis kapalı'));
+    svc.db.featureFlag.findMany = () => Promise.reject(new Error('veritabanı kapalı'));
+    try {
+      expect(await flags.snapshot()).toEqual(once);
+      expect((await flags.maintenance('tum')).on).toBe(false);
+      svc.memo = undefined;
+      await expect(flags.snapshot()).rejects.toThrow('veritabanı kapalı');
+    } finally {
+      svc.redis.get = redisGet;
+      svc.db.featureFlag.findMany = findMany;
+      await flags.invalidate();
+    }
+  });
+});

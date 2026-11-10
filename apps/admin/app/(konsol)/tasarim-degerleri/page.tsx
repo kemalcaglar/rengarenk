@@ -1,8 +1,11 @@
 'use client';
 
 import {
+  colorNote,
+  DEFAULT_DESIGN,
   type DesignTokens,
   designProblems,
+  designWarnings,
   type FontType,
   fontCssUrl,
   type SeasonalTheme,
@@ -14,7 +17,7 @@ import { useKonsol } from '../kabuk';
 interface Gorunum {
   yayinda: { surum: number; degerler: DesignTokens; tarih: string | null };
   taslak: { surum: number; degerler: DesignTokens; not: string | null; onayda: boolean } | null;
-  renkler: { key: keyof DesignTokens['renkler']; ad: string; not: string }[];
+  renkler: { key: keyof DesignTokens['renkler']; ad: string; not: string; grup: string }[];
   fontlar: { ad: string; tur: FontType; turAd: string; agirliklar: number[] }[];
   temalar: (SeasonalTheme & { tarihler: string; durum: string })[];
   sorunlar: string[];
@@ -36,6 +39,14 @@ const girdi = {
   fontSize: 13.5,
   fontWeight: 400,
 } as const;
+
+/** Köşe hazır seçimleri: sitedeki bütün köşeler bu üç değere oranla değişir */
+const KOSE_HAZIR = [
+  { ad: 'Köşesiz', kartKose: 0, butonKose: 0, etiketKose: 0 },
+  { ad: 'Az yuvarlak', kartKose: 8, butonKose: 6, etiketKose: 6 },
+  { ad: 'Varsayılan', kartKose: 18, butonKose: 14, etiketKose: 999 },
+  { ad: 'Çok yuvarlak', kartKose: 28, butonKose: 24, etiketKose: 999 },
+] as const;
 
 /** Konsol önizlemesi için yazı tipini yükler (Google Fonts) */
 function useYaziTipi(ad: string) {
@@ -80,6 +91,12 @@ export default function TasarimDegerleri() {
   useYaziTipi(d?.yaziTipi ?? 'Plus Jakarta Sans');
 
   const sorunlar = useMemo(() => (d ? designProblems(d) : []), [d]);
+  const uyarilar = useMemo(() => (d ? designWarnings(d) : []), [d]);
+  const renkGruplari = useMemo(() => {
+    const m = new Map<string, Gorunum['renkler']>();
+    for (const r of v?.renkler ?? []) m.set(r.grup, [...(m.get(r.grup) ?? []), r]);
+    return [...m.entries()];
+  }, [v]);
   const gruplar = useMemo(() => {
     const m = new Map<string, Gorunum['fontlar']>();
     for (const f of v?.fontlar ?? []) m.set(f.turAd, [...(m.get(f.turAd) ?? []), f]);
@@ -111,6 +128,21 @@ export default function TasarimDegerleri() {
       setBilgi(
         `Tasarım değerleri s.${r.surum} onaya gönderildi (${r.degisiklikler.length} değişiklik). Onaylanınca web, mobil ve e-posta şablonlarına aynı anda uygulanır.`,
       );
+      yukle();
+    } catch (e) {
+      setHata((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function geriCek() {
+    setBusy(true);
+    setHata(null);
+    setBilgi(null);
+    try {
+      const r = await yonetim<{ surum: number }>('design/geri-cek', { method: 'POST', body: {} });
+      setBilgi(`s.${r.surum} onaydan geri çekildi; değerleri yeniden düzenleyebilirsin.`);
       yukle();
     } catch (e) {
       setHata((e as Error).message);
@@ -174,63 +206,147 @@ export default function TasarimDegerleri() {
           {bilgi}
         </p>
       ) : null}
+      {onayda ? (
+        <div
+          className="k-ok"
+          role="status"
+          style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}
+        >
+          <span style={{ flex: '1 1 300px' }}>
+            s.{v.taslak?.surum} onay bekliyor; değerler onaylanana ya da geri çekilene kadar kilitli. Onay
+            kuyruğundan onaylayabilir ya da buradan geri çekip düzenlemeye devam edebilirsin.
+          </span>
+          {yazabilir ? (
+            <button
+              type="button"
+              className="k-btn-line"
+              disabled={busy}
+              onClick={() => void geriCek()}
+              style={{ fontSize: 13, padding: '6px 12px' }}
+            >
+              Geri çek ve düzenle
+            </button>
+          ) : null}
+        </div>
+      ) : null}
       {sorunlar.length ? (
         <div className="k-error" role="alert">
           Onaya göndermeden önce düzelt: {sorunlar.join(' · ')}
+        </div>
+      ) : null}
+      {uyarilar.length ? (
+        <div
+          role="note"
+          style={{
+            background: '#FFF6DF',
+            color: '#5A3D00',
+            border: '1px solid #F4DC9A',
+            borderRadius: 12,
+            padding: '10px 14px',
+            fontSize: 13.5,
+            marginBottom: 12,
+          }}
+        >
+          Uyarı (gönderilebilir): {uyarilar.join(' · ')}
         </div>
       ) : null}
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-start' }}>
         <div style={{ flex: '999 1 480px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
           <section style={{ ...kart, padding: '16px 18px' }} aria-labelledby="renk">
-            <h2 id="renk" style={{ margin: '0 0 12px', fontSize: 17, fontWeight: 800 }}>
-              Renkler · Gökkuşağı paleti
-            </h2>
             <div
               style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-                gap: 12,
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 10,
+                marginBottom: 4,
               }}
             >
-              {v.renkler.map((r) => (
-                <div key={r.key} style={{ minWidth: 0 }}>
-                  <label
-                    style={{
-                      display: 'block',
-                      height: 56,
-                      borderRadius: 12,
-                      background: R[r.key],
-                      border: '1px solid #E3E6EF',
-                      cursor: yazabilir ? 'pointer' : 'default',
-                      position: 'relative',
-                    }}
-                  >
-                    <span className="sr-only">{r.ad} rengini seç</span>
-                    <input
-                      type="color"
-                      value={R[r.key]}
-                      disabled={!yazabilir || onayda}
-                      onChange={(e) => set({ renkler: { ...R, [r.key]: e.target.value.toUpperCase() } })}
-                      style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%' }}
-                    />
-                  </label>
-                  <div style={{ fontSize: 13, fontWeight: 800, marginTop: 6 }}>{r.ad}</div>
-                  <input
-                    aria-label={`${r.ad} kodu`}
-                    value={R[r.key]}
-                    disabled={!yazabilir || onayda}
-                    maxLength={7}
-                    onChange={(e) =>
-                      /^#[0-9A-Fa-f]{0,6}$/.test(e.target.value) &&
-                      set({ renkler: { ...R, [r.key]: e.target.value.toUpperCase() } })
-                    }
-                    style={{ ...girdi, padding: '2px 6px', fontSize: 12, width: 90, marginTop: 2 }}
-                  />
-                  <div style={{ fontSize: 11.5, color: '#5A6073', marginTop: 2 }}>{r.not}</div>
-                </div>
-              ))}
+              <h2 id="renk" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+                Renkler
+              </h2>
+              {yazabilir && !onayda ? (
+                <button
+                  type="button"
+                  className="k-btn-line"
+                  style={{ fontSize: 12.5, padding: '5px 10px' }}
+                  onClick={() => set({ renkler: { ...DEFAULT_DESIGN.renkler } })}
+                >
+                  Renkleri varsayılana döndür
+                </button>
+              ) : null}
             </div>
+            {renkGruplari.map(([grup, liste]) => (
+              <div key={grup}>
+                <h3
+                  style={{
+                    margin: '14px 0 8px',
+                    fontSize: 13,
+                    fontWeight: 800,
+                    color: '#5A6073',
+                    textTransform: 'uppercase',
+                    letterSpacing: 0.5,
+                  }}
+                >
+                  {grup}
+                </h3>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+                    gap: 12,
+                  }}
+                >
+                  {liste.map((r) => (
+                    <div key={r.key} style={{ minWidth: 0 }}>
+                      <label
+                        style={{
+                          display: 'block',
+                          height: 56,
+                          borderRadius: 12,
+                          background: R[r.key],
+                          border: '1px solid #E3E6EF',
+                          cursor: yazabilir ? 'pointer' : 'default',
+                          position: 'relative',
+                        }}
+                      >
+                        <span className="sr-only">{r.ad} rengini seç</span>
+                        <input
+                          type="color"
+                          value={R[r.key]}
+                          disabled={!yazabilir || onayda}
+                          onChange={(e) => set({ renkler: { ...R, [r.key]: e.target.value.toUpperCase() } })}
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            opacity: 0,
+                            width: '100%',
+                            height: '100%',
+                          }}
+                        />
+                      </label>
+                      <div style={{ fontSize: 13, fontWeight: 800, marginTop: 6 }}>{r.ad}</div>
+                      <input
+                        aria-label={`${r.ad} kodu`}
+                        value={R[r.key]}
+                        disabled={!yazabilir || onayda}
+                        maxLength={7}
+                        onChange={(e) =>
+                          /^#[0-9A-Fa-f]{0,6}$/.test(e.target.value) &&
+                          set({ renkler: { ...R, [r.key]: e.target.value.toUpperCase() } })
+                        }
+                        style={{ ...girdi, padding: '2px 6px', fontSize: 12, width: 90, marginTop: 2 }}
+                      />
+                      <div style={{ fontSize: 11.5, color: '#5A6073', marginTop: 2 }}>
+                        {colorNote(r.key, d)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </section>
 
           <section style={{ ...kart, padding: '16px 18px' }} aria-labelledby="yazi">
@@ -268,6 +384,37 @@ export default function TasarimDegerleri() {
                     </span>
                   </span>,
                 ],
+                [
+                  'Köşeler',
+                  <span key="h" style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {KOSE_HAZIR.map((h) => {
+                      const secili =
+                        d.kartKose === h.kartKose &&
+                        d.butonKose === h.butonKose &&
+                        d.etiketKose === h.etiketKose;
+                      return (
+                        <button
+                          key={h.ad}
+                          type="button"
+                          className="k-btn-line"
+                          aria-pressed={secili}
+                          disabled={!yazabilir || onayda}
+                          onClick={() =>
+                            set({ kartKose: h.kartKose, butonKose: h.butonKose, etiketKose: h.etiketKose })
+                          }
+                          style={{
+                            fontSize: 12.5,
+                            padding: '5px 10px',
+                            background: secili ? '#EEF3FF' : undefined,
+                            borderColor: secili ? '#5B8CFF' : undefined,
+                          }}
+                        >
+                          {h.ad}
+                        </button>
+                      );
+                    })}
+                  </span>,
+                ],
                 ['Kart köşesi', 'kartKose', 32],
                 ['Buton köşesi', 'butonKose', 28],
               ] as const
@@ -287,7 +434,17 @@ export default function TasarimDegerleri() {
               >
                 <span style={{ fontWeight: 700 }}>{ad}</span>
                 {typeof x === 'string' ? (
-                  <span style={{ color: '#3A4052' }}>
+                  <span style={{ color: '#3A4052', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <input
+                      type="range"
+                      aria-label={`${ad} kaydırıcı`}
+                      min={0}
+                      max={ust}
+                      value={d[x as 'kartKose' | 'butonKose']}
+                      disabled={!yazabilir || onayda}
+                      onChange={(e) => set({ [x]: Number(e.target.value) })}
+                      style={{ width: 140 }}
+                    />
                     <input
                       type="number"
                       aria-label={ad}
@@ -329,6 +486,16 @@ export default function TasarimDegerleri() {
                 {d.etiketKose < 999 ? (
                   <>
                     <input
+                      type="range"
+                      aria-label="Etiket köşesi kaydırıcı"
+                      min={0}
+                      max={20}
+                      value={d.etiketKose}
+                      disabled={!yazabilir || onayda}
+                      onChange={(e) => set({ etiketKose: Number(e.target.value) })}
+                      style={{ width: 110 }}
+                    />
+                    <input
                       type="number"
                       aria-label="Etiket köşesi"
                       min={0}
@@ -356,6 +523,10 @@ export default function TasarimDegerleri() {
                 fontSize: 13.5,
               }}
             >
+              <span style={{ flex: '1 1 100%', fontSize: 12.5, color: '#5A6073', margin: '-4px 0 6px' }}>
+                Sitedeki ve uygulamadaki bütün köşeler bu üç değere oranla değişir; 0 seçilirse köşeler
+                tamamen kalkar. Avatar ve nokta gibi tam daireler değişmez.
+              </span>
               <span style={{ fontWeight: 700 }}>Logo</span>
               <span style={{ color: '#3A4052' }}>
                 Dört renkli çubuk + “rengarenk” · SVG, koyu ve açık sürüm
@@ -623,7 +794,7 @@ export default function TasarimDegerleri() {
           >
             <div
               style={{
-                background: ozel ? tema.ustBant : '#FFFFFF',
+                background: ozel ? tema.ustBant : R.kart,
                 padding: '12px 14px',
                 display: 'flex',
                 alignItems: 'center',
@@ -672,7 +843,7 @@ export default function TasarimDegerleri() {
               </div>
               <div
                 style={{
-                  background: '#FFFFFF',
+                  background: R.kart,
                   border: `1px solid ${R.cizgi}`,
                   borderRadius: d.kartKose,
                   padding: 12,
@@ -681,7 +852,7 @@ export default function TasarimDegerleri() {
                 <div style={{ fontSize: 14, fontWeight: 800, color: R.murekkep }}>
                   BMW 3 Serisi 320i · M Sport
                 </div>
-                <div style={{ fontSize: 12, color: '#5A6073', marginTop: 2 }}>
+                <div style={{ fontSize: 12, color: R.soluk, marginTop: 2 }}>
                   2020–2023 · İstanbul · ₺1,75 – 2,05 milyon
                 </div>
                 <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
@@ -691,8 +862,8 @@ export default function TasarimDegerleri() {
                       fontWeight: 800,
                       padding: '3px 9px',
                       borderRadius: d.etiketKose,
-                      background: '#FFEEF6',
-                      color: '#A3236A',
+                      background: R.pembe,
+                      color: R.pembeYazi,
                     }}
                   >
                     Acil arıyorum
@@ -703,19 +874,19 @@ export default function TasarimDegerleri() {
                       fontWeight: 800,
                       padding: '3px 9px',
                       borderRadius: d.etiketKose,
-                      background: '#E7FAF0',
-                      color: '#11683F',
+                      background: R.yesil,
+                      color: R.yesilYazi,
                     }}
                   >
                     12 mesaj
                   </span>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, whiteSpace: 'nowrap' }}>
                 <span
                   style={{
                     background: R.mavi,
-                    color: R.murekkep,
+                    color: R.maviYazi,
                     fontWeight: 800,
                     fontSize: 13,
                     padding: '9px 14px',
@@ -727,7 +898,7 @@ export default function TasarimDegerleri() {
                 <span
                   style={{
                     border: `1px solid ${R.cizgi}`,
-                    background: '#FFFFFF',
+                    background: R.kart,
                     color: R.murekkep,
                     fontWeight: 700,
                     fontSize: 13,
@@ -736,6 +907,18 @@ export default function TasarimDegerleri() {
                   }}
                 >
                   Galeri ol
+                </span>
+                <span
+                  style={{
+                    background: R.sari,
+                    color: R.sariYazi,
+                    fontWeight: 800,
+                    fontSize: 13,
+                    padding: '9px 14px',
+                    borderRadius: d.butonKose,
+                  }}
+                >
+                  Hak al
                 </span>
               </div>
               <span style={{ fontSize: 12.5, color: R.baglanti, fontWeight: 700 }}>Tüm talepleri gör ›</span>

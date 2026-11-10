@@ -1,4 +1,4 @@
-import { colors, MESSAGE_MAX, radii } from '@rengarenk/shared';
+import { butonOran, colors, kartOran, MESSAGE_MAX, radii } from '@rengarenk/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, TextInput, View } from 'react-native';
 import { useOturum } from '../lib/oturum';
@@ -125,8 +125,8 @@ export function IlkMesaj({
           accessibilityViewIsModal
           style={{
             backgroundColor: colors.surface,
-            borderTopLeftRadius: 24,
-            borderTopRightRadius: 24,
+            borderTopLeftRadius: kartOran(24),
+            borderTopRightRadius: kartOran(24),
             paddingTop: 10,
             paddingHorizontal: 18,
             paddingBottom: 26,
@@ -134,7 +134,13 @@ export function IlkMesaj({
           }}
         >
           <View
-            style={{ alignSelf: 'center', width: 40, height: 4, borderRadius: 2, backgroundColor: '#D5DAE5' }}
+            style={{
+              alignSelf: 'center',
+              width: 40,
+              height: 4,
+              borderRadius: Math.min(radii.etiket, 2),
+              backgroundColor: '#D5DAE5',
+            }}
           />
           <ScrollView keyboardShouldPersistTaps="handled">
             <T accessibilityRole="header" style={{ fontSize: 18, fontWeight: '800', marginTop: 12 }}>
@@ -155,7 +161,9 @@ export function IlkMesaj({
                   padding: 10,
                 }}
               >
-                <View style={{ width: 52, height: 34, borderRadius: 8, backgroundColor: '#E5D8B5' }} />
+                <View
+                  style={{ width: 52, height: 34, borderRadius: butonOran(8), backgroundColor: '#E5D8B5' }}
+                />
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <T numberOfLines={1} style={{ fontSize: 14, fontWeight: '800' }}>
                     {secArac.ad}
@@ -256,7 +264,7 @@ export function IlkMesaj({
                   opacity: pasif ? 0.55 : 1,
                 }}
               >
-                <T style={{ fontSize: 15, fontWeight: '800' }}>
+                <T style={{ color: colors.onBlue, fontSize: 15, fontWeight: '800' }}>
                   {mesgul ? 'Gönderiliyor…' : 'Gönder · 1 hak kullanılır'}
                 </T>
               </Pressable>

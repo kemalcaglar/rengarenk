@@ -16,10 +16,10 @@ const dugme = {
   fontWeight: 700,
   color: colors.ink,
   border: `1px solid ${colors.line}`,
-  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
   padding: '11px 16px',
   textDecoration: 'none',
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
 } as const;
 
 type Galeri = NonNullable<HomeResponse['galeri']>;
@@ -31,7 +31,7 @@ function GaleriKarsilama({ g }: { g: Galeri }) {
       aria-labelledby="merhaba"
       style={{
         ...kart,
-        borderRadius: 20,
+        borderRadius: 'calc(var(--rr-kart-kose) * 20 / 18)',
         display: 'flex',
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -69,6 +69,7 @@ function GaleriKarsilama({ g }: { g: Galeri }) {
             <span
               style={{
                 background: colors.pink,
+                color: 'var(--rr-pembeYazi, #1E2333)',
                 borderRadius: 'var(--rr-etiket-kose)',
                 padding: '2px 8px',
                 marginLeft: 6,
@@ -116,7 +117,7 @@ function HakKarti({ g }: { g: Galeri }) {
               display: 'block',
               height: 8,
               borderRadius: 'var(--rr-etiket-kose)',
-              background: '#FFFFFF',
+              background: 'var(--rr-kart, #FFFFFF)',
               marginTop: 8,
               overflow: 'hidden',
             }}
@@ -127,6 +128,7 @@ function HakKarti({ g }: { g: Galeri }) {
                 width: `${Math.round(oran * 100)}%`,
                 height: '100%',
                 background: colors.yellow,
+                color: 'var(--rr-sariYazi, #1E2333)',
               }}
             />
           </span>
@@ -153,7 +155,7 @@ function ArananModeller({ a }: { a: NonNullable<HomeResponse['aranan']> }) {
       >
         {a.bolge.replace(/^./, (c) => c.toLocaleUpperCase('tr-TR'))} aranan modeller
       </Baslik>
-      <div style={{ ...kart, borderRadius: 16, overflow: 'hidden' }}>
+      <div style={{ ...kart, borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)', overflow: 'hidden' }}>
         {a.modeller.map((m) => (
           <div
             key={m.ad}
@@ -221,7 +223,13 @@ function TaleplerimOzeti({ liste }: { liste: NonNullable<HomeResponse['talepleri
             <Link
               key={t.no}
               href={`/talep/${t.no}`}
-              style={{ ...kart, borderRadius: 16, padding: 16, color: colors.ink, textDecoration: 'none' }}
+              style={{
+                ...kart,
+                borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
+                padding: 16,
+                color: colors.ink,
+                textDecoration: 'none',
+              }}
             >
               <span style={{ display: 'block', fontSize: 15, fontWeight: 800 }}>{t.baslik}</span>
               <span style={{ display: 'block', fontSize: 13.5, color: colors.muted, marginTop: 6 }}>
@@ -256,7 +264,7 @@ function GelenMesajlar({ liste }: { liste: NonNullable<HomeResponse['mesajlar']>
       >
         Gelen ilk mesajlar
       </Baslik>
-      <div style={{ ...kart, borderRadius: 16, overflow: 'hidden' }}>
+      <div style={{ ...kart, borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)', overflow: 'hidden' }}>
         {liste.map((m) => (
           <Link
             key={m.id}
@@ -280,6 +288,7 @@ function GelenMesajlar({ liste }: { liste: NonNullable<HomeResponse['mesajlar']>
                 height: 10,
                 borderRadius: '50%',
                 background: m.okunmadi ? colors.pink : '#D5DAE5',
+                color: m.okunmadi ? 'var(--rr-pembeYazi, #1E2333)' : undefined,
                 flex: 'none',
               }}
             />
@@ -304,9 +313,11 @@ function BolgeSon({ il }: { il: string }) {
   useEffect(() => {
     let canli = true;
     (async () => {
-      const bolge = await talepleriAl(`/talepler?il=${encodeURIComponent(il)}&sira=yeni&boyut=6`);
+      const bolge = await talepleriAl(`/talepler?il=${encodeURIComponent(il)}&sira=yeni&boyut=6`, {
+        iptal: () => !canli,
+      });
       if (bolge?.sonuclar.length) return { liste: bolge.sonuclar, il: true };
-      const genel = await talepleriAl('/talepler?sira=yeni&boyut=6');
+      const genel = await talepleriAl('/talepler?sira=yeni&boyut=6', { iptal: () => !canli });
       return { liste: genel?.sonuclar ?? [], il: false };
     })().then((x) => canli && setV(x));
     return () => {

@@ -10,7 +10,7 @@ export default function NotFound() {
           maxWidth: 640,
           background: colors.surface,
           border: `1px solid ${colors.line}`,
-          borderRadius: 22,
+          borderRadius: 'calc(var(--rr-kart-kose) * 22 / 18)',
           padding: 32,
         }}
       >
@@ -23,7 +23,7 @@ export default function NotFound() {
           style={{
             display: 'inline-flex',
             background: colors.blue,
-            color: colors.ink,
+            color: 'var(--rr-maviYazi, #1E2333)',
             fontWeight: 800,
             fontSize: 15,
             padding: '13px 20px',

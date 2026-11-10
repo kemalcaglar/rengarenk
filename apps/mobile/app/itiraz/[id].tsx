@@ -1,4 +1,4 @@
-import { colors, radii } from '@rengarenk/shared';
+import { butonOran, colors, radii } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
@@ -97,7 +97,7 @@ export default function Itiraz() {
           style={{
             width: 44,
             height: 44,
-            borderRadius: radii.buton - 2,
+            borderRadius: butonOran(12),
             alignItems: 'center',
             justifyContent: 'center',
           }}
@@ -184,7 +184,7 @@ export default function Itiraz() {
                       marginTop: 10,
                       borderWidth: 1,
                       borderColor: '#D5DAE5',
-                      borderRadius: radii.buton - 2,
+                      borderRadius: butonOran(12),
                       padding: 12,
                       minHeight: 110,
                       fontSize: 14.5,
@@ -211,7 +211,7 @@ export default function Itiraz() {
                       alignItems: 'center',
                     }}
                   >
-                    <T style={{ fontSize: 15.5, fontWeight: '800' }}>İtiraz et</T>
+                    <T style={{ color: colors.onBlue, fontSize: 15.5, fontWeight: '800' }}>İtiraz et</T>
                   </Pressable>
                 </>
               ) : (

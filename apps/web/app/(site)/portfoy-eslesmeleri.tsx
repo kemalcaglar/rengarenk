@@ -58,9 +58,9 @@ export function PortfoyEslesmeleri() {
             href={`/talep/${e.no}`}
             style={{
               display: 'block',
-              background: '#FFFFFF',
+              background: 'var(--rr-kart, #FFFFFF)',
               border: '1px solid var(--rr-cizgi, #E3E6EF)',
-              borderRadius: 16,
+              borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
               padding: 16,
               color: 'var(--rr-murekkep, #1E2333)',
               textDecoration: 'none',
@@ -86,7 +86,7 @@ export function PortfoyEslesmeleri() {
             >
               {e.baslik}
             </span>
-            <span style={{ display: 'block', fontSize: 13, color: '#5A6073', marginTop: 6 }}>
+            <span style={{ display: 'block', fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 6 }}>
               {[[e.il, e.ilce].filter(Boolean).join(', '), zaman(e.yayin)].filter(Boolean).join(' · ')}
             </span>
             <span

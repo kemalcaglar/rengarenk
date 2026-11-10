@@ -45,7 +45,7 @@ const BOLUMLER: [Bolum, string][] = [
 ];
 
 const kart: CSSProperties = {
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   border: '1px solid var(--rr-cizgi, #E3E6EF)',
   borderRadius: 'var(--rr-kart-kose)',
 };
@@ -55,15 +55,15 @@ const girdi: CSSProperties = {
   boxSizing: 'border-box',
   marginTop: 5,
   border: '1px solid #D5DAE5',
-  borderRadius: 10,
+  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
   padding: 11,
   fontSize: 14.5,
   fontFamily: 'inherit',
 };
 const ikincil: CSSProperties = {
   border: '1px solid #D5DAE5',
-  background: '#FFFFFF',
-  borderRadius: 10,
+  background: 'var(--rr-kart, #FFFFFF)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
   padding: '8px 12px',
   fontSize: 13.5,
   fontWeight: 700,
@@ -78,7 +78,7 @@ const satir: CSSProperties = {
   alignItems: 'center',
   gap: 8,
   border: '1px solid #EEF0F5',
-  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
   padding: '12px 14px',
 };
 const PLATFORM: Record<string, string> = {
@@ -185,7 +185,7 @@ export default function Ayarlar() {
             display: 'flex',
             flexWrap: 'wrap',
             gap: 6,
-            background: '#FFFFFF',
+            background: 'var(--rr-kart, #FFFFFF)',
             border: '1px solid var(--rr-cizgi, #E3E6EF)',
             borderRadius: 'var(--rr-buton-kose)',
             padding: 6,
@@ -203,7 +203,7 @@ export default function Ayarlar() {
                 flex: '1 1 130px',
                 border: 0,
                 background: bolum === k ? '#EEF3FF' : 'transparent',
-                borderRadius: 10,
+                borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                 padding: '11px 10px',
                 fontSize: 14.5,
                 fontWeight: bolum === k ? 800 : 600,
@@ -222,7 +222,7 @@ export default function Ayarlar() {
             style={{
               background: '#E7FAF0',
               color: '#11683F',
-              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
               padding: '10px 14px',
               fontWeight: 700,
             }}
@@ -236,7 +236,7 @@ export default function Ayarlar() {
             style={{
               background: '#FDECEC',
               color: '#A3271F',
-              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
               padding: '10px 14px',
               fontWeight: 700,
             }}
@@ -284,7 +284,7 @@ export default function Ayarlar() {
                       setIl(e.target.value);
                       setIlce('');
                     }}
-                    style={{ ...girdi, background: '#FFFFFF' }}
+                    style={{ ...girdi, background: 'var(--rr-kart, #FFFFFF)' }}
                   >
                     <option value="">Seç</option>
                     {ILLER.map((i) => (
@@ -300,7 +300,7 @@ export default function Ayarlar() {
                     value={ilce}
                     disabled={!il}
                     onChange={(e) => setIlce(e.target.value)}
-                    style={{ ...girdi, background: '#FFFFFF' }}
+                    style={{ ...girdi, background: 'var(--rr-kart, #FFFFFF)' }}
                   >
                     <option value="">{il ? 'Seç' : 'Önce il seç'}</option>
                     {(ILLER.find((i) => i.ad === il)?.ilceler ?? []).map((x) => (
@@ -433,7 +433,9 @@ export default function Ayarlar() {
             <h2 id="bl" style={{ margin: 0, padding: '18px 20px 6px', fontSize: 18, fontWeight: 800 }}>
               Bildirimler
             </h2>
-            <p style={{ margin: 0, padding: '0 20px 14px', fontSize: 13.5, color: '#5A6073' }}>
+            <p
+              style={{ margin: 0, padding: '0 20px 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}
+            >
               Güvenlik ve ödeme bildirimleri kapatılamaz.
               {t.eposta?.dogrulandi ? '' : ' E-posta bildirimleri için Profil bölümünden e-postanı doğrula.'}
             </p>
@@ -445,7 +447,7 @@ export default function Ayarlar() {
                 background: '#F3F5FA',
                 fontSize: 12.5,
                 fontWeight: 700,
-                color: '#5A6073',
+                color: 'var(--rr-soluk, #5A6073)',
               }}
             >
               <span style={{ flex: 1 }}>Bildirim</span>
@@ -468,7 +470,14 @@ export default function Ayarlar() {
               >
                 <span style={{ flex: 1, minWidth: 0 }}>
                   <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>{r.ad}</span>
-                  <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+                  <span
+                    style={{
+                      display: 'block',
+                      fontSize: 12.5,
+                      color: 'var(--rr-soluk, #5A6073)',
+                      marginTop: 2,
+                    }}
+                  >
                     {r.not}
                   </span>
                 </span>
@@ -485,7 +494,7 @@ export default function Ayarlar() {
                       style={{
                         width: 24,
                         height: 24,
-                        borderRadius: 7,
+                        borderRadius: 'calc(var(--rr-buton-kose) * 7 / 14)',
                         border: `2px solid ${k.acik ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}`,
                         background: k.acik ? 'var(--rr-mavi, #5B8CFF)' : '#FFFFFF',
                         color: '#FFFFFF',
@@ -507,7 +516,7 @@ export default function Ayarlar() {
                 margin: 0,
                 padding: '12px 20px 18px',
                 fontSize: 12.5,
-                color: '#5A6073',
+                color: 'var(--rr-soluk, #5A6073)',
                 borderTop: '1px solid #EEF0F5',
               }}
             >
@@ -540,7 +549,14 @@ export default function Ayarlar() {
                     <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>
                       {PLATFORM[o.device?.platform ?? 'WEB'] ?? 'Tarayıcı'}
                     </span>
-                    <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+                    <span
+                      style={{
+                        display: 'block',
+                        fontSize: 12.5,
+                        color: 'var(--rr-soluk, #5A6073)',
+                        marginTop: 2,
+                      }}
+                    >
                       {o.current
                         ? 'şu an etkin'
                         : `son etkinlik ${tarih(o.device?.lastSeenAt ?? o.createdAt)}`}

@@ -45,11 +45,11 @@ export function TakipDugmesi({ slug }: { slug: string }) {
       style={{
         border: 0,
         background: takip ? '#E7FAF0' : 'var(--rr-mavi, #5B8CFF)',
-        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
         padding: '11px 16px',
         fontSize: 14.5,
         fontWeight: 800,
-        color: 'var(--rr-murekkep, #1E2333)',
+        color: takip ? 'var(--rr-murekkep, #1E2333)' : 'var(--rr-maviYazi, #1E2333)',
         cursor: 'pointer',
         fontFamily: 'inherit',
       }}

@@ -15,16 +15,16 @@ const girdi: CSSProperties = {
   width: '100%',
   boxSizing: 'border-box',
   border: '1px solid #E5A6A1',
-  borderRadius: 10,
+  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
   padding: 11,
   fontSize: 14.5,
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   fontFamily: 'inherit',
 };
 const kapatDugme: CSSProperties = {
   border: '1px solid #E5A6A1',
-  background: '#FFFFFF',
-  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+  background: 'var(--rr-kart, #FFFFFF)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
   padding: '12px 18px',
   fontSize: 14.5,
   fontWeight: 800,
@@ -95,7 +95,7 @@ export function HesabiKapat({
   return (
     <section
       style={{
-        background: '#FFFFFF',
+        background: 'var(--rr-kart, #FFFFFF)',
         border: '1px solid var(--rr-cizgi, #E3E6EF)',
         borderRadius: 'var(--rr-kart-kose)',
         padding: 22,

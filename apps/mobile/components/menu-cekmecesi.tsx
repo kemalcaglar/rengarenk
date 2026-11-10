@@ -1,4 +1,4 @@
-import { colors, DOTS, radii } from '@rengarenk/shared';
+import { butonOran, colors, DOTS, radii } from '@rengarenk/shared';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Linking, Modal, Pressable, ScrollView, View } from 'react-native';
@@ -16,7 +16,9 @@ const TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0', '#F3EFFF', '#FFF0EA']
 const baslik = {
   fontSize: 12.5,
   fontWeight: '800',
-  color: colors.muted,
+  get color() {
+    return colors.muted;
+  },
   textTransform: 'uppercase',
   letterSpacing: 0.5,
 } as const;
@@ -77,7 +79,7 @@ export function MenuCekmecesi({ acik, kapat }: { acik: boolean; kapat: () => voi
             style={{
               width: 44,
               height: 44,
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -183,7 +185,7 @@ export function MenuCekmecesi({ acik, kapat }: { acik: boolean; kapat: () => voi
                     style={{
                       width: 30,
                       height: 30,
-                      borderRadius: 9,
+                      borderRadius: butonOran(9),
                       // Kare, noktanın renginin açık tonu (DOTS ile TINTS aynı sırada)
                       backgroundColor:
                         TINTS[(DOTS as readonly string[]).indexOf(c.color)] ?? TINTS[i % TINTS.length],

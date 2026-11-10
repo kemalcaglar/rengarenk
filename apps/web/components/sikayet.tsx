@@ -66,8 +66,8 @@ export function Sikayet({ hedef, id, kapat }: { hedef: ReportTarget; id: string;
           maxWidth: 440,
           maxHeight: '90vh',
           overflowY: 'auto',
-          background: '#FFFFFF',
-          borderRadius: 24,
+          background: 'var(--rr-kart, #FFFFFF)',
+          borderRadius: 'calc(var(--rr-kart-kose) * 24 / 18)',
           padding: '20px 20px 24px',
         }}
       >
@@ -76,7 +76,14 @@ export function Sikayet({ hedef, id, kapat }: { hedef: ReportTarget; id: string;
             <h2 id="sikayet-baslik" style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
               {BASLIK[hedef]}
             </h2>
-            <p style={{ margin: '4px 0 14px', fontSize: 13, color: '#5A6073', lineHeight: 1.5 }}>
+            <p
+              style={{
+                margin: '4px 0 14px',
+                fontSize: 13,
+                color: 'var(--rr-soluk, #5A6073)',
+                lineHeight: 1.5,
+              }}
+            >
               Şikayetini moderatörlerimiz inceler. Şikayet ettiğin kişi kimin şikayet ettiğini görmez.
             </p>
             <div
@@ -100,8 +107,8 @@ export function Sikayet({ hedef, id, kapat }: { hedef: ReportTarget; id: string;
                       gap: 10,
                       textAlign: 'left',
                       border: `1.5px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-cizgi, #E3E6EF)'}`,
-                      background: on ? '#EEF3FF' : '#FFFFFF',
-                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                      background: on ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
+                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                       padding: '11px 12px',
                       fontSize: 14,
                       fontWeight: 700,
@@ -120,6 +127,7 @@ export function Sikayet({ hedef, id, kapat }: { hedef: ReportTarget; id: string;
                         border: `2px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}`,
                         boxShadow: on ? 'inset 0 0 0 3px #FFFFFF' : 'none',
                         background: on ? 'var(--rr-mavi, #5B8CFF)' : '#FFFFFF',
+                        color: on ? 'var(--rr-maviYazi, #1E2333)' : undefined,
                       }}
                     />
                     {REPORT_REASONS[k].ad}
@@ -141,7 +149,7 @@ export function Sikayet({ hedef, id, kapat }: { hedef: ReportTarget; id: string;
                   boxSizing: 'border-box',
                   marginTop: 6,
                   border: '1px solid #D5DAE5',
-                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                   padding: '10px 12px',
                   fontSize: 14,
                   fontFamily: 'inherit',
@@ -164,7 +172,7 @@ export function Sikayet({ hedef, id, kapat }: { hedef: ReportTarget; id: string;
                 style={{
                   flex: 1,
                   border: '1px solid #D5DAE5',
-                  background: '#FFFFFF',
+                  background: 'var(--rr-kart, #FFFFFF)',
                   borderRadius: 'var(--rr-buton-kose)',
                   padding: '12px 14px',
                   fontSize: 14.5,
@@ -216,7 +224,7 @@ export function Sikayet({ hedef, id, kapat }: { hedef: ReportTarget; id: string;
                 padding: '12px 14px',
                 fontSize: 14.5,
                 fontWeight: 800,
-                color: 'var(--rr-murekkep, #1E2333)',
+                color: 'var(--rr-maviYazi, #1E2333)',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
               }}

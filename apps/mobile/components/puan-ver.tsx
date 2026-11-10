@@ -1,4 +1,4 @@
-import { colors, RATING_LABELS, radii } from '@rengarenk/shared';
+import { colors, kartOran, RATING_LABELS, radii } from '@rengarenk/shared';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { Modal, Pressable, View } from 'react-native';
@@ -60,8 +60,8 @@ export function PuanVer({
         accessibilityViewIsModal
         style={{
           backgroundColor: colors.surface,
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
+          borderTopLeftRadius: kartOran(24),
+          borderTopRightRadius: kartOran(24),
           paddingTop: 10,
           paddingHorizontal: 20,
           paddingBottom: 28,
@@ -72,7 +72,7 @@ export function PuanVer({
             alignSelf: 'center',
             width: 40,
             height: 5,
-            borderRadius: 3,
+            borderRadius: Math.min(radii.etiket, 3),
             backgroundColor: '#D5DAE5',
             marginBottom: 14,
           }}
@@ -264,7 +264,7 @@ export function PuanVer({
                   alignItems: 'center',
                 }}
               >
-                <T style={{ fontSize: 14.5, fontWeight: '800' }}>Aracı buldum</T>
+                <T style={{ color: colors.onGreen, fontSize: 14.5, fontWeight: '800' }}>Aracı buldum</T>
               </Pressable>
             </View>
           </View>

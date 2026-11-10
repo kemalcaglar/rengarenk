@@ -21,7 +21,7 @@ export function HesabimMenu({ aktif }: { aktif: string }) {
         flex: '1 1 220px',
         maxWidth: 250,
         minWidth: 0,
-        background: '#FFFFFF',
+        background: 'var(--rr-kart, #FFFFFF)',
         border: '1px solid var(--rr-cizgi, #E3E6EF)',
         borderRadius: 'var(--rr-kart-kose)',
         padding: 12,
@@ -35,7 +35,7 @@ export function HesabimMenu({ aktif }: { aktif: string }) {
           fontWeight: 800,
           letterSpacing: 0.6,
           textTransform: 'uppercase',
-          color: '#5A6073',
+          color: 'var(--rr-soluk, #5A6073)',
         }}
       >
         Hesabım
@@ -49,7 +49,7 @@ export function HesabimMenu({ aktif }: { aktif: string }) {
             style={{
               display: 'block',
               background: o.href === aktif ? '#EEF3FF' : 'transparent',
-              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
               padding: '11px 12px',
               fontSize: 14.5,
               fontWeight: o.href === aktif ? 800 : 600,
@@ -64,7 +64,7 @@ export function HesabimMenu({ aktif }: { aktif: string }) {
             key={o.ad}
             style={{
               display: 'block',
-              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
               padding: '11px 12px',
               fontSize: 14.5,
               fontWeight: 600,

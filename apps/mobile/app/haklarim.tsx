@@ -1,4 +1,4 @@
-import { colors, fiyatYaz, radii, STORE_NOTES } from '@rengarenk/shared';
+import { butonOran, colors, fiyatYaz, kartOran, radii, STORE_NOTES } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, View } from 'react-native';
@@ -37,7 +37,15 @@ const AD: Record<string, [string, (talep?: string) => string]> = {
   vitrin_7: ['Ana sayfa vitrini', (t) => `7 gün · ${t ?? 'talebin'}`],
 };
 
-const kart = { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line } as const;
+const kart = {
+  get backgroundColor() {
+    return colors.surface;
+  },
+  borderWidth: 1,
+  get borderColor() {
+    return colors.line;
+  },
+} as const;
 const tl = (kurus: number) => `₺${fiyatYaz(kurus / 100)}`;
 const tarih = (iso: string) =>
   new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso));
@@ -125,7 +133,7 @@ export default function Haklarim() {
           style={{
             width: 44,
             height: 44,
-            borderRadius: radii.buton - 2,
+            borderRadius: butonOran(12),
             alignItems: 'center',
             justifyContent: 'center',
           }}
@@ -183,7 +191,7 @@ export default function Haklarim() {
             >
               Satın al
             </T>
-            <View style={{ ...kart, borderRadius: 16, overflow: 'hidden' }}>
+            <View style={{ ...kart, borderRadius: kartOran(16), overflow: 'hidden' }}>
               {urunler.map((u) => {
                 const on = u.key === sec;
                 const [uAd, uNot] = AD[u.key] as [string, (t?: string) => string];
@@ -284,7 +292,7 @@ export default function Haklarim() {
               </T>
             </Pressable>
             {gecmisAcik ? (
-              <View style={{ ...kart, borderRadius: 16, overflow: 'hidden', marginTop: 4 }}>
+              <View style={{ ...kart, borderRadius: kartOran(16), overflow: 'hidden', marginTop: 4 }}>
                 {o.gecmis.length ? (
                   o.gecmis.map((g) => (
                     <View
@@ -355,7 +363,7 @@ export default function Haklarim() {
                 opacity: mesgul || !o.magaza.acik || talepYok ? 0.5 : 1,
               }}
             >
-              <T style={{ fontSize: 16, fontWeight: '800' }}>
+              <T style={{ color: colors.onBlue, fontSize: 16, fontWeight: '800' }}>
                 {mesgul
                   ? 'Bekleniyor…'
                   : `${ios ? 'App Store' : 'Google Play'} ile satın al · ${secili ? tl(secili.mobilKurus) : ''}`}

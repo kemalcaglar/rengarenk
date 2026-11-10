@@ -40,8 +40,8 @@ function Kutu({ on, label, onClick }: { on: boolean; label: string; onClick: () 
 
 const outline = {
   border: `1.5px solid ${colors.ink}`,
-  background: '#FFFFFF',
-  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+  background: 'var(--rr-kart, #FFFFFF)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
   padding: '10px 18px',
   fontSize: 14,
   fontWeight: 800,
@@ -87,7 +87,7 @@ export function CerezBandi() {
         bottom: 16,
         maxWidth: 980,
         margin: '0 auto',
-        background: '#FFFFFF',
+        background: 'var(--rr-kart, #FFFFFF)',
         border: `1px solid ${colors.line}`,
         borderRadius: 'var(--rr-kart-kose)',
         padding: '18px 20px',
@@ -113,7 +113,7 @@ export function CerezBandi() {
                 style={{
                   width: 18,
                   height: 18,
-                  borderRadius: 5,
+                  borderRadius: 'calc(var(--rr-buton-kose) * 5 / 14)',
                   background: '#AEB5C4',
                   color: '#FFFFFF',
                   fontSize: 12,

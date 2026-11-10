@@ -1,4 +1,4 @@
-import { colors, radii } from '@rengarenk/shared';
+import { butonOran, colors, kartOran, radii } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Linking, Pressable, ScrollView, View } from 'react-native';
@@ -89,7 +89,15 @@ const MENU: {
   },
 ];
 
-const kart = { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line } as const;
+const kart = {
+  get backgroundColor() {
+    return colors.surface;
+  },
+  borderWidth: 1,
+  get borderColor() {
+    return colors.line;
+  },
+} as const;
 
 /**
  * Hesabım (tasarım: HesapMobil): üst bölümde ad, maskeli numara ve hesap türü, özet kutuları, Alıcı / Satıcı /
@@ -135,7 +143,7 @@ export default function Hesabim() {
                 alignItems: 'center',
               }}
             >
-              <T style={{ fontSize: 16, fontWeight: '800' }}>Giriş yap veya üye ol</T>
+              <T style={{ color: colors.onBlue, fontSize: 16, fontWeight: '800' }}>Giriş yap veya üye ol</T>
             </Pressable>
           </View>
         </View>
@@ -218,7 +226,7 @@ export default function Hesabim() {
             >
               {g.ad}
             </T>
-            <View style={{ ...kart, borderRadius: 16, overflow: 'hidden' }}>
+            <View style={{ ...kart, borderRadius: kartOran(16), overflow: 'hidden' }}>
               {g.ogeler.map((ham, i) => {
                 // Galeri üyesine başvuru yerine panel (Karar 20)
                 const galeri = me?.memberships.find((m) => m.account.kind === 'BUSINESS');
@@ -246,7 +254,7 @@ export default function Hesabim() {
                       style={{
                         width: 34,
                         height: 34,
-                        borderRadius: 10,
+                        borderRadius: butonOran(10),
                         backgroundColor: o.tint,
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -268,7 +276,13 @@ export default function Hesabim() {
         <Pressable
           accessibilityRole="button"
           onPress={cikis}
-          style={{ ...kart, marginTop: 18, borderRadius: 16, paddingVertical: 14, alignItems: 'center' }}
+          style={{
+            ...kart,
+            marginTop: 18,
+            borderRadius: kartOran(16),
+            paddingVertical: 14,
+            alignItems: 'center',
+          }}
         >
           <T style={{ fontSize: 14.5, fontWeight: '700', color: '#A11B1B' }}>Çıkış yap</T>
         </Pressable>

@@ -87,8 +87,8 @@ const listeZamani = (iso: string) => (gunAdi(iso) === 'Bugün' ? saat(iso) : gun
 
 const kenarDugme: CSSProperties = {
   border: '1px solid #D5DAE5',
-  background: '#FFFFFF',
-  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+  background: 'var(--rr-kart, #FFFFFF)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
   padding: '9px 13px',
   fontSize: 13.5,
   fontWeight: 700,
@@ -225,9 +225,9 @@ export default function Mesajlarim() {
           display: 'flex',
           flexWrap: 'wrap',
           alignItems: 'stretch',
-          background: '#FFFFFF',
+          background: 'var(--rr-kart, #FFFFFF)',
           border: '1px solid var(--rr-cizgi, #E3E6EF)',
-          borderRadius: 20,
+          borderRadius: 'calc(var(--rr-kart-kose) * 20 / 18)',
           overflow: 'hidden',
           minHeight: 760,
         }}
@@ -262,7 +262,7 @@ export default function Mesajlarim() {
                       padding: '8px 13px',
                       fontSize: 13.5,
                       fontWeight: on ? 800 : 600,
-                      color: on ? 'var(--rr-murekkep, #1E2333)' : '#5A6073',
+                      color: on ? 'var(--rr-murekkep, #1E2333)' : 'var(--rr-soluk, #5A6073)',
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                     }}
@@ -279,7 +279,7 @@ export default function Mesajlarim() {
                 margin: 0,
                 padding: '14px 18px',
                 fontSize: 14,
-                color: '#5A6073',
+                color: 'var(--rr-soluk, #5A6073)',
                 borderTop: '1px solid #EEF0F5',
               }}
             >
@@ -297,7 +297,7 @@ export default function Mesajlarim() {
                     display: 'flex',
                     gap: 12,
                     borderTop: '1px solid #EEF0F5',
-                    background: '#FFFFFF',
+                    background: 'var(--rr-kart, #FFFFFF)',
                     padding: '14px 18px',
                     color: 'var(--rr-murekkep, #1E2333)',
                     textDecoration: 'none',
@@ -326,7 +326,9 @@ export default function Mesajlarim() {
                       <span style={{ fontSize: 15, fontWeight: destek.okunmamis ? 800 : 700 }}>
                         Rengarenk Destek
                       </span>
-                      <span style={{ fontSize: 12, color: '#5A6073' }}>{destek.durumAd}</span>
+                      <span style={{ fontSize: 12, color: 'var(--rr-soluk, #5A6073)' }}>
+                        {destek.durumAd}
+                      </span>
                     </span>
                     <span
                       style={{
@@ -360,7 +362,7 @@ export default function Mesajlarim() {
                       textAlign: 'left',
                       border: 0,
                       borderTop: '1px solid #EEF0F5',
-                      background: on ? '#EEF3FF' : '#FFFFFF',
+                      background: on ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
                       padding: '14px 18px',
                       display: 'flex',
                       gap: 12,
@@ -393,7 +395,7 @@ export default function Mesajlarim() {
                         >
                           {x.ad}
                         </span>
-                        <span style={{ fontSize: 12, color: '#5A6073', flex: 'none' }}>
+                        <span style={{ fontSize: 12, color: 'var(--rr-soluk, #5A6073)', flex: 'none' }}>
                           {listeZamani(x.zaman)}
                         </span>
                       </span>
@@ -458,7 +460,7 @@ export default function Mesajlarim() {
           style={{ flex: '999 1 560px', minWidth: 0, display: 'flex', flexDirection: 'column' }}
         >
           {!s ? (
-            <p style={{ margin: 'auto', color: '#5A6073', fontSize: 14 }}>
+            <p style={{ margin: 'auto', color: 'var(--rr-soluk, #5A6073)', fontSize: 14 }}>
               {liste && !liste.length ? 'Sohbet seçilmedi.' : 'Yükleniyor…'}
             </p>
           ) : (
@@ -493,7 +495,7 @@ export default function Mesajlarim() {
                   </span>
                   <div style={{ minWidth: 0 }}>
                     <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>{s.karsi.ad}</h2>
-                    <p style={{ margin: '2px 0 0', fontSize: 13, color: '#5A6073' }}>
+                    <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
                       {s.karsi.alt}
                       {s.karsi.telefon ? ` · Telefon: ${s.karsi.telefon}` : ''}
                     </p>
@@ -613,7 +615,7 @@ export default function Mesajlarim() {
                     style={{
                       width: 64,
                       height: 40,
-                      borderRadius: 8,
+                      borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
                       background: '#EEF3FF',
                       display: 'flex',
                       alignItems: 'center',
@@ -627,13 +629,13 @@ export default function Mesajlarim() {
                         width: 54,
                         maxWidth: '100%',
                         aspectRatio: '54 / 20',
-                        borderRadius: 10,
+                        borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                         background: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)',
                       }}
                     />
                   </span>
                   <span style={{ minWidth: 0 }}>
-                    <span style={{ display: 'block', fontSize: 12, color: '#5A6073' }}>
+                    <span style={{ display: 'block', fontSize: 12, color: 'var(--rr-soluk, #5A6073)' }}>
                       {s.talep ? (s.taraf === 'alici' ? 'Talebin' : 'Talep') : 'Portföy aracı'}
                     </span>
                     <span
@@ -667,7 +669,7 @@ export default function Mesajlarim() {
                             alignSelf: 'center',
                             fontSize: 12,
                             fontWeight: 700,
-                            color: '#5A6073',
+                            color: 'var(--rr-soluk, #5A6073)',
                             background: '#F3F5FA',
                             padding: '4px 12px',
                             borderRadius: 'var(--rr-etiket-kose)',
@@ -689,7 +691,7 @@ export default function Mesajlarim() {
                   style={{
                     margin: '0 22px 18px',
                     background: '#FFF6DF',
-                    borderRadius: 16,
+                    borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
                     padding: '16px 18px',
                   }}
                 >
@@ -704,11 +706,11 @@ export default function Mesajlarim() {
                       style={{
                         border: 0,
                         background: 'var(--rr-mavi, #5B8CFF)',
-                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                         padding: '11px 18px',
                         fontSize: 14.5,
                         fontWeight: 800,
-                        color: 'var(--rr-murekkep, #1E2333)',
+                        color: 'var(--rr-maviYazi, #1E2333)',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                       }}
@@ -723,8 +725,8 @@ export default function Mesajlarim() {
                       }
                       style={{
                         border: '1px solid #D9C48A',
-                        background: '#FFFFFF',
-                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                        background: 'var(--rr-kart, #FFFFFF)',
+                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                         padding: '11px 16px',
                         fontSize: 14,
                         fontWeight: 700,
@@ -746,7 +748,7 @@ export default function Mesajlarim() {
                     borderTop: '1px solid var(--rr-cizgi, #E3E6EF)',
                     padding: '14px 22px 18px',
                     fontSize: 13.5,
-                    color: '#5A6073',
+                    color: 'var(--rr-soluk, #5A6073)',
                   }}
                 >
                   {s.kapali
@@ -795,7 +797,7 @@ export default function Mesajlarim() {
                         onChange={(e) => setKart(e.target.value)}
                         style={{
                           border: '1px solid #D5DAE5',
-                          borderRadius: 10,
+                          borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                           padding: '6px 8px',
                           fontSize: 13,
                           fontFamily: 'inherit',
@@ -857,7 +859,7 @@ export default function Mesajlarim() {
                         padding: '14px 20px',
                         fontSize: 15,
                         fontWeight: 800,
-                        color: 'var(--rr-murekkep, #1E2333)',
+                        color: 'var(--rr-maviYazi, #1E2333)',
                         cursor: 'pointer',
                         opacity: mesgul || !metin.trim() ? 0.6 : 1,
                         fontFamily: 'inherit',
@@ -866,7 +868,9 @@ export default function Mesajlarim() {
                       Gönder
                     </button>
                   </div>
-                  <p style={{ margin: '8px 0 0', fontSize: 12.5, color: '#5A6073' }}>{DEPOSIT_NOTE}</p>
+                  <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+                    {DEPOSIT_NOTE}
+                  </p>
                 </form>
               ) : null}
             </>
@@ -899,7 +903,7 @@ function MesajGorunumu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
           fontSize: 13,
           color: '#3A4052',
           background: '#EEF3FF',
-          borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+          borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
           padding: '10px 14px',
         }}
       >
@@ -916,9 +920,9 @@ function MesajGorunumu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
           width: 340,
           maxWidth: '72%',
           border: '1px solid var(--rr-cizgi, #E3E6EF)',
-          borderRadius: 16,
+          borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
           overflow: 'hidden',
-          background: '#FFFFFF',
+          background: 'var(--rr-kart, #FFFFFF)',
         }}
       >
         <div
@@ -944,7 +948,7 @@ function MesajGorunumu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
                 width: 200,
                 maxWidth: '100%',
                 aspectRatio: '200 / 73',
-                borderRadius: 10,
+                borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                 background: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)',
               }}
             />
@@ -954,10 +958,10 @@ function MesajGorunumu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
           {k.satista ? (
             <span style={rozet('#E7FAF0', '#11683F')}>EİDS doğrulandı</span>
           ) : (
-            <span style={rozet('#F3F5FA', '#5A6073')}>Bu araç artık satışta değil</span>
+            <span style={rozet('#F3F5FA', 'var(--rr-soluk, #5A6073)')}>Bu araç artık satışta değil</span>
           )}
           <div style={{ fontSize: 15, fontWeight: 800, marginTop: 8 }}>{k.ad}</div>
-          <div style={{ fontSize: 13, color: '#5A6073', marginTop: 3 }}>{k.ozet}</div>
+          <div style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 3 }}>{k.ozet}</div>
           <div
             style={{
               display: 'flex',
@@ -988,11 +992,11 @@ function MesajGorunumu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
           alignSelf: giden ? 'flex-end' : 'flex-start',
           maxWidth: '72%',
           border: '1px dashed #AEB5C4',
-          borderRadius: 16,
+          borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
           padding: '10px 14px',
           fontSize: 13.5,
           fontStyle: 'italic',
-          color: '#5A6073',
+          color: 'var(--rr-soluk, #5A6073)',
         }}
       >
         Bu mesaj güvenlik kuralları nedeniyle moderasyon tarafından gizlendi.
@@ -1011,7 +1015,10 @@ function MesajGorunumu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
         <div
           style={{
             background: giden ? 'var(--rr-mavi, #5B8CFF)' : '#F3F5FA',
-            borderRadius: giden ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
+            color: giden ? 'var(--rr-maviYazi, #1E2333)' : undefined,
+            borderRadius: giden
+              ? 'calc(var(--rr-kart-kose) * 16 / 18) calc(var(--rr-kart-kose) * 16 / 18) calc(var(--rr-kart-kose) * 4 / 18) calc(var(--rr-kart-kose) * 16 / 18)'
+              : 'calc(var(--rr-kart-kose) * 16 / 18) calc(var(--rr-kart-kose) * 16 / 18) calc(var(--rr-kart-kose) * 16 / 18) calc(var(--rr-kart-kose) * 4 / 18)',
             padding: '12px 14px',
             fontSize: 14.5,
             lineHeight: 1.55,
@@ -1022,7 +1029,7 @@ function MesajGorunumu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
         >
           {m.metin}
         </div>
-        <span style={{ display: 'block', fontSize: 11.5, color: '#5A6073', marginTop: 4 }}>
+        <span style={{ display: 'block', fontSize: 11.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 4 }}>
           {saat(m.zaman)}
           {m.gonderen ? ` · ${m.gonderen}` : ''}
           {!giden && m.tip === 'metin' ? (

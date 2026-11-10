@@ -64,7 +64,7 @@ const primary = (enabled = true) =>
     padding: 15,
     fontSize: 16,
     fontWeight: 800,
-    color: colors.ink,
+    color: enabled ? 'var(--rr-maviYazi, #1E2333)' : colors.ink,
     cursor: enabled ? 'pointer' : 'default',
     fontFamily: 'inherit',
   }) as const;
@@ -73,7 +73,7 @@ const field = {
   width: '100%',
   boxSizing: 'border-box',
   border: '1px solid #D5DAE5',
-  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
   padding: 13,
   fontSize: 15,
   fontFamily: 'inherit',
@@ -224,7 +224,7 @@ export default function Giris() {
           minWidth: 0,
           background: colors.surface,
           border: `1px solid ${colors.line}`,
-          borderRadius: 24,
+          borderRadius: 'calc(var(--rr-kart-kose) * 24 / 18)',
           padding: 32,
           display: 'flex',
           flexDirection: 'column',
@@ -247,7 +247,7 @@ export default function Giris() {
                 gap: 12,
                 alignItems: 'center',
                 background: a.bg,
-                borderRadius: 16,
+                borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
                 padding: '14px 16px',
               }}
             >
@@ -278,7 +278,7 @@ export default function Giris() {
           minWidth: 0,
           background: colors.surface,
           border: `1px solid ${colors.line}`,
-          borderRadius: 24,
+          borderRadius: 'calc(var(--rr-kart-kose) * 24 / 18)',
           padding: 32,
         }}
         aria-labelledby="form-baslik"
@@ -290,8 +290,9 @@ export default function Giris() {
               style={{
                 flex: 1,
                 height: 6,
-                borderRadius: 3,
+                borderRadius: 'calc(var(--rr-buton-kose) * 3 / 14)',
                 background: step >= n ? colors.blue : colors.line,
+                color: step >= n ? 'var(--rr-maviYazi, #1E2333)' : undefined,
               }}
             />
           ))}
@@ -312,7 +313,7 @@ export default function Giris() {
                   display: 'flex',
                   alignItems: 'center',
                   border: '1px solid #D5DAE5',
-                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                   padding: '0 14px',
                   fontSize: 15,
                   fontWeight: 700,
@@ -334,7 +335,7 @@ export default function Giris() {
                   flex: 1,
                   minWidth: 0,
                   border: `1.5px solid ${colors.blue}`,
-                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                   padding: 14,
                   fontSize: 16,
                   letterSpacing: 0.5,

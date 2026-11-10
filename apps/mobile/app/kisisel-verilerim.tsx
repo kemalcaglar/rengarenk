@@ -1,4 +1,5 @@
 import {
+  butonOran,
   CLOSE_REASON_KEYS,
   CLOSE_REASONS,
   type CloseReason,
@@ -6,6 +7,7 @@ import {
   KVKK_KIND_KEYS,
   KVKK_KINDS,
   type KvkkKind,
+  kartOran,
   radii,
   tlYaz,
 } from '@rengarenk/shared';
@@ -37,10 +39,16 @@ interface Basvuru {
 }
 
 const kart = {
-  backgroundColor: colors.surface,
+  get backgroundColor() {
+    return colors.surface;
+  },
   borderWidth: 1,
-  borderColor: colors.line,
-  borderRadius: radii.kart,
+  get borderColor() {
+    return colors.line;
+  },
+  get borderRadius() {
+    return radii.kart;
+  },
   padding: 16,
 } as const;
 const tarih = (iso: string) =>
@@ -157,7 +165,7 @@ export default function KisiselVerilerim() {
           flex: 1,
           borderWidth: 1,
           borderColor: '#D5DAE5',
-          borderRadius: 10,
+          borderRadius: butonOran(10),
           padding: 11,
           fontSize: 16,
         }}
@@ -165,9 +173,14 @@ export default function KisiselVerilerim() {
       <Pressable
         accessibilityRole="button"
         onPress={onayla}
-        style={{ backgroundColor: colors.blue, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 16 }}
+        style={{
+          backgroundColor: colors.blue,
+          borderRadius: butonOran(10),
+          paddingVertical: 12,
+          paddingHorizontal: 16,
+        }}
       >
-        <T style={{ fontSize: 14.5, fontWeight: '800' }}>Onayla</T>
+        <T style={{ color: colors.onBlue, fontSize: 14.5, fontWeight: '800' }}>Onayla</T>
       </Pressable>
     </View>
   );
@@ -192,7 +205,7 @@ export default function KisiselVerilerim() {
           style={{
             width: 44,
             height: 44,
-            borderRadius: radii.buton - 2,
+            borderRadius: butonOran(12),
             alignItems: 'center',
             justifyContent: 'center',
           }}
@@ -276,7 +289,7 @@ export default function KisiselVerilerim() {
                 marginTop: 12,
                 borderWidth: 1,
                 borderColor: '#D5DAE5',
-                borderRadius: 10,
+                borderRadius: butonOran(10),
                 paddingVertical: 11,
                 alignItems: 'center',
               }}
@@ -325,7 +338,7 @@ export default function KisiselVerilerim() {
               marginTop: 10,
               borderWidth: 1,
               borderColor: '#D5DAE5',
-              borderRadius: 10,
+              borderRadius: butonOran(10),
               padding: 11,
               minHeight: 100,
               fontSize: 14.5,
@@ -342,7 +355,7 @@ export default function KisiselVerilerim() {
               style={{
                 marginTop: 12,
                 backgroundColor: metin.trim().length >= 10 ? colors.blue : '#E3E6EF',
-                borderRadius: 10,
+                borderRadius: butonOran(10),
                 paddingVertical: 12,
                 alignItems: 'center',
               }}
@@ -384,7 +397,7 @@ export default function KisiselVerilerim() {
               borderWidth: 1,
               borderColor: '#F3C5C5',
               backgroundColor: colors.surface,
-              borderRadius: 16,
+              borderRadius: kartOran(16),
               padding: 14,
             }}
           >
@@ -462,7 +475,7 @@ export default function KisiselVerilerim() {
                         borderWidth: 1,
                         borderColor: '#E5A6A1',
                         backgroundColor: colors.surface,
-                        borderRadius: radii.buton - 2,
+                        borderRadius: butonOran(12),
                         paddingVertical: 12,
                         alignItems: 'center',
                       }}

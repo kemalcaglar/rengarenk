@@ -74,9 +74,9 @@ export function KayitliAramalarim() {
               alignItems: 'center',
               justifyContent: 'space-between',
               gap: 12,
-              background: '#FFFFFF',
+              background: 'var(--rr-kart, #FFFFFF)',
               border: '1px solid var(--rr-cizgi, #E3E6EF)',
-              borderRadius: 16,
+              borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
               padding: 16,
               color: 'var(--rr-murekkep, #1E2333)',
               textDecoration: 'none',
@@ -84,7 +84,9 @@ export function KayitliAramalarim() {
           >
             <span style={{ minWidth: 0 }}>
               <span style={{ display: 'block', fontSize: 15, fontWeight: 700 }}>{a.ad}</span>
-              <span style={{ display: 'block', fontSize: 13, color: '#5A6073', marginTop: 3 }}>
+              <span
+                style={{ display: 'block', fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 3 }}
+              >
                 {a.kriterler.slice(0, 3).join(' · ')}
               </span>
             </span>

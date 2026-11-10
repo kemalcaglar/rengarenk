@@ -183,7 +183,7 @@ export default function Taleplerim() {
   const btn = (renk: string): CSSProperties => ({
     border: 0,
     background: renk,
-    borderRadius: 10,
+    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
     padding: '10px 12px',
     fontSize: 14,
     fontWeight: 800,
@@ -195,7 +195,7 @@ export default function Taleplerim() {
     display: 'block',
     textAlign: 'center',
     border: '1px solid #D5DAE5',
-    borderRadius: 10,
+    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
     padding: '9px 12px',
     fontSize: 14,
     fontWeight: 700,
@@ -241,7 +241,7 @@ export default function Taleplerim() {
           >
             <div>
               <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, letterSpacing: -0.4 }}>Taleplerim</h1>
-              <p style={{ margin: '4px 0 0', fontSize: 14.5, color: '#5A6073' }}>
+              <p style={{ margin: '4px 0 0', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
                 Kalan talep hakkın: <strong style={{ color: 'var(--rr-murekkep, #1E2333)' }}>{hak}</strong>
                 {haklar && haklar.talep === 0
                   ? ` · ek talep ${fiyat('ek_talep', BIREYSEL_FIYATLAR.ekTalep.tl)} TL (ödeme altyapısı açılınca)`
@@ -256,7 +256,7 @@ export default function Taleplerim() {
               style={{
                 margin: '0 0 14px',
                 background: '#FDECEC',
-                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                 padding: '12px 14px',
                 fontSize: 14,
                 fontWeight: 600,
@@ -278,7 +278,7 @@ export default function Taleplerim() {
                 gap: '10px 16px',
                 background: '#FFF6DF',
                 border: '1px solid #F4DC9A',
-                borderRadius: 16,
+                borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
                 padding: '14px 18px',
                 marginBottom: 16,
               }}
@@ -307,7 +307,7 @@ export default function Taleplerim() {
               display: 'flex',
               flexWrap: 'wrap',
               gap: 6,
-              background: '#FFFFFF',
+              background: 'var(--rr-kart, #FFFFFF)',
               border: '1px solid var(--rr-cizgi, #E3E6EF)',
               borderRadius: 'var(--rr-buton-kose)',
               padding: 6,
@@ -327,7 +327,7 @@ export default function Taleplerim() {
                     flex: '1 1 140px',
                     border: 0,
                     background: on ? '#EEF3FF' : 'transparent',
-                    borderRadius: 10,
+                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                     padding: '11px 12px',
                     fontSize: 14.5,
                     fontWeight: on ? 800 : 600,
@@ -337,7 +337,9 @@ export default function Taleplerim() {
                   }}
                 >
                   {ad}{' '}
-                  <span style={{ color: on ? 'var(--rr-baglanti, #2450C8)' : '#5A6073' }}>{sayilar[k]}</span>
+                  <span style={{ color: on ? 'var(--rr-baglanti, #2450C8)' : 'var(--rr-soluk, #5A6073)' }}>
+                    {sayilar[k]}
+                  </span>
                 </button>
               );
             })}
@@ -346,13 +348,13 @@ export default function Taleplerim() {
           {liste !== null && gorunen.length === 0 ? (
             <div
               style={{
-                background: '#FFFFFF',
+                background: 'var(--rr-kart, #FFFFFF)',
                 border: '1px dashed #C9CFDB',
                 borderRadius: 'var(--rr-kart-kose)',
                 padding: '40px 20px',
                 textAlign: 'center',
                 fontSize: 15,
-                color: '#5A6073',
+                color: 'var(--rr-soluk, #5A6073)',
               }}
             >
               Bu bölümde talep yok.
@@ -364,7 +366,7 @@ export default function Taleplerim() {
               ) : null}
             </div>
           ) : null}
-          {liste === null ? <p style={{ color: '#5A6073' }}>Yükleniyor…</p> : null}
+          {liste === null ? <p style={{ color: 'var(--rr-soluk, #5A6073)' }}>Yükleniyor…</p> : null}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {gorunen.map((t, i) => {
@@ -375,7 +377,7 @@ export default function Taleplerim() {
                 <article
                   key={t.id}
                   style={{
-                    background: '#FFFFFF',
+                    background: 'var(--rr-kart, #FFFFFF)',
                     border: '1px solid var(--rr-cizgi, #E3E6EF)',
                     borderRadius: 'var(--rr-kart-kose)',
                     padding: 18,
@@ -425,7 +427,7 @@ export default function Taleplerim() {
                       >
                         {durum}
                       </span>
-                      <span style={{ fontSize: 12.5, color: '#5A6073' }}>
+                      <span style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
                         {t.category.name} · {t.status === 'DRAFT' ? 'Taslak' : `No ${t.no}`}
                       </span>
                       {t.galeri ? (
@@ -462,7 +464,7 @@ export default function Taleplerim() {
                         margin: '6px 0 0',
                         fontSize: 13.5,
                         fontWeight: 600,
-                        color: t.status === 'PASSIVE' ? '#7A5300' : '#5A6073',
+                        color: t.status === 'PASSIVE' ? '#7A5300' : 'var(--rr-soluk, #5A6073)',
                       }}
                     >
                       {sure(t)}
@@ -507,7 +509,7 @@ export default function Taleplerim() {
                         style={{
                           margin: '8px 0 0',
                           padding: '8px 12px',
-                          borderRadius: 10,
+                          borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                           background: '#FFF6DF',
                           border: '1px solid #F4DC9A',
                           fontSize: 13,
@@ -590,7 +592,7 @@ export default function Taleplerim() {
                               'pasif',
                             )
                           }
-                          style={yalin('#5A6073')}
+                          style={yalin('var(--rr-soluk, #5A6073)')}
                         >
                           Pasife al
                         </button>
@@ -660,6 +662,7 @@ export default function Taleplerim() {
                             ...cizgili,
                             border: 0,
                             background: 'var(--rr-mavi, #5B8CFF)',
+                            color: 'var(--rr-maviYazi, #1E2333)',
                             fontWeight: 800,
                           }}
                         >
@@ -684,7 +687,7 @@ export default function Taleplerim() {
                           onClick={() => {
                             if (window.confirm('Taslak silinsin mi?')) islem(t, 'close', 'Taslak silindi.');
                           }}
-                          style={yalin('#5A6073')}
+                          style={yalin('var(--rr-soluk, #5A6073)')}
                         >
                           Taslağı sil
                         </button>
@@ -720,12 +723,18 @@ export default function Taleplerim() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="dlgb"
-            style={{ width: '100%', maxWidth: 480, background: '#FFFFFF', borderRadius: 20, padding: 24 }}
+            style={{
+              width: '100%',
+              maxWidth: 480,
+              background: 'var(--rr-kart, #FFFFFF)',
+              borderRadius: 'calc(var(--rr-kart-kose) * 20 / 18)',
+              padding: 24,
+            }}
           >
             <h2 id="dlgb" style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 800 }}>
               Tebrikler! Aracı nereden buldun?
             </h2>
-            <p style={{ margin: '0 0 16px', fontSize: 14, color: '#5A6073' }}>
+            <p style={{ margin: '0 0 16px', fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
               {dlg.baslik} talebi kapanacak ve satıcılar artık mesaj gönderemeyecek. Mevcut sohbetlerin açık
               kalır.
             </p>
@@ -750,8 +759,8 @@ export default function Taleplerim() {
                       gap: 10,
                       textAlign: 'left',
                       border: on ? '1.5px solid var(--rr-mavi, #5B8CFF)' : '1px solid #D5DAE5',
-                      background: on ? '#EEF3FF' : '#FFFFFF',
-                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                      background: on ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
+                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                       padding: '12px 14px',
                       fontSize: 14.5,
                       fontWeight: 600,
@@ -769,6 +778,7 @@ export default function Taleplerim() {
                         border: `2px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}`,
                         boxShadow: 'inset 0 0 0 3px #FFFFFF',
                         background: on ? 'var(--rr-mavi, #5B8CFF)' : '#FFFFFF',
+                        color: on ? 'var(--rr-maviYazi, #1E2333)' : undefined,
                       }}
                     />
                     {o.ad}
@@ -776,7 +786,7 @@ export default function Taleplerim() {
                 );
               })}
             </div>
-            <p style={{ margin: '12px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+            <p style={{ margin: '12px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
               Bu bilgi yalnızca hizmeti iyileştirmek için kullanılır, satıcıya gösterilmez.
             </p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
@@ -785,8 +795,8 @@ export default function Taleplerim() {
                 onClick={() => setDlg(null)}
                 style={{
                   border: '1px solid #D5DAE5',
-                  background: '#FFFFFF',
-                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                  background: 'var(--rr-kart, #FFFFFF)',
+                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                   padding: '11px 16px',
                   fontSize: 14.5,
                   fontWeight: 700,
@@ -805,7 +815,7 @@ export default function Taleplerim() {
                 }
                 style={{
                   ...btn('var(--rr-yesil, #3DD68C)'),
-                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                   padding: '11px 18px',
                   fontSize: 14.5,
                 }}

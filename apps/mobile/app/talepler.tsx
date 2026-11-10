@@ -1,4 +1,4 @@
-import { colors, ILLER, radii, searchQueryKey } from '@rengarenk/shared';
+import { butonOran, colors, ILLER, kartOran, radii, searchQueryKey } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, FlatList, Modal, Pressable, View } from 'react-native';
@@ -172,7 +172,7 @@ export default function Talepler() {
             style={{
               width: 44,
               height: 44,
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               backgroundColor: colors.blue,
               alignItems: 'center',
               justifyContent: 'center',
@@ -190,7 +190,7 @@ export default function Talepler() {
             backgroundColor: '#F3F5FA',
             borderWidth: 1,
             borderColor: colors.line,
-            borderRadius: radii.buton - 2,
+            borderRadius: butonOran(12),
             paddingHorizontal: 12,
           }}
         >
@@ -229,7 +229,7 @@ export default function Talepler() {
               flex: 1,
               borderWidth: 1,
               borderColor: '#D5DAE5',
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               paddingVertical: 11,
               alignItems: 'center',
             }}
@@ -247,7 +247,7 @@ export default function Talepler() {
             borderWidth: kayit ? 1.5 : 1,
             borderColor: kayit ? '#25A35A' : '#D5DAE5',
             backgroundColor: kayit ? '#E7FAF0' : colors.surface,
-            borderRadius: radii.buton - 2,
+            borderRadius: butonOran(12),
             paddingVertical: kayit ? 10.5 : 11,
             alignItems: 'center',
           }}
@@ -284,7 +284,7 @@ export default function Talepler() {
                 backgroundColor: colors.surface,
                 borderWidth: 1,
                 borderColor: colors.line,
-                borderRadius: 16,
+                borderRadius: kartOran(16),
                 padding: 20,
               }}
             >
@@ -306,7 +306,7 @@ export default function Talepler() {
               backgroundColor: colors.surface,
               borderWidth: 1,
               borderColor: colors.line,
-              borderRadius: 16,
+              borderRadius: kartOran(16),
               padding: 12,
             }}
           >
@@ -314,13 +314,15 @@ export default function Talepler() {
               style={{
                 width: 86,
                 height: 86,
-                borderRadius: radii.buton - 2,
+                borderRadius: butonOran(12),
                 backgroundColor: TINTS[index % TINTS.length],
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <View style={{ width: 74, height: 27, borderRadius: 10, backgroundColor: '#D6DDEA' }} />
+              <View
+                style={{ width: 74, height: 27, borderRadius: butonOran(10), backgroundColor: '#D6DDEA' }}
+              />
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
               <T style={{ fontSize: 14.5, fontWeight: '800', lineHeight: 19 }}>{t.baslik}</T>
@@ -387,8 +389,8 @@ export default function Talepler() {
           <View
             style={{
               backgroundColor: colors.surface,
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
+              borderTopLeftRadius: kartOran(20),
+              borderTopRightRadius: kartOran(20),
               padding: 16,
               paddingBottom: 32,
             }}
@@ -560,7 +562,7 @@ function Filtreler({
               alignItems: 'center',
             }}
           >
-            <T style={{ fontSize: 15.5, fontWeight: '800' }}>Filtrele</T>
+            <T style={{ color: colors.onBlue, fontSize: 15.5, fontWeight: '800' }}>Filtrele</T>
           </Pressable>
         </View>
       </SafeAreaView>

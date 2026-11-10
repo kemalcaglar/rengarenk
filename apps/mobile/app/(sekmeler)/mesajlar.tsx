@@ -1,4 +1,4 @@
-import { colors, radii } from '@rengarenk/shared';
+import { butonOran, colors, kartOran, radii } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
@@ -194,7 +194,7 @@ export default function Mesajlar() {
               backgroundColor: colors.surface,
               borderWidth: 1,
               borderColor: colors.line,
-              borderRadius: 16,
+              borderRadius: kartOran(16),
               padding: 12,
               marginBottom: 6,
             }}
@@ -256,7 +256,7 @@ export default function Mesajlar() {
                 backgroundColor: colors.surface,
                 borderWidth: 1,
                 borderColor: colors.line,
-                borderRadius: 16,
+                borderRadius: kartOran(16),
                 overflow: 'hidden',
               }}
             >
@@ -364,7 +364,7 @@ export default function Mesajlar() {
               backgroundColor: colors.surface,
               borderWidth: 1,
               borderColor: colors.line,
-              borderRadius: 16,
+              borderRadius: kartOran(16),
               padding: 14,
               flexDirection: 'row',
               gap: 12,
@@ -375,7 +375,7 @@ export default function Mesajlar() {
               style={{
                 width: 40,
                 height: 40,
-                borderRadius: radii.buton - 2,
+                borderRadius: butonOran(12),
                 backgroundColor: '#FFF6DF',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -394,7 +394,7 @@ export default function Mesajlar() {
               onPress={() => setPuanAcik(true)}
               style={{
                 backgroundColor: colors.ink,
-                borderRadius: radii.buton - 2,
+                borderRadius: butonOran(12),
                 paddingVertical: 10,
                 paddingHorizontal: 14,
               }}

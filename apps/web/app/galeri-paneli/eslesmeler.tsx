@@ -64,24 +64,24 @@ export function Eslesmeler({
   return (
     <>
       <h1 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 800 }}>Eşleşmeler</h1>
-      <p style={{ margin: '0 0 18px', fontSize: 14.5, color: '#5A6073' }}>
+      <p style={{ margin: '0 0 18px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
         Portföyündeki araçlara uyan alıcı talepleri. Bugün kalan ilk mesaj hakkın:{' '}
         <strong style={{ color: 'var(--rr-murekkep, #1E2333)' }}>
           {veri?.kalanMesaj ?? 0} / {veri?.gunlukMesaj ?? 0}
         </strong>
       </p>
-      {!veri ? <p style={{ color: '#5A6073' }}>Yükleniyor…</p> : null}
+      {!veri ? <p style={{ color: 'var(--rr-soluk, #5A6073)' }}>Yükleniyor…</p> : null}
       {veri && !veri.eslesme ? (
         <div
           style={{
-            background: '#FFFFFF',
+            background: 'var(--rr-kart, #FFFFFF)',
             border: '1px solid var(--rr-cizgi, #E3E6EF)',
             borderRadius: 'var(--rr-kart-kose)',
             padding: 18,
           }}
         >
           <p style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>Otomatik eşleşme paketinde yok</p>
-          <p style={{ margin: '6px 0 0', fontSize: 14, color: '#5A6073', lineHeight: 1.5 }}>
+          <p style={{ margin: '6px 0 0', fontSize: 14, color: 'var(--rr-soluk, #5A6073)', lineHeight: 1.5 }}>
             Portföyüne uyan talepler Profesyonel ve Kurumsal paketlerde listelenir. Talepleri arayarak bulup
             yazmaya devam edebilirsin.
           </p>
@@ -96,12 +96,12 @@ export function Eslesmeler({
       {veri?.eslesme && !veri.eslesmeler.length ? (
         <div
           style={{
-            background: '#FFFFFF',
+            background: 'var(--rr-kart, #FFFFFF)',
             border: '1px dashed #C9CFDB',
             borderRadius: 'var(--rr-kart-kose)',
             padding: 20,
             fontSize: 14,
-            color: '#5A6073',
+            color: 'var(--rr-soluk, #5A6073)',
           }}
         >
           Henüz eşleşme yok. Yayındaki araçlarına uyan yeni talepler burada görünür.
@@ -113,7 +113,7 @@ export function Eslesmeler({
               <div
                 key={e.id}
                 style={{
-                  background: '#FFFFFF',
+                  background: 'var(--rr-kart, #FFFFFF)',
                   border: '1px solid var(--rr-cizgi, #E3E6EF)',
                   borderRadius: 'var(--rr-kart-kose)',
                   padding: '16px 18px',
@@ -174,7 +174,14 @@ export function Eslesmeler({
                   >
                     {e.talep.baslik}
                   </Link>
-                  <span style={{ display: 'block', fontSize: 13, color: '#5A6073', marginTop: 3 }}>
+                  <span
+                    style={{
+                      display: 'block',
+                      fontSize: 13,
+                      color: 'var(--rr-soluk, #5A6073)',
+                      marginTop: 3,
+                    }}
+                  >
                     {[e.talep.sahip, [e.talep.il, e.talep.ilce].filter(Boolean).join(', '), zaman(e.zaman)]
                       .filter(Boolean)
                       .join(' · ')}
@@ -209,11 +216,11 @@ export function Eslesmeler({
                       flex: 'none',
                       border: 0,
                       background: 'var(--rr-mavi, #5B8CFF)',
-                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                       padding: '12px 16px',
                       fontSize: 14,
                       fontWeight: 800,
-                      color: 'var(--rr-murekkep, #1E2333)',
+                      color: 'var(--rr-maviYazi, #1E2333)',
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                     }}

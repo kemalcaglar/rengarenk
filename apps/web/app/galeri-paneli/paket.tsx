@@ -76,7 +76,7 @@ type Secim =
   | { tur: 'ek'; urun: string; ad: string; tutarKurus: number; not: string };
 
 const kart: CSSProperties = {
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   border: '1px solid var(--rr-cizgi, #E3E6EF)',
   borderRadius: 'var(--rr-kart-kose)',
   padding: 22,
@@ -84,18 +84,18 @@ const kart: CSSProperties = {
 const birincil: CSSProperties = {
   border: 0,
   background: 'var(--rr-mavi, #5B8CFF)',
-  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
   padding: '12px 18px',
   fontSize: 14.5,
   fontWeight: 800,
-  color: 'var(--rr-murekkep, #1E2333)',
+  color: 'var(--rr-maviYazi, #1E2333)',
   cursor: 'pointer',
   fontFamily: 'inherit',
 };
 const ikincil: CSSProperties = {
   border: '1px solid #D5DAE5',
-  background: '#FFFFFF',
-  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+  background: 'var(--rr-kart, #FFFFFF)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
   padding: '12px 16px',
   fontSize: 14.5,
   fontWeight: 700,
@@ -315,7 +315,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
     return (
       <>
         <h1 style={{ margin: '0 0 18px', fontSize: 26, fontWeight: 800 }}>Paket ve faturalar</h1>
-        {hata ? <p role="alert">{hata}</p> : <p style={{ color: '#5A6073' }}>Yükleniyor…</p>}
+        {hata ? <p role="alert">{hata}</p> : <p style={{ color: 'var(--rr-soluk, #5A6073)' }}>Yükleniyor…</p>}
       </>
     );
   }
@@ -388,7 +388,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
             margin: '0 0 14px',
             background: '#E7FAF0',
             color: '#11683F',
-            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
             padding: '10px 14px',
             fontWeight: 700,
             fontSize: 14,
@@ -404,7 +404,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
             margin: '0 0 14px',
             background: '#FDECEC',
             color: '#A3271F',
-            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
             padding: '10px 14px',
             fontWeight: 700,
             fontSize: 14,
@@ -420,7 +420,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
             margin: '0 0 14px',
             background: '#FDECEC',
             color: '#A3271F',
-            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
             padding: '12px 14px',
             fontSize: 14,
             display: 'flex',
@@ -460,7 +460,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
           style={{
             margin: '0 0 14px',
             background: '#FFF6DF',
-            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
             padding: '10px 14px',
             fontSize: 14,
             color: '#7A5300',
@@ -487,7 +487,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
               </h2>
               <p style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>
                 {tl(a.netKurus)} TL / {a.donem === 'aylik' ? 'ay' : 'yıl'}{' '}
-                <span style={{ fontSize: 13, color: '#5A6073', fontWeight: 500 }}>
+                <span style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)', fontWeight: 500 }}>
                   KDV hariç ·{' '}
                   {a.iptal
                     ? `${tarih(a.bitis)} tarihinde bitecek`
@@ -509,7 +509,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                     <li key={x}>{x}</li>
                   ))}
               </ul>
-              <p style={{ margin: '12px 0 0', fontSize: 13, color: '#5A6073' }}>
+              <p style={{ margin: '12px 0 0', fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
                 Bu ay kalan: {v.haklar.talep} talep hakkı · {v.haklar.ustSira} öne çıkarma ·{' '}
                 {v.haklar.ekMesaj} ek ilk mesaj{a.kart ? ` · Kart: ${a.kart}` : ''}
                 {a.sonraki ? (
@@ -601,7 +601,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                   <li>Öne çıkarma ve API denemede yok</li>
                 </ul>
               ) : null}
-              <p style={{ margin: 0, fontSize: 14, color: '#5A6073' }}>
+              <p style={{ margin: 0, fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
                 {v.paket.key === 'deneme'
                   ? `Deneme ${tarih(v.paket.denemeBitis)} tarihinde biter; kart istenmez, kendiliğinden ücretli pakete geçmez. Paket seçince deneme biter ve paket hemen başlar.`
                   : v.abonelik?.bitisNedeni === 'odeme_alinamadi'
@@ -616,7 +616,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
           <h2 id="ek" style={{ margin: '0 0 10px', fontSize: 17, fontWeight: 800 }}>
             Ek paket al
           </h2>
-          <p style={{ margin: '0 0 14px', fontSize: 13.5, color: '#5A6073' }}>
+          <p style={{ margin: '0 0 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
             Limit dolduğunda ay sonunu beklemeden ek hak alabilirsin.
           </p>
           {v.ekPaketler.map((e) => (
@@ -636,7 +636,9 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
               <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <strong>
                   {tl(e.netKurus)} TL{' '}
-                  <span style={{ fontSize: 12, color: '#5A6073', fontWeight: 600 }}>+ KDV</span>
+                  <span style={{ fontSize: 12, color: 'var(--rr-soluk, #5A6073)', fontWeight: 600 }}>
+                    + KDV
+                  </span>
                 </strong>
                 {sahip && acik && !v.paket.saltOkunur ? (
                   <button type="button" style={baglanti} onClick={() => ekSecim(e)}>
@@ -646,7 +648,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
               </span>
             </div>
           ))}
-          <p style={{ margin: '8px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+          <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
             Üst sıra hak olarak eklenir; Taleplerim'den galerinin talebine uygulanır.
           </p>
         </section>
@@ -657,7 +659,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
           <h2 id="pl" style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 800 }}>
             {a ? 'Paketler' : 'Paket seç'}
           </h2>
-          <p style={{ margin: '0 0 14px', fontSize: 13.5, color: '#5A6073' }}>
+          <p style={{ margin: '0 0 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
             Fiyatlar KDV hariç; yıllık ödemede 2 ay ücretsiz. Üst pakete hemen geçilir (kalan sürenin farkı);
             alt pakete sonraki dönemde.
           </p>
@@ -675,7 +677,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                     p.degisim === 'ayni'
                       ? '2px solid var(--rr-mavi, #5B8CFF)'
                       : '1px solid var(--rr-cizgi, #E3E6EF)',
-                  borderRadius: 16,
+                  borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
                   padding: 16,
                   display: 'flex',
                   flexDirection: 'column',
@@ -684,7 +686,14 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                 <strong style={{ fontSize: 17 }}>{p.ad}</strong>
                 <span style={{ fontSize: 15, fontWeight: 800, marginTop: 4 }}>
                   {tl(p.aylikKurus)} TL / ay
-                  <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', fontWeight: 600 }}>
+                  <span
+                    style={{
+                      display: 'block',
+                      fontSize: 12.5,
+                      color: 'var(--rr-soluk, #5A6073)',
+                      fontWeight: 600,
+                    }}
+                  >
                     yıllık {tl(p.yillikKurus)} TL
                   </span>
                 </span>
@@ -831,7 +840,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                     flex: 1,
                     minWidth: 0,
                     border: '1px solid #D5DAE5',
-                    borderRadius: 10,
+                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                     padding: '9px 10px',
                     fontSize: 14,
                     fontFamily: 'inherit',
@@ -844,8 +853,8 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                   style={{
                     flex: 'none',
                     border: '1px solid #D5DAE5',
-                    background: '#FFFFFF',
-                    borderRadius: 10,
+                    background: 'var(--rr-kart, #FFFFFF)',
+                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                     padding: '9px 14px',
                     fontSize: 14,
                     fontWeight: 700,
@@ -868,7 +877,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
               ) : null}
             </div>
           ) : null}
-          <p style={{ margin: '10px 0 14px', fontSize: 13.5, color: '#5A6073' }}>
+          <p style={{ margin: '10px 0 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
             {secim.not} Tutar KDV dahildir. Fatura galerinin ticari unvanı ve vergi numarasıyla kesilir.
           </p>
           {siparis ? (
@@ -903,7 +912,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                     boxSizing: 'border-box',
                     marginTop: 6,
                     border: '1px solid #D5DAE5',
-                    borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                    borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                     padding: 12,
                     fontSize: 15,
                     fontFamily: 'inherit',
@@ -977,7 +986,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
         aria-labelledby="ft"
         style={{
           marginTop: 16,
-          background: '#FFFFFF',
+          background: 'var(--rr-kart, #FFFFFF)',
           border: '1px solid var(--rr-cizgi, #E3E6EF)',
           borderRadius: 'var(--rr-kart-kose)',
           overflow: 'hidden',
@@ -1011,7 +1020,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
               }}
             >
               <span style={{ fontWeight: 700, flex: '1 1 260px' }}>{f.ad}</span>
-              <span style={{ color: '#5A6073' }}>{tarih(f.tarih)}</span>
+              <span style={{ color: 'var(--rr-soluk, #5A6073)' }}>{tarih(f.tarih)}</span>
               <span style={{ fontWeight: 800 }}>
                 {tlYaz(f.tutarKurus)}
                 {f.iadeKurus ? (
@@ -1025,12 +1034,12 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                   E-arşiv faturayı indir
                 </button>
               ) : (
-                <span style={{ fontSize: 13, color: '#5A6073' }}>Fatura hazırlanıyor</span>
+                <span style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>Fatura hazırlanıyor</span>
               )}
             </div>
           ))
         ) : (
-          <p style={{ margin: 0, padding: '14px 18px', fontSize: 14, color: '#5A6073' }}>
+          <p style={{ margin: 0, padding: '14px 18px', fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
             Henüz faturan yok.
           </p>
         )}

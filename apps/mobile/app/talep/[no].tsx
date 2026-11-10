@@ -1,7 +1,9 @@
 import {
+  butonOran,
   type CategoryField,
   type CategoryRules,
   colors,
+  kartOran,
   PAINT_PARTS,
   PAINT_STATES,
   radii,
@@ -212,7 +214,7 @@ export default function TalepDetay() {
               style={{
                 width: 44,
                 height: 44,
-                borderRadius: radii.buton - 2,
+                borderRadius: butonOran(12),
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
@@ -245,7 +247,7 @@ export default function TalepDetay() {
         <View
           style={{
             height: 190,
-            borderRadius: 16,
+            borderRadius: kartOran(16),
             overflow: 'hidden',
             backgroundColor: '#DCE3F0',
             justifyContent: 'space-between',
@@ -362,7 +364,7 @@ export default function TalepDetay() {
                 style={{
                   width: '48.5%',
                   backgroundColor: TINTS[i % TINTS.length],
-                  borderRadius: radii.buton - 2,
+                  borderRadius: butonOran(12),
                   padding: 10,
                 }}
               >
@@ -405,7 +407,7 @@ export default function TalepDetay() {
                 alignItems: 'center',
                 marginTop: 4,
                 backgroundColor: '#EEF3FF',
-                borderRadius: radii.buton - 2,
+                borderRadius: butonOran(12),
                 padding: 12,
               }}
             >
@@ -452,7 +454,7 @@ export default function TalepDetay() {
                         style={{
                           width: 18,
                           height: 18,
-                          borderRadius: 5,
+                          borderRadius: butonOran(5),
                           backgroundColor: s.renk,
                           borderWidth: 1,
                           borderColor: '#AEB5C4',
@@ -512,7 +514,7 @@ export default function TalepDetay() {
                     width: '48.5%',
                     borderWidth: 1,
                     borderColor: '#EEF0F5',
-                    borderRadius: radii.buton - 2,
+                    borderRadius: butonOran(12),
                     padding: 10,
                   }}
                 >
@@ -524,7 +526,7 @@ export default function TalepDetay() {
           </View>
         ) : null}
 
-        <View style={{ marginTop: 12, backgroundColor: '#FFF6DF', borderRadius: 16, padding: 14 }}>
+        <View style={{ marginTop: 12, backgroundColor: '#FFF6DF', borderRadius: kartOran(16), padding: 14 }}>
           <T style={{ fontSize: 14.5, fontWeight: '800', color: '#5C3F00', marginBottom: 4 }}>
             Güvenliğiniz için
           </T>
@@ -601,7 +603,7 @@ export default function TalepDetay() {
                   opacity: durum === 'uye' && !yayinda && !mesaj?.yazildi ? 0.55 : 1,
                 }}
               >
-                <T style={{ fontSize: 15.5, fontWeight: '800' }}>
+                <T style={{ color: colors.onBlue, fontSize: 15.5, fontWeight: '800' }}>
                   {mesaj?.yazildi ? 'Sohbete git' : 'Mesaj at'}
                 </T>
               </Pressable>

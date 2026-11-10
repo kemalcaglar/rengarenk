@@ -2,7 +2,8 @@ import { colors } from '@rengarenk/shared';
 import { View } from 'react-native';
 import { T } from './t';
 
-const BARS = [colors.blue, colors.pink, colors.yellow, colors.green];
+/** Çubuk renkleri çizim anında okunur (tasarım değerleri, Karar 46) */
+const bars = () => [colors.blue, colors.pink, colors.yellow, colors.green];
 
 /**
  * Mobil logo (tasarım: AnasayfaMobil 7×16 çubuk, 18 px yazı; GirisMobil 9×20 çubuk, 21 px yazı).
@@ -21,7 +22,7 @@ export function Logo({
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap }} accessibilityLabel="rengarenk">
       <View style={{ flexDirection: 'row', gap: b.g }}>
-        {BARS.map((c) => (
+        {bars().map((c) => (
           <View key={c} style={{ width: b.w, height: b.h, borderRadius: b.r, backgroundColor: c }} />
         ))}
       </View>

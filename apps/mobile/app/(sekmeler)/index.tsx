@@ -1,9 +1,11 @@
 import {
+  butonOran,
   colors,
   compactBudget,
   defaultHomeLayout,
   fiyatYaz,
   type HomeResponse,
+  kartOran,
   ONE_CIKARMA,
   radii,
   tints,
@@ -57,10 +59,15 @@ const FOTO_YOK = ['#DCE3F0', '#E4DFEE', '#DCEAE3', '#EEE8DC'];
 const BOS = ['bos1', 'bos2'];
 const VITRIN_FIYAT = ONE_CIKARMA.find((o) => o.key === 'vitrin')?.mobil ?? 359.99;
 
-/** Talepler; API'ye ulaşılamazsa yaklaşık bir dakika boyunca aralıklarla (1, 2, 4, 8, 15, 30 sn) yeniden dener (vitrin ve son talepler kaybolmasın) */
-async function al(yol: string): Promise<Yanit | null> {
-  for (const bekle of [0, 1000, 2000, 4000, 8000, 15000, 30000]) {
+/**
+ * Talepler; API'ye ulaşılamazsa (API ya da veritabanı yeniden başlıyor) ekran açık kaldıkça 1, 2, 4, 8, 15 sn ve sonra
+ * yarım dakikada bir yeniden dener (vitrin ve son talepler kaybolmasın); `iptal` doğru dönünce durur.
+ */
+async function al(yol: string, iptal: () => boolean): Promise<Yanit | null> {
+  for (let i = 0; ; i++) {
+    const bekle = [0, 1000, 2000, 4000, 8000, 15000][i] ?? 30000;
     if (bekle) await new Promise((r) => setTimeout(r, bekle));
+    if (iptal()) return null;
     try {
       const r = await fetch(`${API}${yol}`);
       if (r.ok) return (await r.json()) as Yanit;
@@ -68,7 +75,26 @@ async function al(yol: string): Promise<Yanit | null> {
       // yeniden dener
     }
   }
-  return null;
+}
+
+/** Talepler gelene kadar bölümün yeri (bölüm sessizce kaybolmaz) */
+function Yukleniyor({ baslik }: { baslik: string }) {
+  return (
+    <View accessibilityState={{ busy: true }}>
+      <T style={{ fontSize: 17, fontWeight: '800', marginBottom: 8 }}>{baslik}</T>
+      <View
+        style={{
+          backgroundColor: colors.surface,
+          borderWidth: 1,
+          borderColor: colors.line,
+          borderRadius: radii.kart,
+          padding: 16,
+        }}
+      >
+        <T style={{ fontSize: 13.5, color: colors.muted }}>Talepler yükleniyor…</T>
+      </View>
+    </View>
+  );
 }
 
 const ADIMLAR = [
@@ -133,7 +159,13 @@ export default function Home() {
   }, [durum, istek]);
   const galeriIl = v.kitle === 'galeri' ? v.galeri?.il : undefined;
   useEffect(() => {
-    al('/talepler/vitrin?boyut=17').then(setVitrin);
+    let canli = true;
+    al('/talepler/vitrin?boyut=17', () => !canli).then((x) => {
+      if (canli && x) setVitrin(x);
+    });
+    return () => {
+      canli = false;
+    };
   }, []);
   // Galeri: kendi ilindeki son talepler; ilinde talep yoksa bütün Türkiye
   const [sonIl, setSonIl] = useState(false);
@@ -141,12 +173,15 @@ export default function Home() {
     let canli = true;
     (async () => {
       if (galeriIl) {
-        const bolge = await al(`/talepler?sira=yeni&boyut=5&il=${encodeURIComponent(galeriIl)}`);
+        const bolge = await al(
+          `/talepler?sira=yeni&boyut=5&il=${encodeURIComponent(galeriIl)}`,
+          () => !canli,
+        );
         if (bolge?.sonuclar.length) return { y: bolge, il: true };
       }
-      return { y: await al('/talepler?sira=yeni&boyut=5'), il: false };
+      return { y: await al('/talepler?sira=yeni&boyut=5', () => !canli), il: false };
     })().then((x) => {
-      if (!canli) return;
+      if (!canli || !x.y) return;
       setSon(x.y);
       setSonIl(x.il);
     });
@@ -168,7 +203,7 @@ export default function Home() {
             style={{
               marginHorizontal: 12,
               backgroundColor: colors.ink,
-              borderRadius: 16,
+              borderRadius: kartOran(16),
               paddingVertical: 10,
               paddingRight: 10,
               paddingLeft: 14,
@@ -188,21 +223,26 @@ export default function Home() {
               onPress={() => router.push(durum === 'uye' ? '/talep-olustur' : '/giris')}
               style={{
                 backgroundColor: colors.blue,
-                borderRadius: radii.buton - 2,
+                borderRadius: butonOran(12),
                 paddingVertical: 11,
                 paddingHorizontal: 12,
                 alignItems: 'center',
               }}
             >
-              <T style={{ fontSize: 13.5, fontWeight: '800', lineHeight: 16 }}>Talep oluştur</T>
-              <T style={{ fontSize: 10.5, fontWeight: '700', lineHeight: 13 }}>ilk talep ücretsiz</T>
+              <T style={{ color: colors.onBlue, fontSize: 13.5, fontWeight: '800', lineHeight: 16 }}>
+                Talep oluştur
+              </T>
+              <T style={{ color: colors.onBlue, fontSize: 10.5, fontWeight: '700', lineHeight: 13 }}>
+                ilk talep ücretsiz
+              </T>
             </Pressable>
           </View>
         );
       case 'kat':
         return <KategoriKutulari kategoriler={kategoriler} />;
       case 'vitrin':
-        return vitrin?.sonuclar.length ? (
+        if (!vitrin) return <Yukleniyor baslik="Ana sayfa vitrini" />;
+        return vitrin.sonuclar.length ? (
           <View>
             <View
               style={{
@@ -252,7 +292,7 @@ export default function Home() {
                   <View
                     style={{
                       aspectRatio: 4 / 3,
-                      borderRadius: 6,
+                      borderRadius: butonOran(6),
                       overflow: 'hidden',
                       backgroundColor: FOTO_YOK[i % FOTO_YOK.length],
                     }}
@@ -309,7 +349,8 @@ export default function Home() {
           </View>
         ) : null;
       case 'son':
-        return son?.sonuclar.length ? (
+        if (!son) return <Yukleniyor baslik="Son talepler" />;
+        return son.sonuclar.length ? (
           <>
             <View
               style={{
@@ -348,7 +389,7 @@ export default function Home() {
                     backgroundColor: colors.surface,
                     borderWidth: 1,
                     borderColor: colors.line,
-                    borderRadius: 16,
+                    borderRadius: kartOran(16),
                     padding: 12,
                   }}
                 >
@@ -356,7 +397,7 @@ export default function Home() {
                     style={{
                       width: 74,
                       height: 74,
-                      borderRadius: radii.buton - 2,
+                      borderRadius: butonOran(12),
                       overflow: 'hidden',
                       backgroundColor: '#E6EAF3',
                     }}
@@ -475,7 +516,7 @@ export default function Home() {
               style={{
                 width: 44,
                 height: 44,
-                borderRadius: radii.buton - 2,
+                borderRadius: butonOran(12),
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
@@ -496,7 +537,7 @@ export default function Home() {
             style={{
               width: 44,
               height: 44,
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               backgroundColor: '#F3F5FA',
               alignItems: 'center',
               justifyContent: 'center',
@@ -518,7 +559,9 @@ export default function Home() {
                   paddingHorizontal: 4,
                 }}
               >
-                <T style={{ fontSize: 11, fontWeight: '800' }}>{okunmamis > 99 ? '99+' : okunmamis}</T>
+                <T style={{ color: colors.onPink, fontSize: 11, fontWeight: '800' }}>
+                  {okunmamis > 99 ? '99+' : okunmamis}
+                </T>
               </View>
             ) : null}
           </Pressable>
@@ -533,7 +576,7 @@ export default function Home() {
             backgroundColor: '#F3F5FA',
             borderWidth: 1,
             borderColor: colors.line,
-            borderRadius: radii.buton - 2,
+            borderRadius: butonOran(12),
             paddingHorizontal: 12,
           }}
         >

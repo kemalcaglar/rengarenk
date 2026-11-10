@@ -35,8 +35,8 @@ const EIDS: Record<string, [string, string, string]> = {
 };
 const ikincil: CSSProperties = {
   border: '1px solid #D5DAE5',
-  background: '#FFFFFF',
-  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+  background: 'var(--rr-kart, #FFFFFF)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
   padding: '11px 16px',
   fontSize: 14.5,
   fontWeight: 700,
@@ -48,6 +48,7 @@ const birincil: CSSProperties = {
   ...ikincil,
   border: 0,
   background: 'var(--rr-mavi, #5B8CFF)',
+  color: 'var(--rr-maviYazi, #1E2333)',
   fontWeight: 800,
   padding: '12px 18px',
 };
@@ -100,7 +101,7 @@ export function Portfoy({
       >
         <div>
           <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Portföy</h1>
-          <p style={{ margin: '3px 0 0', fontSize: 14.5, color: '#5A6073' }}>
+          <p style={{ margin: '3px 0 0', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
             {l ? `${l.aktif} / ${l.sinir ?? 'sınırsız'} araç` : '…'} · Alıcılara yalnızca EİDS doğrulanmış
             araçlar görünür
           </p>
@@ -122,7 +123,7 @@ export function Portfoy({
           style={{
             margin: '0 0 14px',
             background: '#FFF0EE',
-            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
             padding: '10px 14px',
             fontSize: 14,
             color: '#A3271F',
@@ -133,7 +134,7 @@ export function Portfoy({
       ) : null}
       <div
         style={{
-          background: '#FFFFFF',
+          background: 'var(--rr-kart, #FFFFFF)',
           border: '1px solid var(--rr-cizgi, #E3E6EF)',
           borderRadius: 'var(--rr-kart-kose)',
           overflow: 'hidden',
@@ -147,7 +148,7 @@ export function Portfoy({
             background: '#F3F5FA',
             fontSize: 12.5,
             fontWeight: 700,
-            color: '#5A6073',
+            color: 'var(--rr-soluk, #5A6073)',
             textTransform: 'uppercase',
             letterSpacing: 0.4,
           }}
@@ -166,7 +167,7 @@ export function Portfoy({
               padding: '28px 18px',
               borderTop: '1px solid #EEF0F5',
               textAlign: 'center',
-              color: '#5A6073',
+              color: 'var(--rr-soluk, #5A6073)',
             }}
           >
             Portföyünde henüz araç yok. “+ Araç ekle” ile başla.
@@ -194,7 +195,7 @@ export function Portfoy({
                   style={{
                     width: 72,
                     height: 48,
-                    borderRadius: 10,
+                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                     background: TINTS[i % TINTS.length],
                     display: 'flex',
                     alignItems: 'center',
@@ -217,7 +218,7 @@ export function Portfoy({
                         width: 60,
                         maxWidth: '100%',
                         aspectRatio: '60 / 22',
-                        borderRadius: 10,
+                        borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                         background: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)',
                       }}
                     />
@@ -225,7 +226,14 @@ export function Portfoy({
                 </span>
                 <span style={{ minWidth: 0 }}>
                   <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800 }}>{p.ad}</span>
-                  <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+                  <span
+                    style={{
+                      display: 'block',
+                      fontSize: 12.5,
+                      color: 'var(--rr-soluk, #5A6073)',
+                      marginTop: 2,
+                    }}
+                  >
                     {p.detay}
                     {p.durum === 'DRAFT' ? ` · ${p.fotoSayisi} fotoğraf` : ''}
                   </span>
@@ -248,7 +256,7 @@ export function Portfoy({
                     {e[0]}
                   </span>
                 ) : (
-                  <span style={{ fontSize: 13, color: '#5A6073' }}>—</span>
+                  <span style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>—</span>
                 )}
               </span>
               <span style={{ flex: '1 1 90px', fontSize: 14, fontWeight: 700 }}>
@@ -294,7 +302,7 @@ export function Portfoy({
                         padding: 0,
                         fontSize: 12.5,
                         fontWeight: 700,
-                        color: '#5A6073',
+                        color: 'var(--rr-soluk, #5A6073)',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                       }}
@@ -431,10 +439,10 @@ export function TopluYukleme({
   const adim = (n: number, ad: string, durum: 'tamam' | 'simdi' | 'sonra', alt: React.ReactNode) => (
     <li
       style={{
-        background: durum === 'simdi' ? '#EEF3FF' : '#FFFFFF',
+        background: durum === 'simdi' ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
         border:
           durum === 'simdi' ? '2px solid var(--rr-mavi, #5B8CFF)' : '1px solid var(--rr-cizgi, #E3E6EF)',
-        borderRadius: 16,
+        borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
         padding: durum === 'simdi' ? 15 : 16,
       }}
     >
@@ -443,7 +451,11 @@ export function TopluYukleme({
           fontSize: 12.5,
           fontWeight: 800,
           color:
-            durum === 'tamam' ? '#11683F' : durum === 'simdi' ? 'var(--rr-baglanti, #2450C8)' : '#5A6073',
+            durum === 'tamam'
+              ? '#11683F'
+              : durum === 'simdi'
+                ? 'var(--rr-baglanti, #2450C8)'
+                : 'var(--rr-soluk, #5A6073)',
         }}
       >
         {n} · {durum === 'tamam' ? 'Tamamlandı' : durum === 'simdi' ? 'Şimdi' : 'Sırada'}
@@ -456,7 +468,7 @@ export function TopluYukleme({
   return (
     <>
       <h1 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 800 }}>Toplu yükleme</h1>
-      <p style={{ margin: '0 0 18px', fontSize: 14.5, color: '#5A6073' }}>
+      <p style={{ margin: '0 0 18px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
         Excel veya CSV dosyanla stokunu tek seferde aktar.
       </p>
       <input
@@ -533,7 +545,7 @@ export function TopluYukleme({
           style={{
             margin: '0 0 14px',
             background: '#FFF0EE',
-            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
             padding: '10px 14px',
             fontSize: 14,
             color: '#A3271F',
@@ -576,7 +588,7 @@ export function TopluYukleme({
       {on ? (
         <div
           style={{
-            background: '#FFFFFF',
+            background: 'var(--rr-kart, #FFFFFF)',
             border: '1px solid var(--rr-cizgi, #E3E6EF)',
             borderRadius: 'var(--rr-kart-kose)',
             overflow: 'hidden',
@@ -630,14 +642,23 @@ export function TopluYukleme({
                     borderBottom: '1px solid #EEF0F5',
                   }}
                 >
-                  <span style={{ flex: '0 0 72px', fontSize: 13.5, fontWeight: 800, color: '#5A6073' }}>
+                  <span
+                    style={{
+                      flex: '0 0 72px',
+                      fontSize: 13.5,
+                      fontWeight: 800,
+                      color: 'var(--rr-soluk, #5A6073)',
+                    }}
+                  >
                     Satır {h.satir}
                   </span>
                   <span style={{ flex: '1 1 200px', fontSize: 14, fontWeight: 700 }}>{h.arac}</span>
                   <span style={{ flex: '2 1 260px', fontSize: 13.5, color: '#A3271F', fontWeight: 600 }}>
                     {h.hata}
                   </span>
-                  <span style={{ flex: 'none', fontSize: 13, fontWeight: 700, color: '#5A6073' }}>
+                  <span
+                    style={{ flex: 'none', fontSize: 13, fontWeight: 700, color: 'var(--rr-soluk, #5A6073)' }}
+                  >
                     {h.aksiyon} (dosyada)
                   </span>
                 </div>
@@ -690,7 +711,7 @@ export function TopluYukleme({
           </div>
         </div>
       ) : (
-        <p style={{ margin: 0, fontSize: 13, color: '#5A6073' }}>
+        <p style={{ margin: 0, fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
           Sütunlar: {BULK_COLUMNS.map(([b]) => b).join(', ')}. Marka, seri, model ve paket katalogdaki adlarla
           yazılır.
         </p>
@@ -719,7 +740,7 @@ function ApiAnahtarlari({ accountId, acik }: { accountId: string; acik: boolean 
     <section
       style={{
         marginTop: 22,
-        background: '#FFFFFF',
+        background: 'var(--rr-kart, #FFFFFF)',
         border: '1px solid var(--rr-cizgi, #E3E6EF)',
         borderRadius: 'var(--rr-kart-kose)',
         padding: 20,
@@ -730,12 +751,12 @@ function ApiAnahtarlari({ accountId, acik }: { accountId: string; acik: boolean 
         API entegrasyonu
       </h2>
       {!acik ? (
-        <p style={{ margin: 0, fontSize: 13.5, color: '#5A6073' }}>
+        <p style={{ margin: 0, fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
           Stok sisteminden otomatik aktarım Kurumsal pakettedir.
         </p>
       ) : (
         <>
-          <p style={{ margin: '0 0 12px', fontSize: 13.5, color: '#5A6073' }}>
+          <p style={{ margin: '0 0 12px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
             Stok sistemin <code>PUT {API}/entegrasyon/v1/araclar/&lt;stok no&gt;</code> ile araç ekler ve
             günceller;
             <code> POST …/satildi</code> satılan aracı kaldırır. Anahtar yalnızca oluşturulurken bir kez
@@ -746,7 +767,7 @@ function ApiAnahtarlari({ accountId, acik }: { accountId: string; acik: boolean 
               style={{
                 margin: '0 0 12px',
                 background: '#E7FAF0',
-                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                 padding: '10px 14px',
                 fontSize: 13.5,
                 color: '#11683F',
@@ -783,7 +804,7 @@ function ApiAnahtarlari({ accountId, acik }: { accountId: string; acik: boolean 
               style={{
                 flex: '1 1 220px',
                 border: '1px solid #D5DAE5',
-                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                 padding: '10px 12px',
                 fontSize: 14.5,
                 fontFamily: 'inherit',
@@ -809,7 +830,7 @@ function ApiAnahtarlari({ accountId, acik }: { accountId: string; acik: boolean 
             >
               <span style={{ flex: '1 1 180px', fontWeight: 700 }}>{k.ad}</span>
               <code style={{ flex: '0 0 auto' }}>{k.onek}…</code>
-              <span style={{ flex: '1 1 160px', color: '#5A6073', fontSize: 13 }}>
+              <span style={{ flex: '1 1 160px', color: 'var(--rr-soluk, #5A6073)', fontSize: 13 }}>
                 {k.iptal
                   ? 'İptal edildi'
                   : k.sonKullanim

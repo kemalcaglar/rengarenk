@@ -59,7 +59,7 @@ export function SonTalepler({ liste, baslik, tumu }: { liste: SonKart[]; baslik:
       >
         {baslik}
       </Baslik>
-      <div style={{ ...kart, borderRadius: 16, overflow: 'hidden' }}>
+      <div style={{ ...kart, borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)', overflow: 'hidden' }}>
         {liste.map((t, i) => (
           <Link
             key={t.no}
@@ -224,7 +224,7 @@ export function GaleriCagri() {
         background: '#F3EFFF',
         border: '1px solid var(--rr-cizgi, #E3E6EF)',
         borderLeft: '6px solid #9B7BFF',
-        borderRadius: 16,
+        borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
         padding: '16px 20px',
       }}
     >
@@ -242,7 +242,7 @@ export function GaleriCagri() {
           flex: 'none',
           background: colors.ink,
           color: '#FFFFFF',
-          borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+          borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
           padding: '11px 18px',
           fontSize: 14.5,
           fontWeight: 800,

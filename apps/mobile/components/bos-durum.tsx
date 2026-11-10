@@ -1,4 +1,4 @@
-import { colors } from '@rengarenk/shared';
+import { colors, kartOran } from '@rengarenk/shared';
 import { View } from 'react-native';
 import { T } from './t';
 
@@ -13,7 +13,7 @@ export function BosDurum({ baslik, metin }: { baslik: string; metin: string }) {
         backgroundColor: colors.surface,
         borderWidth: 1,
         borderColor: colors.line,
-        borderRadius: 16,
+        borderRadius: kartOran(16),
         padding: 18,
       }}
     >

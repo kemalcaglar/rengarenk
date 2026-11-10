@@ -25,7 +25,7 @@ export interface GuvenVerisi {
 }
 
 const kart: CSSProperties = {
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   border: '1px solid var(--rr-cizgi, #E3E6EF)',
   borderRadius: 'var(--rr-kart-kose)',
 };
@@ -44,7 +44,7 @@ export function Guven({ v, hesap }: { v: GuvenVerisi; hesap: string }) {
       <h2 id="guven" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
         Yıldızların ve rozetlerin
       </h2>
-      <p style={{ margin: '4px 0 14px', fontSize: 13.5, color: '#5A6073' }}>
+      <p style={{ margin: '4px 0 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
         Rozetler alıcı yıldızları, yanıt süren ve şikâyet oranınla her gece güncellenir. Alıcılar tek tek puan
         görmez; yıldızı kimin verdiği sana da gösterilmez.
       </p>
@@ -54,7 +54,7 @@ export function Guven({ v, hesap }: { v: GuvenVerisi; hesap: string }) {
             <span style={{ fontSize: 34, fontWeight: 800 }}>
               {v.yildizOrtalama === null ? '—' : String(v.yildizOrtalama).replace('.', ',')}
             </span>
-            <span style={{ fontSize: 14, color: '#5A6073' }}>
+            <span style={{ fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
               ★ · {v.yildizSayisi} yıldız · ortalama yanıt {sure(v.ortalamaYanitDakika)}
             </span>
           </div>
@@ -69,14 +69,21 @@ export function Guven({ v, hesap }: { v: GuvenVerisi; hesap: string }) {
                 >
                   <span style={{ flex: '0 0 54px', color: '#3A4052' }}>{n} yıldız</span>
                   <span
-                    style={{ flex: 1, height: 8, borderRadius: 4, background: '#EEF0F5', overflow: 'hidden' }}
+                    style={{
+                      flex: 1,
+                      height: 8,
+                      borderRadius: 'calc(var(--rr-buton-kose) * 4 / 14)',
+                      background: '#EEF0F5',
+                      overflow: 'hidden',
+                    }}
                   >
                     <span
                       style={{
                         display: 'block',
                         height: 8,
-                        borderRadius: 4,
+                        borderRadius: 'calc(var(--rr-buton-kose) * 4 / 14)',
                         background: 'var(--rr-sari, #FFC84A)',
+                        color: 'var(--rr-sariYazi, #1E2333)',
                         width: `${(adet / enCok) * 100}%`,
                       }}
                     />
@@ -137,8 +144,8 @@ const DURUM: Record<string, [string, string, string]> = {
 };
 const ikincil: CSSProperties = {
   border: '1px solid #D5DAE5',
-  background: '#FFFFFF',
-  borderRadius: 10,
+  background: 'var(--rr-kart, #FFFFFF)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
   padding: '7px 12px',
   fontSize: 13,
   fontWeight: 700,
@@ -191,7 +198,7 @@ function BirYildiz({ hesap }: { hesap: string }) {
   return (
     <div id="bir-yildiz" style={{ marginTop: 18, borderTop: '1px solid #EEF0F5', paddingTop: 14 }}>
       <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>1 yıldızlı değerlendirmeler</h3>
-      <p style={{ margin: '4px 0 10px', fontSize: 13, color: '#5A6073', lineHeight: 1.5 }}>
+      <p style={{ margin: '4px 0 10px', fontSize: 13, color: 'var(--rr-soluk, #5A6073)', lineHeight: 1.5 }}>
         Haksız bulduğun 1 yıldıza {d.gun} gün içinde bir kez itiraz edebilirsin. Moderasyon sohbeti inceler;
         kabul edilirse yıldız ortalamana katılmaz.
         {d.yetkili ? '' : ' İtirazı galerinin sahibi ya da yöneticisi yapar.'}
@@ -268,7 +275,7 @@ function BirYildiz({ hesap }: { hesap: string }) {
                       boxSizing: 'border-box',
                       marginTop: 6,
                       border: '1px solid #D5DAE5',
-                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                       padding: '10px 12px',
                       fontSize: 14,
                       fontFamily: 'inherit',
@@ -291,11 +298,11 @@ function BirYildiz({ hesap }: { hesap: string }) {
                       style={{
                         border: 0,
                         background: 'var(--rr-mavi, #5B8CFF)',
-                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                         padding: '9px 16px',
                         fontSize: 13.5,
                         fontWeight: 800,
-                        color: 'var(--rr-murekkep, #1E2333)',
+                        color: 'var(--rr-maviYazi, #1E2333)',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                       }}
@@ -305,7 +312,12 @@ function BirYildiz({ hesap }: { hesap: string }) {
                     <button
                       type="button"
                       onClick={() => setAcik(null)}
-                      style={{ ...ikincil, border: 0, background: 'transparent', color: '#5A6073' }}
+                      style={{
+                        ...ikincil,
+                        border: 0,
+                        background: 'transparent',
+                        color: 'var(--rr-soluk, #5A6073)',
+                      }}
                     >
                       Vazgeç
                     </button>

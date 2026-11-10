@@ -4,7 +4,8 @@
   --yellow: var(--rr-sari, #ffc84a);
   --green: var(--rr-yesil, #3dd68c);
   --ink: var(--rr-murekkep, #1e2333);
-  --muted: #5a6073;
+  --muted: var(--rr-soluk, #5a6073);
+  --surface: var(--rr-kart, #ffffff);
   --line: var(--rr-cizgi, #e3e6ef);
   --bg: var(--rr-zemin, #f6f8fd);
   --link: var(--rr-baglanti, #2450c8);
@@ -42,7 +43,7 @@ textarea {
   white-space: nowrap;
 }
 .bar {
-  background: #fff;
+  background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
 .wrap {
@@ -67,19 +68,19 @@ textarea {
   margin-right: 2px;
 }
 .card {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: var(--rr-kart-kose, 18px);
   padding: 24px;
 }
 .btn {
   border: 0;
-  border-radius: 14px;
+  border-radius: var(--rr-buton-kose, 14px);
   padding: 14px 18px;
   font: inherit;
   font-weight: 800;
   background: var(--blue);
-  color: var(--ink);
+  color: var(--rr-maviYazi, #1e2333);
   cursor: pointer;
 }
 .btn:disabled {
@@ -89,7 +90,7 @@ textarea {
 .input {
   width: 100%;
   border: 1px solid #d5dae5;
-  border-radius: 12px;
+  border-radius: calc(var(--rr-buton-kose, 14px) * 12 / 14);
   padding: 13px 14px;
   font: inherit;
   font-size: 16px;
@@ -120,22 +121,22 @@ textarea {
   width: 20px;
   height: 20px;
   margin: 0;
-  border-radius: 6px;
+  border-radius: calc(var(--rr-buton-kose, 14px) * 6 / 14);
   border: 1.5px solid #aeb5c4;
-  background: #ffffff;
+  background: var(--surface);
   display: grid;
   place-items: center;
   cursor: pointer;
 }
 .rr-isaret:checked {
   border-color: var(--rr-mavi, #5b8cff);
-  background: #5b8cff;
+  background: var(--rr-mavi, #5b8cff);
 }
 .rr-isaret:checked::after {
   content: "✓";
   font-size: 13px;
   font-weight: 800;
-  color: #1e2333;
+  color: var(--rr-maviYazi, #1e2333);
   line-height: 1;
 }
 .rr-isaret:focus-visible {
@@ -174,7 +175,7 @@ textarea {
   gap: 1px;
   background: #e3e6ef;
   border: 1px solid #e3e6ef;
-  border-radius: 14px;
+  border-radius: var(--rr-buton-kose, 14px);
   overflow: hidden;
 }
 @media (max-width: 900px) {

@@ -1,4 +1,4 @@
-import { colors, radii } from '@rengarenk/shared';
+import { butonOran, colors, kartOran, radii } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
@@ -100,7 +100,7 @@ export default function Bildirimler() {
           style={{
             width: 44,
             height: 44,
-            borderRadius: radii.buton - 2,
+            borderRadius: butonOran(12),
             alignItems: 'center',
             justifyContent: 'center',
           }}
@@ -196,7 +196,7 @@ export default function Bildirimler() {
                     backgroundColor: colors.surface,
                     borderWidth: 1,
                     borderColor: colors.line,
-                    borderRadius: 16,
+                    borderRadius: kartOran(16),
                     overflow: 'hidden',
                   }}
                 >
@@ -219,7 +219,7 @@ export default function Bildirimler() {
                         style={{
                           width: 38,
                           height: 38,
-                          borderRadius: radii.buton - 2,
+                          borderRadius: butonOran(12),
                           backgroundColor: b.tint,
                           alignItems: 'center',
                           justifyContent: 'center',

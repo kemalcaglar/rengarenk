@@ -135,7 +135,7 @@ export default function Destek() {
           </p>
         ) : null}
         {liste && !liste.length ? (
-          <p style={{ marginTop: 16, fontSize: 15, color: '#5A6073' }}>
+          <p style={{ marginTop: 16, fontSize: 15, color: 'var(--rr-soluk, #5A6073)' }}>
             Henüz destek talebin yok. Sorunun yanıtını{' '}
             <Link href="/yardim" style={{ fontWeight: 700 }}>
               Yardım merkezinde
@@ -151,7 +151,7 @@ export default function Destek() {
                 flex: '1 1 260px',
                 maxWidth: 320,
                 minWidth: 0,
-                background: '#FFFFFF',
+                background: 'var(--rr-kart, #FFFFFF)',
                 border: '1px solid var(--rr-cizgi, #E3E6EF)',
                 borderRadius: 'var(--rr-kart-kose)',
                 padding: 8,
@@ -172,7 +172,7 @@ export default function Destek() {
                       textAlign: 'left',
                       border: 0,
                       background: on ? '#F3EFFF' : 'transparent',
-                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                       padding: '10px 12px',
                       cursor: 'pointer',
                       color: 'var(--rr-murekkep, #1E2333)',
@@ -188,7 +188,7 @@ export default function Destek() {
                         fontWeight: 800,
                       }}
                     >
-                      <span style={{ color: '#5A6073' }}>
+                      <span style={{ color: 'var(--rr-soluk, #5A6073)' }}>
                         {s.numara} · {s.konu}
                       </span>
                       <span
@@ -227,7 +227,7 @@ export default function Destek() {
               style={{
                 flex: '999 1 420px',
                 minWidth: 0,
-                background: '#FFFFFF',
+                background: 'var(--rr-kart, #FFFFFF)',
                 border: '1px solid var(--rr-cizgi, #E3E6EF)',
                 borderRadius: 'var(--rr-kart-kose)',
                 overflow: 'hidden',
@@ -262,6 +262,7 @@ export default function Destek() {
                       style={{
                         maxWidth: '80%',
                         background: m.taraf === 'kullanici' ? 'var(--rr-mavi, #5B8CFF)' : '#FFFFFF',
+                        color: m.taraf === 'kullanici' ? 'var(--rr-maviYazi, #1E2333)' : undefined,
                         border: m.taraf === 'kullanici' ? 0 : '1px solid var(--rr-cizgi, #E3E6EF)',
                         borderRadius: 'var(--rr-buton-kose)',
                         padding: '9px 12px',
@@ -296,8 +297,8 @@ export default function Destek() {
                           width: 44,
                           height: 44,
                           border: '1px solid #D5DAE5',
-                          borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
-                          background: '#FFFFFF',
+                          borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
+                          background: 'var(--rr-kart, #FFFFFF)',
                           fontSize: 16,
                           fontWeight: 800,
                           cursor: 'pointer',
@@ -351,7 +352,7 @@ export default function Destek() {
                     flex: 1,
                     minWidth: 0,
                     border: '1px solid #D5DAE5',
-                    borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                    borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                     padding: '11px 12px',
                     fontSize: 14.5,
                     fontFamily: 'inherit',
@@ -362,11 +363,11 @@ export default function Destek() {
                   style={{
                     border: 0,
                     background: 'var(--rr-mavi, #5B8CFF)',
-                    borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                    borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                     padding: '11px 18px',
                     fontSize: 14.5,
                     fontWeight: 800,
-                    color: 'var(--rr-murekkep, #1E2333)',
+                    color: 'var(--rr-maviYazi, #1E2333)',
                     cursor: 'pointer',
                     fontFamily: 'inherit',
                   }}

@@ -27,7 +27,7 @@ export function BoyaSemasi({
     onChange({ ...v, parts: Object.fromEntries(PAINT_PARTS.map((p) => [p.key, k])) });
   const ikincil = {
     border: '1px solid #D5DAE5',
-    background: '#FFFFFF',
+    background: 'var(--rr-kart, #FFFFFF)',
     borderRadius: 'var(--rr-etiket-kose)',
     padding: '8px 14px',
     fontSize: 13.5,
@@ -40,8 +40,8 @@ export function BoyaSemasi({
     width: 36,
     height: 36,
     border: '1px solid #D5DAE5',
-    background: '#FFFFFF',
-    borderRadius: 10,
+    background: 'var(--rr-kart, #FFFFFF)',
+    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
     fontSize: 18,
     fontWeight: 700,
     cursor: 'pointer',
@@ -193,7 +193,7 @@ export function BoyaSemasi({
                   style={{
                     width: 12,
                     height: 12,
-                    borderRadius: 3,
+                    borderRadius: 'calc(var(--rr-buton-kose) * 3 / 14)',
                     background: s.renk,
                     border: '1px solid #AEB5C4',
                   }}
@@ -241,12 +241,12 @@ export function BoyaSemasi({
                         onClick={() => onChange({ ...v, parts: { ...v.parts, [p.key]: s.key } })}
                         style={{
                           border: on ? '1.5px solid #4A5064' : '1px solid #D5DAE5',
-                          background: on ? s.renk : '#FFFFFF',
-                          borderRadius: 8,
+                          background: on ? s.renk : 'var(--rr-kart, #FFFFFF)',
+                          borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
                           padding: on ? '6px 9px' : '6.5px 9.5px',
                           fontSize: 12.5,
                           fontWeight: on ? 800 : 600,
-                          color: on ? 'var(--rr-murekkep, #1E2333)' : '#5A6073',
+                          color: on ? 'var(--rr-murekkep, #1E2333)' : 'var(--rr-soluk, #5A6073)',
                           cursor: 'pointer',
                           fontFamily: 'inherit',
                         }}
@@ -268,7 +268,7 @@ export function BoyaSemasi({
                 gap: 12,
                 marginTop: 14,
                 background: '#F3F5FA',
-                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                 padding: '12px 14px',
               }}
             >

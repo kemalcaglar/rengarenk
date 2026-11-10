@@ -1,4 +1,13 @@
-import { type CategoryField, colors, ILLER, PAINT_PARTS, PAINT_STATES, radii } from '@rengarenk/shared';
+import {
+  butonOran,
+  type CategoryField,
+  colors,
+  ILLER,
+  kartOran,
+  PAINT_PARTS,
+  PAINT_STATES,
+  radii,
+} from '@rengarenk/shared';
 import { type ReactNode, useState } from 'react';
 import { FlatList, Modal, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,20 +25,30 @@ export const sayiOku = (s: string) => {
 };
 
 export const kartStil = {
-  backgroundColor: colors.surface,
+  get backgroundColor() {
+    return colors.surface;
+  },
   borderWidth: 1,
-  borderColor: colors.line,
-  borderRadius: 16,
+  get borderColor() {
+    return colors.line;
+  },
+  get borderRadius() {
+    return kartOran(16);
+  },
   padding: 14,
 } as const;
 
 export const girdiStil = {
   borderWidth: 1,
   borderColor: '#D5DAE5',
-  borderRadius: radii.buton - 2,
+  get borderRadius() {
+    return butonOran(12);
+  },
   padding: 11,
   fontSize: 15,
-  backgroundColor: colors.surface,
+  get backgroundColor() {
+    return colors.surface;
+  },
 } as const;
 
 /** Seçim çipi: seçiliyken 2 px mavi çerçeve ve açık mavi zemin */
@@ -110,7 +129,7 @@ export function Anahtar({
           left: on ? 25 : 3,
           width: 24,
           height: 24,
-          borderRadius: radii.buton - 2,
+          borderRadius: butonOran(12),
           backgroundColor: colors.surface,
         }}
       />
@@ -551,7 +570,7 @@ export function ParcaSecimi({
                 style={{
                   width: 12,
                   height: 12,
-                  borderRadius: 3,
+                  borderRadius: butonOran(3),
                   backgroundColor: s.renk,
                   borderWidth: 1,
                   borderColor: '#AEB5C4',
@@ -580,7 +599,7 @@ export function ParcaSecimi({
                       borderWidth: on ? 1.5 : 1,
                       borderColor: on ? '#4A5064' : '#D5DAE5',
                       backgroundColor: on ? s.renk : colors.surface,
-                      borderRadius: 8,
+                      borderRadius: butonOran(8),
                       paddingVertical: 6,
                       paddingHorizontal: 9,
                     }}
@@ -611,7 +630,7 @@ export function ParcaSecimi({
               gap: 12,
               marginTop: 12,
               backgroundColor: '#F3F5FA',
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               padding: 12,
             }}
           >
@@ -636,7 +655,7 @@ export function ParcaSecimi({
                     borderWidth: 1,
                     borderColor: '#D5DAE5',
                     backgroundColor: colors.surface,
-                    borderRadius: 10,
+                    borderRadius: butonOran(10),
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}

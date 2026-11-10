@@ -13,7 +13,15 @@ export function Logo() {
     >
       <span style={{ display: 'flex', gap: 3 }} aria-hidden="true">
         {BARS.map((c) => (
-          <span key={c} style={{ width: 10, height: 22, borderRadius: 5, background: c }} />
+          <span
+            key={c}
+            style={{
+              width: 10,
+              height: 22,
+              borderRadius: 'calc(var(--rr-buton-kose) * 5 / 14)',
+              background: c,
+            }}
+          />
         ))}
       </span>
       <span style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>rengarenk</span>

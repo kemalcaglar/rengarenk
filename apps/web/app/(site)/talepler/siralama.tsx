@@ -30,10 +30,10 @@ export function SiralamaSecimi({ deger }: { deger: string }) {
         }}
         style={{
           border: '1px solid #D5DAE5',
-          borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+          borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
           padding: '11px 12px',
           fontSize: 14,
-          background: '#FFFFFF',
+          background: 'var(--rr-kart, #FFFFFF)',
           color: 'var(--rr-murekkep, #1E2333)',
           fontFamily: 'inherit',
         }}

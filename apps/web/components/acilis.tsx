@@ -5,9 +5,9 @@ import { type CSSProperties, useEffect } from 'react';
 import { API } from '../lib/istemci';
 
 const kart: CSSProperties = {
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   border: '1px solid var(--rr-cizgi, #E3E6EF)',
-  borderRadius: 20,
+  borderRadius: 'calc(var(--rr-kart-kose) * 20 / 18)',
 };
 const RENK = [
   'var(--rr-mavi, #5B8CFF)',
@@ -57,7 +57,7 @@ function Dugme({
       style={{
         display: 'inline-block',
         background: 'var(--rr-mavi, #5B8CFF)',
-        color: 'var(--rr-murekkep, #1E2333)',
+        color: 'var(--rr-maviYazi, #1E2333)',
         borderRadius: 'var(--rr-buton-kose)',
         padding: '14px 22px',
         fontSize: 16,
@@ -96,7 +96,7 @@ export function AcilisSayfasi({
           style={{
             background: '#FFF6DF',
             color: '#7A5300',
-            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
             padding: '10px 14px',
             fontWeight: 700,
           }}

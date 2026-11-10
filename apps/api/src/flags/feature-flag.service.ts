@@ -83,10 +83,24 @@ export class FeatureFlagService {
       // Redis yoksa veritabanından okunur.
     }
     if (!snap) {
-      const [rows, testers] = await Promise.all([
-        this.db.featureFlag.findMany(),
-        this.db.featureTester.findMany({ select: { userId: true } }),
-      ]);
+      let rows: Awaited<ReturnType<Db['featureFlag']['findMany']>>;
+      let testers: { userId: string }[];
+      try {
+        [rows, testers] = await Promise.all([
+          this.db.featureFlag.findMany(),
+          this.db.featureTester.findMany({ select: { userId: true } }),
+        ]);
+      } catch (err) {
+        // Veritabanı kısa süre ulaşılamazsa son bilinen durumla devam edilir: bakım denetimi her istekte çalıştığı için
+        // bu hata bütün siteyi düşürmesin (ör. veritabanı yeniden başlarken herkese açık sayfalar).
+        if (this.memo) {
+          this.log.warn(
+            `özellik anahtarları okunamadı, son bilinen durum kullanılıyor: ${(err as Error).message}`,
+          );
+          return this.memo.snap;
+        }
+        throw err;
+      }
       snap = {
         flags: Object.fromEntries(
           rows.map((r) => [

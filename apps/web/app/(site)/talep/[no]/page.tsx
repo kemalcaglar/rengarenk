@@ -62,7 +62,7 @@ export default async function TalepSayfasi({ params }: { params: Promise<{ no: s
           flex: '1 1 220px',
           maxWidth: 250,
           minWidth: 0,
-          background: '#FFFFFF',
+          background: 'var(--rr-kart, #FFFFFF)',
           border: '1px solid var(--rr-cizgi, #E3E6EF)',
           borderRadius: 'var(--rr-kart-kose)',
           padding: '18px 12px',
@@ -75,7 +75,7 @@ export default async function TalepSayfasi({ params }: { params: Promise<{ no: s
             fontWeight: 800,
             letterSpacing: 0.6,
             textTransform: 'uppercase',
-            color: '#5A6073',
+            color: 'var(--rr-soluk, #5A6073)',
           }}
         >
           Kategoriler
@@ -123,7 +123,7 @@ export default async function TalepSayfasi({ params }: { params: Promise<{ no: s
                       alignItems: 'center',
                       gap: 10,
                       padding: '9px 10px',
-                      borderRadius: 10,
+                      borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                       background: on ? '#EEF3FF' : 'transparent',
                       fontSize: 14,
                       fontWeight: on ? 700 : 500,
@@ -160,7 +160,7 @@ export default async function TalepSayfasi({ params }: { params: Promise<{ no: s
                 style={{
                   fontSize: 11.5,
                   fontWeight: 700,
-                  color: '#5A6073',
+                  color: 'var(--rr-soluk, #5A6073)',
                   background: '#F3F5FA',
                   padding: '3px 8px',
                   borderRadius: 'var(--rr-etiket-kose)',

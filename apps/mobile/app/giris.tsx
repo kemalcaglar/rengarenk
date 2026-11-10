@@ -1,4 +1,4 @@
-import { colors, radii, tints } from '@rengarenk/shared';
+import { butonOran, colors, radii, tints } from '@rengarenk/shared';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, View } from 'react-native';
@@ -160,7 +160,7 @@ export default function Giris() {
                     justifyContent: 'center',
                     borderWidth: 1,
                     borderColor: '#D5DAE5',
-                    borderRadius: radii.buton - 2,
+                    borderRadius: butonOran(12),
                     paddingHorizontal: 12,
                     backgroundColor: '#F3F5FA',
                   }}
@@ -179,7 +179,7 @@ export default function Giris() {
                     flex: 1,
                     borderWidth: 1.5,
                     borderColor: colors.blue,
-                    borderRadius: radii.buton - 2,
+                    borderRadius: butonOran(12),
                     padding: 14,
                     fontSize: 16,
                   }}
@@ -237,7 +237,7 @@ export default function Giris() {
                   width: 44,
                   height: 44,
                   marginLeft: -10,
-                  borderRadius: radii.buton - 2,
+                  borderRadius: butonOran(12),
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
@@ -350,7 +350,7 @@ export default function Giris() {
                       style={{
                         borderWidth: 1,
                         borderColor: '#D5DAE5',
-                        borderRadius: radii.buton - 2,
+                        borderRadius: butonOran(12),
                         padding: 13,
                         fontSize: 15,
                       }}

@@ -1,10 +1,12 @@
 import {
   BUSINESS_KIND_DEFS,
   BUSINESS_KINDS,
+  butonOran,
   colors,
   GALLERY_TRIAL,
   type GalleryApplicationDraft,
   galleryApplicationSchema,
+  kartOran,
   maskTrMobile,
   radii,
 } from '@rengarenk/shared';
@@ -250,7 +252,7 @@ export default function KurumsalBasvuru() {
             style={{
               width: 44,
               height: 44,
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -280,7 +282,7 @@ export default function KurumsalBasvuru() {
               style={{
                 flex: 1,
                 height: 5,
-                borderRadius: 3,
+                borderRadius: Math.min(radii.etiket, 3),
                 backgroundColor: durumGorunumu || n <= adim ? colors.blue : colors.line,
               }}
             />
@@ -300,7 +302,7 @@ export default function KurumsalBasvuru() {
               marginBottom: 12,
               backgroundColor: '#FFF0EE',
               color: '#A3271F',
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               padding: 12,
               fontSize: 13.5,
             }}
@@ -314,7 +316,7 @@ export default function KurumsalBasvuru() {
               marginBottom: 12,
               backgroundColor: '#FFF6DF',
               color: '#7A5300',
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               padding: 12,
               fontSize: 13.5,
               fontWeight: '700',
@@ -361,7 +363,7 @@ export default function KurumsalBasvuru() {
                     borderWidth: on ? 2 : 1,
                     borderColor: on ? colors.blue : colors.line,
                     backgroundColor: on ? '#EEF3FF' : colors.surface,
-                    borderRadius: 16,
+                    borderRadius: kartOran(16),
                     padding: on ? 13 : 14,
                   }}
                 >
@@ -369,7 +371,7 @@ export default function KurumsalBasvuru() {
                     style={{
                       width: 40,
                       height: 40,
-                      borderRadius: radii.buton - 2,
+                      borderRadius: butonOran(12),
                       backgroundColor: t.tint,
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -442,7 +444,7 @@ export default function KurumsalBasvuru() {
                       marginTop: 10,
                       backgroundColor: '#E7FAF0',
                       color: '#11683F',
-                      borderRadius: radii.buton - 2,
+                      borderRadius: butonOran(12),
                       padding: 10,
                       fontSize: 13,
                       fontWeight: '700',
@@ -461,7 +463,7 @@ export default function KurumsalBasvuru() {
                         marginTop: 10,
                         borderWidth: 1,
                         borderColor: colors.ink,
-                        borderRadius: radii.buton - 2,
+                        borderRadius: butonOran(12),
                         padding: 12,
                         alignItems: 'center',
                       }}
@@ -529,7 +531,7 @@ export default function KurumsalBasvuru() {
                         borderWidth: y ? 0 : 1,
                         borderColor: colors.ink,
                         backgroundColor: y ? '#E7FAF0' : colors.surface,
-                        borderRadius: 10,
+                        borderRadius: butonOran(10),
                         paddingVertical: 9,
                         paddingHorizontal: 12,
                       }}
@@ -574,7 +576,7 @@ export default function KurumsalBasvuru() {
                     borderWidth: 1,
                     borderColor: colors.line,
                     backgroundColor: '#F6F8FD',
-                    borderRadius: radii.buton - 2,
+                    borderRadius: butonOran(12),
                     padding: 12,
                   }}
                 >
@@ -619,7 +621,7 @@ export default function KurumsalBasvuru() {
                   style={{
                     width: 20,
                     height: 20,
-                    borderRadius: 5,
+                    borderRadius: butonOran(5),
                     borderWidth: 2,
                     borderColor: o.on ? colors.blue : '#AEB5C4',
                     backgroundColor: o.on ? colors.blue : colors.surface,
@@ -740,7 +742,7 @@ export default function KurumsalBasvuru() {
                 alignItems: 'center',
               }}
             >
-              <T style={{ fontSize: 15.5, fontWeight: '800' }}>Galeri paneline git</T>
+              <T style={{ color: colors.onBlue, fontSize: 15.5, fontWeight: '800' }}>Galeri paneline git</T>
             </Pressable>
           ) : b.durum === 'REJECTED' || b.durum === 'REVOKED' ? (
             <Pressable
@@ -813,7 +815,7 @@ export default function KurumsalBasvuru() {
                 alignItems: 'center',
               }}
             >
-              <T style={{ fontSize: 15.5, fontWeight: '800' }}>
+              <T style={{ color: colors.onBlue, fontSize: 15.5, fontWeight: '800' }}>
                 {adim === 5
                   ? b?.durum === 'DOCS_REQUESTED'
                     ? 'Yeniden gönder'
@@ -886,7 +888,13 @@ function MobilDurum({ b }: { b: Basvuru }) {
                 justifyContent: 'center',
               }}
             >
-              <T style={{ fontSize: 12, fontWeight: '800', color: kirmizi ? colors.surface : colors.ink }}>
+              <T
+                style={{
+                  fontSize: 12,
+                  fontWeight: '800',
+                  color: kirmizi ? '#FFFFFF' : a.bitti ? colors.onBlue : colors.ink,
+                }}
+              >
                 {kirmizi ? '✕' : a.bitti ? '✓' : i + 1}
               </T>
             </View>

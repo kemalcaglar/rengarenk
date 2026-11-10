@@ -12,22 +12,22 @@ export interface IletisimTercihi {
 }
 
 const kart: CSSProperties = {
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   border: '1px solid var(--rr-cizgi, #E3E6EF)',
   borderRadius: 'var(--rr-kart-kose)',
 };
 const secim: CSSProperties = {
   border: '1px solid #D5DAE5',
-  borderRadius: 10,
+  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
   padding: 10,
   fontSize: 14.5,
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   fontFamily: 'inherit',
 };
 const ikincil: CSSProperties = {
   border: '1px solid #D5DAE5',
-  background: '#FFFFFF',
-  borderRadius: 10,
+  background: 'var(--rr-kart, #FFFFFF)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
   padding: '8px 12px',
   fontSize: 13.5,
   fontWeight: 700,
@@ -59,6 +59,7 @@ export function Anahtar({ acik, ad, onClick }: { acik: boolean; ad: string; onCl
         border: 0,
         borderRadius: 'var(--rr-etiket-kose)',
         background: acik ? 'var(--rr-mavi, #5B8CFF)' : '#C9CFDB',
+        color: acik ? 'var(--rr-maviYazi, #1E2333)' : undefined,
         position: 'relative',
         cursor: 'pointer',
       }}
@@ -71,7 +72,7 @@ export function Anahtar({ acik, ad, onClick }: { acik: boolean; ad: string; onCl
           width: 24,
           height: 24,
           borderRadius: '50%',
-          background: '#FFFFFF',
+          background: 'var(--rr-kart, #FFFFFF)',
         }}
       />
     </button>
@@ -125,19 +126,23 @@ export function Iletisim({
       <h2 id="il" style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>
         İletişim tercihleri
       </h2>
-      <p style={{ margin: '0 0 12px', fontSize: 13.5, color: '#5A6073' }}>
+      <p style={{ margin: '0 0 12px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
         Yeni talepler bu ayarlarla açılır. Her talepte ayrıca değiştirebilirsin.
       </p>
       {satirlar.map((s) => (
         <div key={s.ad} style={satirStil}>
           <span>
             <span style={{ display: 'block', fontSize: 15, fontWeight: 700 }}>{s.ad}</span>
-            <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>{s.not}</span>
+            <span
+              style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}
+            >
+              {s.not}
+            </span>
           </span>
           {s.tikla ? (
             <Anahtar acik={Boolean(s.acik)} ad={s.ad} onClick={s.tikla} />
           ) : (
-            <span style={{ flex: 'none', fontSize: 13, fontWeight: 700, color: '#5A6073' }}>
+            <span style={{ flex: 'none', fontSize: 13, fontWeight: 700, color: 'var(--rr-soluk, #5A6073)' }}>
               Her zaman açık
             </span>
           )}
@@ -155,7 +160,7 @@ export function Iletisim({
       >
         <span style={{ flex: '999 1 220px' }}>
           <span style={{ display: 'block', fontSize: 15, fontWeight: 700 }}>Aranabileceğim saatler</span>
-          <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+          <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}>
             Bu saatlerin dışında numaran talep sayfasında gizlenir
           </span>
         </span>
@@ -195,7 +200,7 @@ export function Iletisim({
         </select>
       </div>
       {v.callFrom !== CALL_HOURS_DEFAULT.bas || v.callTo !== CALL_HOURS_DEFAULT.bit ? (
-        <p style={{ margin: '10px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+        <p style={{ margin: '10px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
           Varsayılan aralık {saatYaz(CALL_HOURS_DEFAULT.bas)}–{saatYaz(CALL_HOURS_DEFAULT.bit)}.
         </p>
       ) : null}
@@ -240,8 +245,8 @@ export function GorunenAd({
                 flex: '1 1 220px',
                 textAlign: 'left',
                 border: on ? '1.5px solid var(--rr-mavi, #5B8CFF)' : '1px solid #D5DAE5',
-                background: on ? '#EEF3FF' : '#FFFFFF',
-                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                background: on ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
+                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                 padding: '12px 14px',
                 cursor: 'pointer',
                 color: 'var(--rr-murekkep, #1E2333)',
@@ -249,7 +254,11 @@ export function GorunenAd({
               }}
             >
               <span style={{ display: 'block', fontSize: 15, fontWeight: 800 }}>{ornek(m)}</span>
-              <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>{not}</span>
+              <span
+                style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}
+              >
+                {not}
+              </span>
             </button>
           );
         })}
@@ -364,11 +373,16 @@ export function NumaraDegistir({ bitti }: { bitti: (mesaj: string) => void }) {
           <button
             type="submit"
             disabled={mesgul}
-            style={{ ...ikincil, background: 'var(--rr-mavi, #5B8CFF)', border: 0 }}
+            style={{
+              ...ikincil,
+              background: 'var(--rr-mavi, #5B8CFF)',
+              color: 'var(--rr-maviYazi, #1E2333)',
+              border: 0,
+            }}
           >
             Doğrula
           </button>
-          <span style={{ fontSize: 12.5, color: '#5A6073' }}>
+          <span style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
             Yeni numarana kod gönderdik.{devKod ? ` Geliştirme kodu: ${devKod}` : ''}
           </span>
         </form>
@@ -380,7 +394,7 @@ export function NumaraDegistir({ bitti }: { bitti: (mesaj: string) => void }) {
           setCh(null);
           setHata(null);
         }}
-        style={{ ...ikincil, border: 0, background: 'transparent', color: '#5A6073' }}
+        style={{ ...ikincil, border: 0, background: 'transparent', color: 'var(--rr-soluk, #5A6073)' }}
       >
         Vazgeç
       </button>

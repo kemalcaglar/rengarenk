@@ -11,10 +11,10 @@ export const kutu: CSSProperties = {
   width: '100%',
   boxSizing: 'border-box',
   border: '1px solid #D5DAE5',
-  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
   padding: 12,
   fontSize: 15,
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   color: 'var(--rr-murekkep, #1E2333)',
   fontFamily: 'inherit',
 };
@@ -53,8 +53,8 @@ export function Cip({
         gap: 7,
         textAlign: 'left',
         border: on ? '1.5px solid var(--rr-mavi, #5B8CFF)' : '1px solid #D5DAE5',
-        background: on ? '#EEF3FF' : '#FFFFFF',
-        borderRadius: kare ? 14 : 999,
+        background: on ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
+        borderRadius: kare ? 'var(--rr-buton-kose)' : 'var(--rr-etiket-kose)',
         padding: kare
           ? on
             ? '9px 14px'
@@ -86,7 +86,7 @@ export function Cip({
             display: 'block',
             fontSize: 12,
             fontWeight: on ? 600 : 500,
-            color: on ? 'var(--rr-baglanti, #2450C8)' : '#5A6073',
+            color: on ? 'var(--rr-baglanti, #2450C8)' : 'var(--rr-soluk, #5A6073)',
             marginTop: 1,
           }}
         >
@@ -138,7 +138,7 @@ export function Anahtar({
           width: 24,
           height: 24,
           borderRadius: '50%',
-          background: '#FFFFFF',
+          background: 'var(--rr-kart, #FFFFFF)',
         }}
       />
     </button>
@@ -170,7 +170,9 @@ export function Alan({
       {hata}
     </span>
   ) : f.help ? (
-    <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 6 }}>{f.help}</span>
+    <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 6 }}>
+      {f.help}
+    </span>
   ) : null;
 
   if (f.type === 'multiselect' || (f.type === 'select' && (f.options?.length ?? 0) <= 10)) {
@@ -289,7 +291,7 @@ export function Alan({
             onChange={(e) => set('min', e.target.value)}
             style={{ ...kutu, flex: 1, minWidth: 0, width: 'auto' }}
           />
-          <span style={{ color: '#5A6073' }}>–</span>
+          <span style={{ color: 'var(--rr-soluk, #5A6073)' }}>–</span>
           <label htmlFor={`${id}-2`} style={gizli}>
             En çok {f.label.toLocaleLowerCase('tr-TR')}
           </label>
@@ -340,7 +342,7 @@ export function Alan({
           style={{ ...kutu, lineHeight: 1.55, resize: 'vertical' }}
         />
         {f.key === 'aciklama' ? (
-          <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 4 }}>
+          <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 4 }}>
             Telefon numarası, IBAN veya bağlantı yazmayın; iletişim bilgileri aşağıdaki ayarlarla paylaşılır.
           </span>
         ) : (
@@ -376,7 +378,7 @@ export function Alan({
             onChange={(e) => set('from', e.target.value)}
             style={{ ...kutu, flex: 1, minWidth: 200, width: 'auto' }}
           />
-          <span style={{ color: '#5A6073' }}>–</span>
+          <span style={{ color: 'var(--rr-soluk, #5A6073)' }}>–</span>
           <label htmlFor={`${id}-2`} style={gizli}>
             İade
           </label>

@@ -13,6 +13,11 @@ export const colors = {
   surface: '#FFFFFF',
   background: '#F6F8FD',
   link: '#2450C8',
+  /** Renkli zeminlerin üstündeki yazı (ör. mavi buton yazısı); tasarım değerlerinden değişir (Karar 46) */
+  onBlue: '#1E2333',
+  onPink: '#1E2333',
+  onYellow: '#1E2333',
+  onGreen: '#1E2333',
 } as const;
 
 export const fontFamily = "'Plus Jakarta Sans', system-ui, sans-serif";

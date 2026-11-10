@@ -1,10 +1,12 @@
 import {
   BIREYSEL_FIYATLAR,
+  butonOran,
   colors,
   DOTS,
   FOUND_VIA,
   type FoundViaKey,
   fiyatYaz,
+  kartOran,
   PROMOTION_NAMES,
   radii,
 } from '@rengarenk/shared';
@@ -123,7 +125,7 @@ export default function Taleplerim() {
     borderWidth: 1,
     borderColor: '#D5DAE5',
     backgroundColor: colors.surface,
-    borderRadius: 10,
+    borderRadius: butonOran(10),
     paddingVertical: 11,
     alignItems: 'center',
   } as const;
@@ -150,7 +152,7 @@ export default function Taleplerim() {
             style={{
               width: 40,
               height: 40,
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               backgroundColor: colors.blue,
               alignItems: 'center',
               justifyContent: 'center',
@@ -243,7 +245,7 @@ export default function Taleplerim() {
               backgroundColor: colors.surface,
               borderWidth: 1,
               borderColor: colors.line,
-              borderRadius: 16,
+              borderRadius: kartOran(16),
               padding: 14,
             }}
           >
@@ -260,7 +262,7 @@ export default function Taleplerim() {
                 style={{
                   width: 76,
                   height: 58,
-                  borderRadius: radii.buton - 2,
+                  borderRadius: butonOran(12),
                   backgroundColor: TINTS[i % TINTS.length],
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -336,7 +338,7 @@ export default function Taleplerim() {
                     style={{
                       marginTop: 8,
                       padding: 10,
-                      borderRadius: 10,
+                      borderRadius: butonOran(10),
                       backgroundColor: '#FFF6DF',
                       borderWidth: 1,
                       borderColor: '#F4DC9A',
@@ -416,12 +418,12 @@ export default function Taleplerim() {
                     style={{
                       flex: 1,
                       backgroundColor: colors.green,
-                      borderRadius: 10,
+                      borderRadius: butonOran(10),
                       paddingVertical: 11,
                       alignItems: 'center',
                     }}
                   >
-                    <T style={{ fontSize: 14, fontWeight: '800' }}>Aracı buldum</T>
+                    <T style={{ color: colors.onGreen, fontSize: 14, fontWeight: '800' }}>Aracı buldum</T>
                   </Pressable>
                   <Pressable
                     accessibilityRole="button"
@@ -438,7 +440,7 @@ export default function Taleplerim() {
                       width: 44,
                       borderWidth: 1,
                       borderColor: '#D5DAE5',
-                      borderRadius: 10,
+                      borderRadius: butonOran(10),
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
@@ -455,7 +457,7 @@ export default function Taleplerim() {
                     flex: 1,
                     borderWidth: 1,
                     borderColor: '#D5DAE5',
-                    borderRadius: 10,
+                    borderRadius: butonOran(10),
                     paddingVertical: 11,
                     alignItems: 'center',
                   }}
@@ -471,13 +473,13 @@ export default function Taleplerim() {
                     style={{
                       flex: 2,
                       backgroundColor: colors.blue,
-                      borderRadius: 10,
+                      borderRadius: butonOran(10),
                       paddingVertical: 11,
                       alignItems: 'center',
                       opacity: doldu(t) && t.freeExtensionUsed ? 0.55 : 1,
                     }}
                   >
-                    <T style={{ fontSize: 14, fontWeight: '800' }}>
+                    <T style={{ color: colors.onBlue, fontSize: 14, fontWeight: '800' }}>
                       {!doldu(t)
                         ? 'Yeniden yayınla'
                         : t.freeExtensionUsed
@@ -493,7 +495,7 @@ export default function Taleplerim() {
                       width: 44,
                       borderWidth: 1,
                       borderColor: '#D5DAE5',
-                      borderRadius: 10,
+                      borderRadius: butonOran(10),
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
@@ -509,12 +511,14 @@ export default function Taleplerim() {
                   style={{
                     flex: 1,
                     backgroundColor: colors.blue,
-                    borderRadius: 10,
+                    borderRadius: butonOran(10),
                     paddingVertical: 11,
                     alignItems: 'center',
                   }}
                 >
-                  <T style={{ fontSize: 14, fontWeight: '800' }}>Kaldığın yerden devam et</T>
+                  <T style={{ color: colors.onBlue, fontSize: 14, fontWeight: '800' }}>
+                    Kaldığın yerden devam et
+                  </T>
                 </Pressable>
               ) : null}
               {t.status === 'COMPLETED' || t.status === 'CLOSED' ? (
@@ -545,8 +549,8 @@ export default function Taleplerim() {
           <View
             style={{
               backgroundColor: colors.surface,
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
+              borderTopLeftRadius: kartOran(20),
+              borderTopRightRadius: kartOran(20),
               padding: 16,
               paddingBottom: 32,
             }}
@@ -633,7 +637,7 @@ export default function Taleplerim() {
         >
           <View
             accessibilityViewIsModal
-            style={{ backgroundColor: colors.surface, borderRadius: 20, padding: 20 }}
+            style={{ backgroundColor: colors.surface, borderRadius: kartOran(20), padding: 20 }}
           >
             <T accessibilityRole="header" style={{ fontSize: 19, fontWeight: '800', marginBottom: 6 }}>
               Tebrikler! Aracı nereden buldun?
@@ -657,7 +661,7 @@ export default function Taleplerim() {
                     borderWidth: on ? 1.5 : 1,
                     borderColor: on ? colors.blue : '#D5DAE5',
                     backgroundColor: on ? '#EEF3FF' : colors.surface,
-                    borderRadius: radii.buton - 2,
+                    borderRadius: butonOran(12),
                     padding: 12,
                     marginBottom: 8,
                   }}
@@ -692,7 +696,7 @@ export default function Taleplerim() {
                   flex: 1,
                   borderWidth: 1,
                   borderColor: '#D5DAE5',
-                  borderRadius: radii.buton - 2,
+                  borderRadius: butonOran(12),
                   paddingVertical: 12,
                   alignItems: 'center',
                 }}
@@ -706,12 +710,12 @@ export default function Taleplerim() {
                 style={{
                   flex: 1,
                   backgroundColor: colors.green,
-                  borderRadius: radii.buton - 2,
+                  borderRadius: butonOran(12),
                   paddingVertical: 12,
                   alignItems: 'center',
                 }}
               >
-                <T style={{ fontSize: 14.5, fontWeight: '800' }}>Talebi kapat</T>
+                <T style={{ color: colors.onGreen, fontSize: 14.5, fontWeight: '800' }}>Talebi kapat</T>
               </Pressable>
             </View>
           </View>

@@ -1,4 +1,4 @@
-import { colors, LEGAL_PATHS, type PendingLegal, radii } from '@rengarenk/shared';
+import { butonOran, colors, LEGAL_PATHS, type PendingLegal, radii } from '@rengarenk/shared';
 import { useEffect, useState } from 'react';
 import { Linking, Modal, Pressable, ScrollView, View } from 'react-native';
 import { useOturum } from '../lib/oturum';
@@ -60,7 +60,7 @@ export function YasalOnay() {
         style={{
           width: 20,
           height: 20,
-          borderRadius: kutu ? 6 : 10,
+          borderRadius: butonOran(kutu ? 6 : 10),
           borderWidth: 2,
           borderColor: secili ? colors.blue : '#AEB5C4',
           backgroundColor: secili ? colors.blue : colors.surface,
@@ -136,13 +136,13 @@ export function YasalOnay() {
               onPress={() => void gonder()}
               style={{
                 backgroundColor: hazir ? colors.blue : '#C9D3E6',
-                borderRadius: radii.buton - 2,
+                borderRadius: butonOran(12),
                 paddingVertical: 13,
                 alignItems: 'center',
                 marginTop: 4,
               }}
             >
-              <T style={{ fontSize: 15, fontWeight: '800' }}>
+              <T style={{ color: hazir ? colors.onBlue : colors.ink, fontSize: 15, fontWeight: '800' }}>
                 {busy ? 'Kaydediliyor…' : 'Onayla ve devam et'}
               </T>
             </Pressable>

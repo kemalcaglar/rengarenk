@@ -1,7 +1,9 @@
 # Yerel geliştirme altyapısı. Uygulamalar `pnpm dev` ile makinede çalışır.
+# `restart: unless-stopped`: Docker Desktop yeniden başlayınca (uyku, güncelleme) servisler kendiliğinden açılır.
 name: rengarenk
 services:
   postgres:
+    restart: unless-stopped
     image: postgres:16
     environment:
       POSTGRES_USER: rengarenk
@@ -14,9 +16,11 @@ services:
       - ./deploy/dev/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck: { test: ["CMD-SHELL", "pg_isready -U rengarenk"], interval: 5s, retries: 10 }
   redis:
+    restart: unless-stopped
     image: redis:7
     ports: ["6379:6379"]
   opensearch:
+    restart: unless-stopped
     image: opensearchproject/opensearch:2.19.2
     environment:
       discovery.type: single-node
@@ -27,11 +31,13 @@ services:
   # S3 uyumlu dosya deposu. MinIO topluluk sürümü Ekim 2025'ten beri Docker imajı yayınlamıyor
   # ve Nisan 2026'da arşivlendi; yerine SeaweedFS (Apache-2.0). Yerelde kimlik doğrulama kapalı.
   seaweedfs:
+    restart: unless-stopped
     image: chrislusf/seaweedfs:4.52
     command: server -dir=/data -s3 -s3.port=8333 -master.volumeSizeLimitMB=1024
     ports: ["8333:8333", "9333:9333"]
     volumes: [s3data:/data]
   mailpit:
+    restart: unless-stopped
     image: axllent/mailpit:v1.24
     ports: ["1025:1025", "8025:8025"]
 volumes:

@@ -59,7 +59,7 @@ export default function GirisBaglantisi() {
           maxWidth: 460,
           background: colors.surface,
           border: `1px solid ${colors.line}`,
-          borderRadius: 20,
+          borderRadius: 'calc(var(--rr-kart-kose) * 20 / 18)',
           padding: 28,
         }}
         aria-live="polite"
@@ -77,7 +77,7 @@ export default function GirisBaglantisi() {
               style={{
                 display: 'inline-block',
                 background: 'var(--rr-mavi, #5B8CFF)',
-                color: 'var(--rr-murekkep, #1E2333)',
+                color: 'var(--rr-maviYazi, #1E2333)',
                 borderRadius: 'var(--rr-buton-kose)',
                 padding: '12px 20px',
                 fontWeight: 800,
@@ -86,7 +86,7 @@ export default function GirisBaglantisi() {
             >
               Telefonla giriş yap
             </Link>
-            <p style={{ margin: '14px 0 0', fontSize: 13.5, color: '#5A6073' }}>
+            <p style={{ margin: '14px 0 0', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
               Telefonuna ulaşamıyorsan{' '}
               <Link href="/yardim" style={{ color: 'var(--rr-baglanti, #2450C8)', fontWeight: 700 }}>
                 destek ekibimize yaz
@@ -95,7 +95,7 @@ export default function GirisBaglantisi() {
             </p>
           </>
         ) : (
-          <p style={{ margin: 0, fontSize: 14.5, color: '#5A6073' }}>
+          <p style={{ margin: 0, fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
             Destek ekibimizin gönderdiği bağlantıyı doğruluyoruz. Girdikten sonra numaranı Ayarlar › Profil
             bölümünden değiştirebilirsin.
           </p>

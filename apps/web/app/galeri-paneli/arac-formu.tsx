@@ -37,16 +37,16 @@ const girdi: CSSProperties = {
   width: '100%',
   boxSizing: 'border-box',
   border: '1px solid #D5DAE5',
-  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
   padding: '11px 12px',
   fontSize: 14.5,
   fontFamily: 'inherit',
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   color: 'var(--rr-murekkep, #1E2333)',
 };
 const etiket: CSSProperties = { display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6 };
 const bolum: CSSProperties = {
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   border: '1px solid var(--rr-cizgi, #E3E6EF)',
   borderRadius: 'var(--rr-kart-kose)',
   padding: 20,
@@ -174,7 +174,7 @@ export function AracFormu({
       <h1 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 800 }}>
         {id ? (d?.ad ?? 'Araç') : 'Araç ekle'}
       </h1>
-      <p style={{ margin: '0 0 18px', fontSize: 14.5, color: '#5A6073' }}>
+      <p style={{ margin: '0 0 18px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
         {d && d.durum !== 'DRAFT'
           ? `${d.durumAd}${d.not ? ` · ${d.not}` : ''} · Portföy no ${d.no}`
           : d?.eidsGerekli === false || katalogsuz || kok === 'kiralik'
@@ -188,7 +188,7 @@ export function AracFormu({
             margin: '0 0 14px',
             background: '#FFF0EE',
             border: '1px solid #F5C6C0',
-            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
             padding: '10px 14px',
             fontSize: 14,
             color: '#A3271F',
@@ -558,7 +558,7 @@ export function AracFormu({
           <h2 id="e3" style={{ margin: '0 0 6px', fontSize: 17, fontWeight: 800 }}>
             Boya, değişen ve hasar
           </h2>
-          <p style={{ margin: '0 0 14px', fontSize: 13.5, color: '#5A6073' }}>
+          <p style={{ margin: '0 0 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
             Parça durumu, talep sayfasındaki şemanın aynısıyla parça parça girilir; alıcı kriterleriyle
             eşleştirme bu bilgiye göre yapılır.
           </p>
@@ -641,7 +641,7 @@ export function AracFormu({
               style={{
                 border: '2px dashed #AEB5C4',
                 background: 'var(--rr-zemin, #F6F8FD)',
-                borderRadius: 16,
+                borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
                 padding: 26,
                 cursor: 'pointer',
                 fontSize: 14.5,
@@ -652,7 +652,13 @@ export function AracFormu({
             >
               {busy === 'foto' ? 'Yükleniyor…' : 'Fotoğraf yükle'}
               <span
-                style={{ display: 'block', fontSize: 12.5, fontWeight: 500, color: '#5A6073', marginTop: 4 }}
+                style={{
+                  display: 'block',
+                  fontSize: 12.5,
+                  fontWeight: 500,
+                  color: 'var(--rr-soluk, #5A6073)',
+                  marginTop: 4,
+                }}
               >
                 En az {PHOTO_MIN}, en fazla {PHOTO_MAX} fotoğraf · JPG veya PNG · şu an{' '}
                 {d?.fotolar.length ?? 0}
@@ -662,7 +668,7 @@ export function AracFormu({
               style={{
                 border: '2px dashed #AEB5C4',
                 background: 'var(--rr-zemin, #F6F8FD)',
-                borderRadius: 16,
+                borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
                 padding: 18,
                 textAlign: 'center',
               }}
@@ -670,7 +676,9 @@ export function AracFormu({
               <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>
                 {d?.ekspertiz ? `Ekspertiz: ${d.ekspertiz.ad}` : 'Ekspertiz raporu yükle'}
               </span>
-              <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 4 }}>
+              <span
+                style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 4 }}
+              >
                 PDF · Son 10 gün içinde alınmış olmalı
               </span>
               <span
@@ -689,8 +697,8 @@ export function AracFormu({
                   onClick={() => raporRef.current?.click()}
                   style={{
                     border: '1px solid #D5DAE5',
-                    background: '#FFFFFF',
-                    borderRadius: 10,
+                    background: 'var(--rr-kart, #FFFFFF)',
+                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                     padding: '8px 12px',
                     fontSize: 13.5,
                     fontWeight: 700,
@@ -737,7 +745,7 @@ export function AracFormu({
                       width: 120,
                       height: 90,
                       objectFit: 'cover',
-                      borderRadius: 10,
+                      borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                       display: 'block',
                       border:
                         i === 0 ? '2px solid var(--rr-mavi, #5B8CFF)' : '1px solid var(--rr-cizgi, #E3E6EF)',
@@ -810,7 +818,7 @@ export function AracFormu({
             onClick={() => bitti('')}
             style={{
               border: '1px solid #D5DAE5',
-              background: '#FFFFFF',
+              background: 'var(--rr-kart, #FFFFFF)',
               borderRadius: 'var(--rr-buton-kose)',
               padding: '13px 20px',
               fontSize: 15,
@@ -833,7 +841,7 @@ export function AracFormu({
             }
             style={{
               border: '1px solid #D5DAE5',
-              background: '#FFFFFF',
+              background: 'var(--rr-kart, #FFFFFF)',
               borderRadius: 'var(--rr-buton-kose)',
               padding: '13px 20px',
               fontSize: 15,
@@ -868,7 +876,7 @@ export function AracFormu({
                 padding: '14px 24px',
                 fontSize: 15,
                 fontWeight: 800,
-                color: 'var(--rr-murekkep, #1E2333)',
+                color: 'var(--rr-maviYazi, #1E2333)',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
               }}

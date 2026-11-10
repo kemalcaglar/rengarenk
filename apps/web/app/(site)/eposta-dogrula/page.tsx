@@ -24,7 +24,7 @@ export default function EpostaDogrula() {
     <main style={{ maxWidth: 560, margin: '48px auto', padding: '0 24px' }}>
       <section
         style={{
-          background: '#FFFFFF',
+          background: 'var(--rr-kart, #FFFFFF)',
           border: '1px solid var(--rr-cizgi, #E3E6EF)',
           borderRadius: 'var(--rr-kart-kose)',
           padding: 24,
@@ -36,7 +36,7 @@ export default function EpostaDogrula() {
           style={{
             margin: 0,
             fontSize: 15,
-            color: durum === 'hata' ? '#A3271F' : durum === 'tamam' ? '#11683F' : '#5A6073',
+            color: durum === 'hata' ? '#A3271F' : durum === 'tamam' ? '#11683F' : 'var(--rr-soluk, #5A6073)',
           }}
         >
           {durum === 'bekliyor' ? 'Doğrulanıyor…' : mesaj}

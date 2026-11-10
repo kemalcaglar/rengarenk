@@ -1,4 +1,4 @@
-import { colors, MESSAGE_MAX, radii } from '@rengarenk/shared';
+import { butonOran, colors, kartOran, MESSAGE_MAX, radii } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { type ComponentRef, useCallback, useEffect, useRef, useState } from 'react';
 import {
@@ -263,7 +263,7 @@ export default function SohbetEkrani() {
               backgroundColor: '#F6F8FD',
               borderWidth: 1,
               borderColor: colors.line,
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               paddingVertical: 8,
               paddingHorizontal: 10,
             }}
@@ -272,13 +272,20 @@ export default function SohbetEkrani() {
               style={{
                 width: 52,
                 height: 34,
-                borderRadius: 8,
+                borderRadius: butonOran(8),
                 backgroundColor: '#EEF3FF',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <View style={{ width: 44, height: 16, borderRadius: 10, backgroundColor: '#D7DEEB' }} />
+              <View
+                style={{
+                  width: 44,
+                  height: 16,
+                  borderRadius: Math.min(radii.etiket, 10),
+                  backgroundColor: '#D7DEEB',
+                }}
+              />
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
               <T style={{ fontSize: 11.5, color: colors.muted }}>
@@ -338,7 +345,7 @@ export default function SohbetEkrani() {
               marginHorizontal: 12,
               marginBottom: 12,
               backgroundColor: '#FFF6DF',
-              borderRadius: 16,
+              borderRadius: kartOran(16),
               padding: 14,
             }}
           >
@@ -354,12 +361,12 @@ export default function SohbetEkrani() {
                 onPress={() => setYanitla(true)}
                 style={{
                   backgroundColor: colors.blue,
-                  borderRadius: radii.buton - 2,
+                  borderRadius: butonOran(12),
                   paddingVertical: 11,
                   paddingHorizontal: 18,
                 }}
               >
-                <T style={{ fontSize: 14.5, fontWeight: '800' }}>Yanıtla</T>
+                <T style={{ color: colors.onBlue, fontSize: 14.5, fontWeight: '800' }}>Yanıtla</T>
               </Pressable>
               <Pressable
                 accessibilityRole="button"
@@ -369,7 +376,7 @@ export default function SohbetEkrani() {
                   borderWidth: 1,
                   borderColor: '#D9C48A',
                   backgroundColor: colors.surface,
-                  borderRadius: radii.buton - 2,
+                  borderRadius: butonOran(12),
                   paddingVertical: 11,
                   paddingHorizontal: 16,
                 }}
@@ -433,7 +440,7 @@ export default function SohbetEkrani() {
                   maxHeight: 120,
                   borderWidth: 1,
                   borderColor: '#D5DAE5',
-                  borderRadius: 22,
+                  borderRadius: kartOran(22),
                   paddingVertical: 12,
                   paddingHorizontal: 14,
                   fontSize: 15,
@@ -459,7 +466,7 @@ export default function SohbetEkrani() {
                 <Svg width={20} height={20} viewBox="0 0 24 24" fill="none">
                   <Path
                     d="M4 12l16-8-6 16-2-7z"
-                    stroke={colors.ink}
+                    stroke={colors.onBlue}
                     strokeWidth={2.2}
                     strokeLinejoin="round"
                   />
@@ -499,7 +506,7 @@ function MesajBalonu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
           fontSize: 12.5,
           color: '#3A4052',
           backgroundColor: '#EEF3FF',
-          borderRadius: radii.buton - 2,
+          borderRadius: butonOran(12),
           overflow: 'hidden',
           paddingVertical: 9,
           paddingHorizontal: 12,
@@ -534,7 +541,9 @@ function MesajBalonu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
           {k.foto ? (
             <Image source={{ uri: `${API}${k.foto}` }} style={{ width: '100%', height: '100%' }} />
           ) : (
-            <View style={{ width: 150, height: 55, borderRadius: 10, backgroundColor: '#E5D8B5' }} />
+            <View
+              style={{ width: 150, height: 55, borderRadius: butonOran(10), backgroundColor: '#E5D8B5' }}
+            />
           )}
         </View>
         <View style={{ paddingVertical: 10, paddingHorizontal: 12 }}>
@@ -588,7 +597,7 @@ function MesajBalonu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
           borderWidth: 1,
           borderStyle: 'dashed',
           borderColor: '#AEB5C4',
-          borderRadius: 16,
+          borderRadius: kartOran(16),
           paddingVertical: 10,
           paddingHorizontal: 13,
         }}
@@ -605,15 +614,15 @@ function MesajBalonu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
         <View
           style={{
             backgroundColor: giden ? colors.blue : '#F3F5FA',
-            borderTopLeftRadius: 16,
-            borderTopRightRadius: 16,
+            borderTopLeftRadius: kartOran(16),
+            borderTopRightRadius: kartOran(16),
             borderBottomLeftRadius: giden ? 16 : 4,
             borderBottomRightRadius: giden ? 4 : 16,
             paddingVertical: 11,
             paddingHorizontal: 13,
           }}
         >
-          <T style={{ fontSize: 14, lineHeight: 21 }}>{m.metin}</T>
+          <T style={{ color: giden ? colors.onBlue : colors.ink, fontSize: 14, lineHeight: 21 }}>{m.metin}</T>
         </View>
         <T style={{ fontSize: 11, color: colors.muted, marginTop: 3, textAlign: giden ? 'right' : 'left' }}>
           {saat(m.zaman)}

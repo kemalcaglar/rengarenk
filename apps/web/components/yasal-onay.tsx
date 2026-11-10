@@ -164,7 +164,7 @@ export function YasalOnay() {
             style={{
               border: `1px solid ${colors.line}`,
               background: colors.surface,
-              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
               padding: '11px 16px',
               fontSize: 14.5,
               fontWeight: 700,
@@ -180,8 +180,8 @@ export function YasalOnay() {
             style={{
               border: 0,
               background: hazir ? colors.blue : '#C9D3E6',
-              color: colors.ink,
-              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+              color: hazir ? 'var(--rr-maviYazi, #1E2333)' : colors.ink,
+              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
               padding: '11px 18px',
               fontSize: 14.5,
               fontWeight: 800,

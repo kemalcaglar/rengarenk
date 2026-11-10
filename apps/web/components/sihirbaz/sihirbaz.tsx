@@ -93,9 +93,9 @@ interface Haklar {
 }
 
 const kart: CSSProperties = {
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   border: '1px solid var(--rr-cizgi, #E3E6EF)',
-  borderRadius: 20,
+  borderRadius: 'calc(var(--rr-kart-kose) * 20 / 18)',
 };
 
 /**
@@ -369,7 +369,7 @@ export function Sihirbaz() {
   }
 
   if (giris !== true) {
-    return <p style={{ padding: 40, textAlign: 'center', color: '#5A6073' }}>Yükleniyor…</p>;
+    return <p style={{ padding: 40, textAlign: 'center', color: 'var(--rr-soluk, #5A6073)' }}>Yükleniyor…</p>;
   }
 
   const kat = kategoriler?.find(
@@ -380,7 +380,12 @@ export function Sihirbaz() {
   return (
     <ButceKoluSaglayici kol={butceKolu}>
       <div style={{ background: 'var(--rr-zemin, #F6F8FD)', minHeight: '100vh' }}>
-        <header style={{ background: '#FFFFFF', borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)' }}>
+        <header
+          style={{
+            background: 'var(--rr-kart, #FFFFFF)',
+            borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)',
+          }}
+        >
           <div
             style={{
               maxWidth: 1360,
@@ -402,7 +407,12 @@ export function Sihirbaz() {
                     alignItems: 'center',
                     gap: 6,
                     fontSize: 13.5,
-                    color: kayit === 'hata' ? '#A3271F' : kayit === 'kaydediliyor' ? '#5A6073' : '#11683F',
+                    color:
+                      kayit === 'hata'
+                        ? '#A3271F'
+                        : kayit === 'kaydediliyor'
+                          ? 'var(--rr-soluk, #5A6073)'
+                          : '#11683F',
                     fontWeight: 600,
                   }}
                 >
@@ -435,7 +445,7 @@ export function Sihirbaz() {
                   fontWeight: 700,
                   color: 'var(--rr-murekkep, #1E2333)',
                   border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                   padding: '10px 16px',
                   textDecoration: 'none',
                 }}
@@ -446,7 +456,12 @@ export function Sihirbaz() {
           </div>
         </header>
 
-        <div style={{ background: '#FFFFFF', borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)' }}>
+        <div
+          style={{
+            background: 'var(--rr-kart, #FFFFFF)',
+            borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)',
+          }}
+        >
           <ol
             aria-label="Adımlar"
             style={{
@@ -485,8 +500,9 @@ export function Sihirbaz() {
                       style={{
                         display: 'block',
                         height: 6,
-                        borderRadius: 3,
+                        borderRadius: 'calc(var(--rr-buton-kose) * 3 / 14)',
                         background: done || cur ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-cizgi, #E3E6EF)',
+                        color: done || cur ? 'var(--rr-maviYazi, #1E2333)' : undefined,
                       }}
                     />
                     <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -500,12 +516,16 @@ export function Sihirbaz() {
                           justifyContent: 'center',
                           fontSize: 13,
                           fontWeight: 800,
-                          background: done ? 'var(--rr-mavi, #5B8CFF)' : cur ? '#FFFFFF' : '#F3F5FA',
+                          background: done
+                            ? 'var(--rr-mavi, #5B8CFF)'
+                            : cur
+                              ? 'var(--rr-kart, #FFFFFF)'
+                              : '#F3F5FA',
                           color: done
-                            ? 'var(--rr-murekkep, #1E2333)'
+                            ? 'var(--rr-maviYazi, #1E2333)'
                             : cur
                               ? 'var(--rr-baglanti, #2450C8)'
-                              : '#5A6073',
+                              : 'var(--rr-soluk, #5A6073)',
                           border: `2px solid ${done || cur ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-cizgi, #E3E6EF)'}`,
                           boxSizing: 'border-box',
                           flex: 'none',
@@ -517,7 +537,7 @@ export function Sihirbaz() {
                         style={{
                           fontSize: 13.5,
                           fontWeight: cur ? 800 : 600,
-                          color: cur || done ? 'var(--rr-murekkep, #1E2333)' : '#5A6073',
+                          color: cur || done ? 'var(--rr-murekkep, #1E2333)' : 'var(--rr-soluk, #5A6073)',
                         }}
                       >
                         {a.ad}
@@ -548,7 +568,7 @@ export function Sihirbaz() {
             <h1 style={{ margin: '4px 0 6px', fontSize: 26, fontWeight: 800, letterSpacing: -0.3 }}>
               {tanim.baslik}
             </h1>
-            <p style={{ margin: '0 0 24px', fontSize: 14.5, color: '#5A6073' }}>
+            <p style={{ margin: '0 0 24px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
               {adim === 'onizleme'
                 ? `Her şey doğruysa talebini yayınla; ${taslak?.schema?.rules.listingDays ?? 30} gün boyunca satıcılar seni bulsun.`
                 : tanim.alt}
@@ -561,7 +581,7 @@ export function Sihirbaz() {
                   marginBottom: 18,
                   background: '#FDECEC',
                   border: '1px solid #F5C2BE',
-                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                   padding: '12px 14px',
                   fontSize: 14,
                   color: '#A3271F',
@@ -596,7 +616,7 @@ export function Sihirbaz() {
                             onClick={() => setHesap(g.accountId)}
                             style={{
                               border: on ? '2px solid var(--rr-mavi, #5B8CFF)' : '1px solid #D5DAE5',
-                              background: on ? '#EEF3FF' : '#FFFFFF',
+                              background: on ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
                               borderRadius: 'var(--rr-etiket-kose)',
                               padding: on ? '8px 14px' : '9px 15px',
                               fontSize: 14,
@@ -611,7 +631,7 @@ export function Sihirbaz() {
                         );
                       })}
                     </div>
-                    <p style={{ margin: '8px 0 0', fontSize: 13, color: '#5A6073' }}>
+                    <p style={{ margin: '8px 0 0', fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
                       {taslak
                         ? 'Taslak açıldıktan sonra hesap değişmez.'
                         : 'Galeri adına talepte paketin talep hakkı kullanılır ve alıcı olarak galerinin adı görünür.'}
@@ -640,8 +660,8 @@ export function Sihirbaz() {
                           border: sel
                             ? '2px solid var(--rr-mavi, #5B8CFF)'
                             : '1px solid var(--rr-cizgi, #E3E6EF)',
-                          background: sel ? '#EEF3FF' : '#FFFFFF',
-                          borderRadius: 16,
+                          background: sel ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
+                          borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
                           padding: sel ? 16 : 17,
                           cursor: 'pointer',
                           display: 'flex',
@@ -653,7 +673,12 @@ export function Sihirbaz() {
                         {sel ? (
                           <span
                             aria-hidden="true"
-                            style={{ width: 34, height: 34, borderRadius: 10, background: c.color }}
+                            style={{
+                              width: 34,
+                              height: 34,
+                              borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
+                              background: c.color,
+                            }}
                           />
                         ) : (
                           <span
@@ -661,7 +686,7 @@ export function Sihirbaz() {
                             style={{
                               width: 34,
                               height: 34,
-                              borderRadius: 10,
+                              borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                               background: TINTS[ti],
                               display: 'flex',
                               alignItems: 'center',
@@ -755,14 +780,15 @@ export function Sihirbaz() {
                         onClick={() => setAlt(i)}
                         style={{
                           border: 0,
-                          borderRadius: '12px 12px 0 0',
+                          borderRadius:
+                            'calc(var(--rr-buton-kose) * 12 / 14) calc(var(--rr-buton-kose) * 12 / 14) 0 0',
                           padding: '11px 18px',
                           fontSize: 14.5,
                           fontWeight: 700,
                           cursor: 'pointer',
                           marginBottom: -1,
                           background: alt === i ? '#EEF3FF' : 'transparent',
-                          color: alt === i ? 'var(--rr-murekkep, #1E2333)' : '#5A6073',
+                          color: alt === i ? 'var(--rr-murekkep, #1E2333)' : 'var(--rr-soluk, #5A6073)',
                           borderBottom: `3px solid ${alt === i ? 'var(--rr-mavi, #5B8CFF)' : 'transparent'}`,
                           fontFamily: 'inherit',
                         }}
@@ -783,7 +809,7 @@ export function Sihirbaz() {
                           style={{
                             border: 0,
                             background: 'transparent',
-                            color: '#5A6073',
+                            color: 'var(--rr-soluk, #5A6073)',
                             fontSize: 16,
                             cursor: 'pointer',
                             padding: '0 6px',
@@ -993,7 +1019,7 @@ export function Sihirbaz() {
                   onClick={() => git(gorunen[sira - 1]?.key ?? 'kategori')}
                   style={{
                     border: '1px solid #D5DAE5',
-                    background: '#FFFFFF',
+                    background: 'var(--rr-kart, #FFFFFF)',
                     borderRadius: 'var(--rr-buton-kose)',
                     padding: '13px 22px',
                     fontSize: 15,
@@ -1020,7 +1046,7 @@ export function Sihirbaz() {
                     padding: '14px 28px',
                     fontSize: 15.5,
                     fontWeight: 800,
-                    color: 'var(--rr-murekkep, #1E2333)',
+                    color: 'var(--rr-maviYazi, #1E2333)',
                     cursor: 'pointer',
                     opacity: busy || (!duzenle && (!haklar || haklar.talep < 1)) ? 0.55 : 1,
                     fontFamily: 'inherit',
@@ -1048,7 +1074,7 @@ export function Sihirbaz() {
                     padding: '14px 28px',
                     fontSize: 15.5,
                     fontWeight: 800,
-                    color: 'var(--rr-murekkep, #1E2333)',
+                    color: 'var(--rr-maviYazi, #1E2333)',
                     cursor: taslak ? 'pointer' : 'default',
                     opacity: taslak ? 1 : 0.55,
                     fontFamily: 'inherit',
@@ -1082,7 +1108,9 @@ function Satir({ baslik, alt, sag }: { baslik: string; alt: string; sag: ReactNo
     >
       <span>
         <span style={{ display: 'block', fontSize: 15, fontWeight: 700 }}>{baslik}</span>
-        <span style={{ display: 'block', fontSize: 13, color: '#5A6073', marginTop: 2 }}>{alt}</span>
+        <span style={{ display: 'block', fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}>
+          {alt}
+        </span>
       </span>
       {sag}
     </div>
@@ -1217,7 +1245,7 @@ function AnaArac({ alanlar, veri, kategori, deger, yaz, gorunur, hataOf }: AdimP
               style={{
                 marginTop: 22,
                 background: '#EEF3FF',
-                borderRadius: 16,
+                borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
                 padding: '16px 18px',
                 display: 'flex',
                 gap: 14,
@@ -1254,7 +1282,7 @@ function AnaArac({ alanlar, veri, kategori, deger, yaz, gorunur, hataOf }: AdimP
               </div>
             </div>
           ) : null}
-          <p style={{ margin: '16px 0 0', fontSize: 13, color: '#5A6073' }}>
+          <p style={{ margin: '16px 0 0', fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
             Katalog kendiliğinden güncellenir; Türkiye'de satılmış ve satılan marka, model ve paketler
             listededir.
           </p>
@@ -1341,7 +1369,9 @@ function Kriterler({
                   </button>
                 ) : null}
               </div>
-              <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 6 }}>
+              <span
+                style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 6 }}
+              >
                 Seçtiğin kasalara göre model yılı aralığı otomatik dolar; istersen daraltabilirsin.
               </span>
             </div>
@@ -1416,12 +1446,12 @@ function HasarGecmisi({
   const kabul = value ?? [];
   const btn = (on: boolean, iyi: boolean): CSSProperties => ({
     border: on ? `1.5px solid ${iyi ? '#25A35A' : '#A3271F'}` : '1px solid #D5DAE5',
-    background: on ? (iyi ? '#E7FAF0' : '#FDECEC') : '#FFFFFF',
-    borderRadius: 8,
+    background: on ? (iyi ? '#E7FAF0' : '#FDECEC') : 'var(--rr-kart, #FFFFFF)',
+    borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
     padding: on ? '6px 10px' : '6.5px 10.5px',
     fontSize: 12.5,
     fontWeight: on ? 800 : 600,
-    color: on ? (iyi ? '#11683F' : '#A3271F') : '#5A6073',
+    color: on ? (iyi ? '#11683F' : '#A3271F') : 'var(--rr-soluk, #5A6073)',
     cursor: 'pointer',
     fontFamily: 'inherit',
   });
@@ -1532,7 +1562,7 @@ function Onizleme({
   const rules = taslak.schema?.rules;
   const satir = (dt: string, dd: string) => (
     <div style={{ padding: '12px 18px', borderTop: '1px solid #EEF0F5' }}>
-      <dt style={{ fontSize: 13, color: '#5A6073' }}>{dt}</dt>
+      <dt style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>{dt}</dt>
       <dd style={{ margin: '2px 0 0', fontSize: 14.5, fontWeight: 700 }}>{dd}</dd>
     </div>
   );
@@ -1566,7 +1596,7 @@ function Onizleme({
               width: 180,
               maxWidth: '100%',
               aspectRatio: '180 / 66',
-              borderRadius: 10,
+              borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
               background: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)',
             }}
           >
@@ -1628,7 +1658,7 @@ function Onizleme({
             lineHeight: 1.55,
             color: '#7A5300',
             background: '#FFF6DF',
-            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
             padding: '12px 14px',
           }}
         >
@@ -1642,7 +1672,7 @@ function Onizleme({
             fontSize: 14,
             color: '#3A4052',
             background: '#EEF3FF',
-            borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
             padding: '12px 14px',
           }}
         >
@@ -1668,7 +1698,7 @@ function Onizleme({
                   style={{
                     textAlign: 'left',
                     border: on ? '2px solid var(--rr-mavi, #5B8CFF)' : '1px solid var(--rr-cizgi, #E3E6EF)',
-                    background: on ? '#EEF3FF' : '#FFFFFF',
+                    background: on ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
                     borderRadius: 'var(--rr-buton-kose)',
                     padding: on ? 14 : 15,
                     cursor: 'pointer',
@@ -1685,7 +1715,14 @@ function Onizleme({
                   >
                     {b.ad}
                   </span>
-                  <span style={{ display: 'block', fontSize: 13, color: '#5A6073', marginTop: 3 }}>
+                  <span
+                    style={{
+                      display: 'block',
+                      fontSize: 13,
+                      color: 'var(--rr-soluk, #5A6073)',
+                      marginTop: 3,
+                    }}
+                  >
                     {b.aciklama}
                   </span>
                   <span
@@ -1703,7 +1740,7 @@ function Onizleme({
               );
             })}
           </div>
-          <p style={{ margin: '8px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+          <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
             {oneCikar.length
               ? 'Talebin yayınlanınca seçtiklerin ödeme sayfasında sepetine eklenir; ödeyince hemen başlar.'
               : 'İstersen talebin yayındayken Haklarım ve ödemeler sayfasından da öne çıkarabilirsin.'}
@@ -1863,13 +1900,13 @@ function Ozet({
               }}
             />
             <div>
-              <dt style={{ fontSize: 12.5, color: '#5A6073' }}>{s.label}</dt>
+              <dt style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>{s.label}</dt>
               <dd style={{ margin: '1px 0 0', fontSize: 14, fontWeight: 700 }}>{s.value}</dd>
             </div>
           </div>
         ))}
       </dl>
-      <p style={{ margin: '18px 0 0', fontSize: 12.5, lineHeight: 1.5, color: '#5A6073' }}>
+      <p style={{ margin: '18px 0 0', fontSize: 12.5, lineHeight: 1.5, color: 'var(--rr-soluk, #5A6073)' }}>
         Yarım kalan talebin taslak olarak saklanır; istediğin zaman kaldığın adımdan devam edebilirsin.
       </p>
     </aside>

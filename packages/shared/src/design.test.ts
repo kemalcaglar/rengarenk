@@ -2,13 +2,17 @@ import { describe, expect, it } from 'vitest';
 import {
   activeTheme,
   applyDesignColors,
+  butonOran,
   contrast,
   DEFAULT_DESIGN,
   designCssVars,
   designProblems,
   designTokensSchema,
+  designWarnings,
   FONTS,
   fontCssUrl,
+  kartOran,
+  kartOranCss,
   themeStatus,
 } from './design.js';
 import { colors } from './tokens.js';
@@ -57,5 +61,51 @@ describe('tasarım değerleri (Karar 46)', () => {
     expect(colors.blue).toBe('#3366FF');
     applyDesignColors(null);
     expect(colors.blue).toBe('#5B8CFF');
+  });
+});
+
+describe('tasarım değerleri: renkli zemin yazısı ve oranlı köşeler', () => {
+  it('önceki sürümde olmayan renkler varsayılanla tamamlanır', () => {
+    const eski = {
+      renkler: {
+        mavi: '#5B8CFF',
+        pembe: '#FF6FB5',
+        sari: '#FFC84A',
+        yesil: '#3DD68C',
+        murekkep: '#1E2333',
+        baglanti: '#2450C8',
+        zemin: '#F6F8FD',
+        cizgi: '#E3E6EF',
+      },
+      yaziTipi: 'Plus Jakarta Sans',
+      kartKose: 0,
+      butonKose: 0,
+      etiketKose: 0,
+      temalar: [],
+    };
+    const t = designTokensSchema.parse(eski);
+    expect(t.renkler.maviYazi).toBe('#1E2333');
+    expect(t.renkler.kart).toBe('#FFFFFF');
+    expect(t.renkler.soluk).toBe('#5A6073');
+    expect(designCssVars(t)['--rr-maviYazi']).toBe('#1E2333');
+  });
+
+  it('mavi üstünde beyaz yazı gönderilebilir ama uyarı verir; okunmayan yazı reddedilir', () => {
+    const beyaz = { ...DEFAULT_DESIGN, renkler: { ...DEFAULT_DESIGN.renkler, maviYazi: '#FFFFFF' } };
+    expect(designProblems(beyaz)).toEqual([]);
+    expect(designWarnings(beyaz)[0]).toMatch(/^Mavi üstündeki yazı: 3,2:1/);
+    const sari = { ...DEFAULT_DESIGN, renkler: { ...DEFAULT_DESIGN.renkler, sariYazi: '#FFFFFF' } };
+    expect(designProblems(sari)[0]).toMatch(/^Sarı üstündeki yazı okunmuyor/);
+    const kart = { ...DEFAULT_DESIGN, renkler: { ...DEFAULT_DESIGN.renkler, kart: '#1E2333' } };
+    expect(designProblems(kart)[0]).toMatch(/^Mürekkep rengi kart zeminine karşı okunmuyor/);
+  });
+
+  it('köşeler tasarımdaki oranla küçülür; 0 seçilirse hepsi kalkar', () => {
+    applyDesignColors({ ...DEFAULT_DESIGN, kartKose: 9, butonKose: 0 });
+    expect(kartOran(16)).toBe(8);
+    expect(butonOran(10)).toBe(0);
+    applyDesignColors(null);
+    expect(kartOran(16)).toBe(16);
+    expect(kartOranCss(16)).toBe('calc(var(--rr-kart-kose) * 16 / 18)');
   });
 });

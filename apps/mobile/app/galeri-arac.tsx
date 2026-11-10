@@ -1,4 +1,5 @@
 import {
+  butonOran,
   COLORS,
   colors,
   type Damage,
@@ -228,7 +229,7 @@ export default function GaleriArac() {
               marginBottom: 10,
               backgroundColor: '#FFF0EE',
               color: '#A3271F',
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               padding: 12,
             }}
           >
@@ -419,7 +420,7 @@ export default function GaleriArac() {
               style={{
                 width: 20,
                 height: 20,
-                borderRadius: 5,
+                borderRadius: butonOran(5),
                 borderWidth: 2,
                 borderColor: v.fiyatBeyani ? colors.blue : '#AEB5C4',
                 backgroundColor: v.fiyatBeyani ? colors.blue : colors.surface,
@@ -510,7 +511,7 @@ export default function GaleriArac() {
                 style={{
                   width: '23.5%',
                   aspectRatio: 1,
-                  borderRadius: 10,
+                  borderRadius: butonOran(10),
                   overflow: 'hidden',
                   borderWidth: i === 0 ? 2 : 1,
                   borderColor: i === 0 ? colors.blue : colors.line,
@@ -526,7 +527,7 @@ export default function GaleriArac() {
               style={{
                 width: '23.5%',
                 aspectRatio: 1,
-                borderRadius: 10,
+                borderRadius: butonOran(10),
                 borderWidth: 1,
                 borderStyle: 'dashed',
                 borderColor: '#A9B6D6',
@@ -549,7 +550,7 @@ export default function GaleriArac() {
               marginTop: 10,
               borderWidth: 1,
               borderColor: '#D5DAE5',
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               padding: 12,
               alignItems: 'center',
             }}
@@ -568,7 +569,7 @@ export default function GaleriArac() {
               style={{
                 width: 20,
                 height: 20,
-                borderRadius: 5,
+                borderRadius: butonOran(5),
                 borderWidth: 2,
                 borderColor: v.fotoKatalogIzni ? colors.blue : '#AEB5C4',
                 backgroundColor: v.fotoKatalogIzni ? colors.blue : colors.surface,

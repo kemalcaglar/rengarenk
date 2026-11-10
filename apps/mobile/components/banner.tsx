@@ -1,4 +1,4 @@
-import { type BannerPlace, colors, radii } from '@rengarenk/shared';
+import { type BannerPlace, butonOran, colors, kartOran } from '@rengarenk/shared';
 import { type Href, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Pressable, View, type ViewStyle } from 'react-native';
@@ -109,7 +109,7 @@ export function Banner({ yer, style }: { yer: BannerPlace; style?: ViewStyle }) 
             borderColor: colors.line,
             borderLeftWidth: 6,
             borderLeftColor: b.renk,
-            borderRadius: 16,
+            borderRadius: kartOran(16),
             padding: 14,
             gap: 10,
           }}
@@ -127,7 +127,7 @@ export function Banner({ yer, style }: { yer: BannerPlace; style?: ViewStyle }) 
               style={{
                 alignSelf: 'flex-start',
                 backgroundColor: colors.ink,
-                borderRadius: radii.buton - 2,
+                borderRadius: butonOran(12),
                 paddingVertical: 10,
                 paddingHorizontal: 16,
               }}

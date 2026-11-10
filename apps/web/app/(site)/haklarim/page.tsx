@@ -40,7 +40,7 @@ interface Ozet {
 type Adim = 'magaza' | 'odeme' | 'tamam';
 
 const kart: CSSProperties = {
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   border: '1px solid var(--rr-cizgi, #E3E6EF)',
   borderRadius: 'var(--rr-kart-kose)',
 };
@@ -50,11 +50,11 @@ const girdi: CSSProperties = {
   boxSizing: 'border-box',
   marginTop: 5,
   border: '1px solid #D5DAE5',
-  borderRadius: 10,
+  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
   padding: 11,
   fontSize: 14.5,
   fontFamily: 'inherit',
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
 };
 const RENK = [
   'var(--rr-mavi, #5B8CFF)',
@@ -262,7 +262,7 @@ export default function Haklarim() {
               margin: '0 0 14px',
               background: '#FFF0EE',
               border: '1px solid #F5C6C0',
-              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
               padding: '10px 14px',
               fontSize: 14,
               color: '#A3271F',
@@ -281,11 +281,25 @@ export default function Haklarim() {
               {kartlar.map((h, i) => (
                 <div
                   key={h.ad}
-                  style={{ ...kart, borderRadius: 16, padding: 16, borderTop: `4px solid ${RENK[i]}` }}
+                  style={{
+                    ...kart,
+                    borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
+                    padding: 16,
+                    borderTop: `4px solid ${RENK[i]}`,
+                  }}
                 >
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#5A6073' }}>{h.ad}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--rr-soluk, #5A6073)' }}>
+                    {h.ad}
+                  </div>
                   <div style={{ fontSize: 26, fontWeight: 800, marginTop: 4 }}>{h.deger}</div>
-                  <div style={{ fontSize: 12.5, color: '#5A6073', marginTop: 4, lineHeight: 1.4 }}>
+                  <div
+                    style={{
+                      fontSize: 12.5,
+                      color: 'var(--rr-soluk, #5A6073)',
+                      marginTop: 4,
+                      lineHeight: 1.4,
+                    }}
+                  >
                     {h.not}
                   </div>
                 </div>
@@ -295,7 +309,7 @@ export default function Haklarim() {
               <div
                 style={{
                   ...kart,
-                  borderRadius: 16,
+                  borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
                   display: 'flex',
                   flexWrap: 'wrap',
                   alignItems: 'center',
@@ -334,7 +348,7 @@ export default function Haklarim() {
                 style={{
                   margin: '12px 0 0',
                   background: '#FFF6DF',
-                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                   padding: '10px 14px',
                   fontSize: 14,
                   color: '#5A3D00',
@@ -380,7 +394,7 @@ export default function Haklarim() {
                                 onChange={(e) => setHedef(Number(e.target.value))}
                                 style={{
                                   border: '1px solid #D5DAE5',
-                                  borderRadius: 8,
+                                  borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
                                   padding: '4px 6px',
                                   fontSize: 13.5,
                                   fontWeight: 700,
@@ -422,7 +436,12 @@ export default function Haklarim() {
                                 {u.ad}
                               </span>
                               <span
-                                style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}
+                                style={{
+                                  display: 'block',
+                                  fontSize: 12.5,
+                                  color: 'var(--rr-soluk, #5A6073)',
+                                  marginTop: 2,
+                                }}
                               >
                                 {u.not}
                               </span>
@@ -441,8 +460,8 @@ export default function Haklarim() {
                                 flex: 'none',
                                 width: 104,
                                 border: on ? 0 : '1px solid var(--rr-mavi, #5B8CFF)',
-                                background: on ? '#E7FAF0' : '#FFFFFF',
-                                borderRadius: 10,
+                                background: on ? '#E7FAF0' : 'var(--rr-kart, #FFFFFF)',
+                                borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                                 padding: on ? '9px 0' : '8px 0',
                                 fontSize: 13.5,
                                 fontWeight: 800,
@@ -478,7 +497,7 @@ export default function Haklarim() {
                   Sepet
                 </h2>
                 {!secili.length ? (
-                  <p style={{ margin: 0, fontSize: 14, color: '#5A6073' }}>
+                  <p style={{ margin: 0, fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
                     Sepetin boş. Soldan bir hak veya öne çıkarma seç.
                   </p>
                 ) : (
@@ -511,7 +530,7 @@ export default function Haklarim() {
                       <span>Toplam</span>
                       <span>{tlYaz(toplam)}</span>
                     </div>
-                    <p style={{ margin: '4px 0 14px', fontSize: 12.5, color: '#5A6073' }}>
+                    <p style={{ margin: '4px 0 14px', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
                       KDV dahil · e-arşiv fatura e-postana gönderilir
                     </p>
                     <button
@@ -524,11 +543,11 @@ export default function Haklarim() {
                         width: '100%',
                         border: 0,
                         background: 'var(--rr-mavi, #5B8CFF)',
-                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                         padding: 13,
                         fontSize: 15,
                         fontWeight: 800,
-                        color: 'var(--rr-murekkep, #1E2333)',
+                        color: 'var(--rr-maviYazi, #1E2333)',
                         cursor: 'pointer',
                         fontFamily: 'inherit',
                       }}
@@ -554,7 +573,9 @@ export default function Haklarim() {
                 Ödeme geçmişi
               </h2>
               {o && !o.gecmis.length ? (
-                <p style={{ margin: 0, padding: '12px 18px', fontSize: 14, color: '#5A6073' }}>
+                <p
+                  style={{ margin: 0, padding: '12px 18px', fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}
+                >
                   Henüz ödemen yok.
                 </p>
               ) : null}
@@ -571,7 +592,9 @@ export default function Haklarim() {
                     fontSize: 14,
                   }}
                 >
-                  <span style={{ flex: '1 1 120px', color: '#5A6073' }}>{tarih(g.tarih)}</span>
+                  <span style={{ flex: '1 1 120px', color: 'var(--rr-soluk, #5A6073)' }}>
+                    {tarih(g.tarih)}
+                  </span>
                   <span style={{ flex: '999 1 240px', fontWeight: 700 }}>{g.kalem}</span>
                   <span style={{ flex: '1 1 90px', fontWeight: 800 }}>
                     {tlYaz(g.tutarKurus)}
@@ -601,7 +624,9 @@ export default function Haklarim() {
                       Faturayı indir
                     </button>
                   ) : (
-                    <span style={{ flex: '1 1 110px', color: '#5A6073' }}>Fatura hazırlanıyor</span>
+                    <span style={{ flex: '1 1 110px', color: 'var(--rr-soluk, #5A6073)' }}>
+                      Fatura hazırlanıyor
+                    </span>
                   )}
                 </div>
               ))}
@@ -796,7 +821,14 @@ export default function Haklarim() {
                         background: '#FBFCFE',
                       }}
                     >
-                      <div style={{ fontSize: 12, fontWeight: 700, color: '#5A6073', marginBottom: 10 }}>
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 700,
+                          color: 'var(--rr-soluk, #5A6073)',
+                          marginBottom: 10,
+                        }}
+                      >
                         Bu alan PayTR’nin ödeme çerçevesidir; siparişi onaylayınca açılır
                       </div>
                       <div className="rr-iki-sutun" style={{ gap: 10 }}>
@@ -806,11 +838,11 @@ export default function Haklarim() {
                             style={{
                               gridColumn: i < 2 ? '1 / -1' : undefined,
                               border: '1px solid #D5DAE5',
-                              borderRadius: 10,
+                              borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                               padding: 11,
                               fontSize: 14.5,
                               color: '#6B7183',
-                              background: '#FFFFFF',
+                              background: 'var(--rr-kart, #FFFFFF)',
                             }}
                           >
                             {x}
@@ -819,7 +851,7 @@ export default function Haklarim() {
                       </div>
                     </div>
                   )}
-                  <p style={{ margin: '10px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+                  <p style={{ margin: '10px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
                     Kart bilgilerin Rengarenk sunucularına gelmez ve saklanmaz. Tek çekim; bu tutarlarda
                     taksit yok.
                   </p>
@@ -863,7 +895,7 @@ export default function Haklarim() {
                             flex: 'none',
                             width: 20,
                             height: 20,
-                            borderRadius: 6,
+                            borderRadius: 'calc(var(--rr-buton-kose) * 6 / 14)',
                             border: `2px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}`,
                             background: on ? 'var(--rr-mavi, #5B8CFF)' : '#FFFFFF',
                             color: '#FFFFFF',
@@ -881,7 +913,7 @@ export default function Haklarim() {
                       </button>
                     );
                   })}
-                  <span style={{ fontSize: 12.5, color: '#5A6073' }}>
+                  <span style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
                     <Link href="/on-bilgilendirme" target="_blank">
                       Ön Bilgilendirme Formu
                     </Link>{' '}
@@ -943,7 +975,7 @@ export default function Haklarim() {
                             border: 0,
                             background: 'transparent',
                             padding: 0,
-                            color: '#5A6073',
+                            color: 'var(--rr-soluk, #5A6073)',
                             fontSize: 12.5,
                             cursor: 'pointer',
                             fontFamily: 'inherit',
@@ -970,7 +1002,7 @@ export default function Haklarim() {
                             width: '100%',
                             boxSizing: 'border-box',
                             border: '1px solid #D5DAE5',
-                            borderRadius: 10,
+                            borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                             padding: '9px 10px',
                             fontSize: 14,
                             fontFamily: 'inherit',
@@ -984,8 +1016,8 @@ export default function Haklarim() {
                         style={{
                           flex: 'none',
                           border: '1px solid #D5DAE5',
-                          background: '#FFFFFF',
-                          borderRadius: 10,
+                          background: 'var(--rr-kart, #FFFFFF)',
+                          borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                           padding: '9px 14px',
                           fontSize: 14,
                           fontWeight: 700,
@@ -1014,7 +1046,7 @@ export default function Haklarim() {
                     justifyContent: 'space-between',
                     marginTop: 10,
                     fontSize: 13.5,
-                    color: '#5A6073',
+                    color: 'var(--rr-soluk, #5A6073)',
                   }}
                 >
                   <span>KDV (%20, dahil)</span>
@@ -1059,11 +1091,11 @@ export default function Haklarim() {
                       marginTop: 14,
                       border: 0,
                       background: 'var(--rr-yesil, #3DD68C)',
-                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                       padding: 13,
                       fontSize: 15,
                       fontWeight: 800,
-                      color: 'var(--rr-murekkep, #1E2333)',
+                      color: 'var(--rr-yesilYazi, #1E2333)',
                       cursor: 'pointer',
                       fontFamily: 'inherit',
                     }}
@@ -1080,7 +1112,7 @@ export default function Haklarim() {
                         marginTop: 14,
                         border: 0,
                         background: 'var(--rr-cizgi, #E3E6EF)',
-                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                         padding: 13,
                         fontSize: 15,
                         fontWeight: 800,
@@ -1090,7 +1122,7 @@ export default function Haklarim() {
                     >
                       Siparişi onayla ve öde · {tlYaz(odenecek)}
                     </button>
-                    <p style={{ margin: '8px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+                    <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
                       {!fatura.ad || !fatura.eposta || !fatura.il || !fatura.ilce
                         ? 'Fatura bilgilerini doldur.'
                         : hemen
@@ -1109,7 +1141,7 @@ export default function Haklarim() {
             aria-labelledby="ok"
             style={{
               ...kart,
-              borderRadius: 22,
+              borderRadius: 'calc(var(--rr-kart-kose) * 22 / 18)',
               maxWidth: 560,
               margin: '40px auto',
               padding: 32,
@@ -1154,11 +1186,11 @@ export default function Haklarim() {
                 href="/taleplerim"
                 style={{
                   background: 'var(--rr-mavi, #5B8CFF)',
-                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                   padding: '12px 18px',
                   fontSize: 14.5,
                   fontWeight: 800,
-                  color: 'var(--rr-murekkep, #1E2333)',
+                  color: 'var(--rr-maviYazi, #1E2333)',
                   textDecoration: 'none',
                 }}
               >
@@ -1175,8 +1207,8 @@ export default function Haklarim() {
                 }}
                 style={{
                   border: '1px solid #D5DAE5',
-                  background: '#FFFFFF',
-                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                  background: 'var(--rr-kart, #FFFFFF)',
+                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                   padding: '12px 18px',
                   fontSize: 14.5,
                   fontWeight: 700,

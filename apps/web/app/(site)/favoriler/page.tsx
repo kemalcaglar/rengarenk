@@ -167,7 +167,7 @@ export default function Favoriler() {
         <h1 style={{ margin: '0 0 4px', fontSize: 28, fontWeight: 800, letterSpacing: -0.4 }}>
           Favoriler ve kayıtlı aramalar
         </h1>
-        <p style={{ margin: '0 0 16px', fontSize: 14.5, color: '#5A6073' }}>
+        <p style={{ margin: '0 0 16px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
           Satmak istediğin araca uyan talepleri takip et; yeni talep gelince haber verelim.
         </p>
 
@@ -177,7 +177,7 @@ export default function Favoriler() {
           style={{
             display: 'flex',
             gap: 6,
-            background: '#FFFFFF',
+            background: 'var(--rr-kart, #FFFFFF)',
             border: '1px solid var(--rr-cizgi, #E3E6EF)',
             borderRadius: 'var(--rr-buton-kose)',
             padding: 6,
@@ -198,7 +198,7 @@ export default function Favoriler() {
                   flex: 1,
                   border: 0,
                   background: on ? '#EEF3FF' : 'transparent',
-                  borderRadius: 10,
+                  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                   padding: '11px 12px',
                   fontSize: 14.5,
                   fontWeight: on ? 800 : 600,
@@ -207,7 +207,10 @@ export default function Favoriler() {
                   fontFamily: 'inherit',
                 }}
               >
-                {ad} <span style={{ color: on ? 'var(--rr-baglanti, #2450C8)' : '#5A6073' }}>{n ?? ''}</span>
+                {ad}{' '}
+                <span style={{ color: on ? 'var(--rr-baglanti, #2450C8)' : 'var(--rr-soluk, #5A6073)' }}>
+                  {n ?? ''}
+                </span>
               </button>
             );
           })}
@@ -220,7 +223,7 @@ export default function Favoriler() {
               margin: '0 0 14px',
               background: '#FFF0EE',
               border: '1px solid #F5C6C0',
-              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
               padding: '10px 14px',
               fontSize: 14,
               color: '#A3271F',
@@ -239,7 +242,7 @@ export default function Favoriler() {
                   <article
                     key={f.no}
                     style={{
-                      background: '#FFFFFF',
+                      background: 'var(--rr-kart, #FFFFFF)',
                       border: '1px solid var(--rr-cizgi, #E3E6EF)',
                       borderRadius: 'var(--rr-kart-kose)',
                       padding: 16,
@@ -304,7 +307,7 @@ export default function Favoriler() {
                     <p style={{ margin: 0, fontSize: 13.5, color: '#3A4052' }}>
                       {ozet(f) || f.category.name}
                     </p>
-                    <p style={{ margin: 0, fontSize: 12.5, color: '#5A6073' }}>
+                    <p style={{ margin: 0, fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
                       {[f.sahip, [f.il, f.ilce].filter(Boolean).join(', '), zaman(f.yayin)]
                         .filter(Boolean)
                         .join(' · ')}
@@ -315,17 +318,17 @@ export default function Favoriler() {
                           href={`/talep/${f.no}`}
                           style={{
                             background: 'var(--rr-mavi, #5B8CFF)',
-                            borderRadius: 10,
+                            borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                             padding: '9px 14px',
                             fontSize: 13.5,
                             fontWeight: 800,
-                            color: 'var(--rr-murekkep, #1E2333)',
+                            color: 'var(--rr-maviYazi, #1E2333)',
                           }}
                         >
                           Mesaj gönder
                         </Link>
                       ) : (
-                        <span style={{ fontSize: 13, color: '#5A6073', padding: '8px 0' }}>
+                        <span style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)', padding: '8px 0' }}>
                           {KAPALI_NOT[f.durum]}
                         </span>
                       )}
@@ -337,13 +340,13 @@ export default function Favoriler() {
             {favoriler && favoriler.length === 0 ? (
               <div
                 style={{
-                  background: '#FFFFFF',
+                  background: 'var(--rr-kart, #FFFFFF)',
                   border: '1px dashed #C9CFDB',
                   borderRadius: 'var(--rr-kart-kose)',
                   padding: '36px 20px',
                   textAlign: 'center',
                   fontSize: 15,
-                  color: '#5A6073',
+                  color: 'var(--rr-soluk, #5A6073)',
                 }}
               >
                 Favori talebin kalmadı. Talep sayfalarındaki kalp simgesiyle ekleyebilirsin.
@@ -357,13 +360,13 @@ export default function Favoriler() {
             {aramalar && aramalar.length === 0 ? (
               <div
                 style={{
-                  background: '#FFFFFF',
+                  background: 'var(--rr-kart, #FFFFFF)',
                   border: '1px dashed #C9CFDB',
                   borderRadius: 'var(--rr-kart-kose)',
                   padding: '36px 20px',
                   textAlign: 'center',
                   fontSize: 15,
-                  color: '#5A6073',
+                  color: 'var(--rr-soluk, #5A6073)',
                 }}
               >
                 Kayıtlı araman yok. <Link href="/talepler">Talep listesinde</Link> filtreleri seçip “Aramayı
@@ -374,7 +377,7 @@ export default function Favoriler() {
               <article
                 key={a.id}
                 style={{
-                  background: '#FFFFFF',
+                  background: 'var(--rr-kart, #FFFFFF)',
                   border: '1px solid var(--rr-cizgi, #E3E6EF)',
                   borderRadius: 'var(--rr-kart-kose)',
                   padding: 18,
@@ -403,7 +406,7 @@ export default function Favoriler() {
                             flex: '1 1 220px',
                             minWidth: 0,
                             border: '1px solid #D5DAE5',
-                            borderRadius: 10,
+                            borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                             padding: '8px 10px',
                             fontSize: 15,
                             fontWeight: 700,
@@ -415,9 +418,9 @@ export default function Favoriler() {
                           disabled={!duzen.ad.trim()}
                           style={{
                             border: 0,
-                            borderRadius: 9,
+                            borderRadius: 'calc(var(--rr-buton-kose) * 9 / 14)',
                             background: 'var(--rr-mavi, #5B8CFF)',
-                            color: 'var(--rr-murekkep, #1E2333)',
+                            color: 'var(--rr-maviYazi, #1E2333)',
                             fontWeight: 700,
                             fontSize: 14,
                             padding: '9px 16px',
@@ -434,7 +437,7 @@ export default function Favoriler() {
                             background: 'transparent',
                             fontSize: 13.5,
                             fontWeight: 700,
-                            color: '#5A6073',
+                            color: 'var(--rr-soluk, #5A6073)',
                             cursor: 'pointer',
                           }}
                         >
@@ -481,7 +484,7 @@ export default function Favoriler() {
                       </span>
                     ))}
                   </div>
-                  <p style={{ margin: '8px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+                  <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
                     {a.toplam === null
                       ? 'Arama şu an yanıt vermiyor'
                       : `Şu an ${a.toplam} aktif talep uyuyor`}{' '}
@@ -494,7 +497,7 @@ export default function Favoriler() {
                       display: 'block',
                       fontSize: 12.5,
                       fontWeight: 700,
-                      color: '#5A6073',
+                      color: 'var(--rr-soluk, #5A6073)',
                       marginBottom: 6,
                     }}
                   >
@@ -507,7 +510,7 @@ export default function Favoriler() {
                       display: 'flex',
                       gap: 4,
                       background: '#F3F5FA',
-                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                       padding: 4,
                     }}
                   >
@@ -524,8 +527,8 @@ export default function Favoriler() {
                           style={{
                             flex: 1,
                             border: 0,
-                            background: on ? '#FFFFFF' : 'transparent',
-                            borderRadius: 9,
+                            background: on ? 'var(--rr-kart, #FFFFFF)' : 'transparent',
+                            borderRadius: 'calc(var(--rr-buton-kose) * 9 / 14)',
                             padding: '8px 6px',
                             fontSize: 13,
                             fontWeight: on ? 800 : 600,
@@ -587,7 +590,7 @@ export default function Favoriler() {
                 </div>
               </article>
             ))}
-            <p style={{ margin: '4px 0 0', fontSize: 13, color: '#5A6073' }}>
+            <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
               En fazla {MAX_SAVED_SEARCHES} kayıtlı arama tutabilirsin. Anlık bildirim telefonuna, günlük özet
               e-postana gelir.
             </p>

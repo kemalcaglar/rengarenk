@@ -1,4 +1,12 @@
-import { colors, REPORT_REASONS, type ReportTarget, radii, reasonsFor } from '@rengarenk/shared';
+import {
+  butonOran,
+  colors,
+  kartOran,
+  REPORT_REASONS,
+  type ReportTarget,
+  radii,
+  reasonsFor,
+} from '@rengarenk/shared';
 import { useState } from 'react';
 import { Modal, Pressable, ScrollView, View } from 'react-native';
 import { useOturum } from '../lib/oturum';
@@ -67,8 +75,8 @@ export function Sikayet({
         accessibilityViewIsModal
         style={{
           backgroundColor: colors.surface,
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
+          borderTopLeftRadius: kartOran(24),
+          borderTopRightRadius: kartOran(24),
           paddingTop: 10,
           paddingHorizontal: 20,
           paddingBottom: 28,
@@ -80,7 +88,7 @@ export function Sikayet({
             alignSelf: 'center',
             width: 40,
             height: 5,
-            borderRadius: 3,
+            borderRadius: Math.min(radii.etiket, 3),
             backgroundColor: '#D5DAE5',
             marginBottom: 14,
           }}
@@ -109,7 +117,7 @@ export function Sikayet({
                       borderWidth: 1.5,
                       borderColor: on ? colors.blue : '#E3E6EF',
                       backgroundColor: on ? '#EEF3FF' : colors.surface,
-                      borderRadius: radii.buton - 2,
+                      borderRadius: butonOran(12),
                       paddingVertical: 12,
                       paddingHorizontal: 12,
                     }}
@@ -140,7 +148,7 @@ export function Sikayet({
                 marginTop: 6,
                 borderWidth: 1,
                 borderColor: '#D5DAE5',
-                borderRadius: radii.buton - 2,
+                borderRadius: butonOran(12),
                 padding: 12,
                 minHeight: 72,
                 fontSize: 14.5,
@@ -205,7 +213,7 @@ export function Sikayet({
                 alignItems: 'center',
               }}
             >
-              <T style={{ fontSize: 15.5, fontWeight: '800' }}>Tamam</T>
+              <T style={{ color: colors.onBlue, fontSize: 15.5, fontWeight: '800' }}>Tamam</T>
             </Pressable>
           </View>
         )}

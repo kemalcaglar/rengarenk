@@ -95,21 +95,74 @@ export const FONTS: readonly { ad: string; tur: FontType; agirliklar: readonly n
 export const FONT_NAMES = FONTS.map((f) => f.ad);
 export const DEFAULT_FONT = 'Plus Jakarta Sans';
 
-/** Paletin düzenlenebilen renkleri (tasarımdaki sıra) ve `colors` karşılığı */
+/** Konsoldaki renk grupları */
+export const DESIGN_COLOR_GROUPS = {
+  palet: 'Gökkuşağı paleti',
+  yazi: 'Renkli zeminlerin üstündeki yazı',
+  yuzey: 'Metin ve yüzeyler',
+} as const;
+
+/**
+ * Düzenlenebilen renkler (tasarımdaki sıra) ve `colors` karşılığı. `zemin`: yazı renginin üstünde durduğu renk (karşıtlık
+ * denetimi). Sonradan eklenen renklerin varsayılanı eski görünümdür (önceki sürümler değişmeden okunur).
+ */
 export const DESIGN_COLORS = {
-  mavi: { ad: 'Mavi · ana renk', not: 'Butonlar, vurgular', anahtar: 'blue' },
-  pembe: { ad: 'Pembe', not: 'Acil arıyorum, mesajlar', anahtar: 'pink' },
-  sari: { ad: 'Sarı', not: 'Uyarılar, haklar', anahtar: 'yellow' },
-  yesil: { ad: 'Yeşil', not: 'Onay, başarı', anahtar: 'green' },
-  murekkep: { ad: 'Mürekkep', not: 'Metin', anahtar: 'ink' },
-  baglanti: { ad: 'Bağlantı', not: 'Bağlantılar', anahtar: 'link' },
-  zemin: { ad: 'Zemin', not: 'Sayfa arka planı', anahtar: 'background' },
-  cizgi: { ad: 'Çizgi', not: 'Kart kenarları', anahtar: 'line' },
-} as const satisfies Record<string, { ad: string; not: string; anahtar: keyof typeof colors }>;
+  mavi: { ad: 'Mavi · ana renk', not: 'Butonlar, vurgular', anahtar: 'blue', grup: 'palet' },
+  pembe: { ad: 'Pembe', not: 'Acil arıyorum, mesajlar', anahtar: 'pink', grup: 'palet' },
+  sari: { ad: 'Sarı', not: 'Uyarılar, haklar', anahtar: 'yellow', grup: 'palet' },
+  yesil: { ad: 'Yeşil', not: 'Onay, başarı', anahtar: 'green', grup: 'palet' },
+  maviYazi: {
+    ad: 'Mavi üstündeki yazı',
+    not: 'Talep oluştur, Ara ve diğer mavi butonlar',
+    anahtar: 'onBlue',
+    grup: 'yazi',
+    zemin: 'mavi',
+  },
+  pembeYazi: {
+    ad: 'Pembe üstündeki yazı',
+    not: 'Pembe rozetler ve sayaçlar',
+    anahtar: 'onPink',
+    grup: 'yazi',
+    zemin: 'pembe',
+  },
+  sariYazi: {
+    ad: 'Sarı üstündeki yazı',
+    not: 'Sarı butonlar ve etiketler',
+    anahtar: 'onYellow',
+    grup: 'yazi',
+    zemin: 'sari',
+  },
+  yesilYazi: {
+    ad: 'Yeşil üstündeki yazı',
+    not: 'Yeşil butonlar ve onaylar',
+    anahtar: 'onGreen',
+    grup: 'yazi',
+    zemin: 'yesil',
+  },
+  murekkep: { ad: 'Mürekkep', not: 'Metin', anahtar: 'ink', grup: 'yuzey' },
+  soluk: { ad: 'İkincil metin', not: 'Açıklamalar, tarih ve konum', anahtar: 'muted', grup: 'yuzey' },
+  baglanti: { ad: 'Bağlantı', not: 'Bağlantılar', anahtar: 'link', grup: 'yuzey' },
+  zemin: { ad: 'Zemin', not: 'Sayfa arka planı', anahtar: 'background', grup: 'yuzey' },
+  kart: { ad: 'Kart zemini', not: 'Kartlar, kutular, üst çubuk', anahtar: 'surface', grup: 'yuzey' },
+  cizgi: { ad: 'Çizgi', not: 'Kart kenarları', anahtar: 'line', grup: 'yuzey' },
+} as const satisfies Record<
+  string,
+  {
+    ad: string;
+    not: string;
+    anahtar: keyof typeof colors;
+    grup: keyof typeof DESIGN_COLOR_GROUPS;
+    zemin?: string;
+  }
+>;
 export type DesignColor = keyof typeof DESIGN_COLORS;
 export const DESIGN_COLOR_KEYS = Object.keys(DESIGN_COLORS) as DesignColor[];
 
 const hex = z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Renk #RRGGBB biçiminde olmalı');
+/** Varsayılan renk değerleri (`colors`'tan) */
+const ILK_RENK = Object.fromEntries(
+  DESIGN_COLOR_KEYS.map((k) => [k, colors[DESIGN_COLORS[k].anahtar] as string]),
+) as Record<DesignColor, string>;
 
 /** Mevsimsel tema: tarih aralığında üst bant, logonun yanındaki rozet ve e-posta başlığı değişir; renkler değişmez */
 export const seasonalThemeSchema = z
@@ -131,8 +184,12 @@ export type SeasonalTheme = z.infer<typeof seasonalThemeSchema>;
 
 export const designTokensSchema = z
   .object({
+    // Eksik renk (önceki sürümlerde olmayan) varsayılanla tamamlanır
     renkler: z.object(
-      Object.fromEntries(DESIGN_COLOR_KEYS.map((k) => [k, hex])) as Record<DesignColor, typeof hex>,
+      Object.fromEntries(DESIGN_COLOR_KEYS.map((k) => [k, hex.default(ILK_RENK[k])])) as Record<
+        DesignColor,
+        z.ZodDefault<typeof hex>
+      >,
     ),
     yaziTipi: z.enum(FONT_NAMES as [string, ...string[]]),
     /** px */
@@ -146,16 +203,7 @@ export const designTokensSchema = z
 export type DesignTokens = z.infer<typeof designTokensSchema>;
 
 export const DEFAULT_DESIGN: DesignTokens = {
-  renkler: {
-    mavi: colors.blue,
-    pembe: colors.pink,
-    sari: colors.yellow,
-    yesil: colors.green,
-    murekkep: colors.ink,
-    baglanti: colors.link,
-    zemin: colors.background,
-    cizgi: colors.line,
-  },
+  renkler: { ...ILK_RENK },
   yaziTipi: DEFAULT_FONT,
   kartKose: 18,
   butonKose: 14,
@@ -163,11 +211,26 @@ export const DEFAULT_DESIGN: DesignTokens = {
   temalar: [],
 };
 
+/** Tasarım dosyalarındaki köşeler (oranların tabanı) */
+export const DEFAULT_DESIGN_KOSE = { kart: 18, buton: 14 } as const;
+
 /**
  * Köşeler (mobil): yayındaki tasarım değerleriyle güncellenir (`applyDesignColors`). Web CSS değişkeni kullanır
  * (`--rr-kart-kose` …); mobil bileşenler `radii.kart` gibi okur.
  */
 export const radii = { kart: 18, buton: 14, etiket: 999 };
+
+/**
+ * Oranlı köşe (Karar 46): tasarımdaki her köşe kendi grubuna (kart 18, buton 14) oranla büyür ve küçülür; değer 0
+ * seçilirse bütün köşeler kalkar. Ör. tasarımda 16 px olan kart köşesi: `kartOran(16)`. Tam daireler (avatar, nokta)
+ * değişmez.
+ */
+export const kartOran = (px: number) => (radii.kart * px) / DEFAULT_DESIGN_KOSE.kart;
+export const butonOran = (px: number) => (radii.buton * px) / DEFAULT_DESIGN_KOSE.buton;
+/** Web: aynı oran CSS değişkeniyle (`calc(var(--rr-kart-kose) * 16 / 18)`) */
+export const kartOranCss = (px: number) => `calc(var(--rr-kart-kose) * ${px} / ${DEFAULT_DESIGN_KOSE.kart})`;
+export const butonOranCss = (px: number) =>
+  `calc(var(--rr-buton-kose) * ${px} / ${DEFAULT_DESIGN_KOSE.buton})`;
 
 /** Varsayılan renkler (değişmeden önceki değerler; e-posta ve mobil sıfırlama için) */
 const BASLANGIC = { ...colors };
@@ -190,38 +253,66 @@ export function contrast(a: string, b: string): number {
   return (x + 0.05) / (y + 0.05);
 }
 
+const oranYaz = (n: number) => n.toLocaleString('tr-TR', { maximumFractionDigits: 1 });
+/** Renkli zemin üstündeki yazının alt sınırı: altında onaya gönderilemez (kalın buton yazısı, WCAG 1.4.11) */
+export const RENKLI_YAZI_EN_AZ = 3;
+
 /**
- * Yayından önce denetim: metin ve bağlantı zemine ve beyaza karşı en az 4,5:1 (WCAG AA); üst bant yazısı banda karşı
- * 4,5:1. Uymayan değerler gerekçesiyle döner.
+ * Yayından önce denetim: metin, ikincil metin ve bağlantı zemine ve kart zeminine karşı en az 4,5:1 (WCAG AA); renkli
+ * zemin üstündeki yazı en az 3:1; üst bant yazısı banda karşı 4,5:1. Uymayan değerler gerekçesiyle döner.
  */
 export function designProblems(t: DesignTokens): string[] {
   const out: string[] = [];
-  const oran = (n: number) => n.toLocaleString('tr-TR', { maximumFractionDigits: 1 });
   for (const [k, ad] of [
     ['murekkep', 'Mürekkep'],
+    ['soluk', 'İkincil metin'],
     ['baglanti', 'Bağlantı'],
   ] as const) {
     for (const [zemin, zad] of [
       [t.renkler.zemin, 'zemine'],
-      ['#FFFFFF', 'beyaza'],
+      [t.renkler.kart, 'kart zeminine'],
     ] as const) {
       const c = contrast(t.renkler[k], zemin);
-      if (c < 4.5) out.push(`${ad} rengi ${zad} karşı okunmuyor (${oran(c)}:1, en az 4,5:1)`);
+      if (c < 4.5) out.push(`${ad} rengi ${zad} karşı okunmuyor (${oranYaz(c)}:1, en az 4,5:1)`);
     }
+  }
+  for (const k of DESIGN_COLOR_KEYS) {
+    const z = (DESIGN_COLORS[k] as { zemin?: DesignColor }).zemin;
+    if (!z) continue;
+    const c = contrast(t.renkler[k], t.renkler[z]);
+    if (c < RENKLI_YAZI_EN_AZ)
+      out.push(`${DESIGN_COLORS[k].ad} okunmuyor (${oranYaz(c)}:1, en az ${RENKLI_YAZI_EN_AZ}:1)`);
   }
   for (const th of t.temalar) {
     const c = contrast(th.ustYazi, th.ustBant);
-    if (c < 4.5) out.push(`${th.ad}: üst bant yazısı okunmuyor (${oran(c)}:1, en az 4,5:1)`);
+    if (c < 4.5) out.push(`${th.ad}: üst bant yazısı okunmuyor (${oranYaz(c)}:1, en az 4,5:1)`);
   }
   return out;
 }
 
-/** Konsoldaki renk notu: metin renklerinde karşıtlık ("Metin · zemine karşıtlık 15:1") */
+/**
+ * Uyarılar (gönderimi engellemez): renkli zemin üstündeki yazı 3:1 ile 4,5:1 arasındaysa küçük yazıda zor okunur.
+ */
+export function designWarnings(t: DesignTokens): string[] {
+  const out: string[] = [];
+  for (const k of DESIGN_COLOR_KEYS) {
+    const z = (DESIGN_COLORS[k] as { zemin?: DesignColor }).zemin;
+    if (!z) continue;
+    const c = contrast(t.renkler[k], t.renkler[z]);
+    if (c >= RENKLI_YAZI_EN_AZ && c < 4.5)
+      out.push(
+        `${DESIGN_COLORS[k].ad}: ${oranYaz(c)}:1, kalın yazıda okunur, küçük yazıda zorlaşır (önerilen 4,5:1)`,
+      );
+  }
+  return out;
+}
+
+/** Konsoldaki renk notu: metin renklerinde ve renkli zemin yazısında karşıtlık ("Metin · zemine karşıtlık 15:1") */
 export function colorNote(k: DesignColor, t: DesignTokens): string {
-  const base = DESIGN_COLORS[k].not;
-  if (k !== 'murekkep' && k !== 'baglanti') return base;
-  const c = contrast(t.renkler[k], t.renkler.zemin);
-  return `${base} · zemine karşıtlık ${c.toLocaleString('tr-TR', { maximumFractionDigits: 1 })}:1`;
+  const r = DESIGN_COLORS[k] as { not: string; zemin?: DesignColor };
+  if (r.zemin) return `${r.not} · karşıtlık ${oranYaz(contrast(t.renkler[k], t.renkler[r.zemin]))}:1`;
+  if (k !== 'murekkep' && k !== 'baglanti' && k !== 'soluk') return r.not;
+  return `${r.not} · zemine karşıtlık ${oranYaz(contrast(t.renkler[k], t.renkler.zemin))}:1`;
 }
 
 /** Tarihe göre geçerli tema (Türkiye saatiyle gün) */
@@ -243,7 +334,7 @@ export function designCssVars(t: DesignTokens, tema: SeasonalTheme | null = null
     '--rr-kart-kose': `${t.kartKose}px`,
     '--rr-buton-kose': `${t.butonKose}px`,
     '--rr-etiket-kose': `${t.etiketKose}px`,
-    '--rr-ust-bant': tema?.ustBant ?? '#FFFFFF',
+    '--rr-ust-bant': tema?.ustBant ?? t.renkler.kart,
     '--rr-ust-yazi': tema?.ustYazi ?? t.renkler.murekkep,
   };
   for (const k of DESIGN_COLOR_KEYS) v[`--rr-${k}`] = t.renkler[k];

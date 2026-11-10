@@ -14,11 +14,13 @@ import {
   applyDesignColors,
   colorNote,
   DEFAULT_DESIGN,
+  DESIGN_COLOR_GROUPS,
   DESIGN_COLOR_KEYS,
   DESIGN_COLORS,
   type DesignTokens,
   designProblems,
   designTokensSchema,
+  designWarnings,
   FONT_TYPES,
   FONTS,
   fontCssUrl,
@@ -179,7 +181,12 @@ export class DesignService implements OnModuleInit, OnModuleDestroy {
             onayda: await this.bekleyen(taslak.approvalId),
           }
         : null,
-      renkler: DESIGN_COLOR_KEYS.map((k) => ({ key: k, ad: DESIGN_COLORS[k].ad, not: colorNote(k, goster) })),
+      renkler: DESIGN_COLOR_KEYS.map((k) => ({
+        key: k,
+        ad: DESIGN_COLORS[k].ad,
+        not: colorNote(k, goster),
+        grup: DESIGN_COLOR_GROUPS[DESIGN_COLORS[k].grup],
+      })),
       fontlar: FONTS.map((f) => ({ ...f, turAd: FONT_TYPES[f.tur] })),
       temalar: goster.temalar.map((th) => ({
         ...th,
@@ -187,6 +194,7 @@ export class DesignService implements OnModuleInit, OnModuleDestroy {
         durum: taslak && !a.degerler.temalar.some((x) => x.id === th.id) ? 'Taslak' : themeStatus(th, now),
       })),
       sorunlar: designProblems(goster),
+      uyarilar: designWarnings(goster),
     };
   }
 
@@ -255,6 +263,19 @@ export class DesignService implements OnModuleInit, OnModuleDestroy {
     for (const o of once.temalar)
       if (!sonra.temalar.some((x) => x.id === o.id)) out.push(`Tema kaldırıldı: ${o.ad}`);
     return out;
+  }
+
+  /** Onaya gönderilmiş taslağı geri çeker (yalnızca gönderen); taslak aynı sürümle düzenlenmeye devam eder */
+  async geriCek(actor: Actor, ip?: string) {
+    if (!this.approvals) throw new ConflictException('Onay motoru yok');
+    const t = await this.db.designVersion.findFirst({
+      where: { status: 'taslak' },
+      orderBy: { version: 'desc' },
+    });
+    if (!t?.approvalId || !(await this.bekleyen(t.approvalId)))
+      throw new ConflictException('Onay bekleyen tasarım yok');
+    await this.approvals.cancel(actor, t.approvalId, ip);
+    return { surum: t.version };
   }
 
   async submit(actor: Actor, ip?: string) {

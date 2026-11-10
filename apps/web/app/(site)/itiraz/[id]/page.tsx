@@ -73,7 +73,7 @@ export default function Itiraz() {
   return (
     <main style={{ maxWidth: 640, margin: '40px auto', padding: '0 24px' }}>
       <h1 style={{ margin: '0 0 6px', fontSize: 26, fontWeight: 800 }}>Moderasyon kararı</h1>
-      <p style={{ margin: '0 0 18px', fontSize: 14.5, color: '#5A6073' }}>
+      <p style={{ margin: '0 0 18px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
         Bir şikayet üzerine içeriğini inceledik. Karara katılmıyorsan 7 gün içinde itiraz edebilirsin.
       </p>
       {hata && !k ? (
@@ -85,7 +85,7 @@ export default function Itiraz() {
         <>
           <section
             style={{
-              background: '#FFFFFF',
+              background: 'var(--rr-kart, #FFFFFF)',
               border: '1px solid var(--rr-cizgi, #E3E6EF)',
               borderRadius: 'var(--rr-kart-kose)',
               padding: 20,
@@ -108,7 +108,7 @@ export default function Itiraz() {
                 </span>
               ) : null}
             </div>
-            <p style={{ margin: '6px 0 0', fontSize: 13.5, color: '#5A6073' }}>
+            <p style={{ margin: '6px 0 0', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
               {k.hedef} · {tarih(k.tarih, true)} · S-{k.no}
             </p>
             <dl style={{ margin: '14px 0 0', display: 'grid', gap: 10, fontSize: 14.5, lineHeight: 1.55 }}>
@@ -137,7 +137,7 @@ export default function Itiraz() {
             aria-labelledby="itiraz-baslik"
             style={{
               marginTop: 16,
-              background: '#FFFFFF',
+              background: 'var(--rr-kart, #FFFFFF)',
               border: '1px solid var(--rr-cizgi, #E3E6EF)',
               borderRadius: 'var(--rr-kart-kose)',
               padding: 20,
@@ -172,7 +172,7 @@ export default function Itiraz() {
               </>
             ) : k.itirazEdebilir ? (
               <>
-                <p style={{ margin: '6px 0 10px', fontSize: 13.5, color: '#5A6073' }}>
+                <p style={{ margin: '6px 0 10px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
                   {tarih(k.itirazSonu, true)} saatine kadar bir kez itiraz edebilirsin. Kararı veren dışında
                   bir moderatör inceler.
                 </p>
@@ -191,7 +191,7 @@ export default function Itiraz() {
                     boxSizing: 'border-box',
                     marginTop: 6,
                     border: '1px solid #D5DAE5',
-                    borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                    borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                     padding: '10px 12px',
                     fontSize: 14.5,
                     fontFamily: 'inherit',
@@ -218,7 +218,7 @@ export default function Itiraz() {
                     padding: '12px 20px',
                     fontSize: 15,
                     fontWeight: 800,
-                    color: 'var(--rr-murekkep, #1E2333)',
+                    color: 'var(--rr-maviYazi, #1E2333)',
                     cursor: 'pointer',
                     fontFamily: 'inherit',
                   }}
@@ -227,7 +227,7 @@ export default function Itiraz() {
                 </button>
               </>
             ) : (
-              <p style={{ margin: '8px 0 0', fontSize: 14, color: '#5A6073' }}>
+              <p style={{ margin: '8px 0 0', fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
                 {k.geriAlindi ? 'Karar geri alındı.' : 'İtiraz süresi doldu.'}
               </p>
             )}

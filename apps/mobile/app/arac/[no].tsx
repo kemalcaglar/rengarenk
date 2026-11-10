@@ -1,4 +1,4 @@
-import { colors, MESSAGE_MAX, PAINT_STATES, radii } from '@rengarenk/shared';
+import { butonOran, colors, kartOran, MESSAGE_MAX, PAINT_STATES, radii } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -56,10 +56,16 @@ const tarih = (iso: string) =>
     year: 'numeric',
   }).format(new Date(iso));
 const kart = {
-  backgroundColor: colors.surface,
+  get backgroundColor() {
+    return colors.surface;
+  },
   borderWidth: 1,
-  borderColor: colors.line,
-  borderRadius: 16,
+  get borderColor() {
+    return colors.line;
+  },
+  get borderRadius() {
+    return kartOran(16);
+  },
 } as const;
 
 /**
@@ -223,7 +229,7 @@ export default function AracEkrani() {
                   color: '#3A4052',
                   backgroundColor: 'rgba(255,255,255,0.85)',
                   paddingHorizontal: 6,
-                  borderRadius: 6,
+                  borderRadius: butonOran(6),
                   overflow: 'hidden',
                 }}
               >
@@ -299,7 +305,7 @@ export default function AracEkrani() {
                       style={{
                         width: 12,
                         height: 12,
-                        borderRadius: 4,
+                        borderRadius: butonOran(4),
                         backgroundColor: PAINT_STATES.find((s) => s.key === d.key)?.renk,
                       }}
                     />
@@ -329,7 +335,7 @@ export default function AracEkrani() {
                     paddingHorizontal: 12,
                     borderWidth: 1,
                     borderColor: colors.line,
-                    borderRadius: radii.buton - 2,
+                    borderRadius: butonOran(12),
                   }}
                 >
                   <T style={{ fontSize: 13, fontWeight: '700' }}>
@@ -443,8 +449,8 @@ export default function AracEkrani() {
             accessibilityViewIsModal
             style={{
               backgroundColor: colors.surface,
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
+              borderTopLeftRadius: kartOran(24),
+              borderTopRightRadius: kartOran(24),
               paddingTop: 16,
               paddingHorizontal: 18,
               paddingBottom: 26,

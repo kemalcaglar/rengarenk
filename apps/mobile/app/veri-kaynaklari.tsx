@@ -1,4 +1,4 @@
-import { colors, radii } from '@rengarenk/shared';
+import { butonOran, colors, kartOran } from '@rengarenk/shared';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, ScrollView, View } from 'react-native';
@@ -67,7 +67,7 @@ export default function VeriKaynaklari() {
           style={{
             width: 44,
             height: 44,
-            borderRadius: radii.buton - 2,
+            borderRadius: butonOran(12),
             alignItems: 'center',
             justifyContent: 'center',
           }}
@@ -96,7 +96,7 @@ export default function VeriKaynaklari() {
                   backgroundColor: colors.surface,
                   borderWidth: 1,
                   borderColor: colors.line,
-                  borderRadius: 16,
+                  borderRadius: kartOran(16),
                   padding: 16,
                   marginTop: 12,
                 }}

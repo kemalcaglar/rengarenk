@@ -1,11 +1,13 @@
 import {
   ASSISTANT_TEXT_MAX,
   BIREYSEL_FIYATLAR,
+  butonOran,
   type CategoryField,
   type CategoryRules,
   colors,
   DOTS,
   fiyatYaz,
+  kartOran,
   MAX_ALTERNATIVES,
   ONE_CIKARMA,
   PAINT_PARTS,
@@ -408,7 +410,7 @@ export default function TalepOlustur() {
             style={{
               width: 44,
               height: 44,
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -432,7 +434,7 @@ export default function TalepOlustur() {
               style={{
                 flex: 1,
                 height: 5,
-                borderRadius: 3,
+                borderRadius: Math.min(radii.etiket, 3),
                 backgroundColor: i <= sira ? colors.blue : colors.line,
               }}
             />
@@ -466,7 +468,7 @@ export default function TalepOlustur() {
             style={{
               marginBottom: 14,
               backgroundColor: '#FDECEC',
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               padding: 12,
             }}
           >
@@ -547,7 +549,7 @@ export default function TalepOlustur() {
                   }}
                   style={{
                     flex: 1,
-                    borderRadius: 11,
+                    borderRadius: butonOran(11),
                     paddingVertical: 11,
                     alignItems: 'center',
                     backgroundColor: islem === key ? colors.surface : 'transparent',
@@ -592,7 +594,7 @@ export default function TalepOlustur() {
                       borderWidth: on ? 2 : 1,
                       borderColor: on ? colors.blue : colors.line,
                       backgroundColor: on ? '#F5F8FF' : colors.surface,
-                      borderRadius: 16,
+                      borderRadius: kartOran(16),
                       paddingVertical: on ? 13 : 14,
                       paddingHorizontal: on ? 11 : 12,
                     }}
@@ -601,7 +603,7 @@ export default function TalepOlustur() {
                       style={{
                         width: 36,
                         height: 36,
-                        borderRadius: 11,
+                        borderRadius: butonOran(11),
                         backgroundColor: TINTS[i % TINTS.length],
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -734,7 +736,7 @@ export default function TalepOlustur() {
                       backgroundColor: colors.surface,
                       borderWidth: 1,
                       borderColor: colors.line,
-                      borderRadius: 16,
+                      borderRadius: kartOran(16),
                       overflow: 'hidden',
                     }}
                   >
@@ -904,7 +906,7 @@ export default function TalepOlustur() {
                           borderWidth: on ? 2 : 1,
                           borderColor: on ? colors.blue : colors.line,
                           backgroundColor: on ? '#F5F8FF' : colors.surface,
-                          borderRadius: 16,
+                          borderRadius: kartOran(16),
                           padding: on ? 13 : 14,
                         }}
                       >
@@ -1184,7 +1186,7 @@ export default function TalepOlustur() {
             opacity: busy || !taslak || yayinlanamaz ? 0.55 : 1,
           }}
         >
-          <T style={{ fontSize: 15.5, fontWeight: '800' }}>
+          <T style={{ color: colors.onBlue, fontSize: 15.5, fontWeight: '800' }}>
             {busy
               ? 'Kaydediliyor…'
               : !ileri
@@ -1307,9 +1309,7 @@ function Onizleme({
         ))}
       </View>
       {rules?.legalNotice ? (
-        <View
-          style={{ marginTop: 12, backgroundColor: '#FFF6DF', borderRadius: radii.buton - 2, padding: 12 }}
-        >
+        <View style={{ marginTop: 12, backgroundColor: '#FFF6DF', borderRadius: butonOran(12), padding: 12 }}>
           <T style={{ fontSize: 13, color: '#7A5300', lineHeight: 18 }}>{rules.legalNotice}</T>
         </View>
       ) : null}
@@ -1411,7 +1411,7 @@ function Asistan({ doldur }: { doldur: (metin: string) => Promise<AsistanSonucu>
         borderWidth: 1.5,
         borderColor: '#C9B8FF',
         backgroundColor: '#FAF7FF',
-        borderRadius: 16,
+        borderRadius: kartOran(16),
         padding: 14,
         marginBottom: 12,
       }}

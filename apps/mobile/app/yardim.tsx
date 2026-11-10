@@ -1,6 +1,8 @@
 import {
+  butonOran,
   colors,
   HELP_TOPICS,
+  kartOran,
   type PublicHelpTopic,
   radii,
   SUPPORT_TOPIC_KEYS,
@@ -35,10 +37,16 @@ interface Talep {
 }
 
 const kart = {
-  backgroundColor: colors.surface,
+  get backgroundColor() {
+    return colors.surface;
+  },
   borderWidth: 1,
-  borderColor: colors.line,
-  borderRadius: radii.kart,
+  get borderColor() {
+    return colors.line;
+  },
+  get borderRadius() {
+    return radii.kart;
+  },
 } as const;
 
 /**
@@ -149,7 +157,7 @@ export default function Yardim() {
           style={{
             width: 44,
             height: 44,
-            borderRadius: radii.buton - 2,
+            borderRadius: butonOran(12),
             alignItems: 'center',
             justifyContent: 'center',
           }}
@@ -224,12 +232,18 @@ export default function Yardim() {
                   backgroundColor: colors.surface,
                   borderWidth: on ? 2 : 1,
                   borderColor: on ? t.renk : colors.line,
-                  borderRadius: 16,
+                  borderRadius: kartOran(16),
                   padding: on ? 13 : 14,
                 }}
               >
                 <View
-                  style={{ width: 32, height: 5, borderRadius: 3, backgroundColor: t.renk, marginBottom: 10 }}
+                  style={{
+                    width: 32,
+                    height: 5,
+                    borderRadius: Math.min(radii.etiket, 3),
+                    backgroundColor: t.renk,
+                    marginBottom: 10,
+                  }}
                 />
                 <T style={{ fontSize: 14.5, fontWeight: '800' }}>{t.ad}</T>
                 <T style={{ fontSize: 12, color: colors.muted, marginTop: 3 }}>{t.not}</T>
@@ -355,7 +369,7 @@ export default function Yardim() {
                 <View
                   style={{
                     backgroundColor: '#E7FAF0',
-                    borderRadius: radii.buton - 2,
+                    borderRadius: butonOran(12),
                     padding: 12,
                     marginBottom: 10,
                   }}
@@ -369,7 +383,7 @@ export default function Yardim() {
                 <View
                   style={{
                     backgroundColor: '#E7FAF0',
-                    borderRadius: radii.buton - 2,
+                    borderRadius: butonOran(12),
                     padding: 12,
                     marginBottom: 10,
                   }}
@@ -416,7 +430,7 @@ export default function Yardim() {
                   marginTop: 6,
                   borderWidth: 1,
                   borderColor: '#D5DAE5',
-                  borderRadius: 10,
+                  borderRadius: butonOran(10),
                   padding: 11,
                   fontSize: 14.5,
                 }}
@@ -436,7 +450,7 @@ export default function Yardim() {
                   marginTop: 6,
                   borderWidth: 1,
                   borderColor: '#D5DAE5',
-                  borderRadius: 10,
+                  borderRadius: butonOran(10),
                   padding: 11,
                   minHeight: 100,
                   fontSize: 14.5,
@@ -455,7 +469,7 @@ export default function Yardim() {
                     borderWidth: 1.5,
                     borderColor: '#C9B8FF',
                     backgroundColor: '#FAF7FF',
-                    borderRadius: radii.buton - 2,
+                    borderRadius: butonOran(12),
                     padding: 12,
                   }}
                 >
@@ -472,7 +486,7 @@ export default function Yardim() {
                       }}
                       style={{
                         backgroundColor: '#3DD68C',
-                        borderRadius: 10,
+                        borderRadius: butonOran(10),
                         paddingVertical: 10,
                         paddingHorizontal: 14,
                       }}
@@ -486,7 +500,7 @@ export default function Yardim() {
                         borderWidth: 1,
                         borderColor: '#D5DAE5',
                         backgroundColor: colors.surface,
-                        borderRadius: 10,
+                        borderRadius: butonOran(10),
                         paddingVertical: 10,
                         paddingHorizontal: 14,
                       }}
@@ -502,12 +516,12 @@ export default function Yardim() {
                   style={{
                     marginTop: 12,
                     backgroundColor: colors.blue,
-                    borderRadius: radii.buton - 2,
+                    borderRadius: butonOran(12),
                     paddingVertical: 14,
                     alignItems: 'center',
                   }}
                 >
-                  <T style={{ fontSize: 15, fontWeight: '800' }}>Gönder</T>
+                  <T style={{ color: colors.onBlue, fontSize: 15, fontWeight: '800' }}>Gönder</T>
                 </Pressable>
               )}
             </>

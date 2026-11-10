@@ -63,7 +63,7 @@ const basHarf = (ad: string) =>
     .map((x) => x[0]?.toLocaleUpperCase('tr-TR'))
     .join('');
 const kart = {
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   border: '1px solid var(--rr-cizgi, #E3E6EF)',
   borderRadius: 'var(--rr-kart-kose)',
 } as const;
@@ -85,7 +85,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
   const parts = Object.fromEntries(a.hasar.parcalar.map((p) => [p.key, p.durum]));
   return (
     <div style={{ maxWidth: 1360, margin: '0 auto', padding: '18px 24px 64px' }}>
-      <nav aria-label="Konum" style={{ fontSize: 13.5, color: '#5A6073', marginBottom: 10 }}>
+      <nav aria-label="Konum" style={{ fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)', marginBottom: 10 }}>
         <Link href={`/galeri/${a.galeri.slug}`}>{a.galeri.ad}</Link> › {a.kategori.name} ›{' '}
         {[a.marka, a.seri, a.model].filter(Boolean).join(' › ')}
       </nav>
@@ -100,7 +100,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
         }}
       >
         <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800, letterSpacing: -0.4 }}>{a.baslik}</h1>
-        <span style={{ fontSize: 13.5, color: '#5A6073' }}>
+        <span style={{ fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
           Portföy no {a.no} · {tarih(a.yayin)}
         </span>
       </div>
@@ -128,7 +128,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
                     fontSize: 14.5,
                   }}
                 >
-                  <span style={{ color: '#5A6073' }}>{k}</span>
+                  <span style={{ color: 'var(--rr-soluk, #5A6073)' }}>{k}</span>
                   <span style={{ fontWeight: 700, textAlign: 'right' }}>{v}</span>
                 </div>
               ))}
@@ -151,7 +151,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
                         style={{
                           width: 14,
                           height: 14,
-                          borderRadius: 4,
+                          borderRadius: 'calc(var(--rr-buton-kose) * 4 / 14)',
                           background: PAINT_STATES.find((s) => s.key === d.key)?.renk,
                           border: '1px solid #AEB5C4',
                         }}
@@ -170,7 +170,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
                         justifyContent: 'space-between',
                         gap: 12,
                         border: '1px solid #EEF0F5',
-                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                         padding: '11px 14px',
                       }}
                     >
@@ -188,7 +188,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
                       justifyContent: 'space-between',
                       gap: 12,
                       border: '1px solid #EEF0F5',
-                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                       padding: '11px 14px',
                     }}
                   >
@@ -208,7 +208,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
                       justifyContent: 'space-between',
                       gap: 12,
                       background: '#EEF3FF',
-                      borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                       padding: '12px 14px',
                       fontSize: 14.5,
                       fontWeight: 800,
@@ -218,7 +218,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
                     <span style={{ fontSize: 13 }}>PDF’i aç</span>
                   </a>
                 ) : null}
-                <p style={{ margin: 0, fontSize: 12.5, color: '#5A6073' }}>
+                <p style={{ margin: 0, fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
                   Boya, değişen ve hasar bilgileri galerinin beyanıdır; ekspertiz raporu ile karşılaştırarak
                   kontrol et.
                 </p>
@@ -261,7 +261,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
         >
           <section style={{ ...kart, padding: 20 }}>
             <div style={{ fontSize: 30, fontWeight: 800, letterSpacing: -0.5 }}>{binlik(a.fiyat)} TL</div>
-            <div style={{ fontSize: 13, color: '#5A6073', marginTop: 2 }}>
+            <div style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}>
               Galerinin belirlediği satış fiyatı
             </div>
             <div
@@ -304,7 +304,14 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
                   {a.galeri.ad}
                 </Link>
                 {a.temsilci ? (
-                  <span style={{ display: 'block', fontSize: 13, color: '#5A6073', marginTop: 2 }}>
+                  <span
+                    style={{
+                      display: 'block',
+                      fontSize: 13,
+                      color: 'var(--rr-soluk, #5A6073)',
+                      marginTop: 2,
+                    }}
+                  >
                     Satış temsilcisi {a.temsilci}
                   </span>
                 ) : null}
@@ -328,7 +335,7 @@ export default async function AracSayfasi({ params }: { params: Promise<{ no: st
               <Iletisim no={a.no} />
             </div>
             <AracFavori no={a.no} />
-            <p style={{ margin: '10px 0 0', fontSize: 12, color: '#5A6073' }}>
+            <p style={{ margin: '10px 0 0', fontSize: 12, color: 'var(--rr-soluk, #5A6073)' }}>
               {a.galeri.isletmeAdi}
               {a.galeri.yetkiNo ? ` · Yetki belgesi no ${a.galeri.yetkiNo}` : ''}
             </p>

@@ -169,8 +169,8 @@ export function IlkMesaj({
           maxWidth: 520,
           maxHeight: '92vh',
           overflowY: 'auto',
-          background: '#FFFFFF',
-          borderRadius: 22,
+          background: 'var(--rr-kart, #FFFFFF)',
+          borderRadius: 'calc(var(--rr-kart-kose) * 22 / 18)',
           padding: '22px 22px 20px',
           color: 'var(--rr-murekkep, #1E2333)',
         }}
@@ -178,7 +178,7 @@ export function IlkMesaj({
         <h2 id="ilk-baslik" style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>
           İlk mesaj
         </h2>
-        <p style={{ margin: '4px 0 14px', fontSize: 13.5, color: '#5A6073' }}>
+        <p style={{ margin: '4px 0 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
           {[talepBaslik, sahip].filter(Boolean).join(' · ')}
         </p>
 
@@ -196,10 +196,10 @@ export function IlkMesaj({
                 width: '100%',
                 marginTop: 6,
                 border: '1px solid #D5DAE5',
-                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                 padding: 11,
                 fontSize: 15,
-                background: '#FFFFFF',
+                background: 'var(--rr-kart, #FFFFFF)',
                 fontFamily: 'inherit',
               }}
             >
@@ -223,10 +223,10 @@ export function IlkMesaj({
                 width: '100%',
                 marginTop: 6,
                 border: '1px solid #D5DAE5',
-                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                 padding: 11,
                 fontSize: 15,
-                background: '#FFFFFF',
+                background: 'var(--rr-kart, #FFFFFF)',
                 fontFamily: 'inherit',
               }}
             >
@@ -245,7 +245,7 @@ export function IlkMesaj({
                   gap: 10,
                   marginTop: 8,
                   background: '#FFF6DF',
-                  borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                   padding: '10px 12px',
                   fontWeight: 600,
                 }}
@@ -255,7 +255,7 @@ export function IlkMesaj({
                   style={{
                     width: 46,
                     height: 30,
-                    borderRadius: 8,
+                    borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
                     background: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)',
                     flex: 'none',
                   }}
@@ -323,11 +323,11 @@ export function IlkMesaj({
           >
             {yaziyor ? 'Yazılıyor…' : '✦ Taslağı yeniden yaz'}
           </button>
-          <span style={{ fontSize: 12.5, color: '#5A6073', padding: '6px 0' }}>
+          <span style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', padding: '6px 0' }}>
             {metin.length} / {MESSAGE_MAX}
           </span>
         </div>
-        <p style={{ margin: '6px 0 0', fontSize: 12.5, lineHeight: 1.5, color: '#5A6073' }}>
+        <p style={{ margin: '6px 0 0', fontSize: 12.5, lineHeight: 1.5, color: 'var(--rr-soluk, #5A6073)' }}>
           Yalnızca metin. Telefon, IBAN, bağlantı yazma ve kapora isteme. Alıcı cevap verene kadar ikinci
           mesaj atılamaz.
         </p>
@@ -339,7 +339,7 @@ export function IlkMesaj({
               lineHeight: 1.5,
               color: '#3A4052',
               background: '#F3F5FA',
-              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
               padding: '10px 12px',
             }}
           >
@@ -363,7 +363,7 @@ export function IlkMesaj({
               margin: '10px 0 0',
               background: '#FFF0EE',
               border: '1px solid #F5C6C0',
-              borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
               padding: '10px 12px',
               fontSize: 13.5,
               color: '#A3271F',
@@ -394,7 +394,7 @@ export function IlkMesaj({
               ...dugme,
               flex: 1,
               background: 'var(--rr-mavi, #5B8CFF)',
-              color: 'var(--rr-murekkep, #1E2333)',
+              color: 'var(--rr-maviYazi, #1E2333)',
               opacity: mesgul || !metin.trim() || !d || d.engel || !hakVar ? 0.55 : 1,
             }}
           >

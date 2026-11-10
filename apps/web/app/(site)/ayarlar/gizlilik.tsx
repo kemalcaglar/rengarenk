@@ -8,7 +8,7 @@ import { API, erisim, istek } from '../../../lib/istemci';
 import { Anahtar } from './iletisim';
 
 const kart: CSSProperties = {
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
   border: '1px solid var(--rr-cizgi, #E3E6EF)',
   borderRadius: 'var(--rr-kart-kose)',
   padding: 20,
@@ -24,8 +24,8 @@ const satir: CSSProperties = {
 };
 const ikincil: CSSProperties = {
   border: '1px solid #D5DAE5',
-  background: '#FFFFFF',
-  borderRadius: 10,
+  background: 'var(--rr-kart, #FFFFFF)',
+  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
   padding: '8px 12px',
   fontSize: 13.5,
   fontWeight: 700,
@@ -39,11 +39,11 @@ const girdi: CSSProperties = {
   boxSizing: 'border-box',
   marginTop: 5,
   border: '1px solid #D5DAE5',
-  borderRadius: 10,
+  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
   padding: 11,
   fontSize: 14.5,
   fontFamily: 'inherit',
-  background: '#FFFFFF',
+  background: 'var(--rr-kart, #FFFFFF)',
 };
 const tarih = (iso: string) =>
   new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', timeZone: 'Europe/Istanbul' }).format(
@@ -82,14 +82,18 @@ export function Engellediklerin({ bildir }: { bildir: (m: string | null, h?: str
       <h2 id="en" style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>
         Engellediklerin
       </h2>
-      <p style={{ margin: '0 0 10px', fontSize: 13.5, color: '#5A6073' }}>
+      <p style={{ margin: '0 0 10px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
         Engellediğin kişiler sana mesaj gönderemez ve taleplerini göremez.
       </p>
       {liste?.map((e) => (
         <div key={e.hesap} style={satir}>
           <span>
             <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>{e.ad}</span>
-            <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>{e.not}</span>
+            <span
+              style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}
+            >
+              {e.not}
+            </span>
           </span>
           <button
             type="button"
@@ -114,7 +118,7 @@ export function Engellediklerin({ bildir }: { bildir: (m: string | null, h?: str
             paddingTop: 10,
             borderTop: '1px solid #EEF0F5',
             fontSize: 14,
-            color: '#5A6073',
+            color: 'var(--rr-soluk, #5A6073)',
           }}
         >
           Engellediğin kimse yok.
@@ -258,6 +262,7 @@ export function KisiselVerilerim({
         style={{
           ...ikincil,
           background: 'var(--rr-mavi, #5B8CFF)',
+          color: 'var(--rr-maviYazi, #1E2333)',
           border: 0,
           padding: '11px 16px',
           fontWeight: 800,
@@ -279,7 +284,7 @@ export function KisiselVerilerim({
       <div style={satir}>
         <span style={{ flex: '1 1 300px' }}>
           <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>Verilerimi indir</span>
-          <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+          <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}>
             Profil, talepler, mesajlar, ödemeler ve rızaların. Doğrulama kodundan sonra 24 saat içinde
             hazırlanır; bağlantı 7 gün geçerli.
           </span>
@@ -317,7 +322,7 @@ export function KisiselVerilerim({
       <div style={satir}>
         <span style={{ flex: '1 1 300px' }}>
           <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>KVKK başvurusu</span>
-          <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+          <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}>
             Bilgi alma, düzeltme, silme ya da itiraz. En geç 30 gün içinde yanıtlanır (KVKK m.13).
           </span>
         </span>
@@ -359,6 +364,7 @@ export function KisiselVerilerim({
                   ...ikincil,
                   marginTop: 10,
                   background: 'var(--rr-mavi, #5B8CFF)',
+                  color: 'var(--rr-maviYazi, #1E2333)',
                   border: 0,
                   fontWeight: 800,
                 }}
@@ -379,7 +385,7 @@ export function KisiselVerilerim({
               style={{
                 display: 'block',
                 fontSize: 12.5,
-                color: '#5A6073',
+                color: 'var(--rr-soluk, #5A6073)',
                 marginTop: 2,
                 whiteSpace: 'pre-wrap',
               }}
@@ -398,7 +404,9 @@ export function KisiselVerilerim({
         <div style={satir}>
           <span style={{ flex: '1 1 300px', minWidth: 0 }}>
             <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>Reklam ölçümü</span>
-            <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+            <span
+              style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}
+            >
               Talep ve ödeme gibi adımların, reklamlarımızı ölçmek için Meta ve Google'a özet bilgiyle
               bildirilmesi. Mesajların ve talep açıklaman hiçbir zaman gönderilmez.
             </span>
@@ -411,7 +419,7 @@ export function KisiselVerilerim({
           <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>
             Aydınlatma metni ve çerez tercihleri
           </span>
-          <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+          <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}>
             Hangi verileri neden işlediğimiz ve haklarınız
           </span>
         </span>

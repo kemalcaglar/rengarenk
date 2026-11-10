@@ -1,4 +1,11 @@
-import { colors, MAX_SAVED_SEARCHES, radii, SAVED_SEARCH_NOTIFY } from '@rengarenk/shared';
+import {
+  butonOran,
+  colors,
+  kartOran,
+  MAX_SAVED_SEARCHES,
+  radii,
+  SAVED_SEARCH_NOTIFY,
+} from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Alert, Image, Pressable, ScrollView, View } from 'react-native';
@@ -43,7 +50,15 @@ interface FavoriArac {
   satista: boolean;
 }
 
-const kart = { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line } as const;
+const kart = {
+  get backgroundColor() {
+    return colors.surface;
+  },
+  borderWidth: 1,
+  get borderColor() {
+    return colors.line;
+  },
+} as const;
 
 function durumMetni(f: Favori): [string, string] {
   if (f.durum === 'yayinda' || f.durum === 'son_gunler') {
@@ -162,7 +177,7 @@ export default function Favoriler() {
           style={{
             width: 44,
             height: 44,
-            borderRadius: radii.buton - 2,
+            borderRadius: butonOran(12),
             alignItems: 'center',
             justifyContent: 'center',
           }}
@@ -178,7 +193,7 @@ export default function Favoriler() {
         contentContainerStyle={{ padding: 12, paddingBottom: 32 }}
       >
         {durum !== 'uye' ? (
-          <View style={{ ...kart, borderRadius: 16, padding: 16 }}>
+          <View style={{ ...kart, borderRadius: kartOran(16), padding: 16 }}>
             <T style={{ fontSize: 14, color: colors.muted }}>Favorilerini görmek için giriş yap.</T>
             <Pressable
               accessibilityRole="button"
@@ -186,12 +201,12 @@ export default function Favoriler() {
               style={{
                 marginTop: 12,
                 backgroundColor: colors.blue,
-                borderRadius: radii.buton - 2,
+                borderRadius: butonOran(12),
                 paddingVertical: 12,
                 alignItems: 'center',
               }}
             >
-              <T style={{ fontWeight: '800' }}>Giriş yap</T>
+              <T style={{ color: colors.onBlue, fontWeight: '800' }}>Giriş yap</T>
             </Pressable>
           </View>
         ) : (
@@ -222,7 +237,7 @@ export default function Favoriler() {
                     onPress={() => setSekme(k)}
                     style={{
                       flex: 1,
-                      borderRadius: 11,
+                      borderRadius: butonOran(11),
                       paddingVertical: 10,
                       paddingHorizontal: 6,
                       backgroundColor: on ? colors.surface : 'transparent',
@@ -246,7 +261,7 @@ export default function Favoriler() {
                       onPress={() => router.push(`/talep/${f.no}`)}
                       style={{
                         ...kart,
-                        borderRadius: 16,
+                        borderRadius: kartOran(16),
                         paddingVertical: 12,
                         paddingHorizontal: 14,
                         marginTop: 8,
@@ -303,7 +318,7 @@ export default function Favoriler() {
                     onPress={() => router.push(`/arac/${a.no}`)}
                     style={{
                       ...kart,
-                      borderRadius: 16,
+                      borderRadius: kartOran(16),
                       paddingVertical: 12,
                       paddingHorizontal: 14,
                       marginTop: 8,
@@ -316,7 +331,7 @@ export default function Favoriler() {
                       style={{
                         width: 76,
                         height: 58,
-                        borderRadius: radii.buton - 2,
+                        borderRadius: butonOran(12),
                         backgroundColor: '#EEF3FF',
                         overflow: 'hidden',
                       }}
@@ -358,7 +373,10 @@ export default function Favoriler() {
             ) : (
               <>
                 {(aramalar ?? []).map((a) => (
-                  <View key={a.id} style={{ ...kart, borderRadius: 16, marginTop: 8, overflow: 'hidden' }}>
+                  <View
+                    key={a.id}
+                    style={{ ...kart, borderRadius: kartOran(16), marginTop: 8, overflow: 'hidden' }}
+                  >
                     <Pressable
                       accessibilityRole="button"
                       accessibilityState={{ expanded: acik === a.id }}
@@ -415,7 +433,7 @@ export default function Favoriler() {
                             flexDirection: 'row',
                             gap: 4,
                             backgroundColor: '#F3F5FA',
-                            borderRadius: radii.buton - 2,
+                            borderRadius: butonOran(12),
                             padding: 4,
                             marginTop: 6,
                           }}
@@ -430,7 +448,7 @@ export default function Favoriler() {
                                 onPress={() => (on ? undefined : bildirim(a, b.key))}
                                 style={{
                                   flex: 1,
-                                  borderRadius: 9,
+                                  borderRadius: butonOran(9),
                                   paddingVertical: 8,
                                   alignItems: 'center',
                                   backgroundColor: on ? colors.surface : 'transparent',

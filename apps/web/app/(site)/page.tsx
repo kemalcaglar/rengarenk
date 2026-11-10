@@ -95,7 +95,7 @@ export default async function Home() {
                 alignItems: 'center',
                 gap: 10,
                 padding: '9px 10px',
-                borderRadius: 10,
+                borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
                 fontSize: 14,
                 fontWeight: 500,
                 color: colors.inkSoft,
@@ -147,7 +147,7 @@ export default async function Home() {
     <section
       style={{
         ...card,
-        borderRadius: 22,
+        borderRadius: 'calc(var(--rr-kart-kose) * 22 / 18)',
         padding: 32,
         display: 'flex',
         flexWrap: 'wrap',
@@ -174,7 +174,7 @@ export default async function Home() {
             alignItems: 'center',
             gap: 8,
             background: colors.blue,
-            color: colors.ink,
+            color: 'var(--rr-maviYazi, #1E2333)',
             fontWeight: 800,
             fontSize: 16,
             padding: '15px 24px',

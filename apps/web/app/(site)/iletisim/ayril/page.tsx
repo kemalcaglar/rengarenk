@@ -17,7 +17,7 @@ export default function Ayril() {
     <main style={{ maxWidth: 560, margin: '48px auto', padding: '0 24px' }}>
       <section
         style={{
-          background: '#FFFFFF',
+          background: 'var(--rr-kart, #FFFFFF)',
           border: '1px solid var(--rr-cizgi, #E3E6EF)',
           borderRadius: 'var(--rr-kart-kose)',
           padding: 24,

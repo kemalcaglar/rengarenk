@@ -35,7 +35,14 @@ describe('Tasarım değerleri (YonetimIcerik.dc.html; Karar 46)', () => {
     const ot = (await loginAs(app, owner)).token;
     const v = (await staffCall(app, 'GET', '/staff/design', undefined, at)).body;
     expect(v.fontlar.length).toBeGreaterThanOrEqual(60);
-    expect(v.renkler[4]).toMatchObject({ key: 'murekkep', not: 'Metin · zemine karşıtlık 14,7:1' });
+    expect(v.renkler.find((r: { key: string }) => r.key === 'murekkep')).toMatchObject({
+      not: 'Metin · zemine karşıtlık 14,7:1',
+      grup: 'Metin ve yüzeyler',
+    });
+    expect(v.renkler.find((r: { key: string }) => r.key === 'maviYazi')).toMatchObject({
+      ad: 'Mavi üstündeki yazı',
+      grup: 'Renkli zeminlerin üstündeki yazı',
+    });
 
     // Okunmayan bağlantı rengi onaya gönderilemez
     const kotu = { ...DEFAULT_DESIGN, renkler: { ...DEFAULT_DESIGN.renkler, baglanti: '#A9C1FF' } };
@@ -109,5 +116,40 @@ describe('Tasarım değerleri (YonetimIcerik.dc.html; Karar 46)', () => {
     expect(e?.html).toContain('Manrope');
     expect(e?.html).toContain('#22306B');
     expect(e?.html).toContain('#4F7DF0');
+  });
+
+  it('mavi butonda beyaz yazı ve köşesiz tasarım gönderilir; onaydaki taslak geri çekilip yeniden düzenlenir', async () => {
+    const admin = await createStaff(db, 'ADMIN');
+    const at = (await loginAs(app, admin)).token;
+    const yayinda = (await call(app, 'GET', '/tasarim')).body.degerler;
+    const yeni = {
+      ...yayinda,
+      renkler: { ...yayinda.renkler, maviYazi: '#FFFFFF' },
+      kartKose: 0,
+      butonKose: 0,
+      etiketKose: 0,
+    };
+    await staffCall(app, 'PUT', '/staff/design/draft', { degerler: yeni }, at);
+    const v = (await staffCall(app, 'GET', '/staff/design', undefined, at)).body;
+    expect(v.sorunlar).toEqual([]);
+    expect(v.uyarilar[0]).toMatch(/^Mavi üstündeki yazı: /);
+    const g = await staffCall(app, 'POST', '/staff/design/submit', {}, at);
+    expect(g.status).toBe(201);
+    expect(g.body.degisiklikler).toEqual(
+      expect.arrayContaining(['Mavi üstündeki yazı: #1E2333 → #FFFFFF', 'Kart köşesi: 16 → 0 px']),
+    );
+    expect((await staffCall(app, 'GET', '/staff/design', undefined, at)).body.taslak.onayda).toBe(true);
+
+    // Başkası geri çekemez; gönderen geri çeker, taslak yeniden düzenlenir
+    const diger = await createStaff(db, 'ADMIN');
+    const dt = (await loginAs(app, diger)).token;
+    expect((await staffCall(app, 'POST', '/staff/design/geri-cek', {}, dt)).status).toBe(403);
+    expect((await staffCall(app, 'POST', '/staff/design/geri-cek', {}, at)).status).toBe(201);
+    const sonra = (await staffCall(app, 'GET', '/staff/design', undefined, at)).body;
+    expect(sonra.taslak).toMatchObject({ onayda: false, degerler: { kartKose: 0 } });
+    expect(
+      (await staffCall(app, 'PUT', '/staff/design/draft', { degerler: { ...yeni, butonKose: 4 } }, at)).body,
+    ).toEqual({ surum: sonra.taslak.surum });
+    expect((await staffCall(app, 'POST', '/staff/design/geri-cek', {}, at)).status).toBe(409);
   });
 });

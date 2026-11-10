@@ -115,9 +115,9 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
       <section
         aria-labelledby="gad"
         style={{
-          background: '#FFFFFF',
+          background: 'var(--rr-kart, #FFFFFF)',
           border: '1px solid var(--rr-cizgi, #E3E6EF)',
-          borderRadius: 22,
+          borderRadius: 'calc(var(--rr-kart-kose) * 22 / 18)',
           overflow: 'hidden',
         }}
       >
@@ -144,7 +144,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
               flex: 'none',
               width: 96,
               height: 96,
-              borderRadius: 24,
+              borderRadius: 'calc(var(--rr-kart-kose) * 24 / 18)',
               background: '#FFF6DF',
               border: '4px solid #FFFFFF',
               color: '#7A5300',
@@ -240,7 +240,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
           {istatistik.map(([d, k], i) => (
             <div key={k} style={{ padding: '14px 24px', borderRight: i < 3 ? '1px solid #EEF0F5' : 0 }}>
               <div style={{ fontSize: 22, fontWeight: 800 }}>{d}</div>
-              <div style={{ fontSize: 13, color: '#5A6073' }}>{k}</div>
+              <div style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>{k}</div>
             </div>
           ))}
         </div>
@@ -254,7 +254,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
               href={`/arac/${a.no}`}
               style={{
                 display: 'block',
-                background: '#FFFFFF',
+                background: 'var(--rr-kart, #FFFFFF)',
                 border: '1px solid var(--rr-cizgi, #E3E6EF)',
                 borderRadius: 'var(--rr-kart-kose)',
                 overflow: 'hidden',
@@ -287,7 +287,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
                     fontWeight: 800,
                     padding: '4px 9px',
                     borderRadius: 'var(--rr-etiket-kose)',
-                    background: '#FFFFFF',
+                    background: 'var(--rr-kart, #FFFFFF)',
                     color: '#11683F',
                   }}
                 >
@@ -301,7 +301,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
                     fontSize: 12,
                     fontWeight: 700,
                     padding: '3px 8px',
-                    borderRadius: 8,
+                    borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
                     background: 'rgba(255,255,255,0.9)',
                     color: '#3A4052',
                   }}
@@ -311,7 +311,9 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
               </div>
               <div style={{ padding: '14px 16px 16px' }}>
                 <div style={{ fontSize: 16, fontWeight: 800 }}>{a.ad}</div>
-                <div style={{ fontSize: 13.5, color: '#5A6073', marginTop: 4 }}>{a.ozellik}</div>
+                <div style={{ fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 4 }}>
+                  {a.ozellik}
+                </div>
                 <div
                   style={{
                     display: 'flex',
@@ -321,7 +323,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
                   }}
                 >
                   <span style={{ fontSize: 19, fontWeight: 800 }}>{binlik(a.fiyat)} TL</span>
-                  <span style={{ fontSize: 12.5, color: '#5A6073' }}>{gun(a.yayin)}</span>
+                  <span style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>{gun(a.yayin)}</span>
                 </div>
               </div>
             </Link>
@@ -331,13 +333,13 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
         <div
           style={{
             margin: '22px 0 14px',
-            background: '#FFFFFF',
+            background: 'var(--rr-kart, #FFFFFF)',
             border: '1px dashed #C9CFDB',
             borderRadius: 'var(--rr-kart-kose)',
             padding: '36px 20px',
             textAlign: 'center',
             fontSize: 15,
-            color: '#5A6073',
+            color: 'var(--rr-soluk, #5A6073)',
           }}
         >
           Bu galerinin henüz yayında aracı yok.
@@ -348,7 +350,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
         aria-labelledby="hk"
         style={{
           marginTop: 24,
-          background: '#FFFFFF',
+          background: 'var(--rr-kart, #FFFFFF)',
           border: '1px solid var(--rr-cizgi, #E3E6EF)',
           borderRadius: 'var(--rr-kart-kose)',
           padding: 22,
@@ -362,7 +364,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
             {p.hakkinda}
           </p>
         ) : null}
-        <p style={{ margin: p.hakkinda ? '14px 0 0' : 0, fontSize: 12.5, color: '#5A6073' }}>
+        <p style={{ margin: p.hakkinda ? '14px 0 0' : 0, fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
           Ticari unvan: {p.isletmeAdi}
           {p.yetkiNo ? ` · Yetki belgesi no ${p.yetkiNo}` : ''} · Yetki belgesi ve vergi bilgileri Rengarenk
           tarafından doğrulanmıştır.

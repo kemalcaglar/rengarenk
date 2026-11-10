@@ -146,7 +146,7 @@ export default function Bildirimler() {
           ))}
         </div>
         {liste && !liste.length ? (
-          <p style={{ marginTop: 16, color: '#5A6073' }}>Henüz bildirimin yok.</p>
+          <p style={{ marginTop: 16, color: 'var(--rr-soluk, #5A6073)' }}>Henüz bildirimin yok.</p>
         ) : null}
         {gruplar.map(([ad, kosul]) => {
           const ogeler = (liste ?? []).filter((b) => kosul(new Date(b.zaman).getTime()));
@@ -158,7 +158,7 @@ export default function Bildirimler() {
                   margin: '14px 4px 8px',
                   fontSize: 13,
                   fontWeight: 800,
-                  color: '#5A6073',
+                  color: 'var(--rr-soluk, #5A6073)',
                   textTransform: 'uppercase',
                   letterSpacing: 0.5,
                 }}
@@ -167,9 +167,9 @@ export default function Bildirimler() {
               </h2>
               <div
                 style={{
-                  background: '#FFFFFF',
+                  background: 'var(--rr-kart, #FFFFFF)',
                   border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                  borderRadius: 16,
+                  borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
                   overflow: 'hidden',
                 }}
               >
@@ -186,7 +186,7 @@ export default function Bildirimler() {
                       padding: '13px 14px',
                       border: 0,
                       borderBottom: '1px solid #EEF0F5',
-                      background: b.okundu ? '#FFFFFF' : '#F8FAFF',
+                      background: b.okundu ? 'var(--rr-kart, #FFFFFF)' : '#F8FAFF',
                       color: 'var(--rr-murekkep, #1E2333)',
                       cursor: 'pointer',
                       fontFamily: 'inherit',
@@ -198,7 +198,7 @@ export default function Bildirimler() {
                         flex: 'none',
                         width: 38,
                         height: 38,
-                        borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                         background: b.tint,
                         display: 'flex',
                         alignItems: 'center',
@@ -211,7 +211,7 @@ export default function Bildirimler() {
                     <span style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
                         <span style={{ fontSize: 14, fontWeight: b.okundu ? 700 : 800 }}>{b.baslik}</span>
-                        <span style={{ flex: 'none', fontSize: 11.5, color: '#5A6073' }}>
+                        <span style={{ flex: 'none', fontSize: 11.5, color: 'var(--rr-soluk, #5A6073)' }}>
                           {once(b.zaman)}
                         </span>
                       </span>
@@ -236,7 +236,7 @@ export default function Bildirimler() {
                             padding: '2px 7px',
                             borderRadius: 'var(--rr-etiket-kose)',
                             background: '#F3F5FA',
-                            color: '#5A6073',
+                            color: 'var(--rr-soluk, #5A6073)',
                           }}
                         >
                           Kampanya · onay verdiğin için

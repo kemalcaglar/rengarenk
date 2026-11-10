@@ -214,6 +214,17 @@ sistem sağlığı, tasarım değerleri.
   `--rr-*`); mevsimsel temada üst çubuk bant renginde ve rozetli. Mobil: açılışta değerler okunur, ortak renkler ve köşeler
   (`radii`) güncellenir, yazı tipi TTF olarak yüklenir (API Google Fonts'tan çözer), ana sayfa üst bölümü temada.
   E-posta: yazı tipi, köşe, renkler ve tema başlığı yayındaki değerlerden. Konsolun kendi renkleri sabit kalır
+- [x] Tasarım değerleri genişletme (10 Kasım 2026, sahip isteği): renkli zeminlerin üstündeki yazı (mavi, pembe, sarı,
+  yeşil; ör. mavi butonda beyaz yazı), ikincil metin ve kart zemini düzenlenir; renkli zemin yazısı 3:1 altında
+  gönderilemez, 3–4,5:1 arası uyarı. Bütün köşeler oranlı: web `calc(var(--rr-kart-kose) * N / 18)` /
+  `calc(var(--rr-buton-kose) * N / 14)`, mobil `kartOran(N)` / `butonOran(N)`; 0 seçilince sitedeki bütün köşeler kalkar,
+  tam daireler değişmez, haplar etiket köşesine bağlı. Konsolda köşe hazır seçimleri (Köşesiz, Az yuvarlak, Varsayılan,
+  Çok yuvarlak), kaydırıcılar, renkleri varsayılana döndürme, onaydaki taslağı geri çekip düzenleme (`POST
+  /staff/design/geri-cek`). Mobilde modül düzeyindeki stil sabitleri renkleri okurken hesaplar (getter).
+- [x] Ana sayfa vitrini ve son talepler (10 Kasım 2026): yerelde Docker servisleri topluca kapanınca (bilgisayar uykusu,
+  Docker Desktop yeniden başlaması) API her isteğe 500 veriyordu. Servislere `restart: unless-stopped`; bakım denetimi
+  veritabanı okunamazsa son bilinen durumla sürer; tarayıcı ve mobil talepleri sayfa açık kaldıkça yeniden dener ve
+  beklerken "Talepler yükleniyor…" gösterir.
 
 ## Sprint 28 · Aşama 9 · kontrol paneli ve raporlar (9 Kasım 2026)
 

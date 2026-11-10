@@ -122,7 +122,7 @@ export function Banner({ yer, style }: { yer: BannerPlace; style?: CSSProperties
             background: b.zemin,
             border: '1px solid var(--rr-cizgi, #E3E6EF)',
             borderLeft: `6px solid ${b.renk}`,
-            borderRadius: 16,
+            borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
             padding: '14px 18px',
           }}
         >
@@ -142,7 +142,7 @@ export function Banner({ yer, style }: { yer: BannerPlace; style?: CSSProperties
                 flex: 'none',
                 background: 'var(--rr-murekkep, #1E2333)',
                 color: '#FFFFFF',
-                borderRadius: 'calc(var(--rr-buton-kose) - 2px)',
+                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
                 padding: '10px 16px',
                 fontSize: 14,
                 fontWeight: 800,

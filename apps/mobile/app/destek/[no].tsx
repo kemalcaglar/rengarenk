@@ -1,4 +1,4 @@
-import { colors, radii } from '@rengarenk/shared';
+import { butonOran, colors, radii } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { type ComponentRef, useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native';
@@ -87,7 +87,7 @@ export default function DestekYazisma() {
             style={{
               width: 44,
               height: 44,
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               alignItems: 'center',
               justifyContent: 'center',
             }}
@@ -135,7 +135,9 @@ export default function DestekYazisma() {
                 <T style={{ fontSize: 11, fontWeight: '800', color: '#3A4052' }}>
                   {m.kim} · {saat(m.zaman)}
                 </T>
-                <T style={{ fontSize: 14, lineHeight: 21 }}>{m.metin}</T>
+                <T style={{ color: ben ? colors.onBlue : colors.ink, fontSize: 14, lineHeight: 21 }}>
+                  {m.metin}
+                </T>
               </View>
             );
           })}
@@ -164,7 +166,7 @@ export default function DestekYazisma() {
                       height: 44,
                       borderWidth: 1,
                       borderColor: '#D5DAE5',
-                      borderRadius: radii.buton - 2,
+                      borderRadius: butonOran(12),
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}
@@ -201,7 +203,7 @@ export default function DestekYazisma() {
               flex: 1,
               borderWidth: 1,
               borderColor: '#D5DAE5',
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               paddingVertical: 10,
               paddingHorizontal: 12,
               fontSize: 14.5,
@@ -213,12 +215,12 @@ export default function DestekYazisma() {
             onPress={gonder}
             style={{
               backgroundColor: colors.blue,
-              borderRadius: radii.buton - 2,
+              borderRadius: butonOran(12),
               paddingVertical: 12,
               paddingHorizontal: 16,
             }}
           >
-            <T style={{ fontSize: 14.5, fontWeight: '800' }}>Gönder</T>
+            <T style={{ color: colors.onBlue, fontSize: 14.5, fontWeight: '800' }}>Gönder</T>
           </Pressable>
         </View>
       </KeyboardAvoidingView>

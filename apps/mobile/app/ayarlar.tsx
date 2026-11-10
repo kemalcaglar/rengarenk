@@ -1,4 +1,4 @@
-import { colors, radii } from '@rengarenk/shared';
+import { butonOran, colors, kartOran } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, View } from 'react-native';
@@ -21,10 +21,16 @@ interface Tercihler {
 
 const KANAL_AD = { uygulama: 'Uygulama', eposta: 'E-posta', sms: 'SMS' } as const;
 const kart = {
-  backgroundColor: colors.surface,
+  get backgroundColor() {
+    return colors.surface;
+  },
   borderWidth: 1,
-  borderColor: colors.line,
-  borderRadius: 16,
+  get borderColor() {
+    return colors.line;
+  },
+  get borderRadius() {
+    return kartOran(16);
+  },
 } as const;
 
 /**
@@ -94,7 +100,7 @@ export default function Ayarlar() {
           style={{
             width: 44,
             height: 44,
-            borderRadius: radii.buton - 2,
+            borderRadius: butonOran(12),
             alignItems: 'center',
             justifyContent: 'center',
           }}
@@ -152,7 +158,7 @@ export default function Ayarlar() {
                 marginTop: 10,
                 borderWidth: 1,
                 borderColor: '#D5DAE5',
-                borderRadius: radii.buton - 2,
+                borderRadius: butonOran(12),
                 padding: 12,
                 fontSize: 15,
               }}
@@ -164,13 +170,15 @@ export default function Ayarlar() {
               style={{
                 marginTop: 8,
                 backgroundColor: colors.blue,
-                borderRadius: radii.buton - 2,
+                borderRadius: butonOran(12),
                 paddingVertical: 12,
                 alignItems: 'center',
                 opacity: mesgul || !eposta.includes('@') ? 0.5 : 1,
               }}
             >
-              <T style={{ fontSize: 14.5, fontWeight: '800' }}>Doğrulama bağlantısı gönder</T>
+              <T style={{ color: colors.onBlue, fontSize: 14.5, fontWeight: '800' }}>
+                Doğrulama bağlantısı gönder
+              </T>
             </Pressable>
           </View>
 
@@ -204,7 +212,7 @@ export default function Ayarlar() {
                         borderWidth: 1,
                         borderColor: k.acik ? colors.blue : '#D5DAE5',
                         backgroundColor: k.acik ? '#EEF3FF' : colors.surface,
-                        borderRadius: 10,
+                        borderRadius: butonOran(10),
                         paddingVertical: 9,
                         opacity: k.kilitli ? 0.5 : 1,
                       }}
@@ -213,7 +221,7 @@ export default function Ayarlar() {
                         style={{
                           width: 18,
                           height: 18,
-                          borderRadius: 5,
+                          borderRadius: butonOran(5),
                           borderWidth: 2,
                           borderColor: k.acik ? colors.blue : '#AEB5C4',
                           backgroundColor: k.acik ? colors.blue : colors.surface,

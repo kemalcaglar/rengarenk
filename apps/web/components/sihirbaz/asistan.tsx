@@ -44,7 +44,7 @@ export function Asistan({ taslakId, doldu }: { taslakId: string; doldu: () => Pr
       style={{
         border: '1.5px solid #C9B8FF',
         background: '#FAF7FF',
-        borderRadius: 16,
+        borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
         padding: 16,
         marginBottom: 18,
       }}
@@ -52,7 +52,7 @@ export function Asistan({ taslakId, doldu }: { taslakId: string; doldu: () => Pr
       <h2 id="asistan-baslik" style={{ margin: 0, fontSize: 15.5, fontWeight: 800, color: '#4B2FA6' }}>
         ✦ Aradığın aracı kendi cümlelerinle yaz
       </h2>
-      <p style={{ margin: '4px 0 10px', fontSize: 13, color: '#5A6073', lineHeight: 1.45 }}>
+      <p style={{ margin: '4px 0 10px', fontSize: 13, color: 'var(--rr-soluk, #5A6073)', lineHeight: 1.45 }}>
         Asistan formu doldurur; adımları kontrol edip talebini sen yayınlarsın.
       </p>
       <label htmlFor="asistan-metin" className="sr-only">
@@ -75,7 +75,7 @@ export function Asistan({ taslakId, doldu }: { taslakId: string; doldu: () => Pr
           lineHeight: 1.5,
           fontFamily: 'inherit',
           resize: 'vertical',
-          background: '#FFFFFF',
+          background: 'var(--rr-kart, #FFFFFF)',
         }}
       />
       <div
@@ -105,7 +105,7 @@ export function Asistan({ taslakId, doldu }: { taslakId: string; doldu: () => Pr
         >
           {busy ? 'Dolduruluyor…' : '✦ Formu doldur'}
         </button>
-        <span style={{ fontSize: 12, color: '#5A6073' }}>
+        <span style={{ fontSize: 12, color: 'var(--rr-soluk, #5A6073)' }}>
           {metin.length} / {ASSISTANT_TEXT_MAX}
         </span>
       </div>
