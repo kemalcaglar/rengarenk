@@ -12,6 +12,7 @@ import { ScheduledReportsWorkerModule } from './dashboard/dashboard.module.js';
 import { DatabaseModule } from './database/database.module.js';
 import { DemandsWorkerModule } from './demands/demands.module.js';
 import { GalleriesWorkerModule } from './galleries/galleries.module.js';
+import { SystemHealthCoreModule } from './health/health.module.js';
 import { MatchingWorkerModule } from './matching/matching.module.js';
 import { MessageSafetyModule } from './messages/messages.module.js';
 import { ModerationServiceModule } from './moderation/moderation.module.js';
@@ -56,6 +57,7 @@ import { TrustWorkerModule } from './trust/trust.module.js';
     CatalogPipelineModule,
     CategoriesWorkerModule,
     LegalWorkerModule,
+    SystemHealthCoreModule,
     DemandsWorkerModule,
     GalleriesWorkerModule,
     PortfolioWorkerModule,

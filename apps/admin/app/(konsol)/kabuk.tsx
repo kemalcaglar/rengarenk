@@ -100,7 +100,7 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
       { href: '/entegrasyonlar', ad: 'Entegrasyonlar', izin: 'kategori.ayarla', rozet: 'entegrasyon' },
       { href: '/sistem', ad: 'Özellik anahtarları ve bakım', izin: 'sistem.ayarla' },
       { href: '/yapay-zeka', ad: 'Yapay zekâ ve bütçe', izin: 'sistem.ayarla' },
-      { ad: 'Sistem sağlığı ve yedek', sonra: true },
+      { href: '/sistem-sagligi', ad: 'Sistem sağlığı ve yedek', izin: 'sistem.ayarla' },
     ],
   },
   {

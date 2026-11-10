@@ -73,5 +73,17 @@ Adresler: web http://localhost:18080, API http://localhost:14000, konsol http://
 ## Henüz kurulmayanlar (sunucuyla birlikte, Sprint 4)
 
 - Yedek: pgBackRest ile günlük tam, sürekli artımlı yedek; ikinci veri merkezine; ayda bir geri yükleme provası (Karar 56).
+  Konsol › Sistem sağlığı ve yedek yedek bilgisini `backup_runs` tablosundan okur. Yedekleme betiği her çalışmada bir
+  satır yazar (kişisel veri içermez):
+
+  ```sql
+  INSERT INTO backup_runs (id, kind, status, size_bytes, location, started_at, finished_at)
+  VALUES (gen_random_uuid(), 'tam', 'basarili', 30064771072, 'İkinci veri merkezi · Türkiye', now() - interval '41 min', now());
+  -- kind: tam | artimli | geri_yukleme_testi · status: istendi | calisiyor | basarili | hata
+  ```
+
+  Konsoldaki "Geri yükleme testini şimdi başlat" `status = 'istendi'` bir `geri_yukleme_testi` satırı açar. Sunucudaki
+  zamanlanmış görev bu satırı alır (`calisiyor`), yedeği ayrı bir ortama geri yükler (canlıya dokunmaz), bitince
+  `basarili` ya da `hata` ve `started_at`/`finished_at` yazar. Görev ayda bir kendiliğinden de çalışır.
 - İzleme: Prometheus, Grafana, Loki, Alertmanager, GlitchTip (Teknik tasarım §13). API `/metrics` hazır.
 - SOPS ile şifreli `.env.prod`.

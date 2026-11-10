@@ -194,10 +194,14 @@ sistem sağlığı, tasarım değerleri.
   "Kategori değiştir" talebi taşımaz, öneri olarak kaydedilir (`suggested_category_id`) ve sahibine o kategoride talep
   oluşturma bağlantısıyla bildirilir. Araçta "Belge iste" ve "Galeriye bildir" galeri ekibine bildirim. Hepsi işlem
   kaydında
-- [ ] Sistem sağlığı ve yedek (YonetimSistem.dc.html, Karar 56): çalışma süresi, hata oranı, yanıt süresi (p95), kuyruk
-  (pg-boss; tasarımdaki RabbitMQ yerine), servis durumları (web, API, PostgreSQL, OpenSearch, Redis, SeaweedFS, e-posta),
-  yedek bilgileri ve "geri yükleme testini başlat". Ölçüler ve servis yoklaması şimdi yapılabilir; yedek ve geri yükleme
-  testi pgBackRest ile sunucu kurulunca bağlanır (o zamana kadar "sunucu bekleniyor")
+- [x] Sistem sağlığı ve yedek (10 Kasım 2026; YonetimSistem.dc.html › saglik, Karar 56): konsol `/sistem-sagligi`
+  (yetki `sistem.ayarla`), dakikada bir yenilenir. İşçi dakikada bir web, API, PostgreSQL, OpenSearch, pg-boss kuyruğu,
+  Redis, SeaweedFS ve SMTP'yi yoklar (`health_samples`, 35 gün). Çalışma süresi API yoklamasından (kesinti dakikası ve son
+  tarih); hata oranı ve p95, API'nin her yanıtta Redis'e yazdığı dakikalık özetten (`observability/request-stats.ts`,
+  Fastify `onResponse`; 5xx ve süre dilimi, kişi ve yol yok, 26 saat); kuyruk pg-boss bekleyen işleri ve aktarılmamış
+  outbox. Tasarımdaki RabbitMQ yerine pg-boss yazıyor. Yedek bölümü `backup_runs`'tan; kayıtları sunucudaki pgBackRest
+  betiği yazar (`deploy/README.md`), sunucu yokken "Sunucu kurulunca başlar". "Geri yükleme testini şimdi başlat" istek
+  kaydı açar; sunucudaki görev alıp ayrı ortamda yürütür
 - [ ] Tasarım değerleri (YonetimIcerik.dc.html, Karar 46): renkler (Gökkuşağı), yazı, köşe ve logo, mevsimsel temalar
   (tarihli), canlı önizleme, değişiklik onayla. Değerler şimdi `packages/shared/src/tokens.ts`'te sabit: sürümlü olarak
   veritabanına alınır, web (CSS değişkenleri), mobil (açılışta okunur) ve e-posta şablonları API'den aynı değerleri alır

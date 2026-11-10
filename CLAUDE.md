@@ -308,7 +308,9 @@ pnpm format        # Biome ile biçimlendir
   mobil aynı adla), `support/help.service.ts` (`help_articles`; destek önerisi `HelpService.oner`). Yeni yasal metin
   anahtarı eklersen `LEGAL_TEXTS` ve `LEGAL_PATHS`'e (ortak paket `legal.ts`) ekle. Talepler ve portföy bitti:
   `moderation/listings.service.ts` (gizleme çalışan kaynaklı moderasyon kaydı + `decide`; düzeltme `correction_note`,
-  kategori önerisi `suggested_category_id`). API'de 207 test.
+  kategori önerisi `suggested_category_id`). Sistem sağlığı bitti: `health/system-health.service.ts` (işçide dakikalık
+  yoklama, `health_samples`), istek özeti `observability/request-stats.ts` (Redis tembel bağlanır: önce `redisHazir`),
+  yedek `backup_runs` (yazan sunucudaki betik). API'de 209 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.

@@ -8,7 +8,9 @@ import { AppModule } from './app.module.js';
 import { registerXlsxBody } from './catalog/xlsx-body.js';
 import { registerUploadBodies } from './common/upload-body.js';
 import { loadEnv } from './config/env.js';
+import { istekKaydet } from './observability/request-stats.js';
 import { initSentry, ReportingExceptionFilter } from './observability/sentry.js';
+import { REDIS } from './redis/redis.module.js';
 
 export async function createApp(): Promise<NestFastifyApplication> {
   const env = loadEnv();
@@ -23,6 +25,16 @@ export async function createApp(): Promise<NestFastifyApplication> {
   app.useLogger(app.get(Logger));
   registerXlsxBody(app);
   registerUploadBodies(app);
+  // Sistem sağlığı (Karar 56): her yanıt bitince dakikalık özet (sayı, 5xx, süre dilimi); yoklama istekleri sayılmaz
+  const redis = app.get(REDIS);
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .addHook('onResponse', (req, reply, done) => {
+      if (!req.url.startsWith('/health') && !req.url.startsWith('/metrics'))
+        void istekKaydet(redis, reply.statusCode, reply.elapsedTime).catch(() => undefined);
+      done();
+    });
   if (reporting) app.useGlobalFilters(new ReportingExceptionFilter(app.get(HttpAdapterHost).httpAdapter));
   await app.register(helmet);
   // Fastify'ın varsayılanı yalnızca GET, HEAD, POST; tarayıcıdan PATCH (profil, talep taslağı) ve DELETE de gelir.

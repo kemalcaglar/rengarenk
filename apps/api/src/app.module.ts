@@ -17,6 +17,7 @@ import { EntitlementsModule } from './entitlements/entitlements.module.js';
 import { FlagsModule } from './flags/flags.module.js';
 import { GalleriesModule } from './galleries/galleries.module.js';
 import { HealthController } from './health/health.controller.js';
+import { SystemHealthModule } from './health/health.module.js';
 import { LandingModule } from './landing/landing.module.js';
 import { MatchingModule } from './matching/matching.module.js';
 import { MeModule } from './me/me.module.js';
@@ -75,6 +76,7 @@ import { TrustModule } from './trust/trust.module.js';
     StorageModule,
     ConsentModule,
     LegalModule,
+    SystemHealthModule,
     CatalogModule,
     CategoriesModule,
     DemandsModule,

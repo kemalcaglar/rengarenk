@@ -13,6 +13,7 @@ import { type Db, PRISMA } from './database/prisma.js';
 import { DemandService } from './demands/demand.service.js';
 import { GalleryService } from './galleries/gallery.service.js';
 import { GalleryApplicationService } from './galleries/gallery-application.service.js';
+import { SystemHealthService } from './health/system-health.service.js';
 import { MatchingService } from './matching/matching.service.js';
 import { MessageSafety } from './messages/message-safety.js';
 import { ModerationService } from './moderation/moderation.service.js';
@@ -61,6 +62,8 @@ const kampanyalar = app.get(CampaignService);
 const zamanliRaporlar = app.get(ScheduledReportService);
 const reklam = app.get(AdsService);
 const analitik = app.get(AnalyticsService);
+const saglik = app.get(SystemHealthService);
+let lastSaglik = 0;
 let lastAnalitik = 0;
 const ticari = app.get(CommercialService);
 const akislar = app.get(AutomationService);
@@ -395,6 +398,11 @@ while (!stopping) {
       .dailyDigest()
       .then((n) => n && log.log(`kayıtlı arama özeti: ${n} kişi`))
       .catch((err: Error) => log.error(`kayıtlı arama özeti: ${err.message}`));
+  }
+  // Sistem sağlığı (Karar 56): servisler dakikada bir yoklanır; çalışma süresi ve kesintiler buradan
+  if (Date.now() - lastSaglik > 60_000) {
+    lastSaglik = Date.now();
+    await saglik.yokla().catch((err: Error) => log.error(`sağlık yoklaması: ${err.message}`));
   }
   // Web analitiği ve arama günlüğü: Redis'teki günlük sayılar beş dakikada bir veritabanına
   if (Date.now() - lastAnalitik > 5 * 60_000) {

@@ -3128,3 +3128,35 @@ model HelpArticle {
   @@index([status, topic, sort])
   @@map("help_articles")
 }
+
+/// Servis yoklaması (Karar 56; YonetimSistem.dc.html › Sistem sağlığı): işçi dakikada bir web, API, veritabanı, arama,
+/// önbellek, dosya deposu ve e-posta sunucusunu yoklar. Çalışma süresi ve kesintiler buradan; 35 günden eskisi silinir.
+model HealthSample {
+  /// Dakika başı
+  at      DateTime @id @db.Timestamptz(3)
+  /// { servis: { ok, ms, not } }
+  results Json
+
+  @@map("health_samples")
+}
+
+/// Yedek ve geri yükleme kaydı (Karar 56): sunucudaki yedekleme betiği (pgBackRest) her tam ve artımlı yedeği ve geri
+/// yükleme testini yazar; konsoldan "Geri yükleme testini başlat" bir istek kaydı açar, sunucu alıp yürütür.
+model BackupRun {
+  id          String    @id @db.Uuid
+  /// tam | artimli | geri_yukleme_testi
+  kind        String
+  /// istendi | calisiyor | basarili | hata
+  status      String
+  sizeBytes   BigInt?   @map("size_bytes")
+  /// Yedeğin yeri (ör. "İkinci veri merkezi · Türkiye")
+  location    String?
+  note        String?
+  requestedBy String?   @map("requested_by") @db.Uuid
+  startedAt   DateTime? @map("started_at") @db.Timestamptz(3)
+  finishedAt  DateTime? @map("finished_at") @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([kind, createdAt])
+  @@map("backup_runs")
+}
