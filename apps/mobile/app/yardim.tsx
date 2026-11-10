@@ -1,17 +1,28 @@
 import {
   colors,
   HELP_TOPICS,
+  type PublicHelpTopic,
   SUPPORT_TOPIC_KEYS,
   SUPPORT_TOPICS,
   type SupportTopic,
 } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ikon } from '../components/ikon';
 import { T, TInput } from '../components/t';
+import { API } from '../lib/api';
 import { useOturum } from '../lib/oturum';
+
+/** API'ye ulaşılamazsa koddaki sık sorulanlar (ilk kurulum içeriği; sayaç tutulmaz) */
+const YEDEK: PublicHelpTopic[] = HELP_TOPICS.map((t) => ({
+  key: t.key,
+  ad: t.ad,
+  not: t.not,
+  renk: t.renk,
+  makaleler: t.sorular.map(([soru, cevap]) => ({ id: '', soru, cevap })),
+}));
 
 interface Talep {
   no: number;
@@ -37,6 +48,26 @@ export default function Yardim() {
   const { durum, istek } = useOturum();
   const [konu, setKonu] = useState<string>(HELP_TOPICS[0].key);
   const [acik, setAcik] = useState(0);
+  // Makaleler konsoldan yönetilir (Karar 46): yayındakiler API'den; okunma ve "işine yaradı mı" sayılır
+  const [konular, setKonular] = useState<PublicHelpTopic[]>(YEDEK);
+  const [oy, setOy] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    fetch(`${API}/yardim/makaleler`)
+      .then((r) => (r.ok ? (r.json() as Promise<PublicHelpTopic[]>) : null))
+      .then((l) => l && setKonular(l))
+      .catch(() => undefined);
+  }, []);
+  const okundu = (id: string | undefined) => {
+    if (id) void fetch(`${API}/yardim/makaleler/${id}/okundu`, { method: 'POST' }).catch(() => undefined);
+  };
+  const oyla = (id: string, evet: boolean) => {
+    setOy((o) => ({ ...o, [id]: evet }));
+    void fetch(`${API}/yardim/makaleler/${id}/faydali`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ evet }),
+    }).catch(() => undefined);
+  };
   const [talepler, setTalepler] = useState<Talep[]>([]);
   const [form, setForm] = useState<{ konu: SupportTopic; referans: string; metin: string }>({
     konu: 'odeme',
@@ -96,7 +127,7 @@ export default function Yardim() {
     }
   }
 
-  const k = HELP_TOPICS.find((x) => x.key === konu) ?? HELP_TOPICS[0];
+  const k = konular.find((x) => x.key === konu) ?? (konular[0] as PublicHelpTopic);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }} edges={['top']}>
       <View
@@ -170,7 +201,7 @@ export default function Yardim() {
         ) : null}
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-          {HELP_TOPICS.map((t) => {
+          {konular.map((t) => {
             const on = t.key === konu;
             return (
               <Pressable
@@ -207,14 +238,17 @@ export default function Yardim() {
           >
             {k.ad} · sık sorulanlar
           </T>
-          {k.sorular.map(([s, c], i) => {
+          {k.makaleler.map((m, i) => {
             const on = acik === i;
             return (
-              <View key={s} style={{ borderTopWidth: 1, borderTopColor: '#EEF0F5' }}>
+              <View key={m.id || m.soru} style={{ borderTopWidth: 1, borderTopColor: '#EEF0F5' }}>
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ expanded: on }}
-                  onPress={() => setAcik(on ? -1 : i)}
+                  onPress={() => {
+                    setAcik(on ? -1 : i);
+                    if (!on) okundu(m.id);
+                  }}
                   style={{
                     flexDirection: 'row',
                     gap: 10,
@@ -223,21 +257,46 @@ export default function Yardim() {
                     paddingHorizontal: 16,
                   }}
                 >
-                  <T style={{ flex: 1, fontSize: 14.5, fontWeight: '700' }}>{s}</T>
+                  <T style={{ flex: 1, fontSize: 14.5, fontWeight: '700' }}>{m.soru}</T>
                   <T style={{ fontSize: 20, fontWeight: '600', color: colors.muted }}>{on ? '−' : '+'}</T>
                 </Pressable>
                 {on ? (
-                  <T
-                    style={{
-                      paddingHorizontal: 16,
-                      paddingBottom: 16,
-                      fontSize: 14,
-                      lineHeight: 22,
-                      color: '#2E3344',
-                    }}
-                  >
-                    {c}
-                  </T>
+                  <View style={{ paddingHorizontal: 16, paddingBottom: 14 }}>
+                    <T style={{ fontSize: 14, lineHeight: 22, color: '#2E3344' }}>{m.cevap}</T>
+                    {/* Tasarıma ek: konsoldaki "faydalı" oranı bu yanıttan */}
+                    {m.id ? (
+                      m.id in oy ? (
+                        <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 8 }}>
+                          Teşekkürler, yanıtın kaydedildi.
+                        </T>
+                      ) : (
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                          <T style={{ fontSize: 12.5, color: colors.muted }}>Bu yanıt işine yaradı mı?</T>
+                          {(
+                            [
+                              [true, 'Evet'],
+                              [false, 'Hayır'],
+                            ] as const
+                          ).map(([v, ad]) => (
+                            <Pressable
+                              key={ad}
+                              accessibilityRole="button"
+                              onPress={() => oyla(m.id, v)}
+                              style={{
+                                borderWidth: 1,
+                                borderColor: '#D5DAE5',
+                                borderRadius: 999,
+                                paddingVertical: 4,
+                                paddingHorizontal: 12,
+                              }}
+                            >
+                              <T style={{ fontSize: 12.5, fontWeight: '700' }}>{ad}</T>
+                            </Pressable>
+                          ))}
+                        </View>
+                      )
+                    ) : null}
+                  </View>
                 ) : null}
               </View>
             );

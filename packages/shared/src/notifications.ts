@@ -690,6 +690,25 @@ export const NOTIFY_TEMPLATES = {
       dugme: { yazi: 'Verilerimi indir', url: '/ayarlar?bolum=gizlilik' },
     },
   },
+  // Esaslı değişiklik (Karar 46): hizmet bildirimi, ticari ileti değildir; bir sonraki girişte yeni sürüm onaylatılır
+  'yasal.guncellendi': {
+    ad: 'Yasal metin güncellendi',
+    konu: 'guvenlik',
+    grup: 'guvenlik',
+    baslik: '{{metin}} güncellendi',
+    metin: '{{metin}} metnini güncelledik. Bir sonraki girişinde yeni sürümü onaylaman istenecek.',
+    url: '/{{yol}}',
+    eposta: {
+      konu: '{{metin}} güncellendi',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        '{{metin}} metnini güncelledik (sürüm {{surum}}). Değişiklikleri sitede ve uygulamada okuyabilirsin.',
+        'Bir sonraki girişinde yeni sürümü onaylaman istenecek.',
+        'Rengarenk',
+      ],
+      dugme: { yazi: 'Metni oku', url: '/{{yol}}' },
+    },
+  },
   'resmi.bilgi': {
     ad: 'Resmi makam talebi bilgisi',
     konu: 'guvenlik',

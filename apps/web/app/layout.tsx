@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { Banner } from '../components/banner';
 import { Olcum } from '../components/olcum';
+import { YasalOnay } from '../components/yasal-onay';
 import { getClientFlags } from '../lib/bakim';
 import './globals.css';
 
@@ -25,6 +26,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       {/* Tarayıcı eklentileri (ör. ColorZilla) <body>'ye nitelik ekliyor; yalnızca bu etiketin uyarısı susturulur */}
       <body suppressHydrationWarning>
         <Olcum />
+        <YasalOnay />
         {durum?.duyuru ? (
           <div role="status" className="duyuru">
             {durum.duyuru}

@@ -8,6 +8,7 @@ import { CampaignsModule } from './campaigns/campaigns.module.js';
 import { CatalogModule } from './catalog/catalog.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
 import { ConsentModule } from './consents/consent.module.js';
+import { LegalModule } from './consents/legal.module.js';
 import { ContentModule } from './content/content.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 import { DatabaseModule } from './database/database.module.js';
@@ -73,6 +74,7 @@ import { TrustModule } from './trust/trust.module.js';
     NotificationsModule,
     StorageModule,
     ConsentModule,
+    LegalModule,
     CatalogModule,
     CategoriesModule,
     DemandsModule,

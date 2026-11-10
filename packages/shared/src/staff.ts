@@ -135,6 +135,7 @@ export const APPROVAL_KINDS = [
   'PERMANENT_BAN',
   'ACCOUNT_DELETE',
   'CATEGORY_SCHEMA',
+  'LEGAL_TEXT',
 ] as const;
 export type ApprovalKindKey = (typeof APPROVAL_KINDS)[number];
 
@@ -189,6 +190,13 @@ export const APPROVAL_POLICIES: Record<ApprovalKindKey, ApprovalPolicy> = {
     permission: 'kategori.ayarla',
     approvers: ['OWNER', 'ADMIN'],
     kural: 'Kategori ve alan değişikliği dört göz onayıyla yayınlanır (Karar 45).',
+  },
+  LEGAL_TEXT: {
+    ad: 'Yasal metin',
+    permission: 'tasarim_yasal.duzenle',
+    approvers: ['OWNER'],
+    kural:
+      'Yasal metnin yayını sahip onayı ister; esaslı değişiklikte kullanıcılar yeniden onaylar (Karar 46).',
   },
 };
 

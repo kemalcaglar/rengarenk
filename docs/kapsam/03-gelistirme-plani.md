@@ -171,12 +171,19 @@ sistem sağlığı, tasarım değerleri.
   düzenine Anasayfa.dc.html'deki gibi vitrin eklendi (konsol tasarımının galeri listesinde yoktu); galerinin ilinde talep
   yoksa son talepler bütün Türkiye'den. Yayındaki eski düzen yeni bölümle tamamlanır (`completeHomeLayout`; eskiden şemaya
   uymayan sürüm varsayılana dönüyordu ve konsolda yapılan düzen kayboluyordu)
-- [ ] Yardım ve yasal metinler (YonetimIcerik.dc.html, Karar 46, 59): yasal metinler `consent_texts`'te sürümlü
-  (taslak, yayında, eski) ve şimdilik `yasal-yukle` komutuyla yükleniyor. Yapılacak: konsolda metin listesi, taslak
-  düzenleme, önceki sürümle madde madde karşılaştırma, "esaslı değişiklik" işareti, yayın Sahip onayıyla (dört göz),
-  esaslı değişiklikte kullanıcıya bildirim ve sonraki girişte yeni sürümü onaylatma (web ve mobil). Yardım makaleleri
-  şimdi kodda (`HELP_TOPICS`): veritabanına taşınır, konsolda ekle ve düzenle, okunma ve "faydalı oldu" sayıları, ajanın
-  destek taleplerinden eksik makale önerisi ve taslağı (yayın onayla)
+- [x] Yardım ve yasal metinler (10 Kasım 2026; YonetimIcerik.dc.html, Karar 46, 59): konsol `/yardim-ve-yasal`.
+  Yasal metinler: liste (yayındaki sürüm, tarih, onaylayan sayısı, taslak), "s.N ile karşılaştır" (paragraf farkı, bölüm
+  başlığıyla; `legalDiff`), taslak düzenleme, değişiklik notu ve "esaslı değişiklik" işareti, "Onaya gönder" (LEGAL_TEXT,
+  yalnızca sahip onaylar; yetki `tasarim_yasal.duzenle`, öneri düzeyi taslak hazırlar). Onaylanan sürümü işçi yayına alır,
+  önceki "eski" olur. Kullanıcıların onayladığı taslak da değişmez (RR042; düzenleme yeni sürüm açar). Esaslı değişiklikte
+  `yasal.guncellendi` olayı (uygulama içi ve e-posta, metni onaylamış herkese) ve sonraki girişte web ve mobilde
+  "Metinlerimizi güncelledik" penceresi: zorunlu metin kabul edilmeden devam edilmez (çıkış yapılabilir), daha önce onay
+  verilmiş ticari ileti ve reklam ölçümü yeniden seçilir (bırakılırsa Ayarlar'daki yolla aynı sonuç). Yardım makaleleri
+  `help_articles` (ilk kurulumda koddaki sık sorulanlar aktarılır): konsolda ekle, düzenle, taslak, yayın, arşiv; okunma ve
+  "faydalı" oranı; web ve mobil yardım merkezi makaleleri API'den okur, makalenin altında tasarıma ek "Bu yanıt işine
+  yaradı mı?"; destek sohbetindeki öneri ve ajanın destek yanıtı yayındaki makaleleri kullanır. Ajan notu: son 30 günün
+  destek taleplerinde makalelerle karşılanmayan en büyük konu ve oranı; "Taslağı hazırla" yapay zekâ ağ geçidinden
+  (maskeli) taslak açar, yayın insanla. Ana sayfadaki sık sorulanlar bölümü (varsayılan kapalı) hâlâ koddaki listeden
 - [ ] Talepler ve portföy (YonetimPazar.dc.html, Karar 53): Talepler ve Portföy sekmeleri, arama ve filtre, satır seçimi
   ve toplu işlem. Talepte "Düzeltme iste", "Gizle", "Kategori değiştir"; araçta "Gizle", "Belge iste", "Galeriye bildir".
   Gizleme moderasyon kaydıyla (itiraz yolu açık), sahibine gerekçe şablonla bildirilir; her işlem işlem kaydına

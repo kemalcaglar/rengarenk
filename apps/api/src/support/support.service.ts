@@ -18,7 +18,6 @@ import {
   type SupportStatus,
   type SupportTopic,
   shortName,
-  suggestAnswer,
   ticketNo,
 } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
@@ -372,7 +371,7 @@ export class SupportService {
             kisi: { ad: kisiAd, userId: t.userId },
             sonTarih: t.status === 'acik' ? t.dueAt : null,
             oncelikli: t.priority,
-            oneri: sonKullanici ? suggestAnswer(sonKullanici.metin) : null,
+            oneri: sonKullanici ? await this.ajan.oneri(sonKullanici.metin) : null,
             /** Rengarenk Ajanı (Karar 41): taslak ve güven ya da insana bırakma notu */
             ajan:
               t.agentNote || t.agentDraft

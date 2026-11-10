@@ -473,6 +473,7 @@ enum ApprovalKind {
   PERMANENT_BAN
   ACCOUNT_DELETE
   CATEGORY_SCHEMA
+  LEGAL_TEXT
 }
 
 enum ApprovalStatus {
@@ -926,6 +927,10 @@ model ConsentText {
   status      String    @default("taslak")
   /// Esaslı değişiklik: yayınlanınca kullanıcılara yeniden onaylatılır
   material    Boolean   @default(false)
+  /// Taslağın değişiklik notu (konsolda yazılır; onay isteğinde ve yayın kaydında görünür)
+  changeNote  String?   @map("change_note")
+  /// Yayın onayı (LEGAL_TEXT, yalnızca sahip); onaydaki taslak düzenlenmez
+  approvalId  String?   @map("approval_id") @db.Uuid
   createdBy   String?   @map("created_by") @db.Uuid
   publishedBy String?   @map("published_by") @db.Uuid
   publishedAt DateTime? @map("published_at") @db.Timestamptz(3)
@@ -3092,4 +3097,30 @@ model SearchLogDaily {
 
   @@id([day, makeKey, seriesKey])
   @@map("search_log_daily")
+}
+
+/// Yardım makalesi (Karar 46; YonetimIcerik.dc.html › Yardım makaleleri, Yardim.dc.html): konu (HELP_TOPICS anahtarı),
+/// soru ve yanıt. Konsoldan eklenir ve düzenlenir; ajan destek taleplerinden eksik konuyu bulup taslak hazırlar, yayın
+/// insanla. İlk kurulumda koddaki sık sorulanlar aktarılır. Okunma ve "işine yaradı mı" yanıtları sayaçtır (kişi saklanmaz).
+model HelpArticle {
+  id          String    @id @db.Uuid
+  topic       String
+  title       String
+  body        String
+  /// taslak | yayinda | arsiv
+  status      String    @default("taslak")
+  sort        Int       @default(0)
+  /// ekip | ajan | kurulum
+  source      String    @default("ekip")
+  views       Int       @default(0)
+  helpfulYes  Int       @default(0) @map("helpful_yes")
+  helpfulNo   Int       @default(0) @map("helpful_no")
+  createdBy   String?   @map("created_by") @db.Uuid
+  updatedBy   String?   @map("updated_by") @db.Uuid
+  publishedAt DateTime? @map("published_at") @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([status, topic, sort])
+  @@map("help_articles")
 }

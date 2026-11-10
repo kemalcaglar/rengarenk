@@ -110,6 +110,7 @@ export type EventType =
   | 'imha.yapildi'
   | 'ihlal.basladi'
   | 'resmi.yanitlandi'
+  | 'yasal.guncellendi'
   | 'veri.indirme_istendi'
   | 'veri.hazir'
   | 'kvkk.basvuru'

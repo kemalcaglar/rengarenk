@@ -7,6 +7,9 @@ import {
   GRANT_KINDS,
   type GrantKind,
   hideDemandText,
+  LEGAL_PATHS,
+  LEGAL_TEXTS,
+  type LegalKey,
   type MessageFlag,
   type PaidPlanKey,
   type PriceBook,
@@ -91,6 +94,7 @@ export const NOTIFY_EVENTS = [
   'veri.hazir',
   'kvkk.yanitlandi',
   'resmi.yanitlandi',
+  'yasal.guncellendi',
 ] as const;
 export type NotifyEvent = (typeof NOTIFY_EVENTS)[number];
 
@@ -414,6 +418,35 @@ export class NotificationEvents {
           sablon: type,
           veri: { tarih: tarih(e.expiresAt) },
         });
+      }
+      case 'yasal.guncellendi': {
+        // Metni onaylamış, hesabı açık kullanıcılar; 500'erli sayfalarla
+        const key = s('key');
+        const ad = LEGAL_TEXTS[key as LegalKey]?.ad;
+        if (!ad) return 0;
+        const veri = { metin: ad, surum: s('version'), yol: LEGAL_PATHS[key as LegalKey] ?? 'yardim' };
+        let n = 0;
+        let after: string | undefined;
+        for (;;) {
+          const rows = await this.db.consent.findMany({
+            where: { textKey: key, granted: true, userId: { not: null, ...(after ? { gt: after } : {}) } },
+            distinct: ['userId'],
+            orderBy: { userId: 'asc' },
+            select: { userId: true },
+            take: 500,
+          });
+          if (!rows.length) break;
+          after = rows.at(-1)?.userId as string;
+          const acik = await this.db.user.findMany({
+            where: {
+              id: { in: rows.map((r) => r.userId as string) },
+              NOT: { phone: { startsWith: 'kapali:' } },
+            },
+            select: { id: true },
+          });
+          n += await this.notifications.notify({ userIds: acik.map((u) => u.id), sablon: type, veri });
+        }
+        return n;
       }
       case 'resmi.yanitlandi': {
         const r = await this.db.officialRequest.findUnique({ where: { id: s('requestId') } });

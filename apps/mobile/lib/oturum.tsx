@@ -50,7 +50,8 @@ async function json<T>(path: string, init: RequestInit = {}, access?: string | n
   const r = await fetch(`${API}${path}`, {
     ...init,
     headers: {
-      'content-type': 'application/json',
+      // Gövdesiz istekte (çıkış) JSON türü bildirilmez; API boş JSON gövdesini 400 ile reddeder
+      ...(init.body === undefined || init.body === null ? {} : { 'content-type': 'application/json' }),
       ...(access ? { authorization: `Bearer ${access}` } : {}),
       ...(init.headers ?? {}),
     },

@@ -90,7 +90,7 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
       { href: '/banner-ve-vitrin', ad: 'Banner ve vitrin', izin: 'gorunum.duzenle' },
       { href: '/acilis-sayfalari', ad: 'Açılış sayfaları', izin: 'gorunum.duzenle' },
       { ad: 'Tasarım değerleri', sonra: true },
-      { ad: 'Yardım ve yasal metinler', sonra: true },
+      { href: '/yardim-ve-yasal', ad: 'Yardım ve yasal metinler', izin: 'tasarim_yasal.duzenle' },
     ],
   },
   {

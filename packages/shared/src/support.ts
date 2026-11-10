@@ -195,7 +195,11 @@ export function firstResponseDue(created: Date): Date {
  * gelir, Karar 41, 54): kullanıcının kelimelerinin adayın soru ve yanıt metninde geçme oranı. Türkçe ekler için ilk 5
  * harf karşılaştırılır.
  */
-export function suggestAnswer(text: string): { soru: string; cevap: string; skor: number } | null {
+export function suggestAnswer(
+  text: string,
+  /** Yayındaki yardım makaleleri (soru, yanıt); verilmezse koddaki sık sorulanlar (ilk kurulumdaki içerik) */
+  makaleler?: readonly (readonly [string, string])[],
+): { soru: string; cevap: string; skor: number } | null {
   const kok = (w: string) => w.slice(0, 5);
   const kelimeler = (s: string) =>
     new Set(
@@ -209,7 +213,8 @@ export function suggestAnswer(text: string): { soru: string; cevap: string; skor
   const k = kelimeler(text);
   if (!k.size) return null;
   const adaylar: [string, string][] = [
-    ...HELP_TOPICS.flatMap((t) => t.sorular.map(([s, c]) => [s, c] as [string, string])),
+    ...(makaleler?.map(([s, c]) => [s, c] as [string, string]) ??
+      HELP_TOPICS.flatMap((t) => t.sorular.map(([s, c]) => [s, c] as [string, string]))),
     ...SUPPORT_MACROS.map((m) => [m.ad, m.metin] as [string, string]),
   ];
   let en: { soru: string; cevap: string; skor: number } | null = null;
@@ -262,3 +267,28 @@ export const supportInboundSchema = z
 
 /** "D-20931" */
 export const ticketNo = (no: number) => `D-${no}`;
+
+// ── Yardım makaleleri (konsoldan yönetilir) ─────────────────────────
+
+export const HELP_TOPIC_KEYS = HELP_TOPICS.map((t) => t.key) as [string, ...string[]];
+export const HELP_STATUS = { taslak: 'Taslak', yayinda: 'Yayında', arsiv: 'Arşiv' } as const;
+
+/** Konsol: makale ekle ya da düzenle */
+export const helpArticleSchema = z
+  .object({
+    topic: z.enum(HELP_TOPIC_KEYS),
+    title: z.string().trim().min(5).max(160),
+    body: z.string().trim().min(20).max(5000),
+    status: z.enum(['taslak', 'yayinda', 'arsiv']),
+  })
+  .strict();
+export type HelpArticleInput = z.infer<typeof helpArticleSchema>;
+
+/** Yardım merkezi: konu ve yayındaki makaleleri (soru, yanıt) */
+export interface PublicHelpTopic {
+  key: string;
+  ad: string;
+  not: string;
+  renk: string;
+  makaleler: { id: string; soru: string; cevap: string }[];
+}

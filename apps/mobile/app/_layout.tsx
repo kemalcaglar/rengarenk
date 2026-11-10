@@ -13,6 +13,7 @@ import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Banner } from '../components/banner';
 import { T } from '../components/t';
+import { YasalOnay } from '../components/yasal-onay';
 import { useClientFlags } from '../lib/bakim';
 import { OturumProvider } from '../lib/oturum';
 import { PushKaydi } from '../lib/push';
@@ -32,6 +33,7 @@ export default function RootLayout() {
   return (
     <OturumProvider>
       <PushKaydi />
+      <YasalOnay />
       <StatusBar style="dark" />
       {durum?.duyuru ? (
         <SafeAreaView edges={['top']} style={{ backgroundColor: '#FFF6DF' }}>

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import { uuidv7 } from '@rengarenk/db';
 import { AGENT_LIMITS, AGENT_SUPPORT, type SupportTopic, suggestAnswer, ticketNo } from '@rengarenk/shared';
 import { AgentService } from '../agent/agent.service.js';
@@ -9,6 +9,7 @@ import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { SecretBox } from '../staff/secret-box.js';
+import { HelpService } from './help.service.js';
 
 const DAY = 86_400_000;
 const tarihSaat = (d: Date) =>
@@ -46,6 +47,11 @@ const ASKI = /(?<!\p{L})(engel|askı|aski|kısıtla|mesaj\s*gönderemiyorum|yaza
 export class SupportAgent {
   private readonly box: SecretBox;
 
+  /** Yayındaki yardım makalelerinden en uygun yanıt (konsoldaki öneri) */
+  oneri(metin: string) {
+    return this.help ? this.help.oner(metin) : Promise.resolve(suggestAnswer(metin));
+  }
+
   constructor(
     @Inject(PRISMA) private readonly db: Db,
     @Inject(ENV) env: Env,
@@ -53,6 +59,7 @@ export class SupportAgent {
     private readonly ai: AiGateway,
     private readonly audit: AuditService,
     private readonly outbox: OutboxService,
+    @Optional() private readonly help?: HelpService,
   ) {
     this.box = SecretBox.forMessages(env);
   }
@@ -148,7 +155,7 @@ export class SupportAgent {
     }
 
     // Sık sorulanlar ve hazır yanıtlar
-    const o = suggestAnswer(metin);
+    const o = this.help ? await this.help.oner(metin) : suggestAnswer(metin);
     if (o) {
       const oncelikli = konu === 'odeme' || konu === 'hesap';
       const guven = Math.min(oncelikli ? 89 : 95, Math.round(60 + o.skor * 35));

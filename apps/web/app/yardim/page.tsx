@@ -3,6 +3,7 @@
 import {
   colors,
   HELP_TOPICS,
+  type PublicHelpTopic,
   SUPPORT_TOPIC_KEYS,
   SUPPORT_TOPICS,
   type SupportTopic,
@@ -10,7 +11,7 @@ import {
 import Link from 'next/link';
 import { type CSSProperties, useEffect, useMemo, useState } from 'react';
 import { CerezBandi } from '../../components/cerez-bandi';
-import { istek, useGiris } from '../../lib/istemci';
+import { API, istek, useGiris } from '../../lib/istemci';
 
 const BARS = [colors.blue, colors.pink, colors.yellow, colors.green];
 const girdi: CSSProperties = {
@@ -27,6 +28,16 @@ const girdi: CSSProperties = {
 };
 const tr = (s: string) => s.toLocaleLowerCase('tr-TR');
 
+/** API'ye ulaşılamazsa koddaki sık sorulanlar (ilk kurulum içeriği; sayaç tutulmaz) */
+const YEDEK: PublicHelpTopic[] = HELP_TOPICS.map((t) => ({
+  key: t.key,
+  ad: t.ad,
+  not: t.not,
+  renk: t.renk,
+  makaleler: t.sorular.map(([soru, cevap]) => ({ id: '', soru, cevap })),
+}));
+type Makale = PublicHelpTopic['makaleler'][number];
+
 /**
  * Yardım merkezi (Yardim.dc.html; Karar 54): konular, sık sorulanlar, arama, güvenli alışveriş ve destek talebi.
  * Destek yalnızca yazılıdır; yanıt Mesajlarım'daki "Rengarenk Destek" sohbetine ve e-postaya gelir.
@@ -35,6 +46,15 @@ export default function Yardim() {
   const giris = useGiris();
   const [ben, setBen] = useState<{ ad: string; bas: string } | null>(null);
   const [konu, setKonu] = useState<string>(HELP_TOPICS[0].key);
+  // Makaleler konsoldan yönetilir (Karar 46): yayındakiler API'den
+  const [konular, setKonular] = useState<PublicHelpTopic[]>(YEDEK);
+  const [oy, setOy] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    fetch(`${API}/yardim/makaleler`)
+      .then((r) => (r.ok ? (r.json() as Promise<PublicHelpTopic[]>) : null))
+      .then((l) => l && setKonular(l))
+      .catch(() => undefined);
+  }, []);
   const [acik, setAcik] = useState(0);
   const [ara, setAra] = useState('');
   const [aranan, setAranan] = useState('');
@@ -68,16 +88,29 @@ export default function Yardim() {
       .catch(() => undefined);
   }, [giris]);
 
-  const k = HELP_TOPICS.find((x) => x.key === konu) ?? HELP_TOPICS[0];
+  const k = konular.find((x) => x.key === konu) ?? (konular[0] as PublicHelpTopic);
   // Aramada bütün konuların soru ve yanıtları taranır
   const sonuc = useMemo(() => {
     const q = tr(aranan.trim());
     if (!q) return null;
-    return HELP_TOPICS.flatMap((t) =>
-      t.sorular.filter(([s, c]) => tr(s).includes(q) || tr(c).includes(q)).map(([s, c]) => [s, c] as const),
+    return konular.flatMap((t) =>
+      t.makaleler.filter((m) => tr(m.soru).includes(q) || tr(m.cevap).includes(q)),
     );
-  }, [aranan]);
-  const sorular = sonuc ?? k.sorular;
+  }, [aranan, konular]);
+  const sorular: Makale[] = sonuc ?? k.makaleler;
+  // Okunma: makale açılınca sayılır (aynı ziyaretçi günde bir)
+  const ac = (m: Makale | undefined) => {
+    if (m?.id)
+      void fetch(`${API}/yardim/makaleler/${m.id}/okundu`, { method: 'POST' }).catch(() => undefined);
+  };
+  const oyla = (m: Makale, evet: boolean) => {
+    setOy((o) => ({ ...o, [m.id]: evet }));
+    void fetch(`${API}/yardim/makaleler/${m.id}/faydali`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ evet }),
+    }).catch(() => undefined);
+  };
 
   async function gonder(yineDe = false) {
     if (form.metin.trim().length < 10) {
@@ -274,7 +307,7 @@ export default function Yardim() {
             gap: 12,
           }}
         >
-          {HELP_TOPICS.map((t) => {
+          {konular.map((t) => {
             const on = !sonuc && t.key === konu;
             return (
               <button
@@ -284,6 +317,7 @@ export default function Yardim() {
                 onClick={() => {
                   setKonu(t.key);
                   setAcik(0);
+                  ac(t.makaleler[0]);
                   setAranan('');
                   setAra('');
                 }}
@@ -346,14 +380,17 @@ export default function Yardim() {
                 Sonuç bulunamadı. Destek talebi oluşturarak bize yazabilirsin.
               </p>
             ) : null}
-            {sorular.map(([s, c], i) => {
+            {sorular.map((m, i) => {
               const on = acik === i;
               return (
-                <div key={s} style={{ borderBottom: '1px solid #EEF0F5' }}>
+                <div key={m.id || m.soru} style={{ borderBottom: '1px solid #EEF0F5' }}>
                   <button
                     type="button"
                     aria-expanded={on}
-                    onClick={() => setAcik(on ? -1 : i)}
+                    onClick={() => {
+                      setAcik(on ? -1 : i);
+                      if (!on) ac(m);
+                    }}
                     style={{
                       width: '100%',
                       display: 'flex',
@@ -371,23 +408,72 @@ export default function Yardim() {
                       fontFamily: 'inherit',
                     }}
                   >
-                    {s}
+                    {m.soru}
                     <span style={{ flex: 'none', fontSize: 20, fontWeight: 600, color: '#5A6073' }}>
                       {on ? '−' : '+'}
                     </span>
                   </button>
                   {on ? (
-                    <p
-                      style={{
-                        margin: 0,
-                        padding: '0 20px 18px',
-                        fontSize: 14.5,
-                        lineHeight: 1.65,
-                        color: '#2E3344',
-                      }}
-                    >
-                      {c}
-                    </p>
+                    <div style={{ padding: '0 20px 16px' }}>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: 14.5,
+                          lineHeight: 1.65,
+                          color: '#2E3344',
+                          whiteSpace: 'pre-line',
+                        }}
+                      >
+                        {m.cevap}
+                      </p>
+                      {/* Tasarıma ek: konsoldaki "faydalı" oranı bu yanıttan (Karar 46) */}
+                      {m.id ? (
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                            marginTop: 10,
+                            fontSize: 13,
+                            color: '#5A6073',
+                            flexWrap: 'wrap',
+                          }}
+                        >
+                          {m.id in oy ? (
+                            <span role="status">Teşekkürler, yanıtın kaydedildi.</span>
+                          ) : (
+                            <>
+                              Bu yanıt işine yaradı mı?
+                              {(
+                                [
+                                  [true, 'Evet'],
+                                  [false, 'Hayır'],
+                                ] as const
+                              ).map(([v, ad]) => (
+                                <button
+                                  key={ad}
+                                  type="button"
+                                  onClick={() => oyla(m, v)}
+                                  style={{
+                                    border: '1px solid #D5DAE5',
+                                    background: '#FFFFFF',
+                                    borderRadius: 999,
+                                    padding: '4px 12px',
+                                    fontSize: 13,
+                                    fontWeight: 700,
+                                    color: '#1E2333',
+                                    cursor: 'pointer',
+                                    fontFamily: 'inherit',
+                                  }}
+                                >
+                                  {ad}
+                                </button>
+                              ))}
+                            </>
+                          )}
+                        </div>
+                      ) : null}
+                    </div>
                   ) : null}
                 </div>
               );

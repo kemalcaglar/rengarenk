@@ -302,7 +302,11 @@ pnpm format        # Biome ile biçimlendir
 - **Sprint 29 (10 Kasım 2026) web düzeltmeleri:** kaybolan yenileme yanıtı için 2 dk hoşgörü (`REUSE_GRACE_MS`,
   `sessions.replaced_by`; yerine açılan oturum kullanıldıysa yine çalınma sayılır), yenileme `keepalive`, Hesabım açılır
   menüsü ve "Çıkış yap" (`cikisYap`), çıkış ucu gövdesiz istekte JSON türü göndermez. Konsolun "sonra" duran dört ekranı
-  (yasal metinler ve yardım, talepler ve portföy, sistem sağlığı, tasarım değerleri) planda Sprint 29'da. API'de 204 test.
+  (yasal metinler ve yardım, talepler ve portföy, sistem sağlığı, tasarım değerleri) planda Sprint 29'da.
+  Yasal metinler ve yardım bitti: `consents/legal.service.ts` (LEGAL_TEXT onayı yalnızca sahip, RR042 onaylanmış taslak
+  değişmez, esaslı değişiklikte `yasal.guncellendi` ve girişte `/me/legal/pending`; web `components/yasal-onay.tsx`,
+  mobil aynı adla), `support/help.service.ts` (`help_articles`; destek önerisi `HelpService.oner`). Yeni yasal metin
+  anahtarı eklersen `LEGAL_TEXTS` ve `LEGAL_PATHS`'e (ortak paket `legal.ts`) ekle. API'de 206 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); sunucular gelince Radore'ye ilk
   dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
