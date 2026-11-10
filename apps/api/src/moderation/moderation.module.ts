@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -17,10 +18,11 @@ import {
   appealDecideSchema,
   bannedWordSchema,
   filterSwitchSchema,
+  listingActionSchema,
   moderationDecideSchema,
   reportCreateSchema,
 } from '@rengarenk/shared';
-import type { z } from 'zod';
+import { z } from 'zod';
 import { ApprovalsModule } from '../approvals/approvals.module.js';
 import { AuditService } from '../audit/audit.service.js';
 import { AuthGuard } from '../auth/auth.guard.js';
@@ -32,6 +34,7 @@ import { RequirePermission } from '../staff/permissions.js';
 import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
 import { StaffModule } from '../staff/staff.module.js';
 import { ContentRulesService } from './content-rules.service.js';
+import { ListingsService } from './listings.service.js';
 import { ModerationService } from './moderation.service.js';
 import { SanctionService } from './sanctions.service.js';
 
@@ -64,6 +67,36 @@ export class ReportsController {
     @Body(new ZodPipe(appealCreateSchema)) b: z.output<typeof appealCreateSchema>,
   ) {
     return this.m.appeal(req.user.sub, id, b.metin, req.ip);
+  }
+}
+
+const turSchema = z.enum(['talep', 'arac']);
+const araSchema = z.string().trim().max(80).optional();
+
+/** Konsol › Pazar › Talepler ve portföy (YonetimPazar.dc.html › talep; Karar 53): liste ve toplu işlem */
+@Controller('staff/listings')
+@UseGuards(StaffGuard)
+export class ListingsStaffController {
+  constructor(private readonly l: ListingsService) {}
+
+  @Get(':tur')
+  @RequirePermission('sikayet.coz', 'tam')
+  list(
+    @Param('tur', new ZodPipe(turSchema)) tur: 'talep' | 'arac',
+    @Query('q', new ZodPipe(araSchema)) q?: string,
+  ) {
+    return tur === 'talep' ? this.l.talepler(q) : this.l.araclar(q);
+  }
+
+  @Post(':tur/islem')
+  @HttpCode(200)
+  @RequirePermission('sikayet.coz', 'tam')
+  act(
+    @Req() req: StaffRequest,
+    @Param('tur', new ZodPipe(turSchema)) tur: 'talep' | 'arac',
+    @Body(new ZodPipe(listingActionSchema)) b: z.output<typeof listingActionSchema>,
+  ) {
+    return tur === 'talep' ? this.l.talepIslem(req.staff, b, req.ip) : this.l.aracIslem(req.staff, b, req.ip);
   }
 }
 
@@ -164,6 +197,7 @@ export class ModerationServiceModule {}
 
 @Module({
   imports: [AuthModule, StaffModule, ModerationServiceModule],
-  controllers: [ReportsController, ModerationStaffController],
+  controllers: [ReportsController, ModerationStaffController, ListingsStaffController],
+  providers: [ListingsService, AuditService, OutboxService],
 })
 export class ModerationModule {}

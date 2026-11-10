@@ -29,7 +29,7 @@ interface Talep {
   freeExtensionUsed: boolean;
   updatedAt: string;
   /** Rengarenk Ajanı düzeltme istedi (Karar 41): talep yayında, bu bilgiler başkalarına gizli */
-  duzeltme: { zaman: string; alanlar: string[] } | null;
+  duzeltme: { zaman: string; alanlar: string[]; not: string | null } | null;
   /** Galeri adına açılmış talep (Karar 12.2) */
   galeri: { ad: string; slug: string } | null;
   /** Talebin hesabındaki kullanılmamış öne çıkarma hakları (galeri paketi ya da talep seçmeden alınmış hak) */
@@ -508,8 +508,10 @@ export default function Taleplerim() {
                           lineHeight: 1.45,
                         }}
                       >
-                        Düzeltme gerekiyor: talebinde {birlestir(t.duzeltme.alanlar)} var. Talebin yayında, bu
-                        bilgiler başkalarına gizli gösteriliyor.{' '}
+                        {t.duzeltme.alanlar.length
+                          ? `Düzeltme gerekiyor: talebinde ${birlestir(t.duzeltme.alanlar)} var. Talebin yayında, bu bilgiler başkalarına gizli gösteriliyor. `
+                          : ''}
+                        {t.duzeltme.not ? `Destek ekibinin notu: ${t.duzeltme.not} ` : ''}
                         <Link
                           href={`/talep-olustur?id=${t.id}`}
                           style={{ color: '#7A5300', fontWeight: 800 }}

@@ -847,6 +847,8 @@ export class DemandService {
         ? {
             zaman: d.correctionAt,
             alanlar: d.correctionFlags.map((f) => DEMAND_TEXT_FLAGS[f as DemandTextFlag] ?? f),
+            /** Destek ekibinin düzeltme isteğinin gerekçesi (Konsol › Talepler ve portföy) */
+            not: d.correctionNote,
           }
         : null,
       createdAt: d.createdAt,

@@ -1086,6 +1086,10 @@ model Demand {
   /// Talep yayında kalır, bu bilgiler herkese açık görünümde gizlenir; sahibi düzeltince temizlenir.
   correctionFlags   String[]     @default([]) @map("correction_flags")
   correctionAt      DateTime?    @map("correction_at") @db.Timestamptz(3)
+  /// Çalışanın düzeltme isteğinin gerekçesi (Konsol › Talepler ve portföy); sahibi düzenleyince kalkar
+  correctionNote    String?      @map("correction_note")
+  /// Çalışanın önerdiği kategori ("Kategori öneriliyor"); sahibine bildirilir, talep kendi kategorisinde kalır
+  suggestedCategoryId String?    @map("suggested_category_id") @db.Uuid
   closedAt          DateTime?    @map("closed_at") @db.Timestamptz(3)
   /// Aracı buldum: rengarenk | baska_site | tanidik | vazgectim (Karar 31; satıcıya gösterilmez)
   foundVia          String?      @map("found_via")

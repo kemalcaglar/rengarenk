@@ -58,7 +58,7 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
       },
       { href: '/moderasyon', ad: 'Moderasyon', izin: 'sikayet.coz', rozet: 'moderasyon' },
       { href: '/destek', ad: 'Destek', izin: 'destek.yanitla', rozet: 'destek' },
-      { ad: 'Talepler ve portföy', sonra: true },
+      { href: '/talepler-ve-portfoy', ad: 'Talepler ve portföy', izin: 'sikayet.coz' },
       { href: '/puan', ad: 'Satıcı puanı ve rozetler', izin: 'rapor.gor' },
       { href: '/odemeler', ad: 'Ödemeler ve faturalar', izin: 'rapor.gor' },
     ],

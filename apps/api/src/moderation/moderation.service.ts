@@ -375,7 +375,10 @@ export class ModerationService {
     if (isaret.length === 0) {
       if (!d.correctionAt) return 'islem_yok';
       // Sahibi düzeltti: işaret kalkar (ajan durmuş olsa da temizlenir)
-      await this.db.demand.update({ where: { id: d.id }, data: { correctionFlags: [], correctionAt: null } });
+      await this.db.demand.update({
+        where: { id: d.id },
+        data: { correctionFlags: [], correctionAt: null, correctionNote: null },
+      });
       return 'duzeltildi';
     }
     const ayni = d.correctionAt && [...isaret].sort().join() === [...d.correctionFlags].sort().join();

@@ -22,6 +22,7 @@ export * from './iller.js';
 export * from './kvkk.js';
 export * from './landing.js';
 export * from './legal.js';
+export * from './listings.js';
 export * from './matching.js';
 export * from './messages.js';
 export * from './moderation.js';

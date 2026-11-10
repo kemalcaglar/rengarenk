@@ -184,9 +184,16 @@ sistem sağlığı, tasarım değerleri.
   yaradı mı?"; destek sohbetindeki öneri ve ajanın destek yanıtı yayındaki makaleleri kullanır. Ajan notu: son 30 günün
   destek taleplerinde makalelerle karşılanmayan en büyük konu ve oranı; "Taslağı hazırla" yapay zekâ ağ geçidinden
   (maskeli) taslak açar, yayın insanla. Ana sayfadaki sık sorulanlar bölümü (varsayılan kapalı) hâlâ koddaki listeden
-- [ ] Talepler ve portföy (YonetimPazar.dc.html, Karar 53): Talepler ve Portföy sekmeleri, arama ve filtre, satır seçimi
-  ve toplu işlem. Talepte "Düzeltme iste", "Gizle", "Kategori değiştir"; araçta "Gizle", "Belge iste", "Galeriye bildir".
-  Gizleme moderasyon kaydıyla (itiraz yolu açık), sahibine gerekçe şablonla bildirilir; her işlem işlem kaydına
+- [x] Talepler ve portföy (10 Kasım 2026; YonetimPazar.dc.html › talep, Karar 53): konsol `/talepler-ve-portfoy`
+  (yetki `sikayet.coz`), Talepler ve Portföy araçları sekmeleri, tasarıma ek arama (no ya da başlık / galeri), son 100
+  kayıt. Talep sütunları: kategori (öneri varsa "Otomobil → Kiralık"), ilk mesaj, durum (Yayında, Düzeltme istendi,
+  Kategori öneriliyor, Gizlendi, Süresi doldu, Pasif, Kapandı); araç: doğrulama (EİDS, kopya şüphesi, galeri askıda), fiyat,
+  durum. Seçip toplu işlem (en çok 50), gerekçe şablonu ve düzenlenebilir gerekçe (`ACTION_REASONS`). "Gizle" çalışan
+  kaynaklı moderasyon kararı (bildirim gerekçeyle, itiraz yolu ve kullanıcı kartı geçmişi aynı). "Düzeltme iste"
+  `demands.correction_note`; sahibine bildirim ve Taleplerim'de (web, mobil) "Destek ekibinin notu", düzenleyince kalkar.
+  "Kategori değiştir" talebi taşımaz, öneri olarak kaydedilir (`suggested_category_id`) ve sahibine o kategoride talep
+  oluşturma bağlantısıyla bildirilir. Araçta "Belge iste" ve "Galeriye bildir" galeri ekibine bildirim. Hepsi işlem
+  kaydında
 - [ ] Sistem sağlığı ve yedek (YonetimSistem.dc.html, Karar 56): çalışma süresi, hata oranı, yanıt süresi (p95), kuyruk
   (pg-boss; tasarımdaki RabbitMQ yerine), servis durumları (web, API, PostgreSQL, OpenSearch, Redis, SeaweedFS, e-posta),
   yedek bilgileri ve "geri yükleme testini başlat". Ölçüler ve servis yoklaması şimdi yapılabilir; yedek ve geri yükleme

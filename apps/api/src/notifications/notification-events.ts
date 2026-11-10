@@ -65,6 +65,10 @@ export const NOTIFY_EVENTS = [
   'talep.suresi_doldu',
   'talep.yayinlandi',
   'talep.duzeltme_istendi',
+  'talep.calisan_duzeltme',
+  'talep.kategori_onerisi',
+  'portfoy.belge_istendi',
+  'portfoy.calisan_notu',
   'mesaj.ilk',
   'mesaj.geldi',
   'mesaj.uyari',
@@ -211,6 +215,52 @@ export class NotificationEvents {
                 ? `${adlar.slice(0, -1).join(', ')} ve ${adlar.at(-1)}`
                 : (adlar[0] ?? 'iletişim bilgisi'),
           },
+        });
+      }
+      case 'talep.calisan_duzeltme':
+      case 'talep.kategori_onerisi': {
+        const d = await this.db.demand.findUnique({
+          where: { id: s('demandId') },
+          select: {
+            userId: true,
+            headline: true,
+            title: true,
+            correctionNote: true,
+            suggestedCategoryId: true,
+            category: { select: { name: true } },
+          },
+        });
+        if (!d) return 0;
+        const talep = hideDemandText(d.headline) || d.title || d.category.name;
+        if (type === 'talep.calisan_duzeltme')
+          return this.notifications.notify({
+            userIds: [d.userId],
+            sablon: type,
+            veri: { talep, gerekce: d.correctionNote ?? '' },
+          });
+        const k = d.suggestedCategoryId
+          ? await this.db.category.findUnique({
+              where: { id: d.suggestedCategoryId },
+              select: { name: true, slug: true },
+            })
+          : null;
+        if (!k) return 0;
+        return this.notifications.notify({
+          userIds: [d.userId],
+          sablon: type,
+          veri: { talep, kategori: k.name, kategoriSlug: k.slug, gerekce: s('gerekce') },
+        });
+      }
+      case 'portfoy.belge_istendi':
+      case 'portfoy.calisan_notu': {
+        const v = await this.db.portfolioVehicle.findUnique({ where: { id: s('vehicleId') } });
+        if (!v) return 0;
+        const ad = (await vehicleNames(this.db, [v]))(v).ad;
+        const g = await this.galeriAdi(v.accountId);
+        return this.notifications.notify({
+          userIds: await this.ekip(v.accountId),
+          sablon: type,
+          veri: { arac: ad, not: s('not'), galeri: g.displayName },
         });
       }
       case 'mesaj.ilk': {

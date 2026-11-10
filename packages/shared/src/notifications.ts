@@ -178,6 +178,68 @@ export const NOTIFY_TEMPLATES = {
       dugme: { yazi: 'Talebini düzenle', url: '/taleplerim' },
     },
   },
+  // Konsol › Talepler ve portföy (Karar 53): çalışanın gerekçeli istekleri
+  'talep.calisan_duzeltme': {
+    ad: 'Talepte düzeltme gerekiyor (destek ekibi)',
+    konu: 'guvenlik',
+    grup: 'talep',
+    baslik: 'Talebinde düzeltme istedik',
+    metin: '{{talep}}: {{gerekce}} Talebin yayında; düzenleyince bu not kalkar.',
+    url: '/taleplerim',
+    eposta: {
+      konu: 'Talebinde düzeltme istedik',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        '“{{talep}}” talebini inceledik: {{gerekce}}',
+        'Talebin yayında kalıyor; düzenlediğinde bu not kendiliğinden kalkar.',
+      ],
+      dugme: { yazi: 'Talebini düzenle', url: '/taleplerim' },
+    },
+  },
+  'talep.kategori_onerisi': {
+    ad: 'Talep için kategori önerisi',
+    konu: 'genel',
+    grup: 'talep',
+    baslik: 'Talebin için daha uygun bir kategori var',
+    metin: '{{talep}} talebin “{{kategori}}” kategorisinde daha çok satıcıya ulaşır. {{gerekce}}',
+    url: '/talep-olustur?kategori={{kategoriSlug}}',
+  },
+  'portfoy.belge_istendi': {
+    ad: 'Portföy aracı için belge istendi',
+    konu: 'galeri',
+    grup: 'galeri',
+    ekip: true,
+    baslik: 'Aracın için belge istedik',
+    metin: '{{arac}}: {{not}}',
+    url: '/galeri-paneli?bolum=portfoy',
+    eposta: {
+      konu: 'Portföy aracın için belge istedik',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        '{{galeri}} portföyündeki {{arac}} için: {{not}}',
+        'Rengarenk destek ekibi',
+      ],
+      dugme: { yazi: 'Portföyü aç', url: '/galeri-paneli?bolum=portfoy' },
+    },
+  },
+  'portfoy.calisan_notu': {
+    ad: 'Portföy aracı hakkında not',
+    konu: 'galeri',
+    grup: 'galeri',
+    ekip: true,
+    baslik: 'Aracın hakkında bir not',
+    metin: '{{arac}}: {{not}}',
+    url: '/galeri-paneli?bolum=portfoy',
+    eposta: {
+      konu: 'Portföy aracın hakkında bir not',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        '{{galeri}} portföyündeki {{arac}} için: {{not}}',
+        'Rengarenk destek ekibi',
+      ],
+      dugme: { yazi: 'Portföyü aç', url: '/galeri-paneli?bolum=portfoy' },
+    },
+  },
   'talep.yayinlandi': {
     ad: 'Talep yayında',
     konu: 'genel',
