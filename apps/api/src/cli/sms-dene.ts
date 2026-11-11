@@ -46,7 +46,7 @@ if (numara) {
   const e164 = `+90${numara.replace(/\D/g, '').replace(/^(90|0)/, '')}`;
   const s = new IletiMerkeziSender(env.ILETIMERKEZI_KEY, env.ILETIMERKEZI_HASH, env.SMS_SENDER_ID);
   try {
-    const r = await s.send(e164, 'Rengarenk deneme mesajı: SMS bağlantısı çalışıyor.');
+    const r = await s.send(e164, 'TEST Rengarenk deneme mesajı: SMS bağlantısı çalışıyor.');
     console.log(`Gönderildi · sipariş no ${r.messageId ?? '?'}`);
   } catch (err) {
     const e = err as SmsError;
