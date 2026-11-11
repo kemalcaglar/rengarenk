@@ -170,7 +170,7 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 
 | İş | Senden gereken | Kod tarafında yapılacak | Tahmini süre |
 | --- | --- | --- | --- |
-| SMS ana sağlayıcı (İleti Merkezi) | Hesap, gönderici başlığı, `ILETIMERKEZI_KEY/HASH` | Bağdaştırıcı hazır; anahtarla gerçek gönderim denemesi | 0,5 gün |
+| SMS ana sağlayıcı (İleti Merkezi) | **Hesap açıldı, anahtar `.env`'de (11 Kasım 2026).** Eksik: SMS paketi (bakiye 0) ve `RENGARENK` gönderici başlığı onayı | Bağdaştırıcı gerçek API'yle denendi (kimlik doğrulama geçti; başlık onaysız olduğu için kod 450). Paket ve başlık gelince `sms:dene` ile deneme SMS'i, sonra canlıda `SMS_PROVIDER=iletimerkezi` | 0,5 gün |
 | SMS yedek (aday Netgsm) | Hesap ve API belgesi | `apps/api/src/sms/` altına bağdaştırıcı, yedeğe geçiş testi | 1 gün |
 | Google Workspace (konsol girişi) | `rengarenk.com.tr` Workspace, OAuth istemcisi | `STAFF_AUTH_PROVIDER=google`, gerçek giriş denemesi | 0,5 gün |
 | Radore sunucuları | Sunucu erişimi (SSH), alan adı DNS | İlk dağıtım, Caddy/TLS, yedek, izleme, SOPS (bkz. 4.2) | 3–5 gün |
@@ -441,6 +441,13 @@ onaylar (Sahip hariç); iadeyi yalnızca Sahip onaylar.
 - **Yönetici:** Kullanıcılar ve galeriler kartı (maskeli iletişim, gerekçeyle açma), hak tanımlama, özellik anahtarları.
 
 ---
+
+### SMS (İleti Merkezi) denemesi
+- Hesap durumu, SMS göndermeden: `pnpm --filter @rengarenk/api sms:dene` (bakiye, onaylı başlıklar, `SMS_SENDER_ID` onaylı mı).
+- Deneme SMS'i (bakiyeden düşer): `pnpm --filter @rengarenk/api sms:dene 05XXXXXXXXX`.
+- Gerçek girişle deneme: `.env`'de `SMS_PROVIDER=iletimerkezi`, API'yi yeniden başlat, kendi numaranla giriş yap. Bu
+  sırada kod ekranda görünmez ve demo numaralarına (0555 100 00 0x) SMS gönderilmeye çalışılır; denemeden sonra
+  `SMS_PROVIDER=console`'a geri dön.
 
 ## 11. Sorun giderme
 

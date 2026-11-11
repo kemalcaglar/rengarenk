@@ -333,8 +333,8 @@ pnpm format        # Biome ile biçimlendir
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu
   gerçek anahtarla deneme; test/sahte sağlayıcı kullan.
-- **SMS önerisi:** ana sağlayıcı İleti Merkezi (bağdaştırıcı hazır, `ILETIMERKEZI_KEY/HASH`
-  `.env`'e girilecek). Yedek için aday Netgsm; bağdaştırıcısı hesap açılınca güncel API
+- **SMS önerisi:** ana sağlayıcı İleti Merkezi (bağdaştırıcı hazır; 11 Kasım 2026'da hesap açıldı, `ILETIMERKEZI_KEY/HASH`
+  yerel `.env`'de, API adı `rengarenksite`; bakiye ve `RENGARENK` başlığı bekleniyor; deneme `pnpm --filter @rengarenk/api sms:dene [numara]`). Yedek için aday Netgsm; bağdaştırıcısı hesap açılınca güncel API
   belgesine göre `apps/api/src/sms/` altına yazılacak. Fiyatlar teklifle netleşecek.
 
 ## Çalışma biçimi
