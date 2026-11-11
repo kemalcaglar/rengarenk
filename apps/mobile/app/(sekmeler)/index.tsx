@@ -13,7 +13,7 @@ import {
 } from '@rengarenk/shared';
 import { router, useFocusEffect } from 'expo-router';
 import { type ReactNode, useCallback, useEffect, useState } from 'react';
-import { Image, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
+import { Image, PixelRatio, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ArananModeller,
@@ -189,7 +189,11 @@ export default function Home() {
       canli = false;
     };
   }, [galeriIl]);
-  const hucre = (width - 2) / 3;
+  // Vitrin hücresi: ızgaranın ölçülen genişliğinden, fiziksel piksele aşağı yuvarlanır. Kesirli ekran genişliğinde
+  // (birçok Android telefon) üç hücre ve iki çizgi toplamı ızgarayı aşıp üçüncü hücreyi alt satıra itmesin.
+  const [izgara, setIzgara] = useState<number | null>(null);
+  const oran = PixelRatio.get();
+  const hucre = Math.floor((((izgara ?? width) - 2) / 3) * oran) / oran;
   const vitrinSayi = (vitrin?.sonuclar.length ?? 0) + 1;
   const bosHucre = (3 - (vitrinSayi % 3)) % 3;
 
@@ -265,6 +269,7 @@ export default function Home() {
               </T>
             </View>
             <View
+              onLayout={(e) => setIzgara(e.nativeEvent.layout.width)}
               style={{
                 flexDirection: 'row',
                 flexWrap: 'wrap',
