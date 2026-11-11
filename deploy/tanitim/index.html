@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rengarenk · Aradığın aracı söyle, satıcılar seni bulsun</title>
+<meta name="description" content="Rengarenk tersine ilan pazaryeri: alıcı aradığı aracı talep olarak yayınlar, uygun aracı olan galeriler ve satıcılar ona yazar. Çok yakında.">
+<meta property="og:title" content="Rengarenk · Aradığın aracı söyle, satıcılar seni bulsun">
+<meta property="og:description" content="İlan ilan gezmek yerine talebini bir kez yayınla; uygun aracı olan galeriler ve satıcılar sana yazsın.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://rengarenk.com.tr/">
+<meta property="og:locale" content="tr_TR">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 32'%3E%3Crect x='1' y='4' width='10' height='24' rx='5' fill='%235B8CFF'/%3E%3Crect x='13' y='4' width='10' height='24' rx='5' fill='%23FF6FB5'/%3E%3Crect x='25' y='4' width='10' height='24' rx='5' fill='%23FFC84A'/%3E%3Crect x='37' y='4' width='8' height='24' rx='4' fill='%233DD68C'/%3E%3C/svg%3E">
+<!--
+  Tanıtım sayfası (AWS Activate başvurusu için, canlı sistem açılana kadar).
+  Çerez, form, sayaç ve dış istek yok. Yazı tipi sayfayla birlikte sunulur (Google'a istek gitmez).
+  Renkler ve logo docs/tasarim/Anasayfa.dc.html ile packages/shared/src/tokens.ts'ten.
+-->
+<style>
+@font-face{font-family:'Plus Jakarta Sans';font-weight:400;font-display:swap;src:url(fonts/PlusJakartaSans_400Regular.ttf) format('truetype')}
+@font-face{font-family:'Plus Jakarta Sans';font-weight:700;font-display:swap;src:url(fonts/PlusJakartaSans_700Bold.ttf) format('truetype')}
+@font-face{font-family:'Plus Jakarta Sans';font-weight:800;font-display:swap;src:url(fonts/PlusJakartaSans_800ExtraBold.ttf) format('truetype')}
+:root{--mavi:#5B8CFF;--pembe:#FF6FB5;--sari:#FFC84A;--yesil:#3DD68C;--mor:#A78BFA;--turuncu:#FF8A5B;--murekkep:#1E2333;--murekkep2:#3A4052;--soluk:#5A6073;--cizgi:#E3E6EF;--kart:#FFFFFF;--zemin:#F6F8FD;--baglanti:#2450C8;--a-mavi:#EEF3FF;--a-pembe:#FFEEF6;--a-sari:#FFF6DF;--a-yesil:#E7FAF0}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--zemin);color:var(--murekkep);font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:var(--baglanti);text-decoration:none}a:hover{text-decoration:underline}
+.kap{max-width:1180px;margin:0 auto;padding:0 24px}
+header{background:var(--kart);border-bottom:1px solid var(--cizgi);position:sticky;top:0;z-index:5}
+.ust{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;padding:16px 0}
+.logo{display:flex;align-items:center;gap:8px;color:var(--murekkep);text-decoration:none}
+.logo:hover{text-decoration:none}
+.cubuk{display:flex;gap:3px}.cubuk span{width:10px;height:22px;border-radius:5px}
+.logo b{font-size:24px;font-weight:800;letter-spacing:-.5px}
+nav{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;font-size:15px;font-weight:600}
+nav a{color:var(--murekkep)}
+.rozet{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;background:var(--a-sari);color:#7A5300;padding:6px 12px;border-radius:999px}
+.rozet i{width:8px;height:8px;border-radius:50%;background:var(--sari);display:block}
+main.kap{padding-top:28px;padding-bottom:64px;display:flex;flex-direction:column;gap:24px}
+.kart{background:var(--kart);border:1px solid var(--cizgi);border-radius:22px;padding:32px}
+.hero{display:flex;flex-wrap:wrap;align-items:center;gap:28px}
+.hero>div{flex:999 1 380px;min-width:0}
+h1{margin:0;font-size:clamp(30px,5vw,44px);line-height:1.12;font-weight:800;letter-spacing:-.8px}
+.alt{margin:14px 0 22px;font-size:17px;color:var(--murekkep2);max-width:560px}
+.dugme{display:inline-flex;align-items:center;gap:8px;background:var(--mavi);color:var(--murekkep);font-weight:800;font-size:16px;padding:15px 24px;border-radius:14px}
+.dugme:hover{text-decoration:none;filter:brightness(.97)}
+.dugme.ikincil{background:var(--kart);border:1px solid var(--cizgi);font-weight:700}
+.dugmeler{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.not{font-size:13.5px;color:var(--soluk);margin:12px 0 0}
+.adimlar{flex:1 1 300px;min-width:0;list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.adimlar li{display:flex;gap:12px;align-items:center;border-radius:14px;padding:12px 14px;font-size:15px;font-weight:600}
+.adimlar li span{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex:none}
+h2{margin:0 0 6px;font-size:26px;font-weight:800;letter-spacing:-.4px}
+.bolum-alt{margin:0 0 22px;color:var(--soluk)}
+.izgara{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.ozellik{border:1px solid var(--cizgi);border-radius:18px;padding:22px;background:var(--kart)}
+.ozellik h3{margin:12px 0 6px;font-size:18px;font-weight:800}
+.ozellik p{margin:0;color:var(--murekkep2);font-size:15px}
+.ozellik ul{margin:10px 0 0;padding-left:18px;color:var(--murekkep2);font-size:15px}
+.ozellik li{margin:4px 0}
+.ikon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.kategoriler{display:flex;flex-wrap:wrap;gap:10px;list-style:none;margin:0;padding:0}
+.kategoriler li{display:flex;align-items:center;gap:8px;border:1px solid var(--cizgi);border-radius:999px;padding:8px 14px;font-size:14.5px;font-weight:600;background:var(--kart)}
+.kategoriler li i{width:9px;height:9px;border-radius:50%;display:block;flex:none}
+.yakinda{color:var(--soluk)}.yakinda small{font-size:11.5px;font-weight:700;background:#F3F5FA;padding:2px 8px;border-radius:999px;margin-left:4px}
+.ilke{display:flex;gap:14px;align-items:flex-start}
+.ilke b{display:block;font-size:16px;margin-bottom:2px}
+.ilke p{margin:0;color:var(--murekkep2);font-size:15px}
+.nokta{width:12px;height:12px;border-radius:50%;flex:none;margin-top:6px}
+.en{font-size:15px;color:var(--murekkep2)}
+.en p{margin:0 0 10px}
+footer{border-top:1px solid var(--cizgi);background:var(--kart)}
+.alt-cubuk{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 24px;padding:24px 0;font-size:14px;color:var(--soluk)}
+@media (max-width:640px){.kap{padding:0 16px}.kart{padding:22px}nav .gizle{display:none}h2{font-size:22px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="kap ust">
+    <a class="logo" href="#" aria-label="Rengarenk ana sayfa">
+      <span class="cubuk" aria-hidden="true"><span style="background:#5B8CFF"></span><span style="background:#FF6FB5"></span><span style="background:#FFC84A"></span><span style="background:#3DD68C"></span></span>
+      <b>rengarenk</b>
+    </a>
+    <nav aria-label="Sayfa içi">
+      <a class="gizle" href="#nasil">Nasıl çalışır</a>
+      <a class="gizle" href="#galeriler">Galeriler için</a>
+      <a class="gizle" href="#iletisim">İletişim</a>
+      <span class="rozet"><i></i>Çok yakında</span>
+    </nav>
+  </div>
+</header>
+
+<main class="kap">
+  <section class="kart hero" aria-labelledby="baslik">
+    <div>
+      <h1 id="baslik">Aradığın aracı söyle, satıcılar seni bulsun.</h1>
+      <p class="alt">İlan ilan gezmek yerine talebini bir kez yayınla. Uygun aracı olan galeriler ve bireysel satıcılar sana yazsın. Rengarenk, Türkiye'nin tersine ilan pazaryeri.</p>
+      <div class="dugmeler">
+        <a class="dugme" href="#nasil">Nasıl çalışır?</a>
+        <a class="dugme ikincil" href="#galeriler">Galeriyseniz</a>
+      </div>
+      <p class="not">Web sitesi ve iOS, Android uygulamaları hazırlanıyor; kapalı beta yakında başlıyor.</p>
+    </div>
+    <ol class="adimlar" id="nasil">
+      <li style="background:var(--a-mavi)"><span style="background:var(--mavi)">1</span>Aradığın aracı ve kriterlerini gir</li>
+      <li style="background:var(--a-pembe)"><span style="background:var(--pembe)">2</span>Uygun aracı olanlar sana mesaj atsın</li>
+      <li style="background:var(--a-yesil)"><span style="background:var(--yesil)">3</span>Görüş, incele, kendi aranızda anlaşın</li>
+    </ol>
+  </section>
+
+  <section class="kart" aria-labelledby="kimler">
+    <h2 id="kimler">Herkes için kolay</h2>
+    <p class="bolum-alt">Alıcı aramakla, satıcı beklemekle vakit kaybetmez.</p>
+    <div class="izgara">
+      <article class="ozellik">
+        <div class="ikon" style="background:var(--a-mavi)" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2450C8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></div>
+        <h3>Alıcılar</h3>
+        <ul>
+          <li>Marka, model, yıl, kilometre, bütçe ve şehir ile talebini dakikalar içinde oluştur.</li>
+          <li>İlk talebin ücretsiz.</li>
+          <li>Numaran sen izin vermedikçe gizli kalır; satıcılarla uygulama içinden yazışırsın.</li>
+        </ul>
+      </article>
+      <article class="ozellik" id="galeriler">
+        <div class="ikon" style="background:var(--a-pembe)" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B0306F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-6h6v6"/></svg></div>
+        <h3>Galeriler</h3>
+        <ul>
+          <li>Portföyündeki araçlara uyan talepler kendiliğinden önüne gelir.</li>
+          <li>Ekibinle birlikte çalış, toplu araç yükle, eşleşmeleri takip et.</li>
+          <li>Doğrulanmış galeri rozeti ve 30 günlük ücretsiz deneme.</li>
+        </ul>
+      </article>
+      <article class="ozellik">
+        <div class="ikon" style="background:var(--a-yesil)" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#147A4B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></div>
+        <h3>Bireysel satıcılar</h3>
+        <ul>
+          <li>Aracına uygun bir talep gördüğünde alıcıya doğrudan yaz.</li>
+          <li>İlan vermeden, gerçekten arayan kişiye ulaş.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="kart" aria-labelledby="kategoriler">
+    <h2 id="kategoriler">Vasıta kategorileri</h2>
+    <p class="bolum-alt">Otomobilden deniz ve hava araçlarına kadar 14 kategori.</p>
+    <ul class="kategoriler">
+      <li><i style="background:#5B8CFF"></i>Otomobil</li>
+      <li><i style="background:#FF6FB5"></i>Arazi, SUV &amp; Pickup</li>
+      <li><i style="background:#FFC84A"></i>Elektrikli Araçlar</li>
+      <li><i style="background:#3DD68C"></i>Motosiklet</li>
+      <li><i style="background:#A78BFA"></i>Minivan &amp; Panelvan</li>
+      <li><i style="background:#FF8A5B"></i>Ticari Araçlar</li>
+      <li><i style="background:#5B8CFF"></i>Kiralık Araçlar</li>
+      <li><i style="background:#FF6FB5"></i>Deniz Araçları</li>
+      <li><i style="background:#FFC84A"></i>Hasarlı Araçlar</li>
+      <li><i style="background:#3DD68C"></i>Karavan</li>
+      <li><i style="background:#A78BFA"></i>Klasik Araçlar</li>
+      <li><i style="background:#FF8A5B"></i>Hava Araçları</li>
+      <li><i style="background:#5B8CFF"></i>ATV</li>
+      <li><i style="background:#FF6FB5"></i>UTV</li>
+      <li class="yakinda"><i style="background:#C9D3E6"></i>Emlak<small>Yakında</small></li>
+      <li class="yakinda"><i style="background:#C9D3E6"></i>İkinci el alışveriş<small>Yakında</small></li>
+    </ul>
+  </section>
+
+  <section class="kart" aria-labelledby="ilkeler">
+    <h2 id="ilkeler">Güven önce gelir</h2>
+    <p class="bolum-alt">Rengarenk araç satışına aracılık etmez; alıcı ile satıcıyı buluşturur.</p>
+    <div class="izgara">
+      <div class="ilke"><span class="nokta" style="background:var(--mavi)"></span><div><b>Doğrulanmış galeriler</b><p>Galeri hesapları yetki belgesi ve ticari bilgileriyle incelenerek açılır.</p></div></div>
+      <div class="ilke"><span class="nokta" style="background:var(--pembe)"></span><div><b>Gizli numara</b><p>Telefon numaran yalnızca sen paylaşmak istediğinde görünür.</p></div></div>
+      <div class="ilke"><span class="nokta" style="background:var(--sari)"></span><div><b>Dolandırıcılığa karşı koruma</b><p>Kapora ve sahte ödeme gibi riskli mesajlar uyarıyla işaretlenir, şikâyetler incelenir.</p></div></div>
+      <div class="ilke"><span class="nokta" style="background:var(--yesil)"></span><div><b>Yıldızlar ve rozetler</b><p>Satıcıları gerçek görüşmelerden gelen puanlar ve rozetlerle tanırsın.</p></div></div>
+    </div>
+  </section>
+
+  <section class="kart" aria-labelledby="ucret">
+    <h2 id="ucret">Nasıl ücretlendirilir?</h2>
+    <p class="bolum-alt">Araç satışından komisyon alınmaz. Yalnızca Rengarenk'in kendi hizmetleri ücretlidir.</p>
+    <div class="izgara">
+      <article class="ozellik"><h3 style="margin-top:0">Alıcılar için</h3><p>İlk talep ücretsiz. Ek talep, talep süresini uzatma ve talebi öne çıkarma isteğe bağlı ücretli hizmetlerdir.</p></article>
+      <article class="ozellik"><h3 style="margin-top:0">Galeriler için</h3><p>Ekip büyüklüğüne ve günlük ilk mesaj hakkına göre Başlangıç, Profesyonel ve Kurumsal abonelik paketleri; 30 gün ücretsiz deneme.</p></article>
+    </div>
+  </section>
+
+  <section class="kart en" aria-labelledby="english" lang="en">
+    <h2 id="english">About Rengarenk</h2>
+    <p>Rengarenk is a reverse classifieds marketplace for vehicles in Türkiye. Instead of browsing thousands of listings, a buyer publishes what they are looking for (make, model, year, mileage, budget, city) as a request. Dealerships and individual sellers whose inventory matches are notified and message the buyer directly.</p>
+    <p>Dealerships subscribe to monthly plans (Starter, Professional, Enterprise) to receive matched requests and contact buyers; buyers get their first request free and can purchase extra requests or promotion. Rengarenk does not take a commission on vehicle sales.</p>
+    <p>The product (web, iOS and Android apps, and an operations console) is built on a TypeScript stack (NestJS, Next.js, Expo, PostgreSQL, OpenSearch) and is preparing for a closed beta in Türkiye.</p>
+  </section>
+
+  <section class="kart" id="iletisim" aria-labelledby="iletisim-baslik">
+    <h2 id="iletisim-baslik">İletişim</h2>
+    <p class="bolum-alt" style="margin-bottom:12px">Galeri ortaklığı, basın ya da diğer konular için bize yazın.</p>
+    <a class="dugme" href="mailto:kemal.caglar@rengarenk.com.tr">kemal.caglar@rengarenk.com.tr</a>
+  </section>
+</main>
+
+<footer>
+  <div class="kap alt-cubuk">
+    <span>© 2026 Rengarenk</span>
+    <span>Bu sayfa çerez, form ya da izleme aracı kullanmaz.</span>
+  </div>
+</footer>
+</body>
+</html>
