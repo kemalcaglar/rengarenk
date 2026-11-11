@@ -1,6 +1,7 @@
 # Canlı ortam el kitabı
 
-Rengarenk canlıda Radore'de çalışır (Karar 37, T06): tek uygulama sunucusunda Docker Compose, PostgreSQL ayrı
+Rengarenk canlıda Google Cloud'da, `europe-west3` (Frankfurt) bölgesinde çalışır (Karar 37, T06; 11 Kasım 2026'da
+Radore'den değişti): Compute Engine'de tek uygulama sunucusunda Docker Compose, PostgreSQL aynı ya da ayrı küçük
 sunucuda. Bu belge ilk kurulumu, günlük işleri ve geri almayı anlatır. Sunucular gelmeden her şey bu
 bilgisayarda **canlı provasıyla** denenebilir (aşağıda).
 
@@ -18,7 +19,10 @@ bilgisayarda **canlı provasıyla** denenebilir (aşağıda).
 
 ## İlk kurulum (sunucular gelince)
 
-1. **Sunucu:** Docker Engine ve compose eklentisi. `deploy` adında bir kullanıcı, `/srv/rengarenk` klasörü.
+0. **KVKK:** Google Cloud ile standart sözleşme imzalanmış ve 5 iş günü içinde Kurum'a bildirilmiş olmalı (Karar 37).
+   Gerçek kullanıcı verisi bundan önce canlıya girmez.
+1. **Sunucu:** GCP'de ayrı bir canlı projesi; `europe-west3` bölgesinde Compute Engine sanal sunucusu, statik IP,
+   güvenlik duvarında yalnızca 80/443 (ve yönetim için SSH, IAP üzerinden). Docker Engine ve compose eklentisi. `deploy` adında bir kullanıcı, `/srv/rengarenk` klasörü.
 2. **DNS:** `rengarenk.com.tr`, `www`, `api`, `yonetim` kayıtları uygulama sunucusunun IP adresine.
 3. **Dosyalar:** bu klasördeki `compose.prod.yml` ve `Caddyfile` → `/srv/rengarenk/`.
 4. **Ortam değişkenleri:** `.env.prod.example`'dan `/srv/rengarenk/.env.prod`. İade yürütücü için ayrıca `.env.iade.example`'dan `/srv/rengarenk/.env.iade` (yalnızca `iade-yurutucu` kapsayıcısı okur; PayTR iade bilgileri yalnızca burada). Değerler depoda SOPS ile
@@ -72,13 +76,13 @@ Adresler: web http://localhost:18080, API http://localhost:14000, konsol http://
 
 ## Henüz kurulmayanlar (sunucuyla birlikte, Sprint 4)
 
-- Yedek: pgBackRest ile günlük tam, sürekli artımlı yedek; ikinci veri merkezine; ayda bir geri yükleme provası (Karar 56).
+- Yedek: pgBackRest ile günlük tam, sürekli artımlı yedek; başka bir AB bölgesindeki Cloud Storage'a; ayda bir geri yükleme provası (Karar 56).
   Konsol › Sistem sağlığı ve yedek yedek bilgisini `backup_runs` tablosundan okur. Yedekleme betiği her çalışmada bir
   satır yazar (kişisel veri içermez):
 
   ```sql
   INSERT INTO backup_runs (id, kind, status, size_bytes, location, started_at, finished_at)
-  VALUES (gen_random_uuid(), 'tam', 'basarili', 30064771072, 'İkinci veri merkezi · Türkiye', now() - interval '41 min', now());
+  VALUES (gen_random_uuid(), 'tam', 'basarili', 30064771072, 'Cloud Storage · europe-west4', now() - interval '41 min', now());
   -- kind: tam | artimli | geri_yukleme_testi · status: istendi | calisiyor | basarili | hata
   ```
 
@@ -87,3 +91,5 @@ Adresler: web http://localhost:18080, API http://localhost:14000, konsol http://
   `basarili` ya da `hata` ve `started_at`/`finished_at` yazar. Görev ayda bir kendiliğinden de çalışır.
 - İzleme: Prometheus, Grafana, Loki, Alertmanager, GlitchTip (Teknik tasarım §13). API `/metrics` hazır.
 - SOPS ile şifreli `.env.prod`.
+- E-posta: GCP dışarıya 25. portu kapalı tutar; kendi posta sunucumuzun yeri bekliyor (Karar 50). O zamana kadar
+  canlıda e-posta kapalı.

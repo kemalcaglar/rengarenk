@@ -11,7 +11,7 @@ import { Global, Inject, Injectable, Module } from '@nestjs/common';
 import { ENV, type Env } from '../config/env.js';
 
 /**
- * Dosya deposu: SeaweedFS (S3 uyumlu, Türkiye'deki sunucuda; Karar 37). Katalog fotoğrafları (Karar 34) ve ileride
+ * Dosya deposu: SeaweedFS (S3 uyumlu, uygulama sunucusunda; Karar 37). Katalog fotoğrafları (Karar 34) ve ileride
  * portföy görselleri burada durur. Dosyalar herkese açık değildir; API üzerinden sunulur.
  */
 export interface Storage {

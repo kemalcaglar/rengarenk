@@ -7,7 +7,7 @@ import { ekle } from './tr-ek.js';
  * Zamanlanmış raporlar (Karar 44; YonetimRapor.dc.html › zaman). Haftalık ve aylık rapor çalışanların şirket
  * e-postasına PDF ekiyle gider (aylıkta dışa aktarma yetkisi olana ayrıca Excel); "Yeni zamanlanmış rapor" ile bir rapor
  * sekmesi ya da kayıtlı pano seçilen sıklık ve saatte gönderilir. Alıcılar yalnızca raporları görebilen çalışanlardır;
- * rapor kişisel veri taşımaz (e-posta Google Workspace'e gider, Karar 37).
+ * rapor kişisel veri taşımaz (e-posta Google Workspace'e gider).
  *
  * Galerilere "aranan modeller" raporu her ayın 3'ünde ücretli galerilere bildirim katmanından gider (galeri konusu,
  * kişi ayarından kapatılabilir). Açmak toplu gönderim onayı (BULK_SEND) ister; kapatmak hemen olur.

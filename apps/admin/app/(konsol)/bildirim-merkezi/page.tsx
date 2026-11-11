@@ -214,7 +214,7 @@ export default function BildirimMerkezi() {
                 Kendi e-posta sunucumuz
               </h2>
               <p style={{ margin: '3px 0 0', fontSize: 12.5, color: '#5A6073' }}>
-                Radore · posta sunucusu ayrı sanal sunucuda · alıcı adresleri Türkiye dışına çıkmaz
+                Posta sunucusu ayrı sanal sunucuda · yeri bekliyor (Karar 50)
               </p>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap' }}>

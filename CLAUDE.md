@@ -21,9 +21,10 @@ hizmetleri (ek talep hakkı, ilk mesaj hakkı, vitrin, galeri aboneliği) için 
    erişimi kurulmaz. Commit atabilirsin; `git push`, etiket (`v*`, canlıya dağıtımı başlatır) ve
    uzak depoyu değiştiren her şey için önce sahibe sor. Commit kimliği
    `kemalcaglar <caglarkemalofficial@gmail.com>` (depo ayarında tanımlı).
-3. **Kişisel veri Türkiye'de kalır** (Karar 37). GCP'ye yalnızca katalog verisi, sentetik test
-   verisi ve maskelenmiş yapay zekâ istekleri gider. Kişisel veri içeren her şema alanı
-   `/// @pii` ile etiketlenir.
+3. **Barındırma GCP Avrupa'da, kişisel veri korunarak** (Karar 37, 11 Kasım 2026'da Radore'den değişti). Sistemin
+   tamamı GCP `europe-west3` (Frankfurt); yurt dışına aktarım KVKK standart sözleşmesiyle ve Kurum'a bildirimle, bu
+   olmadan canlıya gerçek kullanıcı verisi girmez. Yapay zekâ isteklerinde maskeleme sürer, test ortamına canlı veri
+   kopyalanmaz. Kişisel veri içeren her şema alanı `/// @pii` ile etiketlenir.
 4. `audit_log` ve `entitlement_ledger` yalnızca ekleme yapılan tablolardır (tetikleyiciyle
    korunur). Güncelleme veya silme ekleme.
 5. İşlem kaydı ve outbox olayı, değişiklikle **aynı veritabanı işleminde** yazılır.
@@ -328,10 +329,10 @@ pnpm format        # Biome ile biçimlendir
   uçlardan kurar, yarıda kalırsa devam eder; numaralar 0555 100 00 0x bireysel, 0555 200 00 0x galeri; çalışanlar
   `*@rengarenk.com.tr`, o anki doğrulama kodu `demo kod <e-posta>`).
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
-  yapay zekâ yorumu); sunucular gelince Radore'ye ilk
-  dağıtım, yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
+  yapay zekâ yorumu); GCP'ye ilk dağıtım (Compute Engine, `deploy/README.md`;
+  GCP 25. portu kapalı tuttuğu için e-posta sunucusunun yeri bekliyor, Karar 50, canlıda `EMAIL_PROVIDER=none`), yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
-  Play, Radore, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu
+  Play, GCP canlı projesi ve KVKK standart sözleşmesi, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu
   gerçek anahtarla deneme; test/sahte sağlayıcı kullan.
 - **SMS önerisi:** ana sağlayıcı İleti Merkezi (bağdaştırıcı hazır; 11 Kasım 2026'da hesap açıldı, `ILETIMERKEZI_KEY/HASH`
   yerel `.env`'de, API adı `rengarenksite`; bakiye ve `RENGARENK` başlığı bekleniyor; deneme `pnpm --filter @rengarenk/api sms:dene [numara]`). Yedek için aday Netgsm; bağdaştırıcısı hesap açılınca güncel API

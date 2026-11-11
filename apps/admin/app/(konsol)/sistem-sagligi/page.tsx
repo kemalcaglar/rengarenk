@@ -54,7 +54,7 @@ export default function SistemSagligi() {
     <>
       <div style={{ marginBottom: 16 }}>
         <h1 className="k-h1">Sistem sağlığı ve yedek</h1>
-        <p className="k-sub">{v?.yer ?? 'Radore · Türkiye · son 30 gün'}</p>
+        <p className="k-sub">{v?.yer ?? 'Google Cloud · Frankfurt · son 30 gün'}</p>
       </div>
       {hata ? (
         <p className="k-error" role="alert">

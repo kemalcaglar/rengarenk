@@ -31,7 +31,7 @@ kararlar `docs/kapsam/01-urun-kapsami.md` (Karar 01–59), teknik tasarım `02-t
 | | |
 | --- | --- |
 | Aşama | Aşama 0–9'un kodu bitti (planda lansman 14 Ocak 2028; kod tarafı plandan çok önde) |
-| Sıradaki büyük adım | Sunucular (Radore) gelince ilk canlı dağıtım, yedek, izleme ve sırların şifrelenmesi (SOPS) |
+| Sıradaki büyük adım | GCP'de (Frankfurt) ilk canlı dağıtım (Karar 37, 11 Kasım 2026'da Radore'den değişti), yedek, izleme ve sırların şifrelenmesi (SOPS) |
 | Bekleyen | Dış hesaplar ve sözleşmeler (SMS, Google Workspace, Apple/Google Play, PayTR, e-Arşiv, EİDS, avukat, TSB izni, EEA) |
 | Testler | API 212, ortak paket 128, katalog 36 test; hepsi geçiyor. Lint ve tür denetimi temiz |
 | Depo | `main` dalı GitHub'da (kemalcaglar/rengarenk). Canlıya dağıtım yalnızca `v*` etiketiyle ve sahip onayıyla |
@@ -127,8 +127,9 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
    RR001, RR010–RR015, RR020) hiçbir gerekçeyle gevşetilmez. İade akışına dokunan her değişiklik önce sahibe sorulur.
 2. **GitHub yalnızca bu bilgisayardan.** Commit serbest; `git push`, etiket (`v*`) ve uzak depoyu değiştiren her şey için
    önce sahip onayı.
-3. **Kişisel veri Türkiye'de kalır** (Karar 37). GCP'ye yalnızca katalog, sentetik test verisi ve maskeli yapay zekâ
-   istekleri gider. Kişisel veri alanları `/// @pii` ile işaretlenir.
+3. **Barındırma GCP Avrupa'da** (Karar 37, 11 Kasım 2026'da değişti). Yurt dışına aktarım KVKK standart sözleşmesiyle
+   ve 5 iş günü içinde Kurum'a bildirimle; bu olmadan canlıya gerçek kullanıcı verisi girmez. Yapay zekâ isteklerinde
+   maskeleme sürer. Kişisel veri alanları `/// @pii` ile işaretlenir.
 4. `audit_log`, `entitlement_ledger` (ve portföy araçları, katalog görselleri, rıza kayıtları) yalnızca ekleme kabul eder.
 5. İşlem kaydı ve outbox olayı değişiklikle aynı veritabanı işleminde yazılır.
 6. Gerçek sırlar depoya yazılmaz; canlı sırlar SOPS ile şifreli.
@@ -173,7 +174,7 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 | SMS ana sağlayıcı (İleti Merkezi) | **Hesap açıldı, anahtar `.env`'de (11 Kasım 2026).** Eksik: SMS paketi (bakiye 0) ve `RENGARENK` gönderici başlığı onayı | Bağdaştırıcı gerçek API'yle denendi (kimlik doğrulama geçti; başlık onaysız olduğu için kod 450). Paket ve başlık gelince `sms:dene` ile deneme SMS'i, sonra canlıda `SMS_PROVIDER=iletimerkezi` | 0,5 gün |
 | SMS yedek (aday Netgsm) | Hesap ve API belgesi | `apps/api/src/sms/` altına bağdaştırıcı, yedeğe geçiş testi | 1 gün |
 | Google Workspace (konsol girişi) | `rengarenk.com.tr` Workspace, OAuth istemcisi | `STAFF_AUTH_PROVIDER=google`, gerçek giriş denemesi | 0,5 gün |
-| Radore sunucuları | Sunucu erişimi (SSH), alan adı DNS | İlk dağıtım, Caddy/TLS, yedek, izleme, SOPS (bkz. 4.2) | 3–5 gün |
+| GCP canlı projesi | Proje ve faturalandırma (krediler), KVKK standart sözleşmesi ve bildirimi, alan adı DNS | İlk dağıtım, Caddy/TLS, yedek, izleme, SOPS (bkz. 4.2) | 3–5 gün |
 | Apple Developer + Google Play | Hesaplar (Apple için D-U-N-S) | EAS derleme, TestFlight / iç test, mağaza ürünleri, RevenueCat | 3–4 gün |
 | RevenueCat (mağaza ödemeleri) | Hesap, ürünler `rr_<ürün>` | `react-native-purchases`, sunucu bildirimi | 2 gün |
 | Firebase (push) | Firebase projesi, iOS için APNs anahtarı | FCM gerçek gönderim, iOS Firebase SDK | 1 gün |
@@ -181,7 +182,7 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 | e-Arşiv entegratörü | Sözleşme ve API belgesi | Bağdaştırıcı, fatura ve iade faturası | 2–3 gün |
 | EİDS (Ticaret Bakanlığı) | Entegrasyon erişimi | `eids.ts` gerçek sağlayıcı | 2 gün |
 | Yetki belgesi, GİB, MERSİS | Kurum erişimleri | `verification.ts` gerçek sağlayıcı (şimdi her başvuru insana) | 2–3 gün |
-| Kendi e-posta sunucusu | Radore'de sunucu, DNS (SPF/DKIM/DMARC) | Kurulum, ısınma planı, gelen destek e-postası | 2 gün |
+| Kendi e-posta sunucusu | Yer kararı (GCP 25. portu kapalı tutuyor, Karar 50 ertelendi), DNS (SPF/DKIM/DMARC) | Kurulum, ısınma planı, gelen destek e-postası | 2 gün |
 | İYS | İYS kaydı | İzin olaylarının İYS'ye iletimi | 1 gün |
 | Meta (mobil SDK) | Meta uygulama kimliği | `react-native-fbsdk-next`, KVKK izin ekranı, iOS ATT | 1–2 gün |
 | Google Ads | Ads hesabı, Data Manager erişimi | Çevrimdışı dönüşüm ve harcama çekimi | 1–2 gün |
@@ -191,7 +192,7 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 | Avukat görüşü | Yasal metinlerin son hali | Metinler konsoldan yayınlanır (Sahip onayı); çerezsiz ölçüm ve Google Fonts notu | 1 gün |
 
 ### 4.2 Altyapı ve canlıya çıkış
-- Radore'ye ilk dağıtım (`deploy/` Docker Compose + Caddy), alan adları ve TLS.
+- GCP'ye ilk dağıtım (Compute Engine'de `deploy/` Docker Compose + Caddy), alan adları ve TLS.
 - Sırlar: `.env.prod` ve `.env.iade` SOPS ile şifreli; iade sürecinin anahtarı ayrı.
 - Yedek: pgBackRest, ikinci veri merkezine kopya, `backup_runs` kaydı (betik örneği `deploy/README.md`), aylık geri
   yükleme provası (Karar 56).
@@ -220,8 +221,8 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 
 Sıra, "canlıya çıkışı en çok hızlandıran ve en az bekleten" mantığıyla:
 
-1. **Radore sunucusu + ilk dağıtım (en kritik).** Diğer bütün gerçek entegrasyonlar (SMS, e-posta, ödeme bildirimi)
-   herkese açık bir adres ister. Sunucu gelince: `deploy/README.md` adımları → prova (`deploy/prova/`) zaten yapıldı →
+1. **GCP canlı projesi + KVKK standart sözleşmesi + ilk dağıtım (en kritik).** Diğer bütün gerçek entegrasyonlar (SMS, e-posta, ödeme bildirimi)
+   herkese açık bir adres ister. Standart sözleşme Kurum'a bildirilip proje açılınca: `deploy/README.md` adımları → prova (`deploy/prova/`) zaten yapıldı →
    SOPS ile sırlar → `v0.1.0` etiketi (senin onayınla) → yedek ve izleme.
 2. **SMS (İleti Merkezi) ve Google Workspace.** Bunlar olmadan canlıda kimse giriş yapamaz. İkisi de yarım günlük iş.
 3. **Kendi e-posta sunucusu ve ısınma.** Isınma haftalar sürdüğü için erken başlamak gerekir.
@@ -244,7 +245,7 @@ güncellenmesi.
 **Yapabileceklerim (bu bilgisayardan, senin onayınla):**
 - Her yeni hesap için bağdaştırıcıyı yazmak, sahte sağlayıcıyla ve testlerle denemek, belge ve `.env` örneğini güncellemek
   (SMS, Netgsm, Google, PayTR, e-Arşiv, EİDS, GİB/MERSİS, FCM, RevenueCat, Meta, Google Ads, Vertex AI, EEA).
-- Radore dağıtımında adım adım yönlendirme, Compose/Caddy ayarı, SOPS kurulumu, yedek ve geri yükleme betikleri,
+- GCP dağıtımında adım adım yönlendirme, Compose/Caddy ayarı, SOPS kurulumu, yedek ve geri yükleme betikleri,
   izleme panoları, işletme el kitabı. (Sunucuya komut çalıştırmak ve `git push` / etiket için her seferinde önce sorarım.)
 - EAS derleme ayarları (`eas.json`), TestFlight ve Google Play iç test dağıtım adımları, mağaza açıklama metinleri.
 - Yük testi betikleri (ör. k6), sızma testi öncesi güvenlik gözden geçirmesi ve kontrol listesi.
@@ -316,7 +317,7 @@ tarayıcısında `http://192.168.1.27:4000/health` açılmalı.
 sağlayıcıyla çalışır; yazı tipi ve tasarım değerleri açılışta API'den okunur.
 
 **Farklı ağdaysan (ör. telefon mobil veride):** `pnpm --filter @rengarenk/mobile exec expo start --tunnel` Metro'yu
-tünelden açar, ama API de dışarıdan erişilebilir olmalı; bu durumda sunucu (Radore) ya da geçici bir tünel gerekir.
+tünelden açar, ama API de dışarıdan erişilebilir olmalı; bu durumda canlı sunucu (GCP) ya da geçici bir tünel gerekir.
 İstersen bunu birlikte kurarız.
 
 ### 8.2 Android emülatörü (isteğe bağlı)

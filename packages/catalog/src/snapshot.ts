@@ -4,7 +4,7 @@ import { readTsbList } from './tsb/read.js';
 
 /**
  * Katalog hattının çıktısı (Teknik tasarım §5): indir → normalize et → önceki sürümle karşılaştır → kalite
- * kontrolü → imzalı paket. Paket kişisel veri içermez; kaynak GCP'de üretilip Radore'ye yayınlanabilir.
+ * kontrolü → imzalı paket. Paket kişisel veri içermez; kaynak ayrı bir işte üretilip canlıya yayınlanabilir.
  */
 export interface CatalogSnapshot {
   format: 1;

@@ -33,7 +33,7 @@ export const STALE_HOURS = 48;
 
 /**
  * Katalog hattı (Teknik tasarım §5). Şimdilik işçide ve API'de çalışır; GCP erişimi gelince Cloud Run'a taşınır
- * ve yalnızca imzalı paket Radore'ye gelir. TSB dosyası iki yoldan girer: konsoldan yükleme ve otomatik çekme.
+ * ve yalnızca imzalı paket canlıya gelir. TSB dosyası iki yoldan girer: konsoldan yükleme ve otomatik çekme.
  */
 @Injectable()
 export class CatalogPipelineService {

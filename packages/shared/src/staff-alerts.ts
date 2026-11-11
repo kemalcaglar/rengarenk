@@ -5,8 +5,8 @@ import type { BuiltinRole, Permission } from './staff.js';
  * Çalışan uyarıları (Karar 03, 40, 41, 57, 58, 59; YonetimRapor.dc.html › Zamanlanmış raporlar ve uyarılar).
  * Olay ya da dönemsel denetim → uyarı → alıcılar (Sahip her zaman, ayrıca yetkiye ya da role göre) → konsol ve e-posta.
  *
- * Uyarı metni kişisel veri taşımaz: e-posta şirket hesabına (Google Workspace) gider, kişisel veri Türkiye'de kalır
- * (Karar 37). Metinde kullanıcı adı, telefon, e-posta, IBAN yoktur; ayrıntı konsolda, yetkiyle açılır.
+ * Uyarı metni kişisel veri taşımaz: e-posta şirket hesabına (Google Workspace) gider ve
+ * kişisel veri gerekmedikçe kopyalanmaz. Metinde kullanıcı adı, telefon, e-posta, IBAN yoktur; ayrıntı konsolda, yetkiyle açılır.
  */
 
 export interface StaffAlertRule {

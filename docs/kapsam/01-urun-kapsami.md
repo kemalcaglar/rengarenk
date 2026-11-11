@@ -50,7 +50,7 @@ Sürüm 0.59 · 59 karar kesinleşti; hukuki varsayılanlar (Karar 31 ve 39) avu
 | 34 | Lisanslı araç görseli | Wikimedia Commons'tan açık lisanslı gerçek fotoğraf, nesil ve makyaj başına, atfıyla; ücretsiz | Kesinleşti |
 | 35 | Büyüme ve reklam ölçümü | Lansman yok; online reklam; Meta Pixel + Conversions API, izinli ölçüm | Kesinleşti |
 | 36 | Maliyet ilkesi | Sabit bütçe, ekip, takvim kuralı yok; önce ücretsiz veya kredili seçenek | Kesinleşti |
-| 37 | Kişisel veriler Türkiye'de | Kişisel veri işleyen sistemler Türkiye'de; diğer işler GCP kredileriyle; GCP Türkiye bölgesi açılınca taşıma | Kesinleşti |
+| 37 | Barındırma ve kişisel veri | Sistemin tamamı GCP Avrupa'da (Frankfurt) kredilerle; yurt dışına aktarım KVKK m.9 standart sözleşmesiyle ve 5 iş günü içinde Kurum'a bildirimle; GCP Türkiye bölgesi açılınca oraya taşıma (11 Kasım 2026'da değişti) | Kesinleşti |
 | 38 | Mobil ödeme | Bireysel haklar mobilde App Store / Google Play, web'de PayTR; galeri aboneliği yalnızca web | Kesinleşti |
 | 39 | Tüketici hakları ve platform yükümlülükleri | Onay metinleri, cayma, iade ve yayın öncesi yükümlülükler için varsayılanlar | Kesinleşti (avukatla gözden geçirilecek) |
 | 40 | Çalışanlar ve yetkiler | Hazır ve özel roller, dört göz onayı, iki adımlı giriş, veri maskeleme, silinemez işlem kaydı | Kesinleşti |
@@ -63,7 +63,7 @@ Sürüm 0.59 · 59 karar kesinleşti; hukuki varsayılanlar (Karar 31 ve 39) avu
 | 47 | Genişletilebilirlik ilkesi | Kural, şema ve içerik ayar olarak tutulur; yeni modüller ortak yetki, kayıt, bildirim ve rapor altyapısına takılır | Kesinleşti |
 | 48 | Bildirim katmanı ve kanallar | Tek bildirim katmanı; uygulama içi → push → e-posta → SMS sırası; tek şablondan çok kanal | Kesinleşti |
 | 49 | İleti türleri, İYS ve sıklık | Ticari ileti yalnızca İYS onaylılara, kişi başı haftada en fazla 2, 21.00–09.00 arası yok; SMS ilk sürümde yalnız kod ve kritik durum | Kesinleşti |
-| 50 | Kendi e-posta sunucumuz | E-postalar sağlayıcısız, Radore'deki kendi SMTP sunucumuzdan; işlemsel ve ticari ayrı alan adı ve IP; ısınma planı ve itibar izleme | Kesinleşti |
+| 50 | Kendi e-posta sunucumuz | E-postalar sağlayıcısız, kendi SMTP sunucumuzdan; işlemsel ve ticari ayrı alan adı ve IP; ısınma planı ve itibar izleme. GCP 25. portu kapattığı için sunucunun yeri yeniden kararlaştırılacak (11 Kasım 2026, ertelendi) | Bekliyor |
 | 51 | Kampanya ve otomatik akışlar | Segment, şablon, kampanya, otomatik akış ve teslim raporu panelden; ajan önerir, toplu gönderimi başlatmaz | Kesinleşti |
 | 52 | Kullanıcı ve galeri kartı | Tek ekranda tüm geçmiş, maskeli kişisel veri; uyarı, askı, hak tanımlama; başvuru kuyruğu | Kesinleşti |
 | 53 | Moderasyon kuyruğu | Öncelik ve süre sınırı, maskeli kanıt, hazır gerekçeler, 7 gün itiraz hakkı ve başka moderatör incelemesi | Kesinleşti |
@@ -424,7 +424,7 @@ Web, mobil ve arka uç tek bir TypeScript monorepo'sunda geliştirilir; tüm ist
 - Kubernetes üzerinde, trafiğe göre otomatik yatay ölçeklenen servisler.
 - Mesajlaşma ve eşleşme yük altında ayrı servis olarak ölçeklenebilecek şekilde modüler yazılır.
 - İzleme: Prometheus + Grafana, OpenTelemetry ile dağıtık izleme, Sentry ile hata takibi.
-- Barındırma: kişisel veriyi işleyen API, veritabanı ve kuyruklar Türkiye'deki bir sağlayıcıda (k3s); CI/CD, staging ve kişisel veri içermeyen işler GCP kredileriyle. GCP Türkiye bölgesi açılınca üretim oraya taşınır (Karar 37).
+- Barındırma: sistemin tamamı (API, web, veritabanı, kuyruk, dosyalar, CI/CD, staging) GCP Avrupa bölgesinde, kredilerle. GCP Türkiye bölgesi açılınca üretim oraya taşınır (Karar 37).
 - CI/CD: her değişiklik web, mobil ve API için otomatik test ve dağıtım hattından geçer.
 
 ## Araç kataloğu (öneri, görüşülecek)
@@ -725,20 +725,21 @@ Lansman yapılmaz; büyüme online reklamlarla (ağırlıkla Meta, ayrıca Googl
 - Her teknik seçimde önce ücretsiz ya da kredilerle karşılanabilen seçenek tercih edilir; Google for Startups Cloud kredileri kullanılır.
 - Aylık sabit gider tahmini yapılmaz; giderler en aza indirilir. Ücretli bir servise ancak ihtiyaç doğunca geçilir.
 
-## Karar 37: Kişisel verilerin Türkiye'de tutulması
+## Karar 37: Barındırma ve kişisel verilerin yurt dışına aktarımı
 
-Google Cloud'un Türkiye bölgesi Turkcell ile Ankara'da kuruluyor ancak henüz açılmadı ve açılış tarihi duyurulmadı. Bu yüzden kişisel veriyi işleyen her şey Türkiye'de çalışır; kişisel veri içermeyen işler GCP kredileriyle karşılanır.
+**11 Kasım 2026'da değişti (sahip kararı).** İlk karar kişisel veriyi işleyen her şeyi Türkiye'de (Radore) çalıştırmaktı. Türkiye'deki sunucuların sabit gideri bütçeyi aştığı için sistemin tamamı Google for Startups kredileriyle GCP Avrupa bölgesinde çalışır (Karar 36). Google Cloud'un Türkiye bölgesi Turkcell ile Ankara'da kuruluyor; Turkcell'in SEC bildirimine göre 2028–2029'da hizmete girmesi bekleniyor.
 
-- KVKK bu tür bir platform için yerelleştirmeyi zorunlu tutmuyor. Ancak yurt dışındaki bir sunucuya uzaktan erişim de aktarım sayıldığı için yalnızca veritabanı değil, kişisel veriyi işleyen API de Türkiye'de çalışır.
-- **Türkiye'de (Radore, İstanbul):** üç uygulama düğümlü küçük bir Kubernetes (k3s) kümesi; birincil ve yedek PostgreSQL (CloudNativePG); Redis, RabbitMQ ve OpenSearch tek düğümde. Tahmini toplam aylık 160–200 USD (KDV hariç).
-- **Yedek:** şifreli yedekler başka bir şehirdeki ikinci bir Türk sağlayıcıda tutulur; geri yükleme her ay denenir.
-- **Şifreleme:** disk şifrelemenin yanında telefon numarası ve mesajlar uygulama düzeyinde şifrelenir; anahtarlar Türkiye'de tutulur (OpenBao).
-- **Kayıtlar:** 5651 trafik kayıtları 2 yıl boyunca, bütünlük özetiyle Türkiye'de saklanır.
-- **GCP kredileriyle:** CI/CD, Artifact Registry, sentetik veriyle staging, statik web dosyaları ve anonim veriyle analiz.
-- GCP Türkiye bölgesi genel kullanıma açılınca üretim aynı Kubernetes yapılandırmasıyla oraya taşınır.
-- Kaçınılmaz yurt dışı aktarımlar (FCM ve APNs bildirimleri, hata raporlama, Meta ve Google reklam ölçümü) için standart sözleşme imzalanır ve 5 iş günü içinde KVKK'ya bildirilir.
+- **Hukuki dayanak:** KVKK bu tür bir platform için verinin Türkiye'de tutulmasını zorunlu kılmıyor. Yurt dışına aktarım 7499 sayılı Kanunla değişen m.9 kapsamında standart sözleşmeyle yapılır; sözleşme imzadan sonra 5 iş günü içinde Kurum'a bildirilir (Standart Sözleşme Bildirim Modülü ya da KEP). Bildirim yapılmazsa idari para cezası var. Aktarım aydınlatma metninde yazılır.
+- **Yer:** GCP `europe-west3` (Frankfurt, Almanya); Türkiye'ye yakın ve bütün servisler var. Yedekler başka bir AB bölgesinde (ör. `europe-west4`, Hollanda) Cloud Storage'ta.
+- **Başlangıç yapısı:** Compute Engine'de tek sanal sunucu üzerinde Docker Compose (API, web, konsol, işçi, Redis, OpenSearch, SeaweedFS, Caddy) ve PostgreSQL. Büyüyünce yönetilen servislere (Cloud SQL, GKE) geçilir; uygulama konteyner olduğu için kod değişmez.
+- **Şifreleme:** disk şifrelemenin yanında telefon numarası, mesajlar ve işlem kaydındaki IP uygulama düzeyinde şifrelenir (mevcut kod); anahtarlar SOPS ile şifreli sırlarda.
+- **Yapay zekâ:** maskeleme aynen sürer (Karar 57); sistem GCP'de olsa da yapay zekâ isteklerine kişisel veri girmez.
+- **Kayıtlar:** 5651 trafik kayıtları 2 yıl boyunca bütünlük özetiyle saklanır. Saklama yerinin yurt dışı olmasının sorun olup olmadığı avukata sorulur.
+- **Diğer yurt dışı aktarımlar** (FCM ve APNs bildirimleri, hata raporlama, Meta ve Google reklam ölçümü) için de standart sözleşme imzalanır ve bildirilir.
+- **Avukata sorulacaklar:** Google Cloud ile KVKK standart sözleşmesinin nasıl imzalanacağı; e-Arşiv ve fatura kayıtları ile 5651 kayıtlarının yurt dışında tutulabilmesi.
 - VERBİS kaydı, 50 çalışan ve 100 milyon TL yıllık bilanço altında zorunlu değildir.
-- **Daha ucuz seçenek:** Türkiye şartından vazgeçilirse her şey GCP Avrupa bölgelerinde kredilerle neredeyse ücretsiz çalışır; standart sözleşmeyle bu da hukuken mümkündür.
+- GCP Türkiye bölgesi genel kullanıma açılınca üretim aynı yapılandırmayla oraya taşınır.
+- **E-posta:** GCP sanal sunuculardan dışarıya 25. portu kapalı tutar; kendi posta sunucumuzun yeri Karar 50'de yeniden kararlaştırılacak.
 
 ## Karar 38: Mobil ödeme
 
@@ -880,9 +881,10 @@ Sitenin ve uygulamanın görünümü ile pazarlama içerikleri geliştiriciye ge
 
 ## Karar 50: Kendi e-posta sunucumuz
 
-E-postalar bir e-posta sağlayıcısı kullanılmadan, Radore'de çalışan kendi SMTP sunucumuzdan gönderilir. Alıcı adresleri Türkiye dışına çıkmaz (Karar 37).
+E-postalar bir e-posta sağlayıcısı kullanılmadan kendi SMTP sunucumuzdan gönderilir.
 
-- **Sunucu:** k3s kümesinden ayrı, sabit IP'li küçük bir sanal sunucuda açık kaynaklı posta gönderim yazılımı (Postal ya da Postfix tabanlı). Radore'den 25. portun açık olması ve IP'lerin ters DNS kaydı istenir.
+- **11 Kasım 2026, bekliyor:** sistem GCP'ye taşındı (Karar 37) ve GCP sanal sunuculardan dışarıya 25. portu kapalı tutuyor. Seçenekler: posta sunucusu için GCP dışında küçük bir sanal sunucu (karar aynen kalır) ya da bir e-posta gönderim servisi (karar değişir). Sahip kararı ertelendi; karar verilene kadar canlıda e-posta kapalı kalır, doğrulama kodu SMS ile gider.
+- **Sunucu:** uygulama sunucusundan ayrı, sabit IP'li küçük bir sanal sunucuda açık kaynaklı posta gönderim yazılımı (Postal ya da Postfix tabanlı). Sağlayıcıdan 25. portun açık olması ve IP'lerin ters DNS kaydı istenir.
 - **İki ayrı akış:** işlemsel e-postalar bildirim.rengarenk.com.tr alt alan adından ve kendi IP'sinden, ticari e-postalar bulten.rengarenk.com.tr alt alan adından ve ayrı bir IP'den çıkar. Böylece bir kampanya şikâyet alırsa doğrulama kodları ve ödeme e-postaları etkilenmez.
 - **Kimlik doğrulama:** SPF, DKIM (2048 bit, yılda bir anahtar yenileme), DMARC (önce izleme, sonra karıntına), ters DNS, TLS ve MTA-STS. Ticari iletilerde tek tıkla ayrılma başlığı bulunur; Gmail ve Outlook'un toplu gönderici kurallarına uyulur.
 - **Isınma planı:** yeni IP'ler 4–6 haftada aşama aşama ısıtılır; ilk hafta yalnızca işlemsel e-posta, ticari gönderim günlük limitle başlar ve en etkileşimli kullanıcılardan genişler. Limit bildirim katmanında kendiliğinden uygulanır.
@@ -978,7 +980,8 @@ E-postalar bir e-posta sağlayıcısı kullanılmadan, Radore'de çalışan kend
 
 * [x] Mobil teknoloji: React Native + Expo (Karar 16)
 
-- [x] Kişisel verilerin Türkiye'de tutulması: Türkiye'de sağlayıcı + GCP kredileri, GCP Türkiye bölgesi açılınca taşıma (Karar 37)
+- [x] Barındırma: sistemin tamamı GCP Avrupa'da kredilerle, yurt dışına aktarım standart sözleşmeyle, GCP Türkiye bölgesi açılınca taşıma (Karar 37, 11 Kasım 2026'da değişti)
+- [ ] E-posta sunucusunun yeri: GCP 25. portu kapalı tutuyor; GCP dışında küçük sunucu ya da gönderim servisi (Karar 50, ertelendi)
 
 * [x] Başlangıç stratejisi: lansman yok, büyüme online reklamlarla; ölçüm Meta uyumlu (Karar 35)
 * [x] Uygulama mağazası ödeme kuralları: bireysel haklar mobilde App Store ve Google Play ile, galeri aboneliği yalnızca web'den (Karar 38)
@@ -995,7 +998,7 @@ E-postalar bir e-posta sağlayıcısı kullanılmadan, Radore'de çalışan kend
 * [x] Galeri kullanıcı sayıları: Başlangıç 2, Profesyonel 5, Kurumsal 15 (Karar 20, 12.2)
 * [x] Ödeme ekranındaki onay metinleri, cayma hakkı ve hesap kapatmada iade kuralı için varsayılanlar belirlendi (Karar 39); avukat görüşmesinde gözden geçirilecek
 * [ ] TSB'den yazılı ticari kullanım izni : katalog TSB ile kuruluyor, izin sonra resmî kanaldan istenecek (Karar 33)
-* [ ] Google veya Turkcell'den KVKK standart sözleşmesi; GCP Türkiye bölgesinin açılış tarihinin takibi (Karar 37); taslak hazır, gönderim ertelendi
+* [ ] Google Cloud ile KVKK standart sözleşmesi ve 5 iş günü içinde Kurum'a bildirim, canlıya çıkmadan önce zorunlu; GCP Türkiye bölgesinin açılış tarihinin takibi (Karar 37); taslak hazır
 * [ ] Avukat görüşmesi: Karar 39'daki varsayılanlar ve sorulacaklar
 * [ ] Veri ve hizmetlere e-posta atmadan erişmenin yollarını araştır (kullanım koşulları, self-servis paketler, deneme anahtarları, konsoldaki sözleşmeler); gerekirse taslakları güncelleyip gönder: Yazışma taslakları
 * [x] Yapay zekâ sağlayıcısı: Google Vertex AI; maskeleme kuralları Karar 57'de; standart sözleşme GCP ile birlikte (teknik tasarım T11)

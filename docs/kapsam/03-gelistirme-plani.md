@@ -19,7 +19,7 @@ Tahmin belirsizdir: ilk 3 sprintin gerçek hızına bakıp planı yeniden ölçe
 | Aşama | Sprint | Bitiş | Kapsam | Demo ölçütü |
 | --- | --- | --- | --- | --- |
 | 0 · Hazırlık | 1 | 20 Kas 2026 | Monorepo, yerel ortam, CI, tasarım dili (renk, yazı, bileşenler), veritabanı şemasının ilk hali | Boş web, yönetim ve mobil uygulama açılıyor; testler CI'da geçiyor |
-| 1 · Temel | 2–4 | 1 Oca 2027 | Telefon ve SMS ile giriş, hesaplar, roller ve izinler, işlem kaydı, outbox ve kuyruk, yönetim girişi (Google Workspace + 2FA), izleme, Radore'ye dağıtım, test ortamı | Telefonla giriş canlı sunucuda çalışıyor |
+| 1 · Temel | 2–4 | 1 Oca 2027 | Telefon ve SMS ile giriş, hesaplar, roller ve izinler, işlem kaydı, outbox ve kuyruk, yönetim girişi (Google Workspace + 2FA), izleme, GCP'ye dağıtım, test ortamı | Telefonla giriş canlı sunucuda çalışıyor |
 | 2 · Katalog ve kategoriler | 5–7 | 12 Şub 2027 | Katalog veri modeli, TSB ve açık kaynak içe aktarma hattı, ad eşleme, Commons görselleri, 14 kategori şeması, katalog yönetimi | BMW 3 Serisi 320i'nin kasa, makyaj ve paketleri katalogdan geliyor |
 | 3 · Talep | 8–10 | 26 Mar 2027 | Talep sihirbazı (web ve mobil), yaşam döngüsü, süre ve hatırlatmalar, liste ve arama, talep detayı, favori, kayıtlı arama, ana sayfa ve vitrin ızgarası | Talep yayınlanıp aramada bulunuyor |
 | 4 · Galeri | 11–13 | 7 May 2027 | Kurumsal başvuru ve onay, yetki belgesi kontrolü, portföy (elle, Excel/CSV, API), EİDS, galeri profili, çalışanlar | Onaylı galeri portföyüne araç ekliyor |
@@ -37,7 +37,7 @@ Bunları sahip yürütüyor; tarihten sonra gelirse ilgili aşama bekler.
 | İş | Gereken sprint | En geç |
 | --- | --- | --- |
 | SMS sağlayıcısı (ana) ve gönderici başlığı | 2 | 23 Kas 2026 |
-| Radore sunucuları | 4 | 21 Ara 2026 |
+| GCP canlı projesi ve KVKK standart sözleşmesi (Radore yerine, Karar 37) | 4 | 21 Ara 2026 |
 | Google Workspace (yönetim girişi için) | 3 | 7 Ara 2026 |
 | Apple geliştirici hesabı (D-U-N-S ile) ve Google Play hesabı | 8 | 1 Şub 2027 |
 | EİDS entegrasyon erişimi | 12 | 29 Mar 2027 |
@@ -102,7 +102,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Canlı provası: dört imaj bu bilgisayarda derlendi, compose.prod.yml canlı kipinde ayağa kalktı, göçler uygulandı; üç dağıtım hatası bulunup düzeltildi (Prisma derlemesi, .dockerignore, web API adresi)
 - [x] İşletme el kitabı: deploy/README.md (ilk kurulum, günlük işler, geri alma, prova)
 - [x] Özellik anahtarları ve bakım modu (T13, Karar 47): kitle, yüzde, platform, deneme kullanıcıları; konsol ekranı; web ve mobilde bakım duyurusu
-- [ ] Radore sunucularına ilk dağıtım (sunucular hazır olunca)
+- [ ] GCP'ye ilk dağıtım: Compute Engine sanal sunucusu, `europe-west3` (Karar 37, 11 Kasım 2026'da Radore'den değişti)
 - [ ] Yedek (pgBackRest), izleme yığını (Prometheus, Grafana, Loki, GlitchTip) ve SOPS (sunucuyla birlikte)
 - [ ] GCP test ortamı (sentetik veri; GCP erişimi gelince)
 
@@ -593,7 +593,7 @@ sistem sağlığı, tasarım değerleri.
   göre okunma), Otomatik akışlar (yedi akış, aç/kapat, adımlar, son 30 gün)
 - [x] Zamanlı akışlar (Karar 51) her gün 09.30'dan sonra: ilk talebini oluştur (üyeliğin 3. günü, ticari), ilk mesajı
   okumadın (varsayılan kapalı), galeri 7 gündür mesaj göndermedi; hoş geldin kayıt olayıyla
-- [ ] Gerçek hesaplar: Firebase projesi (iOS'ta FCM için Firebase SDK), kendi posta sunucusu (Radore, SPF/DKIM/DMARC,
+- [ ] Gerçek hesaplar: Firebase projesi (iOS'ta FCM için Firebase SDK), kendi posta sunucusu (yeri bekliyor: GCP 25. portu kapalı tutuyor, Karar 50; SPF/DKIM/DMARC,
   ters DNS, kara liste denetimi), İYS bağdaştırıcısı, SMS fiyatları ve yedek sağlayıcı (Netgsm)
 - [ ] E-postada açılma ve tıklama ölçülmüyor (izleme pikseli ve yönlendirme yok); raporda uygulama içi okunma var
 - [x] Akış düzenleyicisi ("Adım ekle"): Sprint 28
