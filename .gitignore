@@ -20,3 +20,6 @@ dist-check
 
 # Redis yerel döküm dosyası
 dump.rdb
+
+# Tanıtım sayfası yükleme paketi (deploy/tanitim)
+deploy/tanitim/*.zip
