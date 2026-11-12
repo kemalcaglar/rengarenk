@@ -59,8 +59,10 @@ KVKK standart sözleşmesi bildirilene kadar sunucu dışarıya kapalı bir test
   `test-<commit>`). Canlıya geçişte `v*` etiketi ve `deploy.yml` kullanılır.
 - Sahibin IP adresi değişirse: `aws lightsail put-instance-public-ports --profile rengarenk --region eu-central-1
   --instance-name rengarenk-1 ...` ile 443 ve 22 kuralındaki adres güncellenir.
-- Bekleyenler: Google OAuth istemcisi (`GOOGLE_CLIENT_*` şimdilik `bekliyor`, yönetim girişi açılmaz), İleti Merkezi
-  bakiyesi ve `RENGARENK` başlığı (SMS ile giriş), yedek, izleme, SOPS. `AI_PROVIDER=none` (KVKK).
+- Bekleyenler: Google OAuth istemcisi (`GOOGLE_CLIENT_*` şimdilik `bekliyor`, yönetim girişi açılmaz), yedek, izleme,
+  SOPS. `AI_PROVIDER=none` (KVKK).
+- SMS: `RENGARENK` başlığı onaylanana kadar sunucuda geçici olarak `SMS_SENDER_ID=APITEST` (sahip kararı, 12 Kasım
+  2026; İleti Merkezi test kredisi). Başlık onaylanınca `.env.prod`'da `RENGARENK`'e döndür, `api` ve `worker`'ı yeniden aç.
 
 ## Günlük işler
 
