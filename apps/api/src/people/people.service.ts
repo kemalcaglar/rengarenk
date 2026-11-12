@@ -317,6 +317,10 @@ export class PeopleService {
         : []),
       ...(u.emailVerifiedAt ? [{ t: 'E-posta doğrulandı', bg: '#EEF3FF', fg: '#2450C8' }] : []),
       ...(u.phoneVerifiedAt ? [{ t: 'Telefon doğrulandı', bg: '#EEF3FF', fg: '#2450C8' }] : []),
+      // Giriş yolları (Karar 18): özet ve kimlik gösterilmez, yalnızca hangi yolla girdiği
+      ...(u.passwordHash ? [{ t: 'Giriş: e-posta ve şifre', bg: '#F3F5FA', fg: '#3A4052' }] : []),
+      ...(u.googleSub ? [{ t: 'Giriş: Google', bg: '#F3F5FA', fg: '#3A4052' }] : []),
+      ...(u.appleSub ? [{ t: 'Giriş: Apple', bg: '#F3F5FA', fg: '#3A4052' }] : []),
       ...(reklam?.granted ? [{ t: 'Reklam ölçümüne izin verdi', bg: '#F3F5FA', fg: '#3A4052' }] : []),
       ...(hesaplar.length > 1 ? [{ t: 'Galeri çalışanı', bg: '#FFF6DF', fg: '#7A5300' }] : []),
     ];

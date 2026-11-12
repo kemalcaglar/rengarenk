@@ -39,10 +39,38 @@ const kart = {
  * kanalları. Ödeme bildirimleri kapatılamaz; kampanya ticari ileti onayıyla açılır.
  */
 export default function Ayarlar() {
-  const { durum, istek } = useOturum();
+  const { durum, istek, me } = useOturum();
   const [t, setT] = useState<Tercihler | null>(null);
   const [eposta, setEposta] = useState('');
   const [mesgul, setMesgul] = useState(false);
+  const [mevcut, setMevcut] = useState('');
+  const [yeni, setYeni] = useState('');
+  const [sifreVar, setSifreVar] = useState<boolean | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (durum !== 'uye') return;
+      istek<{ girisYollari?: { sifre: boolean } }>('/me')
+        .then((m) => setSifreVar(!!m.girisYollari?.sifre))
+        .catch(() => undefined);
+    }, [durum, istek]),
+  );
+
+  /** Şifre (Karar 18): şifresi olan değiştirir, Google ya da Apple ile üye olan belirler; diğer oturumlar kapanır */
+  async function sifreKaydet() {
+    setMesgul(true);
+    try {
+      await istek('/auth/password', { method: 'POST', body: sifreVar ? { mevcut, yeni } : { yeni } });
+      setMevcut('');
+      setYeni('');
+      setSifreVar(true);
+      Alert.alert('Şifren kaydedildi', 'Diğer cihazlardaki oturumların kapandı.');
+    } catch (e) {
+      Alert.alert('Kaydedilemedi', (e as Error).message);
+    } finally {
+      setMesgul(false);
+    }
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -181,6 +209,70 @@ export default function Ayarlar() {
               </T>
             </Pressable>
           </View>
+
+          {sifreVar === null || !me ? null : (
+            <View style={{ ...kart, padding: 14 }}>
+              <T accessibilityRole="header" style={{ fontSize: 16, fontWeight: '800' }}>
+                Şifre
+              </T>
+              <T style={{ marginTop: 2, fontSize: 13, color: colors.muted }}>
+                {sifreVar
+                  ? 'E-posta ve şifrenle giriş yapabilirsin.'
+                  : 'Google ya da Apple ile giriş yapıyorsun. İstersen şifre de belirleyebilirsin.'}
+              </T>
+              {sifreVar ? (
+                <TInput
+                  accessibilityLabel="Mevcut şifre"
+                  placeholder="Mevcut şifre"
+                  secureTextEntry
+                  autoComplete="current-password"
+                  value={mevcut}
+                  onChangeText={setMevcut}
+                  style={{
+                    marginTop: 10,
+                    borderWidth: 1,
+                    borderColor: '#D5DAE5',
+                    borderRadius: butonOran(12),
+                    padding: 12,
+                    fontSize: 15,
+                  }}
+                />
+              ) : null}
+              <TInput
+                accessibilityLabel="Yeni şifre"
+                placeholder="Yeni şifre (en az 8 karakter, harf ve rakam)"
+                secureTextEntry
+                autoComplete="new-password"
+                value={yeni}
+                onChangeText={setYeni}
+                style={{
+                  marginTop: 10,
+                  borderWidth: 1,
+                  borderColor: '#D5DAE5',
+                  borderRadius: butonOran(12),
+                  padding: 12,
+                  fontSize: 15,
+                }}
+              />
+              <Pressable
+                accessibilityRole="button"
+                disabled={mesgul || yeni.length < 8 || (sifreVar && !mevcut)}
+                onPress={sifreKaydet}
+                style={{
+                  marginTop: 8,
+                  backgroundColor: colors.blue,
+                  borderRadius: butonOran(12),
+                  paddingVertical: 12,
+                  alignItems: 'center',
+                  opacity: mesgul || yeni.length < 8 || (sifreVar && !mevcut) ? 0.5 : 1,
+                }}
+              >
+                <T style={{ color: colors.onBlue, fontSize: 14.5, fontWeight: '800' }}>
+                  {sifreVar ? 'Şifreyi değiştir' : 'Şifre belirle'}
+                </T>
+              </Pressable>
+            </View>
+          )}
 
           <View style={{ ...kart, overflow: 'hidden' }}>
             <View style={{ padding: 14, paddingBottom: 8 }}>

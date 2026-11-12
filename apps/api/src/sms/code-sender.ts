@@ -89,7 +89,10 @@ export class ChannelCodeSender implements CodeSender {
   constructor(
     readonly kanallar: readonly CodeChannel[],
     private readonly sms: SmsSender,
-    private readonly whatsapp: { readonly name: string; send(to: string, code: string): Promise<unknown> } | null,
+    private readonly whatsapp: {
+      readonly name: string;
+      send(to: string, code: string): Promise<unknown>;
+    } | null,
   ) {}
 
   async send(to: string, code: string): Promise<CodeSendResult> {

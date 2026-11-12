@@ -9,7 +9,14 @@ export async function post<T>(path: string, body: object): Promise<T> {
     body: JSON.stringify(body),
   });
   const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error((data as { message?: string }).message ?? 'Bir şeyler ters gitti');
+  if (!r.ok) {
+    const m = data as { message?: string | string[]; issues?: { message: string }[] };
+    throw new Error(
+      m.issues?.[0]?.message ??
+        (Array.isArray(m.message) ? m.message[0] : m.message) ??
+        'Bir şeyler ters gitti',
+    );
+  }
   return data as T;
 }
 

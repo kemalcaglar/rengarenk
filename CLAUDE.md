@@ -338,6 +338,18 @@ pnpm format        # Biome ile biçimlendir
   `eu.` profili; Vertex de duruyor, `aiCostMicroUsd(sağlayıcı, boy, …)`). AWS Activate Founders başvurusu yapıldı (sonuç
   5–10 iş günü); o zamana kadar 100 USD yeni hesap kredisi. Tanıtım sayfası `deploy/tanitim` (Güzel Hosting, cPanel).
   API'de 216 test.
+- **Üyelik ve giriş (12 Kasım 2026, Sprint 30, Karar 18 ve 50):** SMS sağlayıcısı şirket ve marka tescili istediği için
+  giriş telefona bağlı olmaktan çıktı. Üye ol (`/auth/register` → `/auth/register/verify`; bilgiler `pending_signups`'ta,
+  şifre scrypt özeti `auth/password.ts`) ve Giriş yap (`/auth/login`, `/auth/google/*`, `/auth/apple`) ayrı;
+  `apps/api/src/auth/signup.service.ts`. Telefon kodu yalnızca üyelikte, numara değiştirirken ve hassas işlem onayında
+  (`/auth/code`, oturumla kendi numarasına); kanallar `VERIFY_CHANNELS` (WhatsApp Cloud API `sms/code-sender.ts`, yedek SMS).
+  Google üye girişi yönetim girişinin bağdaştırıcısıyla, ayrı istemci (`USER_AUTH_PROVIDER`, yerelde sahte: web
+  `/gelistirme/google`); dönüş web'de `/api/oturum/google/donus`, mobil girişte `state` "m." ile başlar ve kod
+  `rengarenk://google` ile uygulamaya gider. Apple `APPLE_AUTH_PROVIDER`. Üyelik jetonu ayrı anahtarla imzalı (oturum
+  yerine geçmez). E-posta tekil; `PATCH /me` e-postayı değiştirmez (`POST /me/email`). Şifre sıfırlama işçiden
+  (`hesap.sifre_istendi`, şifreli teslim kaydı). Testlerde kullanıcı `uyeOl(app, telefon)` ile açılır (`test/helpers.ts`;
+  kayıtlıysa e-posta ve şifreyle girer). Demo girişi `demo<son 7 hane>@ornek.com` / `Demo1234`. Canlıda sahte Google ve
+  Apple yasak: `.env.prod`'a `USER_AUTH_PROVIDER=none`, `APPLE_AUTH_PROVIDER=none` (istemci gelene kadar). API'de 227 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

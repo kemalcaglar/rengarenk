@@ -18,13 +18,7 @@ async function login(phone: string) {
 describe('profil ve oturumlar', () => {
   it('profil güncellenir; e-posta profil güncellemesiyle değişmez, bilinmeyen alan reddedilir', async () => {
     const { accessToken } = await login('+905327770001');
-    const ok = await call(
-      app,
-      'PATCH',
-      '/me',
-      { displayName: 'Ayşe Y.' },
-      accessToken,
-    );
+    const ok = await call(app, 'PATCH', '/me', { displayName: 'Ayşe Y.' }, accessToken);
     expect(ok.status).toBe(200);
     expect(ok.body.displayName).toBe('Ayşe Y.');
     // Üyeliğin son adımı: ad ve soyad ayrı; görünen ad ikisinden oluşur (Karar 29)

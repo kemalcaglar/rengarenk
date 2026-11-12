@@ -144,6 +144,9 @@ describe('kullanıcı ve galeri kartı, kara liste (Karar 40, 43, 52)', () => {
     expect(a.status).toBe(200);
     expect(a.body.durum).toBe('ACTIVE');
     expect(a.body.rozetler.map((r: { t: string }) => r.t)).toContain('Askıda · 24 saat');
+    // Giriş yolu görünür; şifre özeti ve kimlikler yanıtta yoktur (Karar 18)
+    expect(a.body.rozetler.map((r: { t: string }) => r.t)).toContain('Giriş: e-posta ve şifre');
+    expect(JSON.stringify(a.body)).not.toMatch(/scrypt|passwordHash|googleSub/);
     const r = await db.report.findFirstOrThrow({ where: { targetUserId: okan.userId, source: 'calisan' } });
     expect(r).toMatchObject({ targetType: 'kullanici', status: 'kapali', decision: 'aski' });
     // Kararın ayrıntısı kişiye açık ve itiraz edilebilir

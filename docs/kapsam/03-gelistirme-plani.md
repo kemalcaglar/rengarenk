@@ -158,18 +158,20 @@ SMS sağlayıcısı özel gönderici adı için şirket ve marka tescili istedi�
 (sahip kararı). Üye ol ve Giriş yap ayrı; telefon üyelikte bir kez doğrulanır.
 
 - [x] Karar 18 ve 50, teknik tasarım T09 ve §11 güncellendi
-- [ ] API: kullanıcıya şifre özeti, Google ve Apple kimliği, tekil e-posta; üyelik başlat (bilgiler + telefon kodu) ve
+- [x] API: kullanıcıya şifre özeti, Google ve Apple kimliği, tekil e-posta; üyelik başlat (bilgiler + telefon kodu) ve
   tamamla (hesap tek işlemde açılır), e-posta ve şifreyle giriş, Google ve Apple ile giriş (hesap yoksa üyeliğe yönlendirir),
   şifremi unuttum, e-posta doğrulama; telefon koduyla giriş kalkar. Doğrulanmış numara başka hesapta doğrulanamaz; hız
   sınırı, kara liste, rıza kaydı ve reklam ölçümü olduğu gibi
-- [ ] Kod kanalı: WhatsApp bağdaştırıcısı (Cloud API, kimlik doğrulama şablonu), SMS yedek, yerelde ve testte sahte
-- [ ] E-posta: Amazon SES (SMTP); doğrulama ve şifre sıfırlama şablonları
-- [ ] Web: `/uye-ol` ve `/giris` ayrı, Google ile devam, şifremi unuttum, e-posta doğrulama; Ayarlar'da e-posta ve şifre
-- [ ] Mobil: aynı ekranlar; Google ile, iPhone'da Apple ile giriş
-- [ ] Konsol: kullanıcı kartında giriş yolları ve e-posta doğrulama durumu
-- [ ] Hassas işlem onayı (verilerimi indir, KVKK başvurusu, hesap kapatma, numara değiştir) telefon koduyla sürer; kod
+- [x] Kod kanalı: WhatsApp bağdaştırıcısı (Cloud API, kimlik doğrulama şablonu), SMS yedek, yerelde ve testte sahte
+  (gerçek Meta hesabıyla deneme bekliyor)
+- [ ] E-posta: Amazon SES (SMTP); doğrulama ve şifre sıfırlama şablonları (şablonlar ve gönderim hazır; SES alan adı
+  doğrulaması ve üretim erişimi bekliyor)
+- [x] Web: `/uye-ol` ve `/giris` ayrı, Google ile devam, şifremi unuttum, e-posta doğrulama; Ayarlar'da e-posta ve şifre
+- [x] Mobil: aynı ekranlar; Google ile, iPhone'da Apple ile giriş (gerçek cihazda deneme bekliyor)
+- [x] Konsol: kullanıcı kartında giriş yolları ve e-posta doğrulama durumu
+- [x] Hassas işlem onayı (verilerimi indir, KVKK başvurusu, hesap kapatma, numara değiştir) telefon koduyla sürer; kod
   WhatsApp'tan gider
-- [ ] Demo veri, testler, durum belgesi
+- [x] Demo veri, testler, durum belgesi
 - Sahibin işleri: Google Cloud'da kullanıcı girişi için OAuth istemcisi; SES alan adı doğrulaması (DNS kayıtları) ve
   üretim erişimi talebi; Meta İşletme hesabı ve WhatsApp numarası (geliştirmede Meta'nın test numarası); Apple geliştirici
   hesabı

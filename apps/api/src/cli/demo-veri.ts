@@ -93,21 +93,30 @@ interface Kisi {
 const DEMO_SIFRE = 'Demo1234';
 const demoEposta = (tel: string) => `demo${tel.slice(-7)}@ornek.com`;
 
+/** Demo hesabın girişi her zaman aynı: demo<son 7 hane>@ornek.com ve Demo1234 (Karar 18 öncesi hesaplar da) */
+async function demoGirisi(userId: string, tel: string) {
+  const u = await db.user.findUniqueOrThrow({
+    where: { id: userId },
+    select: { email: true, passwordHash: true },
+  });
+  if (u.email === demoEposta(tel) && u.passwordHash) return;
+  await db.user.update({
+    where: { id: userId },
+    data: { email: demoEposta(tel), passwordHash: await hashPassword(DEMO_SIFRE) },
+  });
+}
+
 async function giris(tel: string, ad: string, soyad: string): Promise<Kisi> {
   const var_ = await db.user.findUnique({
     where: { phone: tel },
     select: { id: true, email: true, passwordHash: true },
   });
   if (var_) {
-    const eposta = var_.email ?? demoEposta(tel);
-    // Karar 18'den önce telefonla kurulan demo hesaplara e-posta ve şifre verilir (yalnızca yerel demo)
-    if (!var_.passwordHash) {
-      await db.user.update({
-        where: { id: var_.id },
-        data: { email: eposta, passwordHash: await hashPassword(DEMO_SIFRE) },
-      });
-    }
-    const g = olmali(await istek('POST', '/auth/login', { eposta, sifre: DEMO_SIFRE }), `${ad} giriş`);
+    await demoGirisi(var_.id, tel);
+    const g = olmali(
+      await istek('POST', '/auth/login', { eposta: demoEposta(tel), sifre: DEMO_SIFRE }),
+      `${ad} giriş`,
+    );
     return { tel, ad, soyad, token: g.accessToken, userId: var_.id };
   }
   // Yalnızca yerel demo: önceki kod istekleri geriye alınır (60 sn bekleme ve saatlik sınır yeniden kurulumu durdurmasın)
@@ -380,7 +389,21 @@ async function galeriBasvur(
 const IZ = '+905551000001';
 const izU = await db.user.findUnique({ where: { phone: IZ } });
 if (izU && (await db.savedSearch.count({ where: { name: 'İstanbul BMW' } }))) {
-  console.log('Demo verisi zaten kurulu (+90 555 100 00 01 var); değişiklik yapılmadı.');
+  // Karar 18: demo hesapların e-posta ve şifresi her çalıştırmada yerine konur
+  const demolar = await db.user.findMany({
+    where: {
+      phone: {
+        in: [1, 2, 3, 4, 5, 6]
+          .map((i) => `+90555100000${i}`)
+          .concat([1, 2, 3, 4].map((i) => `+90555200000${i}`)),
+      },
+    },
+    select: { id: true, phone: true },
+  });
+  for (const u of demolar) await demoGirisi(u.id, u.phone);
+  console.log(
+    `Demo verisi zaten kurulu; ${demolar.length} demo hesabın girişi demo<numaranın son 7 hanesi>@ornek.com ve ${DEMO_SIFRE}.`,
+  );
   await app.close();
   process.exit(0);
 }

@@ -58,11 +58,11 @@ const tarih = (iso: string) =>
 
 /**
  * Kişisel verilerim (HesapMobil.dc.html › Hesap; Karar 31, 58): verilerimi indir, KVKK başvurusu ve hesabı kapat,
- * üçü de SMS koduyla. Reklam ölçümü onayı da buradan verilir ya da geri alınır (Karar 35, 59; tasarımda yok). Kapatmada kullanılmamış hakların iadesi Sahip'in onayına gider.
+ * üçü de telefon koduyla (önce WhatsApp). Reklam ölçümü onayı da buradan verilir ya da geri alınır (Karar 35, 59; tasarımda yok). Kapatmada kullanılmamış hakların iadesi Sahip'in onayına gider.
  * Hazır kopya güvenlik için hesaba girilerek web'den (Ayarlar › Gizlilik ve güvenlik) indirilir.
  */
 export default function KisiselVerilerim() {
-  const { durum, me, istek, cikis } = useOturum();
+  const { durum, istek, cikis } = useOturum();
   const [kapanis, setKapanis] = useState<Kapanis | null>(null);
   const [neden, setNeden] = useState<CloseReason>('buldum');
   const [kopya, setKopya] = useState<Kopya | null>(null);
@@ -105,9 +105,10 @@ export default function KisiselVerilerim() {
   async function kodIste(ne: 'indir' | 'kvkk' | 'kapat') {
     setHata(null);
     try {
-      const r = await istek<{ challengeId: string; devCode?: string }>('/auth/otp/request', {
+      // Hassas işlem onayı (Karar 58): kod hesaptaki numaraya gider (önce WhatsApp)
+      const r = await istek<{ challengeId: string; devCode?: string }>('/auth/code', {
         method: 'POST',
-        body: { phone: me?.phone },
+        body: {},
       });
       setChallengeId(r.challengeId);
       setKod(r.devCode ?? '');

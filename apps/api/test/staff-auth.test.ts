@@ -292,8 +292,12 @@ describe('yönetim girişi ayarları', () => {
     expect(() => loadEnv({ ...prod, USER_AUTH_PROVIDER: 'google' })).toThrow('USER_GOOGLE_CLIENT_ID');
     expect(() => loadEnv({ ...prod, VERIFY_CHANNELS: 'whatsapp,sms' })).toThrow('WHATSAPP_TOKEN');
     expect(
-      loadEnv({ ...prod, VERIFY_CHANNELS: 'whatsapp, SMS', WHATSAPP_TOKEN: 't', WHATSAPP_PHONE_NUMBER_ID: '1' })
-        .VERIFY_CHANNELS,
+      loadEnv({
+        ...prod,
+        VERIFY_CHANNELS: 'whatsapp, SMS',
+        WHATSAPP_TOKEN: 't',
+        WHATSAPP_PHONE_NUMBER_ID: '1',
+      }).VERIFY_CHANNELS,
     ).toEqual(['whatsapp', 'sms']);
     expect(() => loadEnv({ ...prod, VERIFY_CHANNELS: 'telgraf' })).toThrow();
   });

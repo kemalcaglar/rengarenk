@@ -49,8 +49,9 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
 
 ### Aşama 0–1 · Temel (Sprint 1–4)
 - Monorepo (pnpm + Turborepo), yerel ortam (Docker: PostgreSQL, Redis, OpenSearch, SeaweedFS, Mailpit), CI.
-- Telefon + SMS koduyla giriş: 15 dk erişim, 90 gün yenileme jetonu, döndürme, çalınan jeton kullanılırsa bütün
-  oturumların kapanması; kaybolan yenileme yanıtı için 2 dk hoşgörü.
+- Oturum: 15 dk erişim, 90 gün yenileme jetonu, döndürme, çalınan jeton kullanılırsa bütün oturumların kapanması;
+  kaybolan yenileme yanıtı için 2 dk hoşgörü. Giriş 12 Kasım 2026'dan beri e-posta ve şifre, Google ya da Apple ile;
+  telefon üyelikte bir kez kodla doğrulanır (Karar 18, Sprint 30).
 - Ana ve yedek SMS yönlendirici, İleti Merkezi bağdaştırıcısı (anahtar bekliyor), IP hız sınırı.
 - İşlem kaydı (yalnızca ekleme), outbox ve pg-boss kuyruğu, hak defteri (yalnızca ekleme), iade kilidi.
 - Günlük maskeleri (telefon, kod, jeton, çerez yazılmaz), `/metrics`, GlitchTip bildirimi.
@@ -225,8 +226,9 @@ Sıra, "canlıya çıkışı en çok hızlandıran ve en az bekleten" mantığı
 1. **AWS Lightsail kurulumu + KVKK standart sözleşmesi + ilk dağıtım (en kritik).** Diğer bütün gerçek entegrasyonlar (SMS, e-posta, ödeme bildirimi)
    herkese açık bir adres ister. Standart sözleşme Kurum'a bildirilip proje açılınca: `deploy/README.md` adımları → prova (`deploy/prova/`) zaten yapıldı →
    SOPS ile sırlar → `v0.1.0` etiketi (senin onayınla) → yedek ve izleme.
-2. **SMS (İleti Merkezi) ve Google Workspace.** Bunlar olmadan canlıda kimse giriş yapamaz. İkisi de yarım günlük iş.
-3. **Kendi e-posta sunucusu ve ısınma.** Isınma haftalar sürdüğü için erken başlamak gerekir.
+2. **Üyelik kanalları (Karar 18).** WhatsApp (Meta İşletme hesabı, numara, şablon) olmadan yeni üyelik açılamaz;
+   Google ile giriş için OAuth istemcisi, konsol girişi için Google Workspace.
+3. **Amazon SES (Karar 50).** Alan adı doğrulaması ve üretim erişimi; e-posta doğrulama ve şifre sıfırlama buna bağlı.
 4. **Apple ve Google Play hesapları → EAS derleme → TestFlight ve iç test.** Mağaza hesapları (özellikle Apple D-U-N-S)
    gecikmeye açık; kapalı beta buna bağlı.
 5. **PayTR ve e-Arşiv** (aynı anda; fatura olmadan satış açılmaz). O zamana kadar canlıda satın alma kapalı
@@ -337,11 +339,15 @@ bağlantısı → beta kullanıcılarına davet. Bunu hesaplar gelince birlikte 
 Demo veri `pnpm --filter @rengarenk/api demo` ile kuruldu (10 Kasım 2026). Hepsi API'nin kendi uçlarından geçtiği için
 hak defteri, işlem kaydı, bildirimler, arama ve eşleşmeler tutarlıdır.
 
-### 9.1 Web ve mobil girişi nasıl yapılır
+### 9.1 Web ve mobil girişi nasıl yapılır (Karar 18)
 1. http://localhost:3000/giris (mobilde Giriş ekranı).
-2. Telefon numarasını yaz (ör. `0555 100 00 01`).
-3. Yerelde SMS gönderilmez; ekranda "Geliştirme ortamı: SMS gönderilmedi, kod … kutuya yazıldı" görünür. Devam et.
-4. Aynı numarayla 60 saniye içinde yeniden kod istenemez; aynı bilgisayardan saatte en çok 20 kod istenebilir
+2. E-posta: `demo` + telefonun son 7 hanesi + `@ornek.com` (ör. Ayşe `0555 100 00 01` → `demo1000001@ornek.com`,
+   Ahmet `0555 200 00 01` → `demo2000001@ornek.com`). Şifre hepsinde `Demo1234`. Demo betiği her çalıştırmada bunları
+   yerine koyar.
+3. Google ile denemek için "Google ile devam et": yerelde sahte Google sayfası açılır, herhangi bir Gmail adresi ve ad
+   yazılır; hesap yoksa üyelik formu dolu gelir.
+4. Yeni üyelik `/uye-ol`: telefon kodu yerelde gönderilmez, ekranda "Geliştirme ortamı: kod gönderilmedi, … kutuya
+   yazıldı" görünür. Aynı numaraya 60 saniye içinde yeniden kod istenemez; aynı bilgisayardan saatte en çok 20 kod
    (aşılırsa bkz. 11).
 
 ### 9.2 Bireysel kullanıcılar (alıcı ve bireysel satıcı)
@@ -365,7 +371,7 @@ hak defteri, işlem kaydı, bildirimler, arama ve eşleşmeler tutarlıdır.
 | Ankara Güven Oto (`/galeri/ankara-guven-oto`) | Hüseyin Koç (sahip) | 0555 200 00 03 | **30 gün deneme** (10 Aralık 2026'ya kadar) | 3 araç: Renault Clio 2022 (#77100009), Fiat Egea 2021, Ford Focus 2019 | Deneme süresi, paket alma (sahte ödeme), Mehmet ile sohbet |
 | İzmir Körfez Otomotiv | Serkan Aydın | 0555 200 00 04 | Başvuru **incelemede** (yetki belgesi uyarılı) | — | Başvuranın gözünden bekleme ekranı; konsolda Galeri başvuruları'ndan onay/ret/belge isteme |
 
-Galeriye giriş: aynı telefonla giriş yapılır; üst menüde "Galeri paneli" görünür (web `/galeri-paneli`, mobilde Hesabım ›
+Galeriye giriş: sahibin ya da çalışanın demo e-postası ve şifresiyle giriş yapılır; üst menüde "Galeri paneli" görünür (web `/galeri-paneli`, mobilde Hesabım ›
 Galeri paneli).
 
 **Sahte ödeme:** paket ya da hak satın alırken açılan sayfada "Ödemeyi onayla (başarılı)" / "Ödemeyi reddet (başarısız)"

@@ -8,7 +8,8 @@
     "userInterfaceStyle": "light",
     "ios": {
       "bundleIdentifier": "tr.com.rengarenk.app",
-      "supportsTablet": false
+      "supportsTablet": false,
+      "usesAppleSignIn": true
     },
     "android": {
       "package": "tr.com.rengarenk.app"
@@ -26,7 +27,9 @@
         }
       ],
       "expo-document-picker",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-apple-authentication",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
