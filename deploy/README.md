@@ -64,6 +64,23 @@ KVKK standart sözleşmesi bildirilene kadar sunucu dışarıya kapalı bir test
 - SMS: `RENGARENK` başlığı onaylanana kadar sunucuda geçici olarak `SMS_SENDER_ID=APITEST` (sahip kararı, 12 Kasım
   2026; İleti Merkezi test kredisi). Başlık onaylanınca `.env.prod`'da `RENGARENK`'e döndür, `api` ve `worker`'ı yeniden aç.
 
+### Veri aktarımı (13 Kasım 2026, sahip kararı)
+
+Test sunucusunun veritabanı sıfırlandı ve yereldeki katalog ile ayarlar taşındı: katalogun 10 tablosu (galeri
+kökenli temsilî fotoğraflar hariç), kategoriler ve şema sürümleri, yardım makaleleri, yasaklı kelimeler, yapay zekâ
+ayarı, yasal metin taslakları, tasarım ve ana sayfa düzeni sürümleri, içerik ayarı, kuponlar, açılış sayfaları,
+segmentler, özellik anahtarları. Kullanıcı, çalışan ve işlem kaydı taşınmaz. Önceki veritabanının yedeği sunucuda
+`~/aktarim/sunucu-oncesi-20261113.dump`. Tekrarlamak için:
+
+1. Yerelde `python deploy/veri-aktar.py aktarim.sql`, dosyayı sunucuya kopyala.
+2. Sunucuda `api worker iade-yurutucu web admin` durdurulur; veritabanı silinip yeniden açılır
+   (`DROP DATABASE rengarenk WITH (FORCE)`), `--profile migrate run --rm migrate`, sonra
+   `psql -U rengarenk -d rengarenk -q < aktarim.sql`. API açılmadan yüklenmeli: kategoriler ve yardım makaleleri
+   tablo boşsa açılışta yeniden üretilir. Tetikleyiciler kapatılmaz.
+3. Depodaki katalog fotoğrafları (`catalog_images.storage_key`) SeaweedFS'e `weed filer.copy` ile kopyalanır.
+4. Redis boşaltılır, `up -d`. İşçi açılışta katalog kaynaklarını yoklar: yerel geride kaldıysa sunucu yeni sürümü
+   çeker; birebir eşitlik için önce yerelde işçiyi bir kez çalıştır.
+
 ## Günlük işler
 
 | İş         | Komut (sunucuda, `/srv/rengarenk`)                                                                      |
