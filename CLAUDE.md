@@ -332,12 +332,12 @@ pnpm format        # Biome ile biçimlendir
   rengarenksite.com (kodda, ayarlarda ve belgelerde; yönetim girişi `STAFF_EMAIL_DOMAINS=rengarenksite.com`). Kapalı test
   sunucusu `rengarenk-1` açıldı (63.184.9.173, SSH `~/.ssh/rengarenk_lightsail`, ayrıntı `deploy/README.md` › Kapalı test
   ortamı); imajlar sunucuda derlenir, `.env.prod` yalnızca sunucuda, 443/22 yalnızca sahibin IP adresine. İade yürütücü
-  kapsayıcısı açılmıyor (`RefundExecutorModule`'de `PricingService`/`AdsService` eksik): iade akışı, sahibe sorulmadan
-  düzeltme. Yapay zekâ
+  modülüne `PricingCoreModule` eklendi (sahip onayıyla; `test/refund-executor-module.test.ts` modülü canlıdaki gibi kurar).
+  Yapay zekâ
   AWS Bedrock (`AI_PROVIDER=bedrock`, `BedrockAiProvider` Converse API, model tablosu `AI_MODELS.bedrock` Nova Lite/Pro
   `eu.` profili; Vertex de duruyor, `aiCostMicroUsd(sağlayıcı, boy, …)`). AWS Activate Founders başvurusu yapıldı (sonuç
   5–10 iş günü); o zamana kadar 100 USD yeni hesap kredisi. Tanıtım sayfası `deploy/tanitim` (Güzel Hosting, cPanel).
-  API'de 214 test.
+  API'de 216 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; 25. port talebi bekliyor, Karar 50,
