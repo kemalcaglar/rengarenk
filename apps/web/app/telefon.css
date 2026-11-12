@@ -3,10 +3,15 @@
  * mobil tasarımların (AnasayfaMobil, ListeMobil, MesajlarMobil) düzenine yaklaşır. Öğelerin çoğu satır içi stille
  * yazıldığı için buradaki kurallar !important ile üstün gelir.
  */
-.rr-yalniz-dar {
+.rr-yalniz-dar,
+.rr-menu-dugme {
   display: none !important;
 }
 @media (max-width: 720px) {
+  /* Üst çubuğun solundaki ☰ (menü ve kategoriler çekmecesi, AnasayfaMobil.dc.html) */
+  .rr-menu-dugme {
+    display: flex !important;
+  }
   .rr-yalniz-genis {
     display: none !important;
   }
@@ -21,12 +26,28 @@
 
   /* Üst çubuk: logo ve hesap düğmeleri bir satırda, arama altında tam genişlikte */
   .rr-ust {
-    padding: 10px 16px 12px !important;
-    gap: 10px !important;
+    padding: 10px 12px 12px !important;
+    gap: 10px 8px !important;
   }
   .rr-ust-logo {
     flex: 1 1 auto;
     min-width: 0;
+    gap: 4px !important;
+  }
+  /* Logo telefon ölçüsünde (AnasayfaMobil.dc.html: çubuklar 7×16, yazı 18 px) */
+  .rr-logo {
+    gap: 6px !important;
+  }
+  .rr-logo > span:first-child {
+    gap: 2px !important;
+  }
+  .rr-logo > span:first-child > span {
+    width: 7px !important;
+    height: 16px !important;
+  }
+  .rr-logo > span:last-child {
+    font-size: 18px !important;
+    letter-spacing: -0.4px !important;
   }
   .rr-ust-ara {
     order: 3;

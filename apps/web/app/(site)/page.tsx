@@ -60,8 +60,9 @@ export default async function Home() {
   ]);
   const kategoriler = tum.filter((c) => c.vertical === 'vasita');
   const kat = (
+    // Telefonda kategoriler üst çubuktaki ☰ menüsünde (AnasayfaMobil.dc.html); kenar çubuğu yalnızca geniş ekranda
     <aside
-      className="rr-serit"
+      className="rr-yalniz-genis"
       style={{
         ...card,
         flex: '1 1 220px',

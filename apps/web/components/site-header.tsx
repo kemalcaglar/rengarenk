@@ -1,15 +1,17 @@
 import { getDesign } from '../lib/bakim';
+import { getCategories } from '../lib/kategoriler';
 import { colors } from '../lib/renk';
 import { HesapMenusu } from './hesap-menusu';
 import { Logo } from './logo';
+import { MenuCekmecesi } from './menu-cekmecesi';
 
 /**
  * Üst çubuk (tasarım: Anasayfa.dc.html, Taleplerim.dc.html): logo, talep arama, hesap (girişliyse avatar ve ad,
- * değilse "Giriş yap") ve "Talep oluştur".
+ * değilse "Giriş yap") ve "Talep oluştur". Telefonda logonun solunda ☰ (AnasayfaMobil.dc.html: menü ve kategoriler).
  */
 export async function SiteHeader() {
   // Mevsimsel tema (Karar 46): tarih aralığında üst bant rengi ve rozet
-  const { tema } = await getDesign();
+  const [{ tema }, kategoriler] = await Promise.all([getDesign(), getCategories()]);
   return (
     <header style={{ background: 'var(--rr-ust-bant, #FFFFFF)', borderBottom: `1px solid ${colors.line}` }}>
       <div
@@ -28,6 +30,11 @@ export async function SiteHeader() {
           className="rr-ust-logo"
           style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--rr-ust-yazi)' }}
         >
+          <MenuCekmecesi
+            kategoriler={kategoriler
+              .filter((c) => c.vertical === 'vasita')
+              .map(({ slug, name, color }) => ({ slug, name, color }))}
+          />
           <Logo />
           {tema?.rozet ? (
             <span

@@ -8,6 +8,7 @@ export function Logo() {
   return (
     <Link
       href="/"
+      className="rr-logo"
       style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'inherit', textDecoration: 'none' }}
       aria-label="Rengarenk ana sayfa"
     >
