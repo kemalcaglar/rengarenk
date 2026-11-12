@@ -335,7 +335,7 @@ export default function AcilisSayfalari() {
 
   const ayarlar = t
     ? [
-        { ad: 'Adres', alan: 'slug' as const, deger: t.slug, onEk: 'rengarenk.com.tr/' },
+        { ad: 'Adres', alan: 'slug' as const, deger: t.slug, onEk: 'rengarenksite.com/' },
         { ad: 'Sayfa başlığı', alan: 'seoBaslik' as const, deger: t.seoBaslik },
       ]
     : [];
@@ -444,7 +444,7 @@ export default function AcilisSayfalari() {
                   </span>
                 </span>
                 <span style={{ display: 'block', fontSize: 12.5, color: '#2450C8', marginTop: 3 }}>
-                  rengarenk.com.tr{s.adres}
+                  rengarenksite.com{s.adres}
                 </span>
                 <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 3 }}>
                   {s.sonuc}

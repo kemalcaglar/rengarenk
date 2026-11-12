@@ -81,8 +81,8 @@ const schema = z.object({
   SMTP_SECURE: z.enum(['0', '1']).default('0'),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
-  EPOSTA_GONDEREN: z.string().default('Rengarenk <bildirim@bildirim.rengarenk.com.tr>'),
-  EPOSTA_GONDEREN_TICARI: z.string().default('Rengarenk <bulten@bulten.rengarenk.com.tr>'),
+  EPOSTA_GONDEREN: z.string().default('Rengarenk <bildirim@bildirim.rengarenksite.com>'),
+  EPOSTA_GONDEREN_TICARI: z.string().default('Rengarenk <bulten@bulten.rengarenksite.com>'),
   /** Ticari e-posta IP ısınmasının başladığı gün (YYYY-AA-GG); boşsa ticari e-posta gönderilmez (Karar 50) */
   EPOSTA_ISINMA_BASLANGIC: z
     .string()
@@ -97,9 +97,14 @@ const schema = z.object({
   FCM_SERVICE_ACCOUNT: z.string().optional(),
   /**
    * Yapay zekâ sağlayıcısı (T11, Karar 41, 57): none (çağrı yapılmaz, ajan kural metinlerini kullanır), fake (yerel
-   * deneme; maliyet tahminle sayılır), vertex (Google Vertex AI Gemini). İstekler her zaman maskelenir.
+   * deneme; maliyet tahminle sayılır), bedrock (AWS Bedrock, Amazon Nova; canlı), vertex (Google Vertex AI Gemini).
+   * İstekler her zaman maskelenir.
    */
-  AI_PROVIDER: z.enum(['none', 'fake', 'vertex']).default('none'),
+  AI_PROVIDER: z.enum(['none', 'fake', 'bedrock', 'vertex']).default('none'),
+  /** Bedrock: yalnızca bedrock:InvokeModel yetkili IAM kullanıcısının anahtarı; bölge Frankfurt (Karar 37) */
+  BEDROCK_REGION: z.string().default('eu-central-1'),
+  BEDROCK_ACCESS_KEY_ID: z.string().optional(),
+  BEDROCK_SECRET_ACCESS_KEY: z.string().optional(),
   /** Vertex hizmet hesabı JSON'u (base64) */
   VERTEX_SERVICE_ACCOUNT: z.string().optional(),
   VERTEX_LOCATION: z.string().default('europe-west4'),
@@ -130,7 +135,7 @@ const schema = z.object({
   /** Yönetime girebilecek şirket e-posta alanları, virgülle ayrılır. */
   STAFF_EMAIL_DOMAINS: z
     .string()
-    .default('rengarenk.com.tr')
+    .default('rengarenksite.com')
     .transform((v) =>
       v
         .split(',')
@@ -215,6 +220,8 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
   }
   if (e.META_PROVIDER === 'capi' && !(e.META_PIXEL_ID && e.META_CAPI_TOKEN))
     throw new Error('Meta Conversions API için META_PIXEL_ID ve META_CAPI_TOKEN gerekli');
+  if (e.AI_PROVIDER === 'bedrock' && !(e.BEDROCK_ACCESS_KEY_ID && e.BEDROCK_SECRET_ACCESS_KEY))
+    throw new Error('Bedrock için BEDROCK_ACCESS_KEY_ID ve BEDROCK_SECRET_ACCESS_KEY gerekli');
   if (e.AI_PROVIDER === 'vertex' && !e.VERTEX_SERVICE_ACCOUNT)
     throw new Error('Vertex AI için VERTEX_SERVICE_ACCOUNT gerekli');
   if (e.PUSH_PROVIDER === 'fcm' && !e.FCM_SERVICE_ACCOUNT)

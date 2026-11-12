@@ -9,8 +9,8 @@ _Tersine İlan Uygulaması – Ürün Kapsam Dokümanı_; sekmeler: Teknik tasar
 ```
 apps/
   api/      NestJS (Fastify) · API ve arka plan işçisi aynı kod tabanı
-  web/      Next.js · rengarenk.com.tr
-  admin/    Next.js · yönetim konsolu (yonetim.rengarenk.com.tr)
+  web/      Next.js · rengarenksite.com
+  admin/    Next.js · yönetim konsolu (yonetim.rengarenksite.com)
   mobile/   Expo (iOS + Android) · expo-router
 packages/
   db/       Prisma şeması, göçler (migration), başlangıç verisi
@@ -94,14 +94,14 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 
 ## Yönetim konsolu: giriş, roller, onay kuyruğu (Sprint 3)
 
-- **Giriş (T10, Karar 40):** şirket Google hesabı (`STAFF_EMAIL_DOMAINS`, şimdilik `rengarenk.com.tr`),
+- **Giriş (T10, Karar 40):** şirket Google hesabı (`STAFF_EMAIL_DOMAINS`, şimdilik `rengarenksite.com`),
   ardından doğrulama uygulaması kodu zorunlu. İlk girişte karekodla kurulur ve 10 tek kullanımlık
   kurtarma kodu verilir. 30 dakika işlem yapılmazsa, en geç 12 saatte oturum kapanır. Yeni cihazdan
   giriş `calisan.yeni_cihaz` olayını yazar (bildirim katmanı gelince sahibe iletilecek).
 - **Google hesabı açılana kadar:** `STAFF_AUTH_PROVIDER=fake`. "Google ile giriş" düğmesi konsoldaki
   `/gelistirme/google` sayfasına gider; e-postayı yazıp devam edersin. Canlıda `google` zorunludur.
 - **Yerelde ilk giriş:** `pnpm db:migrate`, `pnpm db:seed`, sonra http://localhost:3001 ve
-  `sahip@rengarenk.com.tr`. Canlıda ilk sahip bir kez komutla açılır:
+  `sahip@rengarenksite.com`. Canlıda ilk sahip bir kez komutla açılır:
   `node dist/cli/sahip.js <e-posta> "<ad soyad>"` (yerelde `pnpm --filter @rengarenk/api sahip ...`).
 - **Roller ve yetkiler:** 8 hazır rol + Ajan; matris `packages/shared/src/staff.ts` içinde ve onaylı
   tasarımla aynı. Sahip özel rol oluşturur; çalışan yönetimi ve iadede tam yetki özel role verilemez.
@@ -129,7 +129,7 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 ## Araç kataloğu (Sprint 5)
 
 - `packages/catalog`: veritabanına dokunmayan hat (Excel okuyucu, TSB ayrıştırıcı, kalite kontrolü, imzalı paket).
-  GCP gelince Cloud Run'a taşınacak; şimdilik API ve işçide çalışır.
+  API ve işçide çalışır.
 - TSB dosyası: konsol › Sistem › Entegrasyonlar › TSB kartı › Katalog ayrıntıları'ndan yükleme ya da otomatik çekme (6 saatte bir, konsoldan açılır).
   Komut satırından: `pnpm --filter @rengarenk/api katalog:yukle <dosya.xlsx>` (dosya verilmezse TSB'den en son dosya).
 - Yıllar: 2006 ve sonrası TSB (güncel liste + arşiv: `katalog:yukle --arsiv`), 1985–2005 vehicle-makes-models

@@ -184,9 +184,9 @@ export default function Entegrasyonlar() {
           ],
         },
         bekleyen(
-          'Google Vertex AI (Gemini)',
+          'AWS Bedrock (Amazon Nova)',
           'Ajan ve kullanıcı tarafı yapay zekâ özellikleri',
-          'GCP erişimi bekleniyor',
+          'AWS erişimi bekleniyor',
         ),
       ]
     : [];

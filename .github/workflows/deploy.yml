@@ -31,7 +31,7 @@ jobs:
           # Web ve konsolun tarayıcı kodu API adresini derlemede alır (Next.js NEXT_PUBLIC_*).
           build-args: |
             APP=${{ matrix.app }}
-            NEXT_PUBLIC_API_URL=${{ vars.PUBLIC_API_URL || 'https://api.rengarenk.com.tr' }}
+            NEXT_PUBLIC_API_URL=${{ vars.PUBLIC_API_URL || 'https://api.rengarenksite.com' }}
             NEXT_PUBLIC_META_PIXEL_ID=${{ vars.META_PIXEL_ID }}
             NEXT_PUBLIC_GOOGLE_TAG_ID=${{ vars.GOOGLE_TAG_ID }}
           push: true

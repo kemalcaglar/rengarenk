@@ -232,7 +232,7 @@ export default function TalepDetay() {
             accessibilityRole="button"
             accessibilityLabel="Paylaş"
             onPress={() =>
-              Share.share({ message: `${t.baslik} · https://rengarenk.com.tr/talep/${t.no}` }).catch(
+              Share.share({ message: `${t.baslik} · https://rengarenksite.com/talep/${t.no}` }).catch(
                 () => undefined,
               )
             }

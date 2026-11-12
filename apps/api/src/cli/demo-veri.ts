@@ -108,13 +108,13 @@ async function giris(tel: string, ad: string, soyad: string): Promise<Kisi> {
 
 // ── Çalışanlar: sahte Google girişi ve doğrulama uygulaması kurulumu; sır çıktıya yazılır ──
 const CALISANLAR = [
-  ['yonetici@rengarenk.com.tr', 'Deniz Yönetici', 'ADMIN'],
-  ['moderator@rengarenk.com.tr', 'Mert Moderatör', 'MODERATOR'],
-  ['destek@rengarenk.com.tr', 'Duygu Destek', 'SUPPORT'],
-  ['finans@rengarenk.com.tr', 'Fatih Finans', 'FINANCE'],
-  ['operasyon@rengarenk.com.tr', 'Oya Operasyon', 'OPERATIONS'],
-  ['pazarlama@rengarenk.com.tr', 'Pelin Pazarlama', 'MARKETING'],
-  ['izleyici@rengarenk.com.tr', 'İlker İzleyici', 'VIEWER'],
+  ['yonetici@rengarenksite.com', 'Deniz Yönetici', 'ADMIN'],
+  ['moderator@rengarenksite.com', 'Mert Moderatör', 'MODERATOR'],
+  ['destek@rengarenksite.com', 'Duygu Destek', 'SUPPORT'],
+  ['finans@rengarenksite.com', 'Fatih Finans', 'FINANCE'],
+  ['operasyon@rengarenksite.com', 'Oya Operasyon', 'OPERATIONS'],
+  ['pazarlama@rengarenksite.com', 'Pelin Pazarlama', 'MARKETING'],
+  ['izleyici@rengarenksite.com', 'İlker İzleyici', 'VIEWER'],
 ] as const;
 
 async function calisanGiris(email: string): Promise<{ token: string; sir: string | null }> {
@@ -368,7 +368,7 @@ for (const [email, ad, rol] of CALISANLAR) {
   const var_ = await db.staffMember.findUnique({ where: { email } });
   if (!var_)
     await db.staffMember.create({ data: { id: uuidv7(), email, name: ad, role: rol, status: 'ACTIVE' } });
-  if (var_?.twoFactorEnabled && email !== 'yonetici@rengarenk.com.tr') {
+  if (var_?.twoFactorEnabled && email !== 'yonetici@rengarenksite.com') {
     if (var_.totpSecretEnc) sirlar[email] = app.get(SecretBox).open(var_.totpSecretEnc);
     continue;
   }
@@ -376,8 +376,8 @@ for (const [email, ad, rol] of CALISANLAR) {
   if (g.sir) sirlar[email] = g.sir;
   if (g.token) oturumlar[email] = g.token;
 }
-const yonetici = oturumlar['yonetici@rengarenk.com.tr'];
-const adminId = (await db.staffMember.findUniqueOrThrow({ where: { email: 'yonetici@rengarenk.com.tr' } }))
+const yonetici = oturumlar['yonetici@rengarenksite.com'];
+const adminId = (await db.staffMember.findUniqueOrThrow({ where: { email: 'yonetici@rengarenksite.com' } }))
   .id;
 
 // Bireysel kullanıcılar

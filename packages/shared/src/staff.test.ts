@@ -57,7 +57,7 @@ describe('yardımcılar', () => {
   });
 
   it('maskeleme', () => {
-    expect(maskEmail('selin.demir@rengarenk.com.tr')).toBe('se•••••••••@rengarenk.com.tr');
+    expect(maskEmail('selin.demir@rengarenksite.com')).toBe('se•••••••••@rengarenksite.com');
     expect(maskIp('85.105.12.4')).toBe('85.105.•.•');
   });
 });

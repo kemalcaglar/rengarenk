@@ -163,7 +163,7 @@ export default function Calisanlar() {
                 required
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                placeholder="ad.soyad@rengarenk.com.tr"
+                placeholder="ad.soyad@rengarenksite.com"
               />
             </label>
             <label className="k-field" style={{ flex: '1 1 180px' }}>

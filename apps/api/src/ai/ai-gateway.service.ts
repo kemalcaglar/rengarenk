@@ -123,7 +123,8 @@ export class AiGateway {
     const AYRAC = '\n␞\n';
     const m = maskPii(`${q.system}${AYRAC}${q.prompt}${AYRAC}${q.taslak}`, { names: q.names });
     const [system, prompt, taslak] = m.text.split(AYRAC) as [string, string, string];
-    const model = AI_MODELS[q.size].id;
+    const tablo = this.provider.ad === 'vertex' ? 'vertex' : 'bedrock';
+    const model = AI_MODELS[tablo][q.size].id;
     const temel = {
       id: uuidv7(),
       task: q.task,
@@ -141,7 +142,7 @@ export class AiGateway {
         taslak,
         maxOutputTokens: q.maxOutputTokens ?? 1024,
       });
-      const cost = aiCostMicroUsd(q.size, r.inputTokens, r.outputTokens);
+      const cost = aiCostMicroUsd(tablo, q.size, r.inputTokens, r.outputTokens);
       await this.db.aiCall.create({
         data: {
           ...temel,

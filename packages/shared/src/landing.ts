@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 /**
  * Açılış sayfaları (Karar 46; YonetimIcerik.dc.html › acilis): reklamlar için hazır bloklardan sayfa kurulur, sitenin
- * kök adresinde (rengarenk.com.tr/galeri-ol) yayınlanır. UTM'li reklam bağlantısı kendiliğinden üretilir; ziyaret ve
+ * kök adresinde (rengarenksite.com/galeri-ol) yayınlanır. UTM'li reklam bağlantısı kendiliğinden üretilir; ziyaret ve
  * düğme tıklaması günlük toplam olarak sayılır (kişisel veri tutulmaz). Ölçüm olayları (PageView, Lead) reklam
  * ölçümüne izin veren ziyaretçiler için Pixel ve Google etiketiyle gönderilir (Karar 35; bağlantı kurulunca).
  * Yayınlanan her sürüm saklanır; önceki sürüme tek tıkla dönülür.

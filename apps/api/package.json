@@ -21,6 +21,7 @@
     "katalog:yukle": "node --env-file-if-exists=../../.env --import @swc-node/register/esm-register src/cli/katalog-yukle.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "3.879.0",
     "@aws-sdk/client-s3": "3.879.0",
     "@fastify/helmet": "13.2.0",
     "@fastify/static": "10.1.10",

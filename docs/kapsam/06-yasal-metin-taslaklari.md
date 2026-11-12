@@ -19,7 +19,7 @@ Yayına girecek her metin yönetim konsolunda sürümlü tutulur ve kullanıcın
 
 ### 1.1 Taraflar
 
-Bu koşullar, rengarenk.com.tr sitesi ve Rengarenk mobil uygulamasını ("Platform") işleten \[Şirket unvanı\] (MERSİS: \[no\], adres: \[adres\], KEP: \[adres\]; "Rengarenk") ile Platform'a üye olan kişi ("Kullanıcı") arasındadır. Kurumsal hesaplar (galeri, kiralama firması, tekne galerisi) ayrıca Galeri hizmet sözleşmesine tabidir.
+Bu koşullar, rengarenksite.com sitesi ve Rengarenk mobil uygulamasını ("Platform") işleten \[Şirket unvanı\] (MERSİS: \[no\], adres: \[adres\], KEP: \[adres\]; "Rengarenk") ile Platform'a üye olan kişi ("Kullanıcı") arasındadır. Kurumsal hesaplar (galeri, kiralama firması, tekne galerisi) ayrıca Galeri hizmet sözleşmesine tabidir.
 
 ### 1.2 Hizmetin konusu
 
@@ -99,7 +99,7 @@ Yardım merkezindeki destek formu, uygulama içi destek sohbeti ve \[destek e-po
 
 ### 2.1 Veri sorumlusu
 
-&#91;Şirket unvanı\], MERSİS: \[no\], adres: \[adres\], KEP: \[adres\], e-posta: \[kvkk@rengarenk.com.tr\].
+&#91;Şirket unvanı\], MERSİS: \[no\], adres: \[adres\], KEP: \[adres\], e-posta: \[kvkk@rengarenksite.com\].
 
 ### 2.2 Hangi verileri, hangi amaçla ve hangi hukuki sebeple işliyoruz
 
@@ -126,19 +126,19 @@ Dolandırıcılığı önlemek, destek taleplerine hızlı yanıt vermek ve tale
 
 | Alıcı | Amaç | Yer |
 | --- | --- | --- |
-| Google Cloud (barındırma) | Verilerin saklanması ve işlenmesi | Yurt dışı (Almanya, AB), standart sözleşmeyle |
+| Amazon Web Services (barındırma, Amazon Bedrock) | Verilerin saklanması ve işlenmesi; maskeli yapay zekâ işlemleri | Yurt dışı (Almanya, AB), standart sözleşmeyle |
 | PayTR (ödeme kuruluşu) | Web ödemeleri | Türkiye |
 | e-Arşiv fatura entegratörü | Fatura düzenleme | Türkiye |
 | SMS sağlayıcıları | Doğrulama kodu ve kritik bildirimler | Türkiye |
 | İleti Yönetim Sistemi (İYS) | Ticari ileti onaylarının kaydı | Türkiye |
-| Google (Firebase Cloud Messaging, Vertex AI) | Bildirim iletimi; maskeli yapay zekâ işlemleri | Yurt dışı, standart sözleşmeyle |
+| Google (Firebase Cloud Messaging) | Bildirim iletimi | Yurt dışı, standart sözleşmeyle |
 | Apple ve Google mağazaları, RevenueCat | Mobil satın almaların doğrulanması | Yurt dışı, standart sözleşmeyle |
 | Meta ve Google (reklam) | Reklam ölçümü, yalnızca açık rıza verenler için | Yurt dışı |
 | Yetkili kamu kurum ve kuruluşları | Yasal talepler | Türkiye |
 
 Yurt dışına aktarımlar KVKK m.9 kapsamında standart sözleşmeyle yapılır ve sözleşmeler imzadan sonra 5 iş günü içinde Kurum'a bildirilir.
 
-Avukat notu: (0) Barındırma 11 Kasım 2026'da Google Cloud Avrupa'ya taşındı (Karar 37): Google Cloud ile KVKK standart sözleşmesinin nasıl imzalanacağı, bildirimin zamanı, e-Arşiv/fatura kayıtları ve 5651 trafik kayıtlarının yurt dışında tutulabilmesi teyit edilmeli. (1) Meta ve Google'ın reklam ürünleri için KVKK standart sözleşmesi imzalayıp imzalamadığı teyit edilmeli; imzalamıyorlarsa düzenli bir aktarım için açık rıza tek başına yeterli olmayabilir. (2) RevenueCat ile standart sözleşme imkanı araştırılmalı; push bildirimleri için cihaz kimlikleri Google'a (FCM) ve Apple'a (APNs) gider, bunlar için de aynı soru geçerlidir. (3) Maskeli verinin kişisel veri sayılıp sayılmadığı değerlendirilmeli; sayılsa da sayılmasa da standart sözleşme yapılması önerilir.
+Avukat notu: (0) Barındırma 12 Kasım 2026'da Amazon Web Services Frankfurt'a taşındı (Karar 37): AWS ile KVKK standart sözleşmesinin nasıl imzalanacağı, bildirimin zamanı, e-Arşiv/fatura kayıtları ve 5651 trafik kayıtlarının yurt dışında tutulabilmesi teyit edilmeli. (1) Meta ve Google'ın reklam ürünleri için KVKK standart sözleşmesi imzalayıp imzalamadığı teyit edilmeli; imzalamıyorlarsa düzenli bir aktarım için açık rıza tek başına yeterli olmayabilir. (2) RevenueCat ile standart sözleşme imkanı araştırılmalı; push bildirimleri için cihaz kimlikleri Google'a (FCM) ve Apple'a (APNs) gider, bunlar için de aynı soru geçerlidir. (3) Maskeli verinin kişisel veri sayılıp sayılmadığı değerlendirilmeli; sayılsa da sayılmasa da standart sözleşme yapılması önerilir.
 
 ### 2.5 Verileri nasıl topluyoruz
 
@@ -163,7 +163,7 @@ Süresi dolan veriler 6 ayda bir yapılan periyodik imhayla silinir veya anoniml
 Verilerinin işlenip işlenmediğini öğrenme, bilgi isteme, işleme amacını ve amaca uygun kullanılıp kullanılmadığını öğrenme, aktarıldığı üçüncü kişileri bilme, eksik veya yanlış verilerin düzeltilmesini ve silinmesini isteme, bu işlemlerin aktarılan kişilere bildirilmesini isteme, otomatik sistemlerle analiz sonucu aleyhine bir sonuç çıkmasına itiraz etme ve kanuna aykırı işleme nedeniyle zararın giderilmesini talep etme haklarına sahipsin.
 
 - **Verilerimi indir:** verilerinin bir kopyasını Ayarlar'dan, başvuru yapmadan indirebilirsin.
-- **Başvuru:** Ayarlar'daki KVKK başvuru formundan, kayıtlı e-postandan \[kvkk@rengarenk.com.tr\] adresine ya da yazılı olarak \[adres\] adresine. Başvurular en geç 30 gün içinde ücretsiz yanıtlanır.
+- **Başvuru:** Ayarlar'daki KVKK başvuru formundan, kayıtlı e-postandan \[kvkk@rengarenksite.com\] adresine ya da yazılı olarak \[adres\] adresine. Başvurular en geç 30 gün içinde ücretsiz yanıtlanır.
 
 ## 3. Reklam ölçümü açık rıza metni
 
@@ -281,7 +281,7 @@ Avukat notu: Galeri'nin veri sorumlusu sıfatı (madde 9), ağır ihlalde iade e
 
 - <span class="ck">○</span> <span class="todo">Platformun aracı hizmet sağlayıcı ve ilan platformu sayılıp sayılmadığı; buna göre doğrulama, saklama ve bildirim yükümlülükleri</span>
 - <span class="ck">○</span> <span class="todo">Hakların (ek talep, ilk mesaj) cayma istisnasına girip girmediği ve oranlı iade kuralı</span>
-- <span class="ck">○</span> <span class="todo">Barındırmanın Google Cloud Avrupa'ya taşınması (Karar 37): standart sözleşme ve bildirim; e-Arşiv/fatura ve 5651 kayıtlarının yurt dışında tutulabilmesi</span>
+- <span class="ck">○</span> <span class="todo">Barındırmanın AWS Frankfurt'a taşınması (Karar 37): standart sözleşme ve bildirim; e-Arşiv/fatura ve 5651 kayıtlarının yurt dışında tutulabilmesi</span>
 - <span class="ck">○</span> <span class="todo">Meta, Google ve RevenueCat aktarımları için standart sözleşme imkanı; reklam ölçümünde açık rızanın yeterliliği</span>
 - <span class="ck">○</span> <span class="todo">Maskeli verinin yapay zekâ sağlayıcısına aktarımının kişisel veri aktarımı sayılıp sayılmadığı</span>
 - <span class="ck">○</span> <span class="todo">Anayasa Mahkemesi'nin 2026/42 sayılı kararının ticari ileti metnine etkisi</span>

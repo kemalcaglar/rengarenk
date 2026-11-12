@@ -1,4 +1,4 @@
-# Canlı ortam: tek uygulama sunucusu (GCP Compute Engine, europe-west3; Karar 37). PostgreSQL ayrı sunucuda; DATABASE_URL ile bağlanılır.
+# Canlı ortam: tek uygulama sunucusu (AWS Lightsail, eu-central-1; Karar 37). PostgreSQL DATABASE_URL ile bağlanılır.
 # Kullanım (sunucuda): docker compose -f compose.prod.yml --env-file .env.prod up -d
 name: rengarenk
 x-app: &app

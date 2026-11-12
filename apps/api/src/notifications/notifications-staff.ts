@@ -80,7 +80,7 @@ const ORNEK: Record<string, unknown> = {
   metin: 'Üst sıra 7 gün %20 indirimli.',
   url: '/haklarim',
   dugme: 'İncele',
-  link: 'https://rengarenk.com.tr/taleplerim',
+  link: 'https://rengarenksite.com/taleplerim',
   karar: '24 saat askı: mesaj gönderemezsin',
   gerekce: 'Mesajında kapora istendi.',
   rapor: 'ornek',
@@ -408,8 +408,8 @@ export class NotificationsStaffService {
     return {
       kanallar: [
         satir('Mobil ve web push', 'Firebase Cloud Messaging', 'push', null, { maliyetKurus: 0 }),
-        satir('E-posta · işlemsel', 'bildirim.rengarenk.com.tr', 'eposta', false, { maliyetKurus: 0 }),
-        satir('E-posta · ticari', 'bulten.rengarenk.com.tr', 'eposta', true, {
+        satir('E-posta · işlemsel', 'bildirim.rengarenksite.com', 'eposta', false, { maliyetKurus: 0 }),
+        satir('E-posta · ticari', 'bulten.rengarenksite.com', 'eposta', true, {
           ayrilma: ayrilan,
           sikayet,
           maliyetKurus: 0,

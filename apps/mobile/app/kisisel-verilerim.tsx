@@ -271,7 +271,7 @@ export default function KisiselVerilerim() {
               }}
             >
               {kopya.durum === 'hazir'
-                ? `Hazır · ${kopya.gecerlilik ? tarih(kopya.gecerlilik) : ''} tarihine kadar rengarenk.com.tr › Ayarlar › Gizlilik ve güvenlik bölümünden indirebilirsin`
+                ? `Hazır · ${kopya.gecerlilik ? tarih(kopya.gecerlilik) : ''} tarihine kadar rengarenksite.com › Ayarlar › Gizlilik ve güvenlik bölümünden indirebilirsin`
                 : kopya.durum === 'hazirlaniyor'
                   ? `${tarih(kopya.istendi)} tarihinde istendi · hazırlanıyor`
                   : kopya.durum === 'suresi_doldu'

@@ -19,7 +19,7 @@ Tahmin belirsizdir: ilk 3 sprintin gerçek hızına bakıp planı yeniden ölçe
 | Aşama | Sprint | Bitiş | Kapsam | Demo ölçütü |
 | --- | --- | --- | --- | --- |
 | 0 · Hazırlık | 1 | 20 Kas 2026 | Monorepo, yerel ortam, CI, tasarım dili (renk, yazı, bileşenler), veritabanı şemasının ilk hali | Boş web, yönetim ve mobil uygulama açılıyor; testler CI'da geçiyor |
-| 1 · Temel | 2–4 | 1 Oca 2027 | Telefon ve SMS ile giriş, hesaplar, roller ve izinler, işlem kaydı, outbox ve kuyruk, yönetim girişi (Google Workspace + 2FA), izleme, GCP'ye dağıtım, test ortamı | Telefonla giriş canlı sunucuda çalışıyor |
+| 1 · Temel | 2–4 | 1 Oca 2027 | Telefon ve SMS ile giriş, hesaplar, roller ve izinler, işlem kaydı, outbox ve kuyruk, yönetim girişi (Google Workspace + 2FA), izleme, AWS'ye dağıtım, test ortamı | Telefonla giriş canlı sunucuda çalışıyor |
 | 2 · Katalog ve kategoriler | 5–7 | 12 Şub 2027 | Katalog veri modeli, TSB ve açık kaynak içe aktarma hattı, ad eşleme, Commons görselleri, 14 kategori şeması, katalog yönetimi | BMW 3 Serisi 320i'nin kasa, makyaj ve paketleri katalogdan geliyor |
 | 3 · Talep | 8–10 | 26 Mar 2027 | Talep sihirbazı (web ve mobil), yaşam döngüsü, süre ve hatırlatmalar, liste ve arama, talep detayı, favori, kayıtlı arama, ana sayfa ve vitrin ızgarası | Talep yayınlanıp aramada bulunuyor |
 | 4 · Galeri | 11–13 | 7 May 2027 | Kurumsal başvuru ve onay, yetki belgesi kontrolü, portföy (elle, Excel/CSV, API), EİDS, galeri profili, çalışanlar | Onaylı galeri portföyüne araç ekliyor |
@@ -37,7 +37,7 @@ Bunları sahip yürütüyor; tarihten sonra gelirse ilgili aşama bekler.
 | İş | Gereken sprint | En geç |
 | --- | --- | --- |
 | SMS sağlayıcısı (ana) ve gönderici başlığı | 2 | 23 Kas 2026 |
-| GCP canlı projesi ve KVKK standart sözleşmesi (Radore yerine, Karar 37) | 4 | 21 Ara 2026 |
+| AWS hesabı, Activate kredisi ve KVKK standart sözleşmesi (Karar 37) | 4 | 21 Ara 2026 |
 | Google Workspace (yönetim girişi için) | 3 | 7 Ara 2026 |
 | Apple geliştirici hesabı (D-U-N-S ile) ve Google Play hesabı | 8 | 1 Şub 2027 |
 | EİDS entegrasyon erişimi | 12 | 29 Mar 2027 |
@@ -95,16 +95,16 @@ Sprint 1 işleri 7 Kasım 2026'da bitti; CI yeşil. Bilgisayarda Docker Desktop 
 - [x] Dört göz onay motoru: istek, onaylayıcı, süre, sonuç (Teknik tasarım 11)
 - [ ] Gerçek Google Workspace istemcisiyle deneme (hesap açılınca; şimdilik sahte sağlayıcı)
 
-Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, diğer herkes için isteyen ve onaylayan farklı kişidir. Onay motoru iade isteklerini taşır, yalnızca Sahip onaylar; iade kaydı ve yürütme ödeme aşamasında, iade kilidi tetikleyicilerine dokunulmadan yazılır. Eski "Katalog" rolü hazır rollerden çıkarıldı; gerekirse özel rol olarak açılır. Yönetim girişinin e-posta alanı rengarenk.com.tr.
+Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, diğer herkes için isteyen ve onaylayan farklı kişidir. Onay motoru iade isteklerini taşır, yalnızca Sahip onaylar; iade kaydı ve yürütme ödeme aşamasında, iade kilidi tetikleyicilerine dokunulmadan yazılır. Eski "Katalog" rolü hazır rollerden çıkarıldı; gerekirse özel rol olarak açılır. Yönetim girişinin e-posta alanı rengarenksite.com.
 
 ## Sprint 4 · dağıtım hazırlığı ve özellik anahtarları (7 Kasım 2026'da başladı)
 
 - [x] Canlı provası: dört imaj bu bilgisayarda derlendi, compose.prod.yml canlı kipinde ayağa kalktı, göçler uygulandı; üç dağıtım hatası bulunup düzeltildi (Prisma derlemesi, .dockerignore, web API adresi)
 - [x] İşletme el kitabı: deploy/README.md (ilk kurulum, günlük işler, geri alma, prova)
 - [x] Özellik anahtarları ve bakım modu (T13, Karar 47): kitle, yüzde, platform, deneme kullanıcıları; konsol ekranı; web ve mobilde bakım duyurusu
-- [ ] GCP'ye ilk dağıtım: Compute Engine sanal sunucusu, `europe-west3` (Karar 37, 11 Kasım 2026'da Radore'den değişti)
+- [ ] AWS'ye ilk dağıtım: Lightsail sunucusu, `eu-central-1` (Karar 37; 12 Kasım 2026'da AWS'ye değişti), kapalı test ortamı olarak
 - [ ] Yedek (pgBackRest), izleme yığını (Prometheus, Grafana, Loki, GlitchTip) ve SOPS (sunucuyla birlikte)
-- [ ] GCP test ortamı (sentetik veri; GCP erişimi gelince)
+- [ ] Test ortamı (yalnızca sentetik veri; Lightsail)
 
 ## Sprint 5 · katalog veri modeli ve TSB hattı (Aşama 2, 7 Kasım 2026'da başladı)
 
@@ -408,7 +408,7 @@ sistem sağlığı, tasarım değerleri.
   "Sorunum çözüldü" ya da "Yine de ekibe gönder"; iade ve hesap kapatma insana (web, mobil)
 - [x] İstemciler `x-rr-platform` başlığı gönderir (özellik anahtarları platforma göre)
 - [ ] İlk mesaj taslağı ve destek sohbeti yapay zekâ bütçesinde "Talep asistanı" ve "Destek" görevlerine yazılır
-  (tasarımdaki görev listesi değişmedi); Vertex AI hesabı açılınca gerçek modelle denenecek
+  (tasarımdaki görev listesi değişmedi); Bedrock erişimi açılınca gerçek modelle denenecek
 - [x] Mobilde toplu yükleme (10 Kasım 2026): GaleriMobil.dc.html'deki "Excel/CSV ile toplu yükleme web panelde"
   düğmesi tarayıcıda web galeri panelinin Toplu yükleme bölümünü açar (`?bolum=toplu`, girişten sonra da korunur);
   tasarım gereği ayrı mobil ekran yok
@@ -433,7 +433,7 @@ sistem sağlığı, tasarım değerleri.
 - [x] Ana ölçü uyarısı (Karar 44): 48 saatte ilk mesaj alan talep oranı bir günde 5 puandan fazla düşerse Sahip ve
   yöneticiye
 - [x] Kritik uyarılar SMS ile gitmez (sahip kararı, 9 Kasım 2026)
-- [ ] Yapay zekâ ile sınıflandırma ve taslak: Vertex AI hesabı açılınca (şimdilik kurallar; ağ geçidi maskeli istekle hazır)
+- [ ] Yapay zekâ ile sınıflandırma ve taslak: Bedrock erişimi açılınca (şimdilik kurallar; ağ geçidi maskeli istekle hazır)
 
 ## Sprint 24 · çalışan uyarıları (Aşama 8 yedinci bölüm, 9 Kasım 2026)
 
@@ -461,7 +461,7 @@ sistem sağlığı, tasarım değerleri.
 ## Sprint 23 · Rengarenk Ajanı ve yapay zekâ bütçesi (Aşama 8 altıncı bölüm, 9 Kasım 2026)
 
 - [x] Yapay zekâ ağ geçidi (Teknik tasarım §10, T11): sağlayıcıdan bağımsız (`AI_PROVIDER` none | fake | vertex), Vertex AI
-  Gemini bağdaştırıcısı yazıldı (gerçek anahtarla denenmedi). Her istek maskelenir (telefon, e-posta, IBAN, T.C. kimlik no,
+  Gemini bağdaştırıcısı yazıldı (gerçek anahtarla denenmedi; 12 Kasım 2026'da AWS Bedrock bağdaştırıcısı eklendi, canlı sağlayıcı Bedrock). Her istek maskelenir (telefon, e-posta, IBAN, T.C. kimlik no,
   plaka, bilinen ad soyad; `maskPii`), yanıtta yer tutucular geri konur; her çağrı görev, istem sürümü, model, token ve
   maliyetle `ai_calls`'a yazılır (maskeli içerik, silinmez). Sağlayıcı yoksa ya da hata verirse kural metni döner
 - [x] Bütçe (Karar 57): aylık sınır 150 USD, yalnızca Sahip değiştirir (işlem kaydı); %80'de ve sınırda ayda bir olay
@@ -534,7 +534,7 @@ sistem sağlığı, tasarım değerleri.
   çözülen talep yeniden açılır
 - [x] Destek e-postası için imzalı uç `POST /destek/eposta`; eşleşmeyen adrese yanıt doğrudan e-postayla
 - [ ] Gelen e-postanın posta sunucusundan iletilmesi (kendi posta sunucumuz kurulunca); yapay zekâ taslağı ve güven oranı,
-  %90 üstünde ajanın kendi yanıtı (Rengarenk Ajanı, Vertex AI); hazır yanıtların konsoldan düzenlenmesi
+  %90 üstünde ajanın kendi yanıtı (Rengarenk Ajanı, Bedrock); hazır yanıtların konsoldan düzenlenmesi
 
 ## Sprint 19 · kullanıcı ve galeri kartı, kara liste (Aşama 8 ikinci bölüm, 8 Kasım 2026)
 
@@ -567,7 +567,7 @@ sistem sağlığı, tasarım değerleri.
   inceleyemez; kabulde yaptırım kalkar, içerik geri gelir. Karar iki tarafa şablonla bildirilir
 - [x] Yasaklı kelime kuralı mesaj ve talep yayınında moderasyona şikâyet açar; telefon izni kapalı alıcıda satıcı
   mesajındaki numara gizlenir; satıcı puanında şikâyet oranı (90 gün, karara bağlanan ve geri alınmayan)
-- [ ] Yapay zekâ değerlendirmesi ve güven oranı (Rengarenk Ajanı, Vertex AI hesabı gelince); galerinin 1 yıldıza
+- [ ] Yapay zekâ değerlendirmesi ve güven oranı (Rengarenk Ajanı, Bedrock erişimi gelince); galerinin 1 yıldıza
   itirazı (Sprint 27'de yapıldı); kara liste (telefon, IBAN, cihaz, IP) kullanıcı kartıyla
 
 , şablonlar, otomatik akışlar (Aşama 7, 8 Kasım 2026)
@@ -593,7 +593,7 @@ sistem sağlığı, tasarım değerleri.
   göre okunma), Otomatik akışlar (yedi akış, aç/kapat, adımlar, son 30 gün)
 - [x] Zamanlı akışlar (Karar 51) her gün 09.30'dan sonra: ilk talebini oluştur (üyeliğin 3. günü, ticari), ilk mesajı
   okumadın (varsayılan kapalı), galeri 7 gündür mesaj göndermedi; hoş geldin kayıt olayıyla
-- [ ] Gerçek hesaplar: Firebase projesi (iOS'ta FCM için Firebase SDK), kendi posta sunucusu (yeri bekliyor: GCP 25. portu kapalı tutuyor, Karar 50; SPF/DKIM/DMARC,
+- [ ] Gerçek hesaplar: Firebase projesi (iOS'ta FCM için Firebase SDK), kendi posta sunucusu (Lightsail'de ayrı küçük sunucu, AWS'den 25. port talebi bekliyor, Karar 50; SPF/DKIM/DMARC,
   ters DNS, kara liste denetimi), İYS bağdaştırıcısı, SMS fiyatları ve yedek sağlayıcı (Netgsm)
 - [ ] E-postada açılma ve tıklama ölçülmüyor (izleme pikseli ve yönlendirme yok); raporda uygulama içi okunma var
 - [x] Akış düzenleyicisi ("Adım ekle"): Sprint 28

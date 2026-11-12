@@ -3,7 +3,7 @@ ARG APP=web
 FROM node:22-slim AS build
 ARG APP
 # Tarayıcıya giden kodda API adresi derleme anında gömülür (Next.js NEXT_PUBLIC_*).
-ARG NEXT_PUBLIC_API_URL=https://api.rengarenk.com.tr
+ARG NEXT_PUBLIC_API_URL=https://api.rengarenksite.com
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} NEXT_TELEMETRY_DISABLED=1
 # Reklam ölçümü (Karar 35): boşsa Pixel ve Google etiketi hiç yüklenmez; doluysa yalnızca çerez izniyle
 ARG NEXT_PUBLIC_META_PIXEL_ID=

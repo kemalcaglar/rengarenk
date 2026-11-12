@@ -230,7 +230,7 @@ export class SystemHealthService {
       a && b ? `${Math.max(1, Math.round((b.getTime() - a.getTime()) / 60_000))} dk` : '';
     const bekle = 'Sunucu kurulunca başlar (pgBackRest)';
     return {
-      yer: 'Google Cloud · Frankfurt · son 30 gün',
+      yer: 'AWS · Frankfurt · son 30 gün',
       olcu,
       servisler,
       yedekler: [
@@ -246,7 +246,10 @@ export class SystemHealthService {
             ? `${Math.max(1, Math.round((now.getTime() - (artimli.finishedAt ?? artimli.createdAt).getTime()) / 60_000))} dk önce`
             : bekle,
         },
-        { ad: 'Yedeklerin yeri', deger: tam?.location ?? 'Cloud Storage · ayrı AB bölgesi (Karar 37, 56)' },
+        {
+          ad: 'Yedeklerin yeri',
+          deger: tam?.location ?? 'Lightsail depolama · ayrı AB bölgesi (Karar 37, 56)',
+        },
         { ad: 'Saklama', deger: 'Günlük 30 gün · aylık 12 ay' },
         {
           ad: 'Son geri yükleme testi',

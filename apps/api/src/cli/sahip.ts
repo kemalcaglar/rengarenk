@@ -5,8 +5,8 @@ import { loadEnv } from '../config/env.js';
  * İlk Sahip hesabını açar (canlıda kurulumda bir kez). Sahip zaten varsa hiçbir şey yapmaz.
  * Diğer çalışanlar konsoldan davetle eklenir. İlk girişte doğrulama uygulaması kurulur.
  *
- *   node dist/cli/sahip.js kemal@rengarenk.com.tr "Kemal Çağlar"
- *   (yerelde) pnpm --filter @rengarenk/api sahip kemal@rengarenk.com.tr "Kemal Çağlar"
+ *   node dist/cli/sahip.js kemal@rengarenksite.com "Kemal Çağlar"
+ *   (yerelde) pnpm --filter @rengarenk/api sahip kemal@rengarenksite.com "Kemal Çağlar"
  */
 const [emailArg, ...nameParts] = process.argv.slice(2);
 const email = emailArg?.trim().toLowerCase();

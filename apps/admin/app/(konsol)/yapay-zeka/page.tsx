@@ -7,7 +7,7 @@ import { useKonsol } from '../kabuk';
 
 interface Ozet {
   ay: string;
-  saglayici: 'yok' | 'fake' | 'vertex';
+  saglayici: 'yok' | 'fake' | 'bedrock' | 'vertex';
   harcamaUsd: number;
   tahminUsd: number;
   sinirUsd: number;
@@ -372,9 +372,9 @@ export default function YapayZeka() {
               Maskeleme kuralları
             </h3>
             <p style={{ margin: 0, padding: '0 18px 8px', fontSize: 12.5, color: '#5A6073' }}>
-              Kişisel veri yapay zekâ sağlayıcısına maskelenmeden gitmez. Sağlayıcı: Google Vertex AI
-              (Gemini), tüm görevlerde.
-              {o.saglayici !== 'vertex'
+              Kişisel veri yapay zekâ sağlayıcısına maskelenmeden gitmez. Sağlayıcı: AWS Bedrock (Amazon Nova,
+              AB bölgesi), tüm görevlerde.
+              {o.saglayici === 'yok' || o.saglayici === 'fake'
                 ? ' Sağlayıcı henüz bağlı değil; ajan kurallarla hazırlanan metinleri kullanıyor.'
                 : ''}
             </p>

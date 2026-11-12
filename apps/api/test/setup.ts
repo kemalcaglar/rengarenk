@@ -14,7 +14,7 @@ Object.assign(process.env, {
   JWT_SECRET: 'test-icin-en-az-otuz-iki-karakterlik-gizli-anahtar',
   SMS_PROVIDER: 'test',
   STAFF_AUTH_PROVIDER: 'fake',
-  STAFF_EMAIL_DOMAINS: 'rengarenk.com.tr',
+  STAFF_EMAIL_DOMAINS: 'rengarenksite.com',
   STAFF_SECRET_KEY: 'test-icin-yonetim-sirlarini-sifreleyen-anahtar',
   REDIS_URL: process.env.TEST_REDIS_URL ?? 'redis://localhost:6379/15',
   OPENSEARCH_URL: process.env.TEST_OPENSEARCH_URL ?? 'http://localhost:9200',

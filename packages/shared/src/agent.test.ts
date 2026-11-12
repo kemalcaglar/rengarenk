@@ -29,8 +29,10 @@ describe('yapay zekâ maskeleme (Karar 41, 57)', () => {
   });
 
   it('maliyet milyonda bir USD ile hesaplanır; başlangıç sınırı 150 USD', () => {
-    expect(aiCostMicroUsd('kucuk', 1_000_000, 0)).toBe(300_000);
-    expect(aiCostMicroUsd('buyuk', 1000, 1000)).toBe(11_250);
+    expect(aiCostMicroUsd('vertex', 'kucuk', 1_000_000, 0)).toBe(300_000);
+    expect(aiCostMicroUsd('vertex', 'buyuk', 1000, 1000)).toBe(11_250);
+    expect(aiCostMicroUsd('bedrock', 'kucuk', 1_000_000, 1_000_000)).toBe(300_000);
+    expect(aiCostMicroUsd('bedrock', 'buyuk', 1000, 1000)).toBe(4_000);
     expect(AI_BUDGET.baslangicUsd).toBe(150);
   });
 });

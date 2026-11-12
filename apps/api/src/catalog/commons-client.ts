@@ -11,7 +11,7 @@ export interface CommonsClient {
 
 export const COMMONS_CLIENT = Symbol('COMMONS_CLIENT');
 
-const HEADERS = { 'user-agent': 'Rengarenk-katalog/1.0 (https://rengarenk.com.tr)' };
+const HEADERS = { 'user-agent': 'Rengarenk-katalog/1.0 (https://rengarenksite.com)' };
 const FILE_HOSTS = ['upload.wikimedia.org', 'thumb.wikimedia.org'];
 const MAX_BYTES = 15 * 1024 * 1024;
 

@@ -120,9 +120,9 @@ export default function GaleriProfili() {
             accessibilityRole="button"
             accessibilityLabel="Paylaş"
             onPress={() =>
-              Share.share({ message: `${profil.ad} · https://rengarenk.com.tr/galeri/${profil.slug}` }).catch(
-                () => undefined,
-              )
+              Share.share({
+                message: `${profil.ad} · https://rengarenksite.com/galeri/${profil.slug}`,
+              }).catch(() => undefined)
             }
             style={{
               width: 44,

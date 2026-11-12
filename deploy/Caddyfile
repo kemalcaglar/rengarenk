@@ -1,13 +1,13 @@
 # Caddy TLS sertifikalarını otomatik alır ve yeniler.
-rengarenk.com.tr, www.rengarenk.com.tr {
+rengarenksite.com, www.rengarenksite.com {
   reverse_proxy web:3000
 }
 
-api.rengarenk.com.tr {
+api.rengarenksite.com {
   reverse_proxy api:4000
 }
 
-yonetim.rengarenk.com.tr {
+yonetim.rengarenksite.com {
   # Yalnızca şirket ağından ve VPN'den erişim (IP listesi canlı kurulumda doldurulacak)
   reverse_proxy admin:3000
 }

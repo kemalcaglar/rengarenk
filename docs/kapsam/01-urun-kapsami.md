@@ -50,7 +50,7 @@ Sürüm 0.59 · 59 karar kesinleşti; hukuki varsayılanlar (Karar 31 ve 39) avu
 | 34 | Lisanslı araç görseli | Wikimedia Commons'tan açık lisanslı gerçek fotoğraf, nesil ve makyaj başına, atfıyla; ücretsiz | Kesinleşti |
 | 35 | Büyüme ve reklam ölçümü | Lansman yok; online reklam; Meta Pixel + Conversions API, izinli ölçüm | Kesinleşti |
 | 36 | Maliyet ilkesi | Sabit bütçe, ekip, takvim kuralı yok; önce ücretsiz veya kredili seçenek | Kesinleşti |
-| 37 | Barındırma ve kişisel veri | Sistemin tamamı GCP Avrupa'da (Frankfurt) kredilerle; yurt dışına aktarım KVKK m.9 standart sözleşmesiyle ve 5 iş günü içinde Kurum'a bildirimle; GCP Türkiye bölgesi açılınca oraya taşıma (11 Kasım 2026'da değişti) | Kesinleşti |
+| 37 | Barındırma ve kişisel veri | Sistemin tamamı AWS Frankfurt'ta (Lightsail, Bedrock) kredilerle; yurt dışına aktarım KVKK m.9 standart sözleşmesiyle ve 5 iş günü içinde Kurum'a bildirimle (12 Kasım 2026'da değişti) | Kesinleşti |
 | 38 | Mobil ödeme | Bireysel haklar mobilde App Store / Google Play, web'de PayTR; galeri aboneliği yalnızca web | Kesinleşti |
 | 39 | Tüketici hakları ve platform yükümlülükleri | Onay metinleri, cayma, iade ve yayın öncesi yükümlülükler için varsayılanlar | Kesinleşti (avukatla gözden geçirilecek) |
 | 40 | Çalışanlar ve yetkiler | Hazır ve özel roller, dört göz onayı, iki adımlı giriş, veri maskeleme, silinemez işlem kaydı | Kesinleşti |
@@ -63,7 +63,7 @@ Sürüm 0.59 · 59 karar kesinleşti; hukuki varsayılanlar (Karar 31 ve 39) avu
 | 47 | Genişletilebilirlik ilkesi | Kural, şema ve içerik ayar olarak tutulur; yeni modüller ortak yetki, kayıt, bildirim ve rapor altyapısına takılır | Kesinleşti |
 | 48 | Bildirim katmanı ve kanallar | Tek bildirim katmanı; uygulama içi → push → e-posta → SMS sırası; tek şablondan çok kanal | Kesinleşti |
 | 49 | İleti türleri, İYS ve sıklık | Ticari ileti yalnızca İYS onaylılara, kişi başı haftada en fazla 2, 21.00–09.00 arası yok; SMS ilk sürümde yalnız kod ve kritik durum | Kesinleşti |
-| 50 | Kendi e-posta sunucumuz | E-postalar sağlayıcısız, kendi SMTP sunucumuzdan; işlemsel ve ticari ayrı alan adı ve IP; ısınma planı ve itibar izleme. GCP 25. portu kapattığı için sunucunun yeri yeniden kararlaştırılacak (11 Kasım 2026, ertelendi) | Bekliyor |
+| 50 | Kendi e-posta sunucumuz | E-postalar sağlayıcısız, kendi SMTP sunucumuzdan; işlemsel ve ticari ayrı alan adı ve IP; ısınma planı ve itibar izleme. AWS'de 25. port talep formuyla açılır; kurulum bekliyor | Bekliyor |
 | 51 | Kampanya ve otomatik akışlar | Segment, şablon, kampanya, otomatik akış ve teslim raporu panelden; ajan önerir, toplu gönderimi başlatmaz | Kesinleşti |
 | 52 | Kullanıcı ve galeri kartı | Tek ekranda tüm geçmiş, maskeli kişisel veri; uyarı, askı, hak tanımlama; başvuru kuyruğu | Kesinleşti |
 | 53 | Moderasyon kuyruğu | Öncelik ve süre sınırı, maskeli kanıt, hazır gerekçeler, 7 gün itiraz hakkı ve başka moderatör incelemesi | Kesinleşti |
@@ -424,7 +424,7 @@ Web, mobil ve arka uç tek bir TypeScript monorepo'sunda geliştirilir; tüm ist
 - Kubernetes üzerinde, trafiğe göre otomatik yatay ölçeklenen servisler.
 - Mesajlaşma ve eşleşme yük altında ayrı servis olarak ölçeklenebilecek şekilde modüler yazılır.
 - İzleme: Prometheus + Grafana, OpenTelemetry ile dağıtık izleme, Sentry ile hata takibi.
-- Barındırma: sistemin tamamı (API, web, veritabanı, kuyruk, dosyalar, CI/CD, staging) GCP Avrupa bölgesinde, kredilerle. GCP Türkiye bölgesi açılınca üretim oraya taşınır (Karar 37).
+- Barındırma: sistemin tamamı (API, web, veritabanı, kuyruk, dosyalar, staging) AWS Frankfurt'ta (Lightsail), kredilerle (Karar 37).
 - CI/CD: her değişiklik web, mobil ve API için otomatik test ve dağıtım hattından geçer.
 
 ## Araç kataloğu (öneri, görüşülecek)
@@ -727,19 +727,20 @@ Lansman yapılmaz; büyüme online reklamlarla (ağırlıkla Meta, ayrıca Googl
 
 ## Karar 37: Barındırma ve kişisel verilerin yurt dışına aktarımı
 
-**11 Kasım 2026'da değişti (sahip kararı).** İlk karar kişisel veriyi işleyen her şeyi Türkiye'de (Radore) çalıştırmaktı. Türkiye'deki sunucuların sabit gideri bütçeyi aştığı için sistemin tamamı Google for Startups kredileriyle GCP Avrupa bölgesinde çalışır (Karar 36). Google Cloud'un Türkiye bölgesi Turkcell ile Ankara'da kuruluyor; Turkcell'in SEC bildirimine göre 2028–2029'da hizmete girmesi bekleniyor.
+**12 Kasım 2026'da değişti (sahip kararı).** İlk karar kişisel veriyi işleyen her şeyi Türkiye'de (Radore) çalıştırmaktı; sabit gider bütçeyi aştığı için 11 Kasım'da GCP Avrupa'ya, 12 Kasım'da kredi süresi ve kredi bittikten sonraki gider daha uygun olduğu için **AWS'ye (Frankfurt)** geçildi (Karar 36). AWS Activate Founders kredisine başvuruldu (12 Kasım 2026; 1.000 USD, sonuç 5–10 iş günü); o zamana kadar yeni hesap kredisi (100 USD) kullanılır.
 
-- **Hukuki dayanak:** KVKK bu tür bir platform için verinin Türkiye'de tutulmasını zorunlu kılmıyor. Yurt dışına aktarım 7499 sayılı Kanunla değişen m.9 kapsamında standart sözleşmeyle yapılır; sözleşme imzadan sonra 5 iş günü içinde Kurum'a bildirilir (Standart Sözleşme Bildirim Modülü ya da KEP). Bildirim yapılmazsa idari para cezası var. Aktarım aydınlatma metninde yazılır.
-- **Yer:** GCP `europe-west3` (Frankfurt, Almanya); Türkiye'ye yakın ve bütün servisler var. Yedekler başka bir AB bölgesinde (ör. `europe-west4`, Hollanda) Cloud Storage'ta.
-- **Başlangıç yapısı:** Compute Engine'de tek sanal sunucu üzerinde Docker Compose (API, web, konsol, işçi, Redis, OpenSearch, SeaweedFS, Caddy) ve PostgreSQL. Büyüyünce yönetilen servislere (Cloud SQL, GKE) geçilir; uygulama konteyner olduğu için kod değişmez.
+- **Hukuki dayanak:** KVKK bu tür bir platform için verinin Türkiye'de tutulmasını zorunlu kılmıyor. Yurt dışına aktarım 7499 sayılı Kanunla değişen m.9 kapsamında standart sözleşmeyle yapılır; sözleşme imzadan sonra 5 iş günü içinde Kurum'a bildirilir (Standart Sözleşme Bildirim Modülü ya da KEP). Bildirim yapılmazsa idari para cezası var. Aktarım aydınlatma metninde yazılır. **Bunlar tamamlanmadan canlıya gerçek kullanıcı verisi girmez;** sunucu o zamana kadar kapalı test ortamıdır.
+- **Yer:** AWS `eu-central-1` (Frankfurt, Almanya). Yedekler başka bir AB bölgesindeki depolama alanında (ör. `eu-west-1`, İrlanda).
+- **Başlangıç yapısı:** Amazon Lightsail'de tek sunucu üzerinde Docker Compose (API, web, konsol, işçi, PostgreSQL, Redis, OpenSearch, SeaweedFS, Caddy). Kurulum 8 GB'lık pakette başlar, Activate kredisi gelince 16 GB'lık pakete (4 çekirdek, 320 GB, 6 TB trafik, ayda 84 USD) büyütülür. Büyüyünce EC2 ya da yönetilen servislere geçilir; uygulama konteyner olduğu için kod değişmez.
+- **Yapay zekâ:** AWS Bedrock (Amazon Nova, AB çıkarım profili; Karar 57, T11). Maskeleme aynen sürer; yapay zekâ isteklerine kişisel veri girmez. Uygulamanın anahtarı yalnızca model çağırma yetkili ayrı bir IAM kullanıcısına aittir.
+- **Erişim:** Kurulum `rengarenk-kurulum` IAM kullanıcısıyla (yalnızca Lightsail, Bedrock çağırma, harcama okuma) bu bilgisayardaki `rengarenk` AWS CLI profilinden yapılır; aylık 10 USD bütçe uyarısı kurulu.
 - **Şifreleme:** disk şifrelemenin yanında telefon numarası, mesajlar ve işlem kaydındaki IP uygulama düzeyinde şifrelenir (mevcut kod); anahtarlar SOPS ile şifreli sırlarda.
-- **Yapay zekâ:** maskeleme aynen sürer (Karar 57); sistem GCP'de olsa da yapay zekâ isteklerine kişisel veri girmez.
 - **Kayıtlar:** 5651 trafik kayıtları 2 yıl boyunca bütünlük özetiyle saklanır. Saklama yerinin yurt dışı olmasının sorun olup olmadığı avukata sorulur.
 - **Diğer yurt dışı aktarımlar** (FCM ve APNs bildirimleri, hata raporlama, Meta ve Google reklam ölçümü) için de standart sözleşme imzalanır ve bildirilir.
-- **Avukata sorulacaklar:** Google Cloud ile KVKK standart sözleşmesinin nasıl imzalanacağı; e-Arşiv ve fatura kayıtları ile 5651 kayıtlarının yurt dışında tutulabilmesi.
+- **Avukata sorulacaklar:** AWS ile KVKK standart sözleşmesinin nasıl imzalanacağı; e-Arşiv ve fatura kayıtları ile 5651 kayıtlarının yurt dışında tutulabilmesi.
 - VERBİS kaydı, 50 çalışan ve 100 milyon TL yıllık bilanço altında zorunlu değildir.
-- GCP Türkiye bölgesi genel kullanıma açılınca üretim aynı yapılandırmayla oraya taşınır.
-- **E-posta:** GCP sanal sunuculardan dışarıya 25. portu kapalı tutar; kendi posta sunucumuzun yeri Karar 50'de yeniden kararlaştırılacak.
+- **Alan adı:** rengarenksite.com (12 Kasım 2026, sahip kararı); şirket e-postaları ve yönetim girişi @rengarenksite.com. Tanıtım sayfası canlı sistem açılana kadar alan adı firmasının hostinginde (`deploy/tanitim`).
+- **E-posta:** AWS 25. portu varsayılan olarak kapalı tutar, talep formuyla açılır; kendi posta sunucumuz Karar 50'ye göre Lightsail'de küçük ayrı bir sunucuda kurulabilir.
 
 ## Karar 38: Mobil ödeme
 
@@ -800,7 +801,7 @@ Rengarenk Ajanı, yönetim konsolunda çalışan bir yapay zekâ operasyon ajan�
 - **Önerir, onay bekler:** fiyat ve paket değişiklikleri, toplu kampanya gönderimi, kalıcı engelleme, iadeler (yalnızca sahip onaylar), reklam bütçesi değişikliği, yeni segment ve kampanya fikirleri.
 - **Hiç yapamaz:** iade yapmak, kişisel veriyi dışa aktarmak, çalışan yetkisi değiştirmek, kayıt silmek, kullanıcıya hukuki taahhütte bulunmak, ödeme bilgisine erişmek.
 - **Güvenlik kuralları:** günlük işlem limitleri (ör. en fazla 50 askıya alma), emin olmadığında insana bırakma, tek tuşla tamamen durdurma ve haftalık karne (kaç işlem yaptı, insanlar kaçını geri aldı).
-- **Veri:** Yapay zekâ sağlayıcısına gönderilen veri yurt dışı aktarımı sayılır. Telefon, isim ve benzeri bilgiler gönderilmeden önce maskelenir; standart sözleşme imzalanır ve aylık maliyet tavanı konur. Sağlayıcı: tüm görevlerde Google Vertex AI (Gemini) (teknik tasarım T11).
+- **Veri:** Yapay zekâ sağlayıcısına gönderilen veri yurt dışı aktarımı sayılır. Telefon, isim ve benzeri bilgiler gönderilmeden önce maskelenir; standart sözleşme imzalanır ve aylık maliyet tavanı konur. Sağlayıcı: tüm görevlerde AWS Bedrock (Amazon Nova, AB bölgesi) (teknik tasarım T11).
 
 ## Karar 42: Kullanıcı tarafında yapay zekâ
 
@@ -883,9 +884,9 @@ Sitenin ve uygulamanın görünümü ile pazarlama içerikleri geliştiriciye ge
 
 E-postalar bir e-posta sağlayıcısı kullanılmadan kendi SMTP sunucumuzdan gönderilir.
 
-- **11 Kasım 2026, bekliyor:** sistem GCP'ye taşındı (Karar 37) ve GCP sanal sunuculardan dışarıya 25. portu kapalı tutuyor. Seçenekler: posta sunucusu için GCP dışında küçük bir sanal sunucu (karar aynen kalır) ya da bir e-posta gönderim servisi (karar değişir). Sahip kararı ertelendi; karar verilene kadar canlıda e-posta kapalı kalır, doğrulama kodu SMS ile gider.
+- **Bekliyor (12 Kasım 2026):** sistem AWS'ye taşındı (Karar 37). AWS 25. portu varsayılan olarak kapalı tutar; Lightsail konsolundaki formla Lightsail için açılması istenir (onay 48 saate kadar, reddedilebilir). Açılırsa posta sunucusu Lightsail'de küçük ayrı bir sunucuda kurulur ve karar aynen kalır; reddedilirse gönderim servisi (ör. Amazon SES) sahibe sorulur. Karar verilene kadar canlıda e-posta kapalı kalır, doğrulama kodu SMS ile gider.
 - **Sunucu:** uygulama sunucusundan ayrı, sabit IP'li küçük bir sanal sunucuda açık kaynaklı posta gönderim yazılımı (Postal ya da Postfix tabanlı). Sağlayıcıdan 25. portun açık olması ve IP'lerin ters DNS kaydı istenir.
-- **İki ayrı akış:** işlemsel e-postalar bildirim.rengarenk.com.tr alt alan adından ve kendi IP'sinden, ticari e-postalar bulten.rengarenk.com.tr alt alan adından ve ayrı bir IP'den çıkar. Böylece bir kampanya şikâyet alırsa doğrulama kodları ve ödeme e-postaları etkilenmez.
+- **İki ayrı akış:** işlemsel e-postalar bildirim.rengarenksite.com alt alan adından ve kendi IP'sinden, ticari e-postalar bulten.rengarenksite.com alt alan adından ve ayrı bir IP'den çıkar. Böylece bir kampanya şikâyet alırsa doğrulama kodları ve ödeme e-postaları etkilenmez.
 - **Kimlik doğrulama:** SPF, DKIM (2048 bit, yılda bir anahtar yenileme), DMARC (önce izleme, sonra karıntına), ters DNS, TLS ve MTA-STS. Ticari iletilerde tek tıkla ayrılma başlığı bulunur; Gmail ve Outlook'un toplu gönderici kurallarına uyulur.
 - **Isınma planı:** yeni IP'ler 4–6 haftada aşama aşama ısıtılır; ilk hafta yalnızca işlemsel e-posta, ticari gönderim günlük limitle başlar ve en etkileşimli kullanıcılardan genişler. Limit bildirim katmanında kendiliğinden uygulanır.
 - **Geri dönen ve şikâyet:** kalıcı hata veren adres hemen, geçici hata veren 3 denemeden sonra listeden çıkarılır; spam şikâyeti gelen kişiye bir daha ticari e-posta gitmez.
@@ -980,13 +981,13 @@ E-postalar bir e-posta sağlayıcısı kullanılmadan kendi SMTP sunucumuzdan g�
 
 * [x] Mobil teknoloji: React Native + Expo (Karar 16)
 
-- [x] Barındırma: sistemin tamamı GCP Avrupa'da kredilerle, yurt dışına aktarım standart sözleşmeyle, GCP Türkiye bölgesi açılınca taşıma (Karar 37, 11 Kasım 2026'da değişti)
-- [ ] E-posta sunucusunun yeri: GCP 25. portu kapalı tutuyor; GCP dışında küçük sunucu ya da gönderim servisi (Karar 50, ertelendi)
+- [x] Barındırma: sistemin tamamı AWS Frankfurt'ta (Lightsail, Bedrock) kredilerle, yurt dışına aktarım standart sözleşmeyle (Karar 37, 12 Kasım 2026'da değişti)
+- [ ] E-posta sunucusu: AWS'den 25. portun açılmasını iste; açılırsa Lightsail'de küçük ayrı sunucu, açılmazsa gönderim servisi sahibe sorulur (Karar 50)
 
 * [x] Başlangıç stratejisi: lansman yok, büyüme online reklamlarla; ölçüm Meta uyumlu (Karar 35)
 * [x] Uygulama mağazası ödeme kuralları: bireysel haklar mobilde App Store ve Google Play ile, galeri aboneliği yalnızca web'den (Karar 38)
 * [x] Hukuki çerçeve: avukat görüşmesine kadar varsayılanlar Karar 39'da; avukata sorulacaklar listelendi
-* [x] Bütçe, ekip ve takvim: sabit kural yok, tasarruf öncelikli, GCP kredileri kullanılacak (Karar 36)
+* [x] Bütçe, ekip ve takvim: sabit kural yok, tasarruf öncelikli, AWS Activate kredileri kullanılacak (Karar 36, 37)
 
 - [x] Hava Araçları yayın süresi: 90 gün (Karar 19)
 - [x] Ticari Hat & Plaka: avukat görüşüne kadar kapalı (Karar 19)
@@ -998,10 +999,10 @@ E-postalar bir e-posta sağlayıcısı kullanılmadan kendi SMTP sunucumuzdan g�
 * [x] Galeri kullanıcı sayıları: Başlangıç 2, Profesyonel 5, Kurumsal 15 (Karar 20, 12.2)
 * [x] Ödeme ekranındaki onay metinleri, cayma hakkı ve hesap kapatmada iade kuralı için varsayılanlar belirlendi (Karar 39); avukat görüşmesinde gözden geçirilecek
 * [ ] TSB'den yazılı ticari kullanım izni : katalog TSB ile kuruluyor, izin sonra resmî kanaldan istenecek (Karar 33)
-* [ ] Google Cloud ile KVKK standart sözleşmesi ve 5 iş günü içinde Kurum'a bildirim, canlıya çıkmadan önce zorunlu; GCP Türkiye bölgesinin açılış tarihinin takibi (Karar 37); taslak hazır
+* [ ] AWS ile KVKK standart sözleşmesi ve 5 iş günü içinde Kurum'a bildirim, canlıya çıkmadan önce zorunlu (Karar 37); taslak hazır
 * [ ] Avukat görüşmesi: Karar 39'daki varsayılanlar ve sorulacaklar
 * [ ] Veri ve hizmetlere e-posta atmadan erişmenin yollarını araştır (kullanım koşulları, self-servis paketler, deneme anahtarları, konsoldaki sözleşmeler); gerekirse taslakları güncelleyip gönder: Yazışma taslakları
-* [x] Yapay zekâ sağlayıcısı: Google Vertex AI; maskeleme kuralları Karar 57'de; standart sözleşme GCP ile birlikte (teknik tasarım T11)
+* [x] Yapay zekâ sağlayıcısı: AWS Bedrock (Amazon Nova, AB bölgesi; 12 Kasım 2026'da Google Vertex AI'dan değişti); maskeleme kuralları Karar 57'de; standart sözleşme AWS ile birlikte (teknik tasarım T11)
 * [ ] Satıcı puanının kuralları (kim puanlar, ne zaman görünür) Tur 4'te netleşecek (Karar 43)
 
 ## Değişiklik kaydı

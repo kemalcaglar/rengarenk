@@ -8,12 +8,12 @@ const prisma = createPrismaClient();
 // Sprint 3 öncesi seed'in yerel sahibi şirket alanına taşınır (yönetim girişi yalnızca şirket e-postası kabul eder).
 await prisma.staffMember.updateMany({
   where: { email: 'sahip@rengarenk.local' },
-  data: { email: 'sahip@rengarenk.com.tr' },
+  data: { email: 'sahip@rengarenksite.com' },
 });
 
 // Yerel sahip: konsola bu e-postayla girilir; ilk girişte doğrulama uygulaması kurulur. Kendi adresinle
 // denemek için `.env` içinde SEED_OWNER_EMAIL ver (alanı STAFF_EMAIL_DOMAINS içinde olmalı).
-const ownerEmail = (process.env.SEED_OWNER_EMAIL || 'sahip@rengarenk.com.tr').trim().toLowerCase();
+const ownerEmail = (process.env.SEED_OWNER_EMAIL || 'sahip@rengarenksite.com').trim().toLowerCase();
 const owner = await prisma.staffMember.upsert({
   where: { email: ownerEmail },
   update: {},

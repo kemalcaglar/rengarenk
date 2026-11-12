@@ -32,7 +32,7 @@ export const WIKIDATA_EVERY_HOURS = 24 * 7;
 export const STALE_HOURS = 48;
 
 /**
- * Katalog hattı (Teknik tasarım §5). Şimdilik işçide ve API'de çalışır; GCP erişimi gelince Cloud Run'a taşınır
+ * Katalog hattı (Teknik tasarım §5). İşçide ve API'de çalışır
  * ve yalnızca imzalı paket canlıya gelir. TSB dosyası iki yoldan girer: konsoldan yükleme ve otomatik çekme.
  */
 @Injectable()

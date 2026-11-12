@@ -4,7 +4,7 @@ import { grantsFor } from '../staff/permissions.js';
 import type { Actor } from './approval.service.js';
 
 /** Rengarenk Ajanı'nın servis hesabı (Karar 41): giriş yapamaz, davetle açılmaz, çalışan listesinde görünmez. */
-export const AJAN_EPOSTA = 'ajan@rengarenk.com.tr';
+export const AJAN_EPOSTA = 'ajan@rengarenksite.com';
 
 /**
  * Ajanın onay motorundaki kimliği. Ajan yalnızca yetki matrisindeki düzeyle istek açar (iade: öneri); kararı her zaman

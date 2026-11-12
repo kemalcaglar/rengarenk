@@ -21,8 +21,8 @@ hizmetleri (ek talep hakkı, ilk mesaj hakkı, vitrin, galeri aboneliği) için 
    erişimi kurulmaz. Commit atabilirsin; `git push`, etiket (`v*`, canlıya dağıtımı başlatır) ve
    uzak depoyu değiştiren her şey için önce sahibe sor. Commit kimliği
    `kemalcaglar <caglarkemalofficial@gmail.com>` (depo ayarında tanımlı).
-3. **Barındırma GCP Avrupa'da, kişisel veri korunarak** (Karar 37, 11 Kasım 2026'da Radore'den değişti). Sistemin
-   tamamı GCP `europe-west3` (Frankfurt); yurt dışına aktarım KVKK standart sözleşmesiyle ve Kurum'a bildirimle, bu
+3. **Barındırma AWS Frankfurt'ta, kişisel veri korunarak** (Karar 37; 11 Kasım 2026'da Radore'den GCP'ye, 12 Kasım'da
+   AWS'ye değişti). Sistemin tamamı AWS `eu-central-1` (Lightsail, yapay zekâ Bedrock); yurt dışına aktarım KVKK standart sözleşmesiyle ve Kurum'a bildirimle, bu
    olmadan canlıya gerçek kullanıcı verisi girmez. Yapay zekâ isteklerinde maskeleme sürer, test ortamına canlı veri
    kopyalanmaz. Kişisel veri içeren her şema alanı `/// @pii` ile etiketlenir.
 4. `audit_log` ve `entitlement_ledger` yalnızca ekleme yapılan tablolardır (tetikleyiciyle
@@ -100,7 +100,7 @@ pnpm format        # Biome ile biçimlendir
   kaydı. API'de 49 test. Google hesabı açılana kadar `STAFF_AUTH_PROVIDER=fake`.
 - **Sahip kararları (7 Kasım 2026):** Sahip kendi isteğini onaylayabilir, diğerlerinde isteyen ≠
   onaylayan; iade isteklerini yalnızca Sahip onaylar ve onay motoru iade yürütmez; CATALOG rolü
-  atanamaz (özel rol kullanılır); yönetim e-posta alanı `rengarenk.com.tr`.
+  atanamaz (özel rol kullanılır); yönetim e-posta alanı `rengarenksite.com`.
 - **Sprint 4 (sunucusuz kısmı) bitti:** özellik anahtarları ve bakım modu (`apps/api/src/flags/`,
   `packages/shared/src/flags.ts`), canlı provası (`deploy/prova/`, el kitabı `deploy/README.md`). API'de 59 test.
 - **Sprint 5 (Aşama 2) bitti:** katalog veri modeli, hat (`packages/catalog`, API `apps/api/src/catalog/`), TSB
@@ -327,12 +327,19 @@ pnpm format        # Biome ile biçimlendir
 - **Durum belgesi ve demo veri (10 Kasım 2026):** `docs/DURUM-VE-TEST.md` (biten/kalan işler, kararlar, mobil test,
   giriş bilgileri); iş bitince bunu da güncelle. Demo veri `pnpm --filter @rengarenk/api demo` (`src/cli/demo-veri.ts`,
   uçlardan kurar, yarıda kalırsa devam eder; numaralar 0555 100 00 0x bireysel, 0555 200 00 0x galeri; çalışanlar
-  `*@rengarenk.com.tr`, o anki doğrulama kodu `demo kod <e-posta>`).
+  `*@rengarenksite.com`, o anki doğrulama kodu `demo kod <e-posta>`).
+- **AWS, alan adı ve Bedrock (12 Kasım 2026, sahip kararları):** barındırma AWS Frankfurt (Lightsail; Karar 37), alan adı
+  rengarenksite.com (kodda, ayarlarda ve belgelerde; yönetim girişi `STAFF_EMAIL_DOMAINS=rengarenksite.com`), yapay zekâ
+  AWS Bedrock (`AI_PROVIDER=bedrock`, `BedrockAiProvider` Converse API, model tablosu `AI_MODELS.bedrock` Nova Lite/Pro
+  `eu.` profili; Vertex de duruyor, `aiCostMicroUsd(sağlayıcı, boy, …)`). AWS Activate Founders başvurusu yapıldı (sonuç
+  5–10 iş günü); o zamana kadar 100 USD yeni hesap kredisi. Tanıtım sayfası `deploy/tanitim` (Güzel Hosting, cPanel).
+  API'de 214 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
-  yapay zekâ yorumu); GCP'ye ilk dağıtım (Compute Engine, `deploy/README.md`;
-  GCP 25. portu kapalı tuttuğu için e-posta sunucusunun yeri bekliyor, Karar 50, canlıda `EMAIL_PROVIDER=none`), yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
+  yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
+  AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; 25. port talebi bekliyor, Karar 50,
+  canlıda `EMAIL_PROVIDER=none`), yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
-  Play, GCP canlı projesi ve KVKK standart sözleşmesi, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu
+  Play, AWS Activate kredisi ve KVKK standart sözleşmesi, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu
   gerçek anahtarla deneme; test/sahte sağlayıcı kullan.
 - **SMS önerisi:** ana sağlayıcı İleti Merkezi (bağdaştırıcı hazır; 11 Kasım 2026'da hesap açıldı, `ILETIMERKEZI_KEY/HASH`
   yerel `.env`'de, API adı `rengarenksite`; bakiye ve `RENGARENK` başlığı bekleniyor; deneme `pnpm --filter @rengarenk/api sms:dene [numara]`). Yedek için aday Netgsm; bağdaştırıcısı hesap açılınca güncel API

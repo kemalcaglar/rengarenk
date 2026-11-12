@@ -29,17 +29,31 @@ export const AI_BUDGET = {
 
 /**
  * Model boyları (Teknik tasarım §10): sınıflandırma gibi basit işlerde küçük, taslak ve neden analizinde büyük model.
- * Fiyatlar 1 milyon token başına USD; sözleşme imzalanınca güncel fiyat listesiyle doğrulanır.
+ * Sağlayıcı başına tablo; canlıda AWS Bedrock (Karar 37, 57; 12 Kasım 2026). Bedrock kimlikleri AB bölgeler arası
+ * çıkarım profilidir (`eu.` öneki: istek AB bölgelerinde kalır). Fiyatlar 1 milyon token başına USD; hesap açılınca
+ * güncel fiyat listesiyle doğrulanır. Sahte sağlayıcı Bedrock tablosuyla sayar.
  */
 export const AI_MODELS = {
-  kucuk: { id: 'gemini-2.5-flash', girdiUsd: 0.3, ciktiUsd: 2.5 },
-  buyuk: { id: 'gemini-2.5-pro', girdiUsd: 1.25, ciktiUsd: 10 },
+  bedrock: {
+    kucuk: { id: 'eu.amazon.nova-lite-v1:0', girdiUsd: 0.06, ciktiUsd: 0.24 },
+    buyuk: { id: 'eu.amazon.nova-pro-v1:0', girdiUsd: 0.8, ciktiUsd: 3.2 },
+  },
+  vertex: {
+    kucuk: { id: 'gemini-2.5-flash', girdiUsd: 0.3, ciktiUsd: 2.5 },
+    buyuk: { id: 'gemini-2.5-pro', girdiUsd: 1.25, ciktiUsd: 10 },
+  },
 } as const;
-export type AiModelSize = keyof typeof AI_MODELS;
+export type AiModelProvider = keyof typeof AI_MODELS;
+export type AiModelSize = keyof (typeof AI_MODELS)['bedrock'];
 
 /** Bir çağrının maliyeti, milyonda bir USD (tamsayı) */
-export function aiCostMicroUsd(size: AiModelSize, inputTokens: number, outputTokens: number): number {
-  const m = AI_MODELS[size];
+export function aiCostMicroUsd(
+  provider: AiModelProvider,
+  size: AiModelSize,
+  inputTokens: number,
+  outputTokens: number,
+): number {
+  const m = AI_MODELS[provider][size];
   return Math.ceil(inputTokens * m.girdiUsd + outputTokens * m.ciktiUsd);
 }
 

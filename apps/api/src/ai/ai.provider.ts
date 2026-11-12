@@ -1,8 +1,9 @@
 import { createSign } from 'node:crypto';
+import { BedrockRuntimeClient, ConverseCommand } from '@aws-sdk/client-bedrock-runtime';
 import type { Env } from '../config/env.js';
 
 export interface AiProviderRequest {
-  /** Sağlayıcıdaki model kimliği (gemini-2.5-flash) */
+  /** Sağlayıcıdaki model kimliği (eu.amazon.nova-lite-v1:0, gemini-2.5-flash) */
   model: string;
   system: string;
   /** Maskelenmiş istek */
@@ -20,7 +21,7 @@ export interface AiProviderResult {
 
 /** Yapay zekâ sağlayıcısı (T11). Ağ geçidi sağlayıcıdan bağımsızdır; istekler buraya maskelenmiş gelir. */
 export interface AiProvider {
-  readonly ad: 'fake' | 'vertex';
+  readonly ad: 'fake' | 'bedrock' | 'vertex';
   generate(r: AiProviderRequest): Promise<AiProviderResult>;
 }
 
@@ -42,6 +43,56 @@ export class FakeAiProvider implements AiProvider {
     if (this.fail) throw new Error('sahte sağlayıcı hatası');
     const text = this.yanit ?? r.taslak;
     return { text, inputTokens: tahmin(r.system + r.prompt), outputTokens: tahmin(text) };
+  }
+}
+
+/** Kurallarla hazırlanan taslak isteğe olgu olarak eklenir (bütün sağlayıcılarda aynı) */
+const kullaniciMetni = (q: AiProviderRequest) =>
+  `${q.prompt}\n\nKurallarla hazırlanan taslak (olgular bunlardır):\n${q.taslak}`;
+
+/** Bedrock Converse çağrısının bu sınıfın kullandığı kısmı (testte sahte istemci verilir) */
+export interface BedrockConverseClient {
+  send(command: ConverseCommand): Promise<{
+    output?: { message?: { content?: { text?: string }[] } };
+    usage?: { inputTokens?: number; outputTokens?: number };
+  }>;
+}
+
+/**
+ * AWS Bedrock (Amazon Nova), Converse API (docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html).
+ * Bölge Frankfurt; model kimlikleri AB çıkarım profili (`eu.`), istek AB bölgelerinde kalır (Karar 37, 57). Anahtar
+ * yalnızca bedrock:InvokeModel yetkili ayrı bir IAM kullanıcısına aittir.
+ */
+export class BedrockAiProvider implements AiProvider {
+  readonly ad = 'bedrock';
+  constructor(private readonly client: BedrockConverseClient) {}
+
+  static olustur(region: string, accessKeyId: string, secretAccessKey: string) {
+    return new BedrockAiProvider(
+      new BedrockRuntimeClient({
+        region,
+        credentials: { accessKeyId, secretAccessKey },
+        maxAttempts: 2,
+        requestHandler: { requestTimeout: 30_000 },
+      }),
+    );
+  }
+
+  async generate(q: AiProviderRequest): Promise<AiProviderResult> {
+    const r = await this.client.send(
+      new ConverseCommand({
+        modelId: q.model,
+        system: [{ text: q.system }],
+        messages: [{ role: 'user', content: [{ text: kullaniciMetni(q) }] }],
+        inferenceConfig: { temperature: 0.2, maxTokens: q.maxOutputTokens },
+      }),
+    );
+    const text = (r.output?.message?.content ?? [])
+      .map((p) => p.text ?? '')
+      .join('')
+      .trim();
+    if (!text) throw new Error('Bedrock boş yanıt verdi');
+    return { text, inputTokens: r.usage?.inputTokens ?? 0, outputTokens: r.usage?.outputTokens ?? 0 };
   }
 }
 
@@ -98,9 +149,7 @@ class VertexAiProvider implements AiProvider {
         contents: [
           {
             role: 'user',
-            parts: [
-              { text: `${q.prompt}\n\nKurallarla hazırlanan taslak (olgular bunlardır):\n${q.taslak}` },
-            ],
+            parts: [{ text: kullaniciMetni(q) }],
           },
         ],
         generationConfig: { temperature: 0.2, maxOutputTokens: q.maxOutputTokens },
@@ -128,6 +177,12 @@ class VertexAiProvider implements AiProvider {
 /** none: sağlayıcı yok (ağ geçidi çağrı yapmaz, kural metni kullanılır) */
 export function createAiProvider(env: Env): AiProvider | null {
   if (env.AI_PROVIDER === 'fake') return new FakeAiProvider();
+  if (env.AI_PROVIDER === 'bedrock')
+    return BedrockAiProvider.olustur(
+      env.BEDROCK_REGION,
+      env.BEDROCK_ACCESS_KEY_ID as string,
+      env.BEDROCK_SECRET_ACCESS_KEY as string,
+    );
   if (env.AI_PROVIDER === 'vertex')
     return new VertexAiProvider(env.VERTEX_SERVICE_ACCOUNT as string, env.VERTEX_LOCATION);
   return null;

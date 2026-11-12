@@ -163,10 +163,10 @@ describe('yönetim girişi: Google Workspace + zorunlu 2FA (T10, Karar 40)', () 
 
   it('şirket dışı hesap, Workspace olmayan hesap, tanımsız ve kapalı çalışan giremez', async () => {
     expect((await googleStep(app, { email: 'biri@gmail.com' })).cb.status).toBe(403);
-    expect((await googleStep(app, { email: 'yok@rengarenk.com.tr', hd: null })).cb.status).toBe(403);
-    expect((await googleStep(app, { email: 'kayitsiz@rengarenk.com.tr' })).cb.status).toBe(403);
+    expect((await googleStep(app, { email: 'yok@rengarenksite.com', hd: null })).cb.status).toBe(403);
+    expect((await googleStep(app, { email: 'kayitsiz@rengarenksite.com' })).cb.status).toBe(403);
     expect(
-      (await googleStep(app, { email: 'dogrulanmamis@rengarenk.com.tr', email_verified: false })).cb.status,
+      (await googleStep(app, { email: 'dogrulanmamis@rengarenksite.com', email_verified: false })).cb.status,
     ).toBe(403);
     const off = await createStaff(db, 'SUPPORT', { status: 'DISABLED' });
     expect((await googleStep(app, { email: off.email })).cb.status).toBe(403);
@@ -289,10 +289,10 @@ describe('yönetim girişi ayarları', () => {
   it('geliştirmede birden çok alan ve kapalı Workspace şartı kabul edilir', () => {
     const e = loadEnv({
       ...base,
-      STAFF_EMAIL_DOMAINS: 'rengarenk.com.tr, KGteknoloji.com.tr',
+      STAFF_EMAIL_DOMAINS: 'rengarenksite.com, KGteknoloji.com.tr',
       STAFF_REQUIRE_WORKSPACE: 'false',
     });
-    expect(e.STAFF_EMAIL_DOMAINS).toEqual(['rengarenk.com.tr', 'kgteknoloji.com.tr']);
+    expect(e.STAFF_EMAIL_DOMAINS).toEqual(['rengarenksite.com', 'kgteknoloji.com.tr']);
     expect(e.STAFF_REQUIRE_WORKSPACE).toBe(false);
   });
 });
@@ -364,7 +364,7 @@ describe('çalışanlar ve izin matrisi (Karar 40)', () => {
       app,
       'POST',
       '/staff/members',
-      { email: 'y@rengarenk.com.tr', name: 'İkinci', role: 'OWNER' },
+      { email: 'y@rengarenksite.com', name: 'İkinci', role: 'OWNER' },
       owner.token,
     );
     expect(own.status).toBe(400);
@@ -373,14 +373,14 @@ describe('çalışanlar ve izin matrisi (Karar 40)', () => {
       app,
       'POST',
       '/staff/members',
-      { email: 'Selin.Demir@rengarenk.com.tr', name: 'Selin Demir', role: 'SUPPORT' },
+      { email: 'Selin.Demir@rengarenksite.com', name: 'Selin Demir', role: 'SUPPORT' },
       owner.token,
     );
     expect(inv.status).toBe(201);
     expect(inv.body.status).toBe('INVITED');
-    expect(inv.body.email).toBe('selin.demir@rengarenk.com.tr');
+    expect(inv.body.email).toBe('selin.demir@rengarenksite.com');
 
-    const selin = await loginAs(app, { email: 'selin.demir@rengarenk.com.tr' });
+    const selin = await loginAs(app, { email: 'selin.demir@rengarenksite.com' });
     const me = await staffCall(app, 'GET', '/staff/me', undefined, selin.token);
     expect(me.body.roleName).toBe('Destek');
     expect((await db.staffMember.findUniqueOrThrow({ where: { id: inv.body.id } })).status).toBe('ACTIVE');
@@ -402,12 +402,12 @@ describe('çalışanlar ve izin matrisi (Karar 40)', () => {
       app,
       'POST',
       '/staff/members',
-      { email: 'mert.aydin@rengarenk.com.tr', role: 'MODERATOR' },
+      { email: 'mert.aydin@rengarenksite.com', role: 'MODERATOR' },
       owner.token,
     );
     expect(adsiz.status).toBe(201);
-    expect(adsiz.body.name).toBe('mert.aydin@rengarenk.com.tr');
-    const g = await googleStep(app, { email: 'mert.aydin@rengarenk.com.tr', name: 'Mert Aydın' });
+    expect(adsiz.body.name).toBe('mert.aydin@rengarenksite.com');
+    const g = await googleStep(app, { email: 'mert.aydin@rengarenksite.com', name: 'Mert Aydın' });
     expect(g.cb.body.name).toBe('Mert Aydın');
     expect((await db.staffMember.findUniqueOrThrow({ where: { id: adsiz.body.id } })).name).toBe(
       'Mert Aydın',
@@ -480,11 +480,11 @@ describe('çalışanlar ve izin matrisi (Karar 40)', () => {
       app,
       'POST',
       '/staff/members',
-      { email: 'katalog@rengarenk.com.tr', name: 'Katalog', role: 'CUSTOM', customRoleId: ok.body.id },
+      { email: 'katalog@rengarenksite.com', name: 'Katalog', role: 'CUSTOM', customRoleId: ok.body.id },
       owner.token,
     );
     expect(inv.status).toBe(201);
-    const k = await loginAs(app, { email: 'katalog@rengarenk.com.tr' });
+    const k = await loginAs(app, { email: 'katalog@rengarenksite.com' });
     const me = await staffCall(app, 'GET', '/staff/me', undefined, k.token);
     expect(me.body.roleName).toBe('Katalog sorumlusu');
     expect((await staffCall(app, 'GET', '/staff/audit', undefined, k.token)).status).toBe(200);

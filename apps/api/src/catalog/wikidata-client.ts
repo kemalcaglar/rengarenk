@@ -18,7 +18,7 @@ export interface WikidataClient {
 
 export const WIKIDATA_CLIENT = Symbol('WIKIDATA_CLIENT');
 
-const HEADERS = { 'user-agent': 'Rengarenk-katalog/1.0 (https://rengarenk.com.tr)' };
+const HEADERS = { 'user-agent': 'Rengarenk-katalog/1.0 (https://rengarenksite.com)' };
 const BATCH = 40;
 
 export class HttpWikidataClient implements WikidataClient {

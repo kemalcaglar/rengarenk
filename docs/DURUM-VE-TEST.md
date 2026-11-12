@@ -31,7 +31,7 @@ kararlar `docs/kapsam/01-urun-kapsami.md` (Karar 01–59), teknik tasarım `02-t
 | | |
 | --- | --- |
 | Aşama | Aşama 0–9'un kodu bitti (planda lansman 14 Ocak 2028; kod tarafı plandan çok önde) |
-| Sıradaki büyük adım | GCP'de (Frankfurt) ilk canlı dağıtım (Karar 37, 11 Kasım 2026'da Radore'den değişti), yedek, izleme ve sırların şifrelenmesi (SOPS) |
+| Sıradaki büyük adım | AWS Lightsail'de (Frankfurt) ilk kurulum, kapalı test ortamı olarak (Karar 37, 12 Kasım 2026'da AWS'ye değişti), yedek, izleme ve sırların şifrelenmesi (SOPS) |
 | Bekleyen | Dış hesaplar ve sözleşmeler (SMS, Google Workspace, Apple/Google Play, PayTR, e-Arşiv, EİDS, avukat, TSB izni, EEA) |
 | Testler | API 212, ortak paket 128, katalog 36 test; hepsi geçiyor. Lint ve tür denetimi temiz |
 | Depo | `main` dalı GitHub'da (kemalcaglar/rengarenk). Canlıya dağıtım yalnızca `v*` etiketiyle ve sahip onayıyla |
@@ -127,7 +127,7 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
    RR001, RR010–RR015, RR020) hiçbir gerekçeyle gevşetilmez. İade akışına dokunan her değişiklik önce sahibe sorulur.
 2. **GitHub yalnızca bu bilgisayardan.** Commit serbest; `git push`, etiket (`v*`) ve uzak depoyu değiştiren her şey için
    önce sahip onayı.
-3. **Barındırma GCP Avrupa'da** (Karar 37, 11 Kasım 2026'da değişti). Yurt dışına aktarım KVKK standart sözleşmesiyle
+3. **Barındırma AWS Frankfurt'ta** (Karar 37, 12 Kasım 2026'da değişti). Yurt dışına aktarım KVKK standart sözleşmesiyle
    ve 5 iş günü içinde Kurum'a bildirimle; bu olmadan canlıya gerçek kullanıcı verisi girmez. Yapay zekâ isteklerinde
    maskeleme sürer. Kişisel veri alanları `/// @pii` ile işaretlenir.
 4. `audit_log`, `entitlement_ledger` (ve portföy araçları, katalog görselleri, rıza kayıtları) yalnızca ekleme kabul eder.
@@ -139,7 +139,7 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
 ### Sahip kararları (tarih sırasıyla)
 - **7 Kasım 2026:** Sahip kendi isteğini onaylayabilir; diğer herkeste isteyen ≠ onaylayan. İade isteklerini yalnızca
   Sahip onaylar; onay motoru iade yürütmez. CATALOG rolü atanamaz (özel rol kullanılır). Yönetim e-posta alanı
-  `rengarenk.com.tr`.
+  `rengarenksite.com`.
 - **7–8 Kasım 2026:** TSB iki yoldan (konsoldan yükleme + otomatik çekme). Eski yıllar en az 1990'lara kadar; yerli
   klasikler kaynaklı listeyle (Karar 33'e sınırlı istisna). Kasko bedeli asla saklanmaz ve gösterilmez.
 - **8 Kasım 2026:** Tasarım dosyalarıyla "eksik ya da farklı bir şey olmasın"; yeni ekranda `.dc.html` ve PDF birlikte
@@ -173,8 +173,8 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 | --- | --- | --- | --- |
 | SMS ana sağlayıcı (İleti Merkezi) | **Hesap açıldı, anahtar `.env`'de (11 Kasım 2026).** Eksik: SMS paketi (bakiye 0) ve `RENGARENK` gönderici başlığı onayı | Bağdaştırıcı gerçek API'yle denendi (kimlik doğrulama geçti; başlık onaysız olduğu için kod 450). Paket ve başlık gelince `sms:dene` ile deneme SMS'i, sonra canlıda `SMS_PROVIDER=iletimerkezi` | 0,5 gün |
 | SMS yedek (aday Netgsm) | Hesap ve API belgesi | `apps/api/src/sms/` altına bağdaştırıcı, yedeğe geçiş testi | 1 gün |
-| Google Workspace (konsol girişi) | `rengarenk.com.tr` Workspace, OAuth istemcisi | `STAFF_AUTH_PROVIDER=google`, gerçek giriş denemesi | 0,5 gün |
-| GCP canlı projesi | Proje ve faturalandırma (krediler), KVKK standart sözleşmesi ve bildirimi, alan adı DNS | İlk dağıtım, Caddy/TLS, yedek, izleme, SOPS (bkz. 4.2) | 3–5 gün |
+| Google Workspace (konsol girişi) | `rengarenksite.com` Workspace, OAuth istemcisi | `STAFF_AUTH_PROVIDER=google`, gerçek giriş denemesi | 0,5 gün |
+| AWS hesabı | IAM erişimi (`rengarenk` profili), Activate kredisi, KVKK standart sözleşmesi ve bildirimi, alan adı DNS | İlk dağıtım, Caddy/TLS, yedek, izleme, SOPS (bkz. 4.2) | 3–5 gün |
 | Apple Developer + Google Play | Hesaplar (Apple için D-U-N-S) | EAS derleme, TestFlight / iç test, mağaza ürünleri, RevenueCat | 3–4 gün |
 | RevenueCat (mağaza ödemeleri) | Hesap, ürünler `rr_<ürün>` | `react-native-purchases`, sunucu bildirimi | 2 gün |
 | Firebase (push) | Firebase projesi, iOS için APNs anahtarı | FCM gerçek gönderim, iOS Firebase SDK | 1 gün |
@@ -182,22 +182,22 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 | e-Arşiv entegratörü | Sözleşme ve API belgesi | Bağdaştırıcı, fatura ve iade faturası | 2–3 gün |
 | EİDS (Ticaret Bakanlığı) | Entegrasyon erişimi | `eids.ts` gerçek sağlayıcı | 2 gün |
 | Yetki belgesi, GİB, MERSİS | Kurum erişimleri | `verification.ts` gerçek sağlayıcı (şimdi her başvuru insana) | 2–3 gün |
-| Kendi e-posta sunucusu | Yer kararı (GCP 25. portu kapalı tutuyor, Karar 50 ertelendi), DNS (SPF/DKIM/DMARC) | Kurulum, ısınma planı, gelen destek e-postası | 2 gün |
+| Kendi e-posta sunucusu | AWS'den 25. port açılması (Karar 50), Lightsail'de küçük sunucu, DNS (SPF/DKIM/DMARC) | Kurulum, ısınma planı, gelen destek e-postası | 2 gün |
 | İYS | İYS kaydı | İzin olaylarının İYS'ye iletimi | 1 gün |
 | Meta (mobil SDK) | Meta uygulama kimliği | `react-native-fbsdk-next`, KVKK izin ekranı, iOS ATT | 1–2 gün |
 | Google Ads | Ads hesabı, Data Manager erişimi | Çevrimdışı dönüşüm ve harcama çekimi | 1–2 gün |
-| Vertex AI (yapay zekâ) | GCP projesi ve bütçe | Ağ geçidinde gerçek sağlayıcı; ajanın sınıflandırma ve yorumları | 2 gün |
+| AWS Bedrock (yapay zekâ) | `rengarenk-bedrock` IAM anahtarı | Bağdaştırıcı hazır; gerçek modelle deneme, ajanın sınıflandırma ve yorumları | 1 gün |
 | EEA teknik değerleri | EEA'dan erişim biçimi | İçe aktarma hattı | 1–2 gün |
 | TSB yazılı izni | İzin yazısı | (kod gerekmez; Veri kaynakları metni) | — |
 | Avukat görüşü | Yasal metinlerin son hali | Metinler konsoldan yayınlanır (Sahip onayı); çerezsiz ölçüm ve Google Fonts notu | 1 gün |
 
 ### 4.2 Altyapı ve canlıya çıkış
-- GCP'ye ilk dağıtım (Compute Engine'de `deploy/` Docker Compose + Caddy), alan adları ve TLS.
+- AWS'ye ilk dağıtım (Lightsail'de `deploy/` Docker Compose + Caddy), alan adları ve TLS.
 - Sırlar: `.env.prod` ve `.env.iade` SOPS ile şifreli; iade sürecinin anahtarı ayrı.
 - Yedek: pgBackRest, ikinci veri merkezine kopya, `backup_runs` kaydı (betik örneği `deploy/README.md`), aylık geri
   yükleme provası (Karar 56).
 - İzleme: Prometheus, Grafana, Loki, GlitchTip; konsoldaki Sistem sağlığı canlı veriyle.
-- GCP test ortamı (yalnızca sentetik veri).
+- Test ortamı (yalnızca sentetik veri).
 
 ### 4.3 Lansman hazırlığı (Aşama 10)
 - Sızma testi (dış firma önerilir) ve yük testi.
@@ -209,7 +209,7 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 ### 4.4 Küçük açık maddeler
 - Kullanıcının kendisinin "İade talep et" demesi (şimdilik destek üzerinden). **İade akışına dokunduğu için önce sahip kararı.**
 - Ana sayfadaki "Sık sorulanlar" bölümü (varsayılanda kapalı) hâlâ koddaki listeden okuyor; yardım makalelerine bağlanabilir.
-- Ajanın reklam yorumu ve sınıflandırması şimdilik kural tabanlı (Vertex AI gelince yapay zekâyla).
+- Ajanın reklam yorumu ve sınıflandırması şimdilik kural tabanlı (Bedrock bağlanınca yapay zekâyla).
 - E-postada açılma ve tıklama ölçülmüyor (bilinçli karar; izleme pikseli yok).
 - Mobil uygulamada tasarım değerleri cihazda görsel olarak denenmedi (tür denetimi ve lint temiz).
 - Yerel veritabanında önceki testlerden kalan kayıtlar var ("Deneme Kullanıcı", "Marmara Oto" gibi; 0555 000 00 xx
@@ -221,7 +221,7 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 
 Sıra, "canlıya çıkışı en çok hızlandıran ve en az bekleten" mantığıyla:
 
-1. **GCP canlı projesi + KVKK standart sözleşmesi + ilk dağıtım (en kritik).** Diğer bütün gerçek entegrasyonlar (SMS, e-posta, ödeme bildirimi)
+1. **AWS Lightsail kurulumu + KVKK standart sözleşmesi + ilk dağıtım (en kritik).** Diğer bütün gerçek entegrasyonlar (SMS, e-posta, ödeme bildirimi)
    herkese açık bir adres ister. Standart sözleşme Kurum'a bildirilip proje açılınca: `deploy/README.md` adımları → prova (`deploy/prova/`) zaten yapıldı →
    SOPS ile sırlar → `v0.1.0` etiketi (senin onayınla) → yedek ve izleme.
 2. **SMS (İleti Merkezi) ve Google Workspace.** Bunlar olmadan canlıda kimse giriş yapamaz. İkisi de yarım günlük iş.
@@ -232,7 +232,7 @@ Sıra, "canlıya çıkışı en çok hızlandıran ve en az bekleten" mantığı
    (`PAYMENT_PROVIDER=none`).
 6. **EİDS ve kurum doğrulamaları.** Gelene kadar galeri başvuruları insana düşer, araçlar EİDS olmadan yayınlanmaz
    (canlıda `none`).
-7. **Firebase, İYS, Meta, Google Ads, Vertex AI:** beta sırasında sırayla.
+7. **Firebase, İYS, Meta, Google Ads, Bedrock:** beta sırasında sırayla.
 8. **Aşama 10:** yük ve sızma testi → kapalı beta → mağaza incelemesi → lansman.
 
 Her adımın sonunda: testler, `pnpm lint; pnpm typecheck; pnpm test`, plan dosyasında kutu işaretleme ve bu dosyanın
@@ -244,8 +244,8 @@ güncellenmesi.
 
 **Yapabileceklerim (bu bilgisayardan, senin onayınla):**
 - Her yeni hesap için bağdaştırıcıyı yazmak, sahte sağlayıcıyla ve testlerle denemek, belge ve `.env` örneğini güncellemek
-  (SMS, Netgsm, Google, PayTR, e-Arşiv, EİDS, GİB/MERSİS, FCM, RevenueCat, Meta, Google Ads, Vertex AI, EEA).
-- GCP dağıtımında adım adım yönlendirme, Compose/Caddy ayarı, SOPS kurulumu, yedek ve geri yükleme betikleri,
+  (SMS, Netgsm, Google, PayTR, e-Arşiv, EİDS, GİB/MERSİS, FCM, RevenueCat, Meta, Google Ads, Bedrock, EEA).
+- AWS dağıtımında adım adım yönlendirme, Compose/Caddy ayarı, SOPS kurulumu, yedek ve geri yükleme betikleri,
   izleme panoları, işletme el kitabı. (Sunucuya komut çalıştırmak ve `git push` / etiket için her seferinde önce sorarım.)
 - EAS derleme ayarları (`eas.json`), TestFlight ve Google Play iç test dağıtım adımları, mağaza açıklama metinleri.
 - Yük testi betikleri (ör. k6), sızma testi öncesi güvenlik gözden geçirmesi ve kontrol listesi.
@@ -317,7 +317,7 @@ tarayıcısında `http://192.168.1.27:4000/health` açılmalı.
 sağlayıcıyla çalışır; yazı tipi ve tasarım değerleri açılışta API'den okunur.
 
 **Farklı ağdaysan (ör. telefon mobil veride):** `pnpm --filter @rengarenk/mobile exec expo start --tunnel` Metro'yu
-tünelden açar, ama API de dışarıdan erişilebilir olmalı; bu durumda canlı sunucu (GCP) ya da geçici bir tünel gerekir.
+tünelden açar, ama API de dışarıdan erişilebilir olmalı; bu durumda canlı sunucu (AWS) ya da geçici bir tünel gerekir.
 İstersen bunu birlikte kurarız.
 
 ### 8.2 Android emülatörü (isteğe bağlı)
@@ -378,23 +378,23 @@ doğrulama uygulamasındaki 6 haneli kod.
 Doğrulama kodu iki yoldan alınır:
 - **Telefondaki uygulamayla (önerilen):** Google Authenticator / Microsoft Authenticator → "Kurulum anahtarı gir" →
   hesap adı olarak e-postayı, anahtar olarak aşağıdaki sırrı yaz (zamana dayalı).
-- **Komutla:** `pnpm --filter @rengarenk/api demo kod moderator@rengarenk.com.tr` o anki kodu yazar.
+- **Komutla:** `pnpm --filter @rengarenk/api demo kod moderator@rengarenksite.com` o anki kodu yazar.
 
 | E-posta | Ad | Rol | Doğrulama sırrı (yalnızca yerel) | Neler yapabilir |
 | --- | --- | --- | --- | --- |
 | devops@kgteknoloji.com.tr | Kemal Çağlar | **Sahip** | (senin uygulamanda kurulu) | Her şey; iade ve tasarım/yasal onayı, çalışan yönetimi |
-| yonetici@rengarenk.com.tr | Deniz Yönetici | Yönetici | `BDH4G5C7VBB5RKZAMYBOELBT2DNMU5YA` | Çoğu modül; iade, fiyat, tasarım için yalnızca öneri; toplu gönderim onayı |
-| moderator@rengarenk.com.tr | Mert Moderatör | Moderatör | `BGWOBAQGL3NJVEXP2LQAG2VCYGNLDDW7` | Şikâyetler, askı, kalıcı engel (onaylı); kişisel veri maskeli |
-| destek@rengarenk.com.tr | Duygu Destek | Destek | `H5LN6OQTZXHRXKL5CCVDI3AVULP4TUP5` | Destek talepleri, küçük hak tanımlama; iade ve KVKK yanıtı için öneri; raporlar (maskeli) |
-| operasyon@rengarenk.com.tr | Oya Operasyon | Operasyon | `Z7WKYLRYKAVMVRQ6JDHZ3PJKCS22O73W` | Galeri başvurusu onayı, destek talepleri, raporlar (maskeli) |
-| pazarlama@rengarenk.com.tr | Pelin Pazarlama | Pazarlama | `VFHNWHK2LMH2QOQF7GJ7CYL4EJ5YLJMY` | Kampanya, kupon, banner, açılış sayfası; toplu gönderim ve tasarım önerisi |
-| finans@rengarenk.com.tr | Fatih Finans | Finans | `UHHHR3VWPPM5PNXOA2KVB26CXZLPAIIG` | Raporlar ve dışa aktarma; iade ve fiyat önerisi |
-| izleyici@rengarenk.com.tr | İlker İzleyici | İzleyici | `HU3JE2USYU4M5GBESFNKGDJOEINY3EGC` | Yalnızca raporlar ve işlem kaydı |
+| yonetici@rengarenksite.com | Deniz Yönetici | Yönetici | `BDH4G5C7VBB5RKZAMYBOELBT2DNMU5YA` | Çoğu modül; iade, fiyat, tasarım için yalnızca öneri; toplu gönderim onayı |
+| moderator@rengarenksite.com | Mert Moderatör | Moderatör | `BGWOBAQGL3NJVEXP2LQAG2VCYGNLDDW7` | Şikâyetler, askı, kalıcı engel (onaylı); kişisel veri maskeli |
+| destek@rengarenksite.com | Duygu Destek | Destek | `H5LN6OQTZXHRXKL5CCVDI3AVULP4TUP5` | Destek talepleri, küçük hak tanımlama; iade ve KVKK yanıtı için öneri; raporlar (maskeli) |
+| operasyon@rengarenksite.com | Oya Operasyon | Operasyon | `Z7WKYLRYKAVMVRQ6JDHZ3PJKCS22O73W` | Galeri başvurusu onayı, destek talepleri, raporlar (maskeli) |
+| pazarlama@rengarenksite.com | Pelin Pazarlama | Pazarlama | `VFHNWHK2LMH2QOQF7GJ7CYL4EJ5YLJMY` | Kampanya, kupon, banner, açılış sayfası; toplu gönderim ve tasarım önerisi |
+| finans@rengarenksite.com | Fatih Finans | Finans | `UHHHR3VWPPM5PNXOA2KVB26CXZLPAIIG` | Raporlar ve dışa aktarma; iade ve fiyat önerisi |
+| izleyici@rengarenksite.com | İlker İzleyici | İzleyici | `HU3JE2USYU4M5GBESFNKGDJOEINY3EGC` | Yalnızca raporlar ve işlem kaydı |
 
 Tam izin matrisi konsolda **Ekip › Roller ve yetkiler** sayfasında. Dört göz kuralı: bir çalışanın isteğini başka biri
 onaylar (Sahip hariç); iadeyi yalnızca Sahip onaylar.
 
-> `sahip@rengarenk.com.tr` eski bir yerel sahip hesabıdır; doğrulama uygulaması daha önce kurulduğu için sırrı bilinmiyor.
+> `sahip@rengarenksite.com` eski bir yerel sahip hesabıdır; doğrulama uygulaması daha önce kurulduğu için sırrı bilinmiyor.
 > Kendi hesabınla (devops@…) girmen yeterli.
 
 ---

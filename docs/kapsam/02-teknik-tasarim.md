@@ -11,12 +11,12 @@ Sürüm 0.2 · 7 Kasım 2026. Bu sekme, ürün kapsamındaki 59 kararın teknik 
 | T03 | Veritabanı | PostgreSQL 16; şema ve göçler Prisma ile; esnek kategori alanları JSONB | Kesin |
 | T04 | Arama | OpenSearch; araçtan talebe ters eşleştirme için kayıtlı sorgular (percolator) | Kesin |
 | T05 | Olaylar | PostgreSQL tabanlı kuyruk (pg-boss) ve outbox tablosu; olay kaybolmaz. Yük artınca RabbitMQ'ya geçilir | Kesin |
-| T06 | Barındırma | Sistemin tamamı GCP Avrupa'da (`europe-west3`, Frankfurt) kredilerle: başlangıçta Compute Engine'de tek sanal sunucuda Docker Compose, büyüyünce yönetilen servisler; yurt dışına aktarım standart sözleşmeyle (Karar 37, 11 Kasım 2026'da Radore'den değişti) | Kesin |
+| T06 | Barındırma | Sistemin tamamı AWS `eu-central-1` (Frankfurt) kredilerle: başlangıçta Amazon Lightsail'de tek sunucuda Docker Compose, büyüyünce EC2 ya da yönetilen servisler; yurt dışına aktarım standart sözleşmeyle (Karar 37; 11 Kasım 2026'da Radore'den GCP'ye, 12 Kasım'da AWS'ye değişti) | Kesin |
 | T07 | Gerçek zaman | NestJS WebSocket ağ geçidi, Redis yayın kanalıyla | Kesin |
-| T08 | Dosyalar | SeaweedFS (S3 uyumlu, Apache-2.0) uygulama sunucusunda; ileride Cloud Storage'a geçilebilir; görseller imgproxy ile boyutlanır. MinIO topluluk sürümü Ekim 2025'te Docker imajı yayınlamayı bıraktı ve Nisan 2026'da arşivlendi; 7 Kasım 2026'da değiştirildi | Kesin |
+| T08 | Dosyalar | SeaweedFS (S3 uyumlu, Apache-2.0) uygulama sunucusunda; ileride Lightsail depolama alanına ya da S3'e geçilebilir; görseller imgproxy ile boyutlanır. MinIO topluluk sürümü Ekim 2025'te Docker imajı yayınlamayı bıraktı ve Nisan 2026'da arşivlendi; 7 Kasım 2026'da değiştirildi | Kesin |
 | T09 | Kullanıcı girişi | Telefon ve SMS kodu, şifresiz; uzun oturum ve güvenilir cihaz | Kesin |
 | T10 | Yönetim girişi | Şirket e-postasıyla Google Workspace tek oturum ve zorunlu 2FA | Kesin |
-| T11 | Yapay zekâ | Tüm görevlerde Google Vertex AI (Gemini); ağ geçidi yine sağlayıcıdan bağımsız kurulur | Kesin |
+| T11 | Yapay zekâ | Tüm görevlerde AWS Bedrock (Amazon Nova, AB çıkarım profili; 12 Kasım 2026'da Vertex AI'dan değişti); ağ geçidi sağlayıcıdan bağımsız, Vertex bağdaştırıcısı da durur | Kesin |
 | T12 | Hata izleme | GlitchTip (Sentry uyumlu) kendi sunucumuzda; kayıtlar yurtdışına çıkmaz | Kesin |
 | T13 | Özellik anahtarları | Kendi tablomuz ve Redis önbelleği; ayrı ürün yok | Kesin |
 | T14 | Mobil yayın | Expo EAS Build; küçük düzeltmeler mağaza beklemeden EAS Update ile | Kesin |
@@ -40,20 +40,20 @@ Kuyruk, depolama ve arama birer arayüzün arkasındadır; geri dönüşte yaln�
 
 &#91;embedded content: sistem mimarisi · Radore'de kişisel veri, GCP'de kişisel olmayan iş\]
 
-Not (11 Kasım 2026): yukarıdaki çizim eski barındırma kararını gösteriyor; artık bütün kutular GCP Avrupa'da (Karar 37).
+Not (12 Kasım 2026): yukarıdaki çizim eski barındırma kararını gösteriyor; artık bütün kutular AWS Frankfurt'ta (Karar 37).
 
-- **İstemciler:** web sitesi (Next.js, arama motorları için sunucuda üretilen sayfalar), mobil uygulama (Expo) ve yönetim konsolu (Next.js, yonetim.rengarenk.com.tr, ayrı dağıtım). Üçü de aynı API'yi kullanır (Karar 47).
+- **İstemciler:** web sitesi (Next.js, arama motorları için sunucuda üretilen sayfalar), mobil uygulama (Expo) ve yönetim konsolu (Next.js, yonetim.rengarenksite.com, ayrı dağıtım). Üçü de aynı API'yi kullanır (Karar 47).
 - **API:** NestJS modüler monolit. Modüller: kimlik, hesap, katalog, kategori, talep, portföy, eşleştirme, sohbet, haklar, ödeme, bildirim, moderasyon, destek, kampanya, rapor, ayar, uyum, ajan. Modüller birbirini yalnızca servis arayüzüyle çağırır ve veritabanında her modülün kendi şeması vardır; ileride bir modül gerekirse ayrı servise ayrılabilir.
 - **Arka plan işçileri:** aynı kod tabanından ayrı süreçler; kuyruktan iş alır, yük artınca çoğaltılır.
 - **Neden modüler monolit:** küçük ekip, düşük altyapı maliyeti ve tek veritabanı işlemi. Örneğin ilk mesajın gönderilmesi ile hakkın düşmesi aynı işlemde olur; biri olup diğeri olmaz durumu yaşanmaz.
 
 ## 3. Altyapı, ortamlar ve dağıtım
 
-- **GCP (`europe-west3`, Frankfurt):** başlangıçta Compute Engine'de tek sanal sunucu (Docker Compose, Caddy ile otomatik TLS); PostgreSQL aynı sunucuda ya da ikinci küçük bir sanal sunucuda. Aşağıdaki büyüme eşiklerinden biri aşılınca yönetilen servislere (Cloud SQL, GKE) geçilir; uygulama baştan konteyner olarak paketlendiği için geçiş kod değişikliği gerektirmez. GCP dışarıya 25. portu kapalı tuttuğu için e-posta sunucusunun yeri bekliyor (Karar 50).
-- **Ortamlar:** geliştirme (yerelde Docker Compose), test (GCP, yalnızca sentetik veri; her değişiklik için önizleme ortamı), canlı (GCP, ayrı proje). Canlı veri test ortamına hiçbir zaman kopyalanmaz.
+- **AWS (`eu-central-1`, Frankfurt):** başlangıçta Amazon Lightsail'de tek sunucu (Docker Compose, Caddy ile otomatik TLS, PostgreSQL aynı sunucuda). Kurulum 8 GB'lık pakette başlar, kredi gelince 16 GB'lık pakete büyütülür (anlık görüntüden). Aşağıdaki büyüme eşiklerinden biri aşılınca EC2 ya da yönetilen servislere geçilir; uygulama baştan konteyner olarak paketlendiği için geçiş kod değişikliği gerektirmez. AWS 25. portu talep formuyla açar; posta sunucusu Lightsail'de ayrı küçük sunucuda (Karar 50).
+- **Ortamlar:** geliştirme (yerelde Docker Compose), test (AWS Lightsail, yalnızca sentetik veri), canlı (AWS Lightsail). Canlı veri test ortamına hiçbir zaman kopyalanmaz.
 - **Dağıtım:** GitHub Actions ile test, tip kontrolü ve güvenlik taraması; canlıya yine GitHub Actions ile, etiketli sürümün imajı sunucuya çekilip Compose yeniden başlatılarak. Geri alma, önceki imaj etiketine dönmekle tek adımdır.
 - **Veritabanı göçleri** geriye uyumludur: önce yeni yapı eklenir, veri taşınır, eski yapı sonra kaldırılır. Böylece dağıtım sırasında kesinti olmaz.
-- **Yedek:** pgBackRest ile günlük tam yedek ve sürekli artımlı yedek; şifreli olarak başka bir AB bölgesindeki Cloud Storage'ta (ör. `europe-west4`). Günlük yedekler 30 gün, aylık yedekler 12 ay saklanır. Ayda bir yedek ayrı bir ortama otomatik geri yüklenerek test edilir (Karar 56).
+- **Yedek:** pgBackRest ile günlük tam yedek ve sürekli artımlı yedek; şifreli olarak başka bir AB bölgesindeki depolama alanında (ör. `eu-west-1`, İrlanda). Günlük yedekler 30 gün, aylık yedekler 12 ay saklanır. Ayda bir yedek ayrı bir ortama otomatik geri yüklenerek test edilir (Karar 56).
 
 ## 4. Veri modeli
 
@@ -108,7 +108,7 @@ create table entitlement_ledger (
 - **Şema:** her kategori sürümü alan tanımları (tip, zorunluluk, filtre, eşleşme, sihirbaz adımı, talep ya da alternatif kapsamı, koşul), kurallar ve ağırlıklardan oluşur; taban şema (konum, bütçe, açıklama) koddadır ve her kategoriye eklenir. Doğrulayıcı ve JSON Schema bu tanımdan üretilir (`packages/shared/src/category-schema.ts`); web, mobil ve API aynısıyla doğrular. Veritabanı kilidi yayındaki sürümü değiştirmeye, silmeye ve onaysız yayına almaya izin vermez (RR030–RR033).
 - **Yayın:** taslak → önizleme → dört göz onayı → yayında. Talep o anki sürümle kaydedilir; eski talepler eski sürümle okunur (Karar 45).
 - **Arama:** şemada "filtrede" işaretli alanlar OpenSearch eşlemesine kendiliğinden eklenir; yeni alan için yeniden indeksleme arka planda yapılır.
-- **Katalog hattı (GCP, kişisel veri yok):** Cloud Run işleri ana kaynak olan TSB listesini ayda bir, VehiclesDB'yi ayda bir, Wikidata ve vehicle-makes-models'ı haftada bir, AB Çevre Ajansı veri setini yayınlandıkça, motodb'yi haftada bir çeker. Adımlar: indir → normalize et → önceki sürümle karşılaştır → kalite kontrolü (kaybolan model, olağandışı değişim) → imzalı paket olarak canlı ortama yayınla. Kontrol geçmezse yayın durur ve ajan bildirir.
+- **Katalog hattı (kişisel veri yok):** işçideki zamanlanmış işler ana kaynak olan TSB listesini ayda bir, VehiclesDB'yi ayda bir, Wikidata ve vehicle-makes-models'ı haftada bir, AB Çevre Ajansı veri setini yayınlandıkça, motodb'yi haftada bir çeker. Adımlar: indir → normalize et → önceki sürümle karşılaştır → kalite kontrolü (kaybolan model, olağandışı değişim) → imzalı paket olarak canlı ortama yayınla. Kontrol geçmezse yayın durur ve ajan bildirir.
 - **Ad eşleme:** aynı modelin farklı kaynaklardaki adları catalog\_aliases tablosunda birleşir; eşleşmeyenler ajan önerisiyle onaya düşer (Karar 33). Ajan gelene kadar öneriyi kural üretir (ek, bitişik yazım, noktalama farkı, tek harf farkı, elektrikli sürüm); onaylanan eşleme tipleri hedef seriye taşır ve sonraki içe aktarmalarda uygulanır. TSB'nin yapısal yazım farkları (Jeep'in Chrysler altında olması, Range Rover'da seri adının yazılmaması, Transit kısaltmaları) ayrıştırıcıda düzeltilir; ayrıştırıcının sürümü vardır, kurallar değişince aynı dosya yeniden işlenir.
 - **Kasa kuşağı ve makyaj:** vehicle-makes-models kuşağı kasa başına ve makyaj dönemine göre ayrı verir (ör. 3 Serisi Sedan 2018, 2022, 2024); bütün yıllar için kuşak olarak saklanır, tip kaydı yalnızca eski yıllar için alınır. Wikidata nesil kodunu (G20) verir; yıl Wikidata'da yoksa İngilizce Vikipedi bilgi kutusundaki üretim yılından alınır, madde ve sürüm numarası saklanır. Kuşak, başlangıç yılını kapsayan en geç kodla eşleşir; aynı kod ve kasada sırası makyaj numarasıdır. Kodu eksik nesli önceki kodun makyajı saymamak için çakışan kuşak ve kodun bitişini aşan kuşak kodsuz bırakılır. Kodsuz yıllarda makyaj TSB'deki işaretten okunur. vehicle-makes-models kapatılırsa kuşakları da görünmez.
 - **Görseller:** her nesil ve makyaj için Wikimedia Commons'tan seçilen açık lisanslı fotoğraf, yazar ve lisans bilgisiyle catalog\_images tablosunda saklanır; dosyanın kopyası kendi S3 depomuza (SeaweedFS) alınır. Adayları Commons API'sinden ajan bulur, katalog sorumlusu onaylar (Karar 34).
@@ -206,7 +206,7 @@ Bu değerler başlangıç içindir ve ayardadır; gerçek taleplerle ayarlanacak
 - **Ağ geçidi uygulama sunucusunda çalışır.** Her istek önce maskelenir: telefon, e-posta, IBAN, T.C. kimlik no, plaka ve ad soyad yer tutucuyla değiştirilir; yanıt dönünce yer tutucular gerektiğinde geri konur. Kişisel veri sağlayıcıya maskelenmeden gitmez (Karar 41, 57).
 - **Bütçe:** görev başına maliyet sayacı; %80'de uyarı, sınırda yalnızca kritik görevler (Karar 57).
 - **İstemler sürümlüdür;** her çağrı görev, istem sürümü, token ve maliyetle kaydedilir. İçerik kaydı da maskelidir.
-- **Sağlayıcı (T11):** tüm görevlerde Google Vertex AI (Gemini) kullanılır. GCP kredileri maliyeti karşılar ve GCP ile yapılacak standart sözleşme bu kullanımı da kapsar (Karar 37). Göreve göre model boyu seçilir: sınıflandırma gibi basit işlerde küçük ve ucuz model, destek taslakları ve neden analizinde daha güçlü model. Yayından önce her görev 200 gerçekçi, maskeli örnekle sınanır. Ağ geçidi yine sağlayıcıdan bağımsızdır; ileride gerekirse kod değişmeden başka sağlayıcıya geçilebilir. Turkcell–Google Türkiye bölgesi açıldığında istekler oraya taşınır.
+- **Sağlayıcı (T11):** tüm görevlerde AWS Bedrock Converse API ile Amazon Nova kullanılır (küçük işlerde Nova Lite, taslak ve neden analizinde Nova Pro; `eu.` çıkarım profili, istek AB bölgelerinde kalır). AWS kredileri maliyeti karşılar ve AWS ile yapılacak standart sözleşme bu kullanımı da kapsar (Karar 37). Uygulama yalnızca model çağırma yetkili ayrı bir IAM kullanıcısının anahtarını kullanır. Yayından önce her görev 200 gerçekçi, maskeli örnekle sınanır; Türkçe kalitesi yetmeyen görevde başka bir Bedrock modeli denenir. Ağ geçidi sağlayıcıdan bağımsızdır; Vertex bağdaştırıcısı da kodda durur.
 - **Ajan bir görev çalıştırıcıdır.** Her görev bir tetikleyici, kurallar, izin verilen eylemler ve günlük limitten oluşur (Karar 41). Ajan, yönetim konsolunun kullandığı API'yi "Ajan" rolündeki bir servis hesabıyla çağırır; bu yüzden rolünün izin vermediği hiçbir şeyi teknik olarak yapamaz. Her eylem geri alma bilgisiyle işlem kaydına yazılır. Durdurma düğmesi bir özellik anahtarıdır; her görev ilk adımda onu kontrol eder.
 
 ## 11. Kimlik, yetki ve işlem kaydı
@@ -227,7 +227,7 @@ Bu değerler başlangıç içindir ve ayardadır; gerçek taleplerle ayarlanacak
 
 ## 13. Güvenlik, KVKK ve izleme
 
-- **Kişisel verinin yeri:** veritabanı, dosyalar, yedekler, uygulama kayıtları ve hata izleme GCP Avrupa'dadır (Karar 37). Yurt dışına aktarım KVKK m.9 standart sözleşmesiyle yapılır ve 5 iş günü içinde Kurum'a bildirilir; canlıya çıkmadan önce zorunlu. Yapay zekâ isteklerinde maskeleme sürer, test ortamına canlı veri kopyalanmaz.
+- **Kişisel verinin yeri:** veritabanı, dosyalar, yedekler, uygulama kayıtları ve hata izleme AWS Frankfurt'tadır (Karar 37). Yurt dışına aktarım KVKK m.9 standart sözleşmesiyle yapılır ve 5 iş günü içinde Kurum'a bildirilir; canlıya çıkmadan önce zorunlu. Yapay zekâ isteklerinde maskeleme sürer, test ortamına canlı veri kopyalanmaz.
 - **Şifreleme:** aktarımda TLS, diskte şifreleme; telefon, e-posta, T.C. kimlik no ve mesaj gövdesi uygulama düzeyinde ayrıca şifrelenir. Şifreleme anahtarları veriden ayrı tutulur.
 - **Sırlar:** depoda SOPS ile şifreli saklanır, yalnızca sunucuda açılır; hiçbir anahtar kodda ya da ekranda görünmez (Karar 56).
 - **Uygulama güvenliği:** hız sınırları, bot koruması, OWASP kontrolleri, bağımlılık taraması; yılda bir dış sızma testi.
@@ -237,14 +237,15 @@ Bu değerler başlangıç içindir ve ayardadır; gerçek taleplerle ayarlanacak
 
 | Kalem | Tahmin | Not |
 | --- | --- | --- |
-| GCP: uygulama ve veritabanı sunucusu, yedek alanı | Krediler sürdükçe 0 | Karar 37; kredilerin bitiş tarihi takip edilir |
-| E-posta sunucusu ve 2 IP | Bekliyor | Karar 50; GCP 25. portu kapalı tutuyor |
+| AWS Lightsail: 16 GB sunucu (4 çekirdek, 320 GB, 6 TB trafik, IP dahil) | 84 USD (krediler sürdükçe 0) | Karar 37; Activate kredisi 1.000 USD, bitiş tarihi takip edilir |
+| Yedek alanı ve anlık görüntüler | 6–8 USD | Lightsail depolama (100 GB 3 USD) ve haftalık görüntü |
+| E-posta sunucusu (Lightsail küçük paket) | 5–12 USD | Karar 50; 25. port talebi bekliyor |
 | SMS | Kullanıma göre | Örnek: 30 günde yaklaşık 15.000 SMS ≈ 3.700 TL; güvenilir cihaz bu sayıyı düşürür |
-| GCP: katalog, test ortamı, yapay zekâ | Krediler sürdükçe 0 | Yapay zekâ sınırı 150 USD (Karar 57) |
+| Yapay zekâ (Bedrock, Amazon Nova) | ~15 USD (krediler sürdükçe 0) | Sınır konsoldan (Karar 57) |
 | Apple ve Google geliştirici hesabı | 99 USD/yıl ve 25 USD bir kez |  |
 | RevenueCat | Başlangıçta ücretsiz | Gelir eşiği aşılınca ücretli |
 
-Krediler sürerken sabit gider yalnızca geliştirici hesapları, SMS ve (karar verilirse) e-posta sunucusu.
+Krediler sürerken sabit gider yalnızca geliştirici hesapları ve SMS; krediler bitince ayda yaklaşık 105–120 USD (sunucu, yedek, yapay zekâ) ve SMS.
 
 ## 15. Geliştirme sırası
 
@@ -259,10 +260,10 @@ Her aşama özellik anahtarının arkasında canlıya çıkar; önce çalışanl
 
 ## 16. Açık teknik konular
 
-- [x] Yapay zekâ sağlayıcısı: tüm görevlerde Google Vertex AI (onaylandı)
+- [x] Yapay zekâ sağlayıcısı: tüm görevlerde AWS Bedrock, Amazon Nova (12 Kasım 2026'da Vertex AI'dan değişti)
 - [x] Yönetim girişi için Google Workspace (onaylandı)
-- [ ] GCP canlı kurulumu: proje, sanal sunucu boyutu, statik IP, yedek bölgesi, KVKK standart sözleşmesi ve bildirimi (Karar 37)
-- [ ] E-posta sunucusunun yeri (GCP 25. portu kapalı tutuyor; Karar 50)
+- [ ] AWS canlı kurulumu: Lightsail sunucusu, statik IP, güvenlik duvarı, yedek alanı, Bedrock IAM kullanıcısı, KVKK standart sözleşmesi ve bildirimi (Karar 37)
+- [ ] E-posta sunucusu: AWS'den 25. portun Lightsail için açılması (Karar 50)
 - [ ] SMS ana ve yedek sağlayıcının seçimi (İYS entegrasyonlu)
 - [ ] e-Arşiv entegratörünün seçimi
 - [ ] Apple ve Google geliştirici hesaplarının şirket adına açılması (Apple kurumsal hesap için D-U-N-S numarası gerekir)

@@ -34,7 +34,7 @@ export async function createStaff(
   return db.staffMember.create({
     data: {
       id: uuidv7(),
-      email: extra.email ?? `${role.toLowerCase()}.${uuidv7().slice(-8)}@rengarenk.com.tr`,
+      email: extra.email ?? `${role.toLowerCase()}.${uuidv7().slice(-8)}@rengarenksite.com`,
       name: `${role} Test`,
       role,
       status: extra.status ?? 'ACTIVE',

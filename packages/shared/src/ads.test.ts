@@ -6,7 +6,7 @@ const now = new Date('2026-11-09T10:00:00Z');
 describe('reklam ölçümü (Karar 35)', () => {
   it('adresten temas: UTM, tıklama kimliği ve fbc; sorgusuz açılış sayfası', () => {
     const t = touchFromUrl(
-      'https://rengarenk.com.tr/galeri-ol?utm_source=meta&utm_medium=paid&utm_campaign=galeri_ol_istanbul&fbclid=IwAR1&x=1',
+      'https://rengarenksite.com/galeri-ol?utm_source=meta&utm_medium=paid&utm_campaign=galeri_ol_istanbul&fbclid=IwAR1&x=1',
       'https://l.facebook.com/',
       now,
     );
@@ -26,9 +26,9 @@ describe('reklam ölçümü (Karar 35)', () => {
   });
 
   it('doğrudan giriş ve site içi gezinti temas değildir; dış yönlendirme organiktir', () => {
-    expect(touchFromUrl('https://rengarenk.com.tr/talepler', '', now)).toBeNull();
-    expect(touchFromUrl('https://rengarenk.com.tr/talepler', 'https://rengarenk.com.tr/', now)).toBeNull();
-    const g = touchFromUrl('https://rengarenk.com.tr/', 'https://www.google.com/', now);
+    expect(touchFromUrl('https://rengarenksite.com/talepler', '', now)).toBeNull();
+    expect(touchFromUrl('https://rengarenksite.com/talepler', 'https://rengarenksite.com/', now)).toBeNull();
+    const g = touchFromUrl('https://rengarenksite.com/', 'https://www.google.com/', now);
     expect(g).toMatchObject({ ref: 'google.com', sayfa: '/' });
     expect(kanalOf(g)).toBe('organik');
     expect(kampanyaAdi(g, 'organik')).toBe('google.com');
@@ -43,7 +43,7 @@ describe('reklam ölçümü (Karar 35)', () => {
   });
 
   it('izinsiz temas tıklama kimliklerini ve Meta çerezlerini taşımaz', () => {
-    const t = touchFromUrl('https://rengarenk.com.tr/?gclid=G&fbclid=F&utm_source=google', '', now);
+    const t = touchFromUrl('https://rengarenksite.com/?gclid=G&fbclid=F&utm_source=google', '', now);
     const z = izinsizTemas({ ...(t as NonNullable<typeof t>), fbp: 'fb.1.1.2' });
     expect(z).toEqual({ utm_source: 'google', sayfa: '/', at: now.toISOString() });
   });
