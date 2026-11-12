@@ -1,3 +1,16 @@
+import type { NextRequest } from 'next/server';
+
+/**
+ * Sitenin dışarıdan görünen adresi: yönlendirmeler buna göre kurulur. Kapsayıcıda `req.url` iç adresi
+ * (0.0.0.0:3000) taşıdığı için kullanılmaz; önce WEB_ORIGIN, yoksa vekil sunucunun ilettiği başlıklar.
+ */
+export function siteAdresi(req: NextRequest, yol: string): URL {
+  const kok =
+    process.env.WEB_ORIGIN ??
+    `${req.headers.get('x-forwarded-proto') ?? 'http'}://${req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? 'localhost:3000'}`;
+  return new URL(yol, kok);
+}
+
 /** Google ile giriş çerezi: `state` ve girişten sonra dönülecek sayfa (Karar 18) */
 export const GOOGLE_COOKIE = 'rr_google';
 

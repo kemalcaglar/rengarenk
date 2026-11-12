@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { GOOGLE_COOKIE, kayitParcasi } from '../../../../../lib/google';
+import { GOOGLE_COOKIE, kayitParcasi, siteAdresi } from '../../../../../lib/google';
 import { api, withRefreshCookie } from '../../../../../lib/oturum';
 
 /**
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(hedef.toString());
   }
   const hata = (neden: string) => {
-    const res = NextResponse.redirect(new URL(`/giris?hata=${neden}`, req.url));
+    const res = NextResponse.redirect(siteAdresi(req, `/giris?hata=${neden}`));
     res.cookies.set(GOOGLE_COOKIE, '', { path: '/api/oturum/google', maxAge: 0 });
     return res;
   };
@@ -38,13 +38,13 @@ export async function GET(req: NextRequest) {
   if (!r.ok) return hata(r.status === 409 ? 'google_eposta' : 'google');
   if (data.tip === 'giris' && data.refreshToken) {
     const res = withRefreshCookie(
-      NextResponse.redirect(new URL(cerez.sonra ?? '/', req.url)),
+      NextResponse.redirect(siteAdresi(req, cerez.sonra ?? '/')),
       data.refreshToken,
     );
     res.cookies.set(GOOGLE_COOKIE, '', { path: '/api/oturum/google', maxAge: 0 });
     return res;
   }
-  const hedef = new URL(`/uye-ol${cerez.sonra ? `?sonra=${encodeURIComponent(cerez.sonra)}` : ''}`, req.url);
+  const hedef = siteAdresi(req, `/uye-ol${cerez.sonra ? `?sonra=${encodeURIComponent(cerez.sonra)}` : ''}`);
   hedef.hash = `g=${kayitParcasi(data)}`;
   const res = NextResponse.redirect(hedef);
   res.cookies.set(GOOGLE_COOKIE, '', { path: '/api/oturum/google', maxAge: 0 });

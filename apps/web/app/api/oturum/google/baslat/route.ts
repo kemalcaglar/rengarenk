@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { GOOGLE_COOKIE, guvenliSonra } from '../../../../../lib/google';
+import { GOOGLE_COOKIE, guvenliSonra, siteAdresi } from '../../../../../lib/google';
 import { api } from '../../../../../lib/oturum';
 
 /**
@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   const r = await api(req, '/auth/google/start', { platform: 'WEB' });
   if (!r.ok) {
     const neden = r.status === 503 ? 'google_kapali' : 'google';
-    return NextResponse.redirect(new URL(`/giris?hata=${neden}`, req.url));
+    return NextResponse.redirect(siteAdresi(req, `/giris?hata=${neden}`));
   }
   const { url, state } = (await r.json()) as { url: string; state: string };
   const res = NextResponse.redirect(url);
