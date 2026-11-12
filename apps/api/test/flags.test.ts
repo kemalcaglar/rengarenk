@@ -4,18 +4,16 @@ import { rolloutBucket } from '@rengarenk/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Db } from '../src/database/prisma.js';
 import { FeatureFlagService } from '../src/flags/feature-flag.service.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
 let db: Db;
-let sms: MemorySmsSender;
 let flags: FeatureFlagService;
 let owner: string;
 
 beforeAll(async () => {
-  ({ app, db, sms } = await createTestApp());
+  ({ app, db } = await createTestApp());
   flags = app.get(FeatureFlagService);
   owner = (await loginAs(app, await createStaff(db, 'OWNER'))).token;
 });
@@ -23,14 +21,8 @@ afterAll(() => app.close());
 
 /** Telefonla giriş yapmış bir kullanıcı: erişim jetonu ve kimliği. */
 async function user(phone: string) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(`+9${phone.replace(/\s/g, '')}`),
-    consents: SIGNUP_CONSENTS,
-  });
-  const me = await call(app, 'GET', '/auth/me', undefined, v.body.accessToken);
-  return { token: v.body.accessToken as string, id: me.body.id as string };
+  const v = await uyeOl(app, phone);
+  return { token: v.accessToken, id: v.userId };
 }
 
 const clientFlags = (token?: string, platform?: string) =>
@@ -164,7 +156,7 @@ describe('bakım modu', () => {
     );
     expect(on.status).toBe(200);
 
-    const r = await call(app, 'POST', '/auth/otp/request', { phone: '0532 400 00 09' });
+    const r = await call(app, 'POST', '/auth/password/forgot', { eposta: 'bakim@ornek.com' });
     expect(r.status).toBe(503);
     expect(r.body.message).toBe('Saat 03.00’e kadar bakımdayız.');
     expect((await call(app, 'GET', '/health')).status).toBe(200);
@@ -174,7 +166,9 @@ describe('bakım modu', () => {
     expect(f.duyuru).toBe('Saat 03.00’e kadar bakımdayız.');
 
     await staffCall(app, 'PUT', '/staff/flags/bakim/tum', { enabled: false }, owner);
-    expect((await call(app, 'POST', '/auth/otp/request', { phone: '0532 400 00 09' })).status).toBe(200);
+    expect((await call(app, 'POST', '/auth/password/forgot', { eposta: 'bakim@ornek.com' })).status).toBe(
+      200,
+    );
     expect(await db.auditLog.count({ where: { action: 'bakim_degisti', entityId: 'bakim.tum' } })).toBe(2);
   });
 

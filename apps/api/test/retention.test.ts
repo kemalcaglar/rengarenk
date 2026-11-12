@@ -9,12 +9,10 @@ import { NotificationService } from '../src/notifications/notification.service.j
 import { NotificationEvents } from '../src/notifications/notification-events.js';
 import { RetentionService } from '../src/privacy/retention.service.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
 let db: Db;
 let sahip: string;
 let yonetici: string;
@@ -23,7 +21,7 @@ let moderator: string;
 const DAY = 86_400_000;
 
 beforeAll(async () => {
-  ({ app, sms, db } = await createTestApp());
+  ({ app, db } = await createTestApp());
   sahip = (await loginAs(app, await createStaff(db, 'OWNER'))).token;
   yonetici = (await loginAs(app, await createStaff(db, 'ADMIN'))).token;
   destek = (await loginAs(app, await createStaff(db, 'SUPPORT'))).token;
@@ -32,12 +30,7 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 async function uye(phone: string, ad: string) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   await call(app, 'PATCH', '/me', { firstName: ad, lastName: 'Deneme' }, v.body.accessToken);
   const u = await db.user.findUniqueOrThrow({
     where: { phone },

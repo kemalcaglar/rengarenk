@@ -12,7 +12,7 @@ import { SwitchService } from '../src/notifications/switches.js';
 import { TemplatesService } from '../src/notifications/templates.service.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 
 let app: NestFastifyApplication;
 let sms: MemorySmsSender;
@@ -47,12 +47,7 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 async function login(phone: string, ad = 'Ayşe') {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   const token = v.body.accessToken as string;
   await call(app, 'PATCH', '/me', { firstName: ad, lastName: 'Yılmaz' }, token);
   const userId = (await db.user.findUniqueOrThrow({ where: { phone } })).id;
@@ -216,8 +211,9 @@ describe('bildirim katmanı (Karar 30, 48, 49, 50)', () => {
     expect((await call(app, 'GET', '/me/notification-preferences', undefined, u.token)).body.ticariOnay).toBe(
       false,
     );
-    // E-posta /me üzerinden değişirse doğrulama sıfırlanır (bildirim doğrulanmamış adrese gitmez)
-    await call(app, 'PATCH', '/me', { email: 'baska@ornek.com' }, u.token);
+    // E-posta değişirse doğrulama sıfırlanır (bildirim doğrulanmamış adrese gitmez); profil güncellemesi e-postayı değiştirmez
+    expect((await call(app, 'PATCH', '/me', { email: 'baska@ornek.com' }, u.token)).status).toBe(400);
+    await call(app, 'POST', '/me/email', { eposta: 'baska@ornek.com' }, u.token);
     expect((await db.user.findUniqueOrThrow({ where: { id: u.userId } })).emailVerifiedAt).toBeNull();
   });
 

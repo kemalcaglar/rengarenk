@@ -5,11 +5,9 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Db } from '../src/database/prisma.js';
 import { MatchingService } from '../src/matching/matching.service.js';
 import { PortfolioService } from '../src/portfolio/portfolio.service.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
 let db: Db;
 let portfolio: PortfolioService;
 let matching: MatchingService;
@@ -18,7 +16,7 @@ const DAY = 86_400_000;
 const JPG = (i: number) => Buffer.from([0xff, 0xd8, 0xff, 0xe0, i, 9, 8, 7]);
 
 beforeAll(async () => {
-  ({ app, sms, db } = await createTestApp());
+  ({ app, db } = await createTestApp());
   portfolio = app.get(PortfolioService);
   matching = app.get(MatchingService);
   const bmw = await db.catalogMake.create({ data: { id: uuidv7(), key: 'bmw', name: 'BMW' } });
@@ -39,15 +37,10 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 async function login(phone: string, ad?: [string, string]) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   const token = v.body.accessToken as string;
   if (ad) await call(app, 'PATCH', '/me', { firstName: ad[0], lastName: ad[1] }, token);
-  return { token, userId: v.body.user?.id as string };
+  return { token, userId: v.body.userId };
 }
 
 async function galeri(phone: string, ad: string, plan = 'deneme', il = 'İstanbul', ilce = 'Kadıköy') {

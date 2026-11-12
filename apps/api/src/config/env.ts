@@ -115,6 +115,27 @@ const schema = z.object({
   SMS_FALLBACK_PROVIDER: z.enum(['console', 'test', 'iletimerkezi']).optional(),
   /** BTK onaylı gönderici adı (başlık) */
   SMS_SENDER_ID: z.string().default('RENGARENK'),
+  /**
+   * Telefon doğrulama kodunun kanalları, sırayla denenir (Karar 18): whatsapp (Meta WhatsApp Cloud API, kimlik doğrulama
+   * şablonu) ve sms. Virgülle ayrılır; yerelde ve testte sms (konsol ya da bellek).
+   */
+  VERIFY_CHANNELS: z
+    .string()
+    .default('sms')
+    .transform((v) =>
+      v
+        .split(',')
+        .map((k) => k.trim().toLowerCase())
+        .filter(Boolean),
+    )
+    .pipe(z.array(z.enum(['whatsapp', 'sms'])).min(1, 'VERIFY_CHANNELS boş olamaz')),
+  /** WhatsApp Cloud API: kalıcı erişim jetonu ve gönderen numaranın kimliği (Meta İşletme hesabı) */
+  WHATSAPP_TOKEN: z.string().optional(),
+  WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
+  /** Onaylı kimlik doğrulama şablonunun adı ve dili (kod gövdede ve "Kodu kopyala" düğmesinde) */
+  WHATSAPP_TEMPLATE: z.string().default('rengarenk_kod'),
+  WHATSAPP_TEMPLATE_LANG: z.string().default('tr'),
+  WHATSAPP_API_VERSION: z.string().default('v23.0'),
   ILETIMERKEZI_KEY: z.string().optional(),
   ILETIMERKEZI_HASH: z.string().optional(),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
@@ -132,6 +153,25 @@ const schema = z.object({
   STAFF_AUTH_PROVIDER: z.enum(['google', 'fake']).default('fake'),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
+  /**
+   * Üye girişi (Karar 18). google: Google ile giriş (OpenID Connect; yönetim girişinden ayrı istemci). fake: geliştirme
+   * ve test için sahte Google (sitede `/gelistirme/google`). none: kapalı. Canlıda fake kullanılamaz.
+   */
+  USER_AUTH_PROVIDER: z.enum(['google', 'fake', 'none']).default('fake'),
+  USER_GOOGLE_CLIENT_ID: z.string().optional(),
+  USER_GOOGLE_CLIENT_SECRET: z.string().optional(),
+  /** iPhone'da Apple ile giriş: apple (kimlik jetonu Apple'ın anahtarlarıyla doğrulanır), fake (test), none */
+  APPLE_AUTH_PROVIDER: z.enum(['apple', 'fake', 'none']).default('fake'),
+  /** Kimlik jetonunun hedef kitlesi: uygulamanın paket kimliği (virgülle birden çok) */
+  APPLE_CLIENT_IDS: z
+    .string()
+    .default('tr.com.rengarenk.app')
+    .transform((v) =>
+      v
+        .split(',')
+        .map((k) => k.trim())
+        .filter(Boolean),
+    ),
   /** Yönetime girebilecek şirket e-posta alanları, virgülle ayrılır. */
   STAFF_EMAIL_DOMAINS: z
     .string()
@@ -199,6 +239,8 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (e.AI_PROVIDER === 'fake') throw new Error('Canlıda sahte yapay zekâ kullanılamaz');
     if (e.EMAIL_PROVIDER === 'memory') throw new Error('Canlıda bellek içi e-posta kullanılamaz');
     if (e.STAFF_AUTH_PROVIDER !== 'google') throw new Error('Canlıda yönetim girişi Google Workspace olmalı');
+    if (e.USER_AUTH_PROVIDER === 'fake') throw new Error('Canlıda sahte Google girişi kullanılamaz');
+    if (e.APPLE_AUTH_PROVIDER === 'fake') throw new Error('Canlıda sahte Apple girişi kullanılamaz');
     if (!e.STAFF_SECRET_KEY) throw new Error('Canlıda STAFF_SECRET_KEY gerekli');
     if (!e.MESSAGE_SECRET_KEY) throw new Error('Canlıda MESSAGE_SECRET_KEY gerekli');
     if (!e.STAFF_REQUIRE_WORKSPACE) throw new Error('Canlıda Google Workspace şartı kapatılamaz');
@@ -228,6 +270,12 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     throw new Error('FCM için FCM_SERVICE_ACCOUNT gerekli');
   if (e.STORE_PROVIDER === 'revenuecat' && !e.REVENUECAT_WEBHOOK_AUTH) {
     throw new Error('RevenueCat için REVENUECAT_WEBHOOK_AUTH gerekli');
+  }
+  if (e.USER_AUTH_PROVIDER === 'google' && !(e.USER_GOOGLE_CLIENT_ID && e.USER_GOOGLE_CLIENT_SECRET)) {
+    throw new Error('Google ile üye girişi için USER_GOOGLE_CLIENT_ID ve USER_GOOGLE_CLIENT_SECRET gerekli');
+  }
+  if (e.VERIFY_CHANNELS.includes('whatsapp') && !(e.WHATSAPP_TOKEN && e.WHATSAPP_PHONE_NUMBER_ID)) {
+    throw new Error('WhatsApp kodu için WHATSAPP_TOKEN ve WHATSAPP_PHONE_NUMBER_ID gerekli');
   }
   if (e.STAFF_EMAIL_DOMAINS.length === 0) throw new Error('STAFF_EMAIL_DOMAINS boş olamaz');
   for (const p of [e.SMS_PROVIDER, e.SMS_FALLBACK_PROVIDER]) {

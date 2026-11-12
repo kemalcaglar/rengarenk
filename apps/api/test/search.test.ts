@@ -3,17 +3,15 @@ import { uuidv7 } from '@rengarenk/db';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Db } from '../src/database/prisma.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
 let db: Db;
 let search: DemandSearchService;
 let tel = 0;
 
 beforeAll(async () => {
-  ({ app, sms, db } = await createTestApp());
+  ({ app, db } = await createTestApp());
   search = app.get(DemandSearchService);
   const bmw = await db.catalogMake.create({ data: { id: uuidv7(), key: 'bmw', name: 'BMW' } });
   for (const [s, m] of [
@@ -53,12 +51,7 @@ async function talep(
   headline?: string,
 ) {
   const phone = `+90532777${String(2000 + ++tel)}`;
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   const t = v.body.accessToken as string;
   const d = await call(app, 'POST', '/demands', { kategori: 'otomobil' }, t);
   await call(
@@ -175,12 +168,7 @@ describe('favoriler ve kayıtlı aramalar (Karar 06.4, 30)', () => {
       { il: 'Bursa' },
     );
     const phone = '+905327779999';
-    const r = await call(app, 'POST', '/auth/otp/request', { phone });
-    const v = await call(app, 'POST', '/auth/otp/verify', {
-      challengeId: r.body.challengeId,
-      code: sms.lastCode(phone),
-      consents: SIGNUP_CONSENTS,
-    });
+    const v = { body: await uyeOl(app, phone) };
     const t = v.body.accessToken as string;
 
     expect((await call(app, 'PUT', `/favorites/${sahip.no}`, undefined, sahip.token)).status).toBe(400);

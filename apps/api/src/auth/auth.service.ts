@@ -1,27 +1,23 @@
 import {
-  BadRequestException,
   ConflictException,
   ForbiddenException,
   HttpException,
   HttpStatus,
   Inject,
   Injectable,
-  Optional,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Prisma, uuidv7 } from '@rengarenk/db';
-import type { SignupConsents, TokenPair } from '@rengarenk/shared';
-import { AdsService, olayPlatformu } from '../ads/ads.service.js';
+import type { TokenPair } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
-import { ConsentService, channelOf } from '../consents/consent.service.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { blockHash, karaListede } from '../moderation/blocklist.js';
 import { Metrics } from '../observability/metrics.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { RateLimiter } from '../ratelimit/rate-limiter.js';
-import { SMS_SENDER, type SmsSender } from '../sms/sms.js';
+import { CODE_SENDER, type CodeChannel, type CodeSender } from '../sms/code-sender.js';
 import {
   ACCESS_TTL_SECONDS,
   hashOtp,
@@ -47,22 +43,23 @@ export class AuthService {
   constructor(
     @Inject(PRISMA) private readonly db: Db,
     @Inject(ENV) private readonly env: Env,
-    @Inject(SMS_SENDER) private readonly sms: SmsSender,
+    @Inject(CODE_SENDER) private readonly codes: CodeSender,
     private readonly jwt: JwtService,
     private readonly audit: AuditService,
     private readonly outbox: OutboxService,
     private readonly limiter: RateLimiter,
     private readonly metrics: Metrics,
-    private readonly consents: ConsentService,
-    @Optional() private readonly ads?: AdsService,
   ) {}
 
-  /** SMS kodu gönderir. Aynı numaraya 60 saniyede bir, saatte en fazla 5 kod. */
-  async requestOtp(
+  /**
+   * Telefon doğrulama kodu gönderir (Karar 18: üyelik, numara değiştirme ve hassas işlem onayı; önce WhatsApp, yedek
+   * SMS). Aynı numaraya 60 saniyede bir, saatte en fazla 5 kod.
+   */
+  async sendCode(
     phone: string,
     ip?: string,
     kurulum?: string,
-  ): Promise<{ challengeId: string; expiresIn: number; devCode?: string }> {
+  ): Promise<{ challengeId: string; expiresIn: number; kanal: CodeChannel; devCode?: string }> {
     // Aynı IP'den saatte en fazla 20 kod: numara değiştirerek SMS bombardımanını engeller.
     if (ip) await this.limiter.hit(`otp:ip:${ip}`, 20, 3600);
     // Kara liste (Karar 43): engellenen numara, IP ya da cihaza kod gönderilmez (neden açıklanmaz)
@@ -71,7 +68,7 @@ export class AuthService {
       (ip && (await karaListede(this.db, this.env.JWT_SECRET, 'ip', [ip.toLowerCase()]))) ||
       (kurulum && (await karaListede(this.db, this.env.JWT_SECRET, 'cihaz', [kurulum])))
     ) {
-      throw new ForbiddenException('Bu numarayla şu an giriş yapılamıyor. Destek ekibimize yazabilirsin.');
+      throw new ForbiddenException('Bu numarayla şu an işlem yapılamıyor. Destek ekibimize yazabilirsin.');
     }
     const hourAgo = new Date(Date.now() - 3600_000);
     const recent = await this.db.otpChallenge.findMany({
@@ -101,20 +98,96 @@ export class AuthService {
         ip: ip ?? null,
       },
     });
+    let kanal: CodeChannel;
     try {
-      const r = await this.sms.send(phone, `Rengarenk giriş kodun: ${code}. Kodu kimseyle paylaşma.`);
+      const r = await this.codes.send(phone, code);
+      kanal = r.kanal;
       this.metrics.smsSent.inc({ provider: r.provider, result: 'ok' });
     } catch (err) {
-      this.metrics.smsSent.inc({ provider: this.sms.name, result: 'error' });
+      this.metrics.smsSent.inc({ provider: this.codes.kanallar.join('+'), result: 'error' });
       throw new HttpException('Kod gönderilemedi, biraz sonra tekrar dene', HttpStatus.SERVICE_UNAVAILABLE, {
         cause: err,
       });
     }
-    // Yalnızca yerel geliştirme: SMS gerçekten gönderilmediği için kod yanıtta da döner ve giriş
-    // ekranında gösterilir. Canlıda `console` sağlayıcısı zaten yasaktır (env.ts); iki koşul birlikte aranır.
+    // Yalnızca yerel geliştirme: kod gerçekten gönderilmediği için yanıtta da döner ve ekranda gösterilir. Canlıda
+    // `console` sağlayıcısı zaten yasaktır (env.ts); koşullar birlikte aranır.
     const devCode =
-      this.env.NODE_ENV === 'development' && this.env.SMS_PROVIDER === 'console' ? code : undefined;
-    return { challengeId: id, expiresIn: OTP_TTL_SECONDS, ...(devCode ? { devCode } : {}) };
+      this.env.NODE_ENV === 'development' && this.env.SMS_PROVIDER === 'console' && kanal === 'sms'
+        ? code
+        : undefined;
+    return { challengeId: id, expiresIn: OTP_TTL_SECONDS, kanal, ...(devCode ? { devCode } : {}) };
+  }
+
+  /** Hassas işlem onayı için kişinin kendi numarasına kod (Karar 58: verilerimi indir, KVKK başvurusu, hesap kapatma) */
+  async sendOwnCode(userId: string, ip?: string) {
+    const u = await this.db.user.findUniqueOrThrow({ where: { id: userId }, select: { phone: true } });
+    return this.sendCode(u.phone, ip);
+  }
+
+  /** Kodu doğrular (deneme hakkını azaltır); harcamaz. Geçerliyse kodun gittiği numara döner. */
+  async checkCode(challengeId: string, code: string) {
+    const ch = await this.db.otpChallenge.findUnique({ where: { id: challengeId } });
+    const invalid = new UnauthorizedException('Kod hatalı ya da süresi dolmuş');
+    if (!ch || ch.consumedAt || ch.expiresAt < new Date() || ch.attempts >= OTP_MAX_ATTEMPTS) throw invalid;
+    if (!safeEqualHex(ch.codeHash, hashOtp(this.env.JWT_SECRET, ch.id, code))) {
+      await this.db.otpChallenge.update({ where: { id: ch.id }, data: { attempts: { increment: 1 } } });
+      throw invalid;
+    }
+    return ch;
+  }
+
+  /** Kodu harcar (aynı işlem içinde; iki kez kullanılamaz) */
+  async consumeCode(tx: Tx, challengeId: string) {
+    const k = await tx.otpChallenge.updateMany({
+      where: { id: challengeId, consumedAt: null },
+      data: { consumedAt: new Date() },
+    });
+    if (k.count !== 1) throw new UnauthorizedException('Kod hatalı ya da süresi dolmuş');
+  }
+
+  /** Kara liste (Karar 43): numara, IP ya da cihaz engelliyse giriş ve üyelik yapılamaz (neden açıklanmaz) */
+  async assertNotBlocked(p: { phone?: string; ip?: string; kurulum?: string }) {
+    if (
+      (p.phone && (await karaListede(this.db, this.env.JWT_SECRET, 'telefon', [p.phone]))) ||
+      (p.ip && (await karaListede(this.db, this.env.JWT_SECRET, 'ip', [p.ip.toLowerCase()]))) ||
+      (p.kurulum && (await karaListede(this.db, this.env.JWT_SECRET, 'cihaz', [p.kurulum])))
+    ) {
+      throw new ForbiddenException('Bu hesapla şu an giriş yapılamıyor. Destek ekibimize yazabilirsin.');
+    }
+  }
+
+  /**
+   * Oturum açar (aynı veritabanı işleminde): cihaz kaydı, yenileme jetonu, işlem kaydı ve `kullanici.giris` olayı.
+   * Giriş yolu işlem kaydına yazılır (eposta, google, apple, uyelik, baglanti).
+   */
+  async signInTx(
+    tx: Tx,
+    userId: string,
+    p: { platform: 'IOS' | 'ANDROID' | 'WEB'; ip?: string; kurulum?: string; yol: string },
+  ): Promise<TokenPair> {
+    const device = await tx.device.create({
+      data: {
+        id: uuidv7(),
+        userId,
+        platform: p.platform,
+        installHash: p.kurulum ? blockHash(this.env.JWT_SECRET, 'cihaz', p.kurulum) : null,
+      },
+    });
+    const pair = await this.openSession(tx, userId, device.id);
+    await this.audit.record(
+      {
+        actorType: 'USER',
+        actorId: userId,
+        action: 'giris',
+        entityType: 'user',
+        entityId: userId,
+        after: { yol: p.yol },
+        ip: p.ip,
+      },
+      tx,
+    );
+    await this.outbox.add(tx, 'kullanici.giris', { userId, platform: p.platform });
+    return pair;
   }
 
   /**
@@ -155,7 +228,7 @@ export class AuthService {
     if (await this.db.user.findUnique({ where: { phone }, select: { id: true } })) {
       throw new ConflictException('Bu numara başka bir hesapta kayıtlı');
     }
-    return this.requestOtp(phone, ip);
+    return this.sendCode(phone, ip);
   }
 
   /**
@@ -265,85 +338,6 @@ export class AuthService {
     });
   }
 
-  /** Kodu doğrular; kullanıcı yoksa oluşturur (bireysel hesabıyla birlikte) ve oturum açar. */
-  async verifyOtp(
-    challengeId: string,
-    code: string,
-    platform: 'IOS' | 'ANDROID' | 'WEB',
-    ip?: string,
-    consents?: SignupConsents,
-    kurulum?: string,
-  ): Promise<TokenPair & { isNewUser: boolean }> {
-    if (ip) await this.limiter.hit(`verify:ip:${ip}`, 60, 3600);
-    // Kara listedeki cihaz giriş yapamaz (kod başka cihazdan istenmiş olsa da)
-    if (kurulum && (await karaListede(this.db, this.env.JWT_SECRET, 'cihaz', [kurulum]))) {
-      throw new ForbiddenException('Bu cihazla şu an giriş yapılamıyor. Destek ekibimize yazabilirsin.');
-    }
-    const ch = await this.db.otpChallenge.findUnique({ where: { id: challengeId } });
-    const invalid = new UnauthorizedException('Kod hatalı ya da süresi dolmuş');
-    if (!ch || ch.consumedAt || ch.expiresAt < new Date() || ch.attempts >= OTP_MAX_ATTEMPTS) throw invalid;
-
-    if (!safeEqualHex(ch.codeHash, hashOtp(this.env.JWT_SECRET, ch.id, code))) {
-      await this.db.otpChallenge.update({ where: { id: ch.id }, data: { attempts: { increment: 1 } } });
-      throw invalid;
-    }
-    // Yeni üyelik kullanım koşulları ve KVKK aydınlatma onayı olmadan açılmaz (kod harcanmadan önce denetlenir).
-    if (!consents && !(await this.db.user.findUnique({ where: { phone: ch.phone }, select: { id: true } }))) {
-      throw new BadRequestException(
-        'Üye olmak için kullanım koşullarını ve KVKK aydınlatma metnini onaylamalısın',
-      );
-    }
-
-    return this.db.$transaction(async (tx) => {
-      // Aynı kodun iki kez kullanılmasını engeller.
-      const consumed = await tx.otpChallenge.updateMany({
-        where: { id: ch.id, consumedAt: null },
-        data: { consumedAt: new Date() },
-      });
-      if (consumed.count !== 1) throw invalid;
-
-      let user = await tx.user.findUnique({ where: { phone: ch.phone } });
-      const isNewUser = !user;
-      if (!user) {
-        user = await tx.user.create({ data: { id: uuidv7(), phone: ch.phone, phoneVerifiedAt: new Date() } });
-        await tx.account.create({
-          data: {
-            id: uuidv7(),
-            kind: 'INDIVIDUAL',
-            name: 'Bireysel',
-            members: { create: { userId: user.id, role: 'OWNER' } },
-          },
-        });
-        await this.outbox.add(tx, 'kullanici.kaydoldu', { userId: user.id });
-      }
-      if (user.status !== 'ACTIVE') throw new UnauthorizedException('Hesap kullanıma kapalı');
-
-      // Rıza kaydı (Karar 59): hangi metin sürümüne, hangi kanaldan, ne zaman
-      if (consents) await this.consents.recordSignup(tx, user.id, consents, channelOf(platform), ip);
-      // Reklam ölçümü (Karar 35): telefonla doğrulanmış yeni üyelik; tarayıcı aynı kimliği (kod isteği) kullanır
-      if (isNewUser)
-        await this.ads?.olay(tx, user.id, 'CompleteRegistration', {
-          ref: challengeId,
-          platform: olayPlatformu(platform),
-        });
-      const device = await tx.device.create({
-        data: {
-          id: uuidv7(),
-          userId: user.id,
-          platform,
-          installHash: kurulum ? blockHash(this.env.JWT_SECRET, 'cihaz', kurulum) : null,
-        },
-      });
-      const pair = await this.openSession(tx, user.id, device.id);
-      await this.audit.record(
-        { actorType: 'USER', actorId: user.id, action: 'giris', entityType: 'user', entityId: user.id, ip },
-        tx,
-      );
-      await this.outbox.add(tx, 'kullanici.giris', { userId: user.id, platform });
-      return { ...pair, isNewUser };
-    });
-  }
-
   /** Yenileme jetonunu döndürür (eski jeton geçersiz olur). Çalınmış jeton tekrar kullanılırsa oturum kapanır. */
   async refresh(refreshToken: string): Promise<TokenPair> {
     const hash = sha256(refreshToken);
@@ -412,14 +406,18 @@ export class AuthService {
   }
 
   async verifyAccess(token: string): Promise<AccessClaims> {
+    let c: AccessClaims;
     try {
-      return await this.jwt.verifyAsync<AccessClaims>(token);
+      c = await this.jwt.verifyAsync<AccessClaims>(token);
     } catch {
       throw new UnauthorizedException();
     }
+    // Erişim jetonu her zaman kullanıcı ve oturum kimliği taşır
+    if (typeof c.sub !== 'string' || typeof c.sid !== 'string') throw new UnauthorizedException();
+    return c;
   }
 
-  private async openSession(
+  async openSession(
     tx: Tx,
     userId: string,
     deviceId: string | null,

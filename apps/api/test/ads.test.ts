@@ -5,17 +5,15 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { FakeAdNetwork } from '../src/ads/ad-networks.js';
 import { AdsService } from '../src/ads/ads.service.js';
 import type { Db } from '../src/database/prisma.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
 let db: Db;
 let ads: AdsService;
 
 beforeAll(async () => {
-  ({ app, sms, db } = await createTestApp());
+  ({ app, db } = await createTestApp());
   ads = app.get(AdsService);
   FakeAdNetwork.gonderilen = [];
   const bmw = await db.catalogMake.create({ data: { id: uuidv7(), key: 'bmw', name: 'BMW' } });
@@ -29,14 +27,8 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 async function uye(phone: string, reklamOlcum: boolean) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: { ...SIGNUP_CONSENTS, reklamOlcum },
-  });
-  const u = await db.user.findUniqueOrThrow({ where: { phone } });
-  return { token: v.body.accessToken as string, id: u.id, challengeId: r.body.challengeId as string };
+  const v = await uyeOl(app, phone, { consents: { reklamOlcum } });
+  return { token: v.accessToken, id: v.userId, challengeId: v.challengeId };
 }
 
 async function talep(token: string) {

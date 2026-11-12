@@ -9,6 +9,9 @@ export interface StaffIdentity {
   /** Google Workspace alanı; kişisel Gmail hesaplarında yoktur */
   hd?: string;
   name?: string;
+  /** Ad ve soyad (üye girişinde üyelik formunu doldurmak için; Karar 18) */
+  givenName?: string;
+  familyName?: string;
 }
 
 export interface IdentityProvider {
@@ -121,6 +124,8 @@ export class FakeIdentityProvider implements IdentityProvider {
       email_verified: claims.email_verified ?? true,
       hd: 'hd' in claims ? claims.hd : email.split('@')[1],
       name: claims.name,
+      given_name: claims.given_name,
+      family_name: claims.family_name,
     });
   }
 
@@ -128,6 +133,8 @@ export class FakeIdentityProvider implements IdentityProvider {
   static code(claims: {
     email: string;
     name?: string;
+    given_name?: string;
+    family_name?: string;
     sub?: string;
     hd?: string | null;
     email_verified?: boolean;
@@ -166,5 +173,7 @@ function identityFromClaims(c: Record<string, unknown>): StaffIdentity {
     emailVerified: c.email_verified === true || c.email_verified === 'true',
     hd: typeof c.hd === 'string' ? c.hd.toLowerCase() : undefined,
     name: typeof c.name === 'string' ? c.name : undefined,
+    givenName: typeof c.given_name === 'string' ? c.given_name : undefined,
+    familyName: typeof c.family_name === 'string' ? c.family_name : undefined,
   };
 }

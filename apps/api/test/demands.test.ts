@@ -3,18 +3,16 @@ import { uuidv7 } from '@rengarenk/db';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Db } from '../src/database/prisma.js';
 import { DemandService } from '../src/demands/demand.service.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
 let db: Db;
 let demands: DemandService;
 
 const DAY = 86_400_000;
 
 beforeAll(async () => {
-  ({ app, sms, db } = await createTestApp());
+  ({ app, db } = await createTestApp());
   demands = app.get(DemandService);
   // Küçük bir katalog: BMW 3 Serisi 320i
   const make = await db.catalogMake.create({ data: { id: uuidv7(), key: 'bmw', name: 'BMW' } });
@@ -28,12 +26,7 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 async function login(phone: string, ad?: [string, string]) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   const token = v.body.accessToken as string;
   if (ad) await call(app, 'PATCH', '/me', { firstName: ad[0], lastName: ad[1] }, token);
   return token;

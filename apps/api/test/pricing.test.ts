@@ -8,17 +8,15 @@ import { NotificationService } from '../src/notifications/notification.service.j
 import { NotificationEvents } from '../src/notifications/notification-events.js';
 import { PricingService } from '../src/pricing/pricing.service.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
 import { TrustService } from '../src/trust/trust.service.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
 let db: Db;
 
 beforeAll(async () => {
-  ({ app, sms, db } = await createTestApp());
+  ({ app, db } = await createTestApp());
 });
 afterAll(() => app.close());
 
@@ -126,14 +124,7 @@ describe('Kurallar ve fiyatlar (Karar 47, 56)', () => {
 
     // Yürürlükten önce eski fiyat: alıcının ürün listesi
     const phone = '+905329990001';
-    const rq = await call(app, 'POST', '/auth/otp/request', { phone });
-    const t = (
-      await call(app, 'POST', '/auth/otp/verify', {
-        challengeId: rq.body.challengeId,
-        code: sms.lastCode(phone),
-        consents: SIGNUP_CONSENTS,
-      })
-    ).body.accessToken as string;
+    const t = (await uyeOl(app, phone)).accessToken;
     pricing.forget();
     const once = await call(app, 'GET', '/orders/overview', undefined, t);
     expect(once.body.urunler.find((u: { key: string }) => u.key === 'ek_talep').kurus).toBe(19_900);

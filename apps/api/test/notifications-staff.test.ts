@@ -14,7 +14,7 @@ import { SwitchService } from '../src/notifications/switches.js';
 import { TemplatesService } from '../src/notifications/templates.service.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
@@ -46,12 +46,7 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 async function login(phone: string) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   const userId = (await db.user.findUniqueOrThrow({ where: { phone } })).id;
   return { token: v.body.accessToken as string, userId };
 }

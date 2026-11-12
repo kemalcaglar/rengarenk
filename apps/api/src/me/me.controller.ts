@@ -35,7 +35,7 @@ const updateSchema = z
     /** Ad ve soyad ayrı (Karar 29); ikisi verilince görünen ad "Ad Soyad" olur */
     firstName: personNameSchema.optional(),
     lastName: personNameSchema.optional(),
-    email: z.email('Geçerli bir e-posta gir').max(254).nullable().optional(),
+    // E-posta giriş kimliğidir (Karar 18): yalnızca POST /notifications/email ile değişir (tekillik ve doğrulama)
     /** Ayarlar › Profil: il, ilçe ve talepte görünen ad (Karar 29) */
     ...profileLocationFields,
   })
@@ -105,16 +105,12 @@ export class MeController {
           nameMode: true,
         },
       });
-      // Adres değişirse doğrulama sıfırlanır: bildirim e-postası yalnızca doğrulanmış adrese gider (POST /me/email)
-      const adresDegisti =
-        body.email !== undefined && body.email?.toLowerCase() !== before.email?.toLowerCase();
       const after = await tx.user.update({
         where: { id: req.user.sub },
         data: {
           ...body,
           // İl değişip ilçe verilmediyse eski ilçe silinir (başka ilin ilçesi kalmasın)
           ...(body.il !== undefined && body.ilce === undefined ? { ilce: null } : {}),
-          ...(adresDegisti ? { emailVerifiedAt: null } : {}),
         },
         select: {
           id: true,

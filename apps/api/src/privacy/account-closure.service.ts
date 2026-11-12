@@ -113,6 +113,10 @@ export class AccountClosureService {
           displayName: null,
           email: null,
           emailVerifiedAt: null,
+          // Giriş yolları da kapanır (Karar 18): şifre özeti, Google ve Apple kimliği
+          passwordHash: null,
+          googleSub: null,
+          appleSub: null,
           il: null,
           ilce: null,
         },

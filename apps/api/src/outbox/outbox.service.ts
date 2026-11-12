@@ -103,6 +103,9 @@ export type EventType =
   | 'fiyat.zamanlandi'
   // Ayarlar › Profil: numara değişti (güvenlik bildirimi)
   | 'hesap.telefon_degisti'
+  // Karar 18: şifremi unuttum (işçi bağlantıyı e-postaya gönderir) ve şifre değişti (güvenlik bildirimi)
+  | 'hesap.sifre_istendi'
+  | 'hesap.sifre_degisti'
   // Kullanıcı kartından hak tanımlandı (Karar 52): kişiye bildirim
   | 'hak.tanimlandi'
   // Destek (Karar 54): talep açıldı, destek yanıtladı (kullanıcıya bildirim), memnuniyet sorusu

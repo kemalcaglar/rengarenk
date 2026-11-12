@@ -4,7 +4,7 @@ import { trSaat } from '@rengarenk/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Db } from '../src/database/prisma.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 
 let app: NestFastifyApplication;
 let sms: MemorySmsSender;
@@ -25,12 +25,7 @@ afterAll(() => app.close());
 async function login(phone: string) {
   // Aynı numaraya art arda kod: bekleme süresi testte geri alınır
   await db.otpChallenge.updateMany({ where: { phone }, data: { createdAt: new Date(Date.now() - 120_000) } });
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   const t = v.body as { accessToken: string; refreshToken: string };
   await call(app, 'PATCH', '/me', { firstName: 'Ayşe', lastName: 'Yılmaz' }, t.accessToken);
   return t;
@@ -178,7 +173,7 @@ describe('Ayarlar › Profil ve İletişim (Karar 29)', () => {
     const ikinciTalep = await yayinla(a.accessToken);
     expect(ikinciTalep.publish.status).toBe(409);
     // Eski numarayla açılan yeni hesap da ücretsiz talep alamaz (numara başına bir kez)
-    const yeniHesap = await login(eski);
+    const yeniHesap = await uyeOl(app, eski, { eposta: 'eski.numara@ornek.com' });
     expect(
       (await call(app, 'GET', '/demands/rights', undefined, yeniHesap.accessToken)).body.ucretsizTalep,
     ).toBe(false);

@@ -1,5 +1,6 @@
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
+import { normalizeTrMobile, type SignupConsents, type TokenPair } from '@rengarenk/shared';
 import { AppModule } from '../src/app.module.js';
 import { registerXlsxBody } from '../src/catalog/xlsx-body.js';
 import { registerUploadBodies } from '../src/common/upload-body.js';
@@ -63,3 +64,60 @@ export const SIGNUP_CONSENTS = {
   ticariIleti: false,
   reklamOlcum: false,
 } as const;
+
+/** Testlerde formla üye olanın şifresi ve numaradan türetilen e-postası (Karar 18) */
+export const TEST_SIFRE = 'Deneme1234';
+export const testEposta = (phone: string) => `u${phone.replace(/\D/g, '')}@ornek.com`;
+
+export interface UyeOlSecenek {
+  ad?: [string, string];
+  eposta?: string;
+  sifre?: string;
+  consents?: Partial<SignupConsents>;
+  platform?: 'IOS' | 'ANDROID' | 'WEB';
+  kurulum?: string;
+}
+
+/**
+ * Üye ol (Karar 18): ad, soyad, e-posta, şifre ve telefon; telefona gelen kodla hesap açılır. Numara zaten kayıtlıysa
+ * e-posta ve şifreyle giriş yapar (aynı kişinin ikinci oturumu).
+ */
+export async function uyeOl(
+  app: NestFastifyApplication,
+  phone: string,
+  o: UyeOlSecenek = {},
+): Promise<TokenPair & { userId: string; challengeId: string }> {
+  const tel = normalizeTrMobile(phone) ?? phone;
+  const db = app.get<Db>(PRISMA);
+  const sms = app.get<MemorySmsSender>(SMS_SENDER);
+  const kayitli = await db.user.findUnique({ where: { phone: tel }, select: { id: true, email: true } });
+  if (kayitli) {
+    const g = await call(app, 'POST', '/auth/login', {
+      eposta: kayitli.email ?? o.eposta ?? testEposta(tel),
+      sifre: o.sifre ?? TEST_SIFRE,
+      ...(o.platform ? { platform: o.platform } : {}),
+      ...(o.kurulum ? { kurulum: o.kurulum } : {}),
+    });
+    if (g.status !== 200) throw new Error(`giriş olmadı (${g.status}): ${JSON.stringify(g.body)}`);
+    return { ...g.body, userId: kayitli.id, challengeId: '' };
+  }
+  const r = await call(app, 'POST', '/auth/register', {
+    ad: o.ad?.[0] ?? 'Deneme',
+    soyad: o.ad?.[1] ?? 'Kullanıcı',
+    eposta: o.eposta ?? testEposta(tel),
+    telefon: tel,
+    sifre: o.sifre ?? TEST_SIFRE,
+    consents: { ...SIGNUP_CONSENTS, ...o.consents },
+    ...(o.platform ? { platform: o.platform } : {}),
+    ...(o.kurulum ? { kurulum: o.kurulum } : {}),
+  });
+  if (r.status !== 200) throw new Error(`üyelik başlamadı (${r.status}): ${JSON.stringify(r.body)}`);
+  const v = await call(app, 'POST', '/auth/register/verify', {
+    challengeId: r.body.challengeId,
+    code: sms.lastCode(tel),
+    ...(o.kurulum ? { kurulum: o.kurulum } : {}),
+  });
+  if (v.status !== 200) throw new Error(`üyelik tamamlanmadı (${v.status}): ${JSON.stringify(v.body)}`);
+  const u = await db.user.findUniqueOrThrow({ where: { phone: tel }, select: { id: true } });
+  return { ...v.body, userId: u.id, challengeId: r.body.challengeId };
+}

@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { uuidv7 } from '@rengarenk/db';
 import { vknGecerli } from '@rengarenk/shared';
 import sharp from 'sharp';
+import { hashPassword } from '../auth/password.js';
 import { createApp } from '../bootstrap.js';
 import { loadEnv } from '../config/env.js';
 import { type Db, PRISMA } from '../database/prisma.js';
@@ -88,20 +89,49 @@ interface Kisi {
   token: string;
   userId: string;
 }
+/** Demo hesapların şifresi ve e-postası (Karar 18: e-posta ve şifreyle giriş; yalnızca yerel demo) */
+const DEMO_SIFRE = 'Demo1234';
+const demoEposta = (tel: string) => `demo${tel.slice(-7)}@ornek.com`;
+
 async function giris(tel: string, ad: string, soyad: string): Promise<Kisi> {
+  const var_ = await db.user.findUnique({
+    where: { phone: tel },
+    select: { id: true, email: true, passwordHash: true },
+  });
+  if (var_) {
+    const eposta = var_.email ?? demoEposta(tel);
+    // Karar 18'den önce telefonla kurulan demo hesaplara e-posta ve şifre verilir (yalnızca yerel demo)
+    if (!var_.passwordHash) {
+      await db.user.update({
+        where: { id: var_.id },
+        data: { email: eposta, passwordHash: await hashPassword(DEMO_SIFRE) },
+      });
+    }
+    const g = olmali(await istek('POST', '/auth/login', { eposta, sifre: DEMO_SIFRE }), `${ad} giriş`);
+    return { tel, ad, soyad, token: g.accessToken, userId: var_.id };
+  }
   // Yalnızca yerel demo: önceki kod istekleri geriye alınır (60 sn bekleme ve saatlik sınır yeniden kurulumu durdurmasın)
   await db.otpChallenge.updateMany({
     where: { phone: tel, createdAt: { gt: new Date(Date.now() - 3600_000) } },
     data: { createdAt: new Date(Date.now() - 2 * 3600_000) },
   });
-  const r = olmali(await istek('POST', '/auth/otp/request', { phone: tel }), `${ad} kod`);
+  const r = olmali(
+    await istek('POST', '/auth/register', {
+      ad,
+      soyad,
+      eposta: demoEposta(tel),
+      telefon: tel,
+      sifre: DEMO_SIFRE,
+      consents: ONAY,
+    }),
+    `${ad} üyelik`,
+  );
   if (!r.devCode)
     throw new Error('Kod yanıtta dönmedi (SMS_PROVIDER=console ve NODE_ENV=development olmalı)');
   const v = olmali(
-    await istek('POST', '/auth/otp/verify', { challengeId: r.challengeId, code: r.devCode, consents: ONAY }),
-    `${ad} giriş`,
+    await istek('POST', '/auth/register/verify', { challengeId: r.challengeId, code: r.devCode }),
+    `${ad} üyelik kodu`,
   );
-  await istek('PATCH', '/me', { firstName: ad, lastName: soyad }, v.accessToken);
   const u = await db.user.findUniqueOrThrow({ where: { phone: tel }, select: { id: true } });
   return { tel, ad, soyad, token: v.accessToken, userId: u.id };
 }

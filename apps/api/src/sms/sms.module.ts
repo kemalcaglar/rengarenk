@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { AgentService } from '../agent/agent.service.js';
 import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA } from '../database/prisma.js';
+import { ChannelCodeSender, CODE_SENDER, WhatsAppCodeSender } from './code-sender.js';
 import { ConsoleSmsSender, MemorySmsSender } from './console.sender.js';
 import { FailoverSmsSender } from './failover.sender.js';
 import { IletiMerkeziSender } from './iletimerkezi.sender.js';
@@ -43,6 +44,21 @@ export function createSmsSender(env: Env, agent?: AgentService, db?: Db): SmsSen
   });
 }
 
+/** Telefon doğrulama kodu (Karar 18): VERIFY_CHANNELS sırasıyla WhatsApp ve SMS */
+export function createCodeSender(env: Env, sms: SmsSender) {
+  const wa =
+    env.VERIFY_CHANNELS.includes('whatsapp') && env.WHATSAPP_TOKEN && env.WHATSAPP_PHONE_NUMBER_ID
+      ? new WhatsAppCodeSender(
+          env.WHATSAPP_TOKEN,
+          env.WHATSAPP_PHONE_NUMBER_ID,
+          env.WHATSAPP_TEMPLATE,
+          env.WHATSAPP_TEMPLATE_LANG,
+          env.WHATSAPP_API_VERSION,
+        )
+      : null;
+  return new ChannelCodeSender(env.VERIFY_CHANNELS, sms, wa);
+}
+
 @Global()
 @Module({
   providers: [
@@ -51,7 +67,12 @@ export function createSmsSender(env: Env, agent?: AgentService, db?: Db): SmsSen
       inject: [ENV, { token: AgentService, optional: true }, { token: PRISMA, optional: true }],
       useFactory: createSmsSender,
     },
+    {
+      provide: CODE_SENDER,
+      inject: [ENV, SMS_SENDER],
+      useFactory: createCodeSender,
+    },
   ],
-  exports: [SMS_SENDER],
+  exports: [SMS_SENDER, CODE_SENDER],
 })
 export class SmsModule {}

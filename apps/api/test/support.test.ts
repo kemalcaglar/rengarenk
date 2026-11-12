@@ -13,7 +13,7 @@ import { TemplatesService } from '../src/notifications/templates.service.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
 import { SupportService } from '../src/support/support.service.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 const SIR = 'test-icin-eposta-webhook-anahtari';
@@ -34,12 +34,7 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 async function login(phone: string, ad: [string, string]) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   const token = v.body.accessToken as string;
   await call(app, 'PATCH', '/me', { firstName: ad[0], lastName: ad[1] }, token);
   const userId = (await db.user.findUniqueOrThrow({ where: { phone }, select: { id: true } })).id;

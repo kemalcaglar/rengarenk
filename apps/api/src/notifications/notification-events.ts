@@ -91,6 +91,8 @@ export const NOTIFY_EVENTS = [
   'moderasyon.itiraz_sonuc',
   'yildiz.itiraz_sonuc',
   'hesap.telefon_degisti',
+  'hesap.sifre_istendi',
+  'hesap.sifre_degisti',
   'fiyat.zamanlandi',
   'hak.tanimlandi',
   'destek.yanitlandi',
@@ -596,6 +598,10 @@ export class NotificationEvents {
         }
         return n;
       }
+      case 'hesap.sifre_istendi':
+        return this.notifications.sifreBaglantisi(s('userId'));
+      case 'hesap.sifre_degisti':
+        return this.notifications.notify({ userIds: [s('userId')], sablon: type, veri: {} });
       case 'hesap.telefon_degisti': {
         const u = await this.db.user.findUnique({ where: { id: s('userId') }, select: { phone: true } });
         if (!u) return 0;
@@ -623,6 +629,8 @@ export class NotificationEvents {
         });
       }
       case 'kullanici.kaydoldu': {
+        // Formla üye olana e-posta doğrulama bağlantısı (Karar 18; Google ve Apple adresi zaten doğrulanmış)
+        await this.notifications.dogrulamaGonder(s('userId'));
         const n = await this.notifications.notify({
           userIds: [s('userId')],
           sablon: 'akis.hosgeldin',

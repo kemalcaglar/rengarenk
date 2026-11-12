@@ -6,12 +6,10 @@ import sharp from 'sharp';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Db } from '../src/database/prisma.js';
 import { PortfolioService } from '../src/portfolio/portfolio.service.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
 let db: Db;
 let portfolio: PortfolioService;
 
@@ -20,7 +18,7 @@ const JPG = (i: number) => Buffer.from([0xff, 0xd8, 0xff, 0xe0, i, 1, 2, 3]);
 const PDF = Buffer.from('%PDF-1.7\n%%EOF\n');
 
 beforeAll(async () => {
-  ({ app, sms, db } = await createTestApp());
+  ({ app, db } = await createTestApp());
   portfolio = app.get(PortfolioService);
   const bmw = await db.catalogMake.create({ data: { id: uuidv7(), key: 'bmw', name: 'BMW' } });
   const s = await db.catalogSeries.create({
@@ -42,13 +40,8 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 async function login(phone: string) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
-  return { token: v.body.accessToken as string, userId: v.body.user?.id as string };
+  const v = { body: await uyeOl(app, phone) };
+  return { token: v.body.accessToken as string, userId: v.body.userId };
 }
 
 /** Onaylı galeri (başvuru akışı galeri testlerinde; burada doğrudan) */

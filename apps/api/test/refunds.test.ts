@@ -14,12 +14,10 @@ import { OrdersService } from '../src/payments/orders.service.js';
 import { SubscriptionBilling } from '../src/payments/subscription-billing.js';
 import { RefundExecutorService } from '../src/refunds/executor/refund-executor.service.js';
 import { FakeRefund } from '../src/refunds/executor/refund-gateway.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
 let db: Db;
 let hak: EntitlementService;
 let fake: FakeRefund;
@@ -30,7 +28,7 @@ let yonetici: string;
 let izleyici: string;
 
 beforeAll(async () => {
-  ({ app, sms, db } = await createTestApp());
+  ({ app, db } = await createTestApp());
   hak = app.get(EntitlementService);
   fake = new FakeRefund();
   yurutucu = new RefundExecutorService(
@@ -48,12 +46,7 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 async function login(phone: string) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   return v.body.accessToken as string;
 }
 

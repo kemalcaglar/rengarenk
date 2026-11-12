@@ -6,7 +6,7 @@ import { NotificationEvents } from '../src/notifications/notification-events.js'
 import { PrivacyService } from '../src/privacy/privacy.service.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
@@ -25,12 +25,7 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 async function login(phone: string, ad: [string, string]) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: { ...SIGNUP_CONSENTS, reklamOlcum: true },
-  });
+  const v = { body: await uyeOl(app, phone, { consents: { reklamOlcum: true } }) };
   const token = v.body.accessToken as string;
   await call(app, 'PATCH', '/me', { firstName: ad[0], lastName: ad[1] }, token);
   const userId = (await db.user.findUniqueOrThrow({ where: { phone }, select: { id: true } })).id;
@@ -38,10 +33,11 @@ async function login(phone: string, ad: [string, string]) {
 }
 
 /** Kendi numarasına yeni kod (bekleme süresini aşmak için önceki kodun zamanı geriye alınır) */
-async function kod(phone: string) {
+async function kod(phone: string, token: string) {
   await db.otpChallenge.updateMany({ where: { phone }, data: { createdAt: new Date(Date.now() - 120_000) } });
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  return { challengeId: r.body.challengeId as string, code: sms.lastCode(phone) as string };
+  // Hassas işlem onayı (Karar 58): kod kişinin kendi numarasına, oturumla istenir
+  const r = await call(app, 'POST', '/auth/code', {}, token);
+  return { challengeId: r.body?.challengeId as string, code: sms.lastCode(phone) as string };
 }
 
 const olaylar = () => new NotificationEvents(db, app.get(NotificationService), app.get(DemandSearchService));
@@ -60,7 +56,7 @@ describe('KVKK: verilerimi indir, başvurular, rıza kayıtları (Karar 58, 59)'
         )
       ).status,
     ).toBe(401);
-    const k = await kod('+905332220001');
+    const k = await kod('+905332220001', ayse.token);
     const r = await call(app, 'POST', '/me/data-exports', k, ayse.token);
     expect(r.status).toBe(200);
     expect(r.body[0].durum).toBe('hazirlaniyor');
@@ -98,7 +94,7 @@ describe('KVKK: verilerimi indir, başvurular, rıza kayıtları (Karar 58, 59)'
 
   it('KVKK başvurusu: koduyla açılır, ajan verileri sayar ve taslak yazar, yanıtı tam yetkili çalışan gönderir', async () => {
     const mehmet = await login('+905332220011', ['Mehmet', 'Aksoy']);
-    const k = await kod('+905332220011');
+    const k = await kod('+905332220011', mehmet.token);
     const b = await call(
       app,
       'POST',

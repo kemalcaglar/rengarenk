@@ -933,14 +933,49 @@ export const NOTIFY_TEMPLATES = {
     grup: 'guvenlik',
     baslik: 'Telefon numaran değişti',
     metin:
-      'Giriş numaran {{tel}} olarak değişti; diğer cihazlardaki oturumların kapandı. Sen yapmadıysan hemen destek ekibimize yaz.',
+      'Telefon numaran {{tel}} olarak değişti; diğer cihazlardaki oturumların kapandı. Sen yapmadıysan hemen destek ekibimize yaz.',
     url: '/ayarlar?bolum=gizlilik',
     eposta: {
       konu: 'Telefon numaran değişti',
       paragraflar: [
         'Merhaba {{ad}},',
-        'Rengarenk giriş numaran {{tel}} olarak değişti; diğer cihazlardaki oturumların kapandı.',
+        'Rengarenk hesabındaki telefon numaran {{tel}} olarak değişti; diğer cihazlardaki oturumların kapandı.',
         'Bu değişikliği sen yapmadıysan hemen destek ekibimize yaz.',
+      ],
+      dugme: { yazi: 'Oturumlarımı gör', url: '/ayarlar?bolum=gizlilik' },
+    },
+  },
+  'hesap.sifre_sifirlama': {
+    ad: 'Şifre sıfırlama bağlantısı',
+    konu: 'guvenlik',
+    grup: 'guvenlik',
+    baslik: 'Şifre sıfırlama',
+    metin: '',
+    yalnizcaEposta: true,
+    eposta: {
+      konu: 'Rengarenk şifreni sıfırla',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        'Şifreni sıfırlamak için aşağıdaki düğmeye bas. Bağlantı 1 saat geçerlidir ve bir kez kullanılır.',
+        'Bu isteği sen yapmadıysan bu e-postayı yok sayabilirsin; şifren değişmez.',
+      ],
+      dugme: { yazi: 'Yeni şifre belirle', url: '/sifre-yenile?kod={{kod}}' },
+    },
+  },
+  'hesap.sifre_degisti': {
+    ad: 'Şifren değişti',
+    konu: 'guvenlik',
+    grup: 'guvenlik',
+    baslik: 'Şifren değişti',
+    metin:
+      'Rengarenk şifren değişti; diğer cihazlardaki oturumların kapandı. Sen yapmadıysan hemen destek ekibimize yaz.',
+    url: '/ayarlar?bolum=gizlilik',
+    eposta: {
+      konu: 'Rengarenk şifren değişti',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        'Rengarenk şifren değişti; diğer cihazlardaki oturumların kapandı.',
+        'Bu değişikliği sen yapmadıysan Şifremi unuttum ile yeni şifre belirle ve destek ekibimize yaz.',
       ],
       dugme: { yazi: 'Oturumlarımı gör', url: '/ayarlar?bolum=gizlilik' },
     },

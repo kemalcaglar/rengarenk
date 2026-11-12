@@ -7,12 +7,10 @@ import { ModerationService } from '../src/moderation/moderation.service.js';
 import { NotificationService } from '../src/notifications/notification.service.js';
 import { NotificationEvents } from '../src/notifications/notification-events.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
 let db: Db;
 let mod: string;
 let mod2: string;
@@ -20,7 +18,7 @@ let sahip: string;
 let finans: string;
 
 beforeAll(async () => {
-  ({ app, sms, db } = await createTestApp());
+  ({ app, db } = await createTestApp());
   const bmw = await db.catalogMake.create({ data: { id: uuidv7(), key: 'bmw', name: 'BMW' } });
   const s = await db.catalogSeries.create({
     data: { id: uuidv7(), key: 'bmw/3-serisi', makeId: bmw.id, name: '3 Serisi', categories: ['otomobil'] },
@@ -36,12 +34,7 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 async function login(phone: string, ad?: [string, string]) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   const token = v.body.accessToken as string;
   if (ad) await call(app, 'PATCH', '/me', { firstName: ad[0], lastName: ad[1] }, token);
   const userId = (await db.user.findUniqueOrThrow({ where: { phone }, select: { id: true } })).id;

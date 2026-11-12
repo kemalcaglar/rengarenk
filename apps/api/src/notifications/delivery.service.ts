@@ -160,7 +160,8 @@ export class DeliveryService {
     if (user?.status !== 'ACTIVE') return this.sonuc(d, { durum: 'atlandi', neden: 'Hesap etkin değil' });
 
     if (d.kanal === 'eposta') {
-      const dogrulama = d.sablon === 'eposta.dogrulama';
+      // Doğrulama ve şifre sıfırlama bağlantısı doğrulanmamış adrese de gider (bağlantı adresi doğrular)
+      const dogrulama = d.sablon === 'eposta.dogrulama' || d.sablon === 'hesap.sifre_sifirlama';
       if (!user.email || (!user.emailVerifiedAt && !dogrulama)) {
         return this.sonuc(d, { durum: 'atlandi', neden: 'Doğrulanmış e-posta yok' });
       }

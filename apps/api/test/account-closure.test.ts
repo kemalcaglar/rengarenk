@@ -10,7 +10,7 @@ import { SubscriptionBilling } from '../src/payments/subscription-billing.js';
 import { RefundExecutorService } from '../src/refunds/executor/refund-executor.service.js';
 import { FakeRefund } from '../src/refunds/executor/refund-gateway.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
@@ -34,22 +34,18 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 async function login(phone: string, ad: [string, string]) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   const token = v.body.accessToken as string;
   await call(app, 'PATCH', '/me', { firstName: ad[0], lastName: ad[1] }, token);
   const userId = (await db.user.findUniqueOrThrow({ where: { phone }, select: { id: true } })).id;
   return { token, userId };
 }
 
-async function kod(phone: string) {
+async function kod(phone: string, token: string) {
   await db.otpChallenge.updateMany({ where: { phone }, data: { createdAt: new Date(Date.now() - 120_000) } });
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  return { challengeId: r.body.challengeId as string, code: sms.lastCode(phone) as string };
+  // Hassas işlem onayı (Karar 58): kod kişinin kendi numarasına, oturumla istenir
+  const r = await call(app, 'POST', '/auth/code', {}, token);
+  return { challengeId: r.body?.challengeId as string, code: sms.lastCode(phone) as string };
 }
 
 const fatura = { ad: 'Ayşe Yılmaz', eposta: 'ayse@ornek.com', il: 'İstanbul', ilce: 'Kadıköy' };
@@ -129,7 +125,13 @@ describe('hesap kapatma (Karar 31, 39, 59; sahip kararı 9 Kasım 2026)', () => 
         )
       ).status,
     ).toBe(401);
-    const r = await call(app, 'POST', '/me/close', { ...(await kod(tel)), neden: 'buldum' }, ayse.token);
+    const r = await call(
+      app,
+      'POST',
+      '/me/close',
+      { ...(await kod(tel, ayse.token)), neden: 'buldum' },
+      ayse.token,
+    );
     expect(r.status).toBe(200);
     expect(r.body).toMatchObject({ kapandi: true, iadeKurus: 3_960, iadeIstegi: 1 });
 
@@ -174,7 +176,7 @@ describe('hesap kapatma (Karar 31, 39, 59; sahip kararı 9 Kasım 2026)', () => 
     expect(await hak.balance(o.accountId, 'ilk_mesaj')).toBe(0);
 
     // İkinci kapatma olmaz (numara artık bu hesaba ait değil); aynı numara yeni üye olarak dönebilir
-    expect((await call(app, 'POST', '/me/close', await kod(tel), ayse.token)).status).toBe(401);
+    expect((await call(app, 'POST', '/me/close', await kod(tel, ayse.token), ayse.token)).status).toBe(401);
     await db.otpChallenge.updateMany({
       where: { phone: tel },
       data: { createdAt: new Date(Date.now() - 120_000) },
@@ -198,7 +200,7 @@ describe('hesap kapatma (Karar 31, 39, 59; sahip kararı 9 Kasım 2026)', () => 
     });
     const p = await call(app, 'GET', '/me/close', undefined, can.token);
     expect(p.body.engel).toContain('Galeri hesabının sahibi');
-    expect((await call(app, 'POST', '/me/close', await kod(tel), can.token)).status).toBe(409);
+    expect((await call(app, 'POST', '/me/close', await kod(tel, can.token), can.token)).status).toBe(409);
     expect((await db.user.findUniqueOrThrow({ where: { id: can.userId } })).status).toBe('ACTIVE');
 
     // Kapanan alıcının talebi kapanır; satıcı "Kapatılmış hesap" görür ve yazamaz
@@ -218,7 +220,9 @@ describe('hesap kapatma (Karar 31, 39, 59; sahip kararı 9 Kasım 2026)', () => 
     expect(
       (await call(app, 'POST', `/conversations/${c}/messages`, { metin: 'Bakalım' }, alici.token)).status,
     ).toBe(201);
-    expect((await call(app, 'POST', '/me/close', await kod(aliciTel), alici.token)).status).toBe(200);
+    expect((await call(app, 'POST', '/me/close', await kod(aliciTel, alici.token), alici.token)).status).toBe(
+      200,
+    );
     expect(await db.demand.findUniqueOrThrow({ where: { id: t.id } })).toMatchObject({
       status: 'CLOSED',
       headline: null,

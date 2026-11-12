@@ -10,16 +10,14 @@ import { FeatureFlagService } from '../src/flags/feature-flag.service.js';
 import { OutboxService } from '../src/outbox/outbox.service.js';
 import { OrdersService } from '../src/payments/orders.service.js';
 import { StoreService } from '../src/payments/store.service.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
 let db: Db;
 let hak: EntitlementService;
 
 beforeAll(async () => {
-  ({ app, sms, db } = await createTestApp());
+  ({ app, db } = await createTestApp());
   hak = app.get(EntitlementService);
   const bmw = await db.catalogMake.create({ data: { id: uuidv7(), key: 'bmw', name: 'BMW' } });
   const s = await db.catalogSeries.create({
@@ -32,12 +30,7 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 async function login(phone: string) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   const userId = (await db.user.findUniqueOrThrow({ where: { phone } })).id;
   return { token: v.body.accessToken as string, userId };
 }

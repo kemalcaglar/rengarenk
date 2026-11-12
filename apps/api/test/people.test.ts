@@ -8,7 +8,7 @@ import { DeliveryService } from '../src/notifications/delivery.service.js';
 import { SwitchService } from '../src/notifications/switches.js';
 import { TemplatesService } from '../src/notifications/templates.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, SIGNUP_CONSENTS, TEST_SIFRE, testEposta, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
@@ -36,12 +36,7 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 async function login(phone: string, ad?: [string, string]) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   const token = v.body.accessToken as string;
   if (ad) await call(app, 'PATCH', '/me', { firstName: ad[0], lastName: ad[1] }, token);
   const userId = (await db.user.findUniqueOrThrow({ where: { phone }, select: { id: true } })).id;
@@ -61,6 +56,18 @@ async function talep(token: string) {
   const p = await call(app, 'POST', `/demands/${d.body.id}/publish`, {}, token);
   return { id: d.body.id as string, no: p.body.no as number };
 }
+
+/** Üye ol, 1. adım (Karar 18): kara listedeki numara, IP ya da cihaza kod gitmez */
+const kayitBasla = (phone: string, kurulum?: string) =>
+  call(app, 'POST', '/auth/register', {
+    ad: 'Deneme',
+    soyad: 'Kişi',
+    eposta: testEposta(phone),
+    telefon: phone,
+    sifre: TEST_SIFRE,
+    consents: SIGNUP_CONSENTS,
+    ...(kurulum ? { kurulum } : {}),
+  });
 
 describe('kullanıcı ve galeri kartı, kara liste (Karar 40, 43, 52)', () => {
   it('kart maskeli gelir; göstermek gerekçe ister ve kayda geçer; pazarlama göremez', async () => {
@@ -201,7 +208,7 @@ describe('kullanıcı ve galeri kartı, kara liste (Karar 40, 43, 52)', () => {
     expect(
       (await staffCall(app, 'POST', '/staff/blocklist', { tur: 'iban', deger: 'TR12' }, mod)).status,
     ).toBe(400);
-    expect((await call(app, 'POST', '/auth/otp/request', { phone: '+905339990021' })).status).toBe(403);
+    expect((await kayitBasla('+905339990021')).status).toBe(403);
     // Değerin kendisi saklanmaz
     expect(await db.blocklist.count({ where: { valueHash: { contains: '9990021' } } })).toBe(0);
 
@@ -232,21 +239,13 @@ describe('kullanıcı ve galeri kartı, kara liste (Karar 40, 43, 52)', () => {
       (x: { tur: string }) => x.tur === 'telefon',
     );
     await staffCall(app, 'DELETE', `/staff/blocklist/${kayit.id}`, undefined, mod);
-    expect((await call(app, 'POST', '/auth/otp/request', { phone: '+905339990021' })).status).toBe(200);
+    expect((await kayitBasla('+905339990021')).status).toBe(200);
   });
 
   it('cihaz kara listesi: kişi kartından cihaz eklenir; o kurulumdan kod istenemez ve giriş yapılamaz (Karar 43)', async () => {
     const phone = '+905339990035';
     const kurulum = '7f3c2a10-5b1e-4c8d-9a6f-0e2d4b7c9a11';
-    const r = await call(app, 'POST', '/auth/otp/request', { phone, kurulum });
-    const v = await call(app, 'POST', '/auth/otp/verify', {
-      challengeId: r.body.challengeId,
-      code: sms.lastCode(phone),
-      platform: 'ANDROID',
-      kurulum,
-      consents: SIGNUP_CONSENTS,
-    });
-    expect(v.status).toBe(200);
+    const v = { body: await uyeOl(app, phone, { platform: 'ANDROID', kurulum }) };
     const u = await db.user.findUniqueOrThrow({ where: { phone }, select: { id: true } });
     // Kurulum kimliğinin kendisi saklanmaz
     const d = await db.device.findFirstOrThrow({ where: { userId: u.id } });
@@ -285,17 +284,16 @@ describe('kullanıcı ve galeri kartı, kara liste (Karar 40, 43, 52)', () => {
     expect((await call(app, 'POST', '/auth/refresh', { refreshToken: v.body.refreshToken })).status).toBe(
       401,
     );
-    const baska = await call(app, 'POST', '/auth/otp/request', { phone: '+905339990036', kurulum });
+    const baska = await kayitBasla('+905339990036', kurulum);
     expect(baska.status).toBe(403);
     // Kod başka cihazdan istenip bu cihazla doğrulanamaz
-    const k2 = await call(app, 'POST', '/auth/otp/request', { phone: '+905339990036' });
+    const k2 = await kayitBasla('+905339990036');
     expect(
       (
-        await call(app, 'POST', '/auth/otp/verify', {
+        await call(app, 'POST', '/auth/register/verify', {
           challengeId: k2.body.challengeId,
           code: sms.lastCode('+905339990036'),
           kurulum,
-          consents: SIGNUP_CONSENTS,
         })
       ).status,
     ).toBe(403);
@@ -310,9 +308,7 @@ describe('kullanıcı ve galeri kartı, kara liste (Karar 40, 43, 52)', () => {
       where: { phone: '+905339990036' },
       data: { createdAt: new Date(Date.now() - 120_000) },
     });
-    expect((await call(app, 'POST', '/auth/otp/request', { phone: '+905339990036', kurulum })).status).toBe(
-      200,
-    );
+    expect((await kayitBasla('+905339990036', kurulum)).status).toBe(200);
   });
 
   it('giriş bağlantısı: doğrulanmış e-postaya tek kullanımlık; kod kayıtta açık durmaz; yenisi eskisini geçersiz kılar (Karar 52)', async () => {

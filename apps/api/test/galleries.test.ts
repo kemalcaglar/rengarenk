@@ -8,13 +8,11 @@ import { GalleriesWorkerModule } from '../src/galleries/galleries.module.js';
 import { GalleryService } from '../src/galleries/gallery.service.js';
 import { GalleryApplicationService } from '../src/galleries/gallery-application.service.js';
 import { PricingCoreModule } from '../src/pricing/pricing.service.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
 import { STORAGE, StorageModule } from '../src/storage/storage.service.js';
-import { call, createTestApp, memoryStorage, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, memoryStorage, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
 let db: Db;
 let apps: GalleryApplicationService;
 let galleries: GalleryService;
@@ -24,7 +22,7 @@ const PDF = Buffer.from('%PDF-1.7\n1 0 obj << >> endobj\n%%EOF\n');
 const DAY = 86_400_000;
 
 beforeAll(async () => {
-  ({ app, sms, db } = await createTestApp());
+  ({ app, db } = await createTestApp());
   apps = app.get(GalleryApplicationService);
   galleries = app.get(GalleryService);
   const owner = await createStaff(db, 'OWNER');
@@ -33,12 +31,7 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 async function login(phone: string) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   return v.body.accessToken as string;
 }
 

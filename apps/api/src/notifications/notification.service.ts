@@ -8,7 +8,7 @@ import {
   NotFoundException,
   type OnModuleDestroy,
 } from '@nestjs/common';
-import { type Prisma, uuidv7 } from '@rengarenk/db';
+import { Prisma, uuidv7 } from '@rengarenk/db';
 import {
   maskEposta,
   maskTrMobile,
@@ -408,21 +408,39 @@ export class NotificationService implements OnModuleDestroy {
   /** Adres kaydedilir, doğrulanana kadar bildirim gitmez; doğrulama bağlantısı hemen gönderilir */
   async setEmail(userId: string, eposta: string) {
     const adres = eposta.trim().toLowerCase();
+    const baskasi = await this.db.user.findUnique({ where: { email: adres }, select: { id: true } });
+    if (baskasi && baskasi.id !== userId) throw new ConflictException('Bu e-posta başka bir hesapta kayıtlı');
+    try {
+      await this.db.user.update({ where: { id: userId }, data: { email: adres, emailVerifiedAt: null } });
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+        throw new ConflictException('Bu e-posta başka bir hesapta kayıtlı');
+      }
+      throw err;
+    }
+    await this.dogrulamaGonder(userId);
+    return { adres: maskEposta(adres), dogrulandi: false };
+  }
+
+  /** Kayıtlı ama doğrulanmamış adrese doğrulama bağlantısı (üyelikten sonra işçi de çağırır; Karar 18) */
+  async dogrulamaGonder(userId: string) {
+    const u = await this.db.user.findUnique({
+      where: { id: userId },
+      select: { firstName: true, email: true, emailVerifiedAt: true },
+    });
+    if (!u?.email || u.emailVerifiedAt) return 0;
+    const adres = u.email;
     const kod = randomBytes(32).toString('base64url');
-    await this.db.$transaction(async (tx) => {
-      await tx.user.update({ where: { id: userId }, data: { email: adres, emailVerifiedAt: null } });
-      await tx.emailChallenge.create({
-        data: {
-          id: uuidv7(),
-          userId,
-          email: adres,
-          tokenHash: createHash('sha256').update(kod).digest('hex'),
-          expiresAt: new Date(Date.now() + DAY),
-        },
-      });
+    await this.db.emailChallenge.create({
+      data: {
+        id: uuidv7(),
+        userId,
+        email: adres,
+        tokenHash: createHash('sha256').update(kod).digest('hex'),
+        expiresAt: new Date(Date.now() + DAY),
+      },
     });
     const { surum } = await this.templates.get('eposta.dogrulama');
-    const u = await this.db.user.findUniqueOrThrow({ where: { id: userId }, select: { firstName: true } });
     await this.teslim({
       userId,
       bildirimId: null,
@@ -434,7 +452,47 @@ export class NotificationService implements OnModuleDestroy {
       due: new Date(),
       hedef: maskEposta(adres),
     });
-    return { adres: maskEposta(adres), dogrulandi: false };
+    return 1;
+  }
+
+  /**
+   * Şifre sıfırlama bağlantısı (Karar 18): 1 saat geçerli, tek kullanımlık. Kod teslim kaydında şifreli durur ve
+   * gönderimden sonra silinir; bekleyen eski bağlantı e-postaları gönderilmez.
+   */
+  async sifreBaglantisi(userId: string) {
+    const u = await this.db.user.findUnique({
+      where: { id: userId },
+      select: { firstName: true, email: true, status: true },
+    });
+    if (!u?.email || u.status !== 'ACTIVE') return 0;
+    const kod = randomBytes(32).toString('base64url');
+    await this.db.emailChallenge.create({
+      data: {
+        id: uuidv7(),
+        userId,
+        email: u.email,
+        purpose: 'sifre',
+        tokenHash: createHash('sha256').update(kod).digest('hex'),
+        expiresAt: new Date(Date.now() + 3600_000),
+      },
+    });
+    await this.db.delivery.updateMany({
+      where: { userId, sablon: 'hesap.sifre_sifirlama', durum: 'bekliyor' },
+      data: { durum: 'atlandi', neden: 'Yeni bağlantı istendi', veri: {} },
+    });
+    const { surum } = await this.templates.get('hesap.sifre_sifirlama');
+    await this.teslim({
+      userId,
+      bildirimId: null,
+      kanal: 'eposta',
+      key: 'hesap.sifre_sifirlama',
+      surum,
+      ticari: false,
+      veri: { ad: u.firstName || 'değerli üyemiz', kodKutu: SecretBox.forDeliveries(this.env).seal(kod) },
+      due: new Date(),
+      hedef: maskEposta(u.email),
+    });
+    return 1;
   }
 
   /**
@@ -470,7 +528,7 @@ export class NotificationService implements OnModuleDestroy {
     const c = await this.db.emailChallenge.findUnique({
       where: { tokenHash: createHash('sha256').update(kod).digest('hex') },
     });
-    if (!c || c.usedAt || c.expiresAt < new Date()) {
+    if (c?.purpose !== 'dogrulama' || c.usedAt || c.expiresAt < new Date()) {
       throw new NotFoundException('Bağlantının süresi dolmuş ya da kullanılmış; yeniden gönder');
     }
     await this.db.$transaction(async (tx) => {

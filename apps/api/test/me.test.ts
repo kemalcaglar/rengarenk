@@ -1,35 +1,28 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { type Db, PRISMA } from '../src/database/prisma.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
 
 beforeAll(async () => {
-  ({ app, sms } = await createTestApp());
+  ({ app } = await createTestApp());
 });
 afterAll(() => app.close());
 
 async function login(phone: string) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   return v.body as { accessToken: string; refreshToken: string };
 }
 
 describe('profil ve oturumlar', () => {
-  it('profil güncellenir; geçersiz e-posta ve bilinmeyen alan reddedilir', async () => {
+  it('profil güncellenir; e-posta profil güncellemesiyle değişmez, bilinmeyen alan reddedilir', async () => {
     const { accessToken } = await login('+905327770001');
     const ok = await call(
       app,
       'PATCH',
       '/me',
-      { displayName: 'Ayşe Y.', email: 'ayse@ornek.com' },
+      { displayName: 'Ayşe Y.' },
       accessToken,
     );
     expect(ok.status).toBe(200);
@@ -93,18 +86,18 @@ describe('profil ve oturumlar', () => {
 });
 
 describe('hız sınırı', () => {
-  it('aynı IP saatte 20 koddan fazlasını isteyemez', async () => {
+  it('aynı IP saatte 10 şifre sıfırlama isteğinden fazlasını yapamaz', async () => {
     const codes: number[] = [];
-    for (let i = 0; i < 22; i++) {
+    for (let i = 0; i < 12; i++) {
       const r = await app.inject({
         method: 'POST',
-        url: '/auth/otp/request',
-        payload: { phone: `+90532800${String(i).padStart(4, '0')}` },
+        url: '/auth/password/forgot',
+        payload: { eposta: `hiz${i}@ornek.com` },
         remoteAddress: '10.9.9.9',
       });
       codes.push(r.statusCode);
     }
-    expect(codes.slice(0, 20).every((c) => c === 200)).toBe(true);
+    expect(codes.slice(0, 10).every((c) => c === 200)).toBe(true);
     expect(codes.at(-1)).toBe(429);
   });
 });

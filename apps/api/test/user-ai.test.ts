@@ -8,18 +8,16 @@ import type { Db } from '../src/database/prisma.js';
 import { FeatureFlagService } from '../src/flags/feature-flag.service.js';
 import { MessageSafety } from '../src/messages/message-safety.js';
 import { OutboxService } from '../src/outbox/outbox.service.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
 import { SecretBox } from '../src/staff/secret-box.js';
-import { call, createTestApp, SIGNUP_CONSENTS } from './helpers.js';
+import { call, createTestApp, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
 let db: Db;
 let sahip: string;
 
 beforeAll(async () => {
-  ({ app, sms, db } = await createTestApp());
+  ({ app, db } = await createTestApp());
   const bmw = await db.catalogMake.create({ data: { id: uuidv7(), key: 'bmw', name: 'BMW' } });
   const s3 = await db.catalogSeries.create({
     data: { id: uuidv7(), key: 'bmw/3-serisi', makeId: bmw.id, name: '3 Serisi', categories: ['otomobil'] },
@@ -42,12 +40,7 @@ afterAll(() => app.close());
 const sifrele = async (metin: string) => SecretBox.forMessages(app.get<Env>(ENV)).seal(metin);
 
 async function login(phone: string) {
-  const r = await call(app, 'POST', '/auth/otp/request', { phone });
-  const v = await call(app, 'POST', '/auth/otp/verify', {
-    challengeId: r.body.challengeId,
-    code: sms.lastCode(phone),
-    consents: SIGNUP_CONSENTS,
-  });
+  const v = { body: await uyeOl(app, phone) };
   return v.body.accessToken as string;
 }
 

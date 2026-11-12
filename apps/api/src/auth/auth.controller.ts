@@ -1,28 +1,127 @@
 import { Body, Controller, Get, HttpCode, Inject, Ip, Post, Req, UseGuards } from '@nestjs/common';
-import { loginLinkSchema, otpRequestSchema, otpVerifySchema, refreshSchema } from '@rengarenk/shared';
+import {
+  appleLoginSchema,
+  changePasswordSchema,
+  forgotPasswordSchema,
+  googleCallbackSchema,
+  googleStartSchema,
+  loginLinkSchema,
+  loginSchema,
+  refreshSchema,
+  registerResendSchema,
+  registerStartSchema,
+  registerVerifySchema,
+  resetPasswordSchema,
+} from '@rengarenk/shared';
 import type { z } from 'zod';
 import { ZodPipe } from '../common/zod.pipe.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { AuthGuard } from './auth.guard.js';
 import { type AccessClaims, AuthService } from './auth.service.js';
+import { SignupService } from './signup.service.js';
 
+/**
+ * Üyelik ve giriş (Karar 18): Üye ol (bilgiler + telefon kodu) ve Giriş yap (e-posta ve şifre, Google, Apple) ayrı
+ * uçlardır. Telefon kodu yalnızca üyelikte, numara değiştirirken ve hassas işlem onayında gider.
+ */
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly auth: AuthService,
+    private readonly signup: SignupService,
     @Inject(PRISMA) private readonly db: Db,
   ) {}
 
-  @Post('otp/request')
+  /** Üye ol, 1. adım: bilgiler; telefona kod gider */
+  @Post('register')
   @HttpCode(200)
-  request(@Body(new ZodPipe(otpRequestSchema)) body: z.output<typeof otpRequestSchema>, @Ip() ip: string) {
-    return this.auth.requestOtp(body.phone, ip, body.kurulum);
+  register(
+    @Body(new ZodPipe(registerStartSchema)) b: z.output<typeof registerStartSchema>,
+    @Ip() ip: string,
+  ) {
+    return this.signup.start(b, ip);
   }
 
-  @Post('otp/verify')
+  @Post('register/resend')
   @HttpCode(200)
-  verify(@Body(new ZodPipe(otpVerifySchema)) body: z.output<typeof otpVerifySchema>, @Ip() ip: string) {
-    return this.auth.verifyOtp(body.challengeId, body.code, body.platform, ip, body.consents, body.kurulum);
+  resend(
+    @Body(new ZodPipe(registerResendSchema)) b: z.output<typeof registerResendSchema>,
+    @Ip() ip: string,
+  ) {
+    return this.signup.resend(b.challengeId, ip);
+  }
+
+  /** Üye ol, 2. adım: kod doğrulanınca hesap açılır ve oturum başlar */
+  @Post('register/verify')
+  @HttpCode(200)
+  registerVerify(
+    @Body(new ZodPipe(registerVerifySchema)) b: z.output<typeof registerVerifySchema>,
+    @Ip() ip: string,
+  ) {
+    return this.signup.verify(b.challengeId, b.code, ip, b.kurulum);
+  }
+
+  /** E-posta ve şifreyle giriş */
+  @Post('login')
+  @HttpCode(200)
+  login(@Body(new ZodPipe(loginSchema)) b: z.output<typeof loginSchema>, @Ip() ip: string) {
+    return this.signup.login(b, ip);
+  }
+
+  @Post('google/start')
+  @HttpCode(200)
+  googleStart(@Body(new ZodPipe(googleStartSchema)) b: z.output<typeof googleStartSchema>, @Ip() ip: string) {
+    return this.signup.googleStart(b.platform, ip);
+  }
+
+  @Post('google/callback')
+  @HttpCode(200)
+  googleCallback(
+    @Body(new ZodPipe(googleCallbackSchema)) b: z.output<typeof googleCallbackSchema>,
+    @Ip() ip: string,
+  ) {
+    return this.signup.googleCallback(b.state, b.code, ip, b.kurulum);
+  }
+
+  @Post('apple')
+  @HttpCode(200)
+  apple(@Body(new ZodPipe(appleLoginSchema)) b: z.output<typeof appleLoginSchema>, @Ip() ip: string) {
+    return this.signup.appleLogin(b, ip);
+  }
+
+  @Post('password/forgot')
+  @HttpCode(200)
+  forgot(
+    @Body(new ZodPipe(forgotPasswordSchema)) b: z.output<typeof forgotPasswordSchema>,
+    @Ip() ip: string,
+  ) {
+    return this.signup.forgot(b.eposta, ip);
+  }
+
+  @Post('password/reset')
+  @HttpCode(200)
+  reset(@Body(new ZodPipe(resetPasswordSchema)) b: z.output<typeof resetPasswordSchema>, @Ip() ip: string) {
+    return this.signup.reset(b.kod, b.sifre, ip);
+  }
+
+  /** Ayarlar › Güvenlik: şifre değiştir ya da belirle */
+  @Post('password')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  changePassword(
+    @Req() req: { user: AccessClaims },
+    @Body(new ZodPipe(changePasswordSchema)) b: z.output<typeof changePasswordSchema>,
+    @Ip() ip: string,
+  ) {
+    return this.signup.change(req.user.sub, req.user.sid, b, ip);
+  }
+
+  /** Hassas işlem onayı: kişinin kendi numarasına kod (Karar 58) */
+  @Post('code')
+  @HttpCode(200)
+  @UseGuards(AuthGuard)
+  code(@Req() req: { user: AccessClaims }, @Ip() ip: string) {
+    return this.auth.sendOwnCode(req.user.sub, ip);
   }
 
   /** Destekten gelen giriş bağlantısı (Karar 52) */

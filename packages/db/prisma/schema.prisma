@@ -63,10 +63,16 @@ model User {
   firstName       String?    @map("first_name")
   /// @pii Soyad
   lastName        String?    @map("last_name")
-  /// @pii
-  email           String?
+  /// @pii Küçük harfle; tekil (Karar 18: e-posta ve şifreyle giriş)
+  email           String?    @unique
   /// E-posta doğrulandıysa zamanı (bildirim e-postası yalnızca doğrulanmış adrese gider)
   emailVerifiedAt DateTime?  @map("email_verified_at") @db.Timestamptz(3)
+  /// Şifre özeti (scrypt; Karar 18). Google ya da Apple ile üye olanda boş
+  passwordHash    String?    @map("password_hash")
+  /// @pii Google hesabının değişmez kimliği (Google ile giriş)
+  googleSub       String?    @unique @map("google_sub")
+  /// @pii Apple kimliği (iPhone'da Apple ile giriş)
+  appleSub        String?    @unique @map("apple_sub")
   /// @pii Profildeki il ve ilçe (yeni talebin konumu bununla açılır)
   il              String?
   /// @pii
@@ -92,7 +98,7 @@ model User {
   featureTester       FeatureTester?
   demands             Demand[]
   favorites           Favorite[]
-  vehicleFavorites VehicleFavorite[]
+  vehicleFavorites    VehicleFavorite[]
   savedSearches       SavedSearch[]
   galleryApplications GalleryApplication[]
   buyerConversations  Conversation[]            @relation("alici")
@@ -789,47 +795,47 @@ model CatalogGeneration {
 /// kategorisinden aday bulur, katalog sorumlusu seçer; seçilen fotoğrafın kopyası atfıyla SeaweedFS'e alınır.
 /// Yalnızca ticari kullanıma izin veren lisanslar (kamu malı, CC0, CC BY, CC BY-SA); NC ve ND alınmaz.
 model CatalogImage {
-  id           String    @id @db.Uuid
+  id                 String    @id @db.Uuid
   /// Nesil kodu satırı (Wikidata kaynağı; kasa kuşakları kodla bu fotoğrafı paylaşır)
-  generationId String    @map("generation_id") @db.Uuid
+  generationId       String    @map("generation_id") @db.Uuid
   /// Commons dosya adı (File:… olmadan)
-  commonsFile  String    @map("commons_file")
+  commonsFile        String    @map("commons_file")
   /// Commons dosya sayfası
-  pageUrl      String    @map("page_url")
+  pageUrl            String    @map("page_url")
   /// Özgün dosya adresi ve ölçüleri
-  sourceUrl    String    @map("source_url")
-  width        Int
-  height       Int
-  mime         String
+  sourceUrl          String    @map("source_url")
+  width              Int
+  height             Int
+  mime               String
   /// Yazar (düz metin, HTML ayıklanmış) ve lisans
-  author       String
-  license      String
-  licenseUrl   String?   @map("license_url")
+  author             String
+  license            String
+  licenseUrl         String?   @map("license_url")
   /// Sıralama puanı: büyüklük, yatay kadraj, dosya adındaki ipuçları (ön, iç mekân, motor …)
-  score        Int       @default(0)
+  score              Int       @default(0)
   /// aday | secildi | reddedildi
-  status       String    @default("aday")
+  status             String    @default("aday")
   /// Seçilince depodaki kopyanın anahtarı ve özeti (plaka bulanıklaştırıldıysa düzenlenmiş kopya)
-  storageKey   String?   @map("storage_key")
-  sha256       String?
+  storageKey         String?   @map("storage_key")
+  sha256             String?
   /// Fotoğrafın temsil ettiği makyaj (Karar 34: nesil ve makyaj başına): 0 makyaj öncesi, 1 ilk makyaj, 2 ikinci;
   /// boşsa nesil geneli. Nesil ve makyaj başına tek seçili fotoğraf
-  facelift     Int?
+  facelift           Int?
   /// Plaka bulanıklaştırıldı (Karar 34): atıfta "düzenlendi" yazar, aynı lisansla yayınlanır
-  edited       Boolean   @default(false)
+  edited             Boolean   @default(false)
   /// Düzenlemeden önceki kopya (geri almak için) ve bulanıklaştırılan alanlar (0–1 oranlarıyla x, y, w, h)
-  originalKey  String?   @map("original_key")
-  blurAreas    Json?     @map("blur_areas")
+  originalKey        String?   @map("original_key")
+  blurAreas          Json?     @map("blur_areas")
   /// Kaynak (Karar 34): commons; Commons'ta fotoğraf yoksa galeri (izin verilen portföy fotoğrafı, galeri adı atfıyla).
   /// Galeri fotoğrafında commonsFile "galeri:<foto id>", author galeri adı, pageUrl galeri profili
-  origin       String    @default("commons")
+  origin             String    @default("commons")
   /// Galeri fotoğrafı: kaynak portföy fotoğrafı, aracı ve galeri hesabı (izin kalkınca fotoğraf geri çekilir)
-  portfolioPhotoId   String? @map("portfolio_photo_id") @db.Uuid
-  portfolioVehicleId String? @map("portfolio_vehicle_id") @db.Uuid
-  galleryAccountId   String? @map("gallery_account_id") @db.Uuid
-  decidedBy    String?   @map("decided_by") @db.Uuid
-  decidedAt    DateTime? @map("decided_at") @db.Timestamptz(3)
-  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  portfolioPhotoId   String?   @map("portfolio_photo_id") @db.Uuid
+  portfolioVehicleId String?   @map("portfolio_vehicle_id") @db.Uuid
+  galleryAccountId   String?   @map("gallery_account_id") @db.Uuid
+  decidedBy          String?   @map("decided_by") @db.Uuid
+  decidedAt          DateTime? @map("decided_at") @db.Timestamptz(3)
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
   generation CatalogGeneration @relation(fields: [generationId], references: [id])
 
@@ -1042,67 +1048,67 @@ enum DemandStatus {
 }
 
 model Demand {
-  id                String       @id @db.Uuid
+  id                  String       @id @db.Uuid
   /// Kullanıcıya görünen talep numarası ("Talep No 1052187")
-  no                BigInt       @unique @default(autoincrement())
-  accountId         String       @map("account_id") @db.Uuid
-  userId            String       @map("user_id") @db.Uuid
-  categoryId        String       @map("category_id") @db.Uuid
+  no                  BigInt       @unique @default(autoincrement())
+  accountId           String       @map("account_id") @db.Uuid
+  userId              String       @map("user_id") @db.Uuid
+  categoryId          String       @map("category_id") @db.Uuid
   /// Yayına girdiği şema sürümü; eski talepler bu sürümle okunur (Karar 45)
-  schemaVersion     Int?         @map("schema_version")
-  status            DemandStatus @default(DRAFT)
+  schemaVersion       Int?         @map("schema_version")
+  status              DemandStatus @default(DRAFT)
   /// Katalogdan üretilen başlık ("BMW 3 Serisi 320i")
-  title             String       @default("")
+  title               String       @default("")
   /// @pii Alıcının yazdığı talep başlığı (Sihirbaz 5. adım); boşsa `title` gösterilir
-  headline          String?
+  headline            String?
   /// @pii Talep alanları ve alternatifler; açıklama serbest metindir
-  data              Json         @default("{}")
+  data                Json         @default("{}")
   /// Taslakta kalınan sihirbaz adımı (Karar 21)
-  step              Int          @default(1)
-  makeKey           String?      @map("make_key")
-  seriesKey         String?      @map("series_key")
-  modelKey          String?      @map("model_key")
-  il                String?
-  ilce              String?
+  step                Int          @default(1)
+  makeKey             String?      @map("make_key")
+  seriesKey           String?      @map("series_key")
+  modelKey            String?      @map("model_key")
+  il                  String?
+  ilce                String?
   /// Alternatiflerin en düşük ve en yüksek bütçesi (TL)
-  budgetMin         BigInt?      @map("budget_min")
-  budgetMax         BigInt?      @map("budget_max")
-  yearMin           Int?         @map("year_min")
-  yearMax           Int?         @map("year_max")
+  budgetMin           BigInt?      @map("budget_min")
+  budgetMax           BigInt?      @map("budget_max")
+  yearMin             Int?         @map("year_min")
+  yearMax             Int?         @map("year_max")
   /// İletişim izni (Karar 11.4, 29): telefon ve WhatsApp görünsün mü, ad tam mı "Ayşe Y." mi
-  phoneVisible      Boolean      @default(false) @map("phone_visible")
-  whatsappVisible   Boolean      @default(false) @map("whatsapp_visible")
+  phoneVisible        Boolean      @default(false) @map("phone_visible")
+  whatsappVisible     Boolean      @default(false) @map("whatsapp_visible")
   /// tam | kisa
-  nameMode          String       @default("tam") @map("name_mode")
+  nameMode            String       @default("tam") @map("name_mode")
   /// Hangi hakla yayına girdi: ucretsiz | ek | paket
-  entitlement       String?
-  publishedAt       DateTime?    @map("published_at") @db.Timestamptz(3)
-  expiresAt         DateTime?    @map("expires_at") @db.Timestamptz(3)
+  entitlement         String?
+  publishedAt         DateTime?    @map("published_at") @db.Timestamptz(3)
+  expiresAt           DateTime?    @map("expires_at") @db.Timestamptz(3)
   /// Son gönderilen bitiş hatırlatması (7, 3, 1 gün kala)
-  reminderDays      Int?         @map("reminder_days")
-  passiveAt         DateTime?    @map("passive_at") @db.Timestamptz(3)
+  reminderDays        Int?         @map("reminder_days")
+  passiveAt           DateTime?    @map("passive_at") @db.Timestamptz(3)
   /// sure_doldu | kullanici
-  passiveReason     String?      @map("passive_reason")
+  passiveReason       String?      @map("passive_reason")
   /// Ajanın düzeltme isteği (Karar 41): başlık ya da açıklamada telefon, IBAN, e-posta, bağlantı ya da uygunsuz ifade.
   /// Talep yayında kalır, bu bilgiler herkese açık görünümde gizlenir; sahibi düzeltince temizlenir.
-  correctionFlags   String[]     @default([]) @map("correction_flags")
-  correctionAt      DateTime?    @map("correction_at") @db.Timestamptz(3)
+  correctionFlags     String[]     @default([]) @map("correction_flags")
+  correctionAt        DateTime?    @map("correction_at") @db.Timestamptz(3)
   /// Çalışanın düzeltme isteğinin gerekçesi (Konsol › Talepler ve portföy); sahibi düzenleyince kalkar
-  correctionNote    String?      @map("correction_note")
+  correctionNote      String?      @map("correction_note")
   /// Çalışanın önerdiği kategori ("Kategori öneriliyor"); sahibine bildirilir, talep kendi kategorisinde kalır
-  suggestedCategoryId String?    @map("suggested_category_id") @db.Uuid
-  closedAt          DateTime?    @map("closed_at") @db.Timestamptz(3)
+  suggestedCategoryId String?      @map("suggested_category_id") @db.Uuid
+  closedAt            DateTime?    @map("closed_at") @db.Timestamptz(3)
   /// Aracı buldum: rengarenk | baska_site | tanidik | vazgectim (Karar 31; satıcıya gösterilmez)
-  foundVia          String?      @map("found_via")
+  foundVia            String?      @map("found_via")
   /// Talebin açıldığı platform (WEB | IOS | ANDROID; kontrol paneli kırılımı, Karar 44)
-  platform          String?
+  platform            String?
   /// Ücretsiz uzatma kullanıldı mı (Karar 10, 12.1)
-  freeExtensionUsed Boolean      @default(false) @map("free_extension_used")
-  extensionCount    Int          @default(0) @map("extension_count")
+  freeExtensionUsed   Boolean      @default(false) @map("free_extension_used")
+  extensionCount      Int          @default(0) @map("extension_count")
   /// Talep sayfasının görüntülenmesi (Taleplerim istatistiği): sahibi hariç, aynı kişi ya da cihaz 24 saatte bir sayılır
-  viewCount         Int          @default(0) @map("view_count")
-  createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt         DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  viewCount           Int          @default(0) @map("view_count")
+  createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   account       Account           @relation(fields: [accountId], references: [id], onDelete: Restrict)
   user          User              @relation(fields: [userId], references: [id], onDelete: Restrict)
@@ -1380,8 +1386,8 @@ model PortfolioVehicle {
   createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt         DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  account       Account          @relation(fields: [accountId], references: [id])
-  category      Category         @relation(fields: [categoryId], references: [id])
+  account       Account           @relation(fields: [accountId], references: [id])
+  category      Category          @relation(fields: [categoryId], references: [id])
   photos        PortfolioPhoto[]
   eidsChecks    EidsCheck[]
   matches       Match[]
@@ -2360,12 +2366,58 @@ model EmailChallenge {
   /// @pii
   email     String
   tokenHash String    @unique @map("token_hash")
+  /// dogrulama (e-posta doğrulama bağlantısı) ya da sifre (şifre sıfırlama, Karar 18)
+  purpose   String    @default("dogrulama")
   expiresAt DateTime  @map("expires_at") @db.Timestamptz(3)
   usedAt    DateTime? @map("used_at") @db.Timestamptz(3)
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
   @@index([userId])
   @@map("email_challenges")
+}
+
+/// Üyelik isteği (Karar 18): bilgiler telefon kodu doğrulanana kadar burada durur; hesap açılınca ya da süresi dolunca
+/// silinir. Kimliği telefon kodu isteğiyle (otp_challenges) aynıdır.
+model PendingSignup {
+  id            String   @id @db.Uuid
+  /// @pii
+  email         String
+  /// @pii
+  firstName     String   @map("first_name")
+  /// @pii
+  lastName      String   @map("last_name")
+  passwordHash  String?  @map("password_hash")
+  /// google ya da apple (formla üyelikte boş)
+  provider      String?
+  /// @pii Google ya da Apple kimliği
+  providerSub   String?  @map("provider_sub")
+  /// Google ya da Apple adresi doğrulanmış verdiyse
+  emailVerified Boolean  @default(false) @map("email_verified")
+  consents      Json
+  platform      String
+  installHash   String?  @map("install_hash")
+  expiresAt     DateTime @map("expires_at") @db.Timestamptz(3)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([expiresAt])
+  @@map("pending_signups")
+}
+
+/// Üye girişi için Google isteği (OpenID Connect, yetki kodu + PKCE; Karar 18). Tek kullanımlık, 10 dakika.
+model UserOauthChallenge {
+  id           String    @id @db.Uuid
+  stateHash    String    @unique @map("state_hash")
+  nonce        String
+  codeVerifier String    @map("code_verifier")
+  platform     String
+  expiresAt    DateTime  @map("expires_at") @db.Timestamptz(3)
+  consumedAt   DateTime? @map("consumed_at") @db.Timestamptz(3)
+  /// @pii
+  ip           String?
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([expiresAt])
+  @@map("user_oauth_challenges")
 }
 
 /// Bildirim anahtarları (konsol): otomatik akışlar (`akis.<anahtar>`) ve ticari gönderim (`ticari`). Satır yoksa

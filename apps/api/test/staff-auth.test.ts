@@ -274,6 +274,8 @@ describe('yönetim girişi ayarları', () => {
     CATALOG_VERIFY_KEY: 'dogrulama',
     S3_ACCESS_KEY: 'canli-erisim',
     S3_SECRET_KEY: 'z'.repeat(40),
+    USER_AUTH_PROVIDER: 'none',
+    APPLE_AUTH_PROVIDER: 'none',
   };
 
   it('canlıda sahte Google, eksik anahtar ve kapalı Workspace şartı reddedilir', () => {
@@ -284,6 +286,16 @@ describe('yönetim girişi ayarları', () => {
     expect(() => loadEnv({ ...prod, STAFF_REQUIRE_WORKSPACE: 'false' })).toThrow('Workspace şartı');
     expect(() => loadEnv({ ...prod, CATALOG_VERIFY_KEY: '' })).toThrow('CATALOG_');
     expect(() => loadEnv({ ...prod, S3_SECRET_KEY: '' })).toThrow('S3_SECRET_KEY');
+    // Üye girişi (Karar 18): canlıda sahte Google ve Apple yok; Google için istemci, WhatsApp için jeton gerekir
+    expect(() => loadEnv({ ...prod, USER_AUTH_PROVIDER: 'fake' })).toThrow('sahte Google girişi');
+    expect(() => loadEnv({ ...prod, APPLE_AUTH_PROVIDER: 'fake' })).toThrow('sahte Apple');
+    expect(() => loadEnv({ ...prod, USER_AUTH_PROVIDER: 'google' })).toThrow('USER_GOOGLE_CLIENT_ID');
+    expect(() => loadEnv({ ...prod, VERIFY_CHANNELS: 'whatsapp,sms' })).toThrow('WHATSAPP_TOKEN');
+    expect(
+      loadEnv({ ...prod, VERIFY_CHANNELS: 'whatsapp, SMS', WHATSAPP_TOKEN: 't', WHATSAPP_PHONE_NUMBER_ID: '1' })
+        .VERIFY_CHANNELS,
+    ).toEqual(['whatsapp', 'sms']);
+    expect(() => loadEnv({ ...prod, VERIFY_CHANNELS: 'telgraf' })).toThrow();
   });
 
   it('geliştirmede birden çok alan ve kapalı Workspace şartı kabul edilir', () => {
