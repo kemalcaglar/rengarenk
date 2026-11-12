@@ -182,7 +182,8 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 | e-Arşiv entegratörü | Sözleşme ve API belgesi | Bağdaştırıcı, fatura ve iade faturası | 2–3 gün |
 | EİDS (Ticaret Bakanlığı) | Entegrasyon erişimi | `eids.ts` gerçek sağlayıcı | 2 gün |
 | Yetki belgesi, GİB, MERSİS | Kurum erişimleri | `verification.ts` gerçek sağlayıcı (şimdi her başvuru insana) | 2–3 gün |
-| Kendi e-posta sunucusu | AWS'den 25. port açılması (Karar 50), Lightsail'de küçük sunucu, DNS (SPF/DKIM/DMARC) | Kurulum, ısınma planı, gelen destek e-postası | 2 gün |
+| Amazon SES (Karar 50) | Alan adı doğrulaması (DNS: DKIM, MAIL FROM, DMARC), üretim erişimi talebi | SMTP kimliği `.env.prod`'a, gelen destek e-postası | 1 gün |
+| WhatsApp doğrulama kodu (Karar 18) | Meta İşletme hesabı, WhatsApp numarası, kimlik doğrulama şablonu onayı | Cloud API bağdaştırıcısı | Sprint 30 |
 | İYS | İYS kaydı | İzin olaylarının İYS'ye iletimi | 1 gün |
 | Meta (mobil SDK) | Meta uygulama kimliği | `react-native-fbsdk-next`, KVKK izin ekranı, iOS ATT | 1–2 gün |
 | Google Ads | Ads hesabı, Data Manager erişimi | Çevrimdışı dönüşüm ve harcama çekimi | 1–2 gün |

@@ -114,5 +114,5 @@ Adresler: web http://localhost:18080, API http://localhost:14000, konsol http://
   `basarili` ya da `hata` ve `started_at`/`finished_at` yazar. Görev ayda bir kendiliğinden de çalışır.
 - İzleme: Prometheus, Grafana, Loki, Alertmanager, GlitchTip (Teknik tasarım §13). API `/metrics` hazır.
 - SOPS ile şifreli `.env.prod`.
-- E-posta: AWS 25. portu varsayılan olarak kapalı tutar; Lightsail konsolundaki formla açılması istenir, açılınca posta
-  sunucusu ayrı küçük Lightsail sunucusunda kurulur (Karar 50). O zamana kadar canlıda e-posta kapalı.
+- E-posta: Amazon SES (Karar 50, 12 Kasım 2026'da kendi posta sunucusu yerine). Alan adı doğrulanıp üretim erişimi
+  gelene kadar canlıda e-posta kapalı (`EMAIL_PROVIDER=none`).

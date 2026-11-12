@@ -31,7 +31,7 @@ Sürüm 0.59 · 59 karar kesinleşti; hukuki varsayılanlar (Karar 31 ve 39) avu
 | 15 | İlk sürüm kapsamı | Kararların tamamı ilk sürümde, fazlara bölünmeden | Kesinleşti |
 | 16 | Teknoloji yığını | TypeScript monorepo: Next.js + React Native (Expo) + NestJS; PostgreSQL, Redis, OpenSearch; Kubernetes | Kesinleşti |
 | 17 | Portföy görünürlüğü ve ilan platformu yükümlülükleri | Portföy alıcıya görünür; EİDS, yetki belgesi kontrolü ve diğer yükümlülükler kapsamda; avukat teyidi | Kesinleşti |
-| 18 | Bireysel kullanıcı doğrulaması | Yalnızca telefon doğrulaması; e-Devlet yok | Kesinleşti |
+| 18 | Bireysel kullanıcı doğrulaması ve üyelik | Üye ol ve Giriş yap ayrı; Google, Apple ya da e-posta ve şifreyle; ad, soyad, e-posta ve telefon zorunlu, telefon üyelikte bir kez WhatsApp koduyla doğrulanır ve başka hesapta doğrulanamaz; e-Devlet yok (12 Kasım 2026'da değişti) | Kesinleşti |
 | 19 | Vasıta kategorileri | 14 kategorinin tamamı ilk sürümde | Kesinleşti |
 | 20 | Galeri çalışan hesapları | Birden fazla çalışan; sahip, yönetici ve satış temsilcisi rolleri; haklar ortak havuz | Kesinleşti |
 | 21 | Talep oluşturma arayüzü | Adım adım sihirbaz, ilerleme çubuğu ve taslak kaydı | Kesinleşti |
@@ -63,7 +63,7 @@ Sürüm 0.59 · 59 karar kesinleşti; hukuki varsayılanlar (Karar 31 ve 39) avu
 | 47 | Genişletilebilirlik ilkesi | Kural, şema ve içerik ayar olarak tutulur; yeni modüller ortak yetki, kayıt, bildirim ve rapor altyapısına takılır | Kesinleşti |
 | 48 | Bildirim katmanı ve kanallar | Tek bildirim katmanı; uygulama içi → push → e-posta → SMS sırası; tek şablondan çok kanal | Kesinleşti |
 | 49 | İleti türleri, İYS ve sıklık | Ticari ileti yalnızca İYS onaylılara, kişi başı haftada en fazla 2, 21.00–09.00 arası yok; SMS ilk sürümde yalnız kod ve kritik durum | Kesinleşti |
-| 50 | Kendi e-posta sunucumuz | E-postalar sağlayıcısız, kendi SMTP sunucumuzdan; işlemsel ve ticari ayrı alan adı ve IP; ısınma planı ve itibar izleme. AWS'de 25. port talep formuyla açılır; kurulum bekliyor | Bekliyor |
+| 50 | E-posta gönderimi | Amazon SES (Frankfurt); işlemsel ve ticari ayrı alt alan adı, SPF, DKIM, DMARC; geri dönme ve şikâyet izleme (12 Kasım 2026'da kendi sunucumuzdan SES'e değişti) | Kesinleşti |
 | 51 | Kampanya ve otomatik akışlar | Segment, şablon, kampanya, otomatik akış ve teslim raporu panelden; ajan önerir, toplu gönderimi başlatmaz | Kesinleşti |
 | 52 | Kullanıcı ve galeri kartı | Tek ekranda tüm geçmiş, maskeli kişisel veri; uyarı, askı, hak tanımlama; başvuru kuyruğu | Kesinleşti |
 | 53 | Moderasyon kuyruğu | Öncelik ve süre sınırı, maskeli kanıt, hazır gerekçeler, 7 gün itiraz hakkı ve başka moderatör incelemesi | Kesinleşti |
@@ -568,9 +568,18 @@ Galeri portföyü fotoğraf ve fiyatıyla alıcılara gösterilmeye devam eder; 
 - Portföy girişinde ekspertiz raporu alanı, 6 ay / 6.000 km kontrolü ve üretici fiyatı üst sınırı kontrolü bulunur.
 - İnternet ve telefon üzerinden müşteri hizmeti sunulur.
 
-## Karar 18: Bireysel kullanıcı doğrulaması
+## Karar 18: Bireysel kullanıcı doğrulaması ve üyelik
 
-Bireysel kullanıcılar yalnızca telefon numarasıyla doğrulanır; e-Devlet veya TCKN doğrulaması istenmez.
+**12 Kasım 2026'da değişti (sahip kararı).** İlk karar yalnızca telefon numarası ve SMS koduyla girişti. SMS sağlayıcıları özel gönderici adı için şirket ve marka tescili istiyor, 18 Kasım 2026'dan itibaren Türkiye'de kayıtsız gönderici adları engelleniyor. Bu yüzden giriş telefona bağlı olmaktan çıkar; telefon yalnızca üyelikte bir kez doğrulanır.
+
+- **Üye ol ve Giriş yap ayrıdır.** Üyelik Google ile (web ve mobil), iPhone'da Apple ile ya da formla açılır. Her yolda ad, soyad, e-posta ve telefon alınır; Google ve Apple'dan gelen bilgiler formu doldurur, eksik kalan istenir.
+- **Telefon üyelikte bir kez doğrulanır;** kod doğrulanmadan hesap açılmaz. Doğrulanmış bir numara başka bir hesapta doğrulanamaz; kapatılan hesabın numarası serbest kalır, ücretsiz ilk talep yine numara başına bir kezdir. Amaç aynı kişinin yeni e-postalarla tekrar tekrar hesap açıp talep yayınlamasını önlemektir.
+- **Kod kanalı:** önce WhatsApp (Meta WhatsApp Cloud API, kimlik doğrulama şablonu); SMS yedektir ve şirket kurulup sağlayıcıyla anlaşılınca açılır. Meta, doğrulanmamış işletme hesabında kimlik doğrulama şablonuna izin vermezse geçici yol (kullanıcının kodu bize WhatsApp'tan göndermesi) sahibe sorulur.
+- **Giriş:** Google ya da Apple ile ya da e-posta ve şifreyle; girişte telefon kodu istenmez. Şifre unutulursa e-postaya sıfırlama bağlantısı gider.
+- **E-posta doğrulanır:** formla üye olana doğrulama bağlantısı gider (Amazon SES, Karar 50). Google'ın ve Apple'ın doğruladığı adres doğrulanmış sayılır.
+- **Mobil uygulamada Google ile giriş olduğu için iPhone'da Apple ile giriş de vardır** (App Store kuralı).
+- **Galeri sahibi ve çalışanları da aynı yoldan üye olur;** galeri hesabına daha sonra bağlanır (Karar 20).
+- e-Devlet veya TCKN doğrulaması istenmez.
 
 - Bireysel kullanıcılar portföy veya satış ilanı yayınlamaz; talep açar ve mesaj atar. Bu yüzden yönetmeliğin ilan verene yönelik TCKN doğrulama yükümlülüğü (m.22/b) doğmaması beklenir; avukata teyit ettirilir.
 - Bu ayrımı korumak için bireysel satıcı mesajlarında fotoğraf ve araç kartı gönderimi yasak kalır (8.3).
@@ -880,18 +889,16 @@ Sitenin ve uygulamanın görünümü ile pazarlama içerikleri geliştiriciye ge
 - **SMS:** ilk sürümde yalnızca doğrulama kodu ve kritik durumlarda (hesap güvenliği, ödeme sorunu) kullanılır. Kampanya SMS'i panelde hazırdır ama sahip açana kadar kapalıdır.
 - 1.000 kişiyi aşan her gönderim sahip veya yönetici onayı ister (Karar 40).
 
-## Karar 50: Kendi e-posta sunucumuz
+## Karar 50: E-posta gönderimi (Amazon SES)
 
-E-postalar bir e-posta sağlayıcısı kullanılmadan kendi SMTP sunucumuzdan gönderilir.
+**12 Kasım 2026'da değişti (sahip kararı).** İlk karar sağlayıcısız, kendi SMTP sunucumuzdu (ayrı IP'ler, ters DNS, 4–6 haftalık ısınma). Sistem AWS'ye taşındığı (Karar 37) ve üyelikte e-posta doğrulaması ile şifre sıfırlama zorunlu olduğu (Karar 18) için e-postalar **Amazon SES** (eu-central-1, Frankfurt) üzerinden gönderilir. Kendi posta sunucusu kurulmaz, 25. port talebi gerekmez. AWS ile yapılacak KVKK standart sözleşmesi bu kullanımı da kapsar.
 
-- **Bekliyor (12 Kasım 2026):** sistem AWS'ye taşındı (Karar 37). AWS 25. portu varsayılan olarak kapalı tutar; Lightsail konsolundaki formla Lightsail için açılması istenir (onay 48 saate kadar, reddedilebilir). Açılırsa posta sunucusu Lightsail'de küçük ayrı bir sunucuda kurulur ve karar aynen kalır; reddedilirse gönderim servisi (ör. Amazon SES) sahibe sorulur. Karar verilene kadar canlıda e-posta kapalı kalır, doğrulama kodu SMS ile gider.
-- **Sunucu:** uygulama sunucusundan ayrı, sabit IP'li küçük bir sanal sunucuda açık kaynaklı posta gönderim yazılımı (Postal ya da Postfix tabanlı). Sağlayıcıdan 25. portun açık olması ve IP'lerin ters DNS kaydı istenir.
-- **İki ayrı akış:** işlemsel e-postalar bildirim.rengarenksite.com alt alan adından ve kendi IP'sinden, ticari e-postalar bulten.rengarenksite.com alt alan adından ve ayrı bir IP'den çıkar. Böylece bir kampanya şikâyet alırsa doğrulama kodları ve ödeme e-postaları etkilenmez.
-- **Kimlik doğrulama:** SPF, DKIM (2048 bit, yılda bir anahtar yenileme), DMARC (önce izleme, sonra karıntına), ters DNS, TLS ve MTA-STS. Ticari iletilerde tek tıkla ayrılma başlığı bulunur; Gmail ve Outlook'un toplu gönderici kurallarına uyulur.
-- **Isınma planı:** yeni IP'ler 4–6 haftada aşama aşama ısıtılır; ilk hafta yalnızca işlemsel e-posta, ticari gönderim günlük limitle başlar ve en etkileşimli kullanıcılardan genişler. Limit bildirim katmanında kendiliğinden uygulanır.
-- **Geri dönen ve şikâyet:** kalıcı hata veren adres hemen, geçici hata veren 3 denemeden sonra listeden çıkarılır; spam şikâyeti gelen kişiye bir daha ticari e-posta gitmez.
-- **İzleme:** Google Postmaster Tools ve Microsoft SNDS ile itibar, kara liste kontrolü, teslim, geri dönme ve şikâyet oranları bildirim merkezinde görünür. Spam şikâyeti %0,1'i, geri dönme %2'yi geçerse ajan ticari gönderimi kendiliğinden durdurur ve sana bildirir; işlemsel e-posta durmaz.
-- **Bilinen risk:** kendi sunucumuzda teslim oranını korumak sürekli bakım ister; ilk haftalarda bazı e-postalar spam klasörüne düşebilir. Bu yüzden doğrulama kodu her zaman SMS ile de alınabilir.
+- **Bağlantı:** uygulama SES'e SMTP ile bağlanır (mevcut e-posta bağdaştırıcısı, `EMAIL_PROVIDER=smtp`); SMTP kimliği yalnızca e-posta gönderme yetkili ayrı bir IAM kullanıcısınındır.
+- **İki ayrı akış:** işlemsel e-postalar bildirim.rengarenksite.com, ticari e-postalar bulten.rengarenksite.com alt alan adından ve ayrı SES yapılandırma kümesinden çıkar. Böylece bir kampanya şikâyet alırsa doğrulama ve ödeme e-postaları etkilenmez.
+- **Kimlik doğrulama:** SES alan adı doğrulaması (Easy DKIM, 2048 bit), SPF için özel MAIL FROM alt alan adı, DMARC (önce izleme, sonra karantina). Ticari iletilerde tek tıkla ayrılma başlığı bulunur; Gmail ve Outlook'un toplu gönderici kurallarına uyulur.
+- **Başlangıç:** SES yeni hesapta deneme kipindedir (yalnızca doğrulanmış adreslere); üretim erişimi AWS'den istenir. Ticari gönderim günlük limitle başlar ve en etkileşimli kullanıcılardan genişler; limit bildirim katmanında kendiliğinden uygulanır.
+- **Geri dönen ve şikâyet:** SES olaylarıyla gelir. Kalıcı hata veren adres hemen, geçici hata veren 3 denemeden sonra listeden çıkarılır; spam şikâyeti gelen kişiye bir daha ticari e-posta gitmez.
+- **İzleme:** teslim, geri dönme ve şikâyet oranları bildirim merkezinde görünür. Spam şikâyeti %0,1'i, geri dönme %2'yi geçerse ajan ticari gönderimi kendiliğinden durdurur ve sana bildirir; işlemsel e-posta durmaz. SES de geri dönme %5'i, şikâyet %0,1'i aşarsa hesabı incelemeye alabilir.
 
 ## Karar 51: Kampanya ve otomatik akışlar
 

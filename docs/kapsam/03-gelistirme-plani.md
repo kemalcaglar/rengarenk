@@ -152,6 +152,28 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   "Temsili görsel · önceki nesil" etiketiyle (önceki yoksa sonraki nesil; `nesilFoto`). Liste ve vitrin kartları
   yalnızca neslin kendi fotoğrafını gösterir (kartta atıf satırı yok)
 
+## Sprint 30 · üyelik ve giriş yeniden (Karar 18 ve 50, 12 Kasım 2026)
+
+SMS sağlayıcısı özel gönderici adı için şirket ve marka tescili istediği için giriş telefona bağlı olmaktan çıkıyor
+(sahip kararı). Üye ol ve Giriş yap ayrı; telefon üyelikte bir kez doğrulanır.
+
+- [x] Karar 18 ve 50, teknik tasarım T09 ve §11 güncellendi
+- [ ] API: kullanıcıya şifre özeti, Google ve Apple kimliği, tekil e-posta; üyelik başlat (bilgiler + telefon kodu) ve
+  tamamla (hesap tek işlemde açılır), e-posta ve şifreyle giriş, Google ve Apple ile giriş (hesap yoksa üyeliğe yönlendirir),
+  şifremi unuttum, e-posta doğrulama; telefon koduyla giriş kalkar. Doğrulanmış numara başka hesapta doğrulanamaz; hız
+  sınırı, kara liste, rıza kaydı ve reklam ölçümü olduğu gibi
+- [ ] Kod kanalı: WhatsApp bağdaştırıcısı (Cloud API, kimlik doğrulama şablonu), SMS yedek, yerelde ve testte sahte
+- [ ] E-posta: Amazon SES (SMTP); doğrulama ve şifre sıfırlama şablonları
+- [ ] Web: `/uye-ol` ve `/giris` ayrı, Google ile devam, şifremi unuttum, e-posta doğrulama; Ayarlar'da e-posta ve şifre
+- [ ] Mobil: aynı ekranlar; Google ile, iPhone'da Apple ile giriş
+- [ ] Konsol: kullanıcı kartında giriş yolları ve e-posta doğrulama durumu
+- [ ] Hassas işlem onayı (verilerimi indir, KVKK başvurusu, hesap kapatma, numara değiştir) telefon koduyla sürer; kod
+  WhatsApp'tan gider
+- [ ] Demo veri, testler, durum belgesi
+- Sahibin işleri: Google Cloud'da kullanıcı girişi için OAuth istemcisi; SES alan adı doğrulaması (DNS kayıtları) ve
+  üretim erişimi talebi; Meta İşletme hesabı ve WhatsApp numarası (geliştirmede Meta'nın test numarası); Apple geliştirici
+  hesabı
+
 ## Sprint 29 · konsolun kalan dört ekranı ve web düzeltmeleri (10 Kasım 2026)
 
 Konsolda "sonra" diye duran dört ekranın tasarımı hazır (YonetimPazar, YonetimIcerik, YonetimSistem); ekranlar ve
@@ -593,8 +615,7 @@ sistem sağlığı, tasarım değerleri.
   göre okunma), Otomatik akışlar (yedi akış, aç/kapat, adımlar, son 30 gün)
 - [x] Zamanlı akışlar (Karar 51) her gün 09.30'dan sonra: ilk talebini oluştur (üyeliğin 3. günü, ticari), ilk mesajı
   okumadın (varsayılan kapalı), galeri 7 gündür mesaj göndermedi; hoş geldin kayıt olayıyla
-- [ ] Gerçek hesaplar: Firebase projesi (iOS'ta FCM için Firebase SDK), kendi posta sunucusu (Lightsail'de ayrı küçük sunucu, AWS'den 25. port talebi bekliyor, Karar 50; SPF/DKIM/DMARC,
-  ters DNS, kara liste denetimi), İYS bağdaştırıcısı, SMS fiyatları ve yedek sağlayıcı (Netgsm)
+- [ ] Gerçek hesaplar: Firebase projesi (iOS'ta FCM için Firebase SDK), Amazon SES (Karar 50, 12 Kasım 2026'da kendi posta sunucusu yerine; alan adı doğrulaması ve üretim erişimi), İYS bağdaştırıcısı, SMS fiyatları ve yedek sağlayıcı (Netgsm)
 - [ ] E-postada açılma ve tıklama ölçülmüyor (izleme pikseli ve yönlendirme yok); raporda uygulama içi okunma var
 - [x] Akış düzenleyicisi ("Adım ekle"): Sprint 28
 - [x] Çalışan olaylarının (yeni cihaz, iade sonucu, ticari gönderim durdu) sahibe iletilmesi (Sprint 24)

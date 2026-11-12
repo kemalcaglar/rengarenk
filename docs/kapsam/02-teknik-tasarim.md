@@ -14,7 +14,7 @@ Sürüm 0.2 · 7 Kasım 2026. Bu sekme, ürün kapsamındaki 59 kararın teknik 
 | T06 | Barındırma | Sistemin tamamı AWS `eu-central-1` (Frankfurt) kredilerle: başlangıçta Amazon Lightsail'de tek sunucuda Docker Compose, büyüyünce EC2 ya da yönetilen servisler; yurt dışına aktarım standart sözleşmeyle (Karar 37; 11 Kasım 2026'da Radore'den GCP'ye, 12 Kasım'da AWS'ye değişti) | Kesin |
 | T07 | Gerçek zaman | NestJS WebSocket ağ geçidi, Redis yayın kanalıyla | Kesin |
 | T08 | Dosyalar | SeaweedFS (S3 uyumlu, Apache-2.0) uygulama sunucusunda; ileride Lightsail depolama alanına ya da S3'e geçilebilir; görseller imgproxy ile boyutlanır. MinIO topluluk sürümü Ekim 2025'te Docker imajı yayınlamayı bıraktı ve Nisan 2026'da arşivlendi; 7 Kasım 2026'da değiştirildi | Kesin |
-| T09 | Kullanıcı girişi | Telefon ve SMS kodu, şifresiz; uzun oturum ve güvenilir cihaz | Kesin |
+| T09 | Kullanıcı girişi | Google, Apple ya da e-posta ve şifre; telefon üyelikte bir kez WhatsApp koduyla; uzun oturum (12 Kasım 2026'da değişti, Karar 18) | Kesin |
 | T10 | Yönetim girişi | Şirket e-postasıyla Google Workspace tek oturum ve zorunlu 2FA | Kesin |
 | T11 | Yapay zekâ | Tüm görevlerde AWS Bedrock (Amazon Nova, AB çıkarım profili; 12 Kasım 2026'da Vertex AI'dan değişti); ağ geçidi sağlayıcıdan bağımsız, Vertex bağdaştırıcısı da durur | Kesin |
 | T12 | Hata izleme | GlitchTip (Sentry uyumlu) kendi sunucumuzda; kayıtlar yurtdışına çıkmaz | Kesin |
@@ -49,7 +49,7 @@ Not (12 Kasım 2026): yukarıdaki çizim eski barındırma kararını gösteriyo
 
 ## 3. Altyapı, ortamlar ve dağıtım
 
-- **AWS (`eu-central-1`, Frankfurt):** başlangıçta Amazon Lightsail'de tek sunucu (Docker Compose, Caddy ile otomatik TLS, PostgreSQL aynı sunucuda). Kurulum 8 GB'lık pakette başlar, kredi gelince 16 GB'lık pakete büyütülür (anlık görüntüden). Aşağıdaki büyüme eşiklerinden biri aşılınca EC2 ya da yönetilen servislere geçilir; uygulama baştan konteyner olarak paketlendiği için geçiş kod değişikliği gerektirmez. AWS 25. portu talep formuyla açar; posta sunucusu Lightsail'de ayrı küçük sunucuda (Karar 50).
+- **AWS (`eu-central-1`, Frankfurt):** başlangıçta Amazon Lightsail'de tek sunucu (Docker Compose, Caddy ile otomatik TLS, PostgreSQL aynı sunucuda). Kurulum 8 GB'lık pakette başlar, kredi gelince 16 GB'lık pakete büyütülür (anlık görüntüden). Aşağıdaki büyüme eşiklerinden biri aşılınca EC2 ya da yönetilen servislere geçilir; uygulama baştan konteyner olarak paketlendiği için geçiş kod değişikliği gerektirmez. E-posta Amazon SES ile gönderilir (Karar 50).
 - **Ortamlar:** geliştirme (yerelde Docker Compose), test (AWS Lightsail, yalnızca sentetik veri), canlı (AWS Lightsail). Canlı veri test ortamına hiçbir zaman kopyalanmaz.
 - **Dağıtım:** GitHub Actions ile test, tip kontrolü ve güvenlik taraması; canlıya yine GitHub Actions ile, etiketli sürümün imajı sunucuya çekilip Compose yeniden başlatılarak. Geri alma, önceki imaj etiketine dönmekle tek adımdır.
 - **Veritabanı göçleri** geriye uyumludur: önce yeni yapı eklenir, veri taşınır, eski yapı sonra kaldırılır. Böylece dağıtım sırasında kesinti olmaz.
@@ -196,8 +196,8 @@ Bu değerler başlangıç içindir ve ayardadır; gerçek taleplerle ayarlanacak
 ## 9. Bildirim katmanı
 
 - **Akış:** olay → alıcıların bulunması → tercih ve rıza kontrolü (İYS) → sıklık sınırı (ticari iletide kişi başı haftada 2) → sessiz saat (ticari ileti 21.00–09.00 arasında sabaha ertelenir) → kanal sırası (uygulama içi → push → e-posta → SMS) → kanal bağdaştırıcısı → teslim kaydı (Karar 48, 49).
-- **Bağdaştırıcılar:** uygulama içi (veritabanı ve WebSocket), push (FCM, web ve mobil), e-posta (kendi SMTP sunucumuz), SMS (ana ve yedek sağlayıcı; hata oranı eşiği aşılınca otomatik yedeğe geçiş).
-- **E-posta sunucusu:** Postal (açık kaynak) önerilir; Postfix ve OpenDKIM ile kurulum da mümkündür. İki IP havuzu: işlemsel ve ticari. Isınma limiti bildirim servisinde uygulanır; geri dönen ve şikâyet bildirimleri adresleri otomatik olarak gönderim dışı listesine alır (Karar 50).
+- **Bağdaştırıcılar:** uygulama içi (veritabanı ve WebSocket), push (FCM, web ve mobil), e-posta (Amazon SES, SMTP ile; Karar 50), SMS (ana ve yedek sağlayıcı; hata oranı eşiği aşılınca otomatik yedeğe geçiş).
+- **E-posta gönderimi:** Amazon SES (SMTP ile, Karar 50). İşlemsel ve ticari ayrı alt alan adı ve yapılandırma kümesi; ticari gönderim limiti bildirim servisinde uygulanır; geri dönen ve şikâyet bildirimleri adresleri otomatik olarak gönderim dışı listesine alır.
 - **Şablonlar:** e-postalar MJML'den HTML'e derlenir; değişkenler Handlebars ile doldurulur; tasarım değerleri (Karar 46) derlemede eklenir. Her teslim kaydı kullanılan şablon sürümünü taşır.
 - **Otomatik akışlar:** her akış bir JSON tanımıdır (tetikleyici, bekleme, koşul, ileti, hedef); beklemeler gecikmeli kuyrukla yapılır; her kişinin akıştaki durumu ayrı tutulur (Karar 51).
 
@@ -211,7 +211,7 @@ Bu değerler başlangıç içindir ve ayardadır; gerçek taleplerle ayarlanacak
 
 ## 11. Kimlik, yetki ve işlem kaydı
 
-- **Kullanıcı girişi:** telefon numarası ve 6 haneli SMS kodu, şifre yok. Kısa ömürlü erişim jetonu ve cihaz başına 90 günlük yenileme jetonu kullanılır; güvenilir cihazda yeniden kod istenmez, bu da SMS maliyetini düşürür. Kod denemeleri sınırlıdır.
+- **Kullanıcı girişi (Karar 18, 12 Kasım 2026'da değişti):** Google (OpenID Connect, yetki kodu + PKCE; yönetim girişiyle aynı bağdaştırıcı), iPhone'da Apple (kimlik jetonu Apple'ın açık anahtarlarıyla doğrulanır) ya da e-posta ve şifre (scrypt özeti; hız sınırı ve kara liste girişle aynı). Üyelik telefon kodu doğrulanınca tek veritabanı işleminde açılır; kod WhatsApp ile, yedekte SMS ile gider ve 6 hanelidir, denemeler sınırlıdır. Kısa ömürlü erişim jetonu ve cihaz başına 90 günlük yenileme jetonu kullanılır. E-posta doğrulama ve şifre sıfırlama bağlantıları tek kullanımlıktır, veritabanında yalnızca özetleri durur.
 - **Yönetim girişi:** şirket e-postasıyla tek oturum ve zorunlu 2FA; 30 dakika hareketsizlikte oturum kapanır (Karar 40).
 - **Yetki:** izin tabanlıdır, roller izin kümeleridir; her API uç noktası belirli bir izin ister. Kişisel veri alanları yanıtta varsayılan olarak maskelidir; açmak gerekçe ister ve kayda geçer.
 - **Dört göz:** tek bir onay motoru vardır (istek, kimin onaylayacağı, süre, sonuç); onaylanan işlem kuyruktan yürütülür. Fiyat, toplu gönderim, kupon, kalıcı engelleme ve iade aynı motoru kullanır.
@@ -239,8 +239,8 @@ Bu değerler başlangıç içindir ve ayardadır; gerçek taleplerle ayarlanacak
 | --- | --- | --- |
 | AWS Lightsail: 16 GB sunucu (4 çekirdek, 320 GB, 6 TB trafik, IP dahil) | 84 USD (krediler sürdükçe 0) | Karar 37; Activate kredisi 1.000 USD, bitiş tarihi takip edilir |
 | Yedek alanı ve anlık görüntüler | 6–8 USD | Lightsail depolama (100 GB 3 USD) ve haftalık görüntü |
-| E-posta sunucusu (Lightsail küçük paket) | 5–12 USD | Karar 50; 25. port talebi bekliyor |
-| SMS | Kullanıma göre | Örnek: 30 günde yaklaşık 15.000 SMS ≈ 3.700 TL; güvenilir cihaz bu sayıyı düşürür |
+| E-posta (Amazon SES) | ~1 USD | 1.000 e-posta 0,10 USD (Karar 50) |
+| Telefon doğrulama kodu | Kullanıma göre | Yalnızca üyelikte bir kez (Karar 18); WhatsApp kimlik doğrulama mesajı Türkiye'de kod başına yaklaşık 0,001 USD |
 | Yapay zekâ (Bedrock, Amazon Nova) | ~15 USD (krediler sürdükçe 0) | Sınır konsoldan (Karar 57) |
 | Apple ve Google geliştirici hesabı | 99 USD/yıl ve 25 USD bir kez |  |
 | RevenueCat | Başlangıçta ücretsiz | Gelir eşiği aşılınca ücretli |
@@ -263,8 +263,8 @@ Her aşama özellik anahtarının arkasında canlıya çıkar; önce çalışanl
 - [x] Yapay zekâ sağlayıcısı: tüm görevlerde AWS Bedrock, Amazon Nova (12 Kasım 2026'da Vertex AI'dan değişti)
 - [x] Yönetim girişi için Google Workspace (onaylandı)
 - [ ] AWS canlı kurulumu: Lightsail sunucusu, statik IP, güvenlik duvarı, yedek alanı, Bedrock IAM kullanıcısı, KVKK standart sözleşmesi ve bildirimi (Karar 37)
-- [ ] E-posta sunucusu: AWS'den 25. portun Lightsail için açılması (Karar 50)
-- [ ] SMS ana ve yedek sağlayıcının seçimi (İYS entegrasyonlu)
+- [ ] E-posta: Amazon SES alan adı doğrulaması ve üretim erişimi (Karar 50)
+- [ ] Telefon doğrulama kodu: WhatsApp (Meta İşletme hesabı ve numara); SMS yedeği şirket kurulunca (Karar 18)
 - [ ] e-Arşiv entegratörünün seçimi
 - [ ] Apple ve Google geliştirici hesaplarının şirket adına açılması (Apple kurumsal hesap için D-U-N-S numarası gerekir)
 - [ ] Eşleştirme uyum kurallarının ilk değerlerinin gerçek taleplerle ayarlanması
