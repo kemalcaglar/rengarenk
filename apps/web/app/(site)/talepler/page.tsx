@@ -4,6 +4,7 @@ import Link from 'next/link';
 import type { CSSProperties, ReactNode } from 'react';
 import { Suspense } from 'react';
 import { Banner } from '../../../components/banner';
+import { DarAcilir } from '../../../components/dar-acilir';
 import { getCategories } from '../../../lib/kategoriler';
 import { binlik, butceAraligi, yilAraligi, zaman } from '../../../lib/talep-bicim';
 import { AramaBildir } from './arama-bildir';
@@ -194,8 +195,10 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
         ) : null}
       </nav>
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 24 }}>
-        <aside
-          aria-label="Filtreler"
+        <DarAcilir
+          etiket="Filtreler"
+          ariaLabel="Filtreler"
+          className="rr-filtre"
           style={{
             flex: '1 1 260px',
             maxWidth: 290,
@@ -428,7 +431,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
               Filtrele
             </button>
           </form>
-        </aside>
+        </DarAcilir>
 
         <div style={{ flex: '999 1 720px', minWidth: 0 }}>
           <div
@@ -488,6 +491,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
             }}
           >
             <div
+              className="rr-yalniz-genis"
               style={{
                 display: 'flex',
                 gap: 16,
@@ -524,6 +528,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
             {(y?.sonuclar ?? []).map((t, i) => (
               <div
                 key={t.no}
+                className="rr-talep-satir"
                 style={{
                   display: 'flex',
                   flexWrap: 'wrap',

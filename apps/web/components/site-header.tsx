@@ -13,6 +13,7 @@ export async function SiteHeader() {
   return (
     <header style={{ background: 'var(--rr-ust-bant, #FFFFFF)', borderBottom: `1px solid ${colors.line}` }}>
       <div
+        className="rr-ust"
         style={{
           maxWidth: 1360,
           margin: '0 auto',
@@ -23,7 +24,10 @@ export async function SiteHeader() {
           gap: '16px 24px',
         }}
       >
-        <span style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--rr-ust-yazi)' }}>
+        <span
+          className="rr-ust-logo"
+          style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--rr-ust-yazi)' }}
+        >
           <Logo />
           {tema?.rozet ? (
             <span
@@ -37,6 +41,7 @@ export async function SiteHeader() {
         <form
           action="/talepler"
           role="search"
+          className="rr-ust-ara"
           style={{
             flex: '999 1 320px',
             minWidth: 0,

@@ -53,7 +53,7 @@ export function HesapMenusu() {
     if (o.tip === 'bildirim' && typeof o.okunmamis === 'number') setOkunmamis(o.okunmamis);
   }, !!giris);
   return (
-    <nav style={{ display: 'flex', alignItems: 'center', gap: 10 }} aria-label="Hesap">
+    <nav className="rr-hesap" style={{ display: 'flex', alignItems: 'center', gap: 10 }} aria-label="Hesap">
       {ad ? (
         <Link
           href="/bildirimler"
@@ -125,6 +125,8 @@ export function HesapMenusu() {
       )}
       <Link
         href="/talep-olustur"
+        aria-label="Talep oluştur"
+        className="rr-talep-dugme"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -150,7 +152,7 @@ export function HesapMenusu() {
         >
           <path d="M12 5v14M5 12h14" />
         </svg>
-        Talep oluştur
+        <span className="rr-yalniz-genis">Talep oluştur</span>
       </Link>
     </nav>
   );
@@ -220,7 +222,7 @@ function HesapAcilir({ ad, bas }: { ad: string; bas: string }) {
         >
           {bas}
         </span>
-        {ad}
+        <span className="rr-hesap-ad">{ad}</span>
         <svg
           width="14"
           height="14"

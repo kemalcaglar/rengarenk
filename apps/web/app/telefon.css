@@ -1,0 +1,179 @@
+/*
+ * Telefon görünümü (720 px ve altı). Masaüstü düzeni tasarım dosyalarındaki gibi kalır; dar ekranda ortak öğeler
+ * mobil tasarımların (AnasayfaMobil, ListeMobil, MesajlarMobil) düzenine yaklaşır. Öğelerin çoğu satır içi stille
+ * yazıldığı için buradaki kurallar !important ile üstün gelir.
+ */
+.rr-yalniz-dar {
+  display: none !important;
+}
+@media (max-width: 720px) {
+  .rr-yalniz-genis {
+    display: none !important;
+  }
+  .rr-yalniz-dar {
+    display: revert !important;
+  }
+  main[style*="padding"],
+  .rr-sayfa {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* Üst çubuk: logo ve hesap düğmeleri bir satırda, arama altında tam genişlikte */
+  .rr-ust {
+    padding: 10px 16px 12px !important;
+    gap: 10px !important;
+  }
+  .rr-ust-logo {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .rr-ust-ara {
+    order: 3;
+    flex: 1 1 100% !important;
+  }
+  .rr-hesap {
+    gap: 4px !important;
+  }
+  .rr-hesap-ad {
+    display: none !important;
+  }
+  .rr-talep-dugme {
+    padding: 10px !important;
+  }
+
+  /* Yan menüler (Hesabım, ana sayfa kategorileri): yatay kaydırılan şerit */
+  .rr-serit {
+    flex: 1 1 100% !important;
+    max-width: none !important;
+    display: flex !important;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 6px !important;
+    scrollbar-width: none;
+  }
+  .rr-serit::-webkit-scrollbar {
+    display: none;
+  }
+  .rr-serit > .rr-serit-baslik {
+    display: none !important;
+  }
+  .rr-serit a,
+  .rr-serit .rr-serit-oge {
+    flex: none;
+    white-space: nowrap;
+    padding: 8px 12px !important;
+  }
+  .rr-serit ul {
+    display: flex;
+    gap: 6px;
+    margin: 0 !important;
+  }
+
+  /* Ana sayfa karşılama kartı */
+  .rr-karsi {
+    padding: 22px 18px !important;
+    gap: 20px !important;
+  }
+  .rr-karsi h1 {
+    font-size: 28px !important;
+  }
+
+  /* Talep listesi: süzgeç açılır kutuda, satırlar kart gibi */
+  .rr-filtre {
+    flex: 1 1 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  .rr-filtre .rr-dar-gizli {
+    padding: 4px 16px 16px;
+  }
+  .rr-filtre[data-acik="false"] .rr-dar-gizli {
+    display: none !important;
+  }
+  .rr-acilir-dugme {
+    width: 100%;
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    border: 0;
+    background: transparent;
+    padding: 14px 16px;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .rr-talep-satir {
+    padding: 14px 16px !important;
+  }
+  .rr-talep-satir > a:first-child {
+    flex: 0 0 72px !important;
+    height: 54px !important;
+  }
+  /* Başlık resmin yanındaki alanı doldurur; yıl, km, bütçe ve konum alt satıra geçer */
+  .rr-talep-satir > a:first-child + div {
+    flex: 1 1 calc(100% - 90px) !important;
+  }
+  .rr-sihirbaz-kart {
+    padding: 20px 16px !important;
+  }
+  .rr-sihirbaz-kart h1 {
+    font-size: 22px !important;
+  }
+
+  /* Çerez bandı: ekranın altında dar bir şerit */
+  .rr-cerez {
+    left: 8px !important;
+    right: 8px !important;
+    bottom: 8px !important;
+    padding: 12px 14px !important;
+    gap: 10px !important;
+  }
+  .rr-cerez p {
+    font-size: 12.5px !important;
+  }
+  .rr-cerez-dugmeler {
+    flex: 1 1 100% !important;
+    flex-wrap: nowrap !important;
+    justify-content: stretch !important;
+  }
+  .rr-cerez-dugmeler button {
+    flex: 1 1 0;
+    padding: 9px 6px !important;
+    font-size: 13px !important;
+    white-space: nowrap;
+  }
+
+  /* Talep sihirbazı adımları: yalnızca numaralar (adın kendisi kartta "Adım N / 6" başlığıyla yazar) */
+  .rr-adimlar {
+    padding: 10px 16px !important;
+    gap: 6px !important;
+  }
+  .rr-adimlar .rr-adim-ad {
+    display: none !important;
+  }
+  .rr-sihirbaz-ust {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .rr-sihirbaz-kayit {
+    display: none !important;
+  }
+
+  /* Mesajlarım: önce sohbet listesi, dokununca sohbet */
+  .rr-mesaj {
+    min-height: 0 !important;
+  }
+  .rr-mesaj > section {
+    flex: 1 1 100% !important;
+    max-width: none !important;
+    border-right: 0 !important;
+  }
+  .rr-mesaj[data-gorunum="liste"] > .rr-mesaj-sohbet,
+  .rr-mesaj[data-gorunum="sohbet"] > .rr-mesaj-liste {
+    display: none !important;
+  }
+}

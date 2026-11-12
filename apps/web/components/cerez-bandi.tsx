@@ -80,6 +80,7 @@ export function CerezBandi() {
   return (
     <section
       aria-label="Çerez tercihleri"
+      className="rr-cerez"
       style={{
         position: 'fixed',
         left: 16,
@@ -134,6 +135,7 @@ export function CerezBandi() {
         ) : null}
       </div>
       <div
+        className="rr-cerez-dugmeler"
         style={{
           flex: '1 1 420px',
           display: 'flex',

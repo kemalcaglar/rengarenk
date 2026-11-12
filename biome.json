@@ -57,6 +57,16 @@
           }
         }
       }
+    },
+    {
+      "includes": ["apps/web/app/telefon.css"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noImportantStyles": "off"
+          }
+        }
+      }
     }
   ]
 }

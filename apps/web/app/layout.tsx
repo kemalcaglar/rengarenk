@@ -6,6 +6,7 @@ import { Olcum } from '../components/olcum';
 import { YasalOnay } from '../components/yasal-onay';
 import { getClientFlags, getDesign } from '../lib/bakim';
 import './globals.css';
+import './telefon.css';
 
 export const metadata: Metadata = {
   title: 'Rengarenk · Aradığın aracı söyle, satıcı seni bulsun',

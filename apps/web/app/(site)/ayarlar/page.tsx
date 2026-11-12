@@ -165,6 +165,7 @@ export default function Ayarlar() {
 
   return (
     <div
+      className="rr-sayfa"
       style={{
         maxWidth: 1360,
         margin: '0 auto',

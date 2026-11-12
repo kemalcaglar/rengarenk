@@ -387,6 +387,7 @@ export function Sihirbaz() {
           }}
         >
           <div
+            className="rr-sihirbaz-ust"
             style={{
               maxWidth: 1360,
               margin: '0 auto',
@@ -402,6 +403,7 @@ export function Sihirbaz() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               {kayit ? (
                 <span
+                  className="rr-sihirbaz-kayit"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -464,6 +466,7 @@ export function Sihirbaz() {
         >
           <ol
             aria-label="Adımlar"
+            className="rr-adimlar"
             style={{
               maxWidth: 1360,
               margin: '0 auto',
@@ -534,6 +537,7 @@ export function Sihirbaz() {
                         {done ? '✓' : i + 1}
                       </span>
                       <span
+                        className="rr-adim-ad"
                         style={{
                           fontSize: 13.5,
                           fontWeight: cur ? 800 : 600,
@@ -561,7 +565,10 @@ export function Sihirbaz() {
             gap: 24,
           }}
         >
-          <div style={{ ...kart, flex: '999 1 640px', minWidth: 0, padding: 28 }}>
+          <div
+            className="rr-sihirbaz-kart"
+            style={{ ...kart, flex: '999 1 640px', minWidth: 0, padding: 28 }}
+          >
             <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: 'var(--rr-baglanti, #2450C8)' }}>
               Adım {sira + 1} / {gorunen.length}
             </p>

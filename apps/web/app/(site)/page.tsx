@@ -61,6 +61,7 @@ export default async function Home() {
   const kategoriler = tum.filter((c) => c.vertical === 'vasita');
   const kat = (
     <aside
+      className="rr-serit"
       style={{
         ...card,
         flex: '1 1 220px',
@@ -72,6 +73,7 @@ export default async function Home() {
       aria-label="Kategoriler"
     >
       <h2
+        className="rr-serit-baslik"
         style={{
           margin: '0 8px 12px',
           fontSize: 13,
@@ -83,7 +85,12 @@ export default async function Home() {
       >
         Kategoriler
       </h2>
-      <span style={{ display: 'block', padding: '10px 8px', fontSize: 15.5, fontWeight: 800 }}>Vasıta</span>
+      <span
+        className="rr-serit-baslik"
+        style={{ display: 'block', padding: '10px 8px', fontSize: 15.5, fontWeight: 800 }}
+      >
+        Vasıta
+      </span>
       <ul style={{ listStyle: 'none', margin: '0 0 8px', padding: 0 }}>
         {kategoriler.map((c) => (
           <li key={c.slug}>
@@ -111,7 +118,7 @@ export default async function Home() {
           </li>
         ))}
       </ul>
-      <div style={{ borderTop: '1px solid #EEF0F5', paddingTop: 8 }}>
+      <div className="rr-yalniz-genis" style={{ borderTop: '1px solid #EEF0F5', paddingTop: 8 }}>
         {YAKINDA.map((ad) => (
           <span
             key={ad}
@@ -145,6 +152,7 @@ export default async function Home() {
   );
   const karsi = (
     <section
+      className="rr-karsi"
       style={{
         ...card,
         borderRadius: 'calc(var(--rr-kart-kose) * 22 / 18)',

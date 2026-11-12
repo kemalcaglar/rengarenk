@@ -116,6 +116,11 @@ export default function Mesajlarim() {
   const [liste, setListe] = useState<Satir[] | null>(null);
   const [filtre, setFiltre] = useState<(typeof FILTRE)[number][0]>('tumu');
   const [aktif, setAktif] = useState<string | null>(null);
+  // Telefonda (MesajlarMobil.dc.html) önce liste görünür; sohbete dokununca ya da bağlantıda ?sohbet= varsa sohbet
+  const [mobilSohbet, setMobilSohbet] = useState(false);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('sohbet')) setMobilSohbet(true);
+  }, []);
   const [s, setS] = useState<Sohbet | null>(null);
   const [sikayet, setSikayet] = useState<string | null>(null);
   const [destek, setDestek] = useState<{
@@ -219,8 +224,10 @@ export default function Mesajlarim() {
 
   let sonGun = '';
   return (
-    <div style={{ maxWidth: 1360, margin: '0 auto', padding: 24 }}>
+    <div className="rr-sayfa" style={{ maxWidth: 1360, margin: '0 auto', padding: 24 }}>
       <div
+        className="rr-mesaj"
+        data-gorunum={mobilSohbet ? 'sohbet' : 'liste'}
         style={{
           display: 'flex',
           flexWrap: 'wrap',
@@ -234,6 +241,7 @@ export default function Mesajlarim() {
       >
         <section
           aria-label="Sohbetler"
+          className="rr-mesaj-liste"
           style={{
             flex: '1 1 340px',
             maxWidth: 400,
@@ -355,7 +363,10 @@ export default function Mesajlarim() {
                 <li key={x.id}>
                   <button
                     type="button"
-                    onClick={() => setAktif(x.id)}
+                    onClick={() => {
+                      setAktif(x.id);
+                      setMobilSohbet(true);
+                    }}
                     aria-current={on ? 'true' : undefined}
                     style={{
                       width: '100%',
@@ -457,8 +468,28 @@ export default function Mesajlarim() {
 
         <section
           aria-label="Sohbet"
+          className="rr-mesaj-sohbet"
           style={{ flex: '999 1 560px', minWidth: 0, display: 'flex', flexDirection: 'column' }}
         >
+          <button
+            type="button"
+            className="rr-yalniz-dar"
+            onClick={() => setMobilSohbet(false)}
+            style={{
+              border: 0,
+              borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)',
+              background: 'transparent',
+              padding: '12px 16px',
+              textAlign: 'left',
+              fontSize: 14.5,
+              fontWeight: 700,
+              color: 'var(--rr-baglanti, #2450C8)',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            ← Sohbetler
+          </button>
           {!s ? (
             <p style={{ margin: 'auto', color: 'var(--rr-soluk, #5A6073)', fontSize: 14 }}>
               {liste && !liste.length ? 'Sohbet seçilmedi.' : 'Yükleniyor…'}

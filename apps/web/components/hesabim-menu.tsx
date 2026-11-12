@@ -17,6 +17,7 @@ export function HesabimMenu({ aktif }: { aktif: string }) {
   return (
     <nav
       aria-label="Hesabım"
+      className="rr-serit"
       style={{
         flex: '1 1 220px',
         maxWidth: 250,
@@ -28,6 +29,7 @@ export function HesabimMenu({ aktif }: { aktif: string }) {
       }}
     >
       <span
+        className="rr-serit-baslik"
         style={{
           display: 'block',
           padding: '8px 10px 10px',
@@ -62,6 +64,7 @@ export function HesabimMenu({ aktif }: { aktif: string }) {
         ) : (
           <span
             key={o.ad}
+            className="rr-serit-oge"
             style={{
               display: 'block',
               borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
