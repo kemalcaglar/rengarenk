@@ -1,5 +1,6 @@
-# Caddy TLS sertifikalarını otomatik alır ve yeniler.
-rengarenksite.com, www.rengarenksite.com {
+# Caddy TLS sertifikalarını otomatik alır ve yeniler. WEB_HOSTS compose.prod.yml'den gelir (kapalı test ortamında
+# beta.rengarenksite.com; kök alan adı canlıya geçene kadar tanıtım sayfasında).
+{$WEB_HOSTS} {
   reverse_proxy web:3000
 }
 

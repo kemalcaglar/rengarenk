@@ -40,6 +40,28 @@ bilgisayarda **canlı provasıyla** denenebilir (aşağıda).
    Sonra yönetim konsoluna Google hesabıyla girilir; ilk girişte doğrulama uygulaması kurulur.
 10. **Yönetim konsolunu kısıtla:** `Caddyfile` içinde `yonetim` bloğuna şirket ağı ve VPN IP listesi.
 
+## Kapalı test ortamı (12 Kasım 2026'dan beri)
+
+KVKK standart sözleşmesi bildirilene kadar sunucu dışarıya kapalı bir test ortamıdır; gerçek kullanıcı verisi girmez.
+
+| Konu            | Değer                                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------ |
+| Sunucu          | Lightsail `rengarenk-1`, `eu-central-1a`, Ubuntu 24.04, `large_3_0` (8 GB, 2 vCPU, 160 GB), 4 GB takas |
+| Sabit IP        | `rengarenk-ip` → 63.184.9.173 (IPv6 da açık)                                                           |
+| SSH             | `ssh -i ~/.ssh/rengarenk_lightsail deploy@63.184.9.173` (anahtar yalnızca sahibin bilgisayarında)      |
+| Güvenlik duvarı | 80 herkese (yalnızca TLS sertifikası ve HTTPS'e yönlendirme); 443 ve 22 yalnızca sahibin IP adresine   |
+| Adresler        | `beta.rengarenksite.com` (site), `api.`, `yonetim.`; kök alan adı tanıtım sayfasında kalır             |
+| Klasör          | `/srv/rengarenk`: `compose.prod.yml`, `Caddyfile`, `.env.prod`, `.env.iade`, `seaweedfs.s3.json`       |
+
+- Sırlar sunucuda `openssl rand` ile üretildi; `.env.prod` yalnızca sunucuda (SOPS kurulunca şifreli kopyası depoya).
+  `TAG`, `POSTGRES_PASSWORD` ve `WEB_HOSTS` de bu dosyada (`--env-file .env.prod`).
+- İmajlar GitHub'a gitmeden sunucuda derlenir: `git archive HEAD` → `~/kaynak`, `~/derle.sh` (etiket
+  `test-<commit>`). Canlıya geçişte `v*` etiketi ve `deploy.yml` kullanılır.
+- Sahibin IP adresi değişirse: `aws lightsail put-instance-public-ports --profile rengarenk --region eu-central-1
+  --instance-name rengarenk-1 ...` ile 443 ve 22 kuralındaki adres güncellenir.
+- Bekleyenler: Google OAuth istemcisi (`GOOGLE_CLIENT_*` şimdilik `bekliyor`, yönetim girişi açılmaz), İleti Merkezi
+  bakiyesi ve `RENGARENK` başlığı (SMS ile giriş), yedek, izleme, SOPS. `AI_PROVIDER=none` (KVKK).
+
 ## Günlük işler
 
 | İş         | Komut (sunucuda, `/srv/rengarenk`)                                                                      |

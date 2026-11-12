@@ -1,5 +1,6 @@
-# Canlı ortam: tek uygulama sunucusu (AWS Lightsail, eu-central-1; Karar 37). PostgreSQL DATABASE_URL ile bağlanılır.
+# Canlı ortam: tek uygulama sunucusu (AWS Lightsail, eu-central-1; Karar 37), PostgreSQL aynı sunucuda.
 # Kullanım (sunucuda): docker compose -f compose.prod.yml --env-file .env.prod up -d
+# --env-file ile gelenler: TAG, POSTGRES_PASSWORD, WEB_HOSTS (Caddy'nin sitesi açtığı adlar).
 name: rengarenk
 x-app: &app
   restart: unless-stopped
@@ -13,6 +14,8 @@ services:
     image: caddy:2.10
     restart: unless-stopped
     ports: ["80:80", "443:443"]
+    # Kapalı test ortamında site beta.rengarenksite.com'da, kök alan adı tanıtım sayfasında kalır.
+    environment: { WEB_HOSTS: "${WEB_HOSTS:-rengarenksite.com, www.rengarenksite.com}" }
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -21,6 +24,7 @@ services:
   api:
     <<: *app
     image: ghcr.io/kemalcaglar/rengarenk-api:${TAG:?TAG gerekli}
+    depends_on: { postgres: { condition: service_healthy } }
     healthcheck:
       {
         test: ["CMD", "node", "-e", "fetch('http://localhost:4000/health').then(r=>process.exit(r.ok?0:1))"],
@@ -31,6 +35,7 @@ services:
     <<: *app
     image: ghcr.io/kemalcaglar/rengarenk-api:${TAG}
     command: ["node", "dist/worker.js"]
+    depends_on: { postgres: { condition: service_healthy } }
 
   # İade yürütücü (Teknik tasarım §7, kilit 2): yalnızca Sahibin onayladığı iadeleri yürütür. PayTR iade bilgileri
   # (IADE_PAYTR_*) yalnızca bu kapsayıcının ayrı ortam dosyasındadır; API ve işçi bu dosyayı okumaz.
@@ -54,6 +59,18 @@ services:
     image: ghcr.io/kemalcaglar/rengarenk-migrate:${TAG}
     restart: "no"
     profiles: [migrate]
+    depends_on: { postgres: { condition: service_healthy } }
+
+  # Yedek: pgBackRest ile başka bir AB bölgesine (Karar 56). Parola .env.prod'da, DATABASE_URL ile aynı.
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rengarenk
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-}"
+      POSTGRES_DB: rengarenk
+    volumes: [pg_data:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U rengarenk"], interval: 5s, retries: 30 }
 
   redis:
     image: redis:7
@@ -79,6 +96,7 @@ services:
       - ./seaweedfs.s3.json:/etc/seaweedfs/s3.json:ro
 
 volumes:
+  pg_data: {}
   caddy_data: {}
   redis_data: {}
   os_data: {}

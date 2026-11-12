@@ -10,12 +10,10 @@ x-prova-env: &prova-env
   env_file: !override [prova/prova.env]
 
 services:
-  # Canlıda PostgreSQL ayrı sunucudadır; provada yanına bir tane kurulur.
+  # PostgreSQL canlıdaki tanımdan gelir; provada uydurma parola ve ayrı birim.
   postgres:
-    image: postgres:16
-    environment: { POSTGRES_USER: rengarenk, POSTGRES_PASSWORD: prova, POSTGRES_DB: rengarenk }
-    volumes: [prova_pg:/var/lib/postgresql/data]
-    healthcheck: { test: ["CMD-SHELL", "pg_isready -U rengarenk"], interval: 3s, retries: 20 }
+    environment: { POSTGRES_PASSWORD: prova }
+    volumes: !override [prova_pg:/var/lib/postgresql/data]
 
   caddy:
     ports: !override ["18080:18080", "14000:14000", "13001:13001"]
@@ -25,17 +23,14 @@ services:
 
   api:
     <<: *prova-env
-    depends_on: { postgres: { condition: service_healthy } }
   worker:
     <<: *prova-env
-    depends_on: { postgres: { condition: service_healthy } }
   web:
     <<: *prova-env
   admin:
     <<: *prova-env
   migrate:
     <<: *prova-env
-    depends_on: { postgres: { condition: service_healthy } }
 
   opensearch:
     environment:

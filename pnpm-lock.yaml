@@ -87,6 +87,9 @@ importers:
       '@sentry/node':
         specifier: 11.11.0
         version: 11.11.0
+      fflate:
+        specifier: 0.8.3
+        version: 0.8.3
       handlebars:
         specifier: 4.7.8
         version: 4.7.8
@@ -166,9 +169,6 @@ importers:
       '@types/ws':
         specifier: 8.18.2
         version: 8.18.2
-      fflate:
-        specifier: 0.8.3
-        version: 0.8.3
       pg:
         specifier: 8.23.1
         version: 8.23.1
