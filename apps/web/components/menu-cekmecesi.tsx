@@ -189,9 +189,9 @@ export function MenuCekmecesi({ kategoriler }: { kategoriler: MenuKategori[] }) 
               </button>
             </div>
 
-            {giris === null ? null : (
+            {giris ? (
               <Link
-                href={giris ? '/taleplerim' : '/giris'}
+                href="/taleplerim"
                 onClick={kapat}
                 style={{
                   display: 'flex',
@@ -220,21 +220,60 @@ export function MenuCekmecesi({ kategoriler }: { kategoriler: MenuKategori[] }) 
                     fontWeight: 800,
                   }}
                 >
-                  {giris ? bas : '?'}
+                  {bas}
                 </span>
                 <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800 }}>
-                    {giris ? ad : 'Giriş yap veya üye ol'}
-                  </span>
+                  <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800 }}>{ad}</span>
                   <span style={{ display: 'block', fontSize: 12, color: colors.muted }}>
-                    {giris ? 'Hesabım ve taleplerim' : 'İlk talebin ücretsiz'}
+                    Hesabım ve taleplerim
                   </span>
                 </span>
                 <span aria-hidden="true" style={{ fontSize: 18, color: '#AEB5C4' }}>
                   ›
                 </span>
               </Link>
-            )}
+            ) : null}
+
+            {giris === false ? (
+              // Üye ol ve Giriş yap ayrı (Karar 18)
+              <div style={{ display: 'flex', gap: 8, margin: '12px 12px 4px' }}>
+                <Link
+                  href="/uye-ol"
+                  onClick={kapat}
+                  style={{
+                    flex: 1,
+                    textAlign: 'center',
+                    padding: '11px 10px',
+                    borderRadius: 'var(--rr-buton-kose)',
+                    background: colors.blue,
+                    color: colors.onBlue,
+                    fontSize: 14.5,
+                    fontWeight: 800,
+                    textDecoration: 'none',
+                  }}
+                >
+                  Üye ol
+                </Link>
+                <Link
+                  href="/giris"
+                  onClick={kapat}
+                  style={{
+                    flex: 1,
+                    textAlign: 'center',
+                    padding: '11px 10px',
+                    borderRadius: 'var(--rr-buton-kose)',
+                    background: colors.background,
+                    border: `1px solid ${colors.line}`,
+                    color: colors.ink,
+                    fontSize: 14.5,
+                    fontWeight: 800,
+                    textDecoration: 'none',
+                  }}
+                >
+                  Giriş yap
+                </Link>
+              </div>
+            ) : null}
 
             <div style={{ flex: 1, overflowY: 'auto', padding: '6px 0 0' }}>
               <button

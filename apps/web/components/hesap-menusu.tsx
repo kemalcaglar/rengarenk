@@ -111,12 +111,22 @@ export function HesapMenusu() {
       {giris && ad ? (
         <HesapAcilir ad={ad} bas={bas} />
       ) : giris === false ? (
-        <Link
-          href="/giris"
-          style={{ color: 'var(--rr-ust-yazi)', fontWeight: 600, fontSize: 15, padding: '10px 6px' }}
-        >
-          Giriş yap
-        </Link>
+        <>
+          <Link
+            href="/giris"
+            style={{ color: 'var(--rr-ust-yazi)', fontWeight: 600, fontSize: 15, padding: '10px 6px' }}
+          >
+            Giriş yap
+          </Link>
+          {/* Üye ol ve Giriş yap ayrı (Karar 18); telefonda Üye ol ☰ menüsünde */}
+          <Link
+            href="/uye-ol"
+            className="rr-yalniz-genis"
+            style={{ color: 'var(--rr-ust-yazi)', fontWeight: 600, fontSize: 15, padding: '10px 6px' }}
+          >
+            Üye ol
+          </Link>
+        </>
       ) : (
         <span
           aria-hidden="true"

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { HesabimMenu } from '../../../components/hesabim-menu';
 import { istek, useGiris } from '../../../lib/istemci';
-import { Engellediklerin, KisiselVerilerim } from './gizlilik';
+import { Engellediklerin, KisiselVerilerim, SifreBolumu } from './gizlilik';
 import { HesabiKapat } from './hesap';
 import { GorunenAd, Iletisim, type IletisimTercihi, NumaraDegistir } from './iletisim';
 
@@ -26,6 +26,8 @@ interface Ben extends IletisimTercihi {
   il: string | null;
   ilce: string | null;
   nameMode: 'tam' | 'kisa';
+  /** Giriş yolları (Karar 18) */
+  girisYollari?: { sifre: boolean; google: boolean; apple: boolean };
 }
 interface Oturum {
   id: string;
@@ -529,6 +531,16 @@ export default function Ayarlar() {
 
         {bolum === 'gizlilik' ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {ben ? (
+              <SifreBolumu
+                sifreVar={!!ben.girisYollari?.sifre}
+                google={!!ben.girisYollari?.google}
+                bildir={(m, h) => {
+                  setBilgi(m);
+                  setHata(h ?? null);
+                }}
+              />
+            ) : null}
             <section style={{ ...kart, padding: 20 }} aria-labelledby="ot">
               <h2 id="ot" style={{ margin: '0 0 10px', fontSize: 18, fontWeight: 800 }}>
                 Açık oturumlar
@@ -590,7 +602,6 @@ export default function Ayarlar() {
             />
             {ben ? (
               <KisiselVerilerim
-                telefon={ben.phone}
                 bildir={(m, h) => {
                   setBilgi(m);
                   setHata(h ?? null);
@@ -602,7 +613,6 @@ export default function Ayarlar() {
 
         {bolum === 'hesap' && ben ? (
           <HesabiKapat
-            telefon={ben.phone}
             bildir={(m, h) => {
               setBilgi(m);
               setHata(h ?? null);

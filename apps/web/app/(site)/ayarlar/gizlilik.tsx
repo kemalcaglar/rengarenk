@@ -133,13 +133,7 @@ export function Engellediklerin({ bildir }: { bildir: (m: string | null, h?: str
  * bağlantı 7 gün geçerli. KVKK başvurusu (bilgi alma, düzeltme, silme, itiraz) da SMS koduyla yapılır; 30 gün içinde
  * yanıtlanır.
  */
-export function KisiselVerilerim({
-  telefon,
-  bildir,
-}: {
-  telefon: string;
-  bildir: (m: string | null, h?: string | null) => void;
-}) {
+export function KisiselVerilerim({ bildir }: { bildir: (m: string | null, h?: string | null) => void }) {
   const [kopyalar, setKopyalar] = useState<Kopya[]>([]);
   const [basvurular, setBasvurular] = useState<Basvuru[]>([]);
   const [adim, setAdim] = useState<null | 'indir' | 'kvkk'>(null);
@@ -178,9 +172,10 @@ export function KisiselVerilerim({
 
   async function kodIste(ne: 'indir' | 'kvkk') {
     try {
-      const r = await istek<{ challengeId: string; devCode?: string }>('/auth/otp/request', {
+      // Hassas işlem onayı (Karar 58): kod hesaptaki numaraya gider (önce WhatsApp)
+      const r = await istek<{ challengeId: string; devCode?: string }>('/auth/code', {
         method: 'POST',
-        body: { phone: telefon },
+        body: {},
       });
       setChallengeId(r.challengeId);
       setAdim(ne);
@@ -428,6 +423,128 @@ export function KisiselVerilerim({
           <Link href="/kvkk">Görüntüle</Link>
         </span>
       </div>
+    </section>
+  );
+}
+
+/**
+ * Şifre (Karar 18): şifresi olan mevcut şifresiyle değiştirir; Google ya da Apple ile üye olan isterse şifre belirler
+ * (sonra e-posta ve şifreyle de girebilir). Bu cihaz dışındaki oturumlar kapanır.
+ */
+export function SifreBolumu({
+  sifreVar,
+  google,
+  bildir,
+}: {
+  sifreVar: boolean;
+  google: boolean;
+  bildir: (m: string | null, h?: string | null) => void;
+}) {
+  const [acik, setAcik] = useState(false);
+  const [mevcut, setMevcut] = useState('');
+  const [yeni, setYeni] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [var_, setVar] = useState(sifreVar);
+
+  async function kaydet() {
+    setBusy(true);
+    try {
+      const r = await istek<{ kapananOturum: number }>('/auth/password', {
+        method: 'POST',
+        body: var_ ? { mevcut, yeni } : { yeni },
+      });
+      setVar(true);
+      setAcik(false);
+      setMevcut('');
+      setYeni('');
+      bildir(
+        r.kapananOturum
+          ? `Şifren kaydedildi; diğer ${r.kapananOturum} cihazdaki oturum kapandı.`
+          : 'Şifren kaydedildi.',
+      );
+    } catch (e) {
+      bildir(null, (e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section style={kart} aria-labelledby="sifre-baslik">
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 8 }}>
+        <span>
+          <h2 id="sifre-baslik" style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
+            Şifre
+          </h2>
+          <span style={{ display: 'block', fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 4 }}>
+            {var_
+              ? 'E-posta ve şifrenle giriş yapabilirsin.'
+              : google
+                ? 'Google ile giriş yapıyorsun. İstersen şifre de belirleyebilirsin.'
+                : 'Henüz şifre belirlemedin.'}
+          </span>
+        </span>
+        {acik ? null : (
+          <button type="button" style={ikincil} onClick={() => setAcik(true)}>
+            {var_ ? 'Şifreyi değiştir' : 'Şifre belirle'}
+          </button>
+        )}
+      </div>
+      {acik ? (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void kaydet();
+          }}
+          style={{ display: 'grid', gap: 10, marginTop: 14, maxWidth: 420 }}
+        >
+          {var_ ? (
+            <label style={{ fontSize: 13.5, fontWeight: 700 }}>
+              Mevcut şifre
+              <input
+                type="password"
+                autoComplete="current-password"
+                value={mevcut}
+                onChange={(e) => setMevcut(e.target.value)}
+                required
+                style={girdi}
+              />
+            </label>
+          ) : null}
+          <label style={{ fontSize: 13.5, fontWeight: 700 }}>
+            Yeni şifre
+            <input
+              type="password"
+              autoComplete="new-password"
+              value={yeni}
+              onChange={(e) => setYeni(e.target.value)}
+              required
+              minLength={8}
+              style={girdi}
+            />
+          </label>
+          <span style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+            En az 8 karakter; içinde harf ve rakam olsun. Bu cihaz dışındaki oturumların kapanır.
+          </span>
+          <span style={{ display: 'flex', gap: 8 }}>
+            <button
+              type="submit"
+              disabled={busy}
+              style={{
+                ...ikincil,
+                background: 'var(--rr-mavi, #5B8CFF)',
+                color: 'var(--rr-maviYazi, #1E2333)',
+                border: 0,
+              }}
+            >
+              {busy ? 'Kaydediliyor…' : 'Kaydet'}
+            </button>
+            <button type="button" style={ikincil} onClick={() => setAcik(false)}>
+              Vazgeç
+            </button>
+          </span>
+        </form>
+      ) : null}
     </section>
   );
 }

@@ -37,13 +37,7 @@ const kapatDugme: CSSProperties = {
  * Ayarlar › Hesap › Hesabı kapat (Ayarlar.dc.html; Karar 31, 39, 59). SMS koduyla onaylanır. Kullanılmamış hakların
  * iadesi Sahip'in onayına gider; ekranda tutar "iade edilir" diye gösterilir, onaydan sonra karta yansır.
  */
-export function HesabiKapat({
-  telefon,
-  bildir,
-}: {
-  telefon: string;
-  bildir: (m: string | null, h?: string | null) => void;
-}) {
+export function HesabiKapat({ bildir }: { bildir: (m: string | null, h?: string | null) => void }) {
   const [o, setO] = useState<Onizleme | null>(null);
   const [adim, setAdim] = useState(false);
   const [neden, setNeden] = useState<CloseReason>('buldum');
@@ -62,9 +56,10 @@ export function HesabiKapat({
 
   async function kodGonder() {
     try {
-      const r = await istek<{ challengeId: string; devCode?: string }>('/auth/otp/request', {
+      // Hassas işlem onayı (Karar 58): kod hesaptaki numaraya gider (önce WhatsApp)
+      const r = await istek<{ challengeId: string; devCode?: string }>('/auth/code', {
         method: 'POST',
-        body: { phone: telefon },
+        body: {},
       });
       setChallengeId(r.challengeId);
       setKod(r.devCode ?? '');
@@ -164,7 +159,7 @@ export function HesabiKapat({
             </label>
           ) : (
             <p style={{ margin: '10px 0 0', fontSize: 13, color: '#A3271F' }}>
-              Onaylamak için telefonuna bir SMS kodu göndereceğiz.
+              Onaylamak için telefonuna bir doğrulama kodu göndereceğiz.
             </p>
           )}
         </div>

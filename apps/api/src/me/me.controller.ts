@@ -62,10 +62,13 @@ export class MeController {
   ) {}
 
   @Get()
-  get(@Req() req: AuthedRequest) {
-    return this.db.user.findUniqueOrThrow({
+  async get(@Req() req: AuthedRequest) {
+    const { passwordHash, googleSub, appleSub, ...u } = await this.db.user.findUniqueOrThrow({
       where: { id: req.user.sub },
       select: {
+        passwordHash: true,
+        googleSub: true,
+        appleSub: true,
         id: true,
         displayName: true,
         firstName: true,
@@ -85,6 +88,8 @@ export class MeController {
         },
       },
     });
+    // Giriş yolları (Karar 18): özet ve kimliklerin kendisi değil, yalnızca var olup olmadıkları
+    return { ...u, girisYollari: { sifre: !!passwordHash, google: !!googleSub, apple: !!appleSub } };
   }
 
   @Patch()

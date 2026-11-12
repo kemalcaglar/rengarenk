@@ -140,6 +140,11 @@ export const LANDING_RESERVED = [
   'yardim',
   'odeme',
   'k',
+  // Üyelik ve giriş (Karar 18)
+  'uye-ol',
+  'sifremi-unuttum',
+  'sifre-yenile',
+  'gelistirme',
 ] as const;
 
 export const landingSlugSchema = z
