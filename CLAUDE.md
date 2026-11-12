@@ -329,7 +329,11 @@ pnpm format        # Biome ile biçimlendir
   uçlardan kurar, yarıda kalırsa devam eder; numaralar 0555 100 00 0x bireysel, 0555 200 00 0x galeri; çalışanlar
   `*@rengarenksite.com`, o anki doğrulama kodu `demo kod <e-posta>`).
 - **AWS, alan adı ve Bedrock (12 Kasım 2026, sahip kararları):** barındırma AWS Frankfurt (Lightsail; Karar 37), alan adı
-  rengarenksite.com (kodda, ayarlarda ve belgelerde; yönetim girişi `STAFF_EMAIL_DOMAINS=rengarenksite.com`), yapay zekâ
+  rengarenksite.com (kodda, ayarlarda ve belgelerde; yönetim girişi `STAFF_EMAIL_DOMAINS=rengarenksite.com`). Kapalı test
+  sunucusu `rengarenk-1` açıldı (63.184.9.173, SSH `~/.ssh/rengarenk_lightsail`, ayrıntı `deploy/README.md` › Kapalı test
+  ortamı); imajlar sunucuda derlenir, `.env.prod` yalnızca sunucuda, 443/22 yalnızca sahibin IP adresine. İade yürütücü
+  kapsayıcısı açılmıyor (`RefundExecutorModule`'de `PricingService`/`AdsService` eksik): iade akışı, sahibe sorulmadan
+  düzeltme. Yapay zekâ
   AWS Bedrock (`AI_PROVIDER=bedrock`, `BedrockAiProvider` Converse API, model tablosu `AI_MODELS.bedrock` Nova Lite/Pro
   `eu.` profili; Vertex de duruyor, `aiCostMicroUsd(sağlayıcı, boy, …)`). AWS Activate Founders başvurusu yapıldı (sonuç
   5–10 iş günü); o zamana kadar 100 USD yeni hesap kredisi. Tanıtım sayfası `deploy/tanitim` (Güzel Hosting, cPanel).
