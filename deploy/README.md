@@ -65,9 +65,11 @@ KVKK standart sözleşmesi bildirilene kadar sunucu dışarıya kapalı bir test
   `https://beta.rengarenksite.com/api/oturum/google/donus` (`USER_GOOGLE_CLIENT_*`, `USER_AUTH_PROVIDER=google`).
   Canlıya geçişte üye istemcisine kök alan adının dönüş adresi eklenir ve uygulama yayına alınır (logo, gizlilik
   politikası, alan adı doğrulaması). Sahip hesabı `sahip` komutuyla açıldı.
-- E-posta: SES alan adı doğrulandı, üretim erişimi istendi (13 Kasım 2026). Onaya kadar yalnızca doğrulanmış
-  adreslere gider (alan adının kendi adresleri dahil).
-- Bekleyenler: SES SMTP kimliği (`EMAIL_PROVIDER=smtp`), yedek, izleme, SOPS. `AI_PROVIDER=none` (KVKK).
+- E-posta (13 Kasım 2026): SES'te `rengarenksite.com`, `bildirim.` ve `bulten.` alt alan adları doğrulandı (DKIM,
+  MAIL FROM `posta.*`), yapılandırma kümeleri `rengarenk-islemsel` / `rengarenk-ticari`, SMTP kimliği ayrı IAM
+  kullanıcısıyla, `EMAIL_PROVIDER=smtp`. Üretim erişimi istendi; onaya kadar yalnızca doğrulanmış adreslere gider
+  (alan adının kendi adresleri dahil).
+- Bekleyenler: yedek, izleme, SOPS. `AI_PROVIDER=none` (KVKK).
 - SMS: `RENGARENK` başlığı onaylanana kadar sunucuda geçici olarak `SMS_SENDER_ID=APITEST` (sahip kararı, 12 Kasım
   2026; İleti Merkezi test kredisi). Başlık onaylanınca `.env.prod`'da `RENGARENK`'e döndür, `api` ve `worker`'ı yeniden aç.
 
