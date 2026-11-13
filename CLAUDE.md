@@ -360,6 +360,13 @@ pnpm format        # Biome ile biçimlendir
   WhatsApp gelene kadar test sunucusunda `VERIFY_CHANNELS=ekran` + `KAPALI_TEST=1`: kod gönderilmez, yanıtta
   `devCode` ile döner; herkese açmadan kaldırılır. Konsol yönlendirmeleri `konsolAdresi` (admin `lib/oturum.ts`) ile:
   kapsayıcıda `req.url` iç adres taşır, `new URL(yol, req.url)` kullanma.
+- **Katalog doğruluğu (13 Kasım 2026, sahip isteği: adım adım, önce otomobil):** 1. adım Türkiye'de satılan otomobiller
+  (yıl, yakıt, marka, model, paket) TSB'den; ayrıştırıcı `TSB_PARSER = '2026-11-13'`. Doğruluk testi
+  `packages/catalog/src/tsb/parse-dogruluk.test.ts` (her satır gerçek bir TSB yazımı); yeni kalıp eklerken oraya da ekle.
+  `OV` otomatik vitestir; vitesi yazılmamış tip, otomatik ikizi varsa manueldir (`inferManualGearbox`), yoksa bilinmez kalır
+  (tahmin edilmez). Hafif ticari seriler `VAN_SERIES`, pickup `PICKUP_SERIES` (`brands.ts`). Adlarda kısaltma `acronymCase`
+  (içe aktarma yalnızca büyük/küçük harf farkında adı günceller). Denetim betiği scratchpad `denetim/denetim.mjs`. 2. adım
+  teknik özellikler (vites, güç, kasa, ölçüler) sırada; 2006 öncesi (VMM) Türkiye'ye özgü değildir.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

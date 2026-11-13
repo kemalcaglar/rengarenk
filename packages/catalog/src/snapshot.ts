@@ -1,5 +1,11 @@
 import { createHash, sign, verify } from 'node:crypto';
-import { type CatalogSourceKey, type ParsedVariant, parseTsbRow, TSB_PARSER } from './tsb/parse.js';
+import {
+  type CatalogSourceKey,
+  inferManualGearbox,
+  type ParsedVariant,
+  parseTsbRow,
+  TSB_PARSER,
+} from './tsb/parse.js';
 import { readTsbList } from './tsb/read.js';
 
 /**
@@ -69,6 +75,7 @@ export function buildTsbSnapshot(
     seen.add(r.variant.sourceKey);
     items.push(r.variant);
   }
+  inferManualGearbox(items);
   const confidence = { yuksek: 0, orta: 0, dusuk: 0 };
   for (const i of items) confidence[i.confidence]++;
   const month = String(list.month).padStart(2, '0');

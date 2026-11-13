@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  acronymCase,
   type CatalogSnapshot,
   type ParsedVariant,
   type PreviousSummary,
@@ -356,21 +357,22 @@ export class CatalogImportService {
       if (k.series) {
         const s = series.get(k.series) ?? {
           make: k.make,
-          name: v.series as string,
+          name: acronymCase(v.series as string),
           categories: new Set<string>(),
         };
         for (const c of v.categories) s.categories.add(c);
         series.set(k.series, s);
       }
-      if (!models.has(k.model)) models.set(k.model, { make: k.make, series: k.series, name: v.model });
+      if (!models.has(k.model))
+        models.set(k.model, { make: k.make, series: k.series, name: acronymCase(v.model) });
       if (k.trim && !trims.has(k.trim))
-        trims.set(k.trim, { make: k.make, series: k.series, name: v.trim as string });
+        trims.set(k.trim, { make: k.make, series: k.series, name: acronymCase(v.trim as string) });
     }
     if (createsSeries) {
       for (const { g, k } of extra) {
         if (!makes.has(k.make)) makes.set(k.make, g.make);
         if (k.series && !series.has(k.series))
-          series.set(k.series, { make: k.make, name: g.series, categories: new Set() });
+          series.set(k.series, { make: k.make, name: acronymCase(g.series), categories: new Set() });
       }
     }
 
@@ -400,7 +402,10 @@ export class CatalogImportService {
           ),
         )}
         ON CONFLICT (key) DO UPDATE SET categories =
-          ARRAY(SELECT DISTINCT unnest(catalog_series.categories || EXCLUDED.categories) ORDER BY 1)`;
+          ARRAY(SELECT DISTINCT unnest(catalog_series.categories || EXCLUDED.categories) ORDER BY 1),
+          -- Yalnızca büyük/küçük harf düzeltmesi ("Rx" → "RX"); başka kaynağın yazdığı ad değişmez
+          name = CASE WHEN lower(catalog_series.name) = lower(EXCLUDED.name) THEN EXCLUDED.name
+            ELSE catalog_series.name END`;
     }
     const seriesIds = await ids('catalog_series', [
       ...new Set([...series.keys(), ...extra.map((e) => e.k.series as string)]),
@@ -419,7 +424,8 @@ export class CatalogImportService {
                 Prisma.sql`(${uuidv7()}::uuid, ${key}, ${makeIds.get(m.make)}::uuid, ${m.series ? seriesIds.get(m.series) : null}::uuid, ${m.name})`,
             ),
           )}
-          ON CONFLICT (key) DO NOTHING`;
+          ON CONFLICT (key) DO UPDATE SET name = EXCLUDED.name
+          WHERE lower(${Prisma.raw(table)}.name) = lower(EXCLUDED.name) AND ${Prisma.raw(table)}.name <> EXCLUDED.name`;
       }
       return ids(table, [...map.keys()]);
     };

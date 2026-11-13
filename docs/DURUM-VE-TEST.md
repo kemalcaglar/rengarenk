@@ -68,6 +68,10 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
 - Kasa kuşakları, Wikidata nesil kodları, makyaj sırası, ad eşleme, VehiclesDB, Veri kaynakları sayfası.
 - Nesil fotoğrafları (Commons), galerinin izinli portföy fotoğrafı temsilî görsel olarak (plaka bulanıklaştırma ile).
 - 14 kategori ağacı ve sürümlü kategori şeması; şema yayını dört göz onayıyla.
+- TSB ayrıştırıcısı doğruluk geçişi (13 Kasım 2026, ayrıştırıcı `2026-11-13`): yakıt (DIZEL, DZL, BLUETEC …), vites (OV,
+  AT6/AT8, MT6, MULTIDRIVE …; otomatik ikizi olan tip manuel), kasa (NB, CW, 4 KAPI), makyaj (MCA, FAZ2), elektrikli ve
+  hibrit seriler, hafif ticari seriler otomobilden ayrıldı, kısaltmalar büyük harf (XE, RX, ASX). Otomobilde yakıtı bilinmeyen
+  tip %6,4'ten %1,9'a indi. Vites (%43 dolu), güç ve kasa TSB adında çoğu zaman yazmaz: teknik özellik adımında tamamlanacak.
 
 ### Aşama 3 · Talep (Sprint 8)
 - Talep sihirbazı (web ve mobil), yaşam döngüsü ve süreler, ilk talep ücretsiz (numara ve hesap başına bir kez).

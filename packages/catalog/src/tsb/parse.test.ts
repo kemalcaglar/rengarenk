@@ -157,10 +157,10 @@ describe('TSB tip adı ayrıştırma', () => {
       model: 'Mxu 300',
       categories: ['atv'],
     });
-    expect(parse('MOTORSIKLET', 'HONDA\\CG 125')).toMatchObject({ make: 'Honda', model: 'Cg 125' });
+    expect(parse('MOTORSIKLET', 'HONDA\\CG 125')).toMatchObject({ make: 'Honda', model: 'CG 125' });
     expect(parse('MOTORSIKLET', 'QJ MOTOR SRV 550 ST')).toMatchObject({
       make: 'QJ Motor',
-      model: 'Srv 550 ST',
+      model: 'SRV 550 ST',
     });
   });
 
@@ -178,7 +178,7 @@ describe('TSB tip adı ayrıştırma', () => {
     expect(s('MINI', 'MINI ONE 1.6')).toBe('MINI / Cooper / One');
     expect(s('DS', 'DS 7 CROSSBACK 1.5 BLUEHDI 130')).toBe('DS / DS 7 / 1.5 BlueHDi');
     expect(s('DS', 'DS7CROSSBACK 1.6 PURETECH 225')).toBe('DS / DS 7 / 1.6 PureTech');
-    expect(s('LEXUS', 'LEXUS ES 250')).toBe('Lexus / ES / ES');
+    expect(s('LEXUS', 'LEXUS ES 250')).toBe('Lexus / ES / ES 250');
     expect(s('FORD', 'TRAN.ICA3 350MF VAN 10M3 2.0 130 ORTA TREND')).toBe('Ford / Transit / 2.0');
     expect(s('FORD', 'TR.MCAI 410L VAN 2.0 170')).toBe('Ford / Transit / 2.0');
     expect(s('FORD', 'T. CONNECT KOMBI K210S 1.8 TDCi')).toBe('Ford / Transit Connect / 1.8 TDCi');

@@ -101,6 +101,13 @@ export const TWO_WORD_SERIES: Record<string, string> = {
   'E-TOURNEO CUSTOM': 'E-Tourneo Custom',
   'T. CONNECT': 'Transit Connect',
   'MC QASHQAI': 'Qashqai',
+  'C4 CACTUS': 'C4 Cactus',
+  'L 200': 'L200',
+  'C4 PICASSO': 'C4 Picasso',
+  'C3 PICASSO': 'C3 Picasso',
+  'C4 SPACETOURER': 'C4 SpaceTourer',
+  'C3 PLURIEL': 'C3 Pluriel',
+  'E-TRON GT': 'e-tron GT',
   'MY FIORINO': 'Fiorino',
 };
 
@@ -121,6 +128,10 @@ const GLUED_PREFIX: { make: string; re: RegExp; series: string }[] = [
   { make: 'Ford', re: /^(TRANSIT\.?|T\.)CUSTOM/, series: 'Transit Custom' },
   // TRAN.ICA3, TRAN.MCAI, TRANS.MCAI, TRA.MCAI, TR.MCAI, TR.350L, TRANSITVAN350LF, TRANSITKAMYONET ...
   { make: 'Ford', re: /^(TRANSIT|TRANS\.|TRAN\.|TRA\.|TR\.)/, series: 'Transit' },
+  { make: 'Volkswagen', re: /^(TRANSPORTER|T\.?PORTER)(?=[A-Z.]|$)/, series: 'Transporter' },
+  { make: 'Volkswagen', re: /^CRAFTER(?=[A-Z.])|^CRAFT\./, series: 'Crafter' },
+  { make: 'Renault', re: /^TRAFIC(?=[A-Z])/, series: 'Trafic' },
+  { make: 'Peugeot', re: /^EXPERT(?=[A-Z])/, series: 'Expert' },
   { make: 'Mercedes-Benz', re: /^E-?SPRINTER/, series: 'eSprinter' },
   { make: 'Mercedes-Benz', re: /^SPRINTER(?=[A-Z])/, series: 'Sprinter' },
   { make: 'Mercedes-Benz', re: /^EACTROS/, series: 'eActros' },
@@ -228,6 +239,10 @@ export function normalizeHead(make: string, brandKey: string, input: string[]): 
       return { make, tokens: t(0) === 'GT' ? tokens.slice(1) : tokens, series: 'AMG GT', modelPrefix };
     }
   }
+
+  // Audi "RS E-TRON GT": RS modelin parçası, seri e-tron GT
+  if (make === 'Audi' && t(0) === 'RS' && t(1) === 'E-TRON' && t(2) === 'GT')
+    return { make, tokens: tokens.slice(3), series: 'e-tron GT', modelPrefix: 'RS' };
 
   const two = `${t(0)} ${t(1)}`;
   const named = TWO_WORD_SERIES[two];
