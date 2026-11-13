@@ -89,7 +89,8 @@ export function clearCookie(res: NextResponse, name: string, path = '/') {
 
 export function originOk(req: NextRequest): boolean {
   const origin = req.headers.get('origin');
-  return !origin || origin === req.nextUrl.origin;
+  // Kapsayıcıda req.nextUrl iç adresi (0.0.0.0:3000) taşır; dış adresle karşılaştır.
+  return !origin || origin === req.nextUrl.origin || origin === konsolAdresi(req, '/').origin;
 }
 
 /**
