@@ -207,6 +207,7 @@ export class DeliveryService {
       const r = await this.email.send({
         to: adres,
         from: d.ticari ? this.env.EPOSTA_GONDEREN_TICARI : this.env.EPOSTA_GONDEREN,
+        akis: d.ticari ? 'ticari' : 'islemsel',
         subject: e.konu,
         html: e.html,
         text: e.text,

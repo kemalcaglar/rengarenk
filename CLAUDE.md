@@ -350,6 +350,12 @@ pnpm format        # Biome ile biçimlendir
   (`hesap.sifre_istendi`, şifreli teslim kaydı). Testlerde kullanıcı `uyeOl(app, telefon)` ile açılır (`test/helpers.ts`;
   kayıtlıysa e-posta ve şifreyle girer). Demo girişi `demo<son 7 hane>@ornek.com` / `Demo1234`. Canlıda sahte Google ve
   Apple yasak: `.env.prod`'a `USER_AUTH_PROVIDER=none`, `APPLE_AUTH_PROVIDER=none` (istemci gelene kadar). API'de 227 test.
+- **Test sunucusu eşitlendi (13 Kasım 2026):** veritabanı sıfırlandı, yereldeki katalog ve ayarlar `deploy/veri-aktar.py` ile
+  taşındı (kullanıcı verisi taşınmaz). Google girişi açık: konsol `rengarenk-yonetim` (Dahili), üye `rengarenk-uye`
+  (Harici, Test modunda yalnızca eklenen test kullanıcıları). Sahip `kemal.caglar@rengarenksite.com`. SES: alan adı ve
+  `bildirim.`/`bulten.` alt alan adları doğrulandı; e-posta `akis` alanıyla işlemsel/ticari yapılandırma kümesine gider
+  (`sesBasliklari`, `SES_YAPILANDIRMA_ISLEMSEL/TICARI`); üretim erişimi AWS incelemesinde. Sırlar sohbete yazılmaz:
+  sahip dosyayı `Desktop\gizli\`'ye kaydeder, değerler ekrana basılmadan sunucuya aktarılır. API'de 229 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

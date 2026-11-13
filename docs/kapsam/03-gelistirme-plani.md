@@ -164,8 +164,9 @@ SMS sağlayıcısı özel gönderici adı için şirket ve marka tescili istedi�
   sınırı, kara liste, rıza kaydı ve reklam ölçümü olduğu gibi
 - [x] Kod kanalı: WhatsApp bağdaştırıcısı (Cloud API, kimlik doğrulama şablonu), SMS yedek, yerelde ve testte sahte
   (gerçek Meta hesabıyla deneme bekliyor)
-- [ ] E-posta: Amazon SES (SMTP); doğrulama ve şifre sıfırlama şablonları (şablonlar ve gönderim hazır; SES alan adı
-  doğrulaması ve üretim erişimi bekliyor)
+- [x] E-posta: Amazon SES (SMTP); doğrulama ve şifre sıfırlama şablonları. Alan adı ve `bildirim.`/`bulten.` alt alan
+  adları doğrulandı (DKIM, MAIL FROM), işlemsel ve ticari ayrı yapılandırma kümesi (`X-SES-CONFIGURATION-SET`,
+  `SES_YAPILANDIRMA_*`), test sunucusunda açık (13 Kasım 2026). Üretim erişimi AWS incelemesinde
 - [x] Web: `/uye-ol` ve `/giris` ayrı, Google ile devam, şifremi unuttum, e-posta doğrulama; Ayarlar'da e-posta ve şifre
 - [x] Mobil: aynı ekranlar; Google ile, iPhone'da Apple ile giriş (gerçek cihazda deneme bekliyor)
 - [x] Konsol: kullanıcı kartında giriş yolları ve e-posta doğrulama durumu

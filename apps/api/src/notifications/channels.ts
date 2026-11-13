@@ -2,7 +2,7 @@ import { createSign } from 'node:crypto';
 import nodemailer, { type Transporter } from 'nodemailer';
 import type { Env } from '../config/env.js';
 
-// ── E-posta (Karar 50: kendi SMTP sunucumuz) ───────────────────
+// ── E-posta (Karar 50: Amazon SES, SMTP ile) ───────────────────
 
 export interface EmailMessage {
   to: string;
@@ -11,6 +11,8 @@ export interface EmailMessage {
   html: string;
   text: string;
   headers?: Record<string, string>;
+  /** İşlemsel (varsayılan) ya da ticari: SES'te ayrı yapılandırma kümesi, biri şikâyet alırsa öteki etkilenmez */
+  akis?: 'islemsel' | 'ticari';
   /** Ek (ör. zamanlanmış raporun PDF'i ve Excel'i) */
   attachments?: { filename: string; content: Buffer | string; contentType: string }[];
 }
@@ -46,10 +48,19 @@ export class MemoryEmail implements EmailSender {
   }
 }
 
+/** SES'in yapılandırma kümesini seçen başlık (Karar 50); küme tanımlı değilse boş */
+export function sesBasliklari(
+  env: Pick<Env, 'SES_YAPILANDIRMA_ISLEMSEL' | 'SES_YAPILANDIRMA_TICARI'>,
+  m: Pick<EmailMessage, 'akis'>,
+): Record<string, string> {
+  const kume = m.akis === 'ticari' ? env.SES_YAPILANDIRMA_TICARI : env.SES_YAPILANDIRMA_ISLEMSEL;
+  return kume ? { 'X-SES-CONFIGURATION-SET': kume } : {};
+}
+
 class SmtpEmail implements EmailSender {
   readonly ad = 'smtp';
   private readonly t: Transporter;
-  constructor(env: Env) {
+  constructor(private readonly env: Env) {
     this.t = nodemailer.createTransport({
       host: env.SMTP_HOST,
       port: env.SMTP_PORT,
@@ -59,7 +70,8 @@ class SmtpEmail implements EmailSender {
   }
   async send(m: EmailMessage): Promise<EmailResult> {
     try {
-      const r = await this.t.sendMail({ ...m });
+      const { akis: _akis, ...ileti } = m;
+      const r = await this.t.sendMail({ ...ileti, headers: { ...m.headers, ...sesBasliklari(this.env, m) } });
       if (r.rejected?.length) return { status: 'permanent', id: r.messageId, message: 'Alıcı reddedildi' };
       return { status: 'sent', id: r.messageId ?? null, message: null };
     } catch (e) {

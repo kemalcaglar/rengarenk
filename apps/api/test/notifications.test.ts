@@ -359,6 +359,7 @@ describe('bildirim katmanı (Karar 30, 48, 49, 50)', () => {
     await isinmis.dispatchDue();
     const giden = eposta.sent.find((m) => m.to === 'kampanya@ornek.com');
     expect(giden?.from).toContain('bulten@');
+    expect(giden?.akis).toBe('ticari');
     expect(giden?.headers?.['List-Unsubscribe-Post']).toBe('List-Unsubscribe=One-Click');
     const k = giden?.headers?.['List-Unsubscribe']?.match(/k=([^>]+)/)?.[1] as string;
 

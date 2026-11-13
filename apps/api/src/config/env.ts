@@ -72,8 +72,8 @@ const schema = z.object({
   /** RevenueCat panelinde bildirim (webhook) için tanımlanan Authorization değeri */
   REVENUECAT_WEBHOOK_AUTH: z.string().min(24).optional(),
   /**
-   * Bildirim kanalları (Karar 48, 50). E-posta: smtp (kendi sunucumuz; yerelde Mailpit :1025), memory (test), none.
-   * İşlemsel ve ticari e-posta ayrı gönderen adresinden (ve canlıda ayrı IP'den) çıkar.
+   * Bildirim kanalları (Karar 48, 50). E-posta: smtp (canlıda Amazon SES; yerelde Mailpit :1025), memory (test), none.
+   * İşlemsel ve ticari e-posta ayrı gönderen alt alan adından ve ayrı SES yapılandırma kümesinden çıkar.
    */
   EMAIL_PROVIDER: z.enum(['none', 'smtp', 'memory']).default('none'),
   SMTP_HOST: z.string().default('localhost'),
@@ -83,6 +83,9 @@ const schema = z.object({
   SMTP_PASS: z.string().optional(),
   EPOSTA_GONDEREN: z.string().default('Rengarenk <bildirim@bildirim.rengarenksite.com>'),
   EPOSTA_GONDEREN_TICARI: z.string().default('Rengarenk <bulten@bulten.rengarenksite.com>'),
+  /** SES yapılandırma kümeleri (Karar 50): boşsa başlık eklenmez (yerelde Mailpit) */
+  SES_YAPILANDIRMA_ISLEMSEL: z.string().optional(),
+  SES_YAPILANDIRMA_TICARI: z.string().optional(),
   /** Ticari e-posta IP ısınmasının başladığı gün (YYYY-AA-GG); boşsa ticari e-posta gönderilmez (Karar 50) */
   EPOSTA_ISINMA_BASLANGIC: z
     .string()
