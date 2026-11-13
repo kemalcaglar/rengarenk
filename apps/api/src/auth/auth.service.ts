@@ -109,10 +109,11 @@ export class AuthService {
         cause: err,
       });
     }
-    // Yalnızca yerel geliştirme: kod gerçekten gönderilmediği için yanıtta da döner ve ekranda gösterilir. Canlıda
-    // `console` sağlayıcısı zaten yasaktır (env.ts); koşullar birlikte aranır.
+    // Kod gerçekten gönderilmediyse yanıtta döner ve ekranda gösterilir: yerel geliştirme (canlıda `console`
+    // sağlayıcısı yasak, env.ts) ya da kapalı testte `ekran` kanalı (yalnızca KAPALI_TEST=1 ile açılır).
     const devCode =
-      this.env.NODE_ENV === 'development' && this.env.SMS_PROVIDER === 'console' && kanal === 'sms'
+      kanal === 'ekran' ||
+      (this.env.NODE_ENV === 'development' && this.env.SMS_PROVIDER === 'console' && kanal === 'sms')
         ? code
         : undefined;
     return { challengeId: id, expiresIn: OTP_TTL_SECONDS, kanal, ...(devCode ? { devCode } : {}) };

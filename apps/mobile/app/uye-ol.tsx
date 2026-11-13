@@ -42,6 +42,13 @@ export default function UyeOl() {
   const [ad, setAd] = useState(p.ad ?? '');
   const [soyad, setSoyad] = useState(p.soyad ?? '');
   const [eposta, setEposta] = useState(p.eposta ?? '');
+  // Google ya da Apple'ın verdiği bilgi değiştirilemez (API de jetondaki değeri yazar)
+  const [kilit, setKilit] = useState({
+    ad: !!(p.kayitJetonu && p.ad),
+    soyad: !!(p.kayitJetonu && p.soyad),
+    eposta: !!(p.kayitJetonu && p.eposta),
+  });
+  const kilitli = { backgroundColor: colors.background, color: colors.muted };
   const [sifre, setSifre] = useState('');
   const [phone, setPhone] = useState('');
   const [kod, setKod] = useState<RegisterStarted | null>(null);
@@ -103,6 +110,7 @@ export default function UyeOl() {
       setAd(r.ad ?? ad);
       setSoyad(r.soyad ?? soyad);
       if (r.eposta) setEposta(r.eposta);
+      setKilit({ ad: !!r.ad, soyad: !!r.soyad, eposta: !!r.eposta });
     });
 
   const devam = () =>
@@ -191,8 +199,8 @@ export default function UyeOl() {
                   }}
                 >
                   <T style={{ fontSize: 14, fontWeight: '600' }}>
-                    {sosyal.saglayici === 'apple' ? 'Apple' : 'Google'} hesabınla devam ediyorsun. Son adım:
-                    telefon numaranı doğrula.
+                    {sosyal.saglayici === 'apple' ? 'Apple' : 'Google'} hesabınla devam ediyorsun. Gelen
+                    bilgiler değiştirilemez. Son adım: telefon numaranı doğrula.
                   </T>
                 </View>
               ) : (
@@ -212,6 +220,8 @@ export default function UyeOl() {
                     ad="Ad"
                     deger={ad}
                     degis={setAd}
+                    editable={!kilit.ad}
+                    style={kilit.ad ? kilitli : undefined}
                     textContentType="givenName"
                     autoComplete="given-name"
                   />
@@ -221,6 +231,8 @@ export default function UyeOl() {
                     ad="Soyad"
                     deger={soyad}
                     degis={setSoyad}
+                    editable={!kilit.soyad}
+                    style={kilit.soyad ? kilitli : undefined}
                     textContentType="familyName"
                     autoComplete="family-name"
                   />
@@ -230,6 +242,8 @@ export default function UyeOl() {
                 ad="E-posta"
                 deger={eposta}
                 degis={setEposta}
+                editable={!kilit.eposta}
+                style={kilit.eposta ? kilitli : undefined}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
@@ -326,7 +340,9 @@ export default function UyeOl() {
               </T>
               <T style={{ marginBottom: 22, fontSize: 14.5, color: colors.muted }}>
                 +90 {rakam.replace(/^(\d{3})(\d{3})(\d{2})(\d{2})$/, '$1 $2 $3 $4')} numarasına{' '}
-                {kod.kanal === 'whatsapp' ? "WhatsApp'tan" : 'SMS ile'} 6 haneli kod gönderdik.
+                {kod.kanal === 'ekran'
+                  ? 'doğrulama kodu bu ekrana yazıldı (kapalı test; WhatsApp gelene kadar kod gönderilmiyor).'
+                  : `${kod.kanal === 'whatsapp' ? "WhatsApp'tan" : 'SMS ile'} 6 haneli kod gönderdik.`}
               </T>
               <T style={etiket}>Doğrulama kodu</T>
               <TInput

@@ -164,8 +164,9 @@ export type SocialLoginResult =
 export interface RegisterStarted {
   challengeId: string;
   expiresIn: number;
-  kanal: 'whatsapp' | 'sms';
-  /** Yalnızca yerel geliştirmede */
+  /** ekran: kapalı testte kod gönderilmez, `devCode` ile döner */
+  kanal: 'whatsapp' | 'sms' | 'ekran';
+  /** Yalnızca yerel geliştirmede ve kapalı testte (kod gönderilmediği için) */
   devCode?: string;
 }
 

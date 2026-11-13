@@ -69,6 +69,9 @@ KVKK standart sözleşmesi bildirilene kadar sunucu dışarıya kapalı bir test
   MAIL FROM `posta.*`), yapılandırma kümeleri `rengarenk-islemsel` / `rengarenk-ticari`, SMTP kimliği ayrı IAM
   kullanıcısıyla, `EMAIL_PROVIDER=smtp`. Üretim erişimi istendi; onaya kadar yalnızca doğrulanmış adreslere gider
   (alan adının kendi adresleri dahil).
+- Telefon kodu (13 Kasım 2026, sahip isteği): İleti Merkezi'nin `APITEST` başlığı kodu değil sabit bir deneme metni
+  gönderdiği için WhatsApp hazır olana kadar `VERIFY_CHANNELS=ekran` ve `KAPALI_TEST=1`: kod gönderilmez, ekrandaki
+  kutuya yazılır. Site herkese açılmadan önce ikisi de kaldırılır (`ekran` tek başına canlıda açılmaz, env.ts).
 - Bekleyenler: yedek, izleme, SOPS. `AI_PROVIDER=none` (KVKK).
 - SMS: `RENGARENK` başlığı onaylanana kadar sunucuda geçici olarak `SMS_SENDER_ID=APITEST` (sahip kararı, 12 Kasım
   2026; İleti Merkezi test kredisi). Başlık onaylanınca `.env.prod`'da `RENGARENK`'e döndür, `api` ve `worker`'ı yeniden aç.

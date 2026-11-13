@@ -193,10 +193,11 @@ describe('üyelik ve giriş (Karar 18)', () => {
     expect((await call(app, 'GET', '/auth/me', undefined, ilk.body.kayitJetonu)).status).toBe(401);
 
     const tel = '+905321112260';
+    // Google'dan gelen ad, soyad ve e-posta formdan değiştirilemez: istekte başka değer gelse de jetondaki yazılır
     const r = await call(app, 'POST', '/auth/register', {
-      ad: 'Can',
-      soyad: 'Demir',
-      eposta: 'can.demir@gmail.com',
+      ad: 'Başka',
+      soyad: 'Kişi',
+      eposta: 'baska@ornek.com',
       telefon: tel,
       kayitJetonu: ilk.body.kayitJetonu,
       consents: SIGNUP_CONSENTS,
@@ -212,6 +213,7 @@ describe('üyelik ve giriş (Karar 18)', () => {
     ).toBe(200);
     const u = await db.user.findUniqueOrThrow({ where: { phone: tel } });
     expect(u.googleSub).toBe('g-1001');
+    expect(u).toMatchObject({ firstName: 'Can', lastName: 'Demir', email: 'can.demir@gmail.com' });
     expect(u.passwordHash).toBeNull();
     // Google'ın doğruladığı adres doğrulanmış sayılır
     expect(u.emailVerifiedAt).not.toBeNull();

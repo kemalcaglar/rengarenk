@@ -96,6 +96,14 @@ export default function UyeOl() {
   }, [step]);
 
   const zorunlu = onay.kullanimKosullari && onay.kvkkAydinlatma;
+  // Google'ın verdiği bilgi değiştirilemez (API de jetondaki değeri yazar); vermediği alan formdan doldurulur
+  const kilit = { ad: !!google?.ad, soyad: !!google?.soyad, eposta: !!google?.eposta };
+  const kilitli = {
+    ...field,
+    background: colors.background,
+    color: colors.muted,
+    cursor: 'not-allowed',
+  } as const;
   const kalan = Math.max(0, Math.round((expiresAt - now) / 1000));
   const sure = `${String(Math.floor(kalan / 60)).padStart(2, '0')}:${String(kalan % 60).padStart(2, '0')}`;
 
@@ -160,6 +168,10 @@ export default function UyeOl() {
   }
 
   const kanalAdi = kod?.kanal === 'whatsapp' ? "WhatsApp'ına" : 'SMS ile';
+  const kodMetni =
+    kod?.kanal === 'ekran'
+      ? 'numarasının doğrulama kodu bu ekrana yazıldı (kapalı test; WhatsApp gelene kadar kod gönderilmiyor).'
+      : `numarasına ${kanalAdi} 6 haneli kod gönderdik.`;
 
   return (
     <GirisDuzeni baslikId="form-baslik">
@@ -202,7 +214,8 @@ export default function UyeOl() {
                 padding: '12px 14px',
               }}
             >
-              Google hesabınla devam ediyorsun. Son adım: telefon numaranı doğrula.
+              Google hesabınla devam ediyorsun. Google'dan gelen bilgiler değiştirilemez. Son adım: telefon
+              numaranı doğrula.
             </p>
           ) : (
             <>
@@ -221,10 +234,11 @@ export default function UyeOl() {
                   autoComplete="given-name"
                   value={ad}
                   onChange={(e) => setAd(e.target.value)}
+                  readOnly={kilit.ad}
                   required
                   minLength={2}
                   maxLength={40}
-                  style={field}
+                  style={kilit.ad ? kilitli : field}
                 />
               </div>
               <div>
@@ -236,10 +250,11 @@ export default function UyeOl() {
                   autoComplete="family-name"
                   value={soyad}
                   onChange={(e) => setSoyad(e.target.value)}
+                  readOnly={kilit.soyad}
                   required
                   minLength={2}
                   maxLength={40}
-                  style={field}
+                  style={kilit.soyad ? kilitli : field}
                 />
               </div>
             </div>
@@ -253,8 +268,9 @@ export default function UyeOl() {
               inputMode="email"
               value={eposta}
               onChange={(e) => setEposta(e.target.value)}
+              readOnly={kilit.eposta}
               required
-              style={field}
+              style={kilit.eposta ? kilitli : field}
             />
             {google ? null : (
               <>
@@ -338,7 +354,7 @@ export default function UyeOl() {
             Telefonunu doğrula
           </h1>
           <p style={lead}>
-            +90 {showPhone(phone)} numarasına {kanalAdi} 6 haneli kod gönderdik.{' '}
+            +90 {showPhone(phone)} {kodMetni}{' '}
             <button
               type="button"
               onClick={() => {
@@ -395,7 +411,7 @@ export default function UyeOl() {
               Kodu tekrar gönder
             </button>
           </div>
-          {kod.devCode ? (
+          {kod.devCode && kod.kanal !== 'ekran' ? (
             <p style={{ margin: '0 0 12px', fontSize: 12.5, color: colors.muted }}>
               Geliştirme ortamı: kod gönderilmedi, {kod.devCode} kutuya yazıldı.
             </p>

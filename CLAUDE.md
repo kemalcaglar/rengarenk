@@ -356,6 +356,10 @@ pnpm format        # Biome ile biçimlendir
   `bildirim.`/`bulten.` alt alan adları doğrulandı; e-posta `akis` alanıyla işlemsel/ticari yapılandırma kümesine gider
   (`sesBasliklari`, `SES_YAPILANDIRMA_ISLEMSEL/TICARI`); üretim erişimi AWS incelemesinde. Sırlar sohbete yazılmaz:
   sahip dosyayı `Desktop\gizli\`'ye kaydeder, değerler ekrana basılmadan sunucuya aktarılır. API'de 229 test.
+  Google ya da Apple'dan gelen ad, soyad ve e-posta üyelikte kilitli (jetondaki değer yazılır, formdaki yok sayılır).
+  WhatsApp gelene kadar test sunucusunda `VERIFY_CHANNELS=ekran` + `KAPALI_TEST=1`: kod gönderilmez, yanıtta
+  `devCode` ile döner; herkese açmadan kaldırılır. Konsol yönlendirmeleri `konsolAdresi` (admin `lib/oturum.ts`) ile:
+  kapsayıcıda `req.url` iç adres taşır, `new URL(yol, req.url)` kullanma.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

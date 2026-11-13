@@ -288,6 +288,9 @@ describe('yönetim girişi ayarları', () => {
     expect(() => loadEnv({ ...prod, S3_SECRET_KEY: '' })).toThrow('S3_SECRET_KEY');
     // Üye girişi (Karar 18): canlıda sahte Google ve Apple yok; Google için istemci, WhatsApp için jeton gerekir
     expect(() => loadEnv({ ...prod, USER_AUTH_PROVIDER: 'fake' })).toThrow('sahte Google girişi');
+    // Kodun ekranda gösterilmesi yalnızca kapalı testte
+    expect(() => loadEnv({ ...prod, VERIFY_CHANNELS: 'ekran' })).toThrow('kapalı testte');
+    expect(() => loadEnv({ ...prod, VERIFY_CHANNELS: 'ekran', KAPALI_TEST: '1' })).not.toThrow();
     expect(() => loadEnv({ ...prod, APPLE_AUTH_PROVIDER: 'fake' })).toThrow('sahte Apple');
     expect(() => loadEnv({ ...prod, USER_AUTH_PROVIDER: 'google' })).toThrow('USER_GOOGLE_CLIENT_ID');
     expect(() => loadEnv({ ...prod, VERIFY_CHANNELS: 'whatsapp,sms' })).toThrow('WHATSAPP_TOKEN');

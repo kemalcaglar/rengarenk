@@ -1,7 +1,8 @@
 import { Logger } from '@nestjs/common';
 import { SmsError, type SmsSender } from './sms.js';
 
-export type CodeChannel = 'whatsapp' | 'sms';
+/** ekran: kod gönderilmez, yanıtta döner (yalnızca kapalı test, env.ts; WhatsApp gelene kadar sahip isteği) */
+export type CodeChannel = 'whatsapp' | 'sms' | 'ekran';
 
 export interface CodeSendResult {
   kanal: CodeChannel;
@@ -99,6 +100,7 @@ export class ChannelCodeSender implements CodeSender {
     let son: unknown = new Error('Doğrulama kodu kanalı yok');
     for (const kanal of this.kanallar) {
       try {
+        if (kanal === 'ekran') return { kanal, provider: 'ekran' };
         if (kanal === 'whatsapp') {
           if (!this.whatsapp) continue;
           await this.whatsapp.send(to, code);

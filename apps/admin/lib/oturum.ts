@@ -91,3 +91,14 @@ export function originOk(req: NextRequest): boolean {
   const origin = req.headers.get('origin');
   return !origin || origin === req.nextUrl.origin;
 }
+
+/**
+ * Konsolun dışarıdan görünen adresi: yönlendirmeler buna göre kurulur. Kapsayıcıda `req.url` iç adresi
+ * (0.0.0.0:3000) taşıdığı için kullanılmaz; önce ADMIN_ORIGIN, yoksa vekil sunucunun ilettiği başlıklar.
+ */
+export function konsolAdresi(req: { headers: Headers }, yol: string): URL {
+  const kok =
+    process.env.ADMIN_ORIGIN ??
+    `${req.headers.get('x-forwarded-proto') ?? 'http'}://${req.headers.get('x-forwarded-host') ?? req.headers.get('host') ?? 'localhost:3001'}`;
+  return new URL(yol, kok);
+}

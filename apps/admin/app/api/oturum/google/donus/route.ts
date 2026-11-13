@@ -4,6 +4,7 @@ import {
   apiFetch,
   clearCookie,
   cookieBase,
+  konsolAdresi,
   message,
   STATE_COOKIE,
   TICKET_COOKIE,
@@ -11,7 +12,7 @@ import {
 
 const back = (req: NextRequest, hata: string) =>
   clearCookie(
-    NextResponse.redirect(new URL(`/giris?hata=${encodeURIComponent(hata)}`, req.url)),
+    NextResponse.redirect(konsolAdresi(req, `/giris?hata=${encodeURIComponent(hata)}`)),
     STATE_COOKIE,
     '/api/oturum/google',
   );
@@ -36,7 +37,7 @@ export async function GET(req: NextRequest) {
   if (!res.ok) return back(req, await message(res, 'Giriş yapılamadı'));
   const { ticket, needsSetup } = (await res.json()) as { ticket: string; needsSetup: boolean };
 
-  const out = NextResponse.redirect(new URL(`/giris/iki-adim${needsSetup ? '?kurulum=1' : ''}`, req.url));
+  const out = NextResponse.redirect(konsolAdresi(req, `/giris/iki-adim${needsSetup ? '?kurulum=1' : ''}`));
   out.cookies.set(TICKET_COOKIE, ticket, { ...cookieBase, path: '/api/oturum', maxAge: 600 });
   return clearCookie(out, STATE_COOKIE, '/api/oturum/google');
 }

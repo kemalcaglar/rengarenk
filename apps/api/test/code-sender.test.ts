@@ -65,6 +65,11 @@ describe('telefon doğrulama kodu kanalları (Karar 18)', () => {
       new ChannelCodeSender(['whatsapp', 'sms'], sms, kalici).send('+905321112255', '1'),
     ).rejects.toThrow('geçersiz numara');
     expect(sms.sent.some((m) => m.to === '+905321112255')).toBe(false);
+
+    // Kapalı test: ekran kanalı hiçbir şey göndermez (kod yanıtta döner)
+    const ekran = new ChannelCodeSender(['ekran'], sms, null);
+    expect(await ekran.send('+905321112266', '111222')).toEqual({ kanal: 'ekran', provider: 'ekran' });
+    expect(sms.lastCode('+905321112266')).toBeUndefined();
   });
 
   it('şifre özeti: scrypt, tuzlu; yanlış şifre ve bozuk özet eşleşmez', async () => {

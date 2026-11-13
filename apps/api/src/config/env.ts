@@ -120,7 +120,8 @@ const schema = z.object({
   SMS_SENDER_ID: z.string().default('RENGARENK'),
   /**
    * Telefon doğrulama kodunun kanalları, sırayla denenir (Karar 18): whatsapp (Meta WhatsApp Cloud API, kimlik doğrulama
-   * şablonu) ve sms. Virgülle ayrılır; yerelde ve testte sms (konsol ya da bellek).
+   * şablonu) ve sms. Virgülle ayrılır; yerelde ve testte sms (konsol ya da bellek). ekran: kod gönderilmez, yanıtta
+   * döner ve kutuya yazılır (yalnızca KAPALI_TEST=1; WhatsApp hazır olana kadar test sunucusunda, sahip isteği).
    */
   VERIFY_CHANNELS: z
     .string()
@@ -131,7 +132,12 @@ const schema = z.object({
         .map((k) => k.trim().toLowerCase())
         .filter(Boolean),
     )
-    .pipe(z.array(z.enum(['whatsapp', 'sms'])).min(1, 'VERIFY_CHANNELS boş olamaz')),
+    .pipe(z.array(z.enum(['whatsapp', 'sms', 'ekran'])).min(1, 'VERIFY_CHANNELS boş olamaz')),
+  /**
+   * Kapalı test ortamı (Karar 37: KVKK bildirimi öncesi, site yalnızca sahibin IP adreslerine açık). `ekran` doğrulama
+   * kanalı yalnızca bununla açılır; site herkese açılmadan önce ikisi de kaldırılır.
+   */
+  KAPALI_TEST: z.enum(['0', '1']).default('0'),
   /** WhatsApp Cloud API: kalıcı erişim jetonu ve gönderen numaranın kimliği (Meta İşletme hesabı) */
   WHATSAPP_TOKEN: z.string().optional(),
   WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
@@ -276,6 +282,11 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
   }
   if (e.USER_AUTH_PROVIDER === 'google' && !(e.USER_GOOGLE_CLIENT_ID && e.USER_GOOGLE_CLIENT_SECRET)) {
     throw new Error('Google ile üye girişi için USER_GOOGLE_CLIENT_ID ve USER_GOOGLE_CLIENT_SECRET gerekli');
+  }
+  if (e.VERIFY_CHANNELS.includes('ekran') && e.KAPALI_TEST !== '1') {
+    throw new Error(
+      "Doğrulama kodu ekranda yalnızca kapalı testte gösterilir (VERIFY_CHANNELS'tan 'ekran'ı kaldır)",
+    );
   }
   if (e.VERIFY_CHANNELS.includes('whatsapp') && !(e.WHATSAPP_TOKEN && e.WHATSAPP_PHONE_NUMBER_ID)) {
     throw new Error('WhatsApp kodu için WHATSAPP_TOKEN ve WHATSAPP_PHONE_NUMBER_ID gerekli');

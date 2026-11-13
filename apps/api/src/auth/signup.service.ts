@@ -49,6 +49,9 @@ interface KayitJetonu {
   kimlik: string;
   eposta: string;
   dogru: boolean;
+  /** Google ya da Apple'ın verdiği ad ve soyad: üyelikte formdakinin yerine geçer (kişi değiştiremez) */
+  ad?: string | null;
+  soyad?: string | null;
 }
 
 interface SosyalKimlik {
@@ -95,9 +98,13 @@ export class SignupService {
    */
   async start(b: RegisterStart & { platform: Platform }, ip?: string): Promise<RegisterStarted> {
     if (ip) await this.limiter.hit(`kayit:ip:${ip}`, 20, 3600);
-    const eposta = b.eposta.trim().toLowerCase();
     let sosyal: KayitJetonu | null = null;
     if (b.kayitJetonu) sosyal = await this.kayitJetonuAc(b.kayitJetonu);
+    // Google ya da Apple'dan gelen bilgi formdan değiştirilemez: imzalı jetondaki değer kullanılır, yalnızca
+    // sağlayıcının vermediği alan (ör. Apple'ın ikinci girişte vermediği ad) formdan gelir.
+    const eposta = (sosyal?.eposta || b.eposta).trim().toLowerCase();
+    const ad = (sosyal?.ad?.trim() || b.ad).trim();
+    const soyad = (sosyal?.soyad?.trim() || b.soyad).trim();
 
     await this.assertFree({ eposta, telefon: b.telefon, sosyal });
     await this.auth.assertNotBlocked({ phone: b.telefon, ip, kurulum: b.kurulum });
@@ -110,8 +117,8 @@ export class SignupService {
       data: {
         id: kod.challengeId,
         email: eposta,
-        firstName: b.ad.trim(),
-        lastName: b.soyad.trim(),
+        firstName: ad,
+        lastName: soyad,
         passwordHash,
         provider: sosyal?.saglayici ?? null,
         providerSub: sosyal?.kimlik ?? null,
@@ -415,6 +422,8 @@ export class SignupService {
       kimlik: k.sub,
       eposta: k.eposta ?? '',
       dogru: k.dogru,
+      ad: k.ad,
+      soyad: k.soyad,
     };
     return {
       tip: 'kayit',
