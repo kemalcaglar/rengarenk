@@ -215,6 +215,14 @@ for (const event of STAFF_ALERT_EVENTS) {
     await uyarilar.onEvent(event, payload);
   });
 }
+// Çalışan daveti (Karar 40): davet edilen şirket adresine giriş bağlantısı
+await queue.consume<{ staffId: string }>(
+  'calisan.davet_edildi',
+  'calisan-davet-eposta',
+  async ({ staffId }) => {
+    log.log(`çalışan daveti e-postası: ${await uyarilar.davetGonder(staffId)}`);
+  },
+);
 // Ticari ileti onayı değişti: İYS'ye bildirilir (bağlantı yoksa rıza kaydında bekler)
 await queue.consume<{ userId: string; onay: boolean }>('iys.izin_degisti', 'iys-esitle', ({ userId, onay }) =>
   ticari.iysEsitle(iys, userId, onay),

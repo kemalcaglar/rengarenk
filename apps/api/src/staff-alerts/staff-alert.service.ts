@@ -618,6 +618,50 @@ export class StaffAlertService {
     return n;
   }
 
+  /**
+   * Çalışan daveti (Karar 40): davet edilen şirket adresine giriş bağlantısı gider (işçi, `calisan.davet_edildi`).
+   * Davet kabul edilmiş, durdurulmuş ya da süresi geçmişse gönderilmez. Geçici hatada fırlatır; kuyruk yeniden dener.
+   */
+  async davetGonder(staffId: string): Promise<'gonderildi' | 'atlandi' | 'kanal_yok' | 'hata'> {
+    const s = await this.db.staffMember.findUnique({
+      where: { id: staffId },
+      select: {
+        email: true,
+        role: true,
+        status: true,
+        inviteExpiresAt: true,
+        invitedBy: true,
+        customRole: { select: { name: true } },
+      },
+    });
+    if (!s || s.status !== 'INVITED' || !s.inviteExpiresAt || s.inviteExpiresAt < new Date())
+      return 'atlandi';
+    if (!this.email || this.email.ad === 'none') {
+      this.log.warn('çalışan daveti e-postası gönderilemedi: e-posta kanalı kapalı');
+      return 'kanal_yok';
+    }
+    const davetEden = s.invitedBy ? (await this.calisan(s.invitedBy)).ad : 'Rengarenk';
+    const rol = s.customRole?.name ?? ROL_ADI[s.role] ?? s.role;
+    const url = `${this.env.ADMIN_ORIGIN}/giris`;
+    const son = saat(s.inviteExpiresAt);
+    const satirlar = [
+      `${davetEden} seni Rengarenk yönetim konsoluna davet etti. Rolün: ${rol}.`,
+      `Giriş için şirket Google hesabını (${s.email}) kullan. İlk girişte telefonundaki doğrulama uygulamasıyla (Google Authenticator, Microsoft Authenticator gibi) ekrandaki QR kodunu okutman istenecek; kurmadan konsol açılmaz.`,
+      `Davet ${son} tarihine kadar geçerlidir.`,
+    ];
+    const r = await this.email.send({
+      to: s.email,
+      from: this.env.EPOSTA_GONDEREN,
+      subject: 'Rengarenk yönetim · Konsola davet edildin',
+      text: `${satirlar.join('\n\n')}\n\nKonsola gir: ${url}\n\nBu daveti beklemiyorsan e-postayı yok sayabilirsin.`,
+      html: `${satirlar.map((t) => `<p style="font:14px/1.5 system-ui,sans-serif;color:#3A4052">${kacir(t)}</p>`).join('')}<p><a href="${kacir(url)}" style="font:600 14px system-ui,sans-serif;color:#2450C8">Konsola gir</a></p><p style="font:12px system-ui,sans-serif;color:#5A6073">Bu daveti beklemiyorsan e-postayı yok sayabilirsin.</p>`,
+    });
+    if (r.status === 'sent') return 'gonderildi';
+    if (r.status === 'temporary') throw new Error(`çalışan daveti e-postası geçici hata: ${r.message ?? ''}`);
+    this.log.warn(`çalışan daveti e-postası gönderilemedi: ${r.message ?? ''}`);
+    return 'hata';
+  }
+
   // ── Konsol ─────────────────────────────────────────────────
 
   unreadCount(staffId: string) {

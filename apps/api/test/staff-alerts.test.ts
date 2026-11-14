@@ -233,4 +233,40 @@ describe('çalışan uyarıları (Karar 40, 41, 57, 58, 59)', () => {
     // API sürecinde e-posta kanalı yok: teslim işçide
     expect(await uyarilar.teslim()).toBe(0);
   });
+
+  it('davet edilen çalışana giriş bağlantısı gider; kabul edilmiş ya da süresi geçmiş davete gitmez', async () => {
+    const posta = new MemoryEmail();
+    const env = app.get<Env>(ENV);
+    const s = new StaffAlertService(db, env, app.get(AuditService), posta);
+    const davet = await db.staffMember.create({
+      data: {
+        id: uuidv7(),
+        email: `davet-${uuidv7()}@rengarenk.test`,
+        name: 'davetli',
+        role: 'SUPPORT',
+        status: 'INVITED',
+        invitedBy: ids.sahip,
+        inviteExpiresAt: new Date(Date.now() + 48 * 3_600_000),
+      },
+    });
+    expect(await s.davetGonder(davet.id)).toBe('gonderildi');
+    const [m] = posta.sent;
+    expect(m?.to).toBe(davet.email);
+    expect(m?.text).toContain(`${env.ADMIN_ORIGIN}/giris`);
+    expect(m?.text).toContain('Rolün: Destek');
+    // API sürecinde kanal yok
+    expect(await uyarilar.davetGonder(davet.id)).toBe('kanal_yok');
+
+    await db.staffMember.update({
+      where: { id: davet.id },
+      data: { inviteExpiresAt: new Date(Date.now() - 1000) },
+    });
+    expect(await s.davetGonder(davet.id)).toBe('atlandi');
+    await db.staffMember.update({
+      where: { id: davet.id },
+      data: { status: 'ACTIVE', inviteExpiresAt: null },
+    });
+    expect(await s.davetGonder(davet.id)).toBe('atlandi');
+    expect(posta.sent.length).toBe(1);
+  });
 });
