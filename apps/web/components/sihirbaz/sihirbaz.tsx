@@ -8,13 +8,24 @@ import {
   MAX_ALTERNATIVES,
   ONE_CIKARMA,
   type PublicCategory,
+  TEKNIK_KAYNAK,
+  teknikSatirlari,
 } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { type CSSProperties, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  type CSSProperties,
+  Fragment,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useWebFiyat } from '../../lib/fiyat';
 import { ApiHatasi, binlik, istek, useGiris } from '../../lib/istemci';
 import { olcumOlayi } from '../../lib/olcum';
+import { colors } from '../../lib/renk';
 import { Logo } from '../logo';
 import { Alan, Anahtar, Cip, etiket, Konum, kutu, secimKutusu } from './alan';
 import { Asistan } from './asistan';
@@ -1227,6 +1238,36 @@ function AnaArac({ alanlar, veri, kategori, deger, yaz, gorunur, hataOf }: AdimP
               </select>
             </div>
           </div>
+          {k.teknik && teknikSatirlari(k.teknik).length ? (
+            <div
+              style={{
+                marginTop: 14,
+                background: colors.surface,
+                border: `1px solid ${colors.line}`,
+                borderRadius: 'calc(var(--rr-kart-kose) * 14 / 18)',
+                padding: '12px 16px',
+              }}
+            >
+              <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700 }}>Teknik özellikler</p>
+              <dl
+                style={{
+                  margin: 0,
+                  display: 'grid',
+                  gridTemplateColumns: 'auto 1fr',
+                  gap: '4px 14px',
+                  fontSize: 13,
+                }}
+              >
+                {teknikSatirlari(k.teknik).map(([etiket, deger]) => (
+                  <Fragment key={etiket}>
+                    <dt style={{ color: colors.muted }}>{etiket}</dt>
+                    <dd style={{ margin: 0, fontWeight: 600 }}>{deger}</dd>
+                  </Fragment>
+                ))}
+              </dl>
+              <p style={{ margin: '8px 0 0', fontSize: 11.5, color: colors.muted }}>{TEKNIK_KAYNAK}</p>
+            </div>
+          ) : null}
           {hataOf(katalog) ? (
             <span
               role="alert"

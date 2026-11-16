@@ -26,6 +26,7 @@ import { StorageModule } from '../storage/storage.service.js';
  *   pnpm --filter @rengarenk/api katalog:yukle --vehiclesdb (motosiklet, kamyon, otobüs, van: VehiclesDB)
  *   pnpm --filter @rengarenk/api katalog:yukle --commons  (nesil fotoğrafı adayları: Wikimedia Commons)
  *   pnpm --filter @rengarenk/api katalog:yukle --ana      (Rengarenk ana listesi: otomobil ve SUV seri ve yılları)
+ *   pnpm --filter @rengarenk/api katalog:yukle --ademe    (teknik özellikler: ADEME onay verisi ve eşleştirme)
  */
 @Module({ imports: [DatabaseModule, StorageModule, CatalogPipelineModule] })
 class CliModule {}
@@ -39,13 +40,15 @@ const oneri = arg === '--oneri';
 const vehiclesdb = arg === '--vehiclesdb';
 const commons = arg === '--commons';
 const ana = arg === '--ana';
-const file = archive || vmm || yerli || wikidata || oneri || vehiclesdb || commons || ana ? undefined : arg;
+const ademe = arg === '--ademe';
+const file =
+  archive || vmm || yerli || wikidata || oneri || vehiclesdb || commons || ana || ademe ? undefined : arg;
 const app = await NestFactory.createApplicationContext(CliModule, { logger: ['error', 'warn'] });
 try {
   const pipeline = app.get(CatalogPipelineService);
   const started = Date.now();
-  if (commons) {
-    const r = await pipeline.checkSource('commons', { force: true });
+  if (commons || ademe) {
+    const r = await pipeline.checkSource(ademe ? 'ademe' : 'commons', { force: true });
     console.log(JSON.stringify(r));
     await app.close();
     process.exit(0);

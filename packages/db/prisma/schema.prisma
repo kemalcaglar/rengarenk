@@ -744,6 +744,58 @@ model CatalogLineup {
   @@map("catalog_lineup")
 }
 
+/// ADEME araç onay sürümü (Fransa; Karar 33, sahip isteği 16 Kasım 2026): güç, vites, tüketim, CO2, ağırlık. Türkiye'de
+/// hangi sürümün satıldığını TSB belirler; bu kayıtlar yalnızca eşleşen tipin teknik değerlerini verir. Silinmez, güncellenir.
+model CatalogSpec {
+  id             String   @id @db.Uuid
+  source         String
+  sourceKey      String   @map("source_key")
+  /// Dosyanın yayın yılı (o yıl satışta olan sürümler)
+  year           Int
+  makeName       String   @map("make_name")
+  seriesName     String?  @map("series_name")
+  /// teknikAnahtar(marka, seri): eşleştirmede aranan anahtar
+  matchKey       String   @map("match_key")
+  description    String
+  fuel           String?
+  powerKw        Int?     @map("power_kw")
+  powerHp        Int?     @map("power_hp")
+  engineL        Float?   @map("engine_l")
+  gearbox        String?
+  gears          Int?
+  consumptionMin Float?   @map("consumption_min")
+  consumptionMax Float?   @map("consumption_max")
+  co2Min         Int?     @map("co2_min")
+  co2Max         Int?     @map("co2_max")
+  weightMin      Int?     @map("weight_min")
+  weightMax      Int?     @map("weight_max")
+  euro           String?
+  /// Birleşen onay satırı (CNIT) sayısı
+  rowCount       Int      @map("row_count")
+  version        String
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@unique([source, sourceKey])
+  @@index([matchKey])
+  @@map("catalog_specs")
+}
+
+/// Tipin teknik özeti (catalog_specs eşleşmesinden türetilir, her eşleştirmede yeniden yazılır): TeknikOzet
+model CatalogVariantSpec {
+  variantId String   @id @map("variant_id") @db.Uuid
+  source    String
+  /// TeknikOzet (packages/catalog/src/ademe.ts)
+  summary   Json
+  /// Eşleştirme imzası: hangi sürümle üretildi
+  signature String
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  variant CatalogVariant @relation(fields: [variantId], references: [id])
+
+  @@map("catalog_variant_specs")
+}
+
 /// Model: motor sürümü (BMW 320i, VW 1.0 TSI, Mercedes C 200 d)
 model CatalogModel {
   id        String   @id @db.Uuid
@@ -933,6 +985,7 @@ model CatalogVariant {
   model      CatalogModel       @relation(fields: [modelId], references: [id])
   trim       CatalogTrim?       @relation(fields: [trimId], references: [id])
   generation CatalogGeneration? @relation(fields: [generationId], references: [id])
+  spec       CatalogVariantSpec?
 
   @@unique([source, sourceKey])
   @@index([seriesId])

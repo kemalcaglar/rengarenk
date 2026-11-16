@@ -12,6 +12,8 @@ import {
   ONE_CIKARMA,
   PAINT_PARTS,
   radii,
+  TEKNIK_KAYNAK,
+  teknikSatirlari,
 } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { type ComponentRef, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
@@ -717,6 +719,28 @@ export default function TalepOlustur() {
                             yaz(katalogAlani)({ ...v, model: key });
                           }}
                         />
+                      </View>
+                    ) : null}
+                    {k.teknik && teknikSatirlari(k.teknik).length ? (
+                      <View
+                        style={{
+                          marginTop: 12,
+                          backgroundColor: colors.surface,
+                          borderWidth: 1,
+                          borderColor: colors.line,
+                          borderRadius: kartOran(14),
+                          padding: 12,
+                          gap: 4,
+                        }}
+                      >
+                        <T style={{ fontWeight: '700', fontSize: 13, marginBottom: 4 }}>Teknik özellikler</T>
+                        {teknikSatirlari(k.teknik).map(([etiket, deger]) => (
+                          <View key={etiket} style={{ flexDirection: 'row', gap: 10 }}>
+                            <T style={{ color: colors.muted, fontSize: 13, width: 110 }}>{etiket}</T>
+                            <T style={{ fontSize: 13, fontWeight: '600', flex: 1 }}>{deger}</T>
+                          </View>
+                        ))}
+                        <T style={{ color: colors.muted, fontSize: 11.5, marginTop: 4 }}>{TEKNIK_KAYNAK}</T>
                       </View>
                     ) : null}
                     {hataOf(katalogAlani) ? (

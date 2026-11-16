@@ -27,6 +27,7 @@ import { OutboxService } from '../outbox/outbox.service.js';
 import { CatalogImageService } from './catalog-image.service.js';
 import { CatalogImportService, type ImportMeta, type ImportOutcome } from './catalog-import.service.js';
 import { CATALOG_KEYS, type CatalogKeys } from './catalog-keys.js';
+import { CatalogSpecService } from './catalog-spec.service.js';
 import { TSB_CLIENT, type TsbClient } from './tsb-client.js';
 import { VEHICLESDB_CLIENT, type VehiclesDbClient } from './vehiclesdb-client.js';
 import { VMM_CLIENT, type VmmClient } from './vmm-client.js';
@@ -56,6 +57,7 @@ export class CatalogPipelineService {
     private readonly importer: CatalogImportService,
     private readonly images: CatalogImageService,
     private readonly outbox: OutboxService,
+    private readonly specs: CatalogSpecService,
   ) {}
 
   /** TSB dosyasını işler: okuma → normalize → imzalı paket → kalite kontrolü → kataloğa yazma. */
@@ -272,6 +274,7 @@ export class CatalogPipelineService {
     if (key === 'wikidata') return this.checkWikidata(opts);
     if (key === 'vehiclesdb') return this.checkVehiclesDb(opts);
     if (key === 'commons') return this.images.findCandidates({ force: opts.force });
+    if (key === 'ademe') return this.specs.check(opts);
     throw new NotFoundException('Kaynak bulunamadı');
   }
 

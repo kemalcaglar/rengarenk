@@ -391,6 +391,16 @@ pnpm format        # Biome ile biçimlendir
   (motosiklet kodları yeniden kullanılmış). Seri sayfasında bir yılın TSB ya da yerli tipi varsa o yıl dünya geneli
   listenin (vehicle-makes-models) tipleri gösterilmez. Yerelde önceden indirilmiş dosyalarla `katalog:yukle --arsiv <klasör>`.
   API'de 233, katalogda 58 test.
+- **Teknik özellikler (16 Kasım 2026, sahip isteği: "paketlere göre teknik özellikler, Türkiye'ye göre"):** kaynak `ademe`
+  (ADEME araç onay verisi, Fransa; Licence Ouverte, atıf zorunlu): yıllık dosyalar 2001–2015 (`ADEME_DOSYALAR`, 2002 ve 2004
+  yok) ve ayda bir güncel liste (data.ademe.fr). `packages/catalog/src/ademe.ts` okur (seri `ademeYerlestir`: BMW "320d" →
+  3 Serisi, "CLASSE C" → C Serisi), aynı sürümün CNIT satırlarını birleştirir; `catalog_specs` (silinmez, güncellenir).
+  `CatalogSpecService` (`catalog-spec.service.ts`) TSB/yerli tipini aynı marka, seri, yakıt, yıl (yayın yılı ya da bir önceki),
+  güç ±2 hp (yoksa hacim) ve vites türüyle eşleştirir (`teknikEslestir`; yakıt ya da güç/hacim yoksa eşleşmez) ve
+  `catalog_variant_specs`'e özet yazar (türetilmiş, her eşleştirmede baştan). Katalog değişince işçi yeniden eşleştirir
+  (imza: ayrıştırıcı + son içe aktarma). Seri ayrıntısında `models[].teknik`; gösterim ortak `teknikSatirlari`
+  (web ve mobil sihirbazda model seçilince). Yerelde `katalog:yukle --ademe`, sunucuda `run --rm api node dist/cli/katalog-yukle.js
+  --ademe`. 2016–2024 yılları EEA erişimiyle dolacak. API'de 235, katalogda 63, ortak pakette 130 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

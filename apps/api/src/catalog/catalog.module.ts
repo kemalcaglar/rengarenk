@@ -3,12 +3,14 @@ import { AuditService } from '../audit/audit.service.js';
 import { ENV, type Env } from '../config/env.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { StaffModule } from '../staff/staff.module.js';
+import { ADEME_CLIENT, HttpAdemeClient } from './ademe-client.js';
 import { CatalogController, StaffCatalogController } from './catalog.controller.js';
 import { CatalogAliasService } from './catalog-alias.service.js';
 import { CatalogImageService } from './catalog-image.service.js';
 import { CatalogImportService } from './catalog-import.service.js';
 import { CATALOG_KEYS, loadCatalogKeys } from './catalog-keys.js';
 import { CatalogPipelineService } from './catalog-pipeline.service.js';
+import { CatalogSpecService } from './catalog-spec.service.js';
 import { COMMONS_CLIENT, HttpCommonsClient } from './commons-client.js';
 import { createTsbClient, TSB_CLIENT } from './tsb-client.js';
 import { HttpVehiclesDbClient, VEHICLESDB_CLIENT } from './vehiclesdb-client.js';
@@ -20,6 +22,7 @@ const providers = [
   CatalogAliasService,
   CatalogImageService,
   CatalogPipelineService,
+  CatalogSpecService,
   AuditService,
   OutboxService,
   { provide: CATALOG_KEYS, inject: [ENV], useFactory: loadCatalogKeys },
@@ -28,6 +31,7 @@ const providers = [
   { provide: WIKIDATA_CLIENT, useFactory: () => new HttpWikidataClient() },
   { provide: VEHICLESDB_CLIENT, useFactory: () => new HttpVehiclesDbClient() },
   { provide: COMMONS_CLIENT, useFactory: () => new HttpCommonsClient() },
+  { provide: ADEME_CLIENT, useFactory: () => new HttpAdemeClient() },
 ];
 
 /** Araç kataloğu: okuma uçları, konsoldan izleme ve katalog hattı (Aşama 2). */

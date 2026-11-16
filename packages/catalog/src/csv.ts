@@ -1,5 +1,12 @@
 /** Küçük bir CSV okuyucu (RFC 4180): tırnaklı alanlar, alan içinde ayraç, satır sonu ve çift tırnak. Ayraç varsayılan virgül; Türkçe Excel noktalı virgül yazar. */
 export function parseCsv(text: string, delimiter = ','): Record<string, string>[] {
+  const [header, ...body] = parseCsvRows(text, delimiter);
+  if (!header) return [];
+  return body.map((r) => Object.fromEntries(header.map((h, i) => [h, r[i] ?? ''])));
+}
+
+/** CSV satırları, başlık dahil, olduğu gibi */
+export function parseCsvRows(text: string, delimiter = ','): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
   let field = '';
@@ -32,7 +39,5 @@ export function parseCsv(text: string, delimiter = ','): Record<string, string>[
     row.push(field);
     rows.push(row);
   }
-  const [header, ...body] = rows;
-  if (!header) return [];
-  return body.map((r) => Object.fromEntries(header.map((h, i) => [h, r[i] ?? ''])));
+  return rows;
 }

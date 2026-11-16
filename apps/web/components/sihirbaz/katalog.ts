@@ -1,5 +1,6 @@
 'use client';
 
+import type { TeknikOzet } from '@rengarenk/shared';
 import { useEffect, useState } from 'react';
 import { API } from '../../lib/istemci';
 
@@ -18,7 +19,8 @@ interface SeriDetay {
   key: string;
   name: string;
   make: Satir;
-  models: (Satir & { years: number[] })[];
+  /** Motor sürümleri; `teknik`: Türkiye'de satılan tiplerin Avrupa onay değerleri (yoksa null) */
+  models: (Satir & { years: number[]; teknik?: TeknikOzet | null })[];
   generations: {
     key: string;
     name: string;
@@ -165,6 +167,8 @@ export function useKatalog(kategori: string | undefined, v: KatalogDegeri | unde
     /** Seçilen modelin (ya da serinin) paketleri */
     paketler: (detail?.trims ?? []).filter((t) => !model || t.modelIds.includes(model.id)),
     adlar: { make: make?.name, series: seri?.name, model: model?.name },
+    /** Seçilen motor sürümünün teknik özeti */
+    teknik: (model as { teknik?: TeknikOzet | null } | undefined)?.teknik ?? null,
     hazir: makes !== null,
   };
 }

@@ -6,6 +6,7 @@ import { strToU8, zipSync } from 'fflate';
 import sharp from 'sharp';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { AppModule } from '../src/app.module.js';
+import { ADEME_CLIENT, type AdemeClient } from '../src/catalog/ademe-client.js';
 import { CatalogImportService } from '../src/catalog/catalog-import.service.js';
 import { CatalogPipelineService } from '../src/catalog/catalog-pipeline.service.js';
 import { COMMONS_CLIENT, type CommonsClient } from '../src/catalog/commons-client.js';
@@ -275,8 +276,32 @@ const fakeStorage: Storage = {
   },
 };
 
+/** ADEME onay verisi: her yıllık dosyada BMW 320i (150 hp, 6 ileri manuel) ve bir dolgu sürümü */
+const ademe = {
+  indirme: 0,
+  dosya: zipSync({
+    'carlab.csv': strToU8(
+      [
+        'lib_mrq;lib_mod_doss;lib_mod;dscom;cnit;typ_cbr;puiss_max;typ_boite_nb_rapp;conso_mixte;co2;masse_ordma_min;masse_ordma_max;champ_v9',
+        'BMW;SERIE 3;320;320i Berline (150ch);C1;ES;110;M 6;7,4;176;1430;1450;EURO4',
+        'BMW;SERIE 3;320;320i Berline (150ch);C2;ES;110;M 6;7,6;181;1460;1460;EURO4',
+        'RENAULT;CLIO;CLIO;CLIO dCi (90ch);C3;GO;66;M 5;4,0;104;1100;1100;EURO5',
+      ].join(String.fromCharCode(10)),
+    ),
+  }),
+};
+const fakeAdeme: AdemeClient = {
+  dosya: async () => {
+    ademe.indirme++;
+    return ademe.dosya;
+  },
+  guncel: async () => [],
+};
+
 beforeAll(async () => {
   const mod = await Test.createTestingModule({ imports: [AppModule] })
+    .overrideProvider(ADEME_CLIENT)
+    .useValue(fakeAdeme)
     .overrideProvider(COMMONS_CLIENT)
     .useValue(fakeCommons)
     .overrideProvider(STORAGE)
@@ -1075,5 +1100,50 @@ describe('Rengarenk ana listesi (sahip kararı, 16 Kasım 2026)', () => {
     expect(await db.catalogLineup.count()).toBeGreaterThan(1000);
     // Atıf sayfasında görünmez (Rengarenk'in kendi listesi)
     expect((await get('/catalog/attributions')).body.map((a: { key: string }) => a.key)).not.toContain('ana');
+  });
+});
+
+describe('teknik özellikler: ADEME onay verisi (Karar 33, sahip isteği 16 Kasım 2026)', () => {
+  it('yıllık dosyalar yüklenir, Türkiye tipleriyle eşleşir; seri sayfasında motor sürümünün teknik özeti', async () => {
+    const r = await staffCall(app, 'POST', '/staff/catalog/sources/ademe/check', {}, owner);
+    expect(r.body.durum).toBe('uygulandi');
+    expect(r.body.eslesen).toBeGreaterThan(0);
+    expect(await db.catalogImport.count({ where: { sourceKey: 'ademe', status: 'APPLIED' } })).toBe(14);
+    // İkinci kontrolde dosya indirilmez, katalog değişmediyse eşleştirme yinelenmez
+    const indirme = ademe.indirme;
+    expect((await staffCall(app, 'POST', '/staff/catalog/sources/ademe/check', {}, owner)).body.durum).toBe(
+      'yeni_dosya_yok',
+    );
+    expect(ademe.indirme).toBe(indirme);
+
+    const bmw = (await get('/catalog/makes')).body.find((m: { name: string }) => m.name === 'BMW');
+    const s3 = (await get(`/catalog/makes/${bmw.id}/series`)).body.find(
+      (s: { name: string }) => s.name === '3 Serisi',
+    );
+    const d = await get(`/catalog/series/${s3.id}?yil=2008`);
+    const m320 = d.body.models.find((m: { name: string }) => m.name === '320i');
+    expect(m320.teknik).toMatchObject({
+      vitesler: ['manuel:6'],
+      hp: [150, 150],
+      kw: [110, 110],
+      tuketim: [7.4, 7.6],
+      co2: [176, 181],
+      agirlik: [1430, 1460],
+      euro: ['4'],
+    });
+    // Atıf "Veri kaynakları" sayfasında
+    expect((await get('/catalog/attributions')).body.map((a: { key: string }) => a.key)).toContain('ademe');
+  });
+
+  it('kaynak kapatılınca teknik özet gösterilmez (kayıtlar silinmez)', async () => {
+    await staffCall(app, 'PATCH', '/staff/catalog/sources/ademe', { active: false }, owner);
+    const bmw = (await get('/catalog/makes')).body.find((m: { name: string }) => m.name === 'BMW');
+    const s3 = (await get(`/catalog/makes/${bmw.id}/series`)).body.find(
+      (s: { name: string }) => s.name === '3 Serisi',
+    );
+    const d = await get(`/catalog/series/${s3.id}?yil=2008`);
+    expect(d.body.models.every((m: { teknik: unknown }) => m.teknik === null)).toBe(true);
+    expect(await db.catalogSpec.count()).toBeGreaterThan(0);
+    await staffCall(app, 'PATCH', '/staff/catalog/sources/ademe', { active: true }, owner);
   });
 });

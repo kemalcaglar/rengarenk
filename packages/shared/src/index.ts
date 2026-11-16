@@ -43,5 +43,6 @@ export * from './staff.js';
 export * from './staff-alerts.js';
 export * from './subscriptions.js';
 export * from './support.js';
+export * from './teknik.js';
 export * from './tokens.js';
 export * from './tr-ek.js';

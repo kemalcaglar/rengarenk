@@ -79,6 +79,9 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
 - Türkiye'ye özgü motor ve paketler bütün yıllarda (16 Kasım 2026): 2006–2019 TSB listeleri ve "15 model yılından eski
   araçlar" listeleri (2010–2016) İnternet Arşivi'nden alınır; böylece 1950–2005 yıllarında da TSB'nin (Türkiye'de satılmış)
   tipleri görünür. Bir yılda TSB tipi varsa dünya geneli listenin (vehicle-makes-models) o yılki tipleri gösterilmez.
+- Teknik özellikler (16 Kasım 2026): ADEME araç onay verisi (Fransa, açık lisans) Türkiye'de satılan tiplerle (TSB) aynı
+  marka, seri, yakıt, güç ve yıldan eşleşir; talep sihirbazında model seçilince vites, güç, karma tüketim, CO2, boş ağırlık
+  ve Euro normu görünür. 2001–2015 yılları ve güncel liste; 2016–2024 EEA erişimini bekliyor.
 
 ### Aşama 3 · Talep (Sprint 8)
 - Talep sihirbazı (web ve mobil), yaşam döngüsü ve süreler, ilk talep ücretsiz (numara ve hesap başına bir kez).

@@ -16,7 +16,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ANA_KATEGORILER } from '@rengarenk/catalog';
+import { ANA_KATEGORILER, ozetBirlestir, type TeknikOzet } from '@rengarenk/catalog';
 import type { Prisma } from '@rengarenk/db';
 import { VEHICLE_CATEGORIES } from '@rengarenk/shared';
 import { z } from 'zod';
@@ -125,7 +125,7 @@ export class CatalogController {
       orderBy: { key: 'asc' },
       select: { key: true, name: true, license: true, attribution: true, url: true, notice: true },
     });
-    const order = ['tsb', 'vehiclesdb', 'wikidata', 'vmm', 'yerli'];
+    const order = ['tsb', 'ademe', 'vehiclesdb', 'wikidata', 'vmm', 'yerli'];
     return [
       ...rows.sort((a, b) => order.indexOf(a.key) - order.indexOf(b.key)),
       // İl komşulukları (eşleştirmede komşu il; `il-komsulari.ts`): il sınırlarından hesaplandı, katalog hattı değil
@@ -211,6 +211,8 @@ export class CatalogController {
     });
     if (!s) throw new NotFoundException('Seri bulunamadı');
     const g = await this.gorunum();
+    // Teknik özet kaynağı konsoldan kapatılırsa gösterilmez
+    const ademeAcik = (await this.db.catalogSource.count({ where: { key: 'ademe', active: true } })) > 0;
     const tipler = await this.db.catalogVariant.findMany({
       where: { seriesId: id, ...this.variantWhere(g), ...(yil ? { years: { has: yil } } : {}) },
       select: {
@@ -225,6 +227,7 @@ export class CatalogController {
         powerKw: true,
         model: { select: { id: true, key: true, name: true } },
         trim: { select: { id: true, key: true, name: true } },
+        spec: { select: { summary: true } },
       },
     });
     // Ana listedeki seride yıllar: listenin yılları ile TSB ve yerli listenin yılları birleşir (sahip kararı,
@@ -262,6 +265,13 @@ export class CatalogController {
       years: yearsOf(vs),
       fuels: [...new Set(vs.map((v) => v.fuel).filter(Boolean))],
       powerHp: uniqSorted(vs.map((v) => v.powerHp ?? 0).filter(Boolean)),
+      /**
+       * Teknik özet (ADEME onay verisi; Türkiye'de satılan tiplerin eşleşen Avrupa sürümleri): vites seçenekleri,
+       * güç, karma tüketim, CO2, boş ağırlık. Eşleşen tip yoksa null.
+       */
+      teknik: ademeAcik
+        ? ozetBirlestir(vs.flatMap((v) => (v.spec ? [v.spec.summary as unknown as TeknikOzet] : [])))
+        : null,
     }));
     const bodies = [...group((v) => v.body)].map(([name, vs]) => ({ name, years: yearsOf(vs) }));
     const trims = [...group((v) => v.trim?.id ?? null)].map(([tid, vs]) => ({

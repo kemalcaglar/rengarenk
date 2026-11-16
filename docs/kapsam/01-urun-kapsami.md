@@ -713,6 +713,10 @@ Katalogda seçilemeyen araç bırakılmaz ve kimse elle veri girmez. Kaynaklar o
   tipler): 2020'den beri TSB arşivi, 2006–2019 ve "15 model yılından eski araçlar" listeleri (1950'ye kadar) İnternet
   Arşivi'ndeki eski TSB dosyaları. Bir yıl için TSB tipi varsa dünya geneli listenin tipleri o yılda gösterilmez; TSB'nin
   hiç tipi olmayan yıllarda (çok eski ve az satılmış araçlar) dünya geneli liste yedek olarak kalır.
+- **Teknik özellikler (sahip isteği, 16 Kasım 2026):** Türkiye'de satılan tipin (TSB) vites türü ve sayısı, gücü, karma
+  tüketimi, CO2'si, boş ağırlığı ve Euro normu ADEME araç onay verisinden (Fransa, Licence Ouverte) alınır: aynı marka,
+  seri, yakıt, güç ve yıldaki onaylı sürümler. Sürümler farklıysa seçenek ya da aralık gösterilir; eşleşme yoksa alan boş
+  kalır, tahmin edilmez. Kaynak konsoldan kapatılabilir; atıf Veri kaynakları sayfasında. 2016–2024 için EEA verisi beklenir.
 - "Listede yok" bildirimi ve yönetici onayı kaldırıldı. Yönetim panelindeki katalog bölümü yalnızca izleme içindir; bir kaynak 48 saat güncellenmezse e-posta uyarısı gelir.
 - **Gerekenler:** Sahip kararıyla (7 Kasım 2026) katalog TSB listesiyle kurulur, yazılı izin sonra resmî kanaldan istenir; auto-data.net'e gerek kalmadı. Hukuki risk bilerek alındı: liste FSEK Ek m.8 (veri tabanı hakkı) ve TTK m.55 (haksız rekabet) kapsamında korunabilir. Riski sınırlamak için kasko değerleri hiçbir yerde gösterilmez, yalnızca yayınlanan aylık dosyalar kullanılır, her kaydın kaynağı saklanır ve TSB verisi ayrılabilir tutulur. İzin reddedilirse TSB kayıtları açık kaynaklar ve kullanıcı girdileriyle değiştirilir.
 - **Kalan risk:** TSB'nin teknik erişim yolu resmî bir API değil, değişebilir; geçiş yıllarında yanlış kasa ataması olabilir; Türkiye'ye özel modeller (Egea, Togg) açık kaynaklarda eksik olabilir, bu durumda TSB kaydı kasa bilgisi olmadan yayına girer ve ajan galeri girdilerinden tamamlar.
