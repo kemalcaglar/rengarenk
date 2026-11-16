@@ -1,3 +1,4 @@
+import { xlsYaz } from '@rengarenk/catalog';
 import { describe, expect, it } from 'vitest';
 import { HttpTsbClient } from '../src/catalog/tsb-client.js';
 
@@ -48,5 +49,18 @@ describe('TSB istemcisi', () => {
       fakeFetch({ GetLatestExcelFile: { Result: '/content/x.exe' } }).fn,
     );
     await expect(exe.latest()).rejects.toThrow('xlsx');
+  });
+
+  it("eski listeleri (2006–2019) yalnızca İnternet Arşivi'nden indirir", async () => {
+    const dosya = xlsYaz([['Ocak 2010']]);
+    const f = fakeFetch({ 'web.archive.org/web/20061107085119id_/': dosya });
+    const c = new HttpTsbClient('https://www.tsb.org.tr', f.fn);
+    expect(
+      await c.downloadArchived(
+        'https://web.archive.org/web/20061107085119id_/http://adl.tsrsb.org.tr:80/SMarka.xls',
+      ),
+    ).toEqual(dosya);
+    await expect(c.downloadArchived('https://kotu.example/SMarka.xls')).rejects.toThrow('İnternet Arşivi');
+    expect(f.calls).toHaveLength(1);
   });
 });

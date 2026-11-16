@@ -76,6 +76,9 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
   (91 marka, 1.099 seri, 1970–2026); TSB, yerli liste ve vehicle-makes-models bu serilere bağlanır, yıllar birleşir. TSB'de
   olup listede olmayanlar katalogda kalır, yalnızca dünya geneli listede olanlar gizlenir. Listedeki bütün markalar
   kurallarla bağlandı (alt seri, farklı ad, TSB yazım hatası, başka marka altında yazılan seri).
+- Türkiye'ye özgü motor ve paketler bütün yıllarda (16 Kasım 2026): 2006–2019 TSB listeleri ve "15 model yılından eski
+  araçlar" listeleri (2010–2016) İnternet Arşivi'nden alınır; böylece 1950–2005 yıllarında da TSB'nin (Türkiye'de satılmış)
+  tipleri görünür. Bir yılda TSB tipi varsa dünya geneli listenin (vehicle-makes-models) o yılki tipleri gösterilmez.
 
 ### Aşama 3 · Talep (Sprint 8)
 - Talep sihirbazı (web ve mobil), yaşam döngüsü ve süreler, ilk talep ücretsiz (numara ve hesap başına bir kez).

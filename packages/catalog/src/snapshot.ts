@@ -59,9 +59,9 @@ export interface SnapshotStats {
 /** TSB dosyasından anlık görüntü. `revision`: dosya adındaki revizyon (ör. 202610R2.xlsx → "R2"). */
 export function buildTsbSnapshot(
   file: Uint8Array,
-  opts: { revision?: string; now?: Date } = {},
+  opts: { revision?: string; now?: Date; period?: { year: number; month: number } } = {},
 ): CatalogSnapshot {
-  const list = readTsbList(file);
+  const list = readTsbList(file, { period: opts.period });
   const items: ParsedVariant[] = [];
   let outOfScope = 0;
   const seen = new Set<string>();

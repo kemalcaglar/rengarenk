@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { acronymCase, inferManualGearbox, isAcronym, type ParsedVariant, parseTsbRow } from './parse.js';
+import {
+  acronymCase,
+  eskiHacim,
+  inferManualGearbox,
+  isAcronym,
+  type ParsedVariant,
+  parseTsbRow,
+} from './parse.js';
+import { kodsuzMarka, kodsuzTip } from './read.js';
 
 let n = 0;
 const parse = (brand: string, type: string): ParsedVariant => {
@@ -182,5 +190,36 @@ describe('TSB ayrıştırma doğruluğu', () => {
     ];
     expect(inferManualGearbox(vs)).toBe(1);
     expect(vs.map((v) => v.gearbox)).toEqual(['manuel', 'otomatik', null]);
+  });
+
+  it('15 yıldan eski araç listesi (kodsuz): cm³ yazımı litre, yıl ve yuvarlak sayı değişmez', () => {
+    expect(eskiHacim('ROADMASTER (5200)')).toBe('ROADMASTER 5.2');
+    expect(eskiHacim('GRAND CHEROKEE LTD.(5200)')).toBe('GRAND CHEROKEE LTD. 5.2');
+    expect(eskiHacim('COUGAR 3191')).toBe('COUGAR 3.2');
+    expect(eskiHacim('12 STW TOROS 1339 5 VT')).toBe('12 STW TOROS 1.3 5 VT');
+    expect(eskiHacim('OMEGA 2.935')).toBe('OMEGA 2.9');
+    expect(eskiHacim('APACHE KAMYONET (1958)')).toBe('APACHE KAMYONET (1958)');
+    expect(eskiHacim('TAUNUS 2000')).toBe('TAUNUS 2000');
+    const eski = (brand: string, type: string) => {
+      const r = parseTsbRow({
+        brandCode: kodsuzMarka(brand),
+        typeCode: kodsuzTip(type),
+        brandName: brand,
+        typeName: type,
+        years: [1980],
+      });
+      if (!r.ok) throw new Error('kapsam dışı');
+      return r.variant;
+    };
+    expect(eski('BUICK', 'ROADMASTER (5200)')).toMatchObject({
+      engineL: 5.2,
+      trim: null,
+      raw: 'ROADMASTER (5200)',
+    });
+    expect(eski('MERCURY', 'COUGAR 3191')).toMatchObject({ engineL: 3.2, trim: null });
+    // Kodlu listede dokunulmaz
+    expect(parse('BUICK', 'ROADMASTER (5200)').engineL).toBeNull();
+    expect(kodsuzMarka('ALFA ROMEO')).toBe('EALFAROMEO');
+    expect(kodsuzTip('164 3.0 V6 ')).toBe(kodsuzTip('164 3.0 V6'));
   });
 });

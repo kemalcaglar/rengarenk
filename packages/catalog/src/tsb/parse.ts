@@ -17,7 +17,7 @@ import { normalizeHead } from './series.js';
  * Ayrıştırıcı sürümü: kurallar değişince artırılır. Aynı TSB dosyası yeni sürümle yeniden işlenebilir
  * (içe aktarma, aynı dosyayı yalnızca aynı ayrıştırıcı sürümüyle bir kez uygular).
  */
-export const TSB_PARSER = '2026-11-16-2';
+export const TSB_PARSER = '2026-11-16-4';
 
 export type Fuel = 'benzin' | 'dizel' | 'hibrit' | 'elektrik' | 'lpg';
 export type Gearbox = 'manuel' | 'otomatik' | 'yari_otomatik';
@@ -696,6 +696,33 @@ function splitWords(s: string): string[] {
   return out;
 }
 
+const litre = (cc: number) => (cc / 1000).toFixed(1);
+const yilGibi = (n: number) => n >= 1940 && n <= 2010;
+
+/**
+ * Eski araç listesinde cm³ yazımı litreye çevrilir; yalnızca kesin olanlar: parantez içinde dört hane ("ROADMASTER
+ * (5200)", yıl olabilecek 1940–2010 hariç), yüzün katı olmayan tek başına dört hane ("COUGAR 3191", "TOROS 1339") ve
+ * binlik noktalı yazım ("OMEGA 2.935"). "TAUNUS 2000" gibi yuvarlak sayılar adın parçası olabilir: değişmez.
+ */
+export function eskiHacim(name: string): string {
+  return name
+    .replace(/\((\d{4})\)/g, (m, d: string) => {
+      const n = Number(d);
+      return n >= 600 && n <= 8500 && !yilGibi(n) ? ` ${litre(n)} ` : m;
+    })
+    .split(/\s+/)
+    .map((t) => {
+      if (/^\d{4}$/.test(t)) {
+        const n = Number(t);
+        return n >= 600 && n <= 8500 && n % 100 !== 0 && !yilGibi(n) ? litre(n) : t;
+      }
+      return /^\d\.\d{3}$/.test(t) ? litre(Number(t.replace('.', ''))) : t;
+    })
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export function parseTsbRow(row: TsbRow): ParseResult {
   const brandKey = key(row.brandName);
   if (OUT_OF_SCOPE_BRANDS.has(brandKey)) return { ok: false, reason: 'kapsam_disi' };
@@ -707,7 +734,9 @@ export function parseTsbRow(row: TsbRow): ParseResult {
   };
   if (brandKey === 'MOTORSIKLET') return { ok: true, variant: { ...base, ...parseMoto(row.typeName) } };
 
-  let tokens = splitGlued(row.typeName.split(' ').filter(Boolean));
+  // "15 model yılından eski araçlar" listesi (kodsuz, `kodsuzMarka`) motor hacmini cm³ yazar
+  const name = row.brandCode.startsWith('E') ? eskiHacim(row.typeName) : row.typeName;
+  let tokens = splitGlued(name.split(' ').filter(Boolean));
   let series: string | null = null;
   let model: string | null = null;
   let fuel: Fuel | null = null;

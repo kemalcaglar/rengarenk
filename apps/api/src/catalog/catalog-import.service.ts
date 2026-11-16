@@ -638,7 +638,8 @@ export class CatalogImportService {
 
     // Güncel liste tipin bütün alanlarını yeniler. Arşiv dosyası güncel listede olan tipte yalnızca model
     // yıllarını birleştirir; listeden düşmüş tipte (güncel kaynağı yok) seri, model ve teknik alanları da yeniler,
-    // böylece ayrıştırıcı düzeltmeleri eski tiplere de ulaşır.
+    // böylece ayrıştırıcı düzeltmeleri eski tiplere de ulaşır. Birden çok arşiv dosyasında geçen tipte en yeni
+    // dosyanın yazımı geçerlidir (dosyalar hangi sırayla yüklenirse yüklensin).
     const currentUpdate = Prisma.sql`
           make_id = EXCLUDED.make_id, series_id = EXCLUDED.series_id, model_id = EXCLUDED.model_id,
           trim_id = EXCLUDED.trim_id, generation_id = COALESCE(EXCLUDED.generation_id, catalog_variants.generation_id),
@@ -648,10 +649,9 @@ export class CatalogImportService {
           years = ARRAY(SELECT DISTINCT unnest(catalog_variants.years || EXCLUDED.years) ORDER BY 1),
           raw_name = EXCLUDED.raw_name, confidence = EXCLUDED.confidence, in_latest = true,
           last_version = EXCLUDED.last_version, updated_at = now()`;
+    const eskiKalir = 'catalog_variants.in_latest OR EXCLUDED.last_version < catalog_variants.last_version';
     const keep = (col: string) =>
-      Prisma.raw(
-        `${col} = CASE WHEN catalog_variants.in_latest THEN catalog_variants.${col} ELSE EXCLUDED.${col} END`,
-      );
+      Prisma.raw(`${col} = CASE WHEN ${eskiKalir} THEN catalog_variants.${col} ELSE EXCLUDED.${col} END`);
     const archiveUpdate = Prisma.sql`
           ${Prisma.join(
             [
@@ -670,11 +670,14 @@ export class CatalogImportService {
               'facelift',
               'raw_name',
               'confidence',
+              'last_version',
             ].map(keep),
           )},
           generation_id = COALESCE(catalog_variants.generation_id, EXCLUDED.generation_id),
           years = ARRAY(SELECT DISTINCT unnest(catalog_variants.years || EXCLUDED.years) ORDER BY 1),
           first_version = LEAST(catalog_variants.first_version, EXCLUDED.first_version), updated_at = now()`;
+    // TSB eski motosiklet kodlarını başka araca vermiş: arşivdeki aynı kod başka markadaysa yılları birleştirilmez.
+    const archiveWhere = Prisma.sql`WHERE catalog_variants.make_id = EXCLUDED.make_id`;
 
     let added = 0;
     let updated = 0;
@@ -697,6 +700,7 @@ export class CatalogImportService {
           ),
         )}
         ON CONFLICT (source, source_key) DO UPDATE SET ${archive ? archiveUpdate : currentUpdate}
+        ${archive ? archiveWhere : Prisma.empty}
         RETURNING (xmax = 0) AS inserted`;
       for (const r of rows) r.inserted ? added++ : updated++;
     }

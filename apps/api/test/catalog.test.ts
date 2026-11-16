@@ -1,5 +1,6 @@
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
+import { xlsYaz } from '@rengarenk/catalog';
 import { uuidv7 } from '@rengarenk/db';
 import { strToU8, zipSync } from 'fflate';
 import sharp from 'sharp';
@@ -97,9 +98,15 @@ const fakeTsb: TsbClient = {
     const y = /arsiv\/(\d{4})/.exec(url)?.[1];
     return new Uint8Array(y ? (archives[Number(y)]?.file as Buffer) : tsb.file);
   },
+  downloadArchived: async (url: string) => {
+    if (!url.includes('20061107085119id_/http://adl.tsrsb.org.tr:80/SMarka.xls'))
+      throw new Error('arşivde yok');
+    eski.indirme++;
+    return eski.dosya;
+  },
 };
 
-/** Arşiv dosyaları: 2006–2013 model yılları. Tip 21-1832 güncel listede de var; 21-0700 çoktan listeden düşmüş. */
+/** Arşiv dosyaları: 2006–2013 model yılları. Tip 21-1832 güncel listede de var; 21-0700 (kod sıfırsız okunur: 21-700) çoktan listeden düşmüş. */
 const OLD_YEARS = [2013, 2012, 2011, 2010, 2009, 2008, 2007, 2006];
 const oldYrs = (from: number, to: number) => OLD_YEARS.map((y) => (y >= from && y <= to ? 500_000 + y : 0));
 const archiveRows = (): Row[] => [
@@ -112,6 +119,33 @@ const archiveRows = (): Row[] => [
 ];
 const archives: Record<number, { name: string; file: Buffer }> = {
   2020: { name: '202004R1.xlsx', file: tsbXlsx(archiveRows(), 'Nisan 2020', OLD_YEARS) },
+};
+
+/**
+ * İnternet Arşivi'ndeki 2006 listesi (eski Excel, 1993–2007): 21-700 listeden düşmüş tipin 2005 yılı, yeni bir eski
+ * tip ve TSB'nin başka araca verdiği kod (500-9000 bugün DOLGU markasında, burada BMW).
+ */
+const ESKI_YILLAR = [
+  2007, 2006, 2005, 2004, 2003, 2002, 2001, 2000, 1999, 1998, 1997, 1996, 1995, 1994, 1993,
+];
+const eskiYil = (...ys: number[]) => ESKI_YILLAR.map((y) => (ys.includes(y) ? 30_000 : 0));
+const eski = {
+  indirme: 0,
+  dosya: xlsYaz([
+    ['2006 KASIM', null, null, null, 'Bedeller YTL üzerinden verilmiştir.'],
+    ['Marka Kodu', 'Tip Kodu', 'Marka Adı', 'Tip Adı', ...ESKI_YILLAR],
+    [21, '0700', 'BMW', '320i SEDAN 2.0 (150) ELEGANCE ESKI YAZIM', ...eskiYil(2005)],
+    [21, 400, 'BMW', 'X5 3.0D OV', ...eskiYil(2003, 2004)],
+    [21, 300, 'BMW', '316i 1.6', ...eskiYil(1993)],
+    [500, 9000, 'BMW', 'X3 2.0D', ...eskiYil(1999)],
+    ...Array.from({ length: 1000 }, (_, i) => [
+      501,
+      9000 + i,
+      'ARSIVDOLGU',
+      `SERI${i % 30} 1.4 PAKET${i}`,
+      ...eskiYil(1998),
+    ]),
+  ]),
 };
 
 /** vehicle-makes-models sürümü: 1990'lar BMW 3 Serisi, yalnızca bu kaynakta olan Lada ve kalite için dolgu */
@@ -396,7 +430,13 @@ describe('TSB arşivi: eski model yılları (Karar 33)', () => {
 
     const r = await staffCall(app, 'POST', '/staff/catalog/tsb/archive', {}, owner);
     expect(r.status).toBe(200);
-    expect(r.body.dosyalar).toEqual([{ dosya: '202004R1.xlsx', durum: 'applied', yeniTip: 1 }]);
+    const yuklenen = (d: { dosya: string; durum: string }[]) =>
+      d.filter((x) => !x.durum.startsWith('indirilemedi'));
+    expect(yuklenen(r.body.dosyalar)).toEqual([
+      { dosya: '202004R1.xlsx', durum: 'applied', yeniTip: 1 },
+      // 2006 listesi (İnternet Arşivi): yeni tipler X5, 316i ve 1.000 dolgu
+      { dosya: 'TSB-2006-11.xls', durum: 'applied', yeniTip: 1002 },
+    ]);
 
     const after = await db.catalogVariant.findUniqueOrThrow({
       where: { source_sourceKey: { source: 'tsb', sourceKey: '21-1832' } },
@@ -410,19 +450,35 @@ describe('TSB arşivi: eski model yılları (Karar 33)', () => {
     });
     expect(after.firstVersion).toBe('2020-04-R1');
 
+    // Düşmüş tip: 2006 listesinin yılı eklenir, yazımı daha yeni olan 2020 dosyasından kalır
     const old = await db.catalogVariant.findUniqueOrThrow({
-      where: { source_sourceKey: { source: 'tsb', sourceKey: '21-0700' } },
+      where: { source_sourceKey: { source: 'tsb', sourceKey: '21-700' } },
     });
-    expect(old).toMatchObject({ inLatest: false, years: [2006, 2007, 2008, 2009, 2010, 2011] });
+    expect(old).toMatchObject({
+      inLatest: false,
+      years: [2005, 2006, 2007, 2008, 2009, 2010, 2011],
+      rawName: '320i SEDAN 2.0 (150) ELEGANCE',
+      firstVersion: '2006-11',
+      lastVersion: '2020-04-R1',
+    });
+    // Başka araca verilmiş kod: yıllar birleştirilmez
+    const kod = await db.catalogVariant.findUniqueOrThrow({
+      where: { source_sourceKey: { source: 'tsb', sourceKey: '500-9000' } },
+    });
+    expect(kod.years).not.toContain(1999);
 
     const srcAfter = await db.catalogSource.findUniqueOrThrow({ where: { key: 'tsb' } });
     expect(srcAfter.lastVersion).toBe(srcBefore.lastVersion);
-    expect(await db.auditLog.count({ where: { action: 'katalog_arsiv_ice_aktarildi' } })).toBe(1);
+    expect(await db.auditLog.count({ where: { action: 'katalog_arsiv_ice_aktarildi' } })).toBe(2);
 
     const downloads = tsb.downloads;
     const again = await staffCall(app, 'POST', '/staff/catalog/tsb/archive', {}, owner);
-    expect(again.body.dosyalar).toEqual([{ dosya: '202004R1.xlsx', durum: 'daha_once_yuklendi' }]);
+    expect(yuklenen(again.body.dosyalar)).toEqual([
+      { dosya: '202004R1.xlsx', durum: 'daha_once_yuklendi' },
+      { dosya: 'TSB-2006-11.xls', durum: 'daha_once_yuklendi' },
+    ]);
     expect(tsb.downloads).toBe(downloads);
+    expect(eski.indirme).toBe(1);
   });
 
   it('eski yıllar seri seçeneklerinde görünür', async () => {
@@ -924,13 +980,19 @@ describe('katalog okuma uçları', () => {
     expect(detail.status).toBe(200);
     expect(detail.body.make.name).toBe('BMW');
     // 318i ve 325i 1990'lardan (vehicle-makes-models, önceki test)
-    expect(detail.body.models.map((m: { name: string }) => m.name)).toEqual(['318i', '320d', '320i', '325i']);
+    expect(detail.body.models.map((m: { name: string }) => m.name)).toEqual([
+      '316i',
+      '318i',
+      '320d',
+      '320i',
+      '325i',
+    ]);
     expect(detail.body.bodies.map((b: { name: string }) => b.name)).toEqual(['Sedan', 'Station wagon']);
-    // Kodlu kuşak yılları (E36 1991–1998, G20 2018–) kuşaktan; diğerleri (arşiv 2006–2013) TSB işaretinden.
+    // Kodlu kuşak yılları (E36 1991–1998, G20 2018–) kuşaktan; diğerleri (arşiv 2005–2013) TSB işaretinden.
     expect(detail.body.makyaj).toEqual({
       makyajsiz: [
-        1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2018,
-        2019, 2020, 2021, 2022,
+        1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
+        2018, 2019, 2020, 2021, 2022,
       ],
       makyajli: [2022, 2023, 2024, 2025, 2026],
     });
@@ -991,6 +1053,8 @@ describe('Rengarenk ana listesi (sahip kararı, 16 Kasım 2026)', () => {
     expect(d.years[0]).toBe(1975);
     expect(d.years.at(-1)).toBe(2026);
     expect(names((await get(`/catalog/series/${s3.id}?yil=1995`)).body.models)).toEqual(['318i', '325i']);
+    // TSB'nin (2006 listesi) 1993 tipi varken dünya geneli listenin o yılki tipleri gösterilmez
+    expect(names((await get(`/catalog/series/${s3.id}?yil=1993`)).body.models)).toEqual(['316i']);
     const y1980 = (await get(`/catalog/series/${s3.id}?yil=1980`)).body;
     expect(y1980.years).toEqual([1980]);
     expect(y1980.models).toEqual([]);

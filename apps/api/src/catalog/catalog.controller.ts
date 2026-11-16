@@ -228,16 +228,19 @@ export class CatalogController {
       },
     });
     // Ana listedeki seride yıllar: listenin yılları ile TSB ve yerli listenin yılları birleşir (sahip kararı,
-    // 16 Kasım 2026). Dünya geneli listenin (vehicle-makes-models) tipleri yalnızca bu yıllarda görünür.
+    // 16 Kasım 2026). Dünya geneli listenin (vehicle-makes-models) tipleri yalnızca bu yıllarda ve Türkiye'ye özgü
+    // kaynağın (TSB, yerli liste) o yıl için tipi olmadığında görünür: Türkiye'de satılan motor ve paketler varken
+    // başka ülkelerinkiler gösterilmez (sahip isteği, 16 Kasım 2026).
     const lineup = g.ana
       ? await this.db.catalogLineup.findUnique({ where: { seriesId: id }, select: { years: true } })
       : null;
-    const izinli = lineup
-      ? new Set([...lineup.years, ...tipler.filter((v) => v.source !== 'vmm').flatMap((v) => v.years)])
-      : null;
+    const turkiye = new Set(tipler.filter((v) => v.source !== 'vmm').flatMap((v) => v.years));
+    const izinli = lineup ? new Set([...lineup.years, ...turkiye]) : null;
     const variants = izinli
       ? tipler
-          .map((v) => (v.source === 'vmm' ? { ...v, years: v.years.filter((y) => izinli.has(y)) } : v))
+          .map((v) =>
+            v.source === 'vmm' ? { ...v, years: v.years.filter((y) => izinli.has(y) && !turkiye.has(y)) } : v,
+          )
           .filter((v) => v.years.length > 0 && (!yil || v.years.includes(yil)))
       : tipler;
     const yearsOf = (vs: typeof variants) =>

@@ -11,7 +11,11 @@ import {
   buildYerliSnapshot,
   revisionFromFileName,
   signSnapshot,
+  TSB_ESKI,
   TSB_PARSER,
+  type TsbEskiDosya,
+  tsbEskiAdres,
+  tsbEskiDosyaAdi,
   VEHICLESDB_PARSER,
   VMM_PARSER,
   WIKIDATA_PARSER,
@@ -55,12 +59,17 @@ export class CatalogPipelineService {
   ) {}
 
   /** TSB dosyasını işler: okuma → normalize → imzalı paket → kalite kontrolü → kataloğa yazma. */
-  async runTsbFile(file: Uint8Array, meta: ImportMeta): Promise<ImportOutcome> {
+  async runTsbFile(
+    file: Uint8Array,
+    meta: ImportMeta,
+    opts: { period?: { year: number; month: number }; revision?: string } = {},
+  ): Promise<ImportOutcome> {
     const fileSha256 = createHash('sha256').update(file).digest('hex');
     let pkg: ReturnType<typeof signSnapshot>;
     try {
       const snap = buildTsbSnapshot(file, {
-        revision: meta.fileName ? revisionFromFileName(meta.fileName) : undefined,
+        revision: opts.revision ?? (meta.fileName ? revisionFromFileName(meta.fileName) : undefined),
+        period: opts.period,
       });
       pkg = signSnapshot(snap, this.keys.privatePem);
     } catch (err) {
@@ -310,9 +319,10 @@ export class CatalogPipelineService {
    * TSB arşivinden eski model yıllarını tamamlar (Karar 33: eski araçlar TSB arşivleriyle korunur). Her dosya
    * kendi döneminin 15 model yılını taşır; arşivin her yılından ilk ay alınır (2020 dosyası 2006–2020'yi getirir).
    * Daha önce yüklenen dosya yeniden indirilmez. Arşiv, güncel listenin alanlarını değiştirmez.
+   * `eski`: 2006–2019 listeleri İnternet Arşivi'nden (`TSB_ESKI`; 1993–2005 model yılları Türkiye'ye özgü olur).
    */
   async backfillTsbArchive(
-    opts: { fromYear?: number; toYear?: number; staffId?: string; ip?: string } = {},
+    opts: { fromYear?: number; toYear?: number; eski?: boolean; staffId?: string; ip?: string } = {},
   ): Promise<{ dosyalar: { dosya: string; durum: string; yeniTip?: number }[] }> {
     const now = new Date();
     const to = opts.toYear ?? now.getFullYear();
@@ -355,7 +365,42 @@ export class CatalogPipelineService {
         yeniTip: out.stats.added as number | undefined,
       });
     }
+    if (opts.eski !== false) {
+      for (const d of TSB_ESKI) {
+        const fileName = tsbEskiDosyaAdi(d);
+        if (done.has(fileName)) {
+          dosyalar.push({ dosya: fileName, durum: 'daha_once_yuklendi' });
+          continue;
+        }
+        let file: Uint8Array;
+        try {
+          file = await this.tsb.downloadArchived(tsbEskiAdres(d));
+        } catch (err) {
+          dosyalar.push({ dosya: fileName, durum: `indirilemedi: ${(err as Error).message}` });
+          continue;
+        }
+        const out = await this.runTsbEski(d, file, opts);
+        dosyalar.push({
+          dosya: fileName,
+          durum: out.status.toLowerCase(),
+          yeniTip: out.stats.added as number | undefined,
+        });
+      }
+    }
     return { dosyalar };
+  }
+
+  /** 2006–2019 TSB listesini (`TSB_ESKI`) arşiv olarak işler; dosyada dönem yazılı değilse listedeki dönem */
+  runTsbEski(d: TsbEskiDosya, file: Uint8Array, opts: { staffId?: string; ip?: string } = {}) {
+    const [year, month, ...rest] = d.donem.split('-');
+    return this.runTsbFile(
+      file,
+      { fileName: tsbEskiDosyaAdi(d), trigger: 'elle', archive: true, staffId: opts.staffId, ip: opts.ip },
+      {
+        period: year && month ? { year: Number(year), month: Number(month) } : undefined,
+        revision: rest.join('-') || undefined,
+      },
+    );
   }
 
   /** Otomatik kaynaklardan 48 saattir başarıyla güncellenemeyen var mı (işçi günde bir sorar, olay yazar). */

@@ -708,6 +708,11 @@ Katalogda seçilemeyen araç bırakılmaz ve kimse elle veri girmez. Kaynaklar o
   (ad benzerliği yetmeyen durumlar marka marka kuralla); bir serinin yılları listenin yılları ile TSB'nin yıllarının
   birleşimidir. TSB'de olup listede olmayan marka ve seriler kendiliğinden katalogda kalır (yeni çıkan araçlar dahil);
   yalnızca dünya geneli listede (vehicle-makes-models) olup listede olmayan kayıtlar gizlenir, silinmez.
+- **Yalnızca Türkiye'de satılan motor ve paketler (sahip isteği, 16 Kasım 2026):** bir aracın dünyada 10 paketi olup
+  Türkiye'de 3'ü satıldıysa yalnızca o 3'ü seçilir. Kaynak TSB kasko değer listesidir (yalnızca Türkiye'de satılan
+  tipler): 2020'den beri TSB arşivi, 2006–2019 ve "15 model yılından eski araçlar" listeleri (1950'ye kadar) İnternet
+  Arşivi'ndeki eski TSB dosyaları. Bir yıl için TSB tipi varsa dünya geneli listenin tipleri o yılda gösterilmez; TSB'nin
+  hiç tipi olmayan yıllarda (çok eski ve az satılmış araçlar) dünya geneli liste yedek olarak kalır.
 - "Listede yok" bildirimi ve yönetici onayı kaldırıldı. Yönetim panelindeki katalog bölümü yalnızca izleme içindir; bir kaynak 48 saat güncellenmezse e-posta uyarısı gelir.
 - **Gerekenler:** Sahip kararıyla (7 Kasım 2026) katalog TSB listesiyle kurulur, yazılı izin sonra resmî kanaldan istenir; auto-data.net'e gerek kalmadı. Hukuki risk bilerek alındı: liste FSEK Ek m.8 (veri tabanı hakkı) ve TTK m.55 (haksız rekabet) kapsamında korunabilir. Riski sınırlamak için kasko değerleri hiçbir yerde gösterilmez, yalnızca yayınlanan aylık dosyalar kullanılır, her kaydın kaynağı saklanır ve TSB verisi ayrılabilir tutulur. İzin reddedilirse TSB kayıtları açık kaynaklar ve kullanıcı girdileriyle değiştirilir.
 - **Kalan risk:** TSB'nin teknik erişim yolu resmî bir API değil, değişebilir; geçiş yıllarında yanlış kasa ataması olabilir; Türkiye'ye özel modeller (Egea, Togg) açık kaynaklarda eksik olabilir, bu durumda TSB kaydı kasa bilgisi olmadan yayına girer ve ajan galeri girdilerinden tamamlar.

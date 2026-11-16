@@ -1,8 +1,9 @@
 import 'reflect-metadata';
-import { readFileSync } from 'node:fs';
-import { basename } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
+import { basename, join } from 'node:path';
 import { Module } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { TSB_ESKI, tsbEskiDosyaAdi } from '@rengarenk/catalog';
 import { CatalogPipelineModule } from '../catalog/catalog.module.js';
 import { CatalogAliasService } from '../catalog/catalog-alias.service.js';
 import { CatalogPipelineService } from '../catalog/catalog-pipeline.service.js';
@@ -15,7 +16,9 @@ import { StorageModule } from '../storage/storage.service.js';
  *
  *   pnpm --filter @rengarenk/api katalog:yukle C:\yol\202610R2.xlsx
  *   pnpm --filter @rengarenk/api katalog:yukle            (TSB'den en son dosya)
- *   pnpm --filter @rengarenk/api katalog:yukle --arsiv    (TSB arşivi: eski model yılları, 2020'den beri)
+ *   pnpm --filter @rengarenk/api katalog:yukle --arsiv    (TSB arşivi: 2020'den beri TSB'den, 2006–2019 İnternet Arşivi'nden)
+ *   pnpm --filter @rengarenk/api katalog:yukle --arsiv C:\klasor   (2006–2019 listeleri önceden indirilmişse:
+ *                                                         klasörde TSB-2006-11.xls gibi adlarla; olmayan indirilir)
  *   pnpm --filter @rengarenk/api katalog:yukle --vmm      (vehicle-makes-models: 1985–2005 yılları)
  *   pnpm --filter @rengarenk/api katalog:yukle --yerli    (Türkiye'ye özgü eski modeller, kaynaklı liste)
  *   pnpm --filter @rengarenk/api katalog:yukle --wikidata (nesil kodları ve yılları: Wikidata, Vikipedi)
@@ -55,6 +58,15 @@ try {
     process.exit(0);
   }
   if (archive) {
+    const klasor = process.argv[3];
+    if (klasor) {
+      for (const d of TSB_ESKI) {
+        const yol = join(klasor, tsbEskiDosyaAdi(d));
+        if (!existsSync(yol)) continue;
+        const out = await pipeline.runTsbEski(d, new Uint8Array(readFileSync(yol)));
+        console.log(`${tsbEskiDosyaAdi(d)}: ${out.status.toLowerCase()} · ${out.stats.added ?? 0} yeni tip`);
+      }
+    }
     const r = await pipeline.backfillTsbArchive();
     for (const d of r.dosyalar)
       console.log(`${d.dosya}: ${d.durum}${d.yeniTip !== undefined ? ` · ${d.yeniTip} yeni tip` : ''}`);
