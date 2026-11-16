@@ -1,3 +1,4 @@
+import { anaKural } from './ana-liste/index.js';
 import type { CatalogSnapshot, SnapshotGeneration } from './snapshot.js';
 import { vmmSeries } from './vmm.js';
 
@@ -234,7 +235,7 @@ export function buildWikidataSnapshot(
     format: 1,
     source: 'wikidata',
     version: opts.version,
-    parser: WIKIDATA_PARSER,
+    parser: anaKural(WIKIDATA_PARSER),
     periodLabel: `Wikidata ${opts.version}`,
     generatedAt: (opts.now ?? new Date()).toISOString(),
     items: [],

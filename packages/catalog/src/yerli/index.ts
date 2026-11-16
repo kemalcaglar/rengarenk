@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { anaKural } from '../ana-liste/index.js';
 import type { CatalogSnapshot } from '../snapshot.js';
 import type { ParsedVariant } from '../tsb/parse.js';
 import { YERLI_KLASIKLER, YERLI_SURUM, type YerliModel } from './klasikler.js';
@@ -50,7 +51,7 @@ export function buildYerliSnapshot(
     format: 1,
     source: 'yerli',
     version: opts.version ?? YERLI_SURUM,
-    parser: opts.version ?? YERLI_SURUM,
+    parser: anaKural(opts.version ?? YERLI_SURUM),
     periodLabel: `Yerli klasikler ${opts.version ?? YERLI_SURUM}`,
     generatedAt: (opts.now ?? new Date()).toISOString(),
     items,

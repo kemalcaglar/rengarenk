@@ -22,6 +22,7 @@ import { StorageModule } from '../storage/storage.service.js';
  *   pnpm --filter @rengarenk/api katalog:yukle --oneri    (ad eşleme önerilerini yeniden üret)
  *   pnpm --filter @rengarenk/api katalog:yukle --vehiclesdb (motosiklet, kamyon, otobüs, van: VehiclesDB)
  *   pnpm --filter @rengarenk/api katalog:yukle --commons  (nesil fotoğrafı adayları: Wikimedia Commons)
+ *   pnpm --filter @rengarenk/api katalog:yukle --ana      (Rengarenk ana listesi: otomobil ve SUV seri ve yılları)
  */
 @Module({ imports: [DatabaseModule, StorageModule, CatalogPipelineModule] })
 class CliModule {}
@@ -34,7 +35,8 @@ const wikidata = arg === '--wikidata';
 const oneri = arg === '--oneri';
 const vehiclesdb = arg === '--vehiclesdb';
 const commons = arg === '--commons';
-const file = archive || vmm || yerli || wikidata || oneri || vehiclesdb || commons ? undefined : arg;
+const ana = arg === '--ana';
+const file = archive || vmm || yerli || wikidata || oneri || vehiclesdb || commons || ana ? undefined : arg;
 const app = await NestFactory.createApplicationContext(CliModule, { logger: ['error', 'warn'] });
 try {
   const pipeline = app.get(CatalogPipelineService);
@@ -60,20 +62,22 @@ try {
     await app.close();
     process.exit(0);
   }
-  const result = vehiclesdb
-    ? (await pipeline.checkVehiclesDb({ force: true })).outcome
-    : wikidata
-      ? (await pipeline.checkWikidata({ force: true })).outcome
-      : yerli
-        ? (await pipeline.checkYerli({ force: true })).outcome
-        : vmm
-          ? (await pipeline.checkVmm({ force: true })).outcome
-          : file
-            ? await pipeline.runTsbFile(new Uint8Array(readFileSync(file)), {
-                fileName: basename(file),
-                trigger: 'elle',
-              })
-            : (await pipeline.checkTsb({ force: true })).outcome;
+  const result = ana
+    ? (await pipeline.checkAna({ force: true })).outcome
+    : vehiclesdb
+      ? (await pipeline.checkVehiclesDb({ force: true })).outcome
+      : wikidata
+        ? (await pipeline.checkWikidata({ force: true })).outcome
+        : yerli
+          ? (await pipeline.checkYerli({ force: true })).outcome
+          : vmm
+            ? (await pipeline.checkVmm({ force: true })).outcome
+            : file
+              ? await pipeline.runTsbFile(new Uint8Array(readFileSync(file)), {
+                  fileName: basename(file),
+                  trigger: 'elle',
+                })
+              : (await pipeline.checkTsb({ force: true })).outcome;
   const sure = ((Date.now() - started) / 1000).toFixed(1);
   if (!result) {
     console.log(

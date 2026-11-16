@@ -1,4 +1,5 @@
 import { createHash, sign, verify } from 'node:crypto';
+import { anaKural } from './ana-liste/index.js';
 import {
   type CatalogSourceKey,
   inferManualGearbox,
@@ -83,7 +84,7 @@ export function buildTsbSnapshot(
     format: 1,
     source: 'tsb',
     version: `${list.year}-${month}${opts.revision ? `-${opts.revision.toUpperCase()}` : ''}`,
-    parser: TSB_PARSER,
+    parser: anaKural(TSB_PARSER),
     periodLabel: list.periodLabel,
     generatedAt: (opts.now ?? new Date()).toISOString(),
     items,

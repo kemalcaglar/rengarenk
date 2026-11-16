@@ -123,6 +123,10 @@ describe('TSB ayrıştırma doğruluğu', () => {
       model: 'RX 450h',
       fuel: 'hibrit',
     });
+    expect(parse('RENAULT', 'MEGANE E-TECH TECHNO EV60 220')).toMatchObject({ fuel: 'elektrik' });
+    expect(parse('RENAULT', 'CLIO TECHNO ESPRIT ALPINE E-TECH F.HYBRID 145')).toMatchObject({
+      fuel: 'hibrit',
+    });
     expect(parse('AUDI', 'RS E-TRON GT QUATTRO FL')).toMatchObject({
       series: 'e-tron GT',
       model: 'RS e-tron GT',

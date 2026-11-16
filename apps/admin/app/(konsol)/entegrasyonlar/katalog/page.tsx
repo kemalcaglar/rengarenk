@@ -51,6 +51,7 @@ interface Import {
 
 /** Kaynağın katalogdaki rolü */
 const SOURCE_ROLE: Record<string, string> = {
+  ana: 'Sahibin listesi · otomobil ve SUV marka, seri ve yılları · seçenekleri belirler · depoda, sürümle',
   tsb: 'Ana kaynak · aylık dosya · 2006 ve sonrası',
   vmm: 'Açık veri · haftalık sürüm · 1985–2005 yılları',
   yerli: 'Türkiye’ye özgü eski modeller · kaynaklı liste (Vikipedi) · 1967–2002',

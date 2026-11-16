@@ -700,6 +700,7 @@ model CatalogMake {
   models   CatalogModel[]
   trims    CatalogTrim[]
   variants CatalogVariant[]
+  lineup   CatalogLineup[]
 
   @@map("catalog_makes")
 }
@@ -719,9 +720,28 @@ model CatalogSeries {
   trims       CatalogTrim[]
   variants    CatalogVariant[]
   generations CatalogGeneration[]
+  lineup      CatalogLineup?
 
   @@index([makeId])
   @@map("catalog_series")
+}
+
+/// Rengarenk ana listesi (sahip kararı, 16 Kasım 2026): Türkiye'de otomobil ve SUV olarak bulunan seriler ve
+/// model yılları. Kaynak `ana` (packages/catalog/src/ana-liste). Bu kategorilerde seri seçeneklerini ve yıllarını
+/// belirler; vehicle-makes-models kayıtları yalnızca listedeki serilerde görünür. Liste sürümü değişince yeniden yazılır.
+model CatalogLineup {
+  seriesId   String   @id @map("series_id") @db.Uuid
+  makeId     String   @map("make_id") @db.Uuid
+  categories String[]
+  years      Int[]
+  version    String
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  series CatalogSeries @relation(fields: [seriesId], references: [id])
+  make   CatalogMake   @relation(fields: [makeId], references: [id])
+
+  @@index([makeId])
+  @@map("catalog_lineup")
 }
 
 /// Model: motor sürümü (BMW 320i, VW 1.0 TSI, Mercedes C 200 d)

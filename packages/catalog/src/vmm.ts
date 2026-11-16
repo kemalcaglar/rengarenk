@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { VehicleCategorySlug } from '@rengarenk/shared';
 import { strFromU8, unzipSync } from 'fflate';
+import { anaKural } from './ana-liste/index.js';
 import { parseCsv } from './csv.js';
 import type { CatalogSnapshot, SnapshotGeneration } from './snapshot.js';
 import { SUV_SERIES } from './tsb/brands.js';
@@ -263,7 +264,7 @@ export function buildVmmSnapshot(
     format: 1,
     source: 'vmm',
     version: opts.version,
-    parser: VMM_PARSER,
+    parser: anaKural(VMM_PARSER),
     periodLabel: `vehicle-makes-models ${opts.version}`,
     generatedAt: (opts.now ?? new Date()).toISOString(),
     items,

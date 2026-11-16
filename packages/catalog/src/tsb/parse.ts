@@ -17,7 +17,7 @@ import { normalizeHead } from './series.js';
  * Ayrıştırıcı sürümü: kurallar değişince artırılır. Aynı TSB dosyası yeni sürümle yeniden işlenebilir
  * (içe aktarma, aynı dosyayı yalnızca aynı ayrıştırıcı sürümüyle bir kez uygular).
  */
-export const TSB_PARSER = '2026-11-13';
+export const TSB_PARSER = '2026-11-16';
 
 export type Fuel = 'benzin' | 'dizel' | 'hibrit' | 'elektrik' | 'lpg';
 export type Gearbox = 'manuel' | 'otomatik' | 'yari_otomatik';
@@ -1022,6 +1022,8 @@ export function parseTsbRow(row: TsbRow): ParseResult {
 
   if (fuel === null && powerKw !== null && engineL === null) fuel = 'elektrik';
   if (make === 'DS' && tech.includes('E-Tense') && /^DS 3/.test(series ?? '')) fuel = 'elektrik';
+  // Renault elektrikli E-Tech tipleri batarya kodu taşır ("MEGANE E-TECH TECHNO EV60 220"); hibrit E-Tech'ler taşımaz
+  if (make === 'Renault' && /\bEV\d{2,3}\b/.test(key(row.typeName))) fuel = 'elektrik';
   // Elektrikli seriler adından bilinir (BMW i, Mercedes EQ, Tesla, Togg); motor adından gelen tahmini ezer
   const byName = electricByName(make, series);
   if (byName) fuel = byName;

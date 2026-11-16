@@ -72,6 +72,10 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
   AT6/AT8, MT6, MULTIDRIVE …; otomatik ikizi olan tip manuel), kasa (NB, CW, 4 KAPI), makyaj (MCA, FAZ2), elektrikli ve
   hibrit seriler, hafif ticari seriler otomobilden ayrıldı, kısaltmalar büyük harf (XE, RX, ASX). Otomobilde yakıtı bilinmeyen
   tip %6,4'ten %1,9'a indi. Vites (%43 dolu), güç ve kasa TSB adında çoğu zaman yazmaz: teknik özellik adımında tamamlanacak.
+- Rengarenk ana listesi (16 Kasım 2026, sahip kararı): otomobil ve SUV'de marka, seri ve yıllar sahibin listesinden
+  (91 marka, 1.099 seri, 1970–2026); TSB, yerli liste ve vehicle-makes-models bu serilere bağlanır, yıllar birleşir. TSB'de
+  olup listede olmayanlar katalogda kalır, yalnızca dünya geneli listede olanlar gizlenir. Kurallarla bağlanan markalar:
+  Renault, Fiat, Toyota, Volkswagen, Hyundai; diğer markalar sırada (şimdilik yalnızca ad eşleşmesiyle bağlı).
 
 ### Aşama 3 · Talep (Sprint 8)
 - Talep sihirbazı (web ve mobil), yaşam döngüsü ve süreler, ilk talep ücretsiz (numara ve hesap başına bir kez).

@@ -329,7 +329,7 @@ while (!stopping) {
   }
   if (Date.now() - lastCatalogCheck > CATALOG_CHECK_MS) {
     lastCatalogCheck = Date.now();
-    for (const key of ['tsb', 'vmm', 'yerli', 'wikidata', 'vehiclesdb', 'commons']) {
+    for (const key of ['ana', 'tsb', 'vmm', 'yerli', 'wikidata', 'vehiclesdb', 'commons']) {
       const r = await catalog.checkSource(key, {}).catch((err: Error) => ({ durum: `hata: ${err.message}` }));
       if (r.durum !== 'kapali' && r.durum !== 'yeni_dosya_yok') log.log(`${key} kontrolü: ${r.durum}`);
     }

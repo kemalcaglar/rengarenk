@@ -1,6 +1,9 @@
 import { createHash } from 'node:crypto';
 import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import {
+  ANA_LISTE_SURUM,
+  anaKural,
+  anaListe,
   buildTsbSnapshot,
   buildVehiclesDbSnapshot,
   buildVmmSnapshot,
@@ -86,7 +89,7 @@ export class CatalogPipelineService {
     if (!source.autoFetch && !opts.force) return { durum: 'kapali' };
     try {
       const rel = await this.vmm.latest();
-      if (rel.tag === source.lastVersion && (await this.appliedWith('vmm', VMM_PARSER))) {
+      if (rel.tag === source.lastVersion && (await this.appliedWith('vmm', anaKural(VMM_PARSER)))) {
         await this.db.catalogSource.update({
           where: { key: 'vmm' },
           data: { lastCheckedAt: new Date(), lastError: null },
@@ -121,7 +124,8 @@ export class CatalogPipelineService {
   ): Promise<{ durum: string; outcome?: ImportOutcome }> {
     const source = await this.db.catalogSource.findUniqueOrThrow({ where: { key: 'yerli' } });
     if (!source.autoFetch && !opts.force) return { durum: 'kapali' };
-    if (source.lastVersion === YERLI_SURUM) return { durum: 'yeni_dosya_yok' };
+    if (source.lastVersion === YERLI_SURUM && (await this.appliedWith('yerli', anaKural(YERLI_SURUM))))
+      return { durum: 'yeni_dosya_yok' };
     const fileSha256 = createHash('sha256').update(JSON.stringify(YERLI_KLASIKLER)).digest('hex');
     const pkg = signSnapshot(buildYerliSnapshot(), this.keys.privatePem);
     const outcome = await this.importer.apply(pkg, {
@@ -148,7 +152,7 @@ export class CatalogPipelineService {
       !opts.force &&
       source.lastSuccessAt &&
       now.getTime() - source.lastSuccessAt.getTime() < WIKIDATA_EVERY_HOURS * 3600_000 &&
-      (await this.appliedWith('wikidata', WIKIDATA_PARSER))
+      (await this.appliedWith('wikidata', anaKural(WIKIDATA_PARSER)))
     ) {
       return { durum: 'yeni_dosya_yok' };
     }
@@ -232,8 +236,27 @@ export class CatalogPipelineService {
     }
   }
 
+  /**
+   * Rengarenk ana listesi (sahip kararı, 16 Kasım 2026): depodaki liste sürümü değiştiyse kataloğa yazılır; ağ
+   * gerekmez. Listeyle birlikte bağlama kuralları da değişir; öbür kaynaklar yeni kural sürümüyle yeniden işlenir.
+   */
+  async checkAna(
+    opts: { force?: boolean; staffId?: string; ip?: string } = {},
+  ): Promise<{ durum: string; outcome?: ImportOutcome }> {
+    const source = await this.db.catalogSource.findUniqueOrThrow({ where: { key: 'ana' } });
+    if (!source.autoFetch && !opts.force) return { durum: 'kapali' };
+    if (source.lastVersion === ANA_LISTE_SURUM) return { durum: 'yeni_dosya_yok' };
+    const outcome = await this.importer.applyLineup(anaListe(), ANA_LISTE_SURUM, {
+      trigger: opts.staffId ? 'elle' : 'otomatik',
+      staffId: opts.staffId,
+      ip: opts.ip,
+    });
+    return { durum: outcome.status === 'APPLIED' ? 'uygulandi' : outcome.status.toLowerCase(), outcome };
+  }
+
   /** Konsoldaki "Şimdi kontrol et": kaynağa göre doğru hat. */
   checkSource(key: string, opts: { force?: boolean; staffId?: string; ip?: string }) {
+    if (key === 'ana') return this.checkAna(opts);
     if (key === 'tsb') return this.checkTsb(opts);
     if (key === 'vmm') return this.checkVmm(opts);
     if (key === 'yerli') return this.checkYerli(opts);
@@ -256,7 +279,7 @@ export class CatalogPipelineService {
       const latest = await this.tsb.latest();
       if (
         latest.fileName === source.lastFileName &&
-        (await this.appliedWith('tsb', TSB_PARSER, latest.fileName))
+        (await this.appliedWith('tsb', anaKural(TSB_PARSER), latest.fileName))
       ) {
         await this.db.catalogSource.update({
           where: { key: 'tsb' },
@@ -301,7 +324,7 @@ export class CatalogPipelineService {
             sourceKey: 'tsb',
             status: 'APPLIED',
             fileName: { not: null },
-            stats: { path: ['parser'], equals: TSB_PARSER },
+            stats: { path: ['parser'], equals: anaKural(TSB_PARSER) },
           },
           select: { fileName: true },
         })

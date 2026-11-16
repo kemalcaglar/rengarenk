@@ -367,6 +367,17 @@ pnpm format        # Biome ile biçimlendir
   (tahmin edilmez). Hafif ticari seriler `VAN_SERIES`, pickup `PICKUP_SERIES` (`brands.ts`). Adlarda kısaltma `acronymCase`
   (içe aktarma yalnızca büyük/küçük harf farkında adı günceller). Denetim betiği scratchpad `denetim/denetim.mjs`. 2. adım
   teknik özellikler (vites, güç, kasa, ölçüler) sırada; 2006 öncesi (VMM) Türkiye'ye özgü değildir.
+- **Ana liste (16 Kasım 2026, sahip kararı):** otomobil ve SUV'de marka, seri ve yılları sahibin elle derlediği liste
+  belirler (`packages/catalog/src/ana-liste/liste.ts`, kaynak `ana`, tablo `catalog_lineup`). Her kaynağın marka ve serisi
+  içe aktarmada ana listeye yerleşir (`anaYerlestir`: önce `kurallar.ts`'teki kural, sonra ad anahtarı `adAnahtari`);
+  ad benzerliği yetmeyen her durum (alt seri: Kona → Kona Elektrik, farklı ad: Lantra → Elantra, TSB yazım hatası)
+  marka marka kuralla bağlanır; kural yazarken TSB tip adına bak, tahmin etme. Liste ya da kural değişince
+  `ANA_LISTE_SURUM`'u artır: bütün kaynaklar (`anaKural(...)` ayrıştırıcı sürümü) yeniden işlenir; arşiv için sunucuda
+  `katalog:yukle --arsiv`. Yıllar = liste ∪ TSB ∪ yerli (sahip: "birleştir"); vehicle-makes-models tipleri yalnızca
+  listedeki serilerde ve bu yıllarda görünür; TSB'de olup listede olmayan seri katalogda kalır (sahip kararı). Kaynak
+  konsoldan kapatılırsa eski davranış döner (adlar kalır). Seri anahtarında "+" `arti` olur (206 ≠ 206+). Kural
+  çıkarma raporu scratchpad `mm/rapor.py`. İlk beş marka (Renault, Fiat, Toyota, Volkswagen, Hyundai) bağlandı.
+  API'de 232, katalogda 49 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

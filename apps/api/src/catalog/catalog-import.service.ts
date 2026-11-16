@@ -1,6 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  type AnaListeSerisi,
   acronymCase,
+  anaYerlestir,
   type CatalogSnapshot,
   type ParsedVariant,
   type PreviousSummary,
@@ -32,8 +34,13 @@ export function slug(text: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
+/**
+ * Seri adının anahtar parçası. "+" ayrı bir model demektir (Peugeot 206 ile 206+), atılmaz: "206 +" → "206-arti".
+ */
+const seriSlug = (series: string) => slug(series.replace(/\+/g, ' arti '));
+
 /** Seri anahtarı: "BMW" + "3 Serisi" → "bmw/3-serisi" */
-export const seriesKey = (make: string, series: string) => `${slug(make)}/${slug(series)}`;
+export const seriesKey = (make: string, series: string) => `${slug(make)}/${seriSlug(series)}`;
 
 /** Nesil anahtarı: kaynağı ve başlangıç yılıyla, seri kapsamında */
 export const generationKey = (scope: string, source: string, name: string, start: number) =>
@@ -48,7 +55,7 @@ export function catalogKeys(
   alias?: Map<string, string>,
 ) {
   const make = slug(v.make);
-  const raw = v.series ? `${make}/${slug(v.series)}` : `${make}/-`;
+  const raw = v.series ? `${make}/${seriSlug(v.series)}` : `${make}/-`;
   const scope = (v.series && alias?.get(raw)) || raw;
   return {
     make: scope.split('/')[0] as string,
@@ -288,6 +295,113 @@ export class CatalogImportService {
     return this.record(source, null, 'FAILED', meta, {}, null, message);
   }
 
+  /**
+   * Rengarenk ana listesi (sahip kararı, 16 Kasım 2026): listedeki marka ve seriler katalogda açılır, seri adı
+   * listedeki gibi olur; seri başına kategoriler ve model yılları `catalog_lineup`'a yazılır. Listeden çıkan serinin
+   * satırı kaldırılır; seri ve tipleri silinmez. Tek işlem: içe aktarma kaydı, işlem kaydı ve olayla birlikte.
+   */
+  async applyLineup(liste: AnaListeSerisi[], version: string, meta: ImportMeta): Promise<ImportOutcome> {
+    const id = uuidv7();
+    try {
+      const stats = await this.db.$transaction(
+        async (tx) => {
+          await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${'katalog:ana'}))`;
+          const makes = new Map(liste.map((s) => [slug(s.marka), s.marka]));
+          for (const part of chunks([...makes])) {
+            await tx.$executeRaw`
+              INSERT INTO catalog_makes (id, key, name) VALUES
+              ${Prisma.join(part.map(([key, name]) => Prisma.sql`(${uuidv7()}::uuid, ${key}, ${name})`))}
+              ON CONFLICT (key) DO NOTHING`;
+          }
+          const makeRows = await tx.catalogMake.findMany({
+            where: { key: { in: [...makes.keys()] } },
+            select: { id: true, key: true },
+          });
+          const makeIds = new Map(makeRows.map((m) => [m.key, m.id]));
+          const rows = liste.map((s) => ({ s, key: seriesKey(s.marka, s.seri), make: slug(s.marka) }));
+          for (const part of chunks(rows)) {
+            // Seri adı ana listedeki gibi olur (sahibin listesi esastır); kategoriler birleşir.
+            await tx.$executeRaw`
+              INSERT INTO catalog_series (id, key, make_id, name, categories) VALUES
+              ${Prisma.join(
+                part.map(
+                  (r) =>
+                    Prisma.sql`(${uuidv7()}::uuid, ${r.key}, ${makeIds.get(r.make)}::uuid, ${r.s.seri}, ${r.s.kategoriler}::text[])`,
+                ),
+              )}
+              ON CONFLICT (key) DO UPDATE SET name = EXCLUDED.name, categories =
+                ARRAY(SELECT DISTINCT unnest(catalog_series.categories || EXCLUDED.categories) ORDER BY 1)`;
+          }
+          const seriesRows = await tx.catalogSeries.findMany({
+            where: { key: { in: rows.map((r) => r.key) } },
+            select: { id: true, key: true },
+          });
+          const seriesIds = new Map(seriesRows.map((r) => [r.key, r.id]));
+          for (const part of chunks(rows)) {
+            await tx.$executeRaw`
+              INSERT INTO catalog_lineup (series_id, make_id, categories, years, version, updated_at) VALUES
+              ${Prisma.join(
+                part.map(
+                  (r) =>
+                    Prisma.sql`(${seriesIds.get(r.key)}::uuid, ${makeIds.get(r.make)}::uuid, ${r.s.kategoriler}::text[], ${r.s.yillar}::int[], ${version}, now())`,
+                ),
+              )}
+              ON CONFLICT (series_id) DO UPDATE SET make_id = EXCLUDED.make_id, categories = EXCLUDED.categories,
+                years = EXCLUDED.years, version = EXCLUDED.version, updated_at = now()`;
+          }
+          const removed = await tx.$executeRaw`DELETE FROM catalog_lineup WHERE version <> ${version}`;
+          const stats = { parser: version, makes: makes.size, series: rows.length, removed };
+          await tx.catalogImport.create({
+            data: {
+              id,
+              sourceKey: 'ana',
+              version,
+              fileName: `ana-liste-${version}`,
+              trigger: meta.trigger,
+              status: 'APPLIED',
+              stats,
+              createdBy: meta.staffId ?? null,
+            },
+          });
+          await tx.catalogSource.update({
+            where: { key: 'ana' },
+            data: {
+              lastSuccessAt: new Date(),
+              lastCheckedAt: new Date(),
+              lastVersion: version,
+              lastFileName: `ana-liste-${version}`,
+              lastError: null,
+            },
+          });
+          await this.audit.record(
+            {
+              actorType: meta.staffId ? 'STAFF' : 'SYSTEM',
+              actorId: meta.staffId ?? null,
+              action: 'katalog_ice_aktarildi',
+              entityType: 'catalog_import',
+              entityId: id,
+              after: { kaynak: 'ana', surum: version, seri: rows.length, cikan: removed },
+              ip: meta.ip,
+            },
+            tx,
+          );
+          await this.outbox.add(tx, 'katalog.guncellendi', {
+            importId: id,
+            source: 'ana',
+            version,
+            added: rows.length,
+            missing: removed,
+          });
+          return stats;
+        },
+        { timeout: 180_000, maxWait: 60_000 },
+      );
+      return { id, status: 'APPLIED', version, stats, quality: null };
+    } catch (err) {
+      return this.record('ana', version, 'FAILED', meta, {}, null, (err as Error).message);
+    }
+  }
+
   /** Onaylanmış ad eşlemeleri: kaynaktaki seri anahtarı → katalogdaki seri anahtarı */
   private async aliasMap(tx: Tx, source: string): Promise<Map<string, string>> {
     const rows = await tx.catalogAlias.findMany({
@@ -328,23 +442,37 @@ export class CatalogImportService {
   /** Paketin kataloğa yazılması: marka, seri, model, paket, kasa kuşakları ve tipler; toplu SQL ile. */
   private async write(tx: Tx, snap: CatalogSnapshot, archive = false) {
     const alias = await this.aliasMap(tx, snap.source);
-    const items = snap.items.map((v) => ({ v, k: catalogKeys(v, alias) }));
+    // Ana liste (sahip kararı, 16 Kasım 2026): marka ve seri ana listedeki ada yerleşir; adı listeden gelen seri
+    // olduğu gibi yazılır (büyük harf düzeltmesi yapılmaz).
+    const anaSeri = new Set<string>();
+    const items = snap.items.map((v0) => {
+      const y = anaYerlestir(v0);
+      const v = { ...v0, make: y.make, series: y.series };
+      const k = catalogKeys(v, alias);
+      if (y.ana && k.series) anaSeri.add(k.series);
+      return { v, k };
+    });
     await this.reuseSeriesLessModels(tx, items);
     // Tiplerden bağımsız kasa kuşakları (vehicle-makes-models bütün yıllar, Wikidata nesil kodları)
-    const extra = (snap.generations ?? []).map((g) => ({
-      g,
-      k: catalogKeys(
-        {
-          make: g.make,
-          series: g.series,
-          model: '-',
-          trim: null,
-          source: snap.source,
-          generation: { name: g.name, startYear: g.startYear, endYear: g.endYear },
-        },
-        alias,
-      ),
-    }));
+    const extra = (snap.generations ?? []).map((g0) => {
+      const y = anaYerlestir(g0);
+      const g = { ...g0, make: y.make, series: y.series ?? g0.series };
+      return {
+        g,
+        ana: y.ana,
+        k: catalogKeys(
+          {
+            make: g.make,
+            series: g.series,
+            model: '-',
+            trim: null,
+            source: snap.source,
+            generation: { name: g.name, startYear: g.startYear, endYear: g.endYear },
+          },
+          alias,
+        ),
+      };
+    });
     // Wikidata yalnızca katalogda var olan seriye kod ekler; seri açmaz.
     const createsSeries = snap.source !== 'wikidata';
 
@@ -357,7 +485,7 @@ export class CatalogImportService {
       if (k.series) {
         const s = series.get(k.series) ?? {
           make: k.make,
-          name: acronymCase(v.series as string),
+          name: anaSeri.has(k.series) ? (v.series as string) : acronymCase(v.series as string),
           categories: new Set<string>(),
         };
         for (const c of v.categories) s.categories.add(c);
@@ -369,10 +497,14 @@ export class CatalogImportService {
         trims.set(k.trim, { make: k.make, series: k.series, name: acronymCase(v.trim as string) });
     }
     if (createsSeries) {
-      for (const { g, k } of extra) {
+      for (const { g, k, ana } of extra) {
         if (!makes.has(k.make)) makes.set(k.make, g.make);
         if (k.series && !series.has(k.series))
-          series.set(k.series, { make: k.make, name: acronymCase(g.series), categories: new Set() });
+          series.set(k.series, {
+            make: k.make,
+            name: ana ? g.series : acronymCase(g.series),
+            categories: new Set(),
+          });
       }
     }
 

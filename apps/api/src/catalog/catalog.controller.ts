@@ -16,6 +16,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { ANA_KATEGORILER } from '@rengarenk/catalog';
 import type { Prisma } from '@rengarenk/db';
 import { VEHICLE_CATEGORIES } from '@rengarenk/shared';
 import { z } from 'zod';
@@ -34,6 +35,13 @@ const categorySchema = z.enum(VEHICLE_CATEGORIES.map((c) => c.slug) as [string, 
 const yearSchema = z.coerce.number().int().min(1950).max(2100).optional();
 
 const uniqSorted = (xs: number[]) => [...new Set(xs)].sort((a, b) => a - b);
+const ANA_KAT = new Set<string>(ANA_KATEGORILER);
+
+/** Etkin kaynaklar; `ana`: Rengarenk ana listesi açık ve uygulanmış */
+interface Gorunum {
+  keys: string[];
+  ana: boolean;
+}
 
 /** Veritabanı sıralaması Türkçe alfabeyi bilmez (Ş'yi S'nin önüne koyar); listeler Türkçe kurallarla sıralanır. */
 const trOrder = <T extends { name: string }>(rows: T[]) =>
@@ -65,13 +73,44 @@ export class CatalogController {
     return reply.send(f.body);
   }
 
-  /** Konsoldan kapatılan kaynakların kayıtları görünmez (silinmez). */
-  private async visible(kategori?: string): Promise<Prisma.CatalogVariantWhereInput> {
-    const active = await this.db.catalogSource.findMany({ where: { active: true }, select: { key: true } });
+  private async gorunum(): Promise<Gorunum> {
+    const active = await this.db.catalogSource.findMany({
+      where: { active: true },
+      select: { key: true, lastVersion: true },
+    });
     return {
-      source: { in: active.map((a) => a.key) },
-      ...(kategori ? { categories: { has: kategori } } : {}),
+      keys: active.map((a) => a.key).filter((k) => k !== 'ana'),
+      ana: active.some((a) => a.key === 'ana' && a.lastVersion !== null),
     };
+  }
+
+  /**
+   * Görünen tipler. Konsoldan kapatılan kaynakların kayıtları görünmez (silinmez). Ana liste uygulandıysa
+   * vehicle-makes-models (dünya geneli) tipleri yalnızca ana listedeki serilerde görünür (sahip kararı, 16 Kasım 2026).
+   */
+  private variantWhere(g: Gorunum, kategori?: string): Prisma.CatalogVariantWhereInput {
+    const base = { source: { in: g.keys }, ...(kategori ? { categories: { has: kategori } } : {}) };
+    if (!g.ana) return base;
+    return { ...base, OR: [{ source: { not: 'vmm' } }, { series: { lineup: { isNot: null } } }] };
+  }
+
+  private async visible(kategori?: string): Promise<Prisma.CatalogVariantWhereInput> {
+    return this.variantWhere(await this.gorunum(), kategori);
+  }
+
+  /**
+   * Görünen seriler. Otomobil ve SUV'de ana listedeki seriyi liste belirler (tipi olmasa da görünür, kategorisi
+   * listedeki gibidir); listede olmayan seri tipleriyle görünür (TSB'de olup listede olmayanlar katalogda kalır).
+   */
+  private seriesWhere(g: Gorunum, kategori?: string): Prisma.CatalogSeriesWhereInput {
+    const tipli: Prisma.CatalogSeriesWhereInput = { variants: { some: this.variantWhere(g, kategori) } };
+    if (!g.ana) return tipli;
+    if (kategori && ANA_KAT.has(kategori)) {
+      return {
+        OR: [{ lineup: { is: { categories: { has: kategori } } } }, { lineup: { is: null }, ...tipli }],
+      };
+    }
+    return kategori ? tipli : { OR: [tipli, { lineup: { isNot: null } }] };
   }
 
   /**
@@ -81,7 +120,8 @@ export class CatalogController {
   @Get('attributions')
   async attributions() {
     const rows = await this.db.catalogSource.findMany({
-      where: { active: true },
+      // Ana liste Rengarenk'in kendi listesidir; atıf gerektirmez
+      where: { active: true, key: { not: 'ana' } },
       orderBy: { key: 'asc' },
       select: { key: true, name: true, license: true, attribution: true, url: true, notice: true },
     });
@@ -105,7 +145,12 @@ export class CatalogController {
   async makes(@Query('kategori', new ZodPipe(categorySchema)) kategori?: string) {
     return trOrder(
       await this.db.catalogMake.findMany({
-        where: { variants: { some: await this.visible(kategori) } },
+        where: await this.gorunum().then((g) => ({
+          OR: [
+            { series: { some: this.seriesWhere(g, kategori) } },
+            { variants: { some: { ...this.variantWhere(g, kategori), seriesId: null } } },
+          ],
+        })),
         orderBy: { name: 'asc' },
         select: { id: true, key: true, name: true },
       }),
@@ -119,7 +164,7 @@ export class CatalogController {
   ) {
     return trOrder(
       await this.db.catalogSeries.findMany({
-        where: { makeId: id, variants: { some: await this.visible(kategori) } },
+        where: { makeId: id, ...this.seriesWhere(await this.gorunum(), kategori) },
         orderBy: { name: 'asc' },
         select: { id: true, key: true, name: true, categories: true },
       }),
@@ -165,9 +210,11 @@ export class CatalogController {
       },
     });
     if (!s) throw new NotFoundException('Seri bulunamadı');
-    const variants = await this.db.catalogVariant.findMany({
-      where: { seriesId: id, ...(await this.visible()), ...(yil ? { years: { has: yil } } : {}) },
+    const g = await this.gorunum();
+    const tipler = await this.db.catalogVariant.findMany({
+      where: { seriesId: id, ...this.variantWhere(g), ...(yil ? { years: { has: yil } } : {}) },
       select: {
+        source: true,
         years: true,
         body: true,
         facelift: true,
@@ -180,6 +227,19 @@ export class CatalogController {
         trim: { select: { id: true, key: true, name: true } },
       },
     });
+    // Ana listedeki seride yıllar: listenin yılları ile TSB ve yerli listenin yılları birleşir (sahip kararı,
+    // 16 Kasım 2026). Dünya geneli listenin (vehicle-makes-models) tipleri yalnızca bu yıllarda görünür.
+    const lineup = g.ana
+      ? await this.db.catalogLineup.findUnique({ where: { seriesId: id }, select: { years: true } })
+      : null;
+    const izinli = lineup
+      ? new Set([...lineup.years, ...tipler.filter((v) => v.source !== 'vmm').flatMap((v) => v.years)])
+      : null;
+    const variants = izinli
+      ? tipler
+          .map((v) => (v.source === 'vmm' ? { ...v, years: v.years.filter((y) => izinli.has(y)) } : v))
+          .filter((v) => v.years.length > 0 && (!yil || v.years.includes(yil)))
+      : tipler;
     const yearsOf = (vs: typeof variants) =>
       uniqSorted(vs.flatMap((v) => v.years).filter((y) => !yil || y === yil));
     const group = <K extends string>(keyOf: (v: (typeof variants)[number]) => K | null) => {
@@ -209,7 +269,7 @@ export class CatalogController {
       modelIds: [...new Set(vs.map((v) => v.model.id))],
     }));
     // Kasa kuşakları tablodan gelir (tip kaydı olmayan yıllar dahil); kapalı kaynağınkiler görünmez.
-    const activeSources = (await this.visible()).source as { in: string[] };
+    const activeSources = { in: g.keys };
     const thisYear = new Date().getFullYear();
     const genRows = await this.db.catalogGeneration.findMany({
       where: {
@@ -291,7 +351,9 @@ export class CatalogController {
       (a.name ?? '').localeCompare(b.name ?? '', 'tr');
     return {
       ...s,
-      years: yearsOf(variants),
+      years: lineup
+        ? uniqSorted([...lineup.years.filter((y) => !yil || y === yil), ...yearsOf(variants)])
+        : yearsOf(variants),
       models: models.sort(byName),
       bodies: bodies.sort(byName),
       /** Kasa kuşakları (kasa başına, makyaj sırasıyla); TSB'de yoktur, açık kaynaklardan gelir */

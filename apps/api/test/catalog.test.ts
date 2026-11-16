@@ -949,3 +949,66 @@ describe('katalog okuma uçları', () => {
     expect((await get('/catalog/makes?kategori=yok')).status).toBe(400);
   });
 });
+
+describe('Rengarenk ana listesi (sahip kararı, 16 Kasım 2026)', () => {
+  const names = (rows: { name: string }[]) => rows.map((r) => r.name);
+
+  it('liste seri ve yılları belirler; tipi olmayan seri de seçilir; dünya geneli kayıtlar yalnızca listedeki serilerde', async () => {
+    // Uygulanmadan önce vehicle-makes-models'ın yalnızca orada olan markası görünür
+    expect(names((await get('/catalog/makes')).body)).toContain('Eskidolgu');
+
+    const r = await staffCall(app, 'POST', '/staff/catalog/sources/ana/check', {}, owner);
+    expect(r.body.durum).toBe('uygulandi');
+    expect(r.body.outcome.stats.series).toBeGreaterThan(1000);
+    expect((await staffCall(app, 'POST', '/staff/catalog/sources/ana/check', {}, owner)).body.durum).toBe(
+      'yeni_dosya_yok',
+    );
+    expect(
+      await db.auditLog.count({
+        where: { action: 'katalog_ice_aktarildi', after: { path: ['kaynak'], equals: 'ana' } },
+      }),
+    ).toBe(1);
+
+    const makes = (await get('/catalog/makes?kategori=otomobil')).body;
+    expect(names(makes)).toEqual(expect.arrayContaining(['BMW', 'Moszkvics', 'Tofaş']));
+    expect(names(makes)).not.toContain('Eskidolgu');
+
+    // Kategori listeden: Togg T10F otomobil, T10X SUV
+    const togg = makes.find((m: { name: string }) => m.name === 'Togg');
+    expect(names((await get(`/catalog/makes/${togg.id}/series?kategori=otomobil`)).body)).toEqual(['T10F']);
+    expect(names((await get(`/catalog/makes/${togg.id}/series?kategori=arazi-suv-pickup`)).body)).toEqual([
+      'T10X',
+    ]);
+
+    const bmw = makes.find((m: { name: string }) => m.name === 'BMW');
+    const series = (await get(`/catalog/makes/${bmw.id}/series?kategori=otomobil`)).body;
+    expect(names(series)).toEqual(expect.arrayContaining(['3 Serisi', 'Z Serisi']));
+
+    // Yıllar birleşir: listede 1975–2026, TSB ve vehicle-makes-models tipleri listedeki yıllarda
+    const s3 = series.find((s: { name: string }) => s.name === '3 Serisi');
+    const d = (await get(`/catalog/series/${s3.id}`)).body;
+    expect(d.years[0]).toBe(1975);
+    expect(d.years.at(-1)).toBe(2026);
+    expect(names((await get(`/catalog/series/${s3.id}?yil=1995`)).body.models)).toEqual(['318i', '325i']);
+    const y1980 = (await get(`/catalog/series/${s3.id}?yil=1980`)).body;
+    expect(y1980.years).toEqual([1980]);
+    expect(y1980.models).toEqual([]);
+
+    // Tipi olmayan liste serisi: yıllar listeden, model seçeneği yok
+    const z = series.find((s: { name: string }) => s.name === 'Z Serisi');
+    const dz = (await get(`/catalog/series/${z.id}`)).body;
+    expect(dz.years.length).toBeGreaterThan(10);
+    expect(dz.models).toEqual([]);
+  });
+
+  it('kaynak kapatılınca liste görünmez, dünya geneli kayıtlar geri gelir (hiçbir şey silinmez)', async () => {
+    await staffCall(app, 'PATCH', '/staff/catalog/sources/ana', { active: false }, owner);
+    expect(names((await get('/catalog/makes')).body)).toContain('Eskidolgu');
+    expect(names((await get('/catalog/makes?kategori=otomobil')).body)).not.toContain('Moszkvics');
+    await staffCall(app, 'PATCH', '/staff/catalog/sources/ana', { active: true }, owner);
+    expect(names((await get('/catalog/makes')).body)).not.toContain('Eskidolgu');
+    expect(await db.catalogLineup.count()).toBeGreaterThan(1000);
+    // Atıf sayfasında görünmez (Rengarenk'in kendi listesi)
+    expect((await get('/catalog/attributions')).body.map((a: { key: string }) => a.key)).not.toContain('ana');
+  });
+});
