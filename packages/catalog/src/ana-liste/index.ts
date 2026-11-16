@@ -9,7 +9,7 @@ export { ANA_LISTE, MARKA_ADI, SERI_KURALLARI };
  * Ana liste ve bağlama kurallarının sürümü. Liste ya da kural değişince artar; bütün katalog kaynakları (TSB, arşiv,
  * vehicle-makes-models, yerli liste, Wikidata) bu sürümle yeniden işlenir.
  */
-export const ANA_LISTE_SURUM = '2026-11-16-6';
+export const ANA_LISTE_SURUM = '2026-11-16-7';
 
 /** Kaynağın ayrıştırıcı sürümü ile ana liste sürümü: biri değişince kaynak yeniden işlenir. */
 export const anaKural = (parser: string) => `${parser}+ana.${ANA_LISTE_SURUM}`;
@@ -100,7 +100,8 @@ export interface Yerlestirilecek {
 const kuralTutar = (k: SeriKurali, v: Yerlestirilecek) =>
   (!k.tip || k.tip.test(v.raw ?? '')) &&
   (!k.yakit || v.fuel === k.yakit) &&
-  (!k.ilkYil || Math.min(...(v.years?.length ? v.years : [0])) >= k.ilkYil);
+  (!k.ilkYil || Math.min(...(v.years?.length ? v.years : [0])) >= k.ilkYil) &&
+  (!k.sonYil || Math.min(...(v.years?.length ? v.years : [9999])) <= k.sonYil);
 
 /**
  * Kaynaktaki marka ve seriyi ana listeye yerleştirir (Karar 33, sahip kararı 16 Kasım 2026): marka ana listedeki
@@ -115,8 +116,31 @@ export function anaYerlestir(v: Yerlestirilecek): { make: string; series: string
   if (v.categories && !v.categories.some((c) => (ANA_KATEGORILER as readonly string[]).includes(c)))
     return { make, series: v.series, ana: false };
   const anahtar = adAnahtari(v.series);
-  const kural = SERI_KURALLARI[make]?.find((k) => adAnahtari(k.kaynak) === anahtar && kuralTutar(k, v));
+  const kurallar = SERI_KURALLARI[make] ?? [];
+  const kural = kurallar.find(
+    (k) => k.kaynak !== '*' && adAnahtari(k.kaynak) === anahtar && kuralTutar(k, v),
+  );
   if (kural) return { make: kural.marka ?? make, series: kural.hedef, ana: true };
   const ad = d.seri.get(make)?.get(anahtar);
-  return ad ? { make, series: ad, ana: true } : { make, series: v.series, ana: false };
+  if (ad) return { make, series: ad, ana: true };
+  // Seri adı ne olursa olsun tip adındaki desen: eski TSB yazımları ("320I/4", "525IXA")
+  const genel = kurallar.find((k) => k.kaynak === '*' && kuralTutar(k, v));
+  if (genel) return { make: genel.marka ?? make, series: genel.hedef, ana: true };
+  const onek = v.raw ? basKelimeler(d.seri.get(make), v.raw) : undefined;
+  return onek ? { make, series: onek, ana: true } : { make, series: v.series, ana: false };
+}
+
+/**
+ * Tip adının baştaki 1–3 kelimesi bir ana liste serisinin adı mı (en uzunu): "LE SABRE (1600)" → Le Sabre, "4 RUNNER 3.0"
+ * → 4Runner. Kelime sınırına bakılır: "30 CSL" 3 Serisi değildir, "2002" 2 Serisi değildir.
+ */
+function basKelimeler(seriler: Map<string, string> | undefined, raw: string): string | undefined {
+  if (!seriler) return undefined;
+  const t = raw.split(/\s+/).filter(Boolean);
+  let bulunan: string | undefined;
+  for (let k = 1; k <= Math.min(3, t.length); k++) {
+    const ad = seriler.get(adAnahtari(t.slice(0, k).join(' ')));
+    if (ad) bulunan = ad;
+  }
+  return bulunan;
 }

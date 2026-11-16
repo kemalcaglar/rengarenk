@@ -516,3 +516,169 @@ export const SERI_KURALLARI: Record<string, SeriKurali[]> = {
     { kaynak: 'EX30', hedef: 'EX30 Cross Country', tip: /CROSS COUNTRY/ },
   ],
 };
+
+/**
+ * Eski TSB yazımları (2006–2019 listeleri ve "15 model yılından eski araçlar" listeleri, 16 Kasım 2026): kısaltma,
+ * yazım hatası ve başka marka altında yazılan seriler. Yalnızca hedefi ana listede olan ve tip adından kesin anlaşılanlar;
+ * listede olmayan eski araçlar (Buick Electra, Chevrolet Impala …) kendi serileriyle kalır.
+ */
+const ESKI_KURALLAR: Record<string, SeriKurali[]> = {
+  'Alfa Romeo': [{ kaynak: 'Alfa', hedef: '146', tip: /^ALFA 146\b/ }],
+  Audi: [{ kaynak: 'C4', hedef: '100 Serisi', tip: /^C4 100\b/ }],
+  BMW: [
+    // "320I/4", "316/2I", "325TDA/4", "318tiA COMPACT", "328iA/4 E46": 3 Serisi (kapı sayısı / ile)
+    {
+      kaynak: '*',
+      hedef: '3 Serisi',
+      tip: /^3(?:1[68]|2[0358])(?:I|IA|IS|TD|TDA|TDS|TI|TIA|CI)?(?:\/[24])?I?\b/i,
+      sonYil: 2005,
+    },
+    { kaynak: '*', hedef: '5 Serisi', tip: /^525(?:IXA|TDSA)\b/i, sonYil: 2005 },
+    { kaynak: '*', hedef: '8 Serisi', tip: /^850CSI\b/i, sonYil: 2005 },
+    { kaynak: 'L7', hedef: '7 Serisi' },
+  ],
+  Buick: [
+    { kaynak: 'Custom', hedef: 'Le Sabre', tip: /LE SABRE/ },
+    { kaynak: 'Sabre', hedef: 'Le Sabre' },
+    { kaynak: 'Park', hedef: 'Park Avenue', tip: /^PARK AVEN/ },
+  ],
+  Cadillac: [
+    { kaynak: 'Sedan', hedef: 'DeVille', tip: /DE ?VILLE/ },
+    { kaynak: 'Coupe', hedef: 'DeVille', tip: /DE ?VILLE/ },
+  ],
+  Chevrolet: [
+    { kaynak: 'Berette', hedef: 'Beretta' },
+    { kaynak: 'Stringray', hedef: 'Corvette', tip: /CORVETTE/ },
+    { kaynak: 'K', hedef: 'Blazer', tip: /BLAZER/ },
+    { kaynak: 'KS', hedef: 'Blazer', tip: /BLAZER/ },
+  ],
+  Chrysler: [
+    { kaynak: 'Grand Cherokee', hedef: 'Grand Cherokee', marka: 'Jeep' },
+    { kaynak: 'Dodge', hedef: 'Ram', marka: 'Dodge', tip: /\bRAM\b/ },
+  ],
+  Daewoo: [{ kaynak: 'Super', hedef: 'Super Saloon', tip: /^SUPER SALON/ }],
+  Daihatsu: [{ kaynak: 'Cuorre', hedef: 'Cuore' }],
+  Dodge: [{ kaynak: 'Cahellenger', hedef: 'Challenger' }],
+  Ferrari: [
+    { kaynak: '456M', hedef: '456' },
+    { kaynak: 'F456', hedef: '456' },
+    { kaynak: 'F512', hedef: '512' },
+  ],
+  Fiat: [
+    // Tofaş modelleri eski listelerde FIAT altında
+    { kaynak: 'Dogan', hedef: 'Doğan', marka: 'Tofaş' },
+    { kaynak: 'Kartal', hedef: 'Kartal', marka: 'Tofaş' },
+    { kaynak: 'Kartal1.6', hedef: 'Kartal', marka: 'Tofaş' },
+    { kaynak: '131', hedef: 'Kartal', marka: 'Tofaş', tip: /KARTAL/ },
+    { kaynak: 'Sahin', hedef: 'Şahin', marka: 'Tofaş' },
+  ],
+  Ford: [
+    { kaynak: 'Escord', hedef: 'Escort' },
+    { kaynak: 'Sport', hedef: 'Mustang', tip: /MUSTANG/ },
+    { kaynak: 'Mach', hedef: 'Mustang', tip: /^MACH 1\b/ },
+    { kaynak: 'Lincoln', hedef: 'Continental', marka: 'Lincoln', tip: /CONTINENTAL/ },
+  ],
+  Honda: [{ kaynak: 'Acura', hedef: 'RSX', marka: 'Acura', tip: /\bRSX\b/ }],
+  Hyundai: [{ kaynak: 'Excell', hedef: 'Excel' }],
+  Infiniti: [{ kaynak: 'QX4', hedef: 'QX' }],
+  Isuzu: [{ kaynak: 'Tropper', hedef: 'Trooper' }],
+  Jaguar: [
+    { kaynak: 'Sovereing', hedef: 'Sovereign' },
+    { kaynak: 'XJ6,Sovereign', hedef: 'XJ6' },
+    { kaynak: 'XJSC', hedef: 'XJS' },
+  ],
+  Lada: [
+    { kaynak: '2110', hedef: 'Vega', tip: /VEGA/ },
+    { kaynak: '2112', hedef: 'Vega', tip: /VEGA/ },
+    { kaynak: '2121Arazi', hedef: 'Niva', tip: /NIVA/ },
+  ],
+  Lancia: [
+    { kaynak: 'K', hedef: 'Kappa', tip: /KAPPA/ },
+    { kaynak: 'Tehema', hedef: 'Thema' },
+  ],
+  'Land Rover': [
+    // 1983'ten sonraki 90, 110, 130 "One Ten" serisi 1990'da Defender adını aldı
+    { kaynak: '*', hedef: 'Defender', tip: /^(?:90|110|130)[-. ]?\d{0,3}\b/, ilkYil: 1983, sonYil: 2005 },
+    { kaynak: 'V8I', hedef: 'Discovery', tip: /DISCOVERY/ },
+  ],
+  Maserati: [
+    { kaynak: 'Quatroporte', hedef: 'Quattroporte' },
+    { kaynak: '3200', hedef: 'GT', tip: /^3200 GT\b/ },
+  ],
+  Mazda: [{ kaynak: 'B-2200', hedef: 'B Serisi' }],
+  'Mercedes-Benz': [
+    { kaynak: '190D', hedef: '190' },
+    { kaynak: '200D', hedef: '200' },
+    { kaynak: '220D', hedef: '220' },
+    { kaynak: '220S', hedef: '220' },
+    { kaynak: '230/4', hedef: '230' },
+    { kaynak: '230/6', hedef: '230' },
+    { kaynak: '250/6', hedef: '250' },
+    { kaynak: '290', hedef: 'G Serisi', tip: /^290 GD\b/ },
+    { kaynak: '350', hedef: 'G Serisi', tip: /^350 GD\b/ },
+  ],
+  Mitsubishi: [
+    // Montero: Pajero'nun Amerika adı; GTO: 3000GT'nin Japonya adı
+    { kaynak: 'Montero', hedef: 'Pajero' },
+    { kaynak: 'Evo', hedef: 'Lancer Evolution' },
+    { kaynak: 'Gto', hedef: '3000GT', tip: /^GTO 3000\b/ },
+  ],
+  Nissan: [
+    { kaynak: 'Blubird', hedef: 'Bluebird' },
+    { kaynak: '3000', hedef: '300 ZX', tip: /^3000 ZX\b/ },
+    { kaynak: 'Infinity', hedef: 'QX', marka: 'Infiniti', tip: /QX4/i },
+  ],
+  Opel: [
+    { kaynak: 'Record', hedef: 'Rekord' },
+    { kaynak: 'Speedstar', hedef: 'Speedster' },
+    { kaynak: '4B4', hedef: 'Vectra', tip: /VECTRA/ },
+  ],
+  Pontiac: [
+    // Trans Am ve Formula, Firebird'ün paketleri
+    { kaynak: 'Transam', hedef: 'Firebird' },
+    { kaynak: 'Formula', hedef: 'Firebird' },
+    { kaynak: '350', hedef: 'Firebird', tip: /FIREBI/ },
+  ],
+  Porsche: [{ kaynak: 'P', hedef: '928', tip: /^P 928\b/ }],
+  Renault: [
+    { kaynak: 'R', hedef: 'R 12', tip: /12 TX TOROS/ },
+    { kaynak: 'Reno', hedef: 'R 9', tip: /^RENO 9\b/ },
+    // Türkiye'de Renault 9'un 1996–2000 adı
+    { kaynak: 'Broadway', hedef: 'R 9' },
+    { kaynak: 'Escape', hedef: 'Espace' },
+  ],
+  Rover: [
+    { kaynak: 'MG', hedef: 'ZR', marka: 'MG', tip: /^MG ZR\b/ },
+    { kaynak: 'MG', hedef: 'F', marka: 'MG', tip: /^MG TF\b/ },
+    // 1995–2001 arasında MG'nin tek otomobili MGF (1.8i ve 1.8i VVC)
+    { kaynak: 'MG', hedef: 'F', marka: 'MG', tip: /^MG 1\.8I/i, sonYil: 2001 },
+  ],
+  Skoda: [{ kaynak: 'Pick', hedef: 'Felicia Pickup', tip: /^PICK UP/, ilkYil: 1996 }],
+  Smart: [
+    // city-coupé ve cabrio 2004'te fortwo adını aldı
+    { kaynak: 'City', hedef: 'Fortwo', tip: /^CITY COUPE/ },
+    { kaynak: 'Cabrio', hedef: 'Fortwo' },
+    { kaynak: 'Passion', hedef: 'Fortwo', tip: /^SMART PASSION$/ },
+    { kaynak: 'Pulse', hedef: 'Fortwo', tip: /^SMART PULSE$/ },
+    { kaynak: 'Pure', hedef: 'Fortwo', tip: /^PURE$/ },
+  ],
+  Subaru: [{ kaynak: 'Legasy', hedef: 'Legacy' }],
+  Suzuki: [{ kaynak: 'Samurai', hedef: 'SJ' }],
+  Toyota: [
+    { kaynak: 'Land', hedef: 'Land Cruiser', tip: /^LAND CRUISE/ },
+    { kaynak: 'FJ80', hedef: 'Land Cruiser' },
+    { kaynak: 'FJ80L', hedef: 'Land Cruiser' },
+    { kaynak: 'J8', hedef: 'Land Cruiser', tip: /LAND CRUISER/ },
+    { kaynak: 'GX', hedef: 'Land Cruiser', tip: /LAND CRUISER/ },
+    { kaynak: 'RA6', hedef: 'Celica', tip: /C[ER]LICA/ },
+    { kaynak: 'LS', hedef: 'LS', marka: 'Lexus', tip: /^LS 400\b/ },
+  ],
+  // VW 1300, 1302, 1303: Beetle
+  Volkswagen: [
+    { kaynak: '1300', hedef: 'Beetle', tip: /^1300$/ },
+    { kaynak: '1.3', hedef: 'Beetle', tip: /^1303\b/ },
+  ],
+};
+
+for (const [marka, kurallar] of Object.entries(ESKI_KURALLAR))
+  SERI_KURALLARI[marka] = [...(SERI_KURALLARI[marka] ?? []), ...kurallar];

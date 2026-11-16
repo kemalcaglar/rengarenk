@@ -20,8 +20,13 @@ export interface AnaMarka {
  * ("Ypsilon" → "Y (Ypsilon)"). Kurallar sırayla denenir; ilk tutan uygulanır.
  */
 export interface SeriKurali {
-  /** Kaynaktaki seri adı (büyük/küçük harf, boşluk ve tire önemsiz) */
+  /**
+   * Kaynaktaki seri adı (büyük/küçük harf, boşluk ve tire önemsiz). "*": seri adı ne olursa olsun, yalnızca `tip`
+   * desenine bakılır (eski TSB yazımları "320I/4"); ad eşleşmesinden sonra denenir.
+   */
   kaynak: string;
+  /** Yalnızca ilk model yılı bundan büyük olmayan tipler (eski yazımlara sınırlamak için) */
+  sonYil?: number;
   /** Ana listedeki seri adı (aynı marka) */
   hedef: string;
   /** Tip adında aranır (TSB tip adları büyük harftir); verilmezse serinin bütün tipleri */

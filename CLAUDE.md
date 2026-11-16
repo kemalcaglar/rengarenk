@@ -377,7 +377,10 @@ pnpm format        # Biome ile biçimlendir
   listedeki serilerde ve bu yıllarda görünür; TSB'de olup listede olmayan seri katalogda kalır (sahip kararı). Kaynak
   konsoldan kapatılırsa eski davranış döner (adlar kalır). Seri anahtarında "+" `arti` olur (206 ≠ 206+). Kural
   çıkarma raporu scratchpad `mm/rapor.py`, tip adı arama `mm/ara.py`. Listedeki bütün markalar bağlandı; kural
-  seçenekleri: `tip` (tip adında desen), `yakit`, `ilkYil`, `marka` (TSB'de başka marka altında: Citroen DS3 → DS).
+  seçenekleri: `tip` (tip adında desen), `yakit`, `ilkYil`, `sonYil`, `marka` (TSB'de başka marka altında: Citroen DS3 → DS,
+  FIAT Doğan → Tofaş), `kaynak: '*'` (seri adı ne olursa olsun desen: BMW "320I/4"). Kural ve ad tutmazsa tip adının
+  baştaki 1–3 kelimesi bir liste serisinin adıysa ona bağlanır (`basKelimeler`: "LE SABRE (1600)"). Eski TSB yazımları
+  `ESKI_KURALLAR` (kurallar.ts sonu); rapor scratchpad `mm/eski-rapor.sql`, deneme `mm/dene.mjs`.
   TSB ayrıştırıcısı `2026-11-16-4`: kısaltılmış vites yazımları (GEARTRO, 9TRON, 8A/T), elektrikli otomobil otomatik.
 - **Türkiye'ye özgü tipler, bütün yıllar (16 Kasım 2026, sahip isteği: "10 paketin 3'ü Türkiye'de"):** TSB listesi yalnızca
   Türkiye'de satılan motor ve paketleri taşır. 2006–2019 listeleri (eski siteler adl.tsrsb.org.tr, tsrsb.org.tr,
@@ -387,7 +390,7 @@ pnpm format        # Biome ile biçimlendir
   Tip kodları bugünkü listeyle aynı (bazı yıllarda "003" gibi sıfırlı yazılır, okuyucu sıfırsız yapar); arşivde en yeni dosyanın yazımı geçerli, başka markadaki aynı kod birleşmez
   (motosiklet kodları yeniden kullanılmış). Seri sayfasında bir yılın TSB ya da yerli tipi varsa o yıl dünya geneli
   listenin (vehicle-makes-models) tipleri gösterilmez. Yerelde önceden indirilmiş dosyalarla `katalog:yukle --arsiv <klasör>`.
-  API'de 233, katalogda 57 test.
+  API'de 233, katalogda 58 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

@@ -80,4 +80,20 @@ describe('ana liste (sahip kararı, 16 Kasım 2026)', () => {
     // Ana liste otomobil ve SUV içindir; motosiklet serisine dokunmaz
     expect(anaYerlestir({ make: 'BMW', series: 'X5', categories: ['motosiklet'] }).ana).toBe(false);
   });
+
+  it('eski TSB yazımları: desen kuralı, başka marka ve baştaki kelimeler (2006–2019 ve eski araç listeleri)', () => {
+    const oto = (make: string, series: string, raw: string, years = [1995]) =>
+      anaYerlestir({ make, series, raw, categories: ['otomobil'], years });
+    expect(oto('BMW', '320I/4', '320I/4')).toMatchObject({ series: '3 Serisi', ana: true });
+    expect(oto('BMW', '318TIA', '318tiA COMPACT')).toMatchObject({ series: '3 Serisi' });
+    // "30 CSL" ve "2002" 3 ya da 2 Serisi değildir
+    expect(oto('BMW', '30', '30 CSL (2985)', [1972]).ana).toBe(false);
+    expect(oto('BMW', '2002', '2002 (1598)', [1974]).ana).toBe(false);
+    expect(oto('Fiat', 'Dogan', 'DOGAN 1.6 i.e.')).toEqual({ make: 'Tofaş', series: 'Doğan', ana: true });
+    expect(oto('Buick', 'LE', 'LE SABRE (1600)', [1980])).toMatchObject({ series: 'Le Sabre', ana: true });
+    expect(oto('Toyota', '4', '4 RUNNER')).toMatchObject({ series: '4Runner' });
+    expect(oto('Land Rover', '110-83', '110-83 2495', [1987])).toMatchObject({ series: 'Defender' });
+    // 1983 öncesi "88" Land Rover serisidir, Defender değil
+    expect(oto('Land Rover', '88', '88 2286', [1984]).ana).toBe(false);
+  });
 });
