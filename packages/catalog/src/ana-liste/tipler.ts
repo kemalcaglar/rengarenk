@@ -28,4 +28,8 @@ export interface SeriKurali {
   tip?: RegExp;
   /** Yalnızca bu yakıttaki tipler (ör. elektrikli alt seri) */
   yakit?: string;
+  /** Yalnızca ilk model yılı bundan küçük olmayan tipler (ör. Sandero Stepway 2021'den itibaren ayrı seri) */
+  ilkYil?: number;
+  /** Hedef seri başka bir ana liste markasında (TSB'de Citroen altında yazılan DS3 → DS Automobiles) */
+  marka?: string;
 }

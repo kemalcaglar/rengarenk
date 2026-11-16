@@ -493,7 +493,8 @@ describe('yerli klasikler: kaynaklı liste', () => {
     const tofas = makes.find((m: { name: string }) => m.name === 'Tofaş');
     expect(makes.map((m: { name: string }) => m.name)).toEqual(expect.arrayContaining(['Tofaş', 'Anadol']));
     const series = (await get(`/catalog/makes/${tofas.id}/series`)).body.map((s: { name: string }) => s.name);
-    expect(series).toEqual(['Doğan', 'Kartal', 'Murat 124', 'Murat 131', 'Serçe', 'Şahin']);
+    // Ana listede Murat 124 ve 131 tek seri: Murat
+    expect(series).toEqual(['Doğan', 'Kartal', 'Murat', 'Serçe', 'Şahin']);
 
     const sahin = (await get(`/catalog/makes/${tofas.id}/series`)).body.find(
       (s: { name: string }) => s.name === 'Şahin',

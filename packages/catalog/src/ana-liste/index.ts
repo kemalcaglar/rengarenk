@@ -9,7 +9,7 @@ export { ANA_LISTE, MARKA_ADI, SERI_KURALLARI };
  * Ana liste ve bağlama kurallarının sürümü. Liste ya da kural değişince artar; bütün katalog kaynakları (TSB, arşiv,
  * vehicle-makes-models, yerli liste, Wikidata) bu sürümle yeniden işlenir.
  */
-export const ANA_LISTE_SURUM = '2026-11-16-4';
+export const ANA_LISTE_SURUM = '2026-11-16-6';
 
 /** Kaynağın ayrıştırıcı sürümü ile ana liste sürümü: biri değişince kaynak yeniden işlenir. */
 export const anaKural = (parser: string) => `${parser}+ana.${ANA_LISTE_SURUM}`;
@@ -94,10 +94,13 @@ export interface Yerlestirilecek {
   raw?: string;
   fuel?: string | null;
   categories?: readonly string[];
+  years?: readonly number[];
 }
 
 const kuralTutar = (k: SeriKurali, v: Yerlestirilecek) =>
-  (!k.tip || k.tip.test(v.raw ?? '')) && (!k.yakit || v.fuel === k.yakit);
+  (!k.tip || k.tip.test(v.raw ?? '')) &&
+  (!k.yakit || v.fuel === k.yakit) &&
+  (!k.ilkYil || Math.min(...(v.years?.length ? v.years : [0])) >= k.ilkYil);
 
 /**
  * Kaynaktaki marka ve seriyi ana listeye yerleştirir (Karar 33, sahip kararı 16 Kasım 2026): marka ana listedeki
@@ -113,7 +116,7 @@ export function anaYerlestir(v: Yerlestirilecek): { make: string; series: string
     return { make, series: v.series, ana: false };
   const anahtar = adAnahtari(v.series);
   const kural = SERI_KURALLARI[make]?.find((k) => adAnahtari(k.kaynak) === anahtar && kuralTutar(k, v));
-  if (kural) return { make, series: kural.hedef, ana: true };
+  if (kural) return { make: kural.marka ?? make, series: kural.hedef, ana: true };
   const ad = d.seri.get(make)?.get(anahtar);
   return ad ? { make, series: ad, ana: true } : { make, series: v.series, ana: false };
 }

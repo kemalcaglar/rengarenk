@@ -29,9 +29,10 @@ describe('ana liste (sahip kararı, 16 Kasım 2026)', () => {
     const markalar = new Set(ANA_LISTE.map((m) => m.marka));
     for (const ad of Object.values(MARKA_ADI)) expect(markalar.has(ad), ad).toBe(true);
     for (const [marka, kurallar] of Object.entries(SERI_KURALLARI)) {
-      const seriler = new Set(ANA_LISTE.find((m) => m.marka === marka)?.seriler.map((s) => s.ad));
-      expect(seriler.size, marka).toBeGreaterThan(0);
-      for (const k of kurallar) expect(seriler.has(k.hedef), `${marka}: ${k.hedef}`).toBe(true);
+      const seriler = (m: string) => new Set(ANA_LISTE.find((x) => x.marka === m)?.seriler.map((s) => s.ad));
+      expect(seriler(marka).size, marka).toBeGreaterThan(0);
+      for (const k of kurallar)
+        expect(seriler(k.marka ?? marka).has(k.hedef), `${marka}: ${k.marka ?? ''} ${k.hedef}`).toBe(true);
     }
   });
 

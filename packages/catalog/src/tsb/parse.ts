@@ -17,7 +17,7 @@ import { normalizeHead } from './series.js';
  * Ayrıştırıcı sürümü: kurallar değişince artırılır. Aynı TSB dosyası yeni sürümle yeniden işlenebilir
  * (içe aktarma, aynı dosyayı yalnızca aynı ayrıştırıcı sürümüyle bir kez uygular).
  */
-export const TSB_PARSER = '2026-11-16';
+export const TSB_PARSER = '2026-11-16-2';
 
 export type Fuel = 'benzin' | 'dizel' | 'hibrit' | 'elektrik' | 'lpg';
 export type Gearbox = 'manuel' | 'otomatik' | 'yari_otomatik';
@@ -252,6 +252,15 @@ export const GEARBOX: Record<string, Gearbox> = {
   PDK: 'otomatik',
   GEARTRONIC: 'otomatik',
   GEARTR: 'otomatik',
+  // TSB'nin kısalttığı yazımlar: "GEARTRO", "9TRON" (9G-TRONIC), "8A/T", "8AT4"
+  GEARTRO: 'otomatik',
+  '9TRON': 'otomatik',
+  '7TRON': 'otomatik',
+  '6A/T': 'otomatik',
+  '8A/T': 'otomatik',
+  '9A/T': 'otomatik',
+  '10A/T': 'otomatik',
+  '8AT4': 'otomatik',
   POWERSHIFT: 'otomatik',
   'E-CVT': 'otomatik',
   // TSB'nin eski listelerinde otomatik vites: aynı tip "OV"li ve "OV"siz iki satır olarak yer alır
@@ -1048,6 +1057,8 @@ export function parseTsbRow(row: TsbRow): ParseResult {
   if (fuel === null && make === 'Smart')
     fuel = /\b(EQ|ED)\b/.test(key(row.typeName)) || /^#/.test(series ?? '') ? 'elektrik' : 'benzin';
   if (fuel === null && engineL !== null) fuel = 'benzin';
+  // Elektrikli otomobillerde vites kutusu yoktur, tek oranlı otomatik aktarma vardır
+  if (fuel === 'elektrik' && gearbox === null) gearbox = 'otomatik';
 
   if (!model) {
     const engine = [engineL !== null ? engineL.toFixed(1) : powerClass, ...tech].filter(Boolean).join(' ');

@@ -376,8 +376,10 @@ pnpm format        # Biome ile biçimlendir
   `katalog:yukle --arsiv`. Yıllar = liste ∪ TSB ∪ yerli (sahip: "birleştir"); vehicle-makes-models tipleri yalnızca
   listedeki serilerde ve bu yıllarda görünür; TSB'de olup listede olmayan seri katalogda kalır (sahip kararı). Kaynak
   konsoldan kapatılırsa eski davranış döner (adlar kalır). Seri anahtarında "+" `arti` olur (206 ≠ 206+). Kural
-  çıkarma raporu scratchpad `mm/rapor.py`. İlk beş marka (Renault, Fiat, Toyota, Volkswagen, Hyundai) bağlandı.
-  API'de 232, katalogda 49 test.
+  çıkarma raporu scratchpad `mm/rapor.py`, tip adı arama `mm/ara.py`. Listedeki bütün markalar bağlandı; kural
+  seçenekleri: `tip` (tip adında desen), `yakit`, `ilkYil`, `marka` (TSB'de başka marka altında: Citroen DS3 → DS).
+  TSB ayrıştırıcısı `2026-11-16-2`: kısaltılmış vites yazımları (GEARTRO, 9TRON, 8A/T), elektrikli otomobil otomatik. API'de 232,
+  katalogda 49 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

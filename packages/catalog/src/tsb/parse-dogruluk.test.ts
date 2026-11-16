@@ -68,6 +68,14 @@ describe('TSB ayrıştırma doğruluğu', () => {
       categories: ['minivan-panelvan'],
     });
     expect(parse('AUDI', 'A5 SPORTBACK 2.0 TDI (177) MULTITRONIC')).toMatchObject({ gearbox: 'otomatik' });
+    expect(parse('VOLVO', 'V60 CROSS COUNTRY 2.0 B5 AWD MOMENTUM GEARTRO').gearbox).toBe('otomatik');
+    expect(parse('MERCEDES', 'E 300 CABRIOLET FL 2.0 258 EDITION1 AMG 9TRON').gearbox).toBe('otomatik');
+    expect(parse('HYUNDAI', 'SANTA FE 2.0 CRDI 8AT4 PROGRESIVE').gearbox).toBe('otomatik');
+    // Elektrikli otomobil: tek oranlı otomatik aktarma
+    expect(parse('BMW', 'i3s (120 Ah) EDITION ELECTRIC')).toMatchObject({
+      fuel: 'elektrik',
+      gearbox: 'otomatik',
+    });
     expect(parse('AUDI', 'R8 4.2 FSI 430 QUATTRO R TRONIC')).toMatchObject({
       model: '4.2 FSI',
       gearbox: 'otomatik',
