@@ -13,6 +13,7 @@ import {
   AGENT_DAILY_SUSPENSIONS,
   AGENT_SPAM,
   APPEAL_DAYS,
+  aciklamaDuz,
   type BlockKind,
   CONTENT_FILTER_KEYS,
   CONTENT_FILTERS,
@@ -368,7 +369,10 @@ export class ModerationService {
   async ajanTalepKontrolu(demandId: string): Promise<'islem_yok' | 'duzeltme_istendi' | 'duzeltildi'> {
     const d = await this.db.demand.findUnique({ where: { id: demandId } });
     if (!d || (d.status !== 'PUBLISHED' && d.status !== 'PASSIVE')) return 'islem_yok';
-    const aciklama = String((d.data as { alanlar?: { aciklama?: unknown } }).alanlar?.aciklama ?? '');
+    // Biçim etiketleri arasına bölünmüş numara da yakalansın: düz metin taranır
+    const aciklama = aciklamaDuz(
+      String((d.data as { alanlar?: { aciklama?: unknown } }).alanlar?.aciklama ?? ''),
+    );
     const metin = [d.headline ?? '', aciklama].join('\n');
     const isaret: DemandTextFlag[] = scanDemandText(metin);
     if ((await this.rules.yasakli(metin)).length) isaret.push('yasakli');

@@ -19,7 +19,7 @@ describe('talep asistanı kuralları (Karar 42)', () => {
     ).toEqual({
       km: 100_000,
       yil: { min: 2018, max: 2021 },
-      butce: { min: 1_000_000, max: 1_500_000 },
+      butce: { max: 1_500_000 },
       renk: ['beyaz', 'siyah'],
       hasar: 'yok',
       takas: true,

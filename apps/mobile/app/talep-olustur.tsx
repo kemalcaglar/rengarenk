@@ -1,5 +1,6 @@
 import {
   ASSISTANT_TEXT_MAX,
+  acikSoruSayisi,
   BIREYSEL_FIYATLAR,
   butonOran,
   type CategoryField,
@@ -8,12 +9,15 @@ import {
   DOTS,
   fiyatYaz,
   kartOran,
+  kriterSirasi,
   MAX_ALTERNATIVES,
   ONE_CIKARMA,
   PAINT_PARTS,
   radii,
+  secimiDaralt,
   TEKNIK_KAYNAK,
   teknikSatirlari,
+  uygunSecenekler,
 } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { type ComponentRef, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
@@ -21,6 +25,7 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ikon } from '../components/ikon';
 import { T, TInput } from '../components/t';
+import { AciklamaEditoru } from '../components/talep/aciklama-editoru';
 import {
   Alan,
   Anahtar,
@@ -32,6 +37,7 @@ import {
   ParcaSecimi,
   Secici,
 } from '../components/talep/ortak';
+import { SihirbazTanitimi } from '../components/talep/tanitim';
 import { type KatalogDegeri, katalogKategorisi, useKatalog } from '../lib/katalog';
 import { useKategoriler } from '../lib/kategoriler';
 import { IstekHatasi, useOturum } from '../lib/oturum';
@@ -284,6 +290,18 @@ export default function TalepOlustur() {
         }),
       };
     });
+  /**
+   * Yeni alternatif bir öncekinin kopyasıyla başlar; değişeni düzeltmek yeterli. "Başka kasa" için açılanda kasa ve
+   * kasaya bağlı seçimler (yıl, paket, yakıt, vites, kasa tipi) boş gelir (web ile aynı).
+   */
+  const alternatifEkle = (kasaIcin: boolean) => {
+    degistir((d) => {
+      const kopya = { ...(d.alternatifler[alt] ?? {}) };
+      if (kasaIcin) for (const x of ['kasa', 'yil', 'paket', 'yakit', 'vites', 'kasaTipi']) delete kopya[x];
+      return { ...d, alternatifler: [...d.alternatifler, kopya] };
+    });
+    setAlt(veri.alternatifler.length);
+  };
   const deger = (f: CategoryField) =>
     f.scope === 'talep' ? veri.alanlar[f.key] : veri.alternatifler[alt]?.[f.key];
   const gorunur = (f: CategoryField) => {
@@ -378,6 +396,7 @@ export default function TalepOlustur() {
     ? katalogKategorisi(taslak.category.slug, katUst, veri.alanlar.aracTuru)
     : undefined;
   const katalogAlani = alanlar.find((f) => f.type === 'catalog');
+  const aciklamaAlani = alanlar.find((f) => f.key === 'aciklama');
   const k = useKatalog(
     katalogAlani ? katalogKat : undefined,
     katalogAlani ? (veri.alanlar[katalogAlani.key] as KatalogDegeri | undefined) : undefined,
@@ -394,6 +413,12 @@ export default function TalepOlustur() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }} edges={['top', 'bottom']}>
+      <SihirbazTanitimi
+        adim={adim}
+        sira={sira + 1}
+        toplam={gorunen.length}
+        acik={adim === 'kategori' || Boolean(taslak)}
+      />
       <View
         style={{
           backgroundColor: colors.surface,
@@ -797,16 +822,7 @@ export default function TalepOlustur() {
                 </Cip>
               ))}
               {veri.alternatifler.length < MAX_ALTERNATIVES ? (
-                <Cip
-                  on={false}
-                  onPress={() => {
-                    degistir((d) => ({
-                      ...d,
-                      alternatifler: [...d.alternatifler, { ...(d.alternatifler[alt] ?? {}) }],
-                    }));
-                    setAlt(veri.alternatifler.length);
-                  }}
-                >
+                <Cip on={false} onPress={() => alternatifEkle(false)}>
                   + Alternatif ekle
                 </Cip>
               ) : null}
@@ -822,92 +838,19 @@ export default function TalepOlustur() {
                 </Cip>
               ) : null}
             </ScrollView>
-            {[
-              ...adimAlanlari('kriterler').filter((f) => f.key !== 'butce'),
-              ...adimAlanlari('kriterler').filter((f) => f.key === 'butce'),
-            ]
-              .filter(gorunur)
-              .map((f) => {
-                if (f.source === 'katalog' && f.key === 'kasa') {
-                  if (!k.kusaklar.length) return null;
-                  const secili = (deger(f) as string[] | undefined) ?? [];
-                  return kart(
-                    <>
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <T style={{ fontSize: 14, fontWeight: '800', marginBottom: 8 }}>{f.label}</T>
-                        <T style={{ fontSize: 12, color: colors.muted }}>Katalogdan</T>
-                      </View>
-                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-                        {k.kusaklar
-                          .filter((x) => x.yeni || secili.includes(x.value))
-                          .map((x) => (
-                            <Cip
-                              key={x.value}
-                              on={secili.includes(x.value)}
-                              onPress={() => {
-                                const next = secili.includes(x.value)
-                                  ? secili.filter((y) => y !== x.value)
-                                  : [...secili, x.value];
-                                yaz(f)(next.length ? next : undefined);
-                                const yil = alanlar.find((y) => y.key === 'yil');
-                                const sec = k.kusaklar.filter((y) => next.includes(y.value));
-                                if (yil && sec.length)
-                                  yaz(yil)({
-                                    min: Math.min(...sec.map((y) => y.min)),
-                                    max: Math.max(...sec.map((y) => y.max)),
-                                  });
-                              }}
-                            >
-                              {`${x.label} (${x.alt})`}
-                            </Cip>
-                          ))}
-                      </View>
-                    </>,
-                    f.key,
-                  );
-                }
-                if (f.source === 'katalog' && f.key === 'paket') {
-                  const secili = (deger(f) as string[] | undefined) ?? [];
-                  const kasaSec = k.kusaklar.filter((x) =>
-                    ((veri.alternatifler[alt]?.kasa as string[] | undefined) ?? []).includes(x.value),
-                  );
-                  const [mn, mx] = kasaSec.length
-                    ? [Math.min(...kasaSec.map((x) => x.min)), Math.max(...kasaSec.map((x) => x.max))]
-                    : [new Date().getFullYear() - 15, 3000];
-                  const liste = k.paketler.filter((p) => p.years.some((y) => y >= mn && y <= mx));
-                  if (!liste.length) return null;
-                  return kart(
-                    <>
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <T style={{ fontSize: 14, fontWeight: '800', marginBottom: 8 }}>{f.label}</T>
-                        <T style={{ fontSize: 12, color: colors.muted }}>Katalogdan</T>
-                      </View>
-                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-                        {liste.map((p) => (
-                          <Cip
-                            key={p.key}
-                            on={secili.includes(p.key)}
-                            onPress={() => {
-                              const next = secili.includes(p.key)
-                                ? secili.filter((y) => y !== p.key)
-                                : [...secili, p.key];
-                              yaz(f)(next.length ? next : undefined);
-                            }}
-                          >
-                            {p.name}
-                          </Cip>
-                        ))}
-                        <Cip on={secili.length === 0} onPress={() => yaz(f)(undefined)}>
-                          Fark etmez
-                        </Cip>
-                      </View>
-                    </>,
-                    f.key,
-                  );
-                }
-                if (f.source === 'katalog') return null;
-                return kart(<Alan f={f} value={deger(f)} onChange={yaz(f)} hata={hataOf(f)} />, f.key);
-              })}
+            <Kriterler
+              alanlar={adimAlanlari('kriterler')}
+              a={veri.alternatifler[alt] ?? {}}
+              alt={alt}
+              k={k}
+              deger={deger}
+              yaz={yaz}
+              gorunur={gorunur}
+              hataOf={hataOf}
+              alternatifEkle={
+                veri.alternatifler.length < MAX_ALTERNATIVES ? () => alternatifEkle(true) : undefined
+              }
+            />
           </>
         ) : null}
 
@@ -1038,21 +981,17 @@ export default function TalepOlustur() {
                   }}
                   style={girdiStil}
                 />
-                <T style={{ fontSize: 13, fontWeight: '800', marginTop: 14, marginBottom: 6 }}>Açıklama</T>
-                <TInput
-                  accessibilityLabel="Açıklama"
-                  multiline
-                  numberOfLines={4}
-                  maxLength={2000}
-                  value={(veri.alanlar.aciklama as string | undefined) ?? ''}
-                  onChangeText={(s) =>
-                    yaz(alanlar.find((f) => f.key === 'aciklama') as CategoryField)(s || undefined)
-                  }
-                  style={{ ...girdiStil, minHeight: 96, textAlignVertical: 'top' }}
-                />
-                <T style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>
-                  Telefon, IBAN veya bağlantı yazma; iletişimi aşağıdan ayarla.
-                </T>
+                {/* Biçimli açıklama (sahip isteği, 17 Kasım 2026): araç çubuğu ve talep sayfası önizlemesi */}
+                {aciklamaAlani ? (
+                  <View style={{ marginTop: 14 }}>
+                    <AciklamaEditoru
+                      etiket={aciklamaAlani.label}
+                      value={veri.alanlar.aciklama as string | undefined}
+                      onChange={yaz(aciklamaAlani)}
+                      hata={hataOf(aciklamaAlani)}
+                    />
+                  </View>
+                ) : null}
               </>,
               'konum',
             )}
@@ -1227,6 +1166,258 @@ export default function TalepOlustur() {
   );
 }
 
+/**
+ * 3. adım: alternatif başına kriterler, yukarıdan aşağı adım adım (sahip isteği, 17 Kasım 2026; web `Kriterler` ile
+ * aynı kurallar). Önce kasa ve makyaj (tek seçilir; başka kasa için alternatif) ya da elle model yılı; sonra donanım
+ * paketi ve diğer sorular sırayla açılır. Kasa seçildiyse model yılı kasadan gelir; yakıt, vites ve kasa tipi o kasanın
+ * tiplerine göre daralır.
+ */
+function Kriterler({
+  alanlar,
+  a,
+  alt,
+  k,
+  deger,
+  yaz,
+  gorunur,
+  hataOf,
+  alternatifEkle,
+}: {
+  alanlar: CategoryField[];
+  /** Seçili alternatifin değerleri */
+  a: Values;
+  alt: number;
+  k: ReturnType<typeof useKatalog>;
+  deger: (f: CategoryField) => unknown;
+  yaz: (f: CategoryField) => (v: unknown) => void;
+  gorunur: (f: CategoryField) => boolean;
+  hataOf: (f: CategoryField) => string | undefined;
+  alternatifEkle?: () => void;
+}) {
+  const alanOf = (key: string) => alanlar.find((f) => f.key === key);
+  const kasaAlani = alanlar.find((f) => f.source === 'katalog' && f.key === 'kasa');
+  const yilAlani = alanOf('yil');
+  // "Fark etmez" denen ve "yılı kendim gireceğim" seçilen sorular (alternatif başına; değer yazılmaz)
+  const [gecilen, setGecilen] = useState<Record<number, string[]>>({});
+  const [elleSecildi, setElleSecildi] = useState<Record<number, boolean>>({});
+  const [eskiler, setEskiler] = useState(false);
+  const gec = (key: string) => setGecilen((g) => ({ ...g, [alt]: [...new Set([...(g[alt] ?? []), key])] }));
+
+  const kasaDegeri = (a.kasa as string[] | undefined)?.[0];
+  const seciliKusak = k.kusaklar.find((x) => x.value === kasaDegeri);
+  const kasaVar = Boolean(kasaAlani && k.kusaklar.length);
+  const elle = !seciliKusak && (Boolean(elleSecildi[alt]) || a.yil !== undefined);
+  const yillar = seciliKusak ? { min: seciliKusak.min, max: seciliKusak.max } : null;
+  const secenekler = (f: CategoryField) =>
+    yillar ? uygunSecenekler(f, k.tipler, yillar, seciliKusak?.govdeler) : (f.options ?? []);
+
+  // Paketler kasanın (ya da elle girilen yılların, yoksa son 15 yılın) yıllarında satılanlar
+  const yil = a.yil as { min?: number; max?: number } | undefined;
+  const buYil = new Date().getFullYear();
+  const [pMin, pMax] = yillar
+    ? [yillar.min, yillar.max]
+    : [yil?.min ?? yil?.max ?? buYil - 15, yil?.max ?? yil?.min ?? buYil + 1];
+  const paketler = k.paketler.filter((t) => t.years.some((y) => y >= pMin && y <= pMax));
+
+  // Soru sırası: kasa; kasa seçilmediyse model yılı; paket; diğerleri; bütçe en sonda
+  const sorular = kriterSirasi(alanlar)
+    .filter(gorunur)
+    .filter((f) => {
+      if (f.source !== 'katalog') return !(f.key === 'yil' && seciliKusak);
+      if (f.key === 'kasa') return kasaVar;
+      if (f.key === 'paket') return paketler.length > 0;
+      return false;
+    });
+  if (kasaVar && !seciliKusak && yilAlani) {
+    // Yıl elle giriliyorsa paketten önce sorulur (paketler yıla göre süzülür)
+    const yi = sorular.indexOf(yilAlani);
+    const ki = sorular.findIndex((f) => f.key === 'kasa');
+    if (yi > ki + 1) sorular.splice(ki + 1, 0, ...sorular.splice(yi, 1));
+  }
+  const gecilenler = new Set(gecilen[alt] ?? []);
+  const yanitli = (f: CategoryField) =>
+    f.key === 'kasa' ? Boolean(seciliKusak) || elle : deger(f) !== undefined;
+  const acik = acikSoruSayisi(sorular, yanitli, gecilenler);
+
+  /** Kasa seçimi: model yılı kasadan gelir; kasaya uymayan yakıt, vites, kasa tipi ve paket seçimden düşer */
+  const kusakSec = (value: string) => {
+    if (!kasaAlani) return;
+    if (kasaDegeri === value) {
+      yaz(kasaAlani)(undefined);
+      if (yilAlani) yaz(yilAlani)(undefined);
+      return;
+    }
+    const x = k.kusaklar.find((y) => y.value === value);
+    if (!x) return;
+    setElleSecildi((e) => ({ ...e, [alt]: false }));
+    yaz(kasaAlani)([value]);
+    if (yilAlani) yaz(yilAlani)({ min: x.min, max: x.max });
+    for (const key of ['yakit', 'vites', 'kasaTipi']) {
+      const f = alanOf(key);
+      if (f && a[key] !== undefined)
+        yaz(f)(secimiDaralt(a[key], uygunSecenekler(f, k.tipler, { min: x.min, max: x.max }, x.govdeler)));
+    }
+    const paket = alanOf('paket');
+    const seciliPaket = a.paket as string[] | undefined;
+    if (paket && seciliPaket?.length) {
+      const uyan = new Set(
+        k.paketler.filter((t) => t.years.some((y) => y >= x.min && y <= x.max)).map((t) => t.key),
+      );
+      const kalan = seciliPaket.filter((p) => uyan.has(p));
+      yaz(paket)(kalan.length ? kalan : undefined);
+    }
+  };
+  const elleGir = () => {
+    if (kasaAlani && kasaDegeri) {
+      yaz(kasaAlani)(undefined);
+      // Kasadan gelen yıl silinir; yıl elle yazılır
+      if (yilAlani) yaz(yilAlani)(undefined);
+    }
+    setElleSecildi((e) => ({ ...e, [alt]: true }));
+  };
+
+  const gosterilen = k.kusaklar.filter((x) => eskiler || x.yeni || x === seciliKusak);
+  const gizli = k.kusaklar.length - gosterilen.length;
+  const kart = (children: ReactNode, key: string) => (
+    <View key={key} style={{ ...kartStil, marginBottom: 10 }}>
+      {children}
+    </View>
+  );
+  const not = { fontSize: 12.5, color: colors.muted, marginTop: 8, lineHeight: 17 } as const;
+  const katalogBaslik = (f: CategoryField) => (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+      <T style={{ fontSize: 14, fontWeight: '800', marginBottom: 8 }}>{f.label}</T>
+      <T style={{ fontSize: 12, color: colors.muted }}>Katalogdan</T>
+    </View>
+  );
+
+  return (
+    <>
+      {sorular.slice(0, acik).map((f) => {
+        if (f.key === 'kasa' && f.source === 'katalog') {
+          return kart(
+            <>
+              {katalogBaslik(f)}
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                {gosterilen.map((x) => (
+                  <Cip key={x.value} on={x === seciliKusak} onPress={() => kusakSec(x.value)}>
+                    {`${x.label} (${x.alt})`}
+                  </Cip>
+                ))}
+                {gizli > 0 ? (
+                  <Cip on={false} onPress={() => setEskiler(true)}>
+                    {`Daha eski kasalar (${gizli})`}
+                  </Cip>
+                ) : null}
+                {yilAlani ? (
+                  <Cip on={elle} onPress={elleGir}>
+                    Yılı kendim gireceğim
+                  </Cip>
+                ) : null}
+              </View>
+              {seciliKusak ? (
+                <T style={{ fontSize: 13.5, fontWeight: '700', color: colors.link, marginTop: 10 }}>
+                  Model yılı:{' '}
+                  {seciliKusak.min === seciliKusak.max
+                    ? seciliKusak.min
+                    : `${seciliKusak.min}–${seciliKusak.max}`}{' '}
+                  (seçtiğin kasadan)
+                </T>
+              ) : null}
+              <T style={not}>
+                Tek kasa seçilir. Başka bir kasa da istiyorsan{' '}
+                {alternatifEkle ? (
+                  <T
+                    accessibilityRole="link"
+                    onPress={alternatifEkle}
+                    style={{ fontSize: 12.5, fontWeight: '700', color: colors.link }}
+                  >
+                    alternatif ekle
+                  </T>
+                ) : (
+                  'alternatif ekle'
+                )}
+                . Yılı elle girersen kasa seçilmez.
+              </T>
+            </>,
+            f.key,
+          );
+        }
+        if (f.key === 'paket' && f.source === 'katalog') {
+          const secili = (a[f.key] as string[] | undefined) ?? [];
+          return kart(
+            <>
+              {katalogBaslik(f)}
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                {paketler.map((p) => (
+                  <Cip
+                    key={p.key}
+                    on={secili.includes(p.key)}
+                    onPress={() => {
+                      const next = secili.includes(p.key)
+                        ? secili.filter((y) => y !== p.key)
+                        : [...secili, p.key];
+                      yaz(f)(next.length ? next : undefined);
+                    }}
+                  >
+                    {p.name}
+                  </Cip>
+                ))}
+                <Cip
+                  on={secili.length === 0 && gecilenler.has(f.key)}
+                  onPress={() => {
+                    yaz(f)(undefined);
+                    gec(f.key);
+                  }}
+                >
+                  Fark etmez
+                </Cip>
+              </View>
+            </>,
+            f.key,
+          );
+        }
+        const daraltilmis = { ...f, options: secenekler(f) };
+        const daraldi = yillar !== null && (f.options?.length ?? 0) > daraltilmis.options.length;
+        const gecildi = gecilenler.has(f.key);
+        return kart(
+          <>
+            <Alan
+              f={daraltilmis}
+              value={deger(f)}
+              onChange={yaz(f)}
+              hata={hataOf(f)}
+              farkEtmez={f.required ? undefined : () => gec(f.key)}
+              gecildi={gecildi}
+            />
+            {daraldi ? <T style={not}>Seçtiğin kasada satılanlar gösteriliyor.</T> : null}
+            {!f.required &&
+            (f.type === 'number' || f.type === 'range' || f.type === 'select') &&
+            deger(f) === undefined ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ selected: gecildi }}
+                onPress={() => gec(f.key)}
+                style={{ alignSelf: 'flex-start', marginTop: 8, paddingVertical: 4 }}
+              >
+                <T style={{ fontSize: 13, fontWeight: '700', color: gecildi ? colors.ink : colors.link }}>
+                  {gecildi ? '✓ Fark etmez' : 'Fark etmez'}
+                </T>
+              </Pressable>
+            ) : null}
+          </>,
+          f.key,
+        );
+      })}
+      {acik < sorular.length ? (
+        <T style={{ fontSize: 13, color: colors.muted, marginTop: 2 }}>
+          Bu soruyu yanıtlayınca sıradaki açılır ({acik} / {sorular.length}).
+        </T>
+      ) : null}
+    </>
+  );
+}
+
 function Onizleme({
   taslak,
   veri,
@@ -1308,7 +1499,12 @@ function Onizleme({
             {[
               `${veri.alternatifler.length} alternatif`,
               [konum?.il, konum?.ilce].filter(Boolean).join(', '),
-              butce.length ? `${binlik(bmin)} – ${binlik(bmax)} TL` : null,
+              // Bütçe tek rakam (sahip isteği, 17 Kasım 2026); alternatiflerin bütçeleri farklıysa aralık
+              butce.length
+                ? bmin === bmax
+                  ? `${binlik(bmax)} TL`
+                  : `${binlik(bmin)} – ${binlik(bmax)} TL`
+                : null,
             ]
               .filter(Boolean)
               .join(' · ')}

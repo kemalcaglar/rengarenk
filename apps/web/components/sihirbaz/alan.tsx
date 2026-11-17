@@ -153,11 +153,17 @@ export function Alan({
   value,
   onChange,
   hata,
+  farkEtmez,
+  gecildi,
 }: {
   f: CategoryField;
   value: unknown;
   onChange: (v: unknown) => void;
   hata?: string;
+  /** Verilirse soru "Fark etmez" ile geçilebilir (sihirbazda sıradaki soru açılır) */
+  farkEtmez?: () => void;
+  /** "Fark etmez" seçildi */
+  gecildi?: boolean;
 }) {
   const id = `alan-${f.key}`;
   const ad = `${f.label}${f.unit && f.type !== 'number' ? ` (${f.unit})` : ''}`;
@@ -194,8 +200,15 @@ export function Alan({
               {o.label}
             </Cip>
           ))}
-          {coklu && renkli ? (
-            <Cip on={secili.length === 0} hex="#F3F5FA" onClick={() => onChange(undefined)}>
+          {coklu && (renkli || farkEtmez) ? (
+            <Cip
+              on={secili.length === 0 && (gecildi ?? true)}
+              hex={renkli ? '#F3F5FA' : undefined}
+              onClick={() => {
+                onChange(undefined);
+                farkEtmez?.();
+              }}
+            >
               Fark etmez
             </Cip>
           ) : null}
@@ -239,7 +252,13 @@ export function Alan({
           <Cip on={v === false} onClick={() => onChange(v === false ? undefined : false)}>
             Hayır
           </Cip>
-          <Cip on={v === undefined} onClick={() => onChange(undefined)}>
+          <Cip
+            on={v === undefined && (gecildi ?? true)}
+            onClick={() => {
+              onChange(undefined);
+              farkEtmez?.();
+            }}
+          >
             Fark etmez
           </Cip>
         </div>
@@ -257,6 +276,33 @@ export function Alan({
         onChange={onChange}
         alt={alt}
       />
+    );
+  }
+  // Bütçe tek rakam (sahip isteği, 17 Kasım 2026): üst sınır olarak `max`a yazılır
+  if (f.type === 'range' && f.key === 'butce') {
+    const v = (value as Aralik | undefined) ?? {};
+    return (
+      <div style={{ maxWidth: 520 }}>
+        <label htmlFor={id} style={{ ...etiket, marginBottom: 6 }}>
+          {ad}
+        </label>
+        <input
+          id={id}
+          inputMode="numeric"
+          placeholder="Ör. 1.500.000"
+          value={binlik(v.max ?? v.min)}
+          onChange={(e) => {
+            const n = sayiOku(e.target.value);
+            onChange(n === undefined ? undefined : { max: n });
+          }}
+          style={kutu}
+        />
+        {alt ?? (
+          <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 6 }}>
+            Aracı en çok bu tutara almak istiyorsun; satıcılar bu bütçeye uyan araçlarla yazar.
+          </span>
+        )}
+      </div>
     );
   }
   if (f.type === 'range') {

@@ -84,6 +84,8 @@ model User {
   /// Aranabilir saatler (Türkiye saati, 0–24); dışında telefon ve WhatsApp gizli. Varsayılan 09.00–21.00
   callFrom        Int        @default(9) @map("call_from")
   callTo          Int        @default(21) @map("call_to")
+  /// Görülen tanıtımlar (sihirbaz adımları; her üyeye bir kez, sahip isteği 17 Kasım 2026): "sihirbaz.kriterler"
+  tanitim         String[]   @default([])
   status          UserStatus @default(ACTIVE)
   createdAt       DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt       DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)

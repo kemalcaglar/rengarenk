@@ -411,6 +411,16 @@ pnpm format        # Biome ile biçimlendir
   (imza: ayrıştırıcı + son içe aktarma). Seri ayrıntısında `models[].teknik`; gösterim ortak `teknikSatirlari`
   (web ve mobil sihirbazda model seçilince). Yerelde `katalog:yukle --ademe`, sunucuda `run --rm api node dist/cli/katalog-yukle.js
   --ademe`. 2016–2024 yılları EEA erişimiyle dolacak. API'de 235, katalogda 63, ortak pakette 130 test.
+- **Sihirbaz 3. ve 5. adım (17 Kasım 2026, sahip isteği):** kurallar ortak `packages/shared/src/sihirbaz.ts`: kasa ve makyaj
+  tek seçilir (değer yine `[kod]`; başka kasa için alternatif), kasa seçilince yıl kasadan gelir, "Yılı kendim gireceğim"
+  seçilirse kasa seçilmez; yakıt, vites ve kasa tipi kasanın tiplerine göre daralır (`uygunSecenekler`; seri ayrıntısında
+  `tipler`, bilinen değer %80'den azsa daraltılmaz); hasar kaydı, motor hacmi ve gücü sorulmaz (`SIHIRBAZDA_SORULMAZ`,
+  şemada durur); sorular adım adım açılır (`kriterSirasi`, `acikSoruSayisi`, "Fark etmez" oturumluk). Bütçe tek rakam:
+  taban alan yine `range`, sihirbaz `{ max }` yazar (eşleşme ve arama değişmedi; deney kollarında da tek değer). Adım
+  tanıtımı `SIHIRBAZ_TANITIM`, görülenler `users.tanitim` (`POST /me/tanitim`). Açıklama biçimi `aciklama.ts`
+  (`[k]`, `[i]`, `[renk=mavi]`, `[boyut=buyuk]`; HTML saklanmaz, sınır düz metne); herkese açık gösterimde
+  `hideDemandDescription`, tarama ve yasaklı kelimede `aciklamaDuz`. Talep sayfasında açıklama sabit yükseklikte kaydırılır
+  (web `components/aciklama.tsx`, mobil `components/aciklama.tsx`). Yeni bir yerde açıklama gösterirken bunları kullan.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

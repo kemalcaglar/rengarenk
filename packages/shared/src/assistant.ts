@@ -113,15 +113,16 @@ export function parseDemandText(input: string): AssistantParse {
     if (n < 10_000 || n > 1_000_000_000) continue;
     adaylar.push({ n, i: m.index ?? 0, birimli });
   }
+  // Bütçe tek rakamdır (sahip isteği, 17 Kasım 2026): aralık yazılırsa üst değeri alınır.
   // "1-1,5 milyon": ilk sayı birimsizse ikincinin birimini alır
   const tire = kalan.match(/(\d+(?:,\d+)?)\s*(?:-|–|ile)\s*(\d+(?:,\d+)?)\s*(milyon|bin)/u);
   if (tire) {
     const a = tutar(tire[1] as string, tire[3]);
     const b = tutar(tire[2] as string, tire[3]);
-    r.butce = { min: Math.min(a, b), max: Math.max(a, b) };
+    r.butce = { max: Math.max(a, b) };
   } else if (adaylar.length >= 2) {
     const [a, b] = adaylar.slice(0, 2).map((x) => x.n) as [number, number];
-    r.butce = { min: Math.min(a, b), max: Math.max(a, b) };
+    r.butce = { max: Math.max(a, b) };
   } else if (adaylar.length === 1) {
     const a = adaylar[0] as { n: number; i: number };
     const once = kalan.slice(Math.max(0, a.i - 12), a.i);

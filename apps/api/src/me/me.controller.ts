@@ -21,6 +21,7 @@ import {
   phoneChangeRequestSchema,
   phoneChangeVerifySchema,
   profileLocationFields,
+  TANITIM_ANAHTARLARI,
 } from '@rengarenk/shared';
 import { z } from 'zod';
 import { AuditService } from '../audit/audit.service.js';
@@ -28,6 +29,8 @@ import { AuthGuard } from '../auth/auth.guard.js';
 import { type AccessClaims, AuthService } from '../auth/auth.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
 import { type Db, PRISMA } from '../database/prisma.js';
+
+const tanitimSchema = z.object({ anahtar: z.enum(TANITIM_ANAHTARLARI as [string, ...string[]]) }).strict();
 
 const updateSchema = z
   .object({
@@ -83,6 +86,7 @@ export class MeController {
         whatsappVisible: true,
         callFrom: true,
         callTo: true,
+        tanitim: true,
         memberships: {
           select: { role: true, account: { select: { id: true, kind: true, name: true, status: true } } },
         },
@@ -90,6 +94,18 @@ export class MeController {
     });
     // Giriş yolları (Karar 18): özet ve kimliklerin kendisi değil, yalnızca var olup olmadıkları
     return { ...u, girisYollari: { sifre: !!passwordHash, google: !!googleSub, apple: !!appleSub } };
+  }
+
+  /** Sihirbaz adımının tanıtımı görüldü (her üyeye bir kez; sahip isteği, 17 Kasım 2026) */
+  @Post('tanitim')
+  @HttpCode(204)
+  async tanitimGoruldu(
+    @Req() req: AuthedRequest,
+    @Body(new ZodPipe(tanitimSchema)) body: z.output<typeof tanitimSchema>,
+  ) {
+    await this.db.$executeRaw`
+      UPDATE users SET tanitim = array_append(tanitim, ${body.anahtar}), updated_at = now()
+      WHERE id = ${req.user.sub}::uuid AND NOT (${body.anahtar} = ANY(tanitim))`;
   }
 
   @Patch()

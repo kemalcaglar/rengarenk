@@ -13,6 +13,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, Linking, Pressable, ScrollView, Share, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AciklamaGoster } from '../../components/aciklama';
 import { Banner } from '../../components/banner';
 import { Ikon } from '../../components/ikon';
 import { IlkMesaj } from '../../components/ilk-mesaj';
@@ -423,9 +424,11 @@ export default function TalepDetay() {
           <T accessibilityRole="header" style={{ fontSize: 16.5, fontWeight: '800', marginBottom: 8 }}>
             Açıklama
           </T>
-          <T style={{ fontSize: 14.5, lineHeight: 22, color: '#2E3344' }}>
-            {(t.data.alanlar.aciklama as string | undefined) || 'Talep sahibi açıklama yazmadı.'}
-          </T>
+          {/* Biçimli açıklama; uzayabileceği için yükseklik sabit, fazlası kaydırılır (sahip isteği, 17 Kasım 2026) */}
+          <AciklamaGoster
+            metin={(t.data.alanlar.aciklama as string | undefined) || 'Talep sahibi açıklama yazmadı.'}
+            sabit
+          />
         </View>
 
         {boya || islem ? (

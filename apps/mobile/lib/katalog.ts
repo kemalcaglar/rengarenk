@@ -1,4 +1,4 @@
-import type { TeknikOzet } from '@rengarenk/shared';
+import type { KatalogTipi, TeknikOzet } from '@rengarenk/shared';
 import { useEffect, useState } from 'react';
 import { API } from './api';
 
@@ -29,6 +29,8 @@ interface SeriDetay {
     endYear: number | null;
   }[];
   trims: (Satir & { years: number[]; modelIds: string[] })[];
+  /** Motor sürümü, yakıt, vites ve gövde üçlüleri (kasaya göre seçenek daraltma) */
+  tipler?: (KatalogTipi & { modelId: string })[];
 }
 
 /** Kasa kuşağı grubu: "G20 · makyajlı", 2022 ve sonrası */
@@ -40,6 +42,8 @@ export interface Kusak {
   alt: string;
   min: number;
   max: number;
+  /** Kuşağın gövdeleri (açık kaynak; bilinmiyorsa null): kasa tipi seçeneklerini daraltır */
+  govdeler: (string | null)[];
 }
 
 const al = async <T>(path: string): Promise<T> => {
@@ -145,6 +149,7 @@ export function useKatalog(kategori: string | undefined, v: KatalogDegeri | unde
     const max = Math.max(eski?.max ?? bitis, bitis);
     gruplar.set(value, {
       value,
+      govdeler: [...(eski?.govdeler ?? []), g.body],
       label,
       yeni: max >= yil - 15,
       min,
@@ -165,6 +170,8 @@ export function useKatalog(kategori: string | undefined, v: KatalogDegeri | unde
     /** Seçilen modelin (ya da serinin) paketleri */
     paketler: (detail?.trims ?? []).filter((t) => !model || t.modelIds.includes(model.id)),
     adlar: { make: make?.name, series: seri?.name, model: model?.name },
+    /** Seçilen motor sürümünün (yoksa serinin) tipleri: yakıt, vites, gövde ve yılları */
+    tipler: (detail?.tipler ?? []).filter((t) => !model || t.modelId === model.id),
     /** Seçilen motor sürümünün teknik özeti */
     teknik: (model as { teknik?: TeknikOzet | null } | undefined)?.teknik ?? null,
     hazir: makes !== null,

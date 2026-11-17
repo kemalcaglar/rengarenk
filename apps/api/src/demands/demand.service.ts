@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { type Demand, type DemandStatus, type Prisma, uuidv7 } from '@rengarenk/db';
 import {
+  aciklamaDuz,
   aranabilir,
   type CategoryDefinition,
   type CategoryField,
@@ -22,6 +23,7 @@ import {
   effectiveFields,
   type FoundViaKey,
   galleryAccess,
+  hideDemandDescription,
   hideDemandText,
   PROMOTE_DAYS,
   REMINDER_DAYS,
@@ -241,7 +243,7 @@ export class DemandService {
         ...data,
         alanlar:
           typeof data.alanlar?.aciklama === 'string'
-            ? { ...data.alanlar, aciklama: hideDemandText(data.alanlar.aciklama) }
+            ? { ...data.alanlar, aciklama: hideDemandDescription(data.alanlar.aciklama) }
             : data.alanlar,
       },
       gorunum: await this.gorunum(d, data),
@@ -563,7 +565,9 @@ export class DemandService {
     const kelimeler = await this.icerik.yasakli(
       [
         d.headline ?? '',
-        String((data as unknown as { alanlar?: { aciklama?: unknown } }).alanlar?.aciklama ?? ''),
+        aciklamaDuz(
+          String((data as unknown as { alanlar?: { aciklama?: unknown } }).alanlar?.aciklama ?? ''),
+        ),
       ].join(' '),
     );
     return this.db.$transaction(async (tx) => {

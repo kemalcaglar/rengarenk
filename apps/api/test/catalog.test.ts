@@ -1073,6 +1073,18 @@ describe('katalog okuma uçları', () => {
       'M Sport',
       'Sport Line',
     ]);
+    // Sihirbazda kasaya göre daraltma: motor sürümü, yakıt, vites ve gövde üçlüleri tekrarsız
+    const tipler = detail.body.tipler as {
+      modelId: string;
+      years: number[];
+      fuel: string | null;
+      gearbox: string | null;
+    }[];
+    expect(tipler.length).toBeGreaterThan(0);
+    const anahtar = tipler.map((t) => `${t.modelId}|${t.fuel}|${t.gearbox}`);
+    expect(new Set(anahtar).size).toBeLessThanOrEqual(anahtar.length);
+    const m320d = detail.body.models.find((m: { name: string }) => m.name === '320d');
+    expect(tipler.filter((t) => t.modelId === m320d.id).every((t) => t.fuel === 'dizel')).toBe(true);
 
     const y2021 = await get(`/catalog/series/${s3.id}?yil=2021`);
     expect(y2021.body.makyaj.makyajli).toEqual([]);

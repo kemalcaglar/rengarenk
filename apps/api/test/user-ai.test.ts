@@ -79,7 +79,7 @@ describe('kullanıcı tarafı yapay zekâ (Karar 42)', () => {
     );
     expect(harita['Marka, seri, model']).toBe('BMW 3 Serisi 320i');
     expect(harita['Model yılı']).toBe('en az 2019');
-    expect(harita['Bütçe (en az – en çok)']).toBe('en çok 1.500.000 TL');
+    expect(harita.Bütçe).toBe('en çok 1.500.000 TL');
     expect(harita.Yakıt).toBe('Dizel');
     expect(harita.Vites).toBe('Otomatik');
     expect(harita['Konum (il, ilçe)']).toBe('İstanbul, Kadıköy');
@@ -106,7 +106,7 @@ describe('kullanıcı tarafı yapay zekâ (Karar 42)', () => {
     });
     expect(r2.body.doldurulan).toContainEqual({ alan: 'Marka, seri, model', deger: 'Volkswagen Passat' });
     expect(r2.body.doldurulan).toContainEqual({ alan: 'Model yılı', deger: '2016 – 2018' });
-    expect(r2.body.eksik).toContain('Bütçe (en az – en çok)');
+    expect(r2.body.eksik).toContain('Bütçe');
   });
 
   it('ilk mesaj taslağı: talebe göre yazılır, yeniden yaz başka metin getirir; kurala aykırı yapay zekâ yanıtı kullanılmaz', async () => {

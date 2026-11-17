@@ -1,3 +1,4 @@
+export * from './aciklama.js';
 export * from './ads.js';
 export * from './agent.js';
 export * from './assistant.js';
@@ -39,6 +40,7 @@ export * from './refunds.js';
 export * from './reports.js';
 export * from './retention.js';
 export * from './scheduled-reports.js';
+export * from './sihirbaz.js';
 export * from './staff.js';
 export * from './staff-alerts.js';
 export * from './subscriptions.js';

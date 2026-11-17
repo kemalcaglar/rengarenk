@@ -86,6 +86,10 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
   ve Euro normu görünür. 2001–2015 yılları ve güncel liste; 2016–2024 EEA erişimini bekliyor.
 
 ### Aşama 3 · Talep (Sprint 8)
+- Sihirbaz düzenlemeleri (17 Kasım 2026, sahip isteği): kasa ve makyaj tek seçilir (başka kasa için alternatif), kasa
+  seçilince model yılı kasadan gelir, yıl elle girilirse kasa seçilmez; kasaya göre yakıt, vites ve kasa tipi daralır;
+  hasar kaydı, motor hacmi ve motor gücü sorulmaz; bütçe tek rakam; sorular yukarıdan aşağı adım adım açılır; her adımın
+  tanıtımı üye başına bir kez; açıklamada kalın, italik, renk ve boyut; talep sayfasında açıklama sabit yükseklikte kaydırılır.
 - Talep sihirbazı (web ve mobil), yaşam döngüsü ve süreler, ilk talep ücretsiz (numara ve hesap başına bir kez).
 - Liste ve arama (OpenSearch), il/ilçe ve komşu il, talep detayı, favoriler, kayıtlı aramalar.
 - Ana sayfa vitrini ve son talepler; giriş yapmamış ziyaretçide de görünür, API'ye ulaşılamazsa yeniden dener.

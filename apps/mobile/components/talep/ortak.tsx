@@ -275,11 +275,17 @@ export function Alan({
   value,
   onChange,
   hata,
+  farkEtmez,
+  gecildi,
 }: {
   f: CategoryField;
   value: unknown;
   onChange: (v: unknown) => void;
   hata?: string;
+  /** Verilirse soru "Fark etmez" ile geçilebilir (sihirbazda sıradaki soru açılır) */
+  farkEtmez?: () => void;
+  /** "Fark etmez" seçildi */
+  gecildi?: boolean;
 }) {
   const baslik = (
     <T style={{ fontSize: 14, fontWeight: '800', marginBottom: 8 }}>
@@ -319,6 +325,17 @@ export function Alan({
             {o.label}
           </Cip>
         ))}
+        {coklu && farkEtmez ? (
+          <Cip
+            on={secili.length === 0 && (gecildi ?? true)}
+            onPress={() => {
+              onChange(undefined);
+              farkEtmez();
+            }}
+          >
+            Fark etmez
+          </Cip>
+        ) : null}
       </View>
     );
   } else if (f.type === 'boolean') {
@@ -331,9 +348,42 @@ export function Alan({
         <Cip on={v === false} onPress={() => onChange(v === false ? undefined : false)}>
           Hayır
         </Cip>
-        <Cip on={v === undefined} onPress={() => onChange(undefined)}>
+        <Cip
+          on={v === undefined && (gecildi ?? true)}
+          onPress={() => {
+            onChange(undefined);
+            farkEtmez?.();
+          }}
+        >
           Fark etmez
         </Cip>
+      </View>
+    );
+  } else if (f.type === 'range' && f.key === 'butce') {
+    // Bütçe tek rakam (sahip isteği, 17 Kasım 2026): üst sınır olarak `max`a yazılır; eski aralıkta en çok gösterilir
+    const v = (value as { min?: number; max?: number } | undefined) ?? {};
+    govde = (
+      <TInput
+        accessibilityLabel={f.label}
+        keyboardType="number-pad"
+        placeholder="Ör. 1.500.000"
+        value={binlik(v.max ?? v.min)}
+        onChangeText={(s) => {
+          const n = sayiOku(s);
+          onChange(n === undefined ? undefined : { max: n });
+        }}
+        style={girdiStil}
+      />
+    );
+    return (
+      <View>
+        {baslik}
+        {govde}
+        {alt ?? (
+          <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 6 }}>
+            Aracı en çok bu tutara almak istiyorsun; satıcılar bu bütçeye uyan araçlarla yazar.
+          </T>
+        )}
       </View>
     );
   } else if (f.type === 'range') {

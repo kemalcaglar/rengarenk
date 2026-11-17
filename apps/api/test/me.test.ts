@@ -79,6 +79,23 @@ describe('profil ve oturumlar', () => {
   });
 });
 
+describe('sihirbaz tanıtımı (sahip isteği, 17 Kasım 2026)', () => {
+  it('her adımın tanıtımı bir kez kaydedilir; bilinmeyen anahtar reddedilir', async () => {
+    const { accessToken } = await login('+905327770009');
+    expect((await call(app, 'GET', '/me', undefined, accessToken)).body.tanitim).toEqual([]);
+    for (let i = 0; i < 2; i++)
+      expect(
+        (await call(app, 'POST', '/me/tanitim', { anahtar: 'sihirbaz.kriterler' }, accessToken)).status,
+      ).toBe(204);
+    await call(app, 'POST', '/me/tanitim', { anahtar: 'sihirbaz.onizleme' }, accessToken);
+    expect((await call(app, 'GET', '/me', undefined, accessToken)).body.tanitim).toEqual([
+      'sihirbaz.kriterler',
+      'sihirbaz.onizleme',
+    ]);
+    expect((await call(app, 'POST', '/me/tanitim', { anahtar: 'baska' }, accessToken)).status).toBe(400);
+  });
+});
+
 describe('hız sınırı', () => {
   it('aynı IP saatte 10 şifre sıfırlama isteğinden fazlasını yapamaz', async () => {
     const codes: number[] = [];

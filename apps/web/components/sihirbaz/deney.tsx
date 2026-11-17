@@ -7,7 +7,7 @@ import { etiket } from './alan';
 
 /**
  * Sihirbazın bütçe adımı deneyi (Karar 44; özellik anahtarı `butce_b`, YonetimRapor › deney "kaydırıcı mı, iki kutu
- * mu?"). B kolu tasarımdaki en az / en çok iki kutudur; A kolu kaydırıcı. Kol üyenin kimliğinden sunucuda hesaplanır
+ * mu?"). B kolu kutu, A kolu kaydırıcı; ikisinde de bütçe tek rakamdır (sahip isteği, 17 Kasım 2026). Kol üyenin kimliğinden sunucuda hesaplanır
  * (`GET /flags`); okunamazsa iki kutu gösterilir. Adımı görme ve geçme `POST /flags/deney/butce_b` ile bildirilir;
  * deney sürmüyorsa sunucu yok sayar.
  */
@@ -42,7 +42,10 @@ export function butceOlayi(tur: 'gorus' | 'gecis') {
 const UST = 10_000_000;
 const ADIM = 25_000;
 
-/** A kolu: en az ve en çok bütçe için iki kaydırıcı (0–10 milyon TL, 25 bin adım) */
+/**
+ * A kolu: bütçe için kaydırıcı (0–10 milyon TL, 25 bin adım). Bütçe tek rakamdır (sahip isteği, 17 Kasım 2026):
+ * üst sınır olarak `max`a yazılır; eski aralıklı değerde en çok (yoksa en az) gösterilir.
+ */
 export function ButceKaydirici({
   id,
   ad,
@@ -56,42 +59,29 @@ export function ButceKaydirici({
   onChange: (v: unknown) => void;
   alt: ReactNode;
 }) {
-  const min = Math.min(deger.min ?? 0, UST);
-  const max = Math.min(deger.max ?? UST, UST);
-  const yaz = (k: 'min' | 'max', n: number) => {
-    const next = { min, max, [k]: n };
-    if (next.min > next.max) {
-      if (k === 'min') next.max = next.min;
-      else next.min = next.max;
-    }
-    onChange({ min: next.min, max: next.max });
-  };
-  const satir = (k: 'min' | 'max', baslik: string, v: number) => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      <label htmlFor={`${id}-${k}`} style={{ flex: 'none', width: 64, fontSize: 13.5, color: '#3A4052' }}>
-        {baslik}
-      </label>
-      <input
-        id={`${id}-${k}`}
-        type="range"
-        min={0}
-        max={UST}
-        step={ADIM}
-        value={v}
-        onChange={(e) => yaz(k, Number(e.target.value))}
-        style={{ flex: 1, minWidth: 0, accentColor: 'var(--rr-mavi, #5B8CFF)' }}
-      />
-      <span style={{ flex: 'none', width: 120, textAlign: 'right', fontSize: 14, fontWeight: 800 }}>
-        {binlik(v)} TL{k === 'max' && v >= UST ? '+' : ''}
-      </span>
-    </div>
-  );
+  const v = Math.min(deger.max ?? deger.min ?? 0, UST);
   return (
     <div style={{ maxWidth: 520 }}>
-      <span style={{ ...etiket, marginBottom: 6 }}>{ad}</span>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {satir('min', 'En az', min)}
-        {satir('max', 'En çok', max)}
+      <label htmlFor={id} style={{ ...etiket, marginBottom: 6 }}>
+        {ad}
+      </label>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <input
+          id={id}
+          type="range"
+          min={0}
+          max={UST}
+          step={ADIM}
+          value={v}
+          onChange={(e) => {
+            const n = Number(e.target.value);
+            onChange(n > 0 ? { max: n } : undefined);
+          }}
+          style={{ flex: 1, minWidth: 0, accentColor: 'var(--rr-mavi, #5B8CFF)' }}
+        />
+        <span style={{ flex: 'none', width: 130, textAlign: 'right', fontSize: 14, fontWeight: 800 }}>
+          {binlik(v)} TL{v >= UST ? '+' : ''}
+        </span>
       </div>
       {alt}
     </div>

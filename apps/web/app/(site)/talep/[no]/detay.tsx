@@ -9,6 +9,7 @@ import {
 } from '@rengarenk/shared';
 import Link from 'next/link';
 import { type CSSProperties, useEffect, useState } from 'react';
+import { AciklamaGoster } from '../../../../components/aciklama';
 import { AracSemasiGorunum } from '../../../../components/arac-semasi';
 import { Banner } from '../../../../components/banner';
 import { IlkMesaj } from '../../../../components/ilk-mesaj';
@@ -646,11 +647,11 @@ export function TalepDetay({
             <h2 id="aciklama" style={{ margin: '0 0 10px', fontSize: 18, fontWeight: 700 }}>
               Açıklama
             </h2>
-            <p
-              style={{ margin: 0, fontSize: 15, lineHeight: 1.65, color: '#2E3344', whiteSpace: 'pre-line' }}
-            >
-              {(t.data.alanlar.aciklama as string | undefined) || 'Talep sahibi açıklama yazmadı.'}
-            </p>
+            {/* Biçimli açıklama; uzayabileceği için yükseklik sabit, fazlası kaydırılır (sahip isteği, 17 Kasım 2026) */}
+            <AciklamaGoster
+              metin={(t.data.alanlar.aciklama as string | undefined) || 'Talep sahibi açıklama yazmadı.'}
+              sabit
+            />
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 18 }}>
               {genel.map((x, i) => (
                 <span

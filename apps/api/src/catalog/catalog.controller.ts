@@ -289,6 +289,31 @@ export class CatalogController {
       years: yearsOf(vs),
       modelIds: [...new Set(vs.map((v) => v.model.id))],
     }));
+    // Sihirbazda seçilen kasaya göre yakıt, vites ve kasa tipi daralır (sahip isteği, 17 Kasım 2026): yakıt, vites ve
+    // gövde üçlüsü başına yıllar (motor sürümüyle; tekrarsız, aynı üçlünün yılları birleşir)
+    const ucluler = new Map<
+      string,
+      {
+        modelId: string;
+        years: number[];
+        fuel: string | null;
+        gearbox: string | null;
+        body: string | null;
+      }
+    >();
+    for (const v of variants) {
+      const k = `${v.model.id}|${v.fuel}|${v.gearbox}|${v.body}`;
+      const e = ucluler.get(k);
+      if (e) e.years = uniqSorted([...e.years, ...v.years]);
+      else
+        ucluler.set(k, {
+          modelId: v.model.id,
+          years: uniqSorted(v.years),
+          fuel: v.fuel,
+          gearbox: v.gearbox,
+          body: v.body,
+        });
+    }
     // Kasa kuşakları tablodan gelir (tip kaydı olmayan yıllar dahil); kapalı kaynağınkiler görünmez.
     const activeSources = { in: g.keys };
     const thisYear = new Date().getFullYear();
@@ -383,6 +408,8 @@ export class CatalogController {
       codes,
       makyaj,
       trims: trims.sort(byName),
+      /** Yakıt, vites ve gövde üçlüleri ve yılları (sihirbazda kasaya göre seçenek daraltma) */
+      tipler: [...ucluler.values()],
     };
   }
 }

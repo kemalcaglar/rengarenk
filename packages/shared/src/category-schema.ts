@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ACIKLAMA_HAM_SINIR, ACIKLAMA_SINIR, aciklamaDuz } from './aciklama.js';
 import { ilBul } from './iller.js';
 
 /**
@@ -224,7 +225,8 @@ export const BASE_FIELDS: readonly CategoryField[] = [
   },
   {
     key: 'butce',
-    label: 'Bütçe (en az – en çok)',
+    // Tek rakam (sahip isteği, 17 Kasım 2026): üst sınır olarak "max"a yazılır; eski talepler aralık taşır
+    label: 'Bütçe',
     type: 'range',
     required: true,
     filter: true,
@@ -584,7 +586,16 @@ export function fieldValueSchema(f: CategoryField): z.ZodType {
     case 'number':
       return bounded(f);
     case 'text':
-      return z.string().trim().max(2000);
+      // Açıklamada biçim etiketleri sayılmaz: sınır düz metne uygulanır (aciklama.ts)
+      return f.key === 'aciklama'
+        ? z
+            .string()
+            .trim()
+            .max(ACIKLAMA_HAM_SINIR)
+            .refine((s) => aciklamaDuz(s).length <= ACIKLAMA_SINIR, {
+              message: `Açıklama en çok ${ACIKLAMA_SINIR} karakter olabilir`,
+            })
+        : z.string().trim().max(2000);
     case 'catalog':
       return catalogValue;
     case 'location':

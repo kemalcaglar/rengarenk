@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { aciklamaDuz } from './aciklama.js';
 
 /**
  * Şikâyet ve moderasyon (Karar 13.2, 41, 53; YonetimPazar.dc.html › Moderasyon). Kullanıcı mesajı, talebi ya da
@@ -206,6 +207,18 @@ export function hideDemandText(text: string | null): string | null {
     .replace(T_IBAN, '[IBAN gizlendi]')
     .replace(T_BAGLANTI, '[bağlantı gizlendi]')
     .replace(T_TELEFON, '[numara gizlendi]');
+}
+
+/**
+ * Biçimli talep açıklaması (aciklama.ts) için gizleme: etiketlerle bölünmüş numara ("[k]0532[/k] 123 45 67") da
+ * yakalanır; öyleyse biçim düşer ve düz metin gizlenir.
+ */
+export function hideDemandDescription(text: string): string;
+export function hideDemandDescription(text: string | null): string | null;
+export function hideDemandDescription(text: string | null): string | null {
+  if (!text) return text;
+  const gizli = hideDemandText(text);
+  return scanDemandText(aciklamaDuz(gizli)).length ? hideDemandText(aciklamaDuz(text)) : gizli;
 }
 
 /** Alıcıya giden mesajda numara gizleme (telefon izni kapalıysa; Karar 13.2) */
