@@ -226,7 +226,7 @@ export function teknikBolumleri(o: TeknikOzet): TeknikBolum[] {
 
 /** Teknik değerlerin kaynağı (kullanıcıya gösterilen not) */
 export const TEKNIK_KAYNAK =
-  'Avrupa onay değerleri (ADEME, Fransa) ve vehicle-makes-models motor kayıtları; Türkiye’de satılan sürümle eşleşir';
+  'Avrupa onay değerleri (ADEME, Fransa) ve vehicle-makes-models motor kayıtları; Türkiye’de satılan sürümle eşleşir, vites türü sürümün TSB’deki adından';
 
 // ── Elle düzeltme (sahip isteği, 17 Kasım 2026) ───────────────────────────────
 

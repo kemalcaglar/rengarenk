@@ -451,7 +451,10 @@ pnpm format        # Biome ile biçimlendir
   `duzeltmeleri` (`catalog/teknik-duzeltme.ts`) + ortak `duzeltmeUygula`; eşleştirme yeniden çalışınca kaybolmaz. Yeni
   bir yerde teknik özet gösterirken bunları uygula. Alanlar ortak `TEKNIK_ALANLARI`. Konsol menüsünde Katalog › Araç
   görselleri ("N görselsiz") ve Teknik özellikler ("N bildirim") rozetli. Talep sayfasında fotoğraf kırpılmadan sığar
-  (kenarlar bulanık kopya), tıklanınca tam ekran (`components/gorsel-buyut.tsx`; mobilde Modal). API'de 242 test.
+  (kenarlar bulanık kopya), tıklanınca tam ekran (`components/gorsel-buyut.tsx`; mobilde Modal). Teknik sekmesi talepte seçilen yakıt,
+  vites, kasa tipi ve çekişe uyan tiplerden (`tipSecimeUyar`, 18 Kasım 2026: otomatik Clio'da "manuel" yazıyordu); vites
+  türü tipin TSB adından, kaynakta eşleşmesi olmayan tipte adından vites ve güç (`tipTeknik`, kaynak `tsb`). Tip özeti
+  okurken `teknikOku` yerine `tipTeknik` kullan. API'de 243, katalogda 72, ortak pakette 144 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

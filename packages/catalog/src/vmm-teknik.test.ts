@@ -5,6 +5,7 @@ import {
   readVmmTeknik,
   teknikBirlestir,
   teknikOku,
+  tipTeknik,
   tsbOzeti,
   type VmmMotor,
   vmmEslestir,
@@ -207,5 +208,27 @@ describe('motor kayıtlarında seri adı ve makul değer', () => {
     expect(xs.map((x) => x.seri)).toEqual(['Egea', 'Tipo', 'VW CC']);
     expect(xs[0]?.d.bagaj).toBeUndefined();
     expect(xs[0]?.d.hizlanma).toBe(12.1);
+  });
+});
+
+describe('tipin vitesi TSB adından (sahip bildirimi, 18 Kasım 2026)', () => {
+  const vmm = { source: 'vmm', summary: { vitesler: ['manuel:6', 'otomatik:7'], hp: [90, 90], surum: 1 } };
+  const acik = new Set(['ademe', 'vmm']);
+  it('adında vites yazılı tipte kaynağın başka türdeki vitesi düşer', () => {
+    expect(tipTeknik([vmm], acik, { gearbox: 'otomatik', powerHp: 90 })?.vitesler).toEqual(['otomatik:7']);
+  });
+  it('kaynakta eşleşmesi olmayan tipte adından vites ve güç gelir', () => {
+    const o = tipTeknik([], acik, { gearbox: 'otomatik', powerHp: 90 });
+    expect(o?.vitesler).toEqual(['otomatik:']);
+    expect(o?.hp).toEqual([90, 90]);
+    expect(o?.kaynaklar).toEqual(['tsb']);
+    expect(tipTeknik([], acik, { gearbox: null, powerHp: 90 })).toBeNull();
+  });
+  it('vitesi bilinmeyen tipte talepteki vites seçimi uygulanır', () => {
+    const yalnizManuel = { source: 'vmm', summary: { vitesler: ['manuel:5'], surum: 1 } };
+    const tip = { gearbox: null, powerHp: 90 };
+    expect(tipTeknik([vmm], acik, tip, ['otomatik'])?.vitesler).toEqual(['otomatik:7']);
+    expect(tipTeknik([yalnizManuel], acik, tip, ['otomatik'])).toBeNull();
+    expect(tipTeknik([yalnizManuel], acik, tip)?.vitesler).toEqual(['manuel:5']);
   });
 });

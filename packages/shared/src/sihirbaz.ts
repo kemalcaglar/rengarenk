@@ -116,6 +116,31 @@ const YAKIT: Record<string, string[]> = {
   lpg: ['lpg_benzin'],
 };
 
+/**
+ * Tip talepteki seçimlere uyuyor mu (sahip bildirimi, 18 Kasım 2026: otomatik seçilen Clio'nun teknik özelliklerinde
+ * manuel yazıyordu). Yakıt, vites, kasa tipi ve çekişte talepte seçim varsa ve tipin değeri biliniyorsa karşılaştırılır;
+ * bilinmeyen değer elenmez (tahmin edilmez).
+ */
+export function tipSecimeUyar(
+  tip: { fuel: string | null; gearbox: string | null; body: string | null; drive: string | null },
+  secim: Record<string, unknown>,
+): boolean {
+  const liste = (k: string) => {
+    const v = secim[k];
+    return Array.isArray(v) && v.length ? new Set(v.map(String)) : null;
+  };
+  const uyar = (k: string, karsilik: string[] | null) => {
+    const s = liste(k);
+    return !s || !karsilik?.length || karsilik.some((x) => s.has(x));
+  };
+  return (
+    uyar('yakit', tip.fuel ? (YAKIT[tip.fuel] ?? null) : null) &&
+    uyar('vites', tip.gearbox ? [tip.gearbox] : null) &&
+    uyar('kasaTipi', kasaTipiOf(tip.body) ? [kasaTipiOf(tip.body) as string] : null) &&
+    uyar('cekis', tip.drive ? (CEKIS_SECENEGI[tip.drive] ?? null) : null)
+  );
+}
+
 const KASA_TIPI: [RegExp, string][] = [
   [/sedan|saloon|limuzin/i, 'sedan'],
   [/station|kombi|estate|touring|variant|avant|sports ?tourer/i, 'station_wagon'],

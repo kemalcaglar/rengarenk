@@ -7,7 +7,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ozetBirlestir, type TeknikOzet, teknikOku } from '@rengarenk/catalog';
+import { ozetBirlestir, type TeknikOzet, tipTeknik } from '@rengarenk/catalog';
 import { Prisma, uuidv7 } from '@rengarenk/db';
 import { duzeltmeUygula, TEKNIK_ALANLARI, type TeknikDuzeltme } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
@@ -226,12 +226,12 @@ export class TeknikDuzeltmeService {
       : null;
     const tipler = await this.db.catalogVariant.findMany({
       where: { modelId, source: { in: ['tsb', 'yerli'] }, ...(yillar ? { years: { hasSome: yillar } } : {}) },
-      select: { specs: { select: { source: true, summary: true } } },
+      select: { gearbox: true, powerHp: true, specs: { select: { source: true, summary: true } } },
       take: 2000,
     });
     const ozetler = tipler.flatMap((t) => {
-      const o = acik.size ? teknikOku(t.specs, acik) : null;
-      return o?.kaynaklar?.length ? [o] : [];
+      const o = tipTeknik(t.specs, acik, t);
+      return o ? [o] : [];
     });
     const kaynak = ozetler.length ? (ozetBirlestir(ozetler) as TeknikOzet) : null;
     const tum = await this.db.catalogSpecOverride.findMany({

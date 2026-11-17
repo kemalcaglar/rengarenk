@@ -431,3 +431,59 @@ describe('teknik özellik bildirimi ve elle düzeltme (sahip isteği, 17 Kasım 
     await expect(db.catalogSpecOverride.delete({ where: { id: d.body.id } })).rejects.toThrow();
   });
 });
+
+describe('teknik sekmesi talepteki vitese uyar (sahip bildirimi, 18 Kasım 2026)', () => {
+  it('otomatik seçilen talepte manuel tipin değerleri gösterilmez; vites TSB adından gelir', async () => {
+    await db.catalogSource.upsert({
+      where: { key: 'vmm' },
+      create: { key: 'vmm', name: 'vehicle-makes-models', license: 'ODbL', active: true },
+      update: { active: true },
+    });
+    const model = await db.catalogModel.findUniqueOrThrow({ where: { key: 'bmw/3-serisi/320i' } });
+    const tip = (anahtar: string, gearbox: string) =>
+      db.catalogVariant.create({
+        data: {
+          id: uuidv7(),
+          source: 'tsb',
+          sourceKey: anahtar,
+          makeId: model.makeId,
+          seriesId: model.seriesId,
+          modelId: model.id,
+          categories: ['otomobil'],
+          years: [2024],
+          fuel: 'benzin',
+          gearbox,
+          powerHp: 170,
+          rawName: anahtar,
+          confidence: 'yuksek',
+          firstVersion: 't',
+          lastVersion: 't',
+        },
+      });
+    // Manuel tipin motor kaydı var, otomatik tipin yok (Clio 1.0 TCe ve X-TRONIC gibi)
+    const manuel = await tip('test-320i-manuel', 'manuel');
+    await tip('test-320i-otomatik', 'otomatik');
+    await db.$executeRaw`INSERT INTO catalog_variant_specs (variant_id, source, summary, signature, updated_at)
+      VALUES (${manuel.id}::uuid, 'vmm', ${JSON.stringify({ vitesler: ['manuel:6'], hp: [170, 170], surum: 1 })}::jsonb, 't', now())`;
+    const motorlar = async (alt: Record<string, unknown>) => {
+      const t = await talep(
+        '3-serisi',
+        '320i',
+        { butce: { max: 2_000_000 }, yil: { min: 2024, max: 2024 }, ...alt },
+        { il: 'Bursa' },
+      );
+      return (await call(app, 'GET', `/talepler/${t.no}`)).body.gorunum.alternatifler[0].motorlar;
+    };
+    expect((await motorlar({ vites: ['otomatik'] }))[0].ozet).toMatchObject({
+      vitesler: ['otomatik:'],
+      hp: [170, 170],
+      kaynaklar: ['tsb'],
+    });
+    expect((await motorlar({ vites: ['manuel'] }))[0].ozet).toMatchObject({
+      vitesler: ['manuel:6'],
+      kaynaklar: ['vmm'],
+    });
+    // Vites seçilmediyse iki tip birleşir
+    expect((await motorlar({}))[0].ozet.vitesler).toEqual(['manuel:6', 'otomatik:']);
+  });
+});

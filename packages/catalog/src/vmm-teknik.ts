@@ -401,3 +401,43 @@ export function teknikOku(
     (satirlar.find((x) => x.source === 'tsb')?.summary ?? null) as Partial<TeknikOzet> | null,
   );
 }
+
+/**
+ * Türkiye'de satılan tipin teknik özeti, vites türü TSB adından (sahip bildirimi, 18 Kasım 2026: otomatik Clio'nun
+ * teknik özelliklerinde "manuel" yazıyordu). Vites tipin adında yazılıysa kaynakların başka türdeki vitesi düşer;
+ * yazılı değilse ve talepte vites seçildiyse (`izinliVites`) yalnızca o türler kalır, hiçbiri kalmazsa tip gösterilmez.
+ * Kaynaklarda eşleşmesi olmayan tipte adından bilinen vites ve güç özet olur (kaynak "tsb").
+ */
+export function tipTeknik(
+  satirlar: readonly { source: string; summary: unknown }[],
+  acik: ReadonlySet<string>,
+  tip: { gearbox: string | null; powerHp: number | null },
+  izinliVites?: readonly string[] | null,
+): TeknikOzet | null {
+  const o = acik.size ? teknikOku(satirlar, acik) : null;
+  const tur = (v: string) => v.split(':')[0] ?? '';
+  if (o?.kaynaklar?.length) {
+    const izin = tip.gearbox ? [tip.gearbox] : izinliVites?.length ? izinliVites : null;
+    if (!izin) return o;
+    const uyan = o.vitesler.filter((v) => izin.includes(tur(v)));
+    if (uyan.length) return { ...o, vitesler: uyan };
+    if (tip.gearbox) return { ...o, vitesler: [`${tip.gearbox}:`] };
+    // Vites ne tipin adında ne kaynakta: bilinmiyor, tip kalır; kaynak başka türü söylüyorsa talebe uymaz
+    return o.vitesler.length ? null : o;
+  }
+  if (!tip.gearbox) return null;
+  const tsb = (satirlar.find((x) => x.source === 'tsb')?.summary ?? null) as Partial<TeknikOzet> | null;
+  return {
+    vitesler: [`${tip.gearbox}:`],
+    kw: null,
+    hp: tip.powerHp ? [tip.powerHp, tip.powerHp] : null,
+    tuketim: null,
+    co2: null,
+    agirlik: null,
+    euro: [],
+    surum: 0,
+    ...(tsb?.cekisler?.length ? { cekisler: tsb.cekisler } : {}),
+    ...(tsb?.govdeler?.length ? { govdeler: tsb.govdeler } : {}),
+    kaynaklar: ['tsb'],
+  };
+}

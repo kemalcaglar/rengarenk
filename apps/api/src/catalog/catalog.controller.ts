@@ -16,7 +16,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ANA_KATEGORILER, ozetBirlestir, teknikOku } from '@rengarenk/catalog';
+import { ANA_KATEGORILER, ozetBirlestir, teknikOku, tipTeknik } from '@rengarenk/catalog';
 import type { Prisma } from '@rengarenk/db';
 import { duzeltmeUygula, GORSEL_LISANSLARI, kasaTipiOf, VEHICLE_CATEGORIES } from '@rengarenk/shared';
 import { z } from 'zod';
@@ -295,8 +295,9 @@ export class CatalogController {
       teknik: duzeltmeUygula(
         ozetBirlestir(
           vs.flatMap((v) => {
-            const o = teknikOku(v.specs, teknikAcik);
-            return o?.kaynaklar?.length ? [o] : [];
+            // Vites türü tipin TSB adından (sahip bildirimi, 18 Kasım 2026)
+            const o = v.source === 'vmm' ? null : tipTeknik(v.specs, teknikAcik, v);
+            return o ? [o] : [];
           }),
         ),
         duz.get(mid) ?? [],

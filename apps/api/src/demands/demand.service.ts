@@ -7,7 +7,7 @@ import {
   NotFoundException,
   Optional,
 } from '@nestjs/common';
-import { ozetBirlestir, type TeknikOzet, teknikOku } from '@rengarenk/catalog';
+import { ozetBirlestir, type TeknikOzet, tipTeknik } from '@rengarenk/catalog';
 import { type Demand, type DemandStatus, type Prisma, uuidv7 } from '@rengarenk/db';
 import {
   aciklamaDuz,
@@ -29,6 +29,7 @@ import {
   hideDemandText,
   PROMOTE_DAYS,
   REMINDER_DAYS,
+  tipSecimeUyar,
 } from '@rengarenk/shared';
 import type { Redis } from 'ioredis';
 import { AdsService, olayPlatformu } from '../ads/ads.service.js';
@@ -373,9 +374,11 @@ export class DemandService {
             take: 400,
           })
         : [];
+      // Talepte seçilen yakıt, vites, kasa tipi ve çekişe uymayan tipler örnek olmaz (bilinmeyen değer elenmez)
+      const uyanTipler = variants.filter((v) => tipSecimeUyar(v, a));
       // Katalogdaki en yaygın donanım (talepteki yıl aralığında)
       const say = new Map<string, { n: number; v: (typeof variants)[number] }>();
-      for (const v of variants) {
+      for (const v of uyanTipler) {
         const k = JSON.stringify([v.engineL, v.powerHp, v.fuel, v.gearbox]);
         say.set(k, { n: (say.get(k)?.n ?? 0) + 1, v });
       }
@@ -404,7 +407,7 @@ export class DemandService {
           ? [y.min ?? y.max ?? yil, y.max ?? y.min ?? yil]
           : null;
       const motorlar = series
-        ? await this.motorlar(series.id, model?.id ?? null, aralik, paketKeys, teknikAcik)
+        ? await this.motorlar(series.id, model?.id ?? null, aralik, paketKeys, teknikAcik, a)
         : [];
       alternatifler.push({
         kasa: kasa.map(({ yilAraligi: _, ...k }) => k),
@@ -424,7 +427,9 @@ export class DemandService {
 
   /**
    * Talebin aracının motor sürümleri ve teknik özetleri: serinin Türkiye'de satılan tipleri (TSB, yerli liste),
-   * motor seçildiyse yalnızca o, yıl aralığında ve paket seçildiyse o paketlerde. Özeti olmayan sürüm gelmez.
+   * motor seçildiyse yalnızca o, yıl aralığında ve paket seçildiyse o paketlerde. Talepte yakıt, vites, kasa tipi ya da
+   * çekiş seçildiyse yalnızca uyan tipler (sahip bildirimi, 18 Kasım 2026); vites türü tipin TSB adından (`tipTeknik`).
+   * Özeti olmayan sürüm gelmez.
    */
   private async motorlar(
     seriesId: string,
@@ -432,6 +437,7 @@ export class DemandService {
     aralik: [number, number] | null,
     paketKeys: string[],
     acik: ReadonlySet<string>,
+    secim: Record<string, unknown>,
   ): Promise<{ ad: string; model: string; ozet: TeknikOzet }[]> {
     const yillar = aralik
       ? Array.from({ length: Math.min(aralik[1] - aralik[0] + 1, 80) }, (_, i) => aralik[0] + i)
@@ -445,16 +451,23 @@ export class DemandService {
         ...(paketKeys.length ? { trim: { key: { in: paketKeys } } } : {}),
       },
       select: {
+        fuel: true,
+        gearbox: true,
+        body: true,
+        drive: true,
+        powerHp: true,
         model: { select: { id: true, key: true, name: true } },
         specs: { select: { source: true, summary: true } },
       },
       take: 2000,
     });
+    const vites = Array.isArray(secim.vites) ? (secim.vites as string[]) : null;
     const grup = new Map<string, { ad: string; key: string; ozetler: TeknikOzet[] }>();
     for (const t of tipler) {
+      if (!tipSecimeUyar(t, secim)) continue;
       const g = grup.get(t.model.id) ?? { ad: t.model.name, key: t.model.key, ozetler: [] };
-      const o = acik.size ? teknikOku(t.specs, acik) : null;
-      if (o?.kaynaklar?.length) g.ozetler.push(o);
+      const o = tipTeknik(t.specs, acik, t, vites);
+      if (o) g.ozetler.push(o);
       grup.set(t.model.id, g);
     }
     // Elle düzeltmeler (sahip isteği, 17 Kasım 2026): kaynaktaki değerin yerine geçer; kaynakta bilgisi olmayan

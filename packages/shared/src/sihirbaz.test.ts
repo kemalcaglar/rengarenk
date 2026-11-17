@@ -8,6 +8,7 @@ import {
   kesinSecenekler,
   kriterSirasi,
   secimiDaralt,
+  tipSecimeUyar,
   uygunSecenekler,
 } from './sihirbaz.js';
 
@@ -116,5 +117,25 @@ describe('sihirbaz 3. adım (sahip isteği, 17 Kasım 2026)', () => {
     expect(butceDegeri({ min: 500_000, max: 900_000 })).toBe(900_000);
     expect(butceDegeri({ min: 500_000 })).toBe(500_000);
     expect(butceDegeri(undefined)).toBeUndefined();
+  });
+});
+
+describe('tipSecimeUyar', () => {
+  const tip = (fuel: string | null, gearbox: string | null) => ({
+    fuel,
+    gearbox,
+    body: 'Hatchback 5 kapı',
+    drive: 'onden',
+  });
+  it('talepteki yakıt ve vitese uymayan tip elenir, bilinmeyen değer elenmez', () => {
+    const secim = { yakit: ['benzin'], vites: ['otomatik'] };
+    expect(tipSecimeUyar(tip('benzin', 'otomatik'), secim)).toBe(true);
+    expect(tipSecimeUyar(tip('benzin', 'manuel'), secim)).toBe(false);
+    expect(tipSecimeUyar(tip('dizel', 'otomatik'), secim)).toBe(false);
+    expect(tipSecimeUyar(tip('benzin', null), secim)).toBe(true);
+    expect(tipSecimeUyar(tip('lpg', 'otomatik'), { yakit: ['lpg_benzin'] })).toBe(true);
+    expect(tipSecimeUyar(tip('benzin', 'manuel'), {})).toBe(true);
+    expect(tipSecimeUyar(tip('benzin', 'manuel'), { kasaTipi: ['sedan'] })).toBe(false);
+    expect(tipSecimeUyar(tip('benzin', 'manuel'), { cekis: ['dort'] })).toBe(false);
   });
 });
