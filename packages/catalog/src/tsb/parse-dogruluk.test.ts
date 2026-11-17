@@ -173,6 +173,19 @@ describe('TSB ayrıştırma doğruluğu', () => {
       trim: 'Feel',
     });
     expect(parse('MITSUBISHI', 'L 200 CIFT KABIN 2.4 4x4 INTENSE').categories).toEqual(['arazi-suv-pickup']);
+    // İkinci kelime paket değil, ayrı satılan seri: Passat CC, Tiguan Allspace, Megane Scenic
+    expect(parse('VOLKSWAGEN', 'PASSAT CC 1.8 TFSI (160) TIPTRONIC')).toMatchObject({
+      series: 'Passat CC',
+      model: '1.8 TFSI',
+      trim: null,
+      gearbox: 'otomatik',
+      powerHp: 160,
+    });
+    expect(parse('VOLKSWAGEN', 'TIGUAN ALLSPACE 1.5 TSI ACT 150 DSG R-LINE')).toMatchObject({
+      series: 'Tiguan AllSpace',
+      trim: 'R-Line',
+    });
+    expect(parse('RENAULT', 'MEGANE SCENIC 2.0 RXT')).toMatchObject({ series: 'Megane Scenic' });
   });
 
   it('kısaltmalar büyük harf: XE, XLV, CTS, LTZ; gerçek adlar (Up, Ka, Rio) değişmez', () => {

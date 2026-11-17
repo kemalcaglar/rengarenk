@@ -54,6 +54,13 @@ function miniModel(tokens: string[]): { model?: string; tokens: string[] } {
 /** Ayrı yazılmış iki kelimelik seriler. Sağdaki ad katalogda kullanılan yazımdır. */
 export const TWO_WORD_SERIES: Record<string, string> = {
   'GRANDE PUNTO': 'Grande Punto',
+  // Ayrı seri olarak satılan iki kelimelik adlar (ikinci kelime paket değildir; ana listede ayrı seri)
+  'PASSAT CC': 'Passat CC',
+  'TIGUAN ALLSPACE': 'Tiguan AllSpace',
+  'MEGANE SCENIC': 'Megane Scenic',
+  'CLIO SYMBOL': 'Clio Symbol',
+  'LEGACY OUTBACK': 'Legacy Outback',
+  'DATSUN PATROL': 'Patrol',
   'G. PUNTO': 'Grande Punto',
   'G. CHEROKEE': 'Grand Cherokee',
   'GRANDE PANDA': 'Grande Panda',

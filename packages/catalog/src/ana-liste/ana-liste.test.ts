@@ -116,4 +116,16 @@ describe('ana liste (sahip kararı, 16 Kasım 2026)', () => {
     expect(markaKanon('Peugeot (Karsan)')).toBe(markaKanon('Peugeot'));
     expect(markaKanon('Kuba')).not.toBe(markaKanon('Kia'));
   });
+
+  it('ayrı satılan iki kelimelik seriler ve eski SL/SLC yazımları liste serisine bağlanır', () => {
+    const oto = (make: string, series: string, raw: string, years = [2010]) =>
+      anaYerlestir({ make, series, raw, categories: ['otomobil'], years });
+    expect(oto('Volkswagen', 'Passat CC', 'PASSAT CC 1.8 TFSI (160)')).toMatchObject({ series: 'VW CC' });
+    expect(oto('Renault', 'Clio Symbol', 'CLIO SYMBOL 1.4 16V')).toMatchObject({ series: 'Symbol' });
+    expect(oto('Subaru', 'Legacy Outback', 'LEGACY OUTBACK 2.5 OV')).toMatchObject({ series: 'Outback' });
+    expect(oto('Mercedes-Benz', '450', '450 SLC', [1975])).toMatchObject({ series: 'SLC' });
+    expect(oto('Mercedes-Benz', '500', '500 SL CABRIO', [1985])).toMatchObject({ series: 'SL' });
+    // Aynı motor sayısıyla yazılan sedan SL değildir
+    expect(oto('Mercedes-Benz', '500', '500 SE', [1985]).series).not.toBe('SL');
+  });
 });

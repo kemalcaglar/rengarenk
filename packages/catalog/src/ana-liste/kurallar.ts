@@ -77,6 +77,8 @@ export const SERI_KURALLARI: Record<string, SeriKurali[]> = {
   ],
   Volkswagen: [
     { kaynak: 'CC', hedef: 'VW CC' },
+    // 2009–2012 TSB'de "PASSAT CC" (2012 makyajıyla "CC")
+    { kaynak: 'Passat CC', hedef: 'VW CC' },
     { kaynak: 'N.', hedef: 'Beetle' },
     // ABD'de Golf'ün adı Rabbit
     { kaynak: 'Rabbit', hedef: 'Golf' },
@@ -616,6 +618,11 @@ const ESKI_KURALLAR: Record<string, SeriKurali[]> = {
   ],
   Mazda: [{ kaynak: 'B-2200', hedef: 'B Serisi' }],
   'Mercedes-Benz': [
+    // Eski SL ve SLC'ler motor sayısıyla yazılır: "280 SL", "450 SLC", "500 SL CABRIO"
+    ...['190', '230', '280', '300', '350', '380', '420', '450', '500', '560', '600'].flatMap((kaynak) => [
+      { kaynak, hedef: 'SLC', tip: /^\d{3} SLC\b/ },
+      { kaynak, hedef: 'SL', tip: /^\d{3} SL\b/ },
+    ]),
     { kaynak: '190D', hedef: '190' },
     { kaynak: '200D', hedef: '200' },
     { kaynak: '220D', hedef: '220' },
@@ -654,6 +661,8 @@ const ESKI_KURALLAR: Record<string, SeriKurali[]> = {
     { kaynak: 'Reno', hedef: 'R 9', tip: /^RENO 9\b/ },
     // Türkiye'de Renault 9'un 1996–2000 adı
     { kaynak: 'Broadway', hedef: 'R 9' },
+    { kaynak: 'Megane Scenic', hedef: 'Scenic' },
+    { kaynak: 'Clio Symbol', hedef: 'Symbol' },
     { kaynak: 'Escape', hedef: 'Espace' },
   ],
   Rover: [
@@ -671,7 +680,10 @@ const ESKI_KURALLAR: Record<string, SeriKurali[]> = {
     { kaynak: 'Pulse', hedef: 'Fortwo', tip: /^SMART PULSE$/ },
     { kaynak: 'Pure', hedef: 'Fortwo', tip: /^PURE$/ },
   ],
-  Subaru: [{ kaynak: 'Legasy', hedef: 'Legacy' }],
+  Subaru: [
+    { kaynak: 'Legasy', hedef: 'Legacy' },
+    { kaynak: 'Legacy Outback', hedef: 'Outback' },
+  ],
   Suzuki: [{ kaynak: 'Samurai', hedef: 'SJ' }],
   Toyota: [
     { kaynak: 'Land', hedef: 'Land Cruiser', tip: /^LAND CRUISE/ },

@@ -381,7 +381,7 @@ pnpm format        # Biome ile biçimlendir
   FIAT Doğan → Tofaş), `kaynak: '*'` (seri adı ne olursa olsun desen: BMW "320I/4"). Kural ve ad tutmazsa tip adının
   baştaki 1–3 kelimesi bir liste serisinin adıysa ona bağlanır (`basKelimeler`: "LE SABRE (1600)"). Eski TSB yazımları
   `ESKI_KURALLAR` (kurallar.ts sonu); rapor scratchpad `mm/eski-rapor.sql`, deneme `mm/dene.mjs`.
-  TSB ayrıştırıcısı `2026-11-16-5`: kısaltılmış vites yazımları (GEARTRO, 9TRON, 8A/T), elektrikli otomobil otomatik;
+  TSB ayrıştırıcısı `2026-11-17-1`: kısaltılmış vites yazımları (GEARTRO, 9TRON, 8A/T), elektrikli otomobil otomatik;
   eski listelerdeki "İ" küçük harfte birleşik nokta bırakmaz ("Binek", "Şahin").
   Otomobil ve SUV marka seçimini ana liste belirler (sahibin Aixam itirazı, 16 Kasım 2026): `GET /catalog/makes`
   bu kategorilerde yalnızca ana listede serisi olan markaları ve yerli klasik markalarını (Anadol) döndürür; listede
@@ -389,6 +389,9 @@ pnpm format        # Biome ile biçimlendir
   yazılmış markalar `MARKA_ADI`'nda ("Fiat/Tofaş" → Fiat, "Chrysler/Jeep" → Jeep, "Ford/Otosan", "Peugeot (Karsan)",
   "Mercury/Ford"); "Willys/Jeep", Dodge/Fargo ve "Rolls-Royce/Bentley" seri adları dağınık olduğu için bağlanmadı.
   Arşivde aynı kodlu tip, markası `markaKanon` ile aynıysa (eski yazım ya da kuralla taşınan marka) yeni markaya geçer.
+  Ayrı satılan iki kelimelik seriler TSB'de ilk iki kelimeden (`TWO_WORD_SERIES`: "PASSAT CC" → VW CC, "TIGUAN ALLSPACE",
+  "MEGANE SCENIC", "CLIO SYMBOL", "LEGACY OUTBACK"); ikinci kelime paket sayılmaz. Eski Mercedes "280 SL", "450 SLC" SL/SLC'ye.
+  Ayrıştırıcı ve ana liste sürümü `2026-11-17-1`. API'de 236, katalogda 65 test.
 - **Türkiye'ye özgü tipler, bütün yıllar (16 Kasım 2026, sahip isteği: "10 paketin 3'ü Türkiye'de"):** TSB listesi yalnızca
   Türkiye'de satılan motor ve paketleri taşır. 2006–2019 listeleri (eski siteler adl.tsrsb.org.tr, tsrsb.org.tr,
   tsb.org.tr) İnternet Arşivi'nden `TSB_ESKI` (`packages/catalog/src/tsb/eski.ts`) ile `katalog:yukle --arsiv` sırasında

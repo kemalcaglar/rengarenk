@@ -17,7 +17,7 @@ import { normalizeHead } from './series.js';
  * Ayrıştırıcı sürümü: kurallar değişince artırılır. Aynı TSB dosyası yeni sürümle yeniden işlenebilir
  * (içe aktarma, aynı dosyayı yalnızca aynı ayrıştırıcı sürümüyle bir kez uygular).
  */
-export const TSB_PARSER = '2026-11-16-5';
+export const TSB_PARSER = '2026-11-17-1';
 
 export type Fuel = 'benzin' | 'dizel' | 'hibrit' | 'elektrik' | 'lpg';
 export type Gearbox = 'manuel' | 'otomatik' | 'yari_otomatik';

@@ -9,7 +9,7 @@ export { ANA_LISTE, MARKA_ADI, SERI_KURALLARI };
  * Ana liste ve bağlama kurallarının sürümü. Liste ya da kural değişince artar; bütün katalog kaynakları (TSB, arşiv,
  * vehicle-makes-models, yerli liste, Wikidata) bu sürümle yeniden işlenir.
  */
-export const ANA_LISTE_SURUM = '2026-11-16-8';
+export const ANA_LISTE_SURUM = '2026-11-17-1';
 
 /** Kaynağın ayrıştırıcı sürümü ile ana liste sürümü: biri değişince kaynak yeniden işlenir. */
 export const anaKural = (parser: string) => `${parser}+ana.${ANA_LISTE_SURUM}`;
