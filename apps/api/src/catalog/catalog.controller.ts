@@ -16,9 +16,9 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ANA_KATEGORILER, ozetBirlestir, type TeknikOzet } from '@rengarenk/catalog';
+import { ANA_KATEGORILER, ozetBirlestir, teknikOku } from '@rengarenk/catalog';
 import type { Prisma } from '@rengarenk/db';
-import { VEHICLE_CATEGORIES } from '@rengarenk/shared';
+import { kasaTipiOf, VEHICLE_CATEGORIES } from '@rengarenk/shared';
 import { z } from 'zod';
 import { AuditService } from '../audit/audit.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
@@ -219,8 +219,15 @@ export class CatalogController {
     });
     if (!s) throw new NotFoundException('Seri bulunamadı');
     const g = await this.gorunum();
-    // Teknik özet kaynağı konsoldan kapatılırsa gösterilmez
-    const ademeAcik = (await this.db.catalogSource.count({ where: { key: 'ademe', active: true } })) > 0;
+    // Teknik özet: açık kaynakların satırları birleşir (ADEME ya da vehicle-makes-models kapatılırsa onunki düşer)
+    const teknikAcik = new Set(
+      (
+        await this.db.catalogSource.findMany({
+          where: { key: { in: ['ademe', 'vmm'] }, active: true },
+          select: { key: true },
+        })
+      ).map((x) => x.key),
+    );
     const tipler = await this.db.catalogVariant.findMany({
       where: { seriesId: id, ...this.variantWhere(g), ...(yil ? { years: { has: yil } } : {}) },
       select: {
@@ -230,12 +237,13 @@ export class CatalogController {
         facelift: true,
         fuel: true,
         gearbox: true,
+        drive: true,
         engineL: true,
         powerHp: true,
         powerKw: true,
         model: { select: { id: true, key: true, name: true } },
         trim: { select: { id: true, key: true, name: true } },
-        spec: { select: { summary: true } },
+        specs: { select: { source: true, summary: true } },
       },
     });
     // Ana listedeki seride yıllar: listenin yılları ile TSB ve yerli listenin yılları birleşir (sahip kararı,
@@ -277,9 +285,12 @@ export class CatalogController {
        * Teknik özet (ADEME onay verisi; Türkiye'de satılan tiplerin eşleşen Avrupa sürümleri): vites seçenekleri,
        * güç, karma tüketim, CO2, boş ağırlık. Eşleşen tip yoksa null.
        */
-      teknik: ademeAcik
-        ? ozetBirlestir(vs.flatMap((v) => (v.spec ? [v.spec.summary as unknown as TeknikOzet] : [])))
-        : null,
+      teknik: ozetBirlestir(
+        vs.flatMap((v) => {
+          const o = teknikOku(v.specs, teknikAcik);
+          return o?.kaynaklar?.length ? [o] : [];
+        }),
+      ),
     }));
     const bodies = [...group((v) => v.body)].map(([name, vs]) => ({ name, years: yearsOf(vs) }));
     const trims = [...group((v) => v.trim?.id ?? null)].map(([tid, vs]) => ({
@@ -289,29 +300,38 @@ export class CatalogController {
       years: yearsOf(vs),
       modelIds: [...new Set(vs.map((v) => v.model.id))],
     }));
-    // Sihirbazda seçilen kasaya göre yakıt, vites ve kasa tipi daralır (sahip isteği, 17 Kasım 2026): yakıt, vites ve
-    // gövde üçlüsü başına yıllar (motor sürümüyle; tekrarsız, aynı üçlünün yılları birleşir)
+    // Sihirbazda seçilen kasa ve pakete göre yakıt, vites, kasa tipi ve çekiş daralır (sahip isteği, 17 Kasım 2026).
+    // Tip başına: yakıt, vites, çekiş ve kasa tipi (talep şemasındaki değer); çekiş ve kasa tipi yalnızca kesinse dolu
+    // (TSB adı ya da tek eşleşen motor kaydı), değilse null. Aynı değerlerin yılları birleşir.
     const ucluler = new Map<
       string,
       {
         modelId: string;
+        trimId: string | null;
         years: number[];
         fuel: string | null;
         gearbox: string | null;
+        drive: string | null;
         body: string | null;
       }
     >();
+    const tek = (xs: string[] | undefined) => (xs?.length === 1 ? (xs[0] as string) : null);
     for (const v of variants) {
-      const k = `${v.model.id}|${v.fuel}|${v.gearbox}|${v.body}`;
+      const o = v.source === 'vmm' ? null : teknikOku(v.specs, teknikAcik);
+      const drive = v.source === 'vmm' ? v.drive : tek(o?.cekisler);
+      const body = v.source === 'vmm' ? kasaTipiOf(v.body) : tek(o?.govdeler);
+      const k = [v.model.id, v.trim?.id, v.fuel, v.gearbox, drive, body].join('|');
       const e = ucluler.get(k);
       if (e) e.years = uniqSorted([...e.years, ...v.years]);
       else
         ucluler.set(k, {
           modelId: v.model.id,
+          trimId: v.trim?.id ?? null,
           years: uniqSorted(v.years),
           fuel: v.fuel,
           gearbox: v.gearbox,
-          body: v.body,
+          drive,
+          body,
         });
     }
     // Kasa kuşakları tablodan gelir (tip kaydı olmayan yıllar dahil); kapalı kaynağınkiler görünmez.

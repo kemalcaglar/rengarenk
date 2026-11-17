@@ -84,6 +84,10 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
 - Teknik özellikler (16 Kasım 2026): ADEME araç onay verisi (Fransa, açık lisans) Türkiye'de satılan tiplerle (TSB) aynı
   marka, seri, yakıt, güç ve yıldan eşleşir; talep sihirbazında model seçilince vites, güç, karma tüketim, CO2, boş ağırlık
   ve Euro normu görünür. 2001–2015 yılları ve güncel liste; 2016–2024 EEA erişimini bekliyor.
+- Ayrıntılı teknik özellikler (17 Kasım 2026): vehicle-makes-models motor kayıtlarından 0-100, azami hız, tork, silindir,
+  çekiş, kasa, ölçüler, depo, bagaj, şehir içi/dışı tüketim, lastik ve fren; Türkiye'de satılan tiple eşleşir. Teknik özeti
+  olan otomobil tipi: 2016 sonrası %1 → %53, 2001–2015 %48 → %76, 2000 öncesi %0 → %32. Talep sayfasında "Açıklama |
+  Teknik özellikler" sekmesi. Sihirbazda kasa tipi ve çekiş yalnızca kesin bilindiğinde ve birden çok seçenek varsa sorulur.
 
 ### Aşama 3 · Talep (Sprint 8)
 - Sihirbaz düzenlemeleri (17 Kasım 2026, sahip isteği): kasa ve makyaj tek seçilir (başka kasa için alternatif), kasa

@@ -9,15 +9,22 @@ import {
   ademeKimlik,
   anaKural,
   readAdemeYil,
+  readVmmTeknik,
   type TeknikOzet,
   teknikAnahtar,
   teknikEslestir,
+  tsbOzeti,
+  VMM_TEKNIK_PARSER,
+  type VmmDetay,
+  type VmmMotor,
+  vmmEslestir,
 } from '@rengarenk/catalog';
 import { Prisma, uuidv7 } from '@rengarenk/db';
 import { AuditService } from '../audit/audit.service.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { ADEME_CLIENT, type AdemeClient } from './ademe-client.js';
+import { VMM_CLIENT, type VmmClient } from './vmm-client.js';
 
 const KAYNAK = 'ademe';
 const chunks = <T>(xs: T[], n = 500) =>
@@ -36,6 +43,7 @@ export class CatalogSpecService {
   constructor(
     @Inject(PRISMA) private readonly db: Db,
     @Inject(ADEME_CLIENT) private readonly ademe: AdemeClient,
+    @Inject(VMM_CLIENT) private readonly vmm: VmmClient,
     private readonly audit: AuditService,
     private readonly outbox: OutboxService,
   ) {}
@@ -80,6 +88,25 @@ export class CatalogSpecService {
         await this.yaz(surumler, { fileName: guncelAdi, version: ay, parser, ...opts });
         yuklenen++;
       }
+      // Motor kayıtları (vehicle-makes-models; sahip isteği 17 Kasım 2026): kaynak açıksa son sürümün JSON dosyası
+      if (await this.vmmAcik()) {
+        const vParser = anaKural(VMM_TEKNIK_PARSER);
+        const rel = await this.vmm.latestJson();
+        const yuklu = await this.db.catalogImport.findFirst({
+          where: {
+            sourceKey: 'vmm',
+            fileName: rel.fileName,
+            status: 'APPLIED',
+            stats: { path: ['parser'], equals: vParser },
+          },
+          select: { id: true },
+        });
+        if (!yuklu) {
+          const motorlar = readVmmTeknik(await this.vmm.download(rel.url));
+          await this.yazVmm(motorlar, { fileName: rel.fileName, version: rel.tag, parser: vParser, ...opts });
+          yuklenen++;
+        }
+      }
     } catch (err) {
       const message = (err as Error).message;
       this.log.warn(`ADEME: ${message}`);
@@ -90,14 +117,15 @@ export class CatalogSpecService {
       return { durum: 'hata' };
     }
 
-    // Eşleştirme imzası: ayrıştırıcı sürümü ve katalogdaki son içe aktarma (TSB, yerli, ana liste, ADEME)
+    // Eşleştirme imzası: ayrıştırıcı sürümleri, motor kayıtlarının açık olup olmadığı ve katalogdaki son içe aktarma
+    // (TSB, yerli, ana liste, ADEME, vehicle-makes-models)
     const son = await this.db.catalogImport.findFirst({
-      where: { sourceKey: { in: ['tsb', 'yerli', 'ana', KAYNAK] }, status: 'APPLIED' },
+      where: { sourceKey: { in: ['tsb', 'yerli', 'ana', 'vmm', KAYNAK] }, status: 'APPLIED' },
       // uuidv7 zamana göre sıralı; aynı milisaniyedeki kayıtlarda da kararlı
       orderBy: { id: 'desc' },
       select: { id: true },
     });
-    const imza = `${parser}|${son?.id ?? ''}`;
+    const imza = `${parser}|${anaKural(VMM_TEKNIK_PARSER)}|${son?.id ?? ''}`;
     if (!yuklenen && source.lastVersion === imza) {
       await this.db.catalogSource.update({
         where: { key: KAYNAK },
@@ -111,6 +139,87 @@ export class CatalogSpecService {
       data: { lastVersion: imza, lastCheckedAt: new Date(), lastSuccessAt: new Date(), lastError: null },
     });
     return { durum: 'uygulandi', eslesen };
+  }
+
+  private async vmmAcik(): Promise<boolean> {
+    return (await this.db.catalogSource.findUnique({ where: { key: 'vmm' } }))?.active ?? false;
+  }
+
+  /** Motor kayıtlarını yazar (kaynak "vmm"; kayıt, işlem kaydı ve olay aynı veritabanı işleminde; kural 5) */
+  private async yazVmm(
+    motorlar: VmmMotor[],
+    meta: { fileName: string; version: string; parser: string; staffId?: string; ip?: string },
+  ) {
+    const id = uuidv7();
+    await this.db.$transaction(
+      async (tx: Tx) => {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${'katalog:vmm-teknik'}))`;
+        for (const part of chunks(motorlar)) {
+          await tx.$executeRaw`
+            INSERT INTO catalog_specs (id, source, source_key, year, year_end, make_name, series_name, match_key,
+              description, fuel, power_hp, engine_l, gearbox, gears, consumption_min, consumption_max, co2_min, co2_max,
+              weight_min, weight_max, drive, body, details, row_count, version, updated_at)
+            VALUES ${Prisma.join(
+              part.map(
+                (
+                  m,
+                ) => Prisma.sql`(${uuidv7()}::uuid, 'vmm', ${m.kimlik}, ${m.yilBas}, ${m.yilSon}::int, ${m.marka},
+                  ${m.seri}, ${teknikAnahtar(m.marka, m.seri)}, ${`${m.nesil} · ${m.etiket}`}, ${m.yakit},
+                  ${m.hp}::int, ${m.hacim}::float8, ${m.vites}, ${m.vitesSayisi}::int, ${m.d.tuketim ?? null}::float8,
+                  ${m.d.tuketim ?? null}::float8, ${m.d.co2 === undefined ? null : Math.round(m.d.co2)}::int,
+                  ${m.d.co2 === undefined ? null : Math.round(m.d.co2)}::int,
+                  ${m.d.agirlik === undefined ? null : Math.round(m.d.agirlik)}::int,
+                  ${m.d.agirlik === undefined ? null : Math.round(m.d.agirlik)}::int, ${m.cekis}, ${m.govde},
+                  ${JSON.stringify(m.d)}::jsonb, 1, ${meta.version}, now())`,
+              ),
+            )}
+            ON CONFLICT (source, source_key) DO UPDATE SET
+              year = EXCLUDED.year, year_end = EXCLUDED.year_end, make_name = EXCLUDED.make_name,
+              series_name = EXCLUDED.series_name, match_key = EXCLUDED.match_key, description = EXCLUDED.description,
+              fuel = EXCLUDED.fuel, power_hp = EXCLUDED.power_hp, engine_l = EXCLUDED.engine_l,
+              gearbox = EXCLUDED.gearbox, gears = EXCLUDED.gears, consumption_min = EXCLUDED.consumption_min,
+              consumption_max = EXCLUDED.consumption_max, co2_min = EXCLUDED.co2_min, co2_max = EXCLUDED.co2_max,
+              weight_min = EXCLUDED.weight_min, weight_max = EXCLUDED.weight_max, drive = EXCLUDED.drive,
+              body = EXCLUDED.body, details = EXCLUDED.details, version = EXCLUDED.version, updated_at = now()`;
+        }
+        const stats = { parser: meta.parser, kayit: motorlar.length, tur: 'teknik' };
+        await tx.catalogImport.create({
+          data: {
+            id,
+            sourceKey: 'vmm',
+            version: meta.version,
+            fileName: meta.fileName,
+            sha256: createHash('sha256')
+              .update(JSON.stringify(motorlar.map((m) => m.kimlik)))
+              .digest('hex'),
+            trigger: meta.staffId ? 'elle' : 'otomatik',
+            status: 'APPLIED',
+            stats,
+            createdBy: meta.staffId ?? null,
+          },
+        });
+        await this.audit.record(
+          {
+            actorType: meta.staffId ? 'STAFF' : 'SYSTEM',
+            actorId: meta.staffId ?? null,
+            action: 'katalog_ice_aktarildi',
+            entityType: 'catalog_import',
+            entityId: id,
+            after: { kaynak: 'vmm', tur: 'teknik', surum: meta.version, kayit: motorlar.length },
+            ip: meta.ip,
+          },
+          tx,
+        );
+        await this.outbox.add(tx, 'katalog.guncellendi', {
+          importId: id,
+          source: 'vmm',
+          version: meta.version,
+          added: motorlar.length,
+          missing: 0,
+        });
+      },
+      { timeout: 300_000, maxWait: 60_000 },
+    );
   }
 
   /** Onay sürümlerini yazar (kayıt, işlem kaydı ve olay aynı veritabanı işleminde; kural 5) */
@@ -188,9 +297,32 @@ export class CatalogSpecService {
 
   /** Türkiye'de satılan tiplerin (TSB, yerli liste; motosiklet hariç) teknik özetini yeniden yazar */
   async eslestir(imza: string): Promise<number> {
-    const specs = await this.db.catalogSpec.findMany({ where: { source: KAYNAK } });
+    // Kaynakların hepsi eşleşir; kapatılan kaynağın satırı gösterimde düşer (catalog.controller, `teknikOku`)
+    const specs = await this.db.catalogSpec.findMany({ where: { source: { in: [KAYNAK, 'vmm'] } } });
     const dizin = new Map<string, AdemeSurum[]>();
+    const motorDizini = new Map<string, VmmMotor[]>();
     for (const s of specs) {
+      if (s.source === 'vmm') {
+        const m: VmmMotor = {
+          kimlik: s.sourceKey,
+          marka: s.makeName,
+          seri: s.seriesName,
+          nesil: s.description,
+          govde: s.body,
+          yilBas: s.year,
+          yilSon: s.yearEnd,
+          yakit: s.fuel as VmmMotor['yakit'],
+          hp: s.powerHp,
+          hacim: s.engineL,
+          vites: s.gearbox as VmmMotor['vites'],
+          vitesSayisi: s.gears,
+          cekis: s.drive as VmmMotor['cekis'],
+          etiket: s.description,
+          d: (s.details ?? {}) as VmmDetay,
+        };
+        motorDizini.set(s.matchKey, [...(motorDizini.get(s.matchKey) ?? []), m]);
+        continue;
+      }
       const x: AdemeSurum = {
         yil: s.year,
         marka: s.makeName,
@@ -222,45 +354,60 @@ export class CatalogSpecService {
         powerKw: true,
         engineL: true,
         gearbox: true,
+        drive: true,
+        body: true,
         years: true,
         make: { select: { name: true } },
         series: { select: { name: true } },
       },
     });
-    const ozetler: { id: string; ozet: TeknikOzet }[] = [];
+    // Seride TSB adında dört çeker yazılmış tip varsa adında yazmayan tip dört çeker değildir
+    const dortCeker = new Set(
+      tipler.filter((t) => t.drive === '4x4').map((t) => teknikAnahtar(t.make.name, t.series?.name ?? null)),
+    );
+    const buYil = new Date().getFullYear();
+    const ozetler: { id: string; kaynak: string; ozet: Partial<TeknikOzet> }[] = [];
     for (const t of tipler) {
-      const ozet = teknikEslestir(
-        {
-          marka: t.make.name,
-          seri: t.series?.name ?? null,
-          yakit: t.fuel,
-          hp: t.powerHp ?? (t.powerKw ? Math.round(t.powerKw * 1.35962) : null),
-          hacim: t.engineL,
-          vites: t.gearbox,
-          yillar: t.years,
-        },
-        dizin.get(teknikAnahtar(t.make.name, t.series?.name ?? null)) ?? [],
+      const anahtar = teknikAnahtar(t.make.name, t.series?.name ?? null);
+      const tip = {
+        marka: t.make.name,
+        seri: t.series?.name ?? null,
+        yakit: t.fuel,
+        hp: t.powerHp ?? (t.powerKw ? Math.round(t.powerKw * 1.35962) : null),
+        hacim: t.engineL,
+        vites: t.gearbox,
+        yillar: t.years,
+      };
+      const a = teknikEslestir(tip, dizin.get(anahtar) ?? []);
+      const v = vmmEslestir(
+        { ...tip, cekis: t.drive, govde: t.body, seriDortCeker: dortCeker.has(anahtar) },
+        motorDizini.get(anahtar) ?? [],
+        buYil,
       );
-      if (ozet) ozetler.push({ id: t.id, ozet });
+      const ts = tsbOzeti(t.drive, t.body);
+      if (a) ozetler.push({ id: t.id, kaynak: KAYNAK, ozet: a });
+      if (v) ozetler.push({ id: t.id, kaynak: 'vmm', ozet: v });
+      if (ts) ozetler.push({ id: t.id, kaynak: 'tsb', ozet: ts });
     }
     // Türetilmiş tablo: her eşleştirmede baştan yazılır (kaynak kayıtlar catalog_specs'te kalır)
     await this.db.$transaction(
       async (tx: Tx) => {
-        await tx.$executeRaw`DELETE FROM catalog_variant_specs WHERE source = ${KAYNAK}`;
+        await tx.$executeRaw`DELETE FROM catalog_variant_specs WHERE source IN ('ademe', 'vmm', 'tsb')`;
         for (const part of chunks(ozetler)) {
           await tx.$executeRaw`
             INSERT INTO catalog_variant_specs (variant_id, source, summary, signature, updated_at)
             VALUES ${Prisma.join(
               part.map(
                 (o) =>
-                  Prisma.sql`(${o.id}::uuid, ${KAYNAK}, ${JSON.stringify(o.ozet)}::jsonb, ${imza}, now())`,
+                  Prisma.sql`(${o.id}::uuid, ${o.kaynak}, ${JSON.stringify(o.ozet)}::jsonb, ${imza}, now())`,
               ),
             )}`;
         }
       },
       { timeout: 180_000, maxWait: 60_000 },
     );
-    this.log.log(`teknik özet: ${ozetler.length} / ${tipler.length} tip`);
-    return ozetler.length;
+    const tipSayisi = new Set(ozetler.filter((o) => o.kaynak !== 'tsb').map((o) => o.id)).size;
+    this.log.log(`teknik özet: ${tipSayisi} / ${tipler.length} tip`);
+    return tipSayisi;
   }
 }

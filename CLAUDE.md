@@ -421,6 +421,18 @@ pnpm format        # Biome ile biçimlendir
   (`[k]`, `[i]`, `[renk=mavi]`, `[boyut=buyuk]`; HTML saklanmaz, sınır düz metne); herkese açık gösterimde
   `hideDemandDescription`, tarama ve yasaklı kelimede `aciklamaDuz`. Talep sayfasında açıklama sabit yükseklikte kaydırılır
   (web `components/aciklama.tsx`, mobil `components/aciklama.tsx`). Yeni bir yerde açıklama gösterirken bunları kullan.
+- **Ayrıntılı teknik özellikler ve kesin kasa tipi/çekiş (17 Kasım 2026, sahip isteği):** vehicle-makes-models
+  `vehicle-data-json.zip` motor kayıtları (`packages/catalog/src/vmm-teknik.ts`, `VMM_TEKNIK_PARSER`): 0-100, azami hız,
+  tork, silindir, çekiş, kasa (nesil adından), ölçüler, depo, bagaj, tüketim, lastik, fren; `catalog_specs` kaynak `vmm`
+  (`year_end`, `drive`, `body`, `details`). Makul olmayan değer alınmaz (`MAKUL`); Türkiye'deki adı farklı seri
+  `SERI_ESLERI` (Tipo → Egea, Passat CC → VW CC, Accent → Accent Blue). TSB tipine güç ±2 hp, yakıt, yıl ve vitesle eşleşir
+  (`vmmEslestir`); `catalog_variant_specs` artık kaynak başına satır (ademe, vmm, tsb) ve gösterimde `teknikOku` açık
+  kaynakları birleştirir (kapatılan kaynağınki düşer; ADEME tüketim ve ağırlıkta önce). Çekiş ve kasa tipi tip başına
+  yalnızca kesinse (TSB adı ya da tek değer; seride TSB'de 4x4 tip varsa adında yazmayan 4x4 değildir). Sihirbazda kasa tipi
+  ve çekiş `kesinSecenekler`: seçilen kasa ve paketteki bütün tipler kesin ve en az iki değer varsa sorulur. Talep
+  sayfasında "Açıklama | Teknik özellikler" sekmesi (`teknikBolumleri`, web `components/teknik-tablo.tsx`, mobil aynı
+  adla; API `gorunum.alternatifler[].motorlar`). Yerelde `katalog:yukle --ademe` iki kaynağı da yükler. API'de 238,
+  katalogda 69, ortak pakette 141 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

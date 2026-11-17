@@ -5,6 +5,7 @@ import {
   acikSoruSayisi,
   butceDegeri,
   kasaTipiOf,
+  kesinSecenekler,
   kriterSirasi,
   secimiDaralt,
   uygunSecenekler,
@@ -65,6 +66,45 @@ describe('sihirbaz 3. adım (sahip isteği, 17 Kasım 2026)', () => {
     expect(uygunSecenekler(alan('vites'), bilinmez, y)).toHaveLength(3);
     // Kasa seçilmediyse (yıl elle) daraltılmaz
     expect(uygunSecenekler(alan('yakit'), tipler, null)).toHaveLength(5);
+  });
+
+  it('kasa tipi ve çekiş: hepsi kesin ve en az iki farklı değer varsa sorulur, yalnızca var olanlarla', () => {
+    const t = (body: string | null, drive: string | null, trimId = 'p1', years = [2020]) => ({
+      years,
+      fuel: 'benzin',
+      gearbox: 'otomatik',
+      body,
+      drive,
+      trimId,
+    });
+    const secim = { yillar: { min: 2019, max: 2022 } };
+    // Hatchback ve coupe var: sedan seçeneği yok
+    expect(
+      kesinSecenekler(alan('kasaTipi'), [t('hatchback', 'onden'), t('coupe', 'onden')], secim)?.map(
+        (o) => o.value,
+      ),
+    ).toEqual(['hatchback', 'coupe']);
+    // Tek kasa tipi ya da tek çekiş: sorulmaz
+    expect(
+      kesinSecenekler(alan('kasaTipi'), [t('hatchback', 'onden'), t('hatchback', 'onden')], secim),
+    ).toBeNull();
+    expect(kesinSecenekler(alan('cekis'), [t('hatchback', 'onden'), t('coupe', 'onden')], secim)).toBeNull();
+    // Bir tipte bilinmiyor: sorulmaz (tahmin yok)
+    expect(kesinSecenekler(alan('cekis'), [t('sedan', 'onden'), t('sedan', null)], secim)).toBeNull();
+    // Önden ve 4x4: otomobilde "4x4 / AWD" seçeneği
+    expect(
+      kesinSecenekler(alan('cekis'), [t('sedan', 'onden'), t('sedan', '4x4')], secim)?.map((o) => o.value),
+    ).toEqual(['onden', 'dort']);
+    // Paket seçildiyse yalnızca o paketin tipleri: p2 yalnızca 4x4 → sorulmaz
+    expect(
+      kesinSecenekler(alan('cekis'), [t('sedan', 'onden', 'p1'), t('sedan', '4x4', 'p2')], {
+        ...secim,
+        paketler: ['p2'],
+      }),
+    ).toBeNull();
+    // Kasanın yıllarında tip yok ya da yıl seçilmedi: sorulmaz
+    expect(kesinSecenekler(alan('cekis'), [t('sedan', 'onden', 'p1', [2010])], secim)).toBeNull();
+    expect(kesinSecenekler(alan('cekis'), [t('sedan', 'onden')], { yillar: null })).toBeNull();
   });
 
   it('yardımcılar: kasa tipi adı, seçimden düşen, tek rakam bütçe', () => {

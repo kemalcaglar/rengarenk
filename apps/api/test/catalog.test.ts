@@ -168,14 +168,88 @@ const VMM_CSV = [
       `dolgu,Eskidolgu,M${i % 30},M${i % 30} (1995) ${i},1995,2000,,1.${i % 9}L 5MT FWD (${60 + (i % 50)} HP),Gasoline,4,1${i % 9}00,${60 + (i % 50)},,5-speed manual,Front Wheel Drive`,
   ),
 ].join(String.fromCharCode(10));
-const vmm = { tag: 'v1.0.2', downloads: 0 };
+/**
+ * Motor kayıtları (vehicle-data-json.zip): BMW 3 Serisi 320i 170 hp sedan (arkadan itiş ve xDrive) ve touring. TSB'de
+ * 320i tipleri "SEDAN" ve "TOURING" yazılı; çekiş yazılmıyor.
+ */
+const vmmMotor = (label: string, drivetrain: string, ek: Record<string, unknown> = {}) => ({
+  label,
+  fuelType: 'Gasoline',
+  cylinders: 4,
+  displacementCc: 1597,
+  powerHp: 170,
+  transmission: '8-speed automatic',
+  drivetrain,
+  ...ek,
+});
+const VMM_JSON = zipSync({
+  'json/bmw.json': strToU8(
+    JSON.stringify({
+      group: 'bmw',
+      makes: [
+        {
+          name: 'BMW',
+          models: [
+            {
+              name: '3 Series',
+              generations: [
+                {
+                  name: '3 Series Sedan (2018)',
+                  yearStart: 2018,
+                  yearEnd: 2022,
+                  bodyType: null,
+                  engines: [
+                    vmmMotor('320i 8AT RWD (170 HP)', 'Rear Wheel Drive', {
+                      torqueNm: 250,
+                      zeroToHundredKmhS: 8.3,
+                      topSpeedKmh: 225,
+                      lengthMm: 4709,
+                      curbWeightKg: 1470,
+                      specs: {
+                        'ENGINE SPECS / Cylinders': 'L4',
+                        'ENGINE SPECS / Fuel capacity': '15.6 gallons (59 L)',
+                        'DIMENSIONS / Cargo Volume': '17 cuFT (480 L)',
+                        'TIRES SPECS / Tire Size': '225/50 R17',
+                        'FUEL ECONOMY (NEDC) / City': '30 mpg US (7.6 L/100Km)',
+                      },
+                    }),
+                    vmmMotor('320i xDrive 8AT AWD (170 HP)', 'All Wheel Drive', { zeroToHundredKmhS: 8.1 }),
+                  ],
+                },
+                {
+                  name: '3 Series Touring (2019)',
+                  yearStart: 2019,
+                  yearEnd: 2022,
+                  bodyType: null,
+                  engines: [
+                    vmmMotor('320i 8AT RWD (170 HP)', 'Rear Wheel Drive', { zeroToHundredKmhS: 8.5 }),
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }),
+  ),
+});
+const vmm = { tag: 'v1.0.2', downloads: 0, json: 0 };
 const fakeVmm: VmmClient = {
   latest: async () => ({
     tag: vmm.tag,
     url: 'https://github.com/x/y.zip',
     fileName: `${vmm.tag}/vehicle-data-csv.zip`,
   }),
-  download: async () => {
+  latestJson: async () => ({
+    tag: vmm.tag,
+    url: 'https://github.com/x/json.zip',
+    fileName: `${vmm.tag}/vehicle-data-json.zip`,
+  }),
+  download: async (url: string) => {
+    if (url.endsWith('json.zip')) {
+      vmm.json++;
+      return VMM_JSON;
+    }
     vmm.downloads++;
     // Sonraki sürümde dosya değişir (bir satır eklenir); aynı dosya ikinci kez uygulanmaz.
     const extra =
@@ -1197,6 +1271,43 @@ describe('teknik özellikler: ADEME onay verisi (Karar 33, sahip isteği 16 Kas�
     });
     // Atıf "Veri kaynakları" sayfasında
     expect((await get('/catalog/attributions')).body.map((a: { key: string }) => a.key)).toContain('ademe');
+  });
+
+  it('motor kayıtları: 0-100, depo, bagaj; çekiş ve kasa tipi yalnızca kesinse (sihirbaz daraltması)', async () => {
+    expect(vmm.json).toBe(1);
+    const bmw = (await get('/catalog/makes')).body.find((m: { name: string }) => m.name === 'BMW');
+    const s3 = (await get(`/catalog/makes/${bmw.id}/series`)).body.find(
+      (s: { name: string }) => s.name === '3 Serisi',
+    );
+    const d = await get(`/catalog/series/${s3.id}?yil=2021`);
+    const m320 = d.body.models.find((m: { name: string }) => m.name === '320i');
+    // TSB'deki 1.6 170 hp sedan, aynı güçteki sedan ve touring motor kayıtlarıyla eşleşir (Türkiye'ye özgü güç)
+    expect(m320.teknik).toMatchObject({
+      hizlanma: [8.1, 8.5],
+      azamiHiz: [225, 225],
+      tork: [250, 250],
+      depo: [59, 59],
+      bagaj: [480, 480],
+      tuketimSehir: [7.6, 7.6],
+      lastikler: ['225/50 R17'],
+      silindirler: ['L4'],
+    });
+    expect(m320.teknik.kaynaklar).toContain('vmm');
+    // Kasa tipi TSB adından (SEDAN); çekiş kesin değil (arkadan itiş ve xDrive aynı güçte, TSB yazmıyor): boş
+    const tip = (d.body.tipler as { modelId: string; body: string | null; drive: string | null }[]).filter(
+      (t) => t.modelId === m320.id,
+    );
+    expect(tip.map((t) => t.body)).toContain('sedan');
+    expect(tip.every((t) => t.drive === null)).toBe(true);
+    // İkinci kontrolde aynı sürüm yeniden indirilmez
+    await staffCall(app, 'POST', '/staff/catalog/sources/ademe/check', {}, owner);
+    expect(vmm.json).toBe(1);
+    // Kaynak kapatılınca motor kayıtlarının değerleri düşer (kayıtlar silinmez)
+    await staffCall(app, 'PATCH', '/staff/catalog/sources/vmm', { active: false }, owner);
+    const kapali = await get(`/catalog/series/${s3.id}?yil=2021`);
+    const k320 = kapali.body.models.find((m: { name: string }) => m.name === '320i');
+    expect(k320.teknik?.hizlanma).toBeUndefined();
+    await staffCall(app, 'PATCH', '/staff/catalog/sources/vmm', { active: true }, owner);
   });
 
   it('kaynak kapatılınca teknik özet gösterilmez (kayıtlar silinmez)', async () => {

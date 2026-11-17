@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { teknikSatirlari, vitesYaz } from './teknik.js';
+import { teknikBolumleri, teknikSatirlari, vitesYaz } from './teknik.js';
 
 describe('teknik özet gösterimi', () => {
   it('vites, güç, tüketim, CO2, ağırlık ve Euro normu Türkçe yazılır; aralık ve seçenek korunur', () => {
@@ -39,5 +39,43 @@ describe('teknik özet gösterimi', () => {
         surum: 1,
       }),
     ).toEqual([]);
+  });
+});
+
+describe('ayrıntılı teknik tablo (sahip isteği, 17 Kasım 2026)', () => {
+  it('bölüm bölüm; boş bölüm gelmez; birimler ve Türkçe terimler', () => {
+    const b = teknikBolumleri({
+      vitesler: ['otomatik:8'],
+      kw: null,
+      hp: [170, 170],
+      tuketim: [5.9, 6.1],
+      co2: null,
+      agirlik: null,
+      euro: ['6'],
+      surum: 1,
+      hizlanma: [8.1, 8.3],
+      azamiHiz: [225, 225],
+      cekisler: ['arkadan'],
+      silindirler: ['L4'],
+      yakitSistemleri: ['Turbocharged Direct Injection'],
+      frenOn: ['Ventilated Discs'],
+    });
+    expect(b.map((x) => x.baslik)).toEqual([
+      'Motor',
+      'Performans',
+      'Şanzıman ve çekiş',
+      'Yakıt tüketimi ve emisyon',
+      'Lastik ve fren',
+    ]);
+    const hepsi = Object.fromEntries(b.flatMap((x) => x.satirlar));
+    expect(hepsi).toMatchObject({
+      '0-100 km/s': '8,1–8,3 sn',
+      'Azami hız': '225 km/s',
+      Çekiş: 'Arkadan itiş',
+      Silindir: '4 silindir, sıralı',
+      'Yakıt sistemi': 'Turbo Direkt enjeksiyon',
+      'Ön fren': 'Havalandırmalı disk',
+      Karma: '5,9–6,1 l/100 km',
+    });
   });
 });

@@ -7,6 +7,7 @@ import {
   NotFoundException,
   Optional,
 } from '@nestjs/common';
+import { ozetBirlestir, type TeknikOzet, teknikOku } from '@rengarenk/catalog';
 import { type Demand, type DemandStatus, type Prisma, uuidv7 } from '@rengarenk/db';
 import {
   aciklamaDuz,
@@ -321,6 +322,7 @@ export class DemandService {
         })
       : [];
     const yil = new Date().getFullYear();
+    const teknikAcik = new Set(sources.filter((k) => k === 'ademe' || k === 'vmm'));
     const AD: Record<string, Record<string, string>> = {
       fuel: { benzin: 'Benzin', dizel: 'Dizel', hibrit: 'Hibrit', elektrik: 'Elektrik', lpg: 'LPG & Benzin' },
       gearbox: { manuel: 'Manuel', otomatik: 'Otomatik', yari_otomatik: 'Yarı otomatik' },
@@ -349,6 +351,7 @@ export class DemandService {
           : undefined;
         return {
           value: v,
+          yilAraligi: bas === null ? null : ([bas, son ?? yil] as [number, number]),
           label: m ? `${m[1]} ${m[2] === '0' ? 'makyajsız' : 'makyajlı'}` : (grup[0]?.body ?? 'Kasa'),
           yillar: bas === null ? null : son !== null && son >= yil ? `${bas} ve sonrası` : `${bas}–${son}`,
           foto: secim ? CatalogImageService.publicPhoto(secim.foto, secim.yakin) : null,
@@ -403,10 +406,22 @@ export class DemandService {
             ornek.body ? { label: 'Kasa', value: ornek.body } : null,
           ].filter((x): x is { label: string; value: string } => x !== null)
         : [];
+      // Ayrıntılı teknik özellikler (sahip isteği, 17 Kasım 2026): seçilen kasanın (yoksa yılların) ve paketin
+      // Türkiye'de satılan tiplerinden, motor sürümü başına; açık kaynakların değerleri (ADEME, vehicle-makes-models)
+      const kasaYil = kasa.map((x) => x.yilAraligi).filter((x): x is [number, number] => x !== null);
+      const aralik: [number, number] | null = kasaYil.length
+        ? [Math.min(...kasaYil.map((x) => x[0])), Math.max(...kasaYil.map((x) => x[1]))]
+        : y?.min || y?.max
+          ? [y.min ?? y.max ?? yil, y.max ?? y.min ?? yil]
+          : null;
+      const motorlar = series
+        ? await this.motorlar(series.id, model?.id ?? null, aralik, paketKeys, teknikAcik)
+        : [];
       alternatifler.push({
-        kasa,
+        kasa: kasa.map(({ yilAraligi: _, ...k }) => k),
         paket,
         teknik,
+        motorlar,
         teknikOrnek: ornek && model ? `${model.name}${ornek.powerHp ? ` (${ornek.powerHp} hp)` : ''}` : null,
       });
     }
@@ -414,6 +429,48 @@ export class DemandService {
       katalog: { marka: make?.name ?? null, seri: series?.name ?? null, model: model?.name ?? null },
       alternatifler,
     };
+  }
+
+  /**
+   * Talebin aracının motor sürümleri ve teknik özetleri: serinin Türkiye'de satılan tipleri (TSB, yerli liste),
+   * motor seçildiyse yalnızca o, yıl aralığında ve paket seçildiyse o paketlerde. Özeti olmayan sürüm gelmez.
+   */
+  private async motorlar(
+    seriesId: string,
+    modelId: string | null,
+    aralik: [number, number] | null,
+    paketKeys: string[],
+    acik: ReadonlySet<string>,
+  ): Promise<{ ad: string; ozet: TeknikOzet }[]> {
+    if (!acik.size) return [];
+    const yillar = aralik
+      ? Array.from({ length: Math.min(aralik[1] - aralik[0] + 1, 80) }, (_, i) => aralik[0] + i)
+      : null;
+    const tipler = await this.db.catalogVariant.findMany({
+      where: {
+        seriesId,
+        source: { in: ['tsb', 'yerli'] },
+        ...(modelId ? { modelId } : {}),
+        ...(yillar ? { years: { hasSome: yillar } } : {}),
+        ...(paketKeys.length ? { trim: { key: { in: paketKeys } } } : {}),
+      },
+      select: {
+        model: { select: { id: true, name: true } },
+        specs: { select: { source: true, summary: true } },
+      },
+      take: 2000,
+    });
+    const grup = new Map<string, { ad: string; ozetler: TeknikOzet[] }>();
+    for (const t of tipler) {
+      const o = teknikOku(t.specs, acik);
+      if (!o?.kaynaklar?.length) continue;
+      const g = grup.get(t.model.id) ?? { ad: t.model.name, ozetler: [] };
+      g.ozetler.push(o);
+      grup.set(t.model.id, g);
+    }
+    return [...grup.values()]
+      .map((g) => ({ ad: g.ad, ozet: ozetBirlestir(g.ozetler) as TeknikOzet }))
+      .sort((a, b) => a.ad.localeCompare(b.ad, 'tr', { numeric: true }));
   }
 
   /** Kalan haklar (Sihirbaz 6. adım: "Bu telefon numarasıyla 1 ücretsiz talep hakkın var"). */

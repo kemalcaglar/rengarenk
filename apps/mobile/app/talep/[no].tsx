@@ -8,6 +8,7 @@ import {
   PAINT_STATES,
   radii,
   saatYaz,
+  type TeknikOzet,
 } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -20,6 +21,7 @@ import { IlkMesaj } from '../../components/ilk-mesaj';
 import { Sikayet } from '../../components/sikayet';
 import { T } from '../../components/t';
 import { AracSemasi, Cip, kartStil } from '../../components/talep/ortak';
+import { TeknikTablo } from '../../components/teknik-tablo';
 import { API } from '../../lib/api';
 import { basHarf, useOturum } from '../../lib/oturum';
 import { butceAraligi, deger, etiket, uzunTarih } from '../../lib/talep-bicim';
@@ -48,6 +50,8 @@ interface Talep {
       paket: string[];
       teknik: { label: string; value: string }[];
       teknikOrnek: string | null;
+      /** Ayrıntılı teknik özellikler, motor sürümü başına */
+      motorlar?: { ad: string; ozet: TeknikOzet }[];
     }[];
   };
   owner: {
@@ -77,6 +81,7 @@ export default function TalepDetay() {
   const [t, setT] = useState<Talep | null>(null);
   const [hata, setHata] = useState<string | null>(null);
   const [alt, setAlt] = useState(0);
+  const [sekme, setSekme] = useState<'aciklama' | 'teknik'>('aciklama');
   const [sikayet, setSikayet] = useState(false);
   // İlk mesaj (Karar 08, 11): yazıldıysa sohbete gider
   const [mesaj, setMesaj] = useState<{
@@ -421,14 +426,66 @@ export default function TalepDetay() {
         </View>
 
         <View style={bolum}>
-          <T accessibilityRole="header" style={{ fontSize: 16.5, fontWeight: '800', marginBottom: 8 }}>
-            Açıklama
-          </T>
-          {/* Biçimli açıklama; uzayabileceği için yükseklik sabit, fazlası kaydırılır (sahip isteği, 17 Kasım 2026) */}
-          <AciklamaGoster
-            metin={(t.data.alanlar.aciklama as string | undefined) || 'Talep sahibi açıklama yazmadı.'}
-            sabit
-          />
+          {/* Açıklama ve teknik özellikler yan yana sekme (sahip isteği, 17 Kasım 2026; web ile aynı) */}
+          <View
+            accessibilityRole="tablist"
+            accessibilityLabel="Talep ayrıntısı"
+            style={{
+              flexDirection: 'row',
+              gap: 18,
+              borderBottomWidth: 1,
+              borderBottomColor: colors.line,
+              marginBottom: 14,
+            }}
+          >
+            {(
+              [
+                ['aciklama', 'Açıklama'],
+                ['teknik', 'Teknik özellikler'],
+              ] as const
+            ).map(([s, ad]) => (
+              <Pressable
+                key={s}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: sekme === s }}
+                onPress={() => setSekme(s)}
+                style={{
+                  paddingTop: 4,
+                  paddingBottom: 10,
+                  paddingHorizontal: 2,
+                  marginBottom: -1,
+                  borderBottomWidth: 3,
+                  borderBottomColor: sekme === s ? colors.blue : 'transparent',
+                }}
+              >
+                <T
+                  style={{ fontSize: 16, fontWeight: '800', color: sekme === s ? colors.ink : colors.muted }}
+                >
+                  {ad}
+                </T>
+              </Pressable>
+            ))}
+          </View>
+          {sekme === 'aciklama' ? (
+            // Biçimli açıklama; uzayabileceği için yükseklik sabit, fazlası kaydırılır
+            <AciklamaGoster
+              metin={(t.data.alanlar.aciklama as string | undefined) || 'Talep sahibi açıklama yazmadı.'}
+              sabit
+            />
+          ) : (
+            <TeknikTablo
+              motorlar={g?.motorlar ?? []}
+              not={[
+                t.data.alternatifler.length > 1 ? `Alternatif ${alt + 1}` : null,
+                g?.kasa[0]
+                  ? `${g.kasa[0].label} kasa${g.kasa[0].yillar ? ` (${g.kasa[0].yillar})` : ''}`
+                  : null,
+                g?.paket.length ? `${g.paket.join(', ')} paketi` : null,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            />
+          )}
         </View>
 
         {boya || islem ? (
@@ -498,34 +555,6 @@ export default function TalepDetay() {
                 })}
               </View>
             ) : null}
-          </View>
-        ) : null}
-
-        {g?.teknik.length ? (
-          <View style={bolum}>
-            <T accessibilityRole="header" style={{ fontSize: 16.5, fontWeight: '800' }}>
-              Teknik özellikler
-            </T>
-            <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 4, marginBottom: 10 }}>
-              Katalogdaki örnek donanım: {g.teknikOrnek}. Değerler donanıma göre değişebilir.
-            </T>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {g.teknik.map((x) => (
-                <View
-                  key={x.label}
-                  style={{
-                    width: '48.5%',
-                    borderWidth: 1,
-                    borderColor: '#EEF0F5',
-                    borderRadius: butonOran(12),
-                    padding: 10,
-                  }}
-                >
-                  <T style={{ fontSize: 12, color: colors.muted }}>{x.label}</T>
-                  <T style={{ fontSize: 14, fontWeight: '700', marginTop: 2 }}>{x.value}</T>
-                </View>
-              ))}
-            </View>
           </View>
         ) : null}
 

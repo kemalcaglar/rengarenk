@@ -463,7 +463,7 @@ export function teknikEslestir(t: TeknikTip, adaylar: readonly AdemeSurum[]): Te
 export function ozetBirlestir(xs: readonly TeknikOzet[]): TeknikOzet | null {
   if (!xs.length) return null;
   const ar = (sec: (o: TeknikOzet) => [number, number] | null) => aralik(xs.flatMap((o) => sec(o) ?? []));
-  return {
+  const out: TeknikOzet = {
     vitesler: [...new Set(xs.flatMap((o) => o.vitesler))].sort(),
     kw: ar((o) => o.kw),
     hp: ar((o) => o.hp),
@@ -473,4 +473,18 @@ export function ozetBirlestir(xs: readonly TeknikOzet[]): TeknikOzet | null {
     euro: [...new Set(xs.flatMap((o) => o.euro))].sort(),
     surum: xs.reduce((n, o) => n + o.surum, 0),
   };
+  // Ayrıntı alanları (motor kayıtları): sayı çiftleri aralık olarak genişler, metin listeleri birleşir
+  const ek = out as unknown as Record<string, unknown>;
+  const anahtarlar = new Set(xs.flatMap((o) => Object.keys(o)));
+  for (const k of anahtarlar) {
+    if (k in ek) continue;
+    const degerler = xs
+      .map((o) => (o as unknown as Record<string, unknown>)[k])
+      .filter((v) => v !== undefined && v !== null);
+    if (!degerler.length) continue;
+    if (degerler.every((v) => Array.isArray(v) && v.length === 2 && v.every((n) => typeof n === 'number')))
+      ek[k] = aralik((degerler as [number, number][]).flat());
+    else ek[k] = [...new Set((degerler as unknown[][]).flat().map(String))].sort();
+  }
+  return out;
 }

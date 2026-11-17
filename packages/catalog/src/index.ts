@@ -10,6 +10,7 @@ export * from './tsb/read.js';
 export * from './tsb/series.js';
 export * from './vehiclesdb.js';
 export * from './vmm.js';
+export * from './vmm-teknik.js';
 export * from './wikidata.js';
 export * from './xls.js';
 export * from './xls-yaz.js';

@@ -774,6 +774,13 @@ model CatalogSpec {
   euro           String?
   /// Birleşen onay satırı (CNIT) sayısı
   rowCount       Int      @map("row_count")
+  /// Motor kaydında (vehicle-makes-models) neslin bitiş yılı; ADEME'de boş (tek yıl)
+  yearEnd        Int?     @map("year_end")
+  /// Çekiş (onden, arkadan, 4x4) ve kasa tipi (sedan, station_wagon …); motor kayıtlarında
+  drive          String?
+  body           String?
+  /// Ayrıntı (0-100, azami hız, tork, ölçüler, depo, bagaj, lastik, fren …); motor kayıtlarında
+  details        Json     @default("{}")
   version        String
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -783,9 +790,10 @@ model CatalogSpec {
   @@map("catalog_specs")
 }
 
-/// Tipin teknik özeti (catalog_specs eşleşmesinden türetilir, her eşleştirmede yeniden yazılır): TeknikOzet
+/// Tipin teknik özeti, kaynak başına (ademe, vmm, tsb: adındaki çekiş ve kasa); catalog_specs eşleşmesinden türetilir,
+/// her eşleştirmede yeniden yazılır. Gösterimde açık kaynakların satırları birleşir (kapatılan kaynağınki düşer).
 model CatalogVariantSpec {
-  variantId String   @id @map("variant_id") @db.Uuid
+  variantId String   @map("variant_id") @db.Uuid
   source    String
   /// TeknikOzet (packages/catalog/src/ademe.ts)
   summary   Json
@@ -795,6 +803,7 @@ model CatalogVariantSpec {
 
   variant CatalogVariant @relation(fields: [variantId], references: [id])
 
+  @@id([variantId, source])
   @@map("catalog_variant_specs")
 }
 
@@ -987,7 +996,7 @@ model CatalogVariant {
   model      CatalogModel       @relation(fields: [modelId], references: [id])
   trim       CatalogTrim?       @relation(fields: [trimId], references: [id])
   generation CatalogGeneration? @relation(fields: [generationId], references: [id])
-  spec       CatalogVariantSpec?
+  specs      CatalogVariantSpec[]
 
   @@unique([source, sourceKey])
   @@index([seriesId])

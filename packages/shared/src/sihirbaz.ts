@@ -46,12 +46,65 @@ export function acikSoruSayisi(
   return Math.min(sirali.length, n + 1);
 }
 
-/** Katalogdaki tipin seçimi daraltan özeti (seri ayrıntısındaki `tipler`) */
+/**
+ * Katalogdaki tipin seçimi daraltan özeti (seri ayrıntısındaki `tipler`). `body`: talep şemasındaki kasa tipi değeri
+ * (sedan, station_wagon …), `drive`: çekiş (onden, arkadan, 4x4); ikisi de yalnızca kesinse dolu.
+ */
 export interface KatalogTipi {
   years: number[];
   fuel: string | null;
   gearbox: string | null;
   body: string | null;
+  drive?: string | null;
+  /** Donanım paketi (katalogdaki paket kimliği) */
+  trimId?: string | null;
+}
+
+/** Kriterlerdeki seçim: kasanın ya da elle girilen yılın aralığı ve seçilen paketler (kimlik) */
+export interface KriterSecimi {
+  yillar: { min: number; max: number } | null;
+  paketler?: readonly string[];
+}
+
+/** Seçime uyan tipler: yılları aralıkta, paket seçildiyse o paketlerde */
+export function secimTipleri(tipler: readonly KatalogTipi[], secim: KriterSecimi): KatalogTipi[] {
+  const y = secim.yillar;
+  if (!y) return [];
+  const paket = secim.paketler?.length ? new Set(secim.paketler) : null;
+  return tipler.filter(
+    (t) =>
+      t.years.some((x) => x >= y.min && x <= y.max) && (!paket || (t.trimId != null && paket.has(t.trimId))),
+  );
+}
+
+/** Çekiş değerinin kategorideki seçeneği: otomobilde 4x4 "dort"; SUV'deki ayrıntılı 4x4 türleri bilinemez */
+const CEKIS_SECENEGI: Record<string, string[]> = { onden: ['onden'], arkadan: ['arkadan'], '4x4': ['dort'] };
+
+/**
+ * Kasa tipi ve çekiş sorusu (sahip isteği, 17 Kasım 2026): seçilen kasa ve paketteki bütün tiplerde değer kesin
+ * biliniyorsa ve en az iki farklı değer varsa sorulur; seçenekler yalnızca var olanlardır ("hatchback ve coupe varsa
+ * sedan yok"). Bilinmiyorsa ya da tek değer varsa soru sorulmaz: null.
+ */
+export function kesinSecenekler(
+  f: CategoryField,
+  tipler: readonly KatalogTipi[],
+  secim: KriterSecimi,
+): FieldOption[] | null {
+  if (f.key !== 'kasaTipi' && f.key !== 'cekis') return f.options ?? [];
+  const uyan = secimTipleri(tipler, secim);
+  if (!uyan.length) return null;
+  const degerler = uyan.map((t) => (f.key === 'kasaTipi' ? t.body : t.drive) ?? null);
+  if (degerler.some((d) => d === null)) return null;
+  const izin = new Set<string>();
+  for (const d of new Set(degerler as string[])) {
+    const karsilik = f.key === 'kasaTipi' ? [d] : (CEKIS_SECENEGI[d] ?? []);
+    const var_ = karsilik.filter((k) => f.options?.some((o) => o.value === k));
+    // Kategorinin seçeneklerinde karşılığı yoksa (ör. SUV'de 4x4'ün türü) bilinmiyor sayılır
+    if (!var_.length) return null;
+    for (const k of var_) izin.add(k);
+  }
+  if (izin.size < 2) return null;
+  return (f.options ?? []).filter((o) => izin.has(o.value));
 }
 
 /** Katalog yakıtı → talepteki yakıt seçenekleri (benzinli araca sonradan LPG takılabilir) */
@@ -94,10 +147,11 @@ export function uygunSecenekler(
   tipler: readonly KatalogTipi[],
   yillar: { min: number; max: number } | null,
   kasaGovdeleri: readonly (string | null)[] = [],
+  paketler?: readonly string[],
 ): FieldOption[] {
   const hepsi = f.options ?? [];
   if (!yillar || !['yakit', 'vites', 'kasaTipi'].includes(f.key)) return hepsi;
-  const icinde = tipler.filter((t) => t.years.some((y) => y >= yillar.min && y <= yillar.max));
+  const icinde = secimTipleri(tipler, { yillar, paketler });
   const daralt = (degerler: (string[] | null)[]) => {
     const bilinen = degerler.filter((d): d is string[] => d !== null);
     if (!bilinen.length || bilinen.length < degerler.length * YETER) return hepsi;

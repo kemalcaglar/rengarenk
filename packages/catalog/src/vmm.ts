@@ -19,7 +19,7 @@ export const VMM_MIN_YEAR = 1985;
 /** Ayrıştırıcı sürümü: kurallar değişince artırılır, aynı sürüm dosyası yeniden işlenir. */
 export const VMM_PARSER = '2026-11-08';
 
-const FUEL: Record<string, Fuel> = {
+export const VMM_YAKIT: Record<string, Fuel> = {
   gasoline: 'benzin',
   petrol: 'benzin',
   diesel: 'dizel',
@@ -112,13 +112,13 @@ export function vmmSeries(make: string, model: string): string {
   return base.replace(SERIES_SUFFIX, '');
 }
 
-function bodyOf(generation: string, model: string, bodyType: string): string | null {
+export function bodyOf(generation: string, model: string, bodyType: string): string | null {
   const text = `${bodyType} ${generation.replace(model, ' ')} ${model}`;
   for (const [re, name] of BODY_WORDS) if (re.test(text)) return name;
   return null;
 }
 
-function gearboxOf(transmission: string, label: string): Gearbox | null {
+export function gearboxOf(transmission: string, label: string): Gearbox | null {
   const t = transmission.toLowerCase();
   if (/automated manual|amt|semi/.test(t)) return 'yari_otomatik';
   if (/automatic|cvt|dual.clutch|dct|dsg/.test(t)) return 'otomatik';
@@ -127,7 +127,7 @@ function gearboxOf(transmission: string, label: string): Gearbox | null {
   return m === 'MT' ? 'manuel' : m === 'AMT' ? 'yari_otomatik' : m ? 'otomatik' : null;
 }
 
-function driveOf(drivetrain: string, label: string): Drive | null {
+export function driveOf(drivetrain: string, label: string): Drive | null {
   const d = drivetrain.toLowerCase();
   if (/all|4x4|four|awd|4wd/.test(d)) return '4x4';
   if (/rear/.test(d)) return 'arkadan';
@@ -217,7 +217,7 @@ export function buildVmmSnapshot(
     }
     const cc = num(r.displacement_cc);
     const engineL = cc ? Math.round(cc / 100) / 10 : null;
-    const fuel = FUEL[(r.fuel_type ?? '').toLowerCase()] ?? null;
+    const fuel = VMM_YAKIT[(r.fuel_type ?? '').toLowerCase()] ?? null;
     const label = (r.engine_label ?? '').trim();
     const baseModel = vmmModel(make, label, engineL, fuel);
     const model = amg && !baseModel.startsWith('AMG') ? `AMG ${baseModel}` : baseModel;

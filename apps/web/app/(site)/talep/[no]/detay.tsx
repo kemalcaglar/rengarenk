@@ -6,6 +6,7 @@ import {
   PAINT_PARTS,
   PAINT_STATES,
   saatYaz,
+  type TeknikOzet,
 } from '@rengarenk/shared';
 import Link from 'next/link';
 import { type CSSProperties, useEffect, useState } from 'react';
@@ -14,6 +15,7 @@ import { AracSemasiGorunum } from '../../../../components/arac-semasi';
 import { Banner } from '../../../../components/banner';
 import { IlkMesaj } from '../../../../components/ilk-mesaj';
 import { Sikayet } from '../../../../components/sikayet';
+import { TeknikTablo } from '../../../../components/teknik-tablo';
 import { API, istek, useGiris } from '../../../../lib/istemci';
 import { butceAraligi, deger, etiket, uzunTarih } from '../../../../lib/talep-bicim';
 
@@ -42,6 +44,8 @@ export interface TalepVeri {
       paket: string[];
       teknik: { label: string; value: string }[];
       teknikOrnek: string | null;
+      /** Ayrıntılı teknik özellikler, motor sürümü başına */
+      motorlar?: { ad: string; ozet: TeknikOzet }[];
     }[];
   };
   owner: {
@@ -125,6 +129,7 @@ export function TalepDetay({
 }) {
   const giris = useGiris();
   const [alt, setAlt] = useState(0);
+  const [sekme, setSekme] = useState<'aciklama' | 'teknik'>('aciklama');
   const [sahip, setSahip] = useState(t.owner);
   const [goster, setGoster] = useState(false);
   const [paylasildi, setPaylasildi] = useState(false);
@@ -255,15 +260,6 @@ export function TalepDetay({
     borderBottom: `3px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : 'transparent'}`,
     fontFamily: 'inherit',
   });
-  const etiketSag: CSSProperties = {
-    background: '#EEF3FF',
-    color: 'var(--rr-murekkep, #1E2333)',
-    fontSize: 12.5,
-    fontWeight: 700,
-    padding: '5px 11px',
-    borderRadius: 'var(--rr-etiket-kose)',
-  };
-
   return (
     <div style={{ flex: '999 1 760px', minWidth: 0 }}>
       <Banner yer="talep_detay" style={{ marginBottom: 14 }} />
@@ -643,15 +639,74 @@ export function TalepDetay({
             </div>
           </section>
 
-          <section aria-labelledby="aciklama" style={{ ...kart, padding: 22 }}>
-            <h2 id="aciklama" style={{ margin: '0 0 10px', fontSize: 18, fontWeight: 700 }}>
-              Açıklama
-            </h2>
-            {/* Biçimli açıklama; uzayabileceği için yükseklik sabit, fazlası kaydırılır (sahip isteği, 17 Kasım 2026) */}
-            <AciklamaGoster
-              metin={(t.data.alanlar.aciklama as string | undefined) || 'Talep sahibi açıklama yazmadı.'}
-              sabit
-            />
+          <section aria-label="Açıklama ve teknik özellikler" style={{ ...kart, padding: 22 }}>
+            {/* Açıklama ve teknik özellikler yan yana sekme (sahip isteği, 17 Kasım 2026) */}
+            <div
+              role="tablist"
+              aria-label="Talep ayrıntısı"
+              style={{
+                display: 'flex',
+                gap: 6,
+                borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)',
+                marginBottom: 16,
+              }}
+            >
+              {(
+                [
+                  ['aciklama', 'Açıklama'],
+                  ['teknik', 'Teknik özellikler'],
+                ] as const
+              ).map(([k, ad]) => (
+                <button
+                  key={k}
+                  type="button"
+                  role="tab"
+                  id={`sekme-${k}`}
+                  aria-selected={sekme === k}
+                  aria-controls={`panel-${k}`}
+                  onClick={() => setSekme(k)}
+                  style={{
+                    border: 0,
+                    background: 'transparent',
+                    padding: '4px 4px 12px',
+                    marginRight: 18,
+                    marginBottom: -1,
+                    fontSize: 17,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    color: sekme === k ? 'var(--rr-murekkep, #1E2333)' : 'var(--rr-soluk, #5A6073)',
+                    borderBottom: `3px solid ${sekme === k ? 'var(--rr-mavi, #5B8CFF)' : 'transparent'}`,
+                  }}
+                >
+                  {ad}
+                </button>
+              ))}
+            </div>
+            {sekme === 'aciklama' ? (
+              <div role="tabpanel" id="panel-aciklama" aria-labelledby="sekme-aciklama">
+                {/* Biçimli açıklama; uzayabileceği için yükseklik sabit, fazlası kaydırılır */}
+                <AciklamaGoster
+                  metin={(t.data.alanlar.aciklama as string | undefined) || 'Talep sahibi açıklama yazmadı.'}
+                  sabit
+                />
+              </div>
+            ) : (
+              <div role="tabpanel" id="panel-teknik" aria-labelledby="sekme-teknik">
+                <TeknikTablo
+                  motorlar={g?.motorlar ?? []}
+                  not={[
+                    t.data.alternatifler.length > 1 ? altAd : null,
+                    g?.kasa[0]
+                      ? `${g.kasa[0].label} kasa${g.kasa[0].yillar ? ` (${g.kasa[0].yillar})` : ''}`
+                      : null,
+                    g?.paket.length ? `${g.paket.join(', ')} paketi` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                />
+              </div>
+            )}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 18 }}>
               {genel.map((x, i) => (
                 <span
@@ -868,50 +923,6 @@ export function TalepDetay({
                   ) : null}
                 </div>
               ) : null}
-            </section>
-          ) : null}
-
-          {g?.teknik.length ? (
-            <section aria-labelledby="teknik" style={{ ...kart, padding: 22 }}>
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 8,
-                }}
-              >
-                <h2 id="teknik" style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>
-                  Teknik özellikler
-                </h2>
-                {t.data.alternatifler.length > 1 ? <span style={etiketSag}>{altAd}</span> : null}
-              </div>
-              <p style={{ margin: '6px 0 16px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
-                Katalogdaki örnek donanım: {g.teknikOrnek}
-                {g.kasa[0] ? ` · ${g.kasa[0].label} kasa` : ''}. Değerler donanıma göre değişebilir.
-              </p>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-                  gap: 10,
-                }}
-              >
-                {g.teknik.map((x) => (
-                  <div
-                    key={x.label}
-                    style={{
-                      border: '1px solid #EEF0F5',
-                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                      padding: '11px 13px',
-                    }}
-                  >
-                    <div style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>{x.label}</div>
-                    <div style={{ fontSize: 15, fontWeight: 700, marginTop: 3 }}>{x.value}</div>
-                  </div>
-                ))}
-              </div>
             </section>
           ) : null}
 

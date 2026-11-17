@@ -10,6 +10,8 @@ export interface VmmRelease {
 
 export interface VmmClient {
   latest(): Promise<VmmRelease>;
+  /** Son sürümün motor ayrıntılı JSON dosyası (`vehicle-data-json.zip`; teknik özellikler) */
+  latestJson(): Promise<VmmRelease>;
   download(url: string): Promise<Uint8Array>;
 }
 
@@ -17,6 +19,7 @@ export const VMM_CLIENT = Symbol('VMM_CLIENT');
 
 const REPO = 'gor3a/vehicle-makes-models';
 const ASSET = 'vehicle-data-csv.zip';
+const JSON_ASSET = 'vehicle-data-json.zip';
 const MAX_BYTES = 50 * 1024 * 1024;
 const HEADERS = { 'user-agent': 'Rengarenk-katalog/1.0' };
 const ALLOWED_HOSTS = [
@@ -29,7 +32,15 @@ const ALLOWED_HOSTS = [
 export class HttpVmmClient implements VmmClient {
   constructor(private readonly fetchFn: typeof fetch = fetch) {}
 
-  async latest(): Promise<VmmRelease> {
+  latest(): Promise<VmmRelease> {
+    return this.asset(ASSET);
+  }
+
+  latestJson(): Promise<VmmRelease> {
+    return this.asset(JSON_ASSET);
+  }
+
+  private async asset(ad: string): Promise<VmmRelease> {
     const r = await this.fetchFn(`https://api.github.com/repos/${REPO}/releases/latest`, {
       headers: { ...HEADERS, accept: 'application/vnd.github+json' },
       signal: AbortSignal.timeout(20_000),
@@ -39,9 +50,9 @@ export class HttpVmmClient implements VmmClient {
       tag_name?: string;
       assets?: { name: string; browser_download_url: string }[];
     };
-    const asset = body.assets?.find((a) => a.name === ASSET);
-    if (!body.tag_name || !asset) throw new Error(`Son sürümde ${ASSET} yok`);
-    return { tag: body.tag_name, url: asset.browser_download_url, fileName: `${body.tag_name}/${ASSET}` };
+    const asset = body.assets?.find((a) => a.name === ad);
+    if (!body.tag_name || !asset) throw new Error(`Son sürümde ${ad} yok`);
+    return { tag: body.tag_name, url: asset.browser_download_url, fileName: `${body.tag_name}/${ad}` };
   }
 
   async download(url: string): Promise<Uint8Array> {

@@ -29,8 +29,11 @@ interface SeriDetay {
     endYear: number | null;
   }[];
   trims: (Satir & { years: number[]; modelIds: string[] })[];
-  /** Motor sürümü, yakıt, vites ve gövde üçlüleri (kasaya göre seçenek daraltma) */
-  tipler?: (KatalogTipi & { modelId: string })[];
+  /**
+   * Tip başına motor sürümü, paket (`trimId`), yakıt, vites, çekiş (`drive`) ve kasa tipi (`body`: talep şemasındaki
+   * değer, sedan, station_wagon …); çekiş ve kasa tipi yalnızca kesinse dolu (kasa ve pakete göre seçenek daraltma)
+   */
+  tipler?: (KatalogTipi & { modelId: string; trimId: string | null; drive: string | null })[];
 }
 
 /** Kasa kuşağı grubu: "G20 · makyajlı", 2022 ve sonrası */
@@ -170,7 +173,7 @@ export function useKatalog(kategori: string | undefined, v: KatalogDegeri | unde
     /** Seçilen modelin (ya da serinin) paketleri */
     paketler: (detail?.trims ?? []).filter((t) => !model || t.modelIds.includes(model.id)),
     adlar: { make: make?.name, series: seri?.name, model: model?.name },
-    /** Seçilen motor sürümünün (yoksa serinin) tipleri: yakıt, vites, gövde ve yılları */
+    /** Seçilen motor sürümünün (yoksa serinin) tipleri: paket, yakıt, vites, çekiş, kasa tipi ve yılları */
     tipler: (detail?.tipler ?? []).filter((t) => !model || t.modelId === model.id),
     /** Seçilen motor sürümünün teknik özeti */
     teknik: (model as { teknik?: TeknikOzet | null } | undefined)?.teknik ?? null,

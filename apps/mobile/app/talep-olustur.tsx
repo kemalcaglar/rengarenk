@@ -9,6 +9,7 @@ import {
   DOTS,
   fiyatYaz,
   kartOran,
+  kesinSecenekler,
   kriterSirasi,
   MAX_ALTERNATIVES,
   ONE_CIKARMA,
@@ -1169,8 +1170,9 @@ export default function TalepOlustur() {
 /**
  * 3. adım: alternatif başına kriterler, yukarıdan aşağı adım adım (sahip isteği, 17 Kasım 2026; web `Kriterler` ile
  * aynı kurallar). Önce kasa ve makyaj (tek seçilir; başka kasa için alternatif) ya da elle model yılı; sonra donanım
- * paketi ve diğer sorular sırayla açılır. Kasa seçildiyse model yılı kasadan gelir; yakıt, vites ve kasa tipi o kasanın
- * tiplerine göre daralır.
+ * paketi ve diğer sorular sırayla açılır. Kasa seçildiyse model yılı kasadan gelir; yakıt ve vites o kasanın (ve
+ * seçilen paketin) tiplerine göre daralır. Kasa tipi ve çekiş yalnızca seçilen kasa (ya da elle girilen yıllar) ve
+ * paketteki bütün tiplerde kesin biliniyorsa ve en az iki farklı değer varsa sorulur (`kesinSecenekler`).
  */
 function Kriterler({
   alanlar,
@@ -1208,8 +1210,6 @@ function Kriterler({
   const kasaVar = Boolean(kasaAlani && k.kusaklar.length);
   const elle = !seciliKusak && (Boolean(elleSecildi[alt]) || a.yil !== undefined);
   const yillar = seciliKusak ? { min: seciliKusak.min, max: seciliKusak.max } : null;
-  const secenekler = (f: CategoryField) =>
-    yillar ? uygunSecenekler(f, k.tipler, yillar, seciliKusak?.govdeler) : (f.options ?? []);
 
   // Paketler kasanın (ya da elle girilen yılların, yoksa son 15 yılın) yıllarında satılanlar
   const yil = a.yil as { min?: number; max?: number } | undefined;
@@ -1218,11 +1218,30 @@ function Kriterler({
     ? [yillar.min, yillar.max]
     : [yil?.min ?? yil?.max ?? buYil - 15, yil?.max ?? yil?.min ?? buYil + 1];
   const paketler = k.paketler.filter((t) => t.years.some((y) => y >= pMin && y <= pMax));
+  // Seçim: kasanın yılları (yoksa elle girilen yıllar) ve seçilen paketler (kimlik)
+  const secimYillari =
+    yillar ??
+    (yil && (yil.min !== undefined || yil.max !== undefined)
+      ? { min: (yil.min ?? yil.max) as number, max: (yil.max ?? yil.min) as number }
+      : null);
+  const paketKimlikleri = ((a.paket as string[] | undefined) ?? [])
+    .map((key) => k.paketler.find((p) => p.key === key)?.id)
+    .filter((x): x is string => Boolean(x));
+  const secim = { yillar: secimYillari, paketler: paketKimlikleri };
+  /** Kasa tipi ve çekiş: yalnızca kesin biliniyor ve en az iki seçenek varsa (yoksa soru yok) */
+  const kesin = (f: CategoryField) => kesinSecenekler(f, k.tipler, secim);
+  const secenekler = (f: CategoryField) =>
+    f.key === 'kasaTipi' || f.key === 'cekis'
+      ? (kesin(f) ?? [])
+      : yillar
+        ? uygunSecenekler(f, k.tipler, yillar, seciliKusak?.govdeler, paketKimlikleri)
+        : (f.options ?? []);
 
   // Soru sırası: kasa; kasa seçilmediyse model yılı; paket; diğerleri; bütçe en sonda
   const sorular = kriterSirasi(alanlar)
     .filter(gorunur)
     .filter((f) => {
+      if (f.key === 'kasaTipi' || f.key === 'cekis') return kesin(f) !== null;
       if (f.source !== 'katalog') return !(f.key === 'yil' && seciliKusak);
       if (f.key === 'kasa') return kasaVar;
       if (f.key === 'paket') return paketler.length > 0;
@@ -1239,7 +1258,7 @@ function Kriterler({
     f.key === 'kasa' ? Boolean(seciliKusak) || elle : deger(f) !== undefined;
   const acik = acikSoruSayisi(sorular, yanitli, gecilenler);
 
-  /** Kasa seçimi: model yılı kasadan gelir; kasaya uymayan yakıt, vites, kasa tipi ve paket seçimden düşer */
+  /** Kasa seçimi: model yılı kasadan gelir; kasaya uymayan yakıt, vites, kasa tipi, çekiş ve paket seçimden düşer */
   const kusakSec = (value: string) => {
     if (!kasaAlani) return;
     if (kasaDegeri === value) {
@@ -1252,10 +1271,21 @@ function Kriterler({
     setElleSecildi((e) => ({ ...e, [alt]: false }));
     yaz(kasaAlani)([value]);
     if (yilAlani) yaz(yilAlani)({ min: x.min, max: x.max });
-    for (const key of ['yakit', 'vites', 'kasaTipi']) {
+    for (const key of ['yakit', 'vites']) {
       const f = alanOf(key);
       if (f && a[key] !== undefined)
         yaz(f)(secimiDaralt(a[key], uygunSecenekler(f, k.tipler, { min: x.min, max: x.max }, x.govdeler)));
+    }
+    for (const key of ['kasaTipi', 'cekis']) {
+      const f = alanOf(key);
+      if (f && a[key] !== undefined)
+        yaz(f)(
+          secimiDaralt(
+            a[key],
+            kesinSecenekler(f, k.tipler, { yillar: { min: x.min, max: x.max }, paketler: paketKimlikleri }) ??
+              [],
+          ),
+        );
     }
     const paket = alanOf('paket');
     const seciliPaket = a.paket as string[] | undefined;
@@ -1275,6 +1305,17 @@ function Kriterler({
     }
     setElleSecildi((e) => ({ ...e, [alt]: true }));
   };
+
+  // Kasa tipi ya da çekiş artık sorulmuyorsa (seçim değişti) eski değeri kalmaz
+  const temizlenecek = ['kasaTipi', 'cekis']
+    .map(alanOf)
+    .filter(
+      (f): f is CategoryField =>
+        f !== undefined && a[f.key] !== undefined && k.detail !== null && kesin(f) === null,
+    );
+  useEffect(() => {
+    for (const f of temizlenecek) yaz(f)(undefined);
+  });
 
   const gosterilen = k.kusaklar.filter((x) => eskiler || x.yeni || x === seciliKusak);
   const gizli = k.kusaklar.length - gosterilen.length;
