@@ -26,6 +26,8 @@ export interface VitrinKart {
   foto: string | null;
   markaAd?: string | null;
   seriAd?: string | null;
+  modelAd?: string | null;
+  kapakBilgi?: string[];
 }
 export interface TalepYaniti {
   toplam: number;
@@ -92,7 +94,11 @@ export function VitrinBolumu({ vitrin }: { vitrin: TalepYaniti }) {
                   style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                 />
               ) : (
-                <AracKapak marka={v.markaAd} seri={v.seriAd ?? v.baslik} />
+                <AracKapak
+                  marka={v.markaAd}
+                  seri={[v.seriAd, v.modelAd].filter(Boolean).join(' ') || v.baslik}
+                  bilgi={v.kapakBilgi}
+                />
               )}
             </span>
             <span

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useCanli } from '../lib/canli';
 import { cikisYap, istek, useGiris } from '../lib/istemci';
 import { colors } from '../lib/renk';
+import { BildirimAcilir } from './bildirim-acilir';
 import { OGELER } from './hesabim-menu';
 
 interface Ben {
@@ -14,7 +15,7 @@ interface Ben {
 }
 
 /**
- * Üst çubuğun hesap bölümü: girişliyse zil, avatar ve ad (üzerine gelince ya da tıklayınca Hesabım menüsü ve "Çıkış
+ * Üst çubuğun hesap bölümü: girişliyse zil (üzerine gelince son bildirimler), avatar ve ad (üzerine gelince ya da tıklayınca Hesabım menüsü ve "Çıkış
  * yap"), değilse "Giriş yap"; ve "Talep oluştur". Oturuma bakılırken yer tutucu gösterilir ("Giriş yap" yanıp sönmez).
  */
 export function HesapMenusu() {
@@ -54,60 +55,7 @@ export function HesapMenusu() {
   }, !!giris);
   return (
     <nav className="rr-hesap" style={{ display: 'flex', alignItems: 'center', gap: 10 }} aria-label="Hesap">
-      {ad ? (
-        <Link
-          href="/bildirimler"
-          aria-label={`Bildirimler, ${okunmamis} okunmamış`}
-          style={{
-            position: 'relative',
-            width: 40,
-            height: 40,
-            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--rr-ust-yazi)',
-          }}
-        >
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-            <path d="M10 21a2 2 0 0 0 4 0" />
-          </svg>
-          {okunmamis > 0 ? (
-            <span
-              aria-hidden="true"
-              style={{
-                position: 'absolute',
-                top: 3,
-                right: 2,
-                minWidth: 18,
-                height: 18,
-                borderRadius: 'calc(var(--rr-buton-kose) * 9 / 14)',
-                background: colors.pink,
-                color: 'var(--rr-pembeYazi, #1E2333)',
-                fontSize: 11,
-                fontWeight: 800,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '0 4px',
-              }}
-            >
-              {okunmamis > 99 ? '99+' : okunmamis}
-            </span>
-          ) : null}
-        </Link>
-      ) : null}
+      {ad ? <BildirimAcilir okunmamis={okunmamis} /> : null}
       {giris && ad ? (
         <HesapAcilir ad={ad} bas={bas} />
       ) : giris === false ? (

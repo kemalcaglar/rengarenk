@@ -54,6 +54,8 @@ interface Kart {
   foto: string | null;
   markaAd?: string | null;
   seriAd?: string | null;
+  modelAd?: string | null;
+  kapakBilgi?: string[];
 }
 type Yanit = { toplam: number; sonuclar: Kart[] };
 
@@ -312,7 +314,11 @@ export default function Home() {
                         resizeMode="cover"
                       />
                     ) : (
-                      <AracKapak marka={v.markaAd} seri={v.seriAd ?? v.baslik} />
+                      <AracKapak
+                        marka={v.markaAd}
+                        seri={[v.seriAd, v.modelAd].filter(Boolean).join(' ') || v.baslik}
+                        bilgi={v.kapakBilgi}
+                      />
                     )}
                   </View>
                   <T

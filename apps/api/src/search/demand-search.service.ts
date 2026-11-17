@@ -49,11 +49,26 @@ export interface DemandHit {
   /** Fotoğraf yoksa kartta marka ve model kapağı (sahip isteği, 17 Kasım 2026) */
   markaAd: string | null;
   seriAd: string | null;
+  modelAd: string | null;
+  /** Kapakta yazan bilgiler: yıllar, kasa, paket ("2019–2023", "G20 makyajsız", "M Sport") */
+  kapakBilgi: string[];
   /** "Acil arıyorum" etiketi (Karar 12.6) */
   acil: boolean;
   /** Üst sırada (ücretli öne çıkarma) */
   ustSira: boolean;
 }
+
+/** "2019–2023", "2019 ve sonrası", "2015 ve öncesi" */
+export const yilYazi = (min: number | null | undefined, max: number | null | undefined) =>
+  min && max
+    ? min === max
+      ? `${min}`
+      : `${min}–${max}`
+    : min
+      ? `${min} ve sonrası`
+      : max
+        ? `${max} ve öncesi`
+        : null;
 
 const suruyor = (v: unknown) => typeof v === 'string' && new Date(v).getTime() > Date.now();
 
@@ -93,6 +108,8 @@ const MAPPING = {
       bitis: { type: 'date' },
       /** Seçilmiş nesil fotoğrafının kimliği (vitrin ve liste kartları) */
       foto: { type: 'keyword' },
+      /** Kapakta yazan bilgiler: ilk alternatifin yılları, kasası ve paketi (sahip isteği, 17 Kasım 2026) */
+      kapakBilgi: { type: 'keyword', index: false },
       /** Öne çıkarmaların bitişi (Karar 12.6): üst sıra, acil arıyorum, ana sayfa vitrini */
       ustSira: { type: 'date' },
       acil: { type: 'date' },
@@ -120,6 +137,8 @@ const hit = (s: Record<string, unknown>): DemandHit =>
     foto: s.foto ? `/catalog/images/${s.foto}` : null,
     markaAd: s.markaAd ?? null,
     seriAd: s.seriAd ?? null,
+    modelAd: s.modelAd ?? null,
+    kapakBilgi: (s.kapakBilgi as string[] | undefined) ?? [],
     acil: suruyor(s.acil),
     ustSira: suruyor(s.ustSira),
   }) as DemandHit;
@@ -258,6 +277,23 @@ export class DemandSearchService {
     ]
       .filter(Boolean)
       .join(' · ');
+    // Kapak bilgisi (sahip isteği, 17 Kasım 2026): ilk alternatifin yılları, kasası (kodsuz kuşakta kasa tipi) ve paketi
+    const kusakKeys = ((ilk.kasa as string[] | undefined) ?? []).filter((k) => !/^[^:/]+:\d+$/.test(k));
+    const kusaklar = kusakKeys.length
+      ? await this.db.catalogGeneration.findMany({
+          where: { key: { in: kusakKeys } },
+          select: { key: true, name: true, body: true },
+        })
+      : [];
+    const iy = ilk.yil as { min?: number; max?: number } | undefined;
+    const kapakBilgi = [
+      yilYazi(iy?.min ?? d.yearMin, iy?.max ?? d.yearMax),
+      ...((ilk.kasa as string[] | undefined) ?? []).map((k, i) => {
+        const g = kusaklar.find((x) => x.key === k);
+        return kasaAd[i] ?? g?.body ?? g?.name ?? null;
+      }),
+      ...ilkPaket,
+    ].filter((x): x is string => Boolean(x));
     // Temsilî fotoğraf (sahip isteği, 17 Kasım 2026; Karar 34): talep sayfasıyla aynı kural (kasa, kuşak, yıl,
     // model geneli). Yoksa kart marka ve model kapağını gösterir.
     const fv = d.seriesKey ? await fotoVerisi(this.db, d.seriesKey) : null;
@@ -292,6 +328,7 @@ export class DemandSearchService {
       yayin: d.publishedAt?.toISOString(),
       bitis: d.expiresAt?.toISOString(),
       foto,
+      kapakBilgi,
       ...(await this.promotions(d.id)),
     };
   }

@@ -1,4 +1,4 @@
-import { colors, kapakHarfleri, kapakTonu } from '@rengarenk/shared';
+import { colors, kapakHarfleri, kapakTonu, radii } from '@rengarenk/shared';
 import { View } from 'react-native';
 import { T } from './t';
 
@@ -20,7 +20,7 @@ const OLCU = {
   /** Talep sayfasının üstü */
   buyuk: { marka: 11, seri: 26, alt: 12, harf: 150, bosluk: 14 },
   /** Vitrin kartı */
-  kart: { marka: 8.5, seri: 13, alt: 0, harf: 70, bosluk: 7 },
+  kart: { marka: 8.5, seri: 13, alt: 9, harf: 70, bosluk: 7 },
   /** Son talepler satırındaki kare görsel */
   mini: { marka: 7.5, seri: 11.5, alt: 0, harf: 54, bosluk: 6 },
 } as const;
@@ -33,12 +33,13 @@ const OLCU = {
 export function AracKapak({
   marka,
   seri,
-  alt,
+  bilgi = [],
   boyut = 'kart',
 }: {
   marka?: string | null;
   seri?: string | null;
-  alt?: string | null;
+  /** Yıllar, kasa ve paket: büyük kapakta etiket, kartta tek satır */
+  bilgi?: readonly (string | null | undefined)[];
   boyut?: keyof typeof OLCU;
 }) {
   const renk = colors[kapakTonu(marka ?? seri)];
@@ -47,6 +48,7 @@ export function AracKapak({
   const o = OLCU[boyut];
   const harf = kapakHarfleri(marka) || kapakHarfleri(seri);
   const ad = [marka, seri].filter(Boolean).join(' ');
+  const satir = bilgi.filter((x): x is string => Boolean(x));
   return (
     <View
       accessible
@@ -134,12 +136,39 @@ export function AracKapak({
         >
           {seri ?? marka ?? 'Araç'}
         </T>
-        {alt && o.alt ? (
+        {satir.length && boyut === 'buyuk' ? (
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginTop: 8, paddingRight: '22%' }}>
+            {satir.map((x) => (
+              <T
+                key={x}
+                style={{
+                  fontSize: o.alt,
+                  fontWeight: '700',
+                  color: colors.ink,
+                  backgroundColor: colors.surface,
+                  opacity: 0.92,
+                  paddingVertical: 3,
+                  paddingHorizontal: 8,
+                  borderRadius: Math.min(radii.etiket, 10),
+                  overflow: 'hidden',
+                }}
+              >
+                {x}
+              </T>
+            ))}
+          </View>
+        ) : satir.length && o.alt ? (
           <T
-            numberOfLines={1}
-            style={{ fontSize: o.alt, fontWeight: '600', color: colors.muted, marginTop: 3 }}
+            numberOfLines={2}
+            style={{
+              fontSize: o.alt,
+              lineHeight: o.alt * 1.3,
+              fontWeight: '700',
+              color: colors.inkSoft,
+              marginTop: 2,
+            }}
           >
-            {alt}
+            {satir.join(' · ')}
           </T>
         ) : null}
       </View>

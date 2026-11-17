@@ -119,6 +119,9 @@ describe('talep araması (Karar 06.1, 06.3)', () => {
     expect(ilk).toMatchObject({
       baslik: 'Aile için 320i arıyorum',
       arac: 'BMW 3 Serisi 320i · G20 makyajsız veya G20 makyajlı · M Sport',
+      // Kapakta yazan bilgiler (sahip isteği, 17 Kasım 2026)
+      kapakBilgi: ['2019–2023', 'G20 makyajsız', 'G20 makyajlı', 'M Sport'],
+      modelAd: '320i',
       kmMax: 60_000,
       il: 'İstanbul',
       ilce: 'Kadıköy',

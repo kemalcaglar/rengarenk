@@ -28,6 +28,18 @@ import { basHarf, useOturum } from '../../lib/oturum';
 import { butceAraligi, deger, etiket, uzunTarih } from '../../lib/talep-bicim';
 
 type Values = Record<string, unknown>;
+
+/** Kapaktaki yıl: "2019–2023", "2019 ve sonrası", "2015 ve öncesi" */
+const kapakYil = (y?: { min?: number; max?: number }) =>
+  y?.min && y.max
+    ? y.min === y.max
+      ? `${y.min}`
+      : `${y.min}–${y.max}`
+    : y?.min
+      ? `${y.min} ve sonrası`
+      : y?.max
+        ? `${y.max} ve öncesi`
+        : null;
 /** Temsilî fotoğraf (Karar 34): nesil, kasa, yıl ya da model geneli */
 interface Foto {
   url: string;
@@ -280,12 +292,17 @@ export default function TalepDetay() {
             <AracKapak
               boyut="buyuk"
               marka={k.marka}
-              seri={k.seri ?? t.category.name}
-              alt={
-                g?.kasa.length
-                  ? g.kasa.map((x) => [x.label, x.yillar].filter(Boolean).join(' · ')).join(' ya da ')
-                  : (k.model ?? null)
-              }
+              seri={[k.seri, k.model].filter(Boolean).join(' ') || t.category.name}
+              bilgi={[
+                kapakYil(a.yil as { min?: number; max?: number } | undefined),
+                // Kasa ve paket her zaman yazar (sahip isteği): seçilmemişse "fark etmez"
+                t.schema.fields.some((x) => x.key === 'kasa')
+                  ? `Kasa: ${g?.kasa.length ? g.kasa.map((x) => x.label).join(' ya da ') : 'fark etmez'}`
+                  : null,
+                t.schema.fields.some((x) => x.key === 'paket')
+                  ? `Paket: ${g?.paket.length ? g.paket.join(' ya da ') : 'fark etmez'}`
+                  : null,
+              ]}
             />
           )}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>

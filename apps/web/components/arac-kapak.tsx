@@ -15,7 +15,7 @@ const OLCU = {
   /** Talep sayfasının üstü (560 × 206) */
   buyuk: { marka: 13, seri: 34, alt: 14, harf: 220, bosluk: 22 },
   /** Vitrin ve liste kartı */
-  kart: { marka: 10, seri: 17, alt: 11, harf: 110, bosluk: 10 },
+  kart: { marka: 10, seri: 16, alt: 10.5, harf: 110, bosluk: 10 },
   /** Liste satırındaki küçük görsel (96 × 64) */
   mini: { marka: 8.5, seri: 12.5, alt: 0, harf: 64, bosluk: 7 },
 } as const;
@@ -28,14 +28,14 @@ const OLCU = {
 export function AracKapak({
   marka,
   seri,
-  alt,
+  bilgi = [],
   boyut = 'kart',
   style,
 }: {
   marka?: string | null;
   seri?: string | null;
-  /** Yıllar ya da kasa ("2019–2022 · G20") */
-  alt?: string | null;
+  /** Yıllar, kasa ve paket ("2019–2023", "G20 makyajsız", "M Sport"): büyük kapakta etiket, kartta tek satır */
+  bilgi?: readonly (string | null | undefined)[];
   boyut?: keyof typeof OLCU;
   style?: CSSProperties;
 }) {
@@ -43,6 +43,7 @@ export function AracKapak({
   const o = OLCU[boyut];
   const harf = kapakHarfleri(marka) || kapakHarfleri(seri);
   const ad = [marka, seri].filter(Boolean).join(' ');
+  const satir = bilgi.filter((x): x is string => Boolean(x));
   return (
     <span
       role="img"
@@ -131,20 +132,40 @@ export function AracKapak({
         >
           {seri ?? marka ?? 'Araç'}
         </span>
-        {alt && o.alt ? (
+        {satir.length && boyut === 'buyuk' ? (
+          <span style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10, paddingRight: '28%' }}>
+            {satir.map((x) => (
+              <span
+                key={x}
+                style={{
+                  fontSize: o.alt,
+                  fontWeight: 700,
+                  color: colors.ink,
+                  background: `color-mix(in srgb, ${colors.surface} 82%, transparent)`,
+                  padding: '4px 10px',
+                  borderRadius: 'var(--rr-etiket-kose)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {x}
+              </span>
+            ))}
+          </span>
+        ) : satir.length && o.alt ? (
           <span
             style={{
-              display: 'block',
-              fontSize: o.alt,
-              fontWeight: 600,
-              color: colors.muted,
-              marginTop: 4,
-              whiteSpace: 'nowrap',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
-              textOverflow: 'ellipsis',
+              fontSize: o.alt,
+              fontWeight: 700,
+              lineHeight: 1.3,
+              color: colors.inkSoft,
+              marginTop: 3,
             }}
           >
-            {alt}
+            {satir.join(' · ')}
           </span>
         ) : null}
       </span>
