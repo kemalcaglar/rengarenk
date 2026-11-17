@@ -318,3 +318,116 @@ describe('talep görseli (sahip isteği, 17 Kasım 2026; Karar 34)', () => {
     expect(bekleyen.hedefler.some((h: { seriesId: string }) => h.seriesId === seri.id)).toBe(true);
   });
 });
+
+describe('teknik özellik bildirimi ve elle düzeltme (sahip isteği, 17 Kasım 2026)', () => {
+  it('kullanıcı yanlış bildirir, konsola düşer; düzeltme talep sayfasında kaynağın yerine geçer, kaldırılınca geri döner', async () => {
+    const owner = (await loginAs(app, await createStaff(db, 'OWNER'))).token;
+    const model = await db.catalogModel.findUniqueOrThrow({ where: { key: 'bmw/3-serisi/320i' } });
+    // Türkiye'de satılan bir 320i tipi (TSB), teknik kaynağı yok
+    await db.catalogVariant.create({
+      data: {
+        id: uuidv7(),
+        source: 'tsb',
+        sourceKey: 'test-320i',
+        makeId: model.makeId,
+        seriesId: model.seriesId,
+        modelId: model.id,
+        categories: ['otomobil'],
+        years: [2020, 2021, 2022],
+        rawName: '320I',
+        confidence: 'yuksek',
+        firstVersion: 't',
+        lastVersion: 't',
+      },
+    });
+    const t = await talep(
+      '3-serisi',
+      '320i',
+      { butce: { max: 2_000_000 }, yil: { min: 2020, max: 2022 } },
+      { il: 'Bursa' },
+    );
+    const motorlar = async () =>
+      (await call(app, 'GET', `/talepler/${t.no}`)).body.gorunum.alternatifler[0].motorlar;
+    // Kaynakta bilgi yok: sürüm gösterilmez
+    expect(await motorlar()).toEqual([]);
+
+    const okuyan = (await uyeOl(app, '+905327779001')).accessToken as string;
+    const bildir = (b: object) => call(app, 'POST', '/demands/teknik-bildir', b, okuyan);
+    expect((await bildir({ no: t.no, motor: 'bmw/5-serisi/520i', not: 'Güç yanlış yazıyor' })).status).toBe(
+      400,
+    );
+    expect((await bildir({ no: t.no, motor: model.key, alan: 'uydurma', not: 'Güç yanlış' })).status).toBe(
+      400,
+    );
+    const r = await bildir({ no: t.no, motor: model.key, alan: 'hp', not: 'Güç 184 hp olmalı' });
+    expect(r.status).toBe(201);
+    expect((await bildir({ no: t.no, motor: model.key, not: 'Yine yanlış' })).status).toBe(409);
+    expect(await db.outboxEvent.count({ where: { type: 'katalog.teknik_bildirildi' } })).toBe(1);
+
+    const kuyruk = (await staffCall(app, 'GET', '/staff/catalog/teknik/bildirimler', undefined, owner)).body;
+    expect(kuyruk[0]).toMatchObject({
+      talep: t.no,
+      motor: '320i',
+      alan: 'hp',
+      alanAd: 'Güç',
+      not: 'Güç 184 hp olmalı',
+      modelId: model.id,
+    });
+    expect((await staffCall(app, 'GET', '/staff/me', undefined, owner)).body.openSpecReports).toBe(1);
+
+    // Elle düzeltme: alan tanımına göre denetlenir; bildirimle birlikte kapanır
+    const ekle = (b: object) => staffCall(app, 'POST', `/staff/catalog/teknik/model/${model.id}`, b, owner);
+    expect((await ekle({ degerler: { hp: [190, 180] } })).status).toBe(400);
+    expect((await ekle({ degerler: { cekisler: ['ucan'] } })).status).toBe(400);
+    expect((await ekle({ degerler: { vitesler: ['8 ileri'] } })).status).toBe(400);
+    const d = await ekle({
+      yilBas: 2019,
+      yilSon: 2022,
+      degerler: { hp: [184, 184], vitesler: ['otomatik:8'], cekisler: ['arkadan'] },
+      bildirim: r.body.id,
+    });
+    expect(d.status).toBe(200);
+    expect((await db.catalogSpecReport.findUniqueOrThrow({ where: { id: r.body.id } })).status).toBe(
+      'duzeltildi',
+    );
+    expect(await motorlar()).toEqual([
+      {
+        ad: '320i',
+        model: model.key,
+        ozet: expect.objectContaining({
+          hp: [184, 184],
+          vitesler: ['otomatik:8'],
+          cekisler: ['arkadan'],
+          kaynaklar: ['manuel'],
+        }),
+      },
+    ]);
+    // Başka yılların düzeltmesi uygulanmaz
+    await ekle({ yilBas: 2010, yilSon: 2012, degerler: { hp: [150, 150] } });
+    expect((await motorlar())[0].ozet.hp).toEqual([184, 184]);
+    const m = (
+      await staffCall(
+        app,
+        'GET',
+        `/staff/catalog/teknik/model/${model.id}?yilBas=2020&yilSon=2022`,
+        undefined,
+        owner,
+      )
+    ).body;
+    expect(m).toMatchObject({ ad: '320i', kaynak: null, sonuc: { hp: [184, 184] } });
+    expect(m.duzeltmeler).toHaveLength(2);
+    expect(
+      (await staffCall(app, 'GET', `/staff/catalog/teknik/seri/${model.seriesId}`, undefined, owner)).body,
+    ).toEqual([expect.objectContaining({ id: model.id, ad: '320i', yillar: [2020, 2022], duzeltme: 2 })]);
+
+    // Kaldırılınca düzeltme düşer (kayıt silinmez)
+    expect(
+      (await staffCall(app, 'POST', `/staff/catalog/teknik/duzeltme/${d.body.id}/kaldir`, {}, owner)).status,
+    ).toBe(200);
+    expect(await motorlar()).toEqual([]);
+    expect((await db.catalogSpecOverride.findUniqueOrThrow({ where: { id: d.body.id } })).status).toBe(
+      'kaldirildi',
+    );
+    await expect(db.catalogSpecOverride.delete({ where: { id: d.body.id } })).rejects.toThrow();
+  });
+});

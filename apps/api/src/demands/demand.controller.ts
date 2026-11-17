@@ -22,11 +22,13 @@ import {
   demandUpdateSchema,
   FLAG_PLATFORMS,
   type FlagPlatform,
+  TEKNIK_ALANLARI,
 } from '@rengarenk/shared';
 import { z } from 'zod';
 import { AnalyticsService } from '../analytics/analytics.service.js';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { type AccessClaims, AuthService } from '../auth/auth.service.js';
+import { TeknikDuzeltmeService } from '../catalog/teknik-duzeltme.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
 import { DemandSearchService } from '../search/demand-search.service.js';
 import { DemandService } from './demand.service.js';
@@ -41,6 +43,20 @@ type AuthedRequest = { user: AccessClaims; ip: string };
 type AnyRequest = { ip: string; headers: Record<string, string | string[] | undefined> };
 
 const listQuery = demandSearchQuerySchema;
+
+/** Teknik özellik "yanlış" bildirimi (sahip isteği, 17 Kasım 2026) */
+const teknikBildirSchema = z
+  .object({
+    no: z.number().int().positive(),
+    /** Sürümün katalog anahtarı (talep sayfası `motorlar[].model`) */
+    motor: z.string().min(3).max(200),
+    alan: z
+      .enum(TEKNIK_ALANLARI.map((a) => a.key) as [string, ...string[]])
+      .nullable()
+      .optional(),
+    not: z.string().trim().min(5, 'Neyin yanlış olduğunu kısaca yaz').max(1000),
+  })
+  .strict();
 
 /** Herkese açık talep sayfası; jeton varsa izin verilen telefon numarası görünür (Karar 11.4). */
 @Controller('talepler')
@@ -126,11 +142,21 @@ export class DemandsController {
   constructor(
     private readonly demands: DemandService,
     private readonly asistan: DemandAssistant,
+    private readonly teknik: TeknikDuzeltmeService,
   ) {}
 
   @Get('mine')
   mine(@Req() req: AuthedRequest) {
     return this.demands.mine(req.user.sub);
+  }
+
+  /** Teknik özellik yanlış bildirimi: konsolda Katalog › Teknik özellikler kuyruğuna düşer */
+  @Post('teknik-bildir')
+  teknikBildir(
+    @Req() req: AuthedRequest,
+    @Body(new ZodPipe(teknikBildirSchema)) body: z.output<typeof teknikBildirSchema>,
+  ) {
+    return this.teknik.bildir(req.user.sub, body, req.ip);
   }
 
   @Get('rights')

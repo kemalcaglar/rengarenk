@@ -12,7 +12,7 @@ import {
 } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, Linking, Pressable, ScrollView, Share, View } from 'react-native';
+import { Image, Linking, Modal, Pressable, ScrollView, Share, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AciklamaGoster } from '../../components/aciklama';
 import { AracKapak } from '../../components/arac-kapak';
@@ -73,7 +73,7 @@ interface Talep {
       teknik: { label: string; value: string }[];
       teknikOrnek: string | null;
       /** Ayrıntılı teknik özellikler, motor sürümü başına */
-      motorlar?: { ad: string; ozet: TeknikOzet }[];
+      motorlar?: { ad: string; model?: string; ozet: TeknikOzet }[];
     }[];
   };
   owner: {
@@ -104,6 +104,8 @@ export default function TalepDetay() {
   const [hata, setHata] = useState<string | null>(null);
   const [alt, setAlt] = useState(0);
   const [sekme, setSekme] = useState<'aciklama' | 'teknik'>('aciklama');
+  /** Fotoğraf tam ekran */
+  const [buyuk, setBuyuk] = useState(false);
   const [sikayet, setSikayet] = useState(false);
   // İlk mesaj (Karar 08, 11): yazıldıysa sohbete gider
   const [mesaj, setMesaj] = useState<{
@@ -272,9 +274,52 @@ export default function TalepDetay() {
       </View>
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
         <Banner yer="talep_detay" style={{ marginBottom: 12 }} />
+        {foto ? (
+          <Modal visible={buyuk} animationType="fade" onRequestClose={() => setBuyuk(false)} transparent>
+            <View style={{ flex: 1, backgroundColor: 'rgba(14,17,26,0.96)' }}>
+              {/* iOS'ta iki parmakla yakınlaştırılır; Android'de tam ekran sığdırır */}
+              <ScrollView
+                maximumZoomScale={4}
+                minimumZoomScale={1}
+                centerContent
+                contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}
+              >
+                <Image
+                  source={{ uri: `${API}${foto.url}` }}
+                  style={{ width: '100%', aspectRatio: 3 / 2 }}
+                  resizeMode="contain"
+                  accessibilityLabel="Temsilî fotoğraf"
+                />
+              </ScrollView>
+              <T style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12, textAlign: 'center', padding: 16 }}>
+                Temsilî fotoğraf; satıcının aracı değildir. {foto.caption.replace(' · temsilî görsel', '')}
+              </T>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Kapat"
+                onPress={() => setBuyuk(false)}
+                hitSlop={10}
+                style={{
+                  position: 'absolute',
+                  top: 48,
+                  right: 16,
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                  backgroundColor: 'rgba(255,255,255,0.16)',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <T style={{ color: '#FFFFFF', fontSize: 22, lineHeight: 24 }}>×</T>
+              </Pressable>
+            </View>
+          </Modal>
+        ) : null}
+        {/* Fotoğraf kırpılmadan sığar (kenarlar bulanık kopyayla dolar), dokununca tam ekran büyür (sahip isteği) */}
         <View
           style={{
-            height: 190,
+            aspectRatio: 16 / 9,
             borderRadius: kartOran(16),
             overflow: 'hidden',
             backgroundColor: '#DCE3F0',
@@ -282,12 +327,24 @@ export default function TalepDetay() {
           }}
         >
           {foto ? (
-            <Image
-              source={{ uri: `${API}${foto.url}` }}
-              style={{ position: 'absolute', inset: 0 }}
-              resizeMode="cover"
-              accessibilityLabel="Temsilî fotoğraf"
-            />
+            <Pressable
+              accessibilityRole="imagebutton"
+              accessibilityLabel="Temsilî fotoğraf, büyütmek için dokun"
+              onPress={() => setBuyuk(true)}
+              style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
+            >
+              <Image
+                source={{ uri: `${API}${foto.url}` }}
+                style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, opacity: 0.6 }}
+                resizeMode="cover"
+                blurRadius={18}
+              />
+              <Image
+                source={{ uri: `${API}${foto.url}` }}
+                style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
+                resizeMode="contain"
+              />
+            </Pressable>
           ) : (
             <AracKapak
               boyut="buyuk"
@@ -513,6 +570,7 @@ export default function TalepDetay() {
             />
           ) : (
             <TeknikTablo
+              talepNo={t.no}
               motorlar={g?.motorlar ?? []}
               not={[
                 t.data.alternatifler.length > 1 ? `Alternatif ${alt + 1}` : null,

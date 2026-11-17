@@ -227,3 +227,123 @@ export function teknikBolumleri(o: TeknikOzet): TeknikBolum[] {
 /** Teknik değerlerin kaynağı (kullanıcıya gösterilen not) */
 export const TEKNIK_KAYNAK =
   'Avrupa onay değerleri (ADEME, Fransa) ve vehicle-makes-models motor kayıtları; Türkiye’de satılan sürümle eşleşir';
+
+// ── Elle düzeltme (sahip isteği, 17 Kasım 2026) ───────────────────────────────
+
+/** Boş özet: kaynaklarda bilgisi olmayan sürüme elle değer eklenirken taban */
+export const bosOzet = (): TeknikOzet => ({
+  vitesler: [],
+  kw: null,
+  hp: null,
+  tuketim: null,
+  co2: null,
+  agirlik: null,
+  euro: [],
+  surum: 0,
+});
+
+type AralikAlani = {
+  [K in keyof TeknikOzet]-?: NonNullable<TeknikOzet[K]> extends [number, number] ? K : never;
+}[keyof TeknikOzet];
+type ListeAlani = {
+  [K in keyof TeknikOzet]-?: NonNullable<TeknikOzet[K]> extends string[] ? K : never;
+}[keyof TeknikOzet];
+
+export interface TeknikAlan {
+  key: AralikAlani | ListeAlani;
+  ad: string;
+  /** aralik: "150" ya da "150–170"; liste: virgülle ayrılmış değerler; secim: listeden */
+  tur: 'aralik' | 'liste' | 'secim';
+  birim?: string;
+  basamak?: number;
+  secenekler?: readonly (readonly [string, string])[];
+  ipucu?: string;
+}
+
+/** Konsolda elle düzeltilebilen alanlar, talep sayfasındaki bölüm sırasıyla */
+export const TEKNIK_ALANLARI: readonly TeknikAlan[] = [
+  { key: 'hacimCc', ad: 'Motor hacmi', tur: 'aralik', birim: 'cm³' },
+  { key: 'silindirler', ad: 'Silindir', tur: 'liste', ipucu: 'L4, V6, H4' },
+  { key: 'hp', ad: 'Güç', tur: 'aralik', birim: 'hp' },
+  { key: 'kw', ad: 'Güç (kW)', tur: 'aralik' },
+  { key: 'tork', ad: 'Tork', tur: 'aralik', birim: 'Nm' },
+  { key: 'yakitSistemleri', ad: 'Yakıt sistemi', tur: 'liste', ipucu: 'Turbo direkt enjeksiyon' },
+  { key: 'hizlanma', ad: '0-100 km/s', tur: 'aralik', birim: 'sn', basamak: 1 },
+  { key: 'azamiHiz', ad: 'Azami hız', tur: 'aralik', birim: 'km/s' },
+  { key: 'vitesler', ad: 'Vites', tur: 'liste', ipucu: 'manuel:6, otomatik:7, yari_otomatik:6' },
+  {
+    key: 'cekisler',
+    ad: 'Çekiş',
+    tur: 'secim',
+    secenekler: Object.entries(CEKIS) as [string, string][],
+  },
+  { key: 'tuketimSehir', ad: 'Şehir içi tüketim', tur: 'aralik', birim: 'l/100 km', basamak: 1 },
+  { key: 'tuketimSehirDisi', ad: 'Şehir dışı tüketim', tur: 'aralik', birim: 'l/100 km', basamak: 1 },
+  { key: 'tuketim', ad: 'Karma tüketim', tur: 'aralik', birim: 'l/100 km', basamak: 1 },
+  { key: 'co2', ad: 'CO₂', tur: 'aralik', birim: 'g/km' },
+  { key: 'euro', ad: 'Emisyon normu', tur: 'liste', ipucu: '6d, 6' },
+  { key: 'depo', ad: 'Yakıt deposu', tur: 'aralik', birim: 'l' },
+  { key: 'menzil', ad: 'Menzil', tur: 'aralik', birim: 'km' },
+  { key: 'batarya', ad: 'Batarya', tur: 'aralik', birim: 'kWh', basamak: 1 },
+  {
+    key: 'govdeler',
+    ad: 'Kasa tipi',
+    tur: 'secim',
+    secenekler: Object.entries(GOVDE) as [string, string][],
+  },
+  { key: 'uzunluk', ad: 'Uzunluk', tur: 'aralik', birim: 'mm' },
+  { key: 'genislik', ad: 'Genişlik', tur: 'aralik', birim: 'mm' },
+  { key: 'yukseklik', ad: 'Yükseklik', tur: 'aralik', birim: 'mm' },
+  { key: 'dingil', ad: 'Dingil mesafesi', tur: 'aralik', birim: 'mm' },
+  { key: 'yerden', ad: 'Yerden yükseklik', tur: 'aralik', birim: 'mm' },
+  { key: 'bagaj', ad: 'Bagaj hacmi', tur: 'aralik', birim: 'l' },
+  { key: 'agirlik', ad: 'Boş ağırlık', tur: 'aralik', birim: 'kg' },
+  { key: 'azamiAgirlik', ad: 'Azami yüklü ağırlık', tur: 'aralik', birim: 'kg' },
+  { key: 'donme', ad: 'Dönüş çapı', tur: 'aralik', birim: 'm', basamak: 1 },
+  { key: 'cd', ad: 'Sürtünme katsayısı (Cd)', tur: 'aralik', basamak: 2 },
+  { key: 'lastikler', ad: 'Lastik ölçüsü', tur: 'liste', ipucu: '205/55 R16' },
+  { key: 'frenOn', ad: 'Ön fren', tur: 'liste' },
+  { key: 'frenArka', ad: 'Arka fren', tur: 'liste' },
+];
+
+/** Elle düzeltme değerleri: alan → aralık ya da liste (yazılmayan alan kaynaklardan gelir) */
+export type TeknikDuzeltme = Partial<Record<TeknikAlan['key'], [number, number] | string[]>>;
+
+/** "150", "1,5–1,7", "150-170" → [a, b]; okunamazsa null */
+export function aralikOku(metin: string): [number, number] | null {
+  const sayi = (s: string) => {
+    const t = s.trim().replace(/\s/g, '');
+    // Binlik nokta ("1.598") ve ondalık virgül ("1,5")
+    const n = Number(/^\d{1,3}(\.\d{3})+$/.test(t) ? t.replace(/\./g, '') : t.replace(',', '.'));
+    return Number.isFinite(n) && t !== '' ? n : null;
+  };
+  const p = metin.split(/\s*[–—-]\s*/).filter((x) => x.trim() !== '');
+  if (p.length < 1 || p.length > 2) return null;
+  const a = sayi(p[0] as string);
+  const b = p.length === 2 ? sayi(p[1] as string) : a;
+  if (a === null || b === null || a < 0 || b < a) return null;
+  return [a, b];
+}
+
+/** Konsoldaki kutuda gösterilen değer: [150, 170] → "150–170" */
+export function aralikMetni(a: [number, number] | null | undefined, basamak = 0): string {
+  if (!a) return '';
+  const f = (n: number) => sayi(n, basamak).replace(/\./g, '');
+  return a[0] === a[1] ? f(a[0]) : `${f(a[0])}–${f(a[1])}`;
+}
+
+/**
+ * Elle düzeltmeyi özete uygular: yazılan alan kaynaklardaki değerin yerine geçer, kaynaklara "manuel" eklenir.
+ * Birden çok düzeltme sırayla uygulanır (sonraki önce gelenin üstüne yazar).
+ */
+export function duzeltmeUygula(
+  o: TeknikOzet | null | undefined,
+  duzeltmeler: readonly TeknikDuzeltme[],
+): TeknikOzet | null {
+  if (!duzeltmeler.length) return o ?? null;
+  const out: TeknikOzet = { ...(o ?? bosOzet()) };
+  const yaz = out as unknown as Record<string, unknown>;
+  for (const d of duzeltmeler) for (const [k, v] of Object.entries(d)) if (v !== undefined) yaz[k] = v;
+  out.kaynaklar = [...new Set([...(out.kaynaklar ?? []), 'manuel'])];
+  return out;
+}

@@ -14,6 +14,7 @@ import { AciklamaGoster } from '../../../../components/aciklama';
 import { AracKapak } from '../../../../components/arac-kapak';
 import { AracSemasiGorunum } from '../../../../components/arac-semasi';
 import { Banner } from '../../../../components/banner';
+import { GorselBuyut } from '../../../../components/gorsel-buyut';
 import { IlkMesaj } from '../../../../components/ilk-mesaj';
 import { Sikayet } from '../../../../components/sikayet';
 import { TeknikTablo } from '../../../../components/teknik-tablo';
@@ -62,7 +63,7 @@ export interface TalepVeri {
       teknik: { label: string; value: string }[];
       teknikOrnek: string | null;
       /** Ayrıntılı teknik özellikler, motor sürümü başına */
-      motorlar?: { ad: string; ozet: TeknikOzet }[];
+      motorlar?: { ad: string; model?: string; ozet: TeknikOzet }[];
     }[];
   };
   owner: {
@@ -147,6 +148,8 @@ export function TalepDetay({
   const giris = useGiris();
   const [alt, setAlt] = useState(0);
   const [sekme, setSekme] = useState<'aciklama' | 'teknik'>('aciklama');
+  /** Fotoğraf büyütüldü (tam ekran) */
+  const [buyuk, setBuyuk] = useState(false);
   const [sahip, setSahip] = useState(t.owner);
   const [goster, setGoster] = useState(false);
   const [paylasildi, setPaylasildi] = useState(false);
@@ -471,18 +474,21 @@ export function TalepDetay({
             <h2 id="gorsel" className="sr-only">
               Araç görseli
             </h2>
+            {/* Görsel alanı kartın üst kısmını kaplar; fotoğraf kırpılmadan sığar ve tıklanınca büyür (sahip isteği) */}
             <div
               style={{
                 position: 'relative',
                 background: '#EEF3FF',
-                padding: '40px 24px 28px',
-                display: 'flex',
-                justifyContent: 'center',
+                aspectRatio: '16 / 9',
+                maxHeight: 460,
+                width: '100%',
+                overflow: 'hidden',
               }}
             >
               <span
                 style={{
                   position: 'absolute',
+                  zIndex: 2,
                   top: 16,
                   left: 16,
                   background: 'var(--rr-kart, #FFFFFF)',
@@ -501,6 +507,7 @@ export function TalepDetay({
                 <span
                   style={{
                     position: 'absolute',
+                    zIndex: 2,
                     top: 16,
                     right: 16,
                     background: 'var(--rr-kart, #FFFFFF)',
@@ -515,30 +522,82 @@ export function TalepDetay({
                 </span>
               ) : null}
               {foto ? (
-                // biome-ignore lint/performance/noImgElement: katalog görseli API'den akar; Next görüntü iyileştirmesi gerekmez
-                <img
-                  src={`${API}${foto.url}`}
-                  alt={`${[k.marka, k.seri].filter(Boolean).join(' ')} temsilî fotoğraf`}
+                <button
+                  type="button"
+                  onClick={() => setBuyuk(true)}
+                  aria-label="Fotoğrafı büyüt"
                   style={{
-                    width: 560,
-                    maxWidth: '100%',
-                    aspectRatio: '560 / 206',
-                    objectFit: 'cover',
-                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                  }}
-                />
-              ) : (
-                <span
-                  style={{
-                    display: 'block',
-                    flex: 'none',
-                    width: 560,
-                    maxWidth: '100%',
-                    aspectRatio: '560 / 206',
-                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                    overflow: 'hidden',
+                    position: 'absolute',
+                    inset: 0,
+                    padding: 0,
+                    border: 0,
+                    background: 'transparent',
+                    cursor: 'zoom-in',
                   }}
                 >
+                  {/* Kenar boşlukları fotoğrafın bulanık kopyasıyla dolar: alan hiç boş görünmez */}
+                  {/* biome-ignore lint/performance/noImgElement: katalog görseli API'den akar */}
+                  <img
+                    src={`${API}${foto.url}`}
+                    alt=""
+                    aria-hidden="true"
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      filter: 'blur(22px) saturate(1.1)',
+                      transform: 'scale(1.15)',
+                      opacity: 0.6,
+                    }}
+                  />
+                  {/* biome-ignore lint/performance/noImgElement: katalog görseli API'den akar */}
+                  <img
+                    src={`${API}${foto.url}`}
+                    alt={`${[k.marka, k.seri].filter(Boolean).join(' ')} temsilî fotoğraf`}
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                    }}
+                  />
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      position: 'absolute',
+                      right: 14,
+                      bottom: 14,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      background: 'rgba(30,35,51,0.62)',
+                      color: '#FFFFFF',
+                      fontSize: 12.5,
+                      fontWeight: 700,
+                      padding: '6px 10px',
+                      borderRadius: 'var(--rr-etiket-kose)',
+                    }}
+                  >
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.2"
+                      strokeLinecap="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                    </svg>
+                    Büyüt
+                  </span>
+                </button>
+              ) : (
+                <span style={{ position: 'absolute', inset: 0 }}>
                   <AracKapak
                     boyut="buyuk"
                     marka={k.marka}
@@ -557,6 +616,14 @@ export function TalepDetay({
                 </span>
               )}
             </div>
+            {buyuk && foto ? (
+              <GorselBuyut
+                src={`${API}${foto.url}`}
+                alt={`${[k.marka, k.seri].filter(Boolean).join(' ')} temsilî fotoğraf`}
+                altyazi={`Temsilî fotoğraf; satıcının aracı değildir. ${foto.caption.replace(' · temsilî görsel', '')}`}
+                kapat={() => setBuyuk(false)}
+              />
+            ) : null}
             <div
               style={{
                 display: 'flex',
@@ -710,6 +777,7 @@ export function TalepDetay({
             ) : (
               <div role="tabpanel" id="panel-teknik" aria-labelledby="sekme-teknik">
                 <TeknikTablo
+                  talepNo={t.no}
                   motorlar={g?.motorlar ?? []}
                   not={[
                     t.data.alternatifler.length > 1 ? altAd : null,

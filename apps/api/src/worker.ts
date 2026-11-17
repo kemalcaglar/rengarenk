@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { TEKNIK_ALANLARI } from '@rengarenk/shared';
 import { AdsService } from './ads/ads.service.js';
 import { AgentService } from './agent/agent.service.js';
 import { AnalyticsService } from './analytics/analytics.service.js';
@@ -141,6 +142,32 @@ await queue.consume<{ demandId: string }>(
       dedupe: demandId,
       title: `Talep #${g.no} görselsiz yayına girdi: ${g.arac}`,
       body: `${g.arac} için katalogda fotoğraf yok; talep şimdilik marka ve model kapağıyla görünüyor. Katalog › Araç görselleri › Görsel bekleyen talepler bölümünden Commons adaylarından birini seç ya da fotoğrafı kaynağı ve lisansıyla yükle.`,
+    });
+  },
+);
+// Teknik özellik "yanlış" bildirimi: katalog sorumlusuna uyarı (Katalog › Teknik özellikler)
+await queue.consume<{ reportId: string }>(
+  'katalog.teknik_bildirildi',
+  'uyari-teknik-bildirim',
+  async ({ reportId }) => {
+    const r = await db.catalogSpecReport.findUnique({
+      where: { id: reportId },
+      select: {
+        motor: true,
+        field: true,
+        demand: { select: { no: true } },
+        model: { select: { series: { select: { name: true, make: { select: { name: true } } } } } },
+      },
+    });
+    if (!r) return;
+    const arac = [r.model?.series?.make.name, r.model?.series?.name, r.motor].filter(Boolean).join(' ');
+    const alan = TEKNIK_ALANLARI.find((a) => a.key === r.field)?.ad;
+    await uyarilar.raise('teknik_hata', {
+      dedupe: reportId,
+      title: `Teknik özellik bildirimi: ${arac}`,
+      // Kullanıcının yazdığı açıklama uyarıya yazılmaz (kişisel veri olabilir); konsolda okunur
+      body: `Talep #${Number(r.demand.no)} sayfasında ${arac}${alan ? ` için "${alan}"` : ''} değerinin yanlış olduğu bildirildi. Katalog › Teknik özellikler bölümünden bakıp düzeltebilir ya da reddedebilirsin.`,
+      link: '/teknik-ozellikler',
     });
   },
 );

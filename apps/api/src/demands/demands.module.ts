@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuditService } from '../audit/audit.service.js';
 import { AuthModule } from '../auth/auth.module.js';
+import { TeknikDuzeltmeService } from '../catalog/teknik-duzeltme.service.js';
 import { EntitlementsModule } from '../entitlements/entitlements.module.js';
 import { FlagsModule } from '../flags/flags.module.js';
 import { ModerationCoreModule, ModerationServiceModule } from '../moderation/moderation.module.js';
@@ -23,7 +24,14 @@ import { FavoritesService } from './favorites.service.js';
     FlagsModule,
   ],
   controllers: [DemandsController, PublicDemandsController, FavoritesController, SavedSearchesController],
-  providers: [DemandService, DemandAssistant, FavoritesService, AuditService, OutboxService],
+  providers: [
+    DemandService,
+    DemandAssistant,
+    FavoritesService,
+    TeknikDuzeltmeService,
+    AuditService,
+    OutboxService,
+  ],
   exports: [DemandService],
 })
 export class DemandsModule {}

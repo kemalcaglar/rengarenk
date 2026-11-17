@@ -100,6 +100,11 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
   sorumlusuna uyarı gider. Konsolda Commons'ta kategoriyle aday arama, elle yükleme (kaynak, yazar, lisans zorunlu),
   seçili fotoğrafı değiştirme ve kaldırma, "Araç ara" ile her modelin bütün görsel yerleri. İşçi, görsel bekleyen
   modeller için Commons'ta "Marka Seri" kategorisine kendiliğinden bakar.
+- Teknik özellik bildirimi ve elle düzeltme (17 Kasım 2026, sahip isteği): talep sayfasının teknik sekmesinde "Bir değer
+  yanlış mı? Bildir"; bildirim konsolda Katalog › Teknik özellikler'e düşer, uyarı gider. Konsolda motor sürümü başına
+  değer düzeltme ya da ekleme (yıl aralığıyla); düzeltme hemen görünür, kaldırınca kaynaktaki değer döner.
+- Talep sayfasında fotoğraf alana kırpılmadan sığar ve tıklanınca tam ekran büyür (web; mobilde dokununca tam ekran).
+- Konsol menüsü Katalog'da "Araç görselleri" (görselsiz talep sayısı) ve "Teknik özellikler" (açık bildirim sayısı).
 - Kartlarda fiyat tam yazılır (17 Kasım 2026, sahip isteği): "1.000.200 TL", kısaltma ("1 mn TL") yok.
 - Talep sihirbazı (web ve mobil), yaşam döngüsü ve süreler, ilk talep ücretsiz (numara ve hesap başına bir kez).
 - Liste ve arama (OpenSearch), il/ilçe ve komşu il, talep detayı, favoriler, kayıtlı aramalar.

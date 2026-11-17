@@ -112,6 +112,10 @@ export class StaffMeController {
       }),
       /** Menüde Araç görselleri rozeti: görsel bekleyen yayındaki talepler (sahip isteği, 17 Kasım 2026) */
       pendingImages: req.staff.grants['kategori.ayarla'] ? await this.search.gorselsizSayisi() : 0,
+      /** Menüde Teknik özellikler rozeti: açık "yanlış" bildirimleri (sahip isteği, 17 Kasım 2026) */
+      openSpecReports: req.staff.grants['kategori.ayarla']
+        ? await this.db.catalogSpecReport.count({ where: { status: 'acik' } })
+        : 0,
       /** Menüde Galeri başvuruları rozeti: insan kararı bekleyenler (Karar 03) */
       pendingGalleryApplications: satisfies(req.staff.grants['galeri_basvuru.onayla'], 'tam')
         ? await this.db.galleryApplication.count({

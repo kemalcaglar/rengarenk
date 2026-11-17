@@ -1,7 +1,16 @@
-import { colors, TEKNIK_KAYNAK, type TeknikOzet, teknikBolumleri } from '@rengarenk/shared';
+import {
+  colors,
+  radii,
+  TEKNIK_ALANLARI,
+  TEKNIK_KAYNAK,
+  type TeknikOzet,
+  teknikBolumleri,
+} from '@rengarenk/shared';
+import { router } from 'expo-router';
 import { useState } from 'react';
-import { View } from 'react-native';
-import { T } from './t';
+import { Pressable, View } from 'react-native';
+import { useOturum } from '../lib/oturum';
+import { T, TInput } from './t';
 import { Cip } from './talep/ortak';
 
 /**
@@ -12,8 +21,11 @@ import { Cip } from './talep/ortak';
 export function TeknikTablo({
   motorlar,
   not,
+  talepNo,
 }: {
-  motorlar: { ad: string; ozet: TeknikOzet }[];
+  motorlar: { ad: string; model?: string; ozet: TeknikOzet }[];
+  /** Verilirse "Bir değer yanlış mı? Bildir" görünür (sahip isteği, 17 Kasım 2026) */
+  talepNo?: number;
   /** Başlık altı açıklama (ör. "G20 makyajsız kasa, 2019–2022") */
   not?: string | null;
 }) {
@@ -81,8 +93,119 @@ export function TeknikTablo({
         </View>
       ))}
       <T style={{ fontSize: 12, lineHeight: 17, color: colors.muted, marginTop: 14 }}>
-        {TEKNIK_KAYNAK}. Değerler pakete ve model yılına göre değişebilir.
+        {TEKNIK_KAYNAK}.{m.ozet.kaynaklar?.includes('manuel') ? ' Bazı değerler ekibimizce düzeltildi.' : ''}{' '}
+        Değerler pakete ve model yılına göre değişebilir.
       </T>
+      {talepNo && m.model ? <YanlisBildir key={m.model} talepNo={talepNo} motor={m.model} ad={m.ad} /> : null}
+    </View>
+  );
+}
+
+/** Teknik özellik "yanlış" bildirimi (web `YanlisBildir` ile aynı): konsolda Katalog › Teknik özellikler'e düşer */
+function YanlisBildir({ talepNo, motor, ad }: { talepNo: number; motor: string; ad: string }) {
+  const { durum: oturum, istek } = useOturum();
+  const [acik, setAcik] = useState(false);
+  const [alan, setAlan] = useState<string | null>(null);
+  const [not, setNot] = useState('');
+  const [durum, setDurum] = useState<'bos' | 'gonderiliyor' | 'tamam'>('bos');
+  const [hata, setHata] = useState<string | null>(null);
+
+  if (durum === 'tamam')
+    return (
+      <T
+        accessibilityRole="text"
+        style={{ marginTop: 10, fontSize: 13, fontWeight: '700', color: '#11683F' }}
+      >
+        Teşekkürler, bildirimin ekibimize ulaştı.
+      </T>
+    );
+  if (!acik)
+    return (
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => (oturum === 'uye' ? setAcik(true) : router.push('/giris'))}
+        hitSlop={8}
+        style={{ marginTop: 10, alignSelf: 'flex-start' }}
+      >
+        <T style={{ fontSize: 13, fontWeight: '700', color: colors.link }}>Bir değer yanlış mı? Bildir</T>
+      </Pressable>
+    );
+
+  async function gonder() {
+    setHata(null);
+    if (not.trim().length < 5) return setHata('Neyin yanlış olduğunu kısaca yaz');
+    setDurum('gonderiliyor');
+    try {
+      await istek('/demands/teknik-bildir', { method: 'POST', body: { no: talepNo, motor, alan, not } });
+      setDurum('tamam');
+    } catch (err) {
+      setHata((err as Error).message);
+      setDurum('bos');
+    }
+  }
+
+  return (
+    <View
+      style={{
+        marginTop: 10,
+        padding: 12,
+        gap: 8,
+        borderWidth: 1,
+        borderColor: colors.line,
+        borderRadius: radii.buton,
+        backgroundColor: colors.background,
+      }}
+    >
+      <T style={{ fontSize: 13.5, fontWeight: '800' }}>{ad}: hangi değer yanlış?</T>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+        <Cip on={alan === null} onPress={() => setAlan(null)}>
+          Genel
+        </Cip>
+        {TEKNIK_ALANLARI.map((a) => (
+          <Cip key={a.key} on={alan === a.key} onPress={() => setAlan(a.key)}>
+            {a.ad}
+          </Cip>
+        ))}
+      </View>
+      <TInput
+        accessibilityLabel="Açıklama"
+        value={not}
+        onChangeText={setNot}
+        multiline
+        maxLength={1000}
+        placeholder="Ör. Güç 184 hp olmalı, ruhsatta öyle yazıyor"
+        style={{
+          minHeight: 70,
+          borderWidth: 1,
+          borderColor: colors.line,
+          borderRadius: radii.buton,
+          padding: 10,
+          fontSize: 14,
+          textAlignVertical: 'top',
+          backgroundColor: colors.surface,
+        }}
+      />
+      {hata ? <T style={{ fontSize: 12.5, color: '#A3271F', fontWeight: '600' }}>{hata}</T> : null}
+      <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
+        <Pressable
+          accessibilityRole="button"
+          disabled={durum === 'gonderiliyor'}
+          onPress={gonder}
+          style={{
+            backgroundColor: colors.blue,
+            paddingVertical: 9,
+            paddingHorizontal: 16,
+            borderRadius: radii.buton,
+          }}
+        >
+          <T style={{ fontSize: 13.5, fontWeight: '700', color: colors.onBlue }}>
+            {durum === 'gonderiliyor' ? 'Gönderiliyor…' : 'Gönder'}
+          </T>
+        </Pressable>
+        <Pressable accessibilityRole="button" onPress={() => setAcik(false)} hitSlop={8}>
+          <T style={{ fontSize: 13, fontWeight: '700', color: colors.link }}>Vazgeç</T>
+        </Pressable>
+      </View>
     </View>
   );
 }

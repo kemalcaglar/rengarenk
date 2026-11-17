@@ -112,6 +112,7 @@ model User {
   adEvents            AdEvent[]
   priceExposures      PriceExperimentExposure[]
   uiExperimentEvents  UiExperimentEvent[]
+  specReports         CatalogSpecReport[]
 
   @@map("users")
 }
@@ -709,16 +710,16 @@ model CatalogMake {
 
 /// Seri (BMW 3 Serisi, VW Golf). Motosiklet ve ATV'de seri katmanı yoktur.
 model CatalogSeries {
-  id         String   @id @db.Uuid
-  key        String   @unique
-  makeId     String   @map("make_id") @db.Uuid
-  name       String
+  id               String    @id @db.Uuid
+  key              String    @unique
+  makeId           String    @map("make_id") @db.Uuid
+  name             String
   /// Bu serinin tiplerinin girdiği kategoriler (Karar 19 sözlüğü)
-  categories String[]
+  categories       String[]
   /// Wikimedia Commons kategorisi (model geneli fotoğraf adayları; sahip isteği, 17 Kasım 2026) ve son bakılma
   commonsCategory  String?   @map("commons_category")
   commonsCheckedAt DateTime? @map("commons_checked_at") @db.Timestamptz(3)
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
   make        CatalogMake         @relation(fields: [makeId], references: [id])
   models      CatalogModel[]
@@ -820,13 +821,67 @@ model CatalogModel {
   name      String
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  make     CatalogMake      @relation(fields: [makeId], references: [id])
-  series   CatalogSeries?   @relation(fields: [seriesId], references: [id])
-  variants CatalogVariant[]
+  make          CatalogMake           @relation(fields: [makeId], references: [id])
+  series        CatalogSeries?        @relation(fields: [seriesId], references: [id])
+  variants      CatalogVariant[]
+  specOverrides CatalogSpecOverride[]
+  specReports   CatalogSpecReport[]
 
   @@index([seriesId])
   @@index([makeId])
   @@map("catalog_models")
+}
+
+/// Teknik özelliğin elle düzeltilmesi (sahip isteği, 17 Kasım 2026): katalog sorumlusu bir motor sürümünün (model)
+/// değerlerini düzeltir ya da ekler; isteğe bağlı yıl aralığıyla. Yazılan alan kaynaklardaki (ADEME, vehicle-makes-models,
+/// TSB) değerin yerine geçer (`duzeltmeUygula`). Eşleştirme yeniden çalışınca kaybolmaz. Kayıtlar silinmez, kaldırılınca
+/// durumu "kaldirildi" olur.
+model CatalogSpecOverride {
+  id        String    @id @db.Uuid
+  modelId   String    @map("model_id") @db.Uuid
+  yearFrom  Int?      @map("year_from")
+  yearTo    Int?      @map("year_to")
+  /// TeknikDuzeltme: alan → [min, max] ya da metin listesi
+  values    Json
+  note      String?
+  /// aktif | kaldirildi
+  status    String    @default("aktif")
+  createdBy String    @map("created_by") @db.Uuid
+  removedBy String?   @map("removed_by") @db.Uuid
+  removedAt DateTime? @map("removed_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  model CatalogModel @relation(fields: [modelId], references: [id])
+
+  @@index([modelId, status])
+  @@map("catalog_spec_overrides")
+}
+
+/// Kullanıcının "Teknik özellik yanlış" bildirimi (sahip isteği, 17 Kasım 2026): talep sayfasının teknik sekmesinden;
+/// konsolda Katalog › Teknik özellikler kuyruğuna düşer. Bir kullanıcının aynı talepte aynı sürüm için tek açık bildirimi.
+model CatalogSpecReport {
+  id        String    @id @db.Uuid
+  demandId  String    @map("demand_id") @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  modelId   String?   @map("model_id") @db.Uuid
+  /// Talep sayfasında görünen sürüm adı ("320i")
+  motor     String
+  /// Yanlış olduğu söylenen alan (TEKNIK_ALANLARI anahtarı); boşsa genel
+  field     String?
+  /// @pii Kullanıcının yazdığı açıklama (serbest metin; kişisel veri yazılmış olabilir)
+  note      String
+  /// acik | duzeltildi | reddedildi
+  status    String    @default("acik")
+  decidedBy String?   @map("decided_by") @db.Uuid
+  decidedAt DateTime? @map("decided_at") @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  demand Demand        @relation(fields: [demandId], references: [id], onDelete: Restrict)
+  user   User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  model  CatalogModel? @relation(fields: [modelId], references: [id])
+
+  @@index([status, createdAt])
+  @@map("catalog_spec_reports")
 }
 
 /// Donanım paketi (Karar 32): BMW M Sport, VW Highline, Renault Joy. Seri düzeyinde tutulur.
@@ -1005,11 +1060,11 @@ model CatalogVariant {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  make       CatalogMake        @relation(fields: [makeId], references: [id])
-  series     CatalogSeries?     @relation(fields: [seriesId], references: [id])
-  model      CatalogModel       @relation(fields: [modelId], references: [id])
-  trim       CatalogTrim?       @relation(fields: [trimId], references: [id])
-  generation CatalogGeneration? @relation(fields: [generationId], references: [id])
+  make       CatalogMake          @relation(fields: [makeId], references: [id])
+  series     CatalogSeries?       @relation(fields: [seriesId], references: [id])
+  model      CatalogModel         @relation(fields: [modelId], references: [id])
+  trim       CatalogTrim?         @relation(fields: [trimId], references: [id])
+  generation CatalogGeneration?   @relation(fields: [generationId], references: [id])
   specs      CatalogVariantSpec[]
 
   @@unique([source, sourceKey])
@@ -1208,14 +1263,15 @@ model Demand {
   createdAt           DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt           DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
 
-  account       Account           @relation(fields: [accountId], references: [id], onDelete: Restrict)
-  user          User              @relation(fields: [userId], references: [id], onDelete: Restrict)
-  category      Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  account       Account             @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  user          User                @relation(fields: [userId], references: [id], onDelete: Restrict)
+  category      Category            @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   events        DemandEvent[]
   favorites     Favorite[]
   matches       Match[]
   conversations Conversation[]
   promotions    DemandPromotion[]
+  specReports   CatalogSpecReport[]
 
   @@index([accountId, status])
   @@index([status, categoryId, publishedAt])

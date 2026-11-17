@@ -174,6 +174,13 @@ export const STAFF_ALERT_RULES = {
     izin: 'kategori.ayarla',
     yol: '/entegrasyonlar/katalog',
   },
+  teknik_hata: {
+    ad: 'Teknik özellik yanlış bildirimi',
+    kosul: 'Bir kullanıcı talep sayfasında bir aracın teknik özelliğinin yanlış olduğunu bildirirse',
+    kritik: false,
+    izin: 'kategori.ayarla',
+    yol: '/teknik-ozellikler',
+  },
   talep_gorseli: {
     ad: 'Talep görselsiz yayına girdi',
     kosul:

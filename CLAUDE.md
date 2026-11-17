@@ -443,6 +443,15 @@ pnpm format        # Biome ile biçimlendir
   `GORSEL_LISANSLARI`), değiştir (`degistir`), kaldır (`status = kaldirildi`). Fotoğraf değişince aynı işlemde
   `katalog.fotograf_degisti` (işçi serinin taleplerini dizinde yeniler); görselsiz yayına giren talepte `talep_gorseli`
   uyarısı. Kartlarda bütçe tam rakam (`compactBudget` artık kısaltmaz). API'de 241 test.
+- **Teknik özellik bildirimi ve elle düzeltme (17 Kasım 2026, sahip isteği):** talep sayfasının teknik sekmesinde "Bir
+  değer yanlış mı? Bildir" (`POST /demands/teknik-bildir`, `catalog_spec_reports`, olay `katalog.teknik_bildirildi` →
+  `teknik_hata` uyarısı). Konsol Katalog › Teknik özellikler (`/teknik-ozellikler`, uçlar `staff/catalog/teknik/*`,
+  `TeknikDuzeltmeService`): bildirim kuyruğu, araç ara, motor sürümü (model) başına düzeltme ya da ekleme, isteğe bağlı
+  yıl aralığı (`catalog_spec_overrides`, silinmez, kaldırınca `kaldirildi`). Düzeltme okunurken uygulanır:
+  `duzeltmeleri` (`catalog/teknik-duzeltme.ts`) + ortak `duzeltmeUygula`; eşleştirme yeniden çalışınca kaybolmaz. Yeni
+  bir yerde teknik özet gösterirken bunları uygula. Alanlar ortak `TEKNIK_ALANLARI`. Konsol menüsünde Katalog › Araç
+  görselleri ("N görselsiz") ve Teknik özellikler ("N bildirim") rozetli. Talep sayfasında fotoğraf kırpılmadan sığar
+  (kenarlar bulanık kopya), tıklanınca tam ekran (`components/gorsel-buyut.tsx`; mobilde Modal). API'de 242 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

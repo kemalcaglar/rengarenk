@@ -155,6 +155,9 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   geneli, isteğe bağlı yıl aralığı) bağlanır; kasa yoksa yıllara uyan nesil. Fotoğraf yoksa web ve mobilde marka ve model
   kapağı, konsolda "Görsel bekleyen talepler" kuyruğu ve `talep_gorseli` uyarısı. Konsol › Araç görselleri: Commons'ta
   kategoriyle arama, elle yükleme (kaynak, yazar, lisans zorunlu), değiştir, kaldır, araç ara. Kartlarda fiyat tam rakam.
+- [x] Teknik özellik bildirimi ve elle düzeltme (17 Kasım 2026, sahip isteği): talep sayfasında "Bir değer yanlış mı?
+  Bildir", konsol Katalog › Teknik özellikler (kuyruk, araç ara, model ve yıl aralığı başına düzeltme). Talep sayfasında
+  fotoğraf tam sığar ve büyütülür.
 
 ## Sprint 30 · üyelik ve giriş yeniden (Karar 18 ve 50, 12 Kasım 2026)
 

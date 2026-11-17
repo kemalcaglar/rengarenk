@@ -20,6 +20,7 @@ import {
   type DemandTextFlag,
   demandOwnerName,
   demandSchema,
+  duzeltmeUygula,
   EXTEND_WINDOW_DAYS,
   effectiveFields,
   type FoundViaKey,
@@ -35,6 +36,7 @@ import { AuditService } from '../audit/audit.service.js';
 import { sha256 } from '../auth/tokens.js';
 import { CatalogImageService } from '../catalog/catalog-image.service.js';
 import { fotoVerisi, talepFotolari } from '../catalog/talep-foto.js';
+import { duzeltmeleri } from '../catalog/teknik-duzeltme.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { EntitlementService } from '../entitlements/entitlement.service.js';
 import { ContentRulesService } from '../moderation/content-rules.service.js';
@@ -430,8 +432,7 @@ export class DemandService {
     aralik: [number, number] | null,
     paketKeys: string[],
     acik: ReadonlySet<string>,
-  ): Promise<{ ad: string; ozet: TeknikOzet }[]> {
-    if (!acik.size) return [];
+  ): Promise<{ ad: string; model: string; ozet: TeknikOzet }[]> {
     const yillar = aralik
       ? Array.from({ length: Math.min(aralik[1] - aralik[0] + 1, 80) }, (_, i) => aralik[0] + i)
       : null;
@@ -444,21 +445,29 @@ export class DemandService {
         ...(paketKeys.length ? { trim: { key: { in: paketKeys } } } : {}),
       },
       select: {
-        model: { select: { id: true, name: true } },
+        model: { select: { id: true, key: true, name: true } },
         specs: { select: { source: true, summary: true } },
       },
       take: 2000,
     });
-    const grup = new Map<string, { ad: string; ozetler: TeknikOzet[] }>();
+    const grup = new Map<string, { ad: string; key: string; ozetler: TeknikOzet[] }>();
     for (const t of tipler) {
-      const o = teknikOku(t.specs, acik);
-      if (!o?.kaynaklar?.length) continue;
-      const g = grup.get(t.model.id) ?? { ad: t.model.name, ozetler: [] };
-      g.ozetler.push(o);
+      const g = grup.get(t.model.id) ?? { ad: t.model.name, key: t.model.key, ozetler: [] };
+      const o = acik.size ? teknikOku(t.specs, acik) : null;
+      if (o?.kaynaklar?.length) g.ozetler.push(o);
       grup.set(t.model.id, g);
     }
-    return [...grup.values()]
-      .map((g) => ({ ad: g.ad, ozet: ozetBirlestir(g.ozetler) as TeknikOzet }))
+    // Elle düzeltmeler (sahip isteği, 17 Kasım 2026): kaynaktaki değerin yerine geçer; kaynakta bilgisi olmayan
+    // sürüme de değer eklenebilir
+    const duz = await duzeltmeleri(this.db, [...grup.keys()], aralik);
+    return [...grup.entries()]
+      .flatMap(([id, g]) => {
+        const ozet = duzeltmeUygula(
+          g.ozetler.length ? (ozetBirlestir(g.ozetler) as TeknikOzet) : null,
+          duz.get(id) ?? [],
+        );
+        return ozet ? [{ ad: g.ad, model: g.key, ozet }] : [];
+      })
       .sort((a, b) => a.ad.localeCompare(b.ad, 'tr', { numeric: true }));
   }
 

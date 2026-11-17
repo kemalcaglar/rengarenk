@@ -20,7 +20,7 @@ type Item =
       href: string;
       ad: string;
       izin?: Permission;
-      rozet?: 'onay' | 'entegrasyon' | 'basvuru' | 'moderasyon' | 'destek' | 'kvkk' | 'gorsel';
+      rozet?: 'onay' | 'entegrasyon' | 'basvuru' | 'moderasyon' | 'destek' | 'kvkk' | 'gorsel' | 'teknik';
     }
   | { ad: string; sonra: true };
 
@@ -87,6 +87,8 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
         izin: 'kategori.ayarla',
         rozet: 'gorsel',
       },
+      // Kullanıcıların "yanlış" bildirimleri ve elle düzeltme (sahip isteği, 17 Kasım 2026)
+      { href: '/teknik-ozellikler', ad: 'Teknik özellikler', izin: 'kategori.ayarla', rozet: 'teknik' },
       { href: '/eslestirme', ad: 'Eşleştirme ayarı', izin: 'kategori.ayarla' },
     ],
   },
@@ -267,6 +269,14 @@ export function Kabuk({ me: initial, logo, children }: { me: Me; logo: ReactNode
                             title="Görsel bekleyen yayındaki talepler"
                           >
                             {me.pendingImages} görselsiz
+                          </span>
+                        ) : null}
+                        {i.rozet === 'teknik' && (me.openSpecReports ?? 0) > 0 ? (
+                          <span
+                            style={{ fontSize: 11.5, fontWeight: 800, color: '#A3271F' }}
+                            title="Açık teknik özellik bildirimleri"
+                          >
+                            {me.openSpecReports} bildirim
                           </span>
                         ) : null}
                         {i.rozet === 'entegrasyon' && me.integrationWarnings > 0 ? (

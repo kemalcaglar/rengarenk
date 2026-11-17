@@ -65,6 +65,7 @@ export type EventType =
   | 'katalog.kaynak_gecikti'
   | 'katalog.ad_esleme'
   | 'katalog.fotograf_degisti'
+  | 'katalog.teknik_bildirildi'
   // Kategori şeması (Karar 45): yeni sürüm yayına girdi; arama eşlemesi ve önbellekler yenilenir
   | 'kategori.yayinlandi'
   | 'kategori.degisti'

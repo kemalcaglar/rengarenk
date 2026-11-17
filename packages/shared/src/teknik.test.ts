@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { teknikBolumleri, teknikSatirlari, vitesYaz } from './teknik.js';
+import {
+  aralikMetni,
+  aralikOku,
+  bosOzet,
+  duzeltmeUygula,
+  teknikBolumleri,
+  teknikSatirlari,
+  vitesYaz,
+} from './teknik.js';
 
 describe('teknik özet gösterimi', () => {
   it('vites, güç, tüketim, CO2, ağırlık ve Euro normu Türkçe yazılır; aralık ve seçenek korunur', () => {
@@ -77,5 +85,39 @@ describe('ayrıntılı teknik tablo (sahip isteği, 17 Kasım 2026)', () => {
       'Ön fren': 'Havalandırmalı disk',
       Karma: '5,9–6,1 l/100 km',
     });
+  });
+});
+
+describe('elle düzeltme (sahip isteği, 17 Kasım 2026)', () => {
+  it('aralık metni okunur ve yazılır', () => {
+    expect(aralikOku('150')).toEqual([150, 150]);
+    expect(aralikOku('1,5–1,7')).toEqual([1.5, 1.7]);
+    expect(aralikOku('150 - 170')).toEqual([150, 170]);
+    expect(aralikOku('1.598')).toEqual([1598, 1598]);
+    expect(aralikOku('170-150')).toBeNull();
+    expect(aralikOku('yok')).toBeNull();
+    expect(aralikMetni([1598, 1598])).toBe('1598');
+    expect(aralikMetni([9.1, 9.8], 1)).toBe('9,1–9,8');
+  });
+
+  it('düzeltme kaynak değerinin yerine geçer, yazılmayan alan kalır; boş özete eklenebilir', () => {
+    const o = {
+      ...bosOzet(),
+      hp: [150, 150] as [number, number],
+      tork: [250, 250] as [number, number],
+      kaynaklar: ['vmm'],
+    };
+    const d = duzeltmeUygula(o, [{ hp: [156, 156] }, { cekisler: ['onden'] }]);
+    expect(d).toMatchObject({
+      hp: [156, 156],
+      tork: [250, 250],
+      cekisler: ['onden'],
+      kaynaklar: ['vmm', 'manuel'],
+    });
+    expect(duzeltmeUygula(null, [{ hizlanma: [8.9, 8.9] }])).toMatchObject({
+      hizlanma: [8.9, 8.9],
+      surum: 0,
+    });
+    expect(duzeltmeUygula(o, [])).toBe(o);
   });
 });

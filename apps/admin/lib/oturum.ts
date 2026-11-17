@@ -33,6 +33,8 @@ export interface Me {
   integrationWarnings: number;
   /** Görsel bekleyen yayındaki talepler (menüde Araç görselleri rozeti) */
   pendingImages?: number;
+  /** Açık teknik özellik bildirimleri (menüde Teknik özellikler rozeti) */
+  openSpecReports?: number;
   pendingGalleryApplications: number;
   overdueReports: number;
   openSupport: number;

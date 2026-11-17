@@ -12,6 +12,8 @@ import { CATALOG_KEYS, loadCatalogKeys } from './catalog-keys.js';
 import { CatalogPipelineService } from './catalog-pipeline.service.js';
 import { CatalogSpecService } from './catalog-spec.service.js';
 import { COMMONS_CLIENT, HttpCommonsClient } from './commons-client.js';
+import { StaffTeknikController } from './teknik.controller.js';
+import { TeknikDuzeltmeService } from './teknik-duzeltme.service.js';
 import { createTsbClient, TSB_CLIENT } from './tsb-client.js';
 import { HttpVehiclesDbClient, VEHICLESDB_CLIENT } from './vehiclesdb-client.js';
 import { HttpVmmClient, VMM_CLIENT } from './vmm-client.js';
@@ -23,6 +25,7 @@ const providers = [
   CatalogImageService,
   CatalogPipelineService,
   CatalogSpecService,
+  TeknikDuzeltmeService,
   AuditService,
   OutboxService,
   { provide: CATALOG_KEYS, inject: [ENV], useFactory: loadCatalogKeys },
@@ -37,7 +40,7 @@ const providers = [
 /** Araç kataloğu: okuma uçları, konsoldan izleme ve katalog hattı (Aşama 2). */
 @Module({
   imports: [StaffModule],
-  controllers: [CatalogController, StaffCatalogController],
+  controllers: [CatalogController, StaffCatalogController, StaffTeknikController],
   providers,
   exports: [CatalogPipelineService],
 })

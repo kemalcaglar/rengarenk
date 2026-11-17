@@ -18,7 +18,7 @@ import {
 } from '@nestjs/common';
 import { ANA_KATEGORILER, ozetBirlestir, teknikOku } from '@rengarenk/catalog';
 import type { Prisma } from '@rengarenk/db';
-import { GORSEL_LISANSLARI, kasaTipiOf, VEHICLE_CATEGORIES } from '@rengarenk/shared';
+import { duzeltmeUygula, GORSEL_LISANSLARI, kasaTipiOf, VEHICLE_CATEGORIES } from '@rengarenk/shared';
 import { z } from 'zod';
 import { AuditService } from '../audit/audit.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
@@ -29,6 +29,7 @@ import { CatalogAliasService } from './catalog-alias.service.js';
 import { CatalogImageService } from './catalog-image.service.js';
 import { CatalogPipelineService, STALE_HOURS } from './catalog-pipeline.service.js';
 import { makyajFoto } from './photo-pick.js';
+import { duzeltmeleri } from './teknik-duzeltme.js';
 import { XLSX_MIME } from './xlsx-body.js';
 
 const categorySchema = z.enum(VEHICLE_CATEGORIES.map((c) => c.slug) as [string, ...string[]]).optional();
@@ -274,6 +275,12 @@ export class CatalogController {
       return m;
     };
 
+    // Elle düzeltmeler (sahip isteği, 17 Kasım 2026): yıl seçildiyse o yıla uyanlar
+    const duz = await duzeltmeleri(
+      this.db,
+      [...new Set(variants.map((v) => v.model.id))],
+      yil ? [yil, yil] : null,
+    );
     const models = [...group((v) => v.model.id)].map(([mid, vs]) => ({
       id: mid,
       key: vs[0]?.model.key,
@@ -285,11 +292,14 @@ export class CatalogController {
        * Teknik özet (ADEME onay verisi; Türkiye'de satılan tiplerin eşleşen Avrupa sürümleri): vites seçenekleri,
        * güç, karma tüketim, CO2, boş ağırlık. Eşleşen tip yoksa null.
        */
-      teknik: ozetBirlestir(
-        vs.flatMap((v) => {
-          const o = teknikOku(v.specs, teknikAcik);
-          return o?.kaynaklar?.length ? [o] : [];
-        }),
+      teknik: duzeltmeUygula(
+        ozetBirlestir(
+          vs.flatMap((v) => {
+            const o = teknikOku(v.specs, teknikAcik);
+            return o?.kaynaklar?.length ? [o] : [];
+          }),
+        ),
+        duz.get(mid) ?? [],
       ),
     }));
     const bodies = [...group((v) => v.body)].map(([name, vs]) => ({ name, years: yearsOf(vs) }));
