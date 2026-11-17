@@ -17,7 +17,7 @@ import { normalizeHead } from './series.js';
  * Ayrıştırıcı sürümü: kurallar değişince artırılır. Aynı TSB dosyası yeni sürümle yeniden işlenebilir
  * (içe aktarma, aynı dosyayı yalnızca aynı ayrıştırıcı sürümüyle bir kez uygular).
  */
-export const TSB_PARSER = '2026-11-16-4';
+export const TSB_PARSER = '2026-11-16-5';
 
 export type Fuel = 'benzin' | 'dizel' | 'hibrit' | 'elektrik' | 'lpg';
 export type Gearbox = 'manuel' | 'otomatik' | 'yari_otomatik';
@@ -560,7 +560,7 @@ export function smartCase(text: string): string {
       if (isAcronym(up)) return up; // XLV, CTS, LTZ, TT
       if (/\d/.test(w)) return up; // T10X, 3008, 50.
       if (w !== up) return w; // TSB'de zaten karışık yazılmış: eTSI, xDrive
-      return w.toLowerCase().replace(/(^|[-/(+])(\p{L})/gu, (_, p: string, c: string) => p + c.toUpperCase());
+      return kucuk(w).replace(/(^|[-/(+])(\p{L})/gu, (_, p: string, c: string) => p + c.toUpperCase());
     })
     .join(' ');
 }
@@ -600,11 +600,17 @@ export function acronymCase(text: string): string {
     .join(' ');
 }
 
+/**
+ * Küçük harf: eski listelerde Türkçe "İ" geçer ("BİNEK"); toLowerCase onu "i" + birleşik nokta yapar ("bi̇nek").
+ * Nokta atılır. (Türkçe kural "I"yı "ı" yapacağı için kullanılmaz: TSB çoğunlukla "I" yazar.)
+ */
+const kucuk = (t: string) => t.toLowerCase().replace(/\u0307/g, '');
+
 /** TSB büyük harfi Türkçe karakter kullanmaz (I yerine İ yok); karşılaştırma için tek biçim */
 const key = (t: string) => t.toLocaleUpperCase('en-US');
 
 const brandTitle = (b: string) =>
-  b.toLowerCase().replace(/(^|[\s\-/(])(\p{L})/gu, (_, p: string, c: string) => p + c.toUpperCase());
+  kucuk(b).replace(/(^|[\s\-/(])(\p{L})/gu, (_, p: string, c: string) => p + c.toUpperCase());
 
 // ── Ayrıştırma ───────────────────────────────────────────────────
 

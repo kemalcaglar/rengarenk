@@ -9,7 +9,7 @@ export { ANA_LISTE, MARKA_ADI, SERI_KURALLARI };
  * Ana liste ve bağlama kurallarının sürümü. Liste ya da kural değişince artar; bütün katalog kaynakları (TSB, arşiv,
  * vehicle-makes-models, yerli liste, Wikidata) bu sürümle yeniden işlenir.
  */
-export const ANA_LISTE_SURUM = '2026-11-16-7';
+export const ANA_LISTE_SURUM = '2026-11-16-8';
 
 /** Kaynağın ayrıştırıcı sürümü ile ana liste sürümü: biri değişince kaynak yeniden işlenir. */
 export const anaKural = (parser: string) => `${parser}+ana.${ANA_LISTE_SURUM}`;
@@ -85,6 +85,15 @@ function dizinAl(): Dizin {
   for (const [k, ad] of Object.entries(MARKA_ADI)) marka.set(k, ad);
   dizin = { marka, seri };
   return dizin;
+}
+
+/**
+ * Markanın kanonik anahtarı: ana listedeki adı ya da eski TSB yazımının karşılığı ("Fiat/Tofaş" → Fiat), yoksa ad
+ * anahtarı. Arşivde aynı kodlu tipin aynı marka olup olmadığı buna bakılarak anlaşılır.
+ */
+export function markaKanon(ad: string): string {
+  const d = dizinAl();
+  return adAnahtari(d.marka.get(adAnahtari(ad)) ?? ad);
 }
 
 export interface Yerlestirilecek {

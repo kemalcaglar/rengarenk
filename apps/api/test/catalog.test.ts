@@ -1,6 +1,6 @@
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
-import { xlsYaz } from '@rengarenk/catalog';
+import { TSB_ESKI, xlsYaz } from '@rengarenk/catalog';
 import { uuidv7 } from '@rengarenk/db';
 import { strToU8, zipSync } from 'fflate';
 import sharp from 'sharp';
@@ -139,6 +139,8 @@ const eski = {
     [21, 400, 'BMW', 'X5 3.0D OV', ...eskiYil(2003, 2004)],
     [21, 300, 'BMW', '316i 1.6', ...eskiYil(1993)],
     [500, 9000, 'BMW', 'X3 2.0D', ...eskiYil(1999)],
+    // Tofaş modeli eski listede FIAT altında: kuralla Tofaş Doğan'a
+    [44, 100, 'FIAT', 'DOGAN 1.6 SL', ...eskiYil(1995)],
     ...Array.from({ length: 1000 }, (_, i) => [
       501,
       9000 + i,
@@ -459,8 +461,8 @@ describe('TSB arşivi: eski model yılları (Karar 33)', () => {
       d.filter((x) => !x.durum.startsWith('indirilemedi'));
     expect(yuklenen(r.body.dosyalar)).toEqual([
       { dosya: '202004R1.xlsx', durum: 'applied', yeniTip: 1 },
-      // 2006 listesi (İnternet Arşivi): yeni tipler X5, 316i ve 1.000 dolgu
-      { dosya: 'TSB-2006-11.xls', durum: 'applied', yeniTip: 1002 },
+      // 2006 listesi (İnternet Arşivi): yeni tipler X5, 316i, Doğan ve 1.000 dolgu
+      { dosya: 'TSB-2006-11.xls', durum: 'applied', yeniTip: 1003 },
     ]);
 
     const after = await db.catalogVariant.findUniqueOrThrow({
@@ -514,6 +516,50 @@ describe('TSB arşivi: eski model yılları (Karar 33)', () => {
     const d = await get(`/catalog/series/${s3.id}?yil=2007`);
     expect(d.body.models.map((m: { name: string }) => m.name)).toEqual(['320i']);
     expect(d.body.trims.map((t: { name: string }) => t.name)).toEqual(['Elegance']);
+  });
+
+  it('kural değişince eski tip yeni markasına geçer: aynı markanın eski yazımı ("Fiat/Tofaş") aynı marka sayılır', async () => {
+    const tip = () =>
+      db.catalogVariant.findUniqueOrThrow({
+        where: { source_sourceKey: { source: 'tsb', sourceKey: '44-100' } },
+        select: { make: { select: { name: true } }, series: { select: { name: true } }, years: true },
+      });
+    expect(await tip()).toMatchObject({ make: { name: 'Tofaş' }, series: { name: 'Doğan' } });
+    // Eski kurallarla yazılmış gibi: tip "Fiat/Tofaş" markasında
+    const eskiMarka = await db.catalogMake.create({
+      data: { id: uuidv7(), key: 'test-fiat-tofas', name: 'Fiat/Tofaş' },
+    });
+    await db.catalogVariant.update({
+      where: { source_sourceKey: { source: 'tsb', sourceKey: '44-100' } },
+      data: { makeId: eskiMarka.id },
+    });
+    // Aynı listenin yeniden işlenmesi (kural sürümü değişmiş gibi; dosya farklı olsun diye bir satır fazla)
+    const d = TSB_ESKI.find((x) => x.donem === '2006-11');
+    if (!d) throw new Error('2006-11 yok');
+    const dosya = xlsYaz([
+      ['2006 KASIM', null, null, null, null],
+      ['Marka Kodu', 'Tip Kodu', 'Marka Adı', 'Tip Adı', ...ESKI_YILLAR],
+      [44, 100, 'FIAT', 'DOGAN 1.6 SL', ...eskiYil(1995, 1996)],
+      [500, 9000, 'BMW', 'X3 2.0D', ...eskiYil(1999)],
+      ...Array.from({ length: 1000 }, (_, i) => [
+        501,
+        9000 + i,
+        'ARSIVDOLGU',
+        `SERI${i % 30} 1.4 PAKET${i}`,
+        ...eskiYil(1998),
+      ]),
+    ]);
+    await app.get(CatalogPipelineService).runTsbEski(d, dosya);
+    expect(await tip()).toMatchObject({
+      make: { name: 'Tofaş' },
+      series: { name: 'Doğan' },
+      years: [1995, 1996],
+    });
+    // Başka markanın kodu yine birleşmez
+    const kod = await db.catalogVariant.findUniqueOrThrow({
+      where: { source_sourceKey: { source: 'tsb', sourceKey: '500-9000' } },
+    });
+    expect(kod.years).not.toContain(1999);
   });
 });
 
@@ -1044,6 +1090,7 @@ describe('Rengarenk ana listesi (sahip kararı, 16 Kasım 2026)', () => {
   it('liste seri ve yılları belirler; tipi olmayan seri de seçilir; dünya geneli kayıtlar yalnızca listedeki serilerde', async () => {
     // Uygulanmadan önce vehicle-makes-models'ın yalnızca orada olan markası görünür
     expect(names((await get('/catalog/makes')).body)).toContain('Eskidolgu');
+    expect(names((await get('/catalog/makes?kategori=otomobil')).body)).toContain('Arsivdolgu');
 
     const r = await staffCall(app, 'POST', '/staff/catalog/sources/ana/check', {}, owner);
     expect(r.body.durum).toBe('uygulandi');
@@ -1060,6 +1107,11 @@ describe('Rengarenk ana listesi (sahip kararı, 16 Kasım 2026)', () => {
     const makes = (await get('/catalog/makes?kategori=otomobil')).body;
     expect(names(makes)).toEqual(expect.arrayContaining(['BMW', 'Moszkvics', 'Tofaş']));
     expect(names(makes)).not.toContain('Eskidolgu');
+    // Eski TSB listesinde olup ana listede olmayan marka otomobil ve SUV seçiminde görünmez (kaydı durur);
+    // yerli klasikler (Anadol) sahip kararıyla kalır
+    expect(names(makes)).not.toContain('Arsivdolgu');
+    expect(names(makes)).toContain('Anadol');
+    expect(names((await get('/catalog/makes')).body)).toContain('Arsivdolgu');
 
     // Kategori listeden: Togg T10F otomobil, T10X SUV
     const togg = makes.find((m: { name: string }) => m.name === 'Togg');

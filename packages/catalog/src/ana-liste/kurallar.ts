@@ -11,6 +11,12 @@ export const MARKA_ADI: Record<string, string> = {
   kgm: 'KGM SsangYong',
   // Dongfeng Motor; Dongfeng Sokon (DFSK) ayrı marka
   dongfeng: 'DFM',
+  // Eski TSB listelerinde (1993–2005 ve "öncesi" listeleri) üretici/ithalatçı birlikte yazılmış marka adları
+  fiattofas: 'Fiat',
+  fordotosan: 'Ford',
+  chryslerjeep: 'Jeep',
+  peugeotkarsan: 'Peugeot',
+  mercuryford: 'Mercury',
 };
 
 /**
@@ -300,6 +306,8 @@ export const SERI_KURALLARI: Record<string, SeriKurali[]> = {
     { kaynak: 'Liberty', hedef: 'Cherokee' },
     { kaynak: 'G.cherokee', hedef: 'Grand Cherokee' },
     { kaynak: 'Wrangler Unlimited', hedef: 'Wrangler' },
+    // Eski "CHRYSLER/JEEP" listesinde seri adı "JEEP": "JEEP CHEROKEE (4000)"
+    { kaynak: 'Jeep', hedef: 'Cherokee', tip: /^JEEP CHEROKEE\b/ },
   ],
   'KGM SsangYong': [
     { kaynak: 'Musso', hedef: 'Musso EV', tip: /\bEV\b/ },
@@ -571,6 +579,7 @@ const ESKI_KURALLAR: Record<string, SeriKurali[]> = {
     { kaynak: 'Kartal1.6', hedef: 'Kartal', marka: 'Tofaş' },
     { kaynak: '131', hedef: 'Kartal', marka: 'Tofaş', tip: /KARTAL/ },
     { kaynak: 'Sahin', hedef: 'Şahin', marka: 'Tofaş' },
+    { kaynak: 'Murat', hedef: 'Murat', marka: 'Tofaş' },
   ],
   Ford: [
     { kaynak: 'Escord', hedef: 'Escort' },

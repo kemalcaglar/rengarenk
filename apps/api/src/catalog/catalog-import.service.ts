@@ -4,6 +4,7 @@ import {
   acronymCase,
   anaYerlestir,
   type CatalogSnapshot,
+  markaKanon,
   type ParsedVariant,
   type PreviousSummary,
   type QualityReport,
@@ -450,7 +451,7 @@ export class CatalogImportService {
       const v = { ...v0, make: y.make, series: y.series };
       const k = catalogKeys(v, alias);
       if (y.ana && k.series) anaSeri.add(k.series);
-      return { v, k };
+      return { v, k, hamMarka: v0.make };
     });
     await this.reuseSeriesLessModels(tx, items);
     // Tiplerden bağımsız kasa kuşakları (vehicle-makes-models bütün yıllar, Wikidata nesil kodları)
@@ -535,8 +536,8 @@ export class CatalogImportService {
         )}
         ON CONFLICT (key) DO UPDATE SET categories =
           ARRAY(SELECT DISTINCT unnest(catalog_series.categories || EXCLUDED.categories) ORDER BY 1),
-          -- Yalnızca büyük/küçük harf düzeltmesi ("Rx" → "RX"); başka kaynağın yazdığı ad değişmez
-          name = CASE WHEN lower(catalog_series.name) = lower(EXCLUDED.name) THEN EXCLUDED.name
+          -- Yalnızca büyük/küçük harf düzeltmesi ("Rx" → "RX", "Bi̇nek" → "Binek"); başka kaynağın yazdığı ad değişmez
+          name = CASE WHEN replace(lower(catalog_series.name), ${'̇'}, '') = lower(EXCLUDED.name) THEN EXCLUDED.name
             ELSE catalog_series.name END`;
     }
     const seriesIds = await ids('catalog_series', [
@@ -557,7 +558,8 @@ export class CatalogImportService {
             ),
           )}
           ON CONFLICT (key) DO UPDATE SET name = EXCLUDED.name
-          WHERE lower(${Prisma.raw(table)}.name) = lower(EXCLUDED.name) AND ${Prisma.raw(table)}.name <> EXCLUDED.name`;
+          WHERE replace(lower(${Prisma.raw(table)}.name), ${'̇'}, '') = lower(EXCLUDED.name)
+            AND ${Prisma.raw(table)}.name <> EXCLUDED.name`;
       }
       return ids(table, [...map.keys()]);
     };
@@ -677,7 +679,30 @@ export class CatalogImportService {
           years = ARRAY(SELECT DISTINCT unnest(catalog_variants.years || EXCLUDED.years) ORDER BY 1),
           first_version = LEAST(catalog_variants.first_version, EXCLUDED.first_version), updated_at = now()`;
     // TSB eski motosiklet kodlarını başka araca vermiş: arşivdeki aynı kod başka markadaysa yılları birleştirilmez.
-    const archiveWhere = Prisma.sql`WHERE catalog_variants.make_id = EXCLUDED.make_id`;
+    // Aynı markanın başka yazımı ya da kuralla taşındığı marka (Fiat/Tofaş → Fiat, FIAT Doğan → Tofaş) aynı sayılır;
+    // yoksa kural değişince eski tip yeni markasına geçemez.
+    const ayniMarka: [string, string][] = [];
+    if (archive) {
+      const kanon = new Map<string, string[]>();
+      for (const m of await tx.$queryRaw<
+        { id: string; name: string }[]
+      >`SELECT id, name FROM catalog_makes`) {
+        const k = markaKanon(m.name);
+        kanon.set(k, [...(kanon.get(k) ?? []), m.id]);
+      }
+      const ciftler = new Set<string>();
+      for (const { v, k, hamMarka } of items) {
+        const yeni = makeIds.get(k.make);
+        if (!yeni) continue;
+        for (const ad of [hamMarka, v.make])
+          for (const eski of kanon.get(markaKanon(ad)) ?? [])
+            if (eski !== yeni) ciftler.add(`${eski}|${yeni}`);
+      }
+      for (const c of ciftler) ayniMarka.push(c.split('|') as [string, string]);
+    }
+    const archiveWhere = Prisma.sql`WHERE catalog_variants.make_id = EXCLUDED.make_id OR
+      (catalog_variants.make_id, EXCLUDED.make_id) IN (SELECT a, b FROM unnest(${ayniMarka.map((c) => c[0])}::uuid[],
+        ${ayniMarka.map((c) => c[1])}::uuid[]) AS t(a, b))`;
 
     let added = 0;
     let updated = 0;

@@ -143,14 +143,22 @@ export class CatalogController {
 
   @Get('makes')
   async makes(@Query('kategori', new ZodPipe(categorySchema)) kategori?: string) {
+    const g = await this.gorunum();
+    const where: Prisma.CatalogMakeWhereInput = {
+      OR: [
+        { series: { some: this.seriesWhere(g, kategori) } },
+        { variants: { some: { ...this.variantWhere(g, kategori), seriesId: null } } },
+      ],
+    };
+    // Otomobil ve SUV'de markaları ana liste belirler (sahip kararı, 16 Kasım 2026): eski TSB listelerinde birkaç
+    // kaydı olup listede olmayan markalar (Aixam, "Willys/Jeep") seçimde görünmez, kayıtları silinmez. Yerli
+    // klasikler listesi (Anadol) sahip kararıyla ayrıca kalır.
+    const anaMarka: Prisma.CatalogMakeWhereInput[] = [{ series: { some: { lineup: { isNot: null } } } }];
+    if (g.keys.includes('yerli') && kategori)
+      anaMarka.push({ variants: { some: { source: 'yerli', categories: { has: kategori } } } });
     return trOrder(
       await this.db.catalogMake.findMany({
-        where: await this.gorunum().then((g) => ({
-          OR: [
-            { series: { some: this.seriesWhere(g, kategori) } },
-            { variants: { some: { ...this.variantWhere(g, kategori), seriesId: null } } },
-          ],
-        })),
+        where: g.ana && kategori && ANA_KAT.has(kategori) ? { AND: [where, { OR: anaMarka }] } : where,
         orderBy: { name: 'asc' },
         select: { id: true, key: true, name: true },
       }),

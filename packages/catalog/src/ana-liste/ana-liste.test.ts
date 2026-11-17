@@ -5,6 +5,7 @@ import {
   anaListe,
   anaYerlestir,
   MARKA_ADI,
+  markaKanon,
   SERI_KURALLARI,
   yillariAc,
 } from './index.js';
@@ -95,5 +96,24 @@ describe('ana liste (sahip kararı, 16 Kasım 2026)', () => {
     expect(oto('Land Rover', '110-83', '110-83 2495', [1987])).toMatchObject({ series: 'Defender' });
     // 1983 öncesi "88" Land Rover serisidir, Defender değil
     expect(oto('Land Rover', '88', '88 2286', [1984]).ana).toBe(false);
+  });
+
+  it('eski listelerde üretici ve ithalatçı birlikte yazılmış marka: "Fiat/Tofaş", "Chrysler/Jeep"', () => {
+    const oto = (make: string, series: string, raw: string) =>
+      anaYerlestir({ make, series, raw, categories: ['otomobil'], years: [1980] });
+    expect(oto('Fiat/Tofaş', 'Murat', 'MURAT 124')).toEqual({ make: 'Tofaş', series: 'Murat', ana: true });
+    expect(oto('Fiat/Tofaş', 'Palio', 'PALIO 1.6 HB AC')).toMatchObject({ make: 'Fiat', series: 'Palio' });
+    expect(oto('Chrysler/Jeep', 'Jeep', 'JEEP CHEROKEE (4000)')).toMatchObject({
+      make: 'Jeep',
+      series: 'Cherokee',
+    });
+    expect(oto('Ford/Otosan', 'Escort', 'ESCORT 1.6 CLX SW')).toMatchObject({
+      make: 'Ford',
+      series: 'Escort',
+    });
+    // Arşivde aynı kodlu tipin markası: eski yazım ve listedeki ad aynı marka, başka marka değil
+    expect(markaKanon('Fiat/Tofaş')).toBe(markaKanon('FIAT'));
+    expect(markaKanon('Peugeot (Karsan)')).toBe(markaKanon('Peugeot'));
+    expect(markaKanon('Kuba')).not.toBe(markaKanon('Kia'));
   });
 });
