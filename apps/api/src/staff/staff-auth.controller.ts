@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { ApprovalService } from '../approvals/approval.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
 import { type Db, PRISMA } from '../database/prisma.js';
+import { DemandSearchService } from '../search/demand-search.service.js';
 import { StaffOnly, StaffPublic } from './permissions.js';
 import { StaffGuard, type StaffRequest } from './staff.guard.js';
 import { StaffAuthService } from './staff-auth.service.js';
@@ -79,6 +80,7 @@ export class StaffMeController {
   constructor(
     @Inject(PRISMA) private readonly db: Db,
     private readonly approvals: ApprovalService,
+    private readonly search: DemandSearchService,
   ) {}
 
   @Get()
@@ -108,6 +110,8 @@ export class StaffMeController {
       integrationWarnings: await this.db.catalogSource.count({
         where: { active: true, lastError: { not: null } },
       }),
+      /** Menüde Araç görselleri rozeti: görsel bekleyen yayındaki talepler (sahip isteği, 17 Kasım 2026) */
+      pendingImages: req.staff.grants['kategori.ayarla'] ? await this.search.gorselsizSayisi() : 0,
       /** Menüde Galeri başvuruları rozeti: insan kararı bekleyenler (Karar 03) */
       pendingGalleryApplications: satisfies(req.staff.grants['galeri_basvuru.onayla'], 'tam')
         ? await this.db.galleryApplication.count({

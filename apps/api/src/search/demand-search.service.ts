@@ -196,6 +196,24 @@ export class DemandSearchService {
     else await this.os('DELETE', `/_doc/${demandId}${q}`);
   }
 
+  /**
+   * Görsel bekleyen yayındaki talepler (konsol menüsündeki "Araç görselleri" rozeti; sahip isteği, 17 Kasım 2026):
+   * aracı katalogdan seçilmiş, fotoğrafı olmayan. OpenSearch'e ulaşılamazsa 0 (menü bozulmaz).
+   */
+  async gorselsizSayisi(): Promise<number> {
+    try {
+      await this.ensureIndex();
+      const r = (await this.os('POST', '/_count', {
+        query: {
+          bool: { filter: [{ exists: { field: 'seri' } }], must_not: [{ exists: { field: 'foto' } }] },
+        },
+      })) as { count?: number };
+      return r.count ?? 0;
+    } catch {
+      return 0;
+    }
+  }
+
   /** Bütün yayındaki talepleri yeniden yazar ve indekste artakalanları siler (gecelik tutarlılık). */
   async reindexAll(): Promise<number> {
     await this.ensureIndex();

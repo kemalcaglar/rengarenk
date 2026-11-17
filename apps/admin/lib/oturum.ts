@@ -31,6 +31,8 @@ export interface Me {
   /** Okunmamış çalışan uyarıları (üst çubukta "Uyarı" etiketi) */
   unreadAlerts: number;
   integrationWarnings: number;
+  /** Görsel bekleyen yayındaki talepler (menüde Araç görselleri rozeti) */
+  pendingImages?: number;
   pendingGalleryApplications: number;
   overdueReports: number;
   openSupport: number;

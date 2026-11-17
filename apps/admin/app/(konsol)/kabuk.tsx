@@ -20,7 +20,7 @@ type Item =
       href: string;
       ad: string;
       izin?: Permission;
-      rozet?: 'onay' | 'entegrasyon' | 'basvuru' | 'moderasyon' | 'destek' | 'kvkk';
+      rozet?: 'onay' | 'entegrasyon' | 'basvuru' | 'moderasyon' | 'destek' | 'kvkk' | 'gorsel';
     }
   | { ad: string; sonra: true };
 
@@ -80,6 +80,13 @@ const MENU: { grup: string; ogeler: Item[] }[] = [
     grup: 'Katalog',
     ogeler: [
       { href: '/kategoriler', ad: 'Kategoriler ve alanlar', izin: 'kategori.ayarla' },
+      // Görsel bekleyen talepler ve her aracın fotoğrafı (sahip isteği, 17 Kasım 2026)
+      {
+        href: '/entegrasyonlar/fotograflar',
+        ad: 'Araç görselleri',
+        izin: 'kategori.ayarla',
+        rozet: 'gorsel',
+      },
       { href: '/eslestirme', ad: 'Eşleştirme ayarı', izin: 'kategori.ayarla' },
     ],
   },
@@ -221,7 +228,12 @@ export function Kabuk({ me: initial, logo, children }: { me: Me; logo: ReactNode
                       <Link
                         key={i.href}
                         href={i.href}
-                        aria-current={path === i.href || path.startsWith(`${i.href}/`) ? 'page' : undefined}
+                        aria-current={
+                          (path === i.href || path.startsWith(`${i.href}/`)) &&
+                          !(i.href === '/entegrasyonlar' && path.startsWith('/entegrasyonlar/fotograflar'))
+                            ? 'page'
+                            : undefined
+                        }
                       >
                         {i.ad}
                         {i.rozet === 'onay' ? (
@@ -247,6 +259,14 @@ export function Kabuk({ me: initial, logo, children }: { me: Me; logo: ReactNode
                         {i.rozet === 'moderasyon' && me.overdueReports > 0 ? (
                           <span style={{ fontSize: 11.5, fontWeight: 800, color: '#A3271F' }}>
                             {me.overdueReports} süre aştı
+                          </span>
+                        ) : null}
+                        {i.rozet === 'gorsel' && (me.pendingImages ?? 0) > 0 ? (
+                          <span
+                            style={{ fontSize: 11.5, fontWeight: 800, color: '#A3271F' }}
+                            title="Görsel bekleyen yayındaki talepler"
+                          >
+                            {me.pendingImages} görselsiz
                           </span>
                         ) : null}
                         {i.rozet === 'entegrasyon' && me.integrationWarnings > 0 ? (

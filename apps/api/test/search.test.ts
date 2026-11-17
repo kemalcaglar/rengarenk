@@ -237,6 +237,9 @@ describe('talep görseli (sahip isteği, 17 Kasım 2026; Karar 34)', () => {
       oneri: 'BMW 5 Serisi',
     });
     expect(yer.talepler.map((x: { no: number }) => x.no)).toContain(t.no);
+    // Konsol menüsündeki "Araç görselleri" rozeti
+    const once = (await staffCall(app, 'GET', '/staff/me', undefined, owner)).body.pendingImages;
+    expect(once).toBeGreaterThan(0);
 
     const jpeg = async (w: number, h: number, renk = '#5B8CFF') =>
       sharp({ create: { width: w, height: h, channels: 3, background: renk } })
@@ -278,6 +281,7 @@ describe('talep görseli (sahip isteği, 17 Kasım 2026; Karar 34)', () => {
     expect((await call(app, 'GET', `/talepler?q=${t.no}`)).body.sonuclar[0].foto).toBe(
       `/catalog/images/${ilk.body.id}`,
     );
+    expect((await staffCall(app, 'GET', '/staff/me', undefined, owner)).body.pendingImages).toBe(once - 1);
     const sayfa = await call(app, 'GET', `/talepler/${t.no}`);
     expect(sayfa.body.gorunum.alternatifler[0].foto).toMatchObject({
       kaynak: 'yukleme',
