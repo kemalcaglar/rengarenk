@@ -34,7 +34,7 @@ import { AdsService, olayPlatformu } from '../ads/ads.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { sha256 } from '../auth/tokens.js';
 import { CatalogImageService } from '../catalog/catalog-image.service.js';
-import { nesilFoto } from '../catalog/photo-pick.js';
+import { fotoVerisi, talepFotolari } from '../catalog/talep-foto.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { EntitlementService } from '../entitlements/entitlement.service.js';
 import { ContentRulesService } from '../moderation/content-rules.service.js';
@@ -313,14 +313,9 @@ export class DemandService {
           },
         })
       : [];
-    const fotolar = gens.length
-      ? await this.db.catalogImage.findMany({
-          where: {
-            status: 'secildi',
-            generationId: { in: gens.filter((g) => g.source === 'wikidata').map((g) => g.id) },
-          },
-        })
-      : [];
+    // Talep görseli (sahip isteği, 17 Kasım 2026; Karar 34): kasa, kuşak, yıl ya da model geneli
+    const fv = d.seriesKey ? await fotoVerisi(this.db, d.seriesKey) : null;
+    const fotoSecim = fv ? talepFotolari(fv, d, data.alternatifler ?? []) : null;
     const yil = new Date().getFullYear();
     const teknikAcik = new Set(sources.filter((k) => k === 'ademe' || k === 'vmm'));
     const AD: Record<string, Record<string, string>> = {
@@ -329,7 +324,8 @@ export class DemandService {
       drive: { onden: 'Önden çekiş', arkadan: 'Arkadan itiş', '4x4': '4x4' },
     };
     const alternatifler = [];
-    for (const a of data.alternatifler ?? []) {
+    for (const [ai, a] of (data.alternatifler ?? []).entries()) {
+      const fs = fotoSecim?.alternatifler[ai];
       const kasa = ((a.kasa as string[] | undefined) ?? []).map((v) => {
         const m = /^([^:/]+):(\d+)$/.exec(v);
         const grup = m
@@ -339,22 +335,13 @@ export class DemandService {
           : gens.filter((g) => g.key === v);
         const bas = grup.length ? Math.min(...grup.map((g) => g.startYear)) : null;
         const son = grup.length ? Math.max(...grup.map((g) => g.endYear ?? yil)) : null;
-        const kod = m ? gens.find((g) => g.source === 'wikidata' && g.code === m[1]) : undefined;
-        // Nesilde fotoğraf yoksa en yakın neslin fotoğrafı "önceki nesil" etiketiyle (Karar 34); yalnızca kodlu kasada
-        const secim = m
-          ? nesilFoto(
-              gens.filter((g) => g.source === 'wikidata'),
-              fotolar,
-              { id: kod?.id, startYear: kod?.startYear ?? bas },
-              Number(m[2]),
-            )
-          : undefined;
+        const secim = fs?.kasa.get(v);
         return {
           value: v,
           yilAraligi: bas === null ? null : ([bas, son ?? yil] as [number, number]),
           label: m ? `${m[1]} ${m[2] === '0' ? 'makyajsız' : 'makyajlı'}` : (grup[0]?.body ?? 'Kasa'),
           yillar: bas === null ? null : son !== null && son >= yil ? `${bas} ve sonrası` : `${bas}–${son}`,
-          foto: secim ? CatalogImageService.publicPhoto(secim.foto, secim.yakin) : null,
+          foto: secim?.foto ? CatalogImageService.publicPhoto(secim.foto, secim.yakin) : null,
         };
       });
       const paketKeys = (a.paket as string[] | undefined) ?? [];
@@ -419,6 +406,8 @@ export class DemandService {
         : [];
       alternatifler.push({
         kasa: kasa.map(({ yilAraligi: _, ...k }) => k),
+        // Alternatifin görseli (kasa yoksa yıllardan ya da model genelinden); yoksa arayüz marka ve model kapağı gösterir
+        foto: fs?.ilk.foto ? CatalogImageService.publicPhoto(fs.ilk.foto, fs.ilk.yakin) : null,
         paket,
         teknik,
         motorlar,

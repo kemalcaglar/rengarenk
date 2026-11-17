@@ -433,6 +433,16 @@ pnpm format        # Biome ile biçimlendir
   sayfasında "Açıklama | Teknik özellikler" sekmesi (`teknikBolumleri`, web `components/teknik-tablo.tsx`, mobil aynı
   adla; API `gorunum.alternatifler[].motorlar`). Yerelde `katalog:yukle --ademe` iki kaynağı da yükler. API'de 238,
   katalogda 69, ortak pakette 141 test.
+- **Her talep görselli (17 Kasım 2026, sahip isteği; Karar 24, 34):** fotoğraf nesle, kasa kuşağına ya da seriye
+  (`catalog_images.series_id`, isteğe bağlı `year_from/year_to`) bağlanır; seçim kuralı tek yerde
+  (`apps/api/src/catalog/photo-pick.ts` `talepFotosu`: kodlu kasa → kuşak → yıl → model geneli → en yakın nesil),
+  veritabanı tarafı `catalog/talep-foto.ts` (`fotoVerisi`, `talepFotolari`); talep sayfası, arama dizini ve konsol kuyruğu
+  bunu kullanır, yeni bir yerde talep görseli gösterirken de bunu kullan. Fotoğraf yoksa web ve mobil
+  `components/arac-kapak.tsx` (`AracKapak`, ton `kapakTonu` ortak pakette) gösterilir. Konsol Entegrasyonlar › Araç
+  görselleri (`/entegrasyonlar/fotograflar`): görsel bekleyen talepler, elle yükleme (`origin = yukleme`, lisans
+  `GORSEL_LISANSLARI`), değiştir (`degistir`), kaldır (`status = kaldirildi`). Fotoğraf değişince aynı işlemde
+  `katalog.fotograf_degisti` (işçi serinin taleplerini dizinde yeniler); görselsiz yayına giren talepte `talep_gorseli`
+  uyarısı. Kartlarda bütçe tam rakam (`compactBudget` artık kısaltmaz). API'de 241 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

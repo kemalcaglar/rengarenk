@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { type CategoryDefinition, effectiveFields, hideDemandText } from '@rengarenk/shared';
-import { makyajFoto } from '../catalog/photo-pick.js';
+import { fotoVerisi, talepFotolari } from '../catalog/talep-foto.js';
 import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 
@@ -46,6 +46,9 @@ export interface DemandHit {
   yayin: string;
   /** Temsilî nesil fotoğrafı (Karar 24, 34): API'deki yolu */
   foto: string | null;
+  /** Fotoğraf yoksa kartta marka ve model kapağı (sahip isteği, 17 Kasım 2026) */
+  markaAd: string | null;
+  seriAd: string | null;
   /** "Acil arıyorum" etiketi (Karar 12.6) */
   acil: boolean;
   /** Üst sırada (ücretli öne çıkarma) */
@@ -115,6 +118,8 @@ const hit = (s: Record<string, unknown>): DemandHit =>
     telefon: s.telefon,
     yayin: s.yayin,
     foto: s.foto ? `/catalog/images/${s.foto}` : null,
+    markaAd: s.markaAd ?? null,
+    seriAd: s.seriAd ?? null,
     acil: suruyor(s.acil),
     ustSira: suruyor(s.ustSira),
   }) as DemandHit;
@@ -253,38 +258,10 @@ export class DemandSearchService {
     ]
       .filter(Boolean)
       .join(' · ');
-    // Temsilî fotoğraf: alternatiflerdeki ilk kasa kodunun seçilmiş Commons fotoğrafı (talep sayfasıyla aynı kural)
-    // Kasa "KOD:makyaj": ilk kasanın makyajına göre fotoğraf (Karar 34)
-    const kasalar = alts.flatMap((a) =>
-      ((a.kasa as string[] | undefined) ?? []).flatMap((k) => {
-        const m = /^([^:/]+):(\d+)$/.exec(k);
-        return m ? [{ kod: m[1] as string, makyaj: Number(m[2]) }] : [];
-      }),
-    );
-    const kodlar = [...new Set(kasalar.map((k) => k.kod))];
-    const fotolar =
-      d.seriesKey && kodlar.length
-        ? await this.db.catalogImage.findMany({
-            where: {
-              status: 'secildi',
-              generation: { source: 'wikidata', code: { in: kodlar }, series: { key: d.seriesKey } },
-            },
-            select: { id: true, facelift: true, generation: { select: { code: true } } },
-          })
-        : [];
-    const wikidataAcik = fotolar.length
-      ? Boolean(await this.db.catalogSource.findFirst({ where: { key: 'wikidata', active: true } }))
-      : false;
-    const foto = wikidataAcik
-      ? (kasalar
-          .map((k) =>
-            makyajFoto(
-              fotolar.filter((f) => f.generation.code === k.kod),
-              k.makyaj,
-            ),
-          )
-          .find(Boolean)?.id ?? null)
-      : null;
+    // Temsilî fotoğraf (sahip isteği, 17 Kasım 2026; Karar 34): talep sayfasıyla aynı kural (kasa, kuşak, yıl,
+    // model geneli). Yoksa kart marka ve model kapağını gösterir.
+    const fv = d.seriesKey ? await fotoVerisi(this.db, d.seriesKey) : null;
+    const foto = fv ? (talepFotolari(fv, d, alts).ana.foto?.id ?? null) : null;
     return {
       no: Number(d.no),
       baslik: hideDemandText(d.headline) || d.title || d.category.name,

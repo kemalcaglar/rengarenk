@@ -174,6 +174,14 @@ export const STAFF_ALERT_RULES = {
     izin: 'kategori.ayarla',
     yol: '/entegrasyonlar/katalog',
   },
+  talep_gorseli: {
+    ad: 'Talep görselsiz yayına girdi',
+    kosul:
+      'Yayına giren talebin aracı için katalogda fotoğraf yoksa (talep marka ve model kapağıyla görünür)',
+    kritik: false,
+    izin: 'kategori.ayarla',
+    yol: '/entegrasyonlar/fotograflar',
+  },
 } as const satisfies Record<string, StaffAlertRule>;
 
 export type StaffAlertKey = keyof typeof STAFF_ALERT_RULES;

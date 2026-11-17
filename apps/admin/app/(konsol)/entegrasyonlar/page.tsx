@@ -179,7 +179,7 @@ export default function Entegrasyonlar() {
           baglanti: [
             {
               href: '/entegrasyonlar/fotograflar',
-              ad: `Nesil fotoğrafları (${d.bekleyen.fotograf} bekliyor)`,
+              ad: `Araç görselleri (${d.bekleyen.fotograf} seçim bekliyor)`,
             },
           ],
         },

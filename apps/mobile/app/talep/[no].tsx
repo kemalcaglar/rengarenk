@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react';
 import { Image, Linking, Pressable, ScrollView, Share, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AciklamaGoster } from '../../components/aciklama';
+import { AracKapak } from '../../components/arac-kapak';
 import { Banner } from '../../components/banner';
 import { Ikon } from '../../components/ikon';
 import { IlkMesaj } from '../../components/ilk-mesaj';
@@ -27,6 +28,13 @@ import { basHarf, useOturum } from '../../lib/oturum';
 import { butceAraligi, deger, etiket, uzunTarih } from '../../lib/talep-bicim';
 
 type Values = Record<string, unknown>;
+/** Temsilî fotoğraf (Karar 34): nesil, kasa, yıl ya da model geneli */
+interface Foto {
+  url: string;
+  caption: string;
+  nesil?: 'onceki' | 'sonraki' | null;
+  genel?: boolean;
+}
 interface Talep {
   no: number;
   status: string;
@@ -45,8 +53,10 @@ interface Talep {
         value: string;
         label: string;
         yillar: string | null;
-        foto: { url: string; caption: string; nesil?: 'onceki' | 'sonraki' | null } | null;
+        foto: Foto | null;
       }[];
+      /** Alternatifin görseli (kasa, yıl ya da model geneli); yoksa marka ve model kapağı */
+      foto?: Foto | null;
       paket: string[];
       teknik: { label: string; value: string }[];
       teknikOrnek: string | null;
@@ -147,7 +157,7 @@ export default function TalepDetay() {
   const f = t.schema.fields;
   const a = t.data.alternatifler[alt] ?? {};
   const g = t.gorunum.alternatifler[alt];
-  const foto = g?.kasa.find((x) => x.foto)?.foto ?? null;
+  const foto = g?.kasa.find((x) => x.foto)?.foto ?? g?.foto ?? null;
   const k = t.gorunum.katalog;
   const yayinda = t.status === 'PUBLISHED';
   const gun = Math.max(
@@ -266,7 +276,18 @@ export default function TalepDetay() {
               resizeMode="cover"
               accessibilityLabel="Temsilî fotoğraf"
             />
-          ) : null}
+          ) : (
+            <AracKapak
+              boyut="buyuk"
+              marka={k.marka}
+              seri={k.seri ?? t.category.name}
+              alt={
+                g?.kasa.length
+                  ? g.kasa.map((x) => [x.label, x.yillar].filter(Boolean).join(' · ')).join(' ya da ')
+                  : (k.model ?? null)
+              }
+            />
+          )}
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', padding: 10 }}>
             <T
               style={{
@@ -281,6 +302,7 @@ export default function TalepDetay() {
             >
               Temsili görsel
               {foto?.nesil ? ` · ${foto.nesil === 'onceki' ? 'önceki' : 'sonraki'} nesil` : ''}
+              {foto?.genel ? ' · model geneli' : ''}
             </T>
             {t.data.alternatifler.length > 1 ? (
               <T

@@ -8,6 +8,7 @@ import { ApprovalService } from './approvals/approval.service.js';
 import { ApprovalExecutor } from './approvals/approval-executor.js';
 import { CampaignService } from './campaigns/campaign.service.js';
 import { CatalogPipelineService } from './catalog/catalog-pipeline.service.js';
+import { gorselsizTalep } from './catalog/talep-foto.js';
 import { ScheduledReportService } from './dashboard/scheduled-report.service.js';
 import { type Db, PRISMA } from './database/prisma.js';
 import { DemandService } from './demands/demand.service.js';
@@ -114,6 +115,35 @@ for (const event of [
     search.sync(demandId),
   );
 }
+// Talep görseli (sahip isteği, 17 Kasım 2026): fotoğraf seçilince, yüklenince ya da kaldırılınca serinin yayındaki
+// talepleri arama dizininde yenilenir (liste ve vitrin kartı)
+await queue.consume<{ seriesId: string }>(
+  'katalog.fotograf_degisti',
+  'arama-katalog-fotograf',
+  async ({ seriesId }) => {
+    const s = await db.catalogSeries.findUnique({ where: { id: seriesId }, select: { key: true } });
+    if (!s) return;
+    const ds = await db.demand.findMany({
+      where: { status: 'PUBLISHED', seriesKey: s.key },
+      select: { id: true },
+    });
+    for (const d of ds) await search.sync(d.id);
+  },
+);
+// Görselsiz yayına giren talep: konsolda uyarı; talep o sürede marka ve model kapağıyla görünür
+await queue.consume<{ demandId: string }>(
+  'talep.yayinlandi',
+  'gorsel-talep-yayinlandi',
+  async ({ demandId }) => {
+    const g = await gorselsizTalep(db, demandId);
+    if (!g) return;
+    await uyarilar.raise('talep_gorseli', {
+      dedupe: demandId,
+      title: `Talep #${g.no} görselsiz yayına girdi: ${g.arac}`,
+      body: `${g.arac} için katalogda fotoğraf yok; talep şimdilik marka ve model kapağıyla görünüyor. Katalog › Araç görselleri › Görsel bekleyen talepler bölümünden Commons adaylarından birini seç ya da fotoğrafı kaynağı ve lisansıyla yükle.`,
+    });
+  },
+);
 // Eşleştirme (Teknik tasarım §6): talep ve araç olaylarında yeniden skorlanır
 for (const event of [
   'talep.yayinlandi',

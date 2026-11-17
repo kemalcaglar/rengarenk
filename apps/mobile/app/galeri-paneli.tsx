@@ -492,7 +492,7 @@ export default function GaleriPaneli() {
                   {[
                     e.talep.sahip,
                     [e.talep.il, e.talep.ilce].filter(Boolean).join(', '),
-                    compactBudget(e.talep.butceMin, e.talep.butceMax, 'milyon'),
+                    compactBudget(e.talep.butceMin, e.talep.butceMax),
                   ]
                     .filter(Boolean)
                     .join(' · ')}
@@ -754,7 +754,7 @@ export default function GaleriPaneli() {
                     {[
                       e.talep.sahip,
                       [e.talep.il, e.talep.ilce].filter(Boolean).join(', '),
-                      compactBudget(e.talep.butceMin, e.talep.butceMax, 'milyon'),
+                      compactBudget(e.talep.butceMin, e.talep.butceMax),
                     ]
                       .filter(Boolean)
                       .join(' · ')}

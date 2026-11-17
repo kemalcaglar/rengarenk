@@ -11,6 +11,7 @@ import {
 import Link from 'next/link';
 import { type CSSProperties, useEffect, useState } from 'react';
 import { AciklamaGoster } from '../../../../components/aciklama';
+import { AracKapak } from '../../../../components/arac-kapak';
 import { AracSemasiGorunum } from '../../../../components/arac-semasi';
 import { Banner } from '../../../../components/banner';
 import { IlkMesaj } from '../../../../components/ilk-mesaj';
@@ -25,6 +26,8 @@ interface Foto {
   caption: string;
   /** Nesilde fotoğraf yoksa en yakın neslin fotoğrafı (Karar 34) */
   nesil?: 'onceki' | 'sonraki' | null;
+  /** Model geneli fotoğraf (nesil ya da kasa bilinmiyor) */
+  genel?: boolean;
 }
 export interface TalepVeri {
   no: number;
@@ -41,6 +44,8 @@ export interface TalepVeri {
     katalog: { marka: string | null; seri: string | null; model: string | null };
     alternatifler: {
       kasa: { value: string; label: string; yillar: string | null; foto: Foto | null }[];
+      /** Alternatifin görseli (kasa, yıl ya da model geneli); yoksa marka ve model kapağı */
+      foto?: Foto | null;
       paket: string[];
       teknik: { label: string; value: string }[];
       teknikOrnek: string | null;
@@ -186,7 +191,7 @@ export function TalepDetay({
   const a = t.data.alternatifler[alt] ?? {};
   const g = t.gorunum.alternatifler[alt];
   const altAd = `Alternatif ${alt + 1}`;
-  const foto = g?.kasa.find((k) => k.foto)?.foto ?? null;
+  const foto = g?.kasa.find((k) => k.foto)?.foto ?? g?.foto ?? null;
   const renkAlani = f.find((x) => x.key === 'renk');
   const renkler = ((a.renk as string[] | undefined) ?? [])
     .map((v) => renkAlani?.options?.find((o) => o.value === v))
@@ -478,6 +483,7 @@ export function TalepDetay({
               >
                 Temsili görsel
                 {foto?.nesil ? ` · ${foto.nesil === 'onceki' ? 'önceki' : 'sonraki'} nesil` : ''}
+                {foto?.genel ? ' · model geneli' : ''}
               </span>
               {t.data.alternatifler.length > 1 ? (
                 <span
@@ -511,33 +517,26 @@ export function TalepDetay({
                 />
               ) : (
                 <span
-                  role="img"
-                  aria-label="Temsilî görsel yok"
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    display: 'block',
                     flex: 'none',
                     width: 560,
                     maxWidth: '100%',
                     aspectRatio: '560 / 206',
                     borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                    background: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)',
+                    overflow: 'hidden',
                   }}
                 >
-                  <svg
-                    width="40"
-                    height="40"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#8C95AA"
-                    strokeWidth="1.6"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M4 7h3l2-2h6l2 2h3v12H4z" />
-                    <circle cx="12" cy="13" r="3.5" />
-                  </svg>
+                  <AracKapak
+                    boyut="buyuk"
+                    marka={k.marka}
+                    seri={k.seri ?? t.category.name}
+                    alt={
+                      g?.kasa.length
+                        ? g.kasa.map((x) => [x.label, x.yillar].filter(Boolean).join(' · ')).join(' ya da ')
+                        : (k.model ?? null)
+                    }
+                  />
                 </span>
               )}
             </div>

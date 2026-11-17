@@ -28,6 +28,7 @@ import {
   SikSorulanlar,
   TaleplerimOzeti,
 } from '../../components/ana-bolumler';
+import { AracKapak } from '../../components/arac-kapak';
 import { Banner } from '../../components/banner';
 import { Ikon } from '../../components/ikon';
 import { Logo } from '../../components/logo';
@@ -51,6 +52,8 @@ interface Kart {
   il: string | null;
   yayin: string;
   foto: string | null;
+  markaAd?: string | null;
+  seriAd?: string | null;
 }
 type Yanit = { toplam: number; sonuclar: Kart[] };
 
@@ -308,7 +311,9 @@ export default function Home() {
                         style={{ width: '100%', height: '100%' }}
                         resizeMode="cover"
                       />
-                    ) : null}
+                    ) : (
+                      <AracKapak marka={v.markaAd} seri={v.seriAd ?? v.baslik} />
+                    )}
                   </View>
                   <T
                     numberOfLines={2}
@@ -316,9 +321,17 @@ export default function Home() {
                   >
                     {v.baslik}
                   </T>
+                  {/* Fiyat tam yazılır, kesilmez (sahip isteği): sığmazsa ikinci satıra geçer */}
                   <T
-                    numberOfLines={1}
-                    style={{ fontSize: 11.5, fontWeight: '800', color: colors.link, marginTop: 3 }}
+                    numberOfLines={2}
+                    style={{
+                      fontSize: 11.5,
+                      fontWeight: '800',
+                      color: colors.link,
+                      marginTop: 3,
+                      lineHeight: 15,
+                      minHeight: 30,
+                    }}
                   >
                     {compactBudget(v.butceMin, v.butceMax) || ' '}
                   </T>
@@ -413,7 +426,9 @@ export default function Home() {
                         style={{ width: '100%', height: '100%' }}
                         resizeMode="cover"
                       />
-                    ) : null}
+                    ) : (
+                      <AracKapak boyut="mini" marka={t.markaAd} seri={t.seriAd ?? t.baslik} />
+                    )}
                   </View>
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <T style={{ fontSize: 14, fontWeight: '800', lineHeight: 18 }}>{t.baslik}</T>
@@ -428,7 +443,7 @@ export default function Home() {
                         .join(' · ')}
                     </T>
                     <T style={{ fontSize: 14, fontWeight: '800', color: colors.link, marginTop: 5 }}>
-                      {compactBudget(t.butceMin, t.butceMax, 'milyon')}
+                      {compactBudget(t.butceMin, t.butceMax)}
                     </T>
                   </View>
                 </Pressable>

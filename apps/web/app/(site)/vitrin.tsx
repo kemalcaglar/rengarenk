@@ -1,5 +1,6 @@
 import { compactBudget, ONE_CIKARMA, tints } from '@rengarenk/shared';
 import Link from 'next/link';
+import { AracKapak } from '../../components/arac-kapak';
 import { colors } from '../../lib/renk';
 
 /** Görseller tarayıcıdan istenir: genel API adresi */
@@ -23,6 +24,8 @@ export interface VitrinKart {
   ilce: string | null;
   yayin: string;
   foto: string | null;
+  markaAd?: string | null;
+  seriAd?: string | null;
 }
 export interface TalepYaniti {
   toplam: number;
@@ -88,7 +91,9 @@ export function VitrinBolumu({ vitrin }: { vitrin: TalepYaniti }) {
                   loading="lazy"
                   style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                 />
-              ) : null}
+              ) : (
+                <AracKapak marka={v.markaAd} seri={v.seriAd ?? v.baslik} />
+              )}
             </span>
             <span
               style={{
@@ -110,9 +115,9 @@ export function VitrinBolumu({ vitrin }: { vitrin: TalepYaniti }) {
                 fontWeight: 800,
                 color: colors.link,
                 marginTop: 3,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
+                // Fiyat tam yazılır, kesilmez (sahip isteği): sığmazsa ikinci satıra geçer
+                lineHeight: 1.3,
+                minHeight: 33,
               }}
             >
               {compactBudget(v.butceMin, v.butceMax) || ' '}

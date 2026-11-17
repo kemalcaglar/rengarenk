@@ -1,9 +1,11 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { uuidv7 } from '@rengarenk/db';
+import sharp from 'sharp';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Db } from '../src/database/prisma.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
 import { call, createTestApp, uyeOl } from './helpers.js';
+import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
 let db: Db;
@@ -207,5 +209,105 @@ describe('favoriler ve kayıtlı aramalar (Karar 06.4, 30)', () => {
       await call(app, 'POST', '/saved-searches', { ad: `Arama ${i}`, sorgu: {} }, t);
     expect((await call(app, 'POST', '/saved-searches', { ad: 'Fazla', sorgu: {} }, t)).status).toBe(409);
     expect((await call(app, 'DELETE', `/saved-searches/${k.body.id}`, undefined, t)).status).toBe(204);
+  });
+});
+
+describe('talep görseli (sahip isteği, 17 Kasım 2026; Karar 34)', () => {
+  it('görselsiz talep konsolda bekler; elle yüklenen model fotoğrafı talepte görünür, değiştirilir ve kaldırılır', async () => {
+    const owner = (await loginAs(app, await createStaff(db, 'OWNER'))).token;
+    const t = await talep(
+      '5-serisi',
+      '520i',
+      { butce: { max: 3_000_000 }, yil: { min: 2018, max: 2021 } },
+      { il: 'Bursa' },
+    );
+    const seri = await db.catalogSeries.findUniqueOrThrow({ where: { key: 'bmw/5-serisi' } });
+
+    // Katalogda fotoğraf yok: kartta foto boş (arayüz kapak gösterir), konsolda model geneli yerinde bekler
+    expect((await call(app, 'GET', `/talepler?q=${t.no}`)).body.sonuclar[0].foto).toBeNull();
+    let bekleyen = (await staffCall(app, 'GET', '/staff/catalog/images/bekleyen-talepler', undefined, owner))
+      .body;
+    const yer = bekleyen.hedefler.find((h: { seriesId: string }) => h.seriesId === seri.id);
+    expect(yer).toMatchObject({
+      hedef: { tur: 'seri', id: seri.id },
+      baslik: 'BMW 5 Serisi · model geneli',
+      oneri: 'BMW 5 Serisi',
+    });
+    expect(yer.talepler.map((x: { no: number }) => x.no)).toContain(t.no);
+
+    const jpeg = async (w: number, h: number, renk = '#5B8CFF') =>
+      sharp({ create: { width: w, height: h, channels: 3, background: renk } })
+        .jpeg()
+        .toBuffer();
+    const yukle = async (q: Record<string, string>, govde: Buffer, token = owner) => {
+      const r = await app.inject({
+        method: 'POST',
+        url: `/staff/catalog/images/yukle?${new URLSearchParams(q)}`,
+        payload: govde,
+        headers: { authorization: `Bearer ${token}`, 'content-type': 'image/jpeg' },
+      });
+      return { status: r.statusCode, body: JSON.parse(r.body) };
+    };
+    const bilgi = {
+      tur: 'seri',
+      id: seri.id,
+      kaynak: 'https://commons.wikimedia.org/wiki/File:BMW_G30.jpg',
+      yazar: 'Ali Veli',
+      lisans: 'CC BY 4.0',
+    };
+    // Lisans listeden (NC/ND yok), kaynak zorunlu, küçük fotoğraf alınmaz, yetki gerekir
+    expect((await yukle({ ...bilgi, lisans: 'CC BY-NC 4.0' }, await jpeg(1200, 800))).status).toBe(400);
+    expect((await yukle({ ...bilgi, kaynak: 'yok' }, await jpeg(1200, 800))).status).toBe(400);
+    expect((await yukle(bilgi, await jpeg(400, 300))).status).toBe(400);
+    const destek = (await loginAs(app, await createStaff(db, 'SUPPORT'))).token;
+    expect((await yukle(bilgi, await jpeg(1200, 800), destek)).status).toBe(403);
+
+    const ilk = await yukle(bilgi, await jpeg(1200, 800));
+    expect(ilk.status).toBe(200);
+    expect(ilk.body).toMatchObject({ status: 'secildi', origin: 'yukleme', seriesId: seri.id, width: 1200 });
+    // Değişiklik aynı işlemde outbox'a yazılır (işçi serinin taleplerini dizinde yeniler)
+    expect(
+      await db.outboxEvent.count({
+        where: { type: 'katalog.fotograf_degisti', payload: { equals: { seriesId: seri.id } } },
+      }),
+    ).toBeGreaterThan(0);
+    await search.sync(t.id, true);
+    expect((await call(app, 'GET', `/talepler?q=${t.no}`)).body.sonuclar[0].foto).toBe(
+      `/catalog/images/${ilk.body.id}`,
+    );
+    const sayfa = await call(app, 'GET', `/talepler/${t.no}`);
+    expect(sayfa.body.gorunum.alternatifler[0].foto).toMatchObject({
+      kaynak: 'yukleme',
+      genel: true,
+      nesil: null,
+      caption: 'Fotoğraf: Ali Veli · CC BY 4.0 · temsilî görsel',
+    });
+    expect((await app.inject({ method: 'GET', url: `/catalog/images/${ilk.body.id}` })).statusCode).toBe(200);
+    bekleyen = (await staffCall(app, 'GET', '/staff/catalog/images/bekleyen-talepler', undefined, owner))
+      .body;
+    expect(bekleyen.hedefler.some((h: { seriesId: string }) => h.seriesId === seri.id)).toBe(false);
+
+    // Aynı yere yeni yükleme eskisini kaldırır (kayıt silinmez)
+    const ikinci = await yukle(bilgi, await jpeg(1600, 900, '#F05A9B'));
+    expect(ikinci.body.status).toBe('secildi');
+    expect((await db.catalogImage.findUniqueOrThrow({ where: { id: ilk.body.id } })).status).toBe(
+      'kaldirildi',
+    );
+    const yerler = (await staffCall(app, 'GET', `/staff/catalog/images/seri/${seri.id}`, undefined, owner))
+      .body;
+    expect(yerler[0]).toMatchObject({ hedef: { tur: 'seri' } });
+    expect(yerler[0].adaylar.map((i: { id: string }) => i.id)).toEqual([ikinci.body.id]);
+    expect(
+      (await staffCall(app, 'GET', '/staff/catalog/images/seriler?q=bmw 5', undefined, owner)).body[0],
+    ).toMatchObject({ id: seri.id, ad: 'BMW 5 Serisi' });
+
+    // Kaldırılınca talep yeniden kapakla görünür ve konsolda bekler
+    expect(
+      (await staffCall(app, 'POST', `/staff/catalog/images/${ikinci.body.id}/remove`, {}, owner)).status,
+    ).toBe(200);
+    expect((await call(app, 'GET', `/talepler/${t.no}`)).body.gorunum.alternatifler[0].foto).toBeNull();
+    bekleyen = (await staffCall(app, 'GET', '/staff/catalog/images/bekleyen-talepler', undefined, owner))
+      .body;
+    expect(bekleyen.hedefler.some((h: { seriesId: string }) => h.seriesId === seri.id)).toBe(true);
   });
 });

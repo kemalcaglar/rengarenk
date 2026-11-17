@@ -18,7 +18,7 @@ import {
 } from '@nestjs/common';
 import { ANA_KATEGORILER, ozetBirlestir, teknikOku } from '@rengarenk/catalog';
 import type { Prisma } from '@rengarenk/db';
-import { kasaTipiOf, VEHICLE_CATEGORIES } from '@rengarenk/shared';
+import { GORSEL_LISANSLARI, kasaTipiOf, VEHICLE_CATEGORIES } from '@rengarenk/shared';
 import { z } from 'zod';
 import { AuditService } from '../audit/audit.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
@@ -441,6 +441,23 @@ const sourcePatchSchema = z
 
 const aliasStatusSchema = z.enum(['onerildi', 'onaylandi', 'reddedildi']).optional();
 const imageStatusSchema = z.enum(['bekleyen', 'secili']).optional();
+const hedefSchema = z.object({ tur: z.enum(['nesil', 'kusak', 'seri']), id: z.uuid() });
+const imageSearchSchema = hedefSchema.extend({ kategori: z.string().trim().min(2).max(200) }).strict();
+const seriAraSchema = z.string().trim().max(80).optional();
+/** Elle yükleme (sahip isteği, 17 Kasım 2026): bilgiler sorgu dizesinde, fotoğraf gövdede */
+const imageUploadSchema = hedefSchema
+  .extend({
+    kaynak: z
+      .url('Kaynak sayfası bir web adresi olmalı')
+      .max(500)
+      .refine((u) => /^https?:\/\//.test(u), 'Kaynak http ya da https olmalı'),
+    yazar: z.string().trim().min(2, 'Yazar ya da hak sahibi yaz').max(200),
+    lisans: z.enum(GORSEL_LISANSLARI, 'Lisans listeden seçilmeli'),
+    makyaj: z.coerce.number().int().min(0).max(5).optional(),
+    yilBas: z.coerce.number().int().min(1900).max(2100).optional(),
+    yilSon: z.coerce.number().int().min(1900).max(2100).optional(),
+  })
+  .refine((v) => !v.yilBas || !v.yilSon || v.yilBas <= v.yilSon, 'Yıl aralığı ters');
 const aliasCreateSchema = z.object({ fromSeriesId: z.uuid(), toSeriesId: z.uuid() }).strict();
 const aliasApproveSchema = z
   .object({ toKey: z.string().min(3).max(200).optional() })
@@ -451,11 +468,21 @@ const aliasApproveSchema = z
 const oran = z.number().min(0).max(1);
 const blurAreaSchema = z.object({ x: oran, y: oran, w: oran.positive(), h: oran.positive() }).strict();
 /** Galeri fotoğrafında plaka alanları ya da "plaka görünmüyor" onayı zorunlu (Karar 34) */
+const yilSchema = z.number().int().min(1900).max(2100);
+const yilAraligiSchema = z
+  .tuple([yilSchema, yilSchema])
+  .refine(([a, b]) => a <= b, 'Yıl aralığı ters')
+  .nullable()
+  .optional();
 const imageSelectSchema = z
   .object({
     makyaj: z.number().int().min(0).max(5).nullable().optional(),
     alanlar: z.array(blurAreaSchema).max(6).optional(),
     plakaYok: z.boolean().optional(),
+    /** Aynı yerde seçili fotoğraf varsa kaldırıp bununla değiştir */
+    degistir: z.boolean().optional(),
+    /** Model geneli (seri) fotoğrafında yıl aralığı */
+    yil: yilAraligiSchema,
   })
   .strict()
   .optional()
@@ -494,10 +521,74 @@ export class StaffCatalogController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body(new ZodPipe(imageSelectSchema)) body: z.output<typeof imageSelectSchema>,
   ) {
-    return this.images.select(id, req.staff.staff.id, req.ip, body.makyaj ?? null, {
-      alanlar: body.alanlar,
-      plakaYok: body.plakaYok,
-    });
+    return this.images.select(
+      id,
+      req.staff.staff.id,
+      req.ip,
+      body.makyaj ?? null,
+      { alanlar: body.alanlar, plakaYok: body.plakaYok },
+      { degistir: body.degistir, yil: body.yil ?? null },
+    );
+  }
+
+  /** Seçili fotoğrafı kaldır (yerine başkası seçilebilir; kayıt silinmez) */
+  @Post('images/:id/remove')
+  @HttpCode(200)
+  @RequirePermission('kategori.ayarla')
+  imageRemove(@Req() req: StaffRequest, @Param('id', new ParseUUIDPipe()) id: string) {
+    return this.images.remove(id, req.staff.staff.id, req.ip);
+  }
+
+  /** Görsel bekleyen talepler: fotoğrafın gideceği yere göre gruplu (sahip isteği, 17 Kasım 2026) */
+  @Get('images/bekleyen-talepler')
+  @RequirePermission('kategori.ayarla')
+  imagePending() {
+    return this.images.bekleyenTalepler();
+  }
+
+  /** Araç ara (seri adı) ve bir modelin bütün görsel yerleri */
+  @Get('images/seriler')
+  @RequirePermission('kategori.ayarla')
+  imageSeries(@Query('q', new ZodPipe(seriAraSchema)) q?: string) {
+    return this.images.seriAra(q ?? '');
+  }
+
+  @Get('images/seri/:id')
+  @RequirePermission('kategori.ayarla')
+  imageSeriesPlaces(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.images.seriYerleri(id);
+  }
+
+  /** Bir yer için Commons kategorisinden aday ara */
+  @Post('images/ara')
+  @HttpCode(200)
+  @RequirePermission('kategori.ayarla')
+  imageSearch(@Body(new ZodPipe(imageSearchSchema)) body: z.output<typeof imageSearchSchema>) {
+    return this.images.adayAra({ tur: body.tur, id: body.id }, body.kategori);
+  }
+
+  /** Elle fotoğraf yükleme: gövde JPEG, PNG ya da WEBP; kaynak, yazar ve lisans sorgu dizesinde */
+  @Post('images/yukle')
+  @HttpCode(200)
+  @RequirePermission('kategori.ayarla')
+  imageUpload(
+    @Req() req: StaffRequest & { body?: unknown },
+    @Query(new ZodPipe(imageUploadSchema)) q: z.output<typeof imageUploadSchema>,
+  ) {
+    if (!Buffer.isBuffer(req.body)) throw new BadRequestException('Fotoğraf gövdede gelmeli');
+    return this.images.upload(
+      { tur: q.tur, id: q.id },
+      new Uint8Array(req.body),
+      {
+        kaynak: q.kaynak,
+        yazar: q.yazar,
+        lisans: q.lisans,
+        makyaj: q.makyaj ?? null,
+        yil: q.yilBas || q.yilSon ? [q.yilBas ?? null, q.yilSon ?? null] : null,
+      },
+      req.staff.staff.id,
+      req.ip,
+    );
   }
 
   /** Plaka bulanıklaştırma (Karar 34): alanlar fotoğrafa oranla */

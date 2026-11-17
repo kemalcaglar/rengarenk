@@ -11,7 +11,7 @@ import { CatalogImportService } from '../src/catalog/catalog-import.service.js';
 import { CatalogPipelineService } from '../src/catalog/catalog-pipeline.service.js';
 import { COMMONS_CLIENT, type CommonsClient } from '../src/catalog/commons-client.js';
 import { galeriFotoGeriCek } from '../src/catalog/galeri-foto.js';
-import { nesilFoto } from '../src/catalog/photo-pick.js';
+import { nesilFoto, talepFotosu } from '../src/catalog/photo-pick.js';
 import { TSB_CLIENT, type TsbClient } from '../src/catalog/tsb-client.js';
 import { VEHICLESDB_CLIENT, type VehiclesDbClient } from '../src/catalog/vehiclesdb-client.js';
 import { VMM_CLIENT, type VmmClient } from '../src/catalog/vmm-client.js';
@@ -768,8 +768,12 @@ describe('nesil fotoğrafları: Wikimedia Commons (Karar 34)', () => {
 
     const review = (await staffCall(app, 'GET', '/staff/catalog/images', undefined, owner)).body;
     expect(review).toHaveLength(1);
-    expect(review[0]).toMatchObject({ code: 'G20', series: { name: '3 Serisi', make: { name: 'BMW' } } });
-    const [best, other] = review[0].images;
+    expect(review[0]).toMatchObject({
+      hedef: { tur: 'nesil' },
+      baslik: 'BMW 3 Serisi G20',
+      kategori: 'BMW G20',
+    });
+    const [best, other] = review[0].adaylar;
     expect(best.commonsFile).toBe('2019 BMW 320d Front.jpg');
 
     const support = (await loginAs(app, await createStaff(db, 'SUPPORT'))).token;
@@ -964,8 +968,8 @@ describe("galeri fotoğrafı temsilî görsel (Karar 34: Commons'ta fotoğraf yo
       portfolioPhotoId: izinli.fotoId,
     });
     const review = (await staffCall(app, 'GET', '/staff/catalog/images', undefined, owner)).body;
-    const g = review.find((x: { code: string }) => x.code === 'E36');
-    expect(g.images[0]).toMatchObject({ origin: 'galeri', preview: `/portfoy/fotolar/${izinli.fotoId}` });
+    const g = review.find((x: { baslik: string }) => x.baslik.endsWith(' E36'));
+    expect(g.adaylar[0]).toMatchObject({ origin: 'galeri', preview: `/portfoy/fotolar/${izinli.fotoId}` });
 
     // Plaka işaretlenmeden ya da "görünmüyor" onaylanmadan seçilmez; plakalı kopya yayına çıkmaz
     const url = `/staff/catalog/images/${aday.id}/select`;
@@ -1020,6 +1024,86 @@ describe("galeri fotoğrafı temsilî görsel (Karar 34: Commons'ta fotoğraf yo
       yakin: 'sonraki',
     });
     expect(nesilFoto(nesiller, [], { id: 'f30', startYear: 2012 }, 0)).toBeUndefined();
+  });
+});
+
+describe('talep görseli seçimi (sahip isteği, 17 Kasım 2026)', () => {
+  const gen = (
+    id: string,
+    code: string | null,
+    startYear: number,
+    endYear: number | null,
+    source = 'wikidata',
+  ) => ({
+    id,
+    key: `k-${id}`,
+    code,
+    facelift: null,
+    source,
+    startYear,
+    endYear,
+  });
+  const gens = [
+    gen('f30', 'F30', 2012, 2018),
+    gen('g20', 'G20', 2019, null),
+    gen('kusak', null, 2005, 2011, 'vmm'),
+  ];
+  const foto = (
+    id: string,
+    yer: { generationId?: string; seriesId?: string },
+    yil: [number, number] | null = null,
+  ) => ({
+    id,
+    generationId: yer.generationId ?? null,
+    seriesId: yer.seriesId ?? null,
+    facelift: null,
+    yearFrom: yil?.[0] ?? null,
+    yearTo: yil?.[1] ?? null,
+  });
+
+  it('kodlu kasa → nesil; kuşak → kuşak; kasa yoksa yıllar; sonra model geneli; hiçbiri yoksa hedef döner', () => {
+    const g20 = foto('a', { generationId: 'g20' });
+    const k = foto('b', { generationId: 'kusak' });
+    const seri = foto('c', { seriesId: 's' });
+    const hepsi = [g20, k, seri];
+    expect(talepFotosu(gens, hepsi, 's', 'G20:0', null, 2026)).toMatchObject({ foto: g20, yakin: null });
+    expect(talepFotosu(gens, hepsi, 's', 'k-kusak', null, 2026)).toMatchObject({ foto: k, yakin: null });
+    // Kasa yok: 2020–2022 G20'yle örtüşür
+    expect(talepFotosu(gens, hepsi, 's', null, [2020, 2022], 2026)).toMatchObject({ foto: g20 });
+    // F30 yıllarında nesil fotoğrafı yok: model geneli
+    expect(talepFotosu(gens, hepsi, 's', null, [2013, 2016], 2026)).toMatchObject({
+      foto: seri,
+      yakin: 'seri',
+    });
+    // Model geneli de yoksa en yakın nesil "önceki/sonraki" etiketiyle
+    expect(talepFotosu(gens, [g20], 's', null, [2013, 2016], 2026)).toMatchObject({
+      foto: g20,
+      yakin: 'sonraki',
+    });
+    // Hiç fotoğraf yok: konsolda gideceği yer (yılları örtüşen nesil)
+    expect(talepFotosu(gens, [], 's', null, [2013, 2016], 2026)).toEqual({
+      yakin: null,
+      hedef: { tur: 'nesil', id: 'f30', makyaj: null },
+    });
+    expect(talepFotosu(gens, [], 's', 'F30:1', null, 2026).hedef).toEqual({
+      tur: 'nesil',
+      id: 'f30',
+      makyaj: 1,
+    });
+    expect(talepFotosu(gens, [], 's', null, null, 2026).hedef).toEqual({
+      tur: 'seri',
+      id: 's',
+      makyaj: null,
+    });
+  });
+
+  it('model genelinde talebin yıllarına en yakın fotoğraf', () => {
+    const eski = foto('e', { seriesId: 's' }, [1995, 2004]);
+    const yeni = foto('y', { seriesId: 's' }, [2015, 2026]);
+    const genel = foto('g', { seriesId: 's' });
+    expect(talepFotosu([], [eski, yeni, genel], 's', null, [1998, 2000], 2026).foto).toBe(eski);
+    expect(talepFotosu([], [eski, yeni, genel], 's', null, [2020, 2022], 2026).foto).toBe(yeni);
+    expect(talepFotosu([], [eski, yeni, genel], 's', null, null, 2026).foto).toBe(genel);
   });
 });
 

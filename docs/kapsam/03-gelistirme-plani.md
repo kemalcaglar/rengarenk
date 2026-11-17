@@ -151,6 +151,10 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   gelir. Nesilde hiç fotoğraf yoksa talep sayfasında (web, mobil) aynı serinin en yakın önceki neslinin fotoğrafı
   "Temsili görsel · önceki nesil" etiketiyle (önceki yoksa sonraki nesil; `nesilFoto`). Liste ve vitrin kartları
   yalnızca neslin kendi fotoğrafını gösterir (kartta atıf satırı yok)
+- [x] Her talep görselli (17 Kasım 2026, sahip isteği; Karar 24, 34): fotoğraf nesle, kasa kuşağına ya da modele (model
+  geneli, isteğe bağlı yıl aralığı) bağlanır; kasa yoksa yıllara uyan nesil. Fotoğraf yoksa web ve mobilde marka ve model
+  kapağı, konsolda "Görsel bekleyen talepler" kuyruğu ve `talep_gorseli` uyarısı. Konsol › Araç görselleri: Commons'ta
+  kategoriyle arama, elle yükleme (kaynak, yazar, lisans zorunlu), değiştir, kaldır, araç ara. Kartlarda fiyat tam rakam.
 
 ## Sprint 30 · üyelik ve giriş yeniden (Karar 18 ve 50, 12 Kasım 2026)
 

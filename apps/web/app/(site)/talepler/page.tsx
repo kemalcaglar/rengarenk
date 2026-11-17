@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { CSSProperties, ReactNode } from 'react';
 import { Suspense } from 'react';
+import { AracKapak } from '../../../components/arac-kapak';
 import { Banner } from '../../../components/banner';
 import { DarAcilir } from '../../../components/dar-acilir';
 import { getCategories } from '../../../lib/kategoriler';
@@ -33,6 +34,8 @@ interface Sonuc {
   ilce: string | null;
   yayin: string;
   foto: string | null;
+  markaAd?: string | null;
+  seriAd?: string | null;
   /** Öne çıkarmalar (Karar 12.6) */
   acil: boolean;
   ustSira: boolean;
@@ -562,34 +565,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                       style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                     />
                   ) : (
-                    <span
-                      aria-hidden="true"
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flex: 'none',
-                        width: 84,
-                        maxWidth: '100%',
-                        aspectRatio: '84 / 31',
-                        borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                        background: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)',
-                      }}
-                    >
-                      <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#8C95AA"
-                        strokeWidth="1.6"
-                        strokeLinejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path d="M4 7h3l2-2h6l2 2h3v12H4z" />
-                        <circle cx="12" cy="13" r="3.5" />
-                      </svg>
-                    </span>
+                    <AracKapak boyut="mini" marka={t.markaAd} seri={t.seriAd ?? t.kategori.name} />
                   )}
                 </Link>
                 <div style={{ flex: '999 1 240px', minWidth: 0 }}>

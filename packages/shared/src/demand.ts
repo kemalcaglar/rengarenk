@@ -193,24 +193,12 @@ export function searchQueryKey(input: Record<string, unknown>): string {
 }
 
 /**
- * Kartların kısa bütçesi (Anasayfa.dc.html): "1,35 – 1,6 mn TL", "850 bin – 1 mn TL", "700 – 850 bin TL".
- * Mobil son talepler milyonu açık yazar (AnasayfaMobil.dc.html: "850 bin – 1 milyon TL").
+ * Kartlardaki bütçe: tam rakam ("1.000.200 TL", "850.000 – 1.000.000 TL"). Sahip isteği (17 Kasım 2026): fiyat
+ * kısaltılmaz ("1 mn TL" yazılmaz); eski tasarımdaki "1,35 – 1,6 mn TL" biçimi bırakıldı.
  */
-export function compactBudget(
-  min?: number | null,
-  max?: number | null,
-  milyon: 'mn' | 'milyon' = 'mn',
-): string {
-  const birim = (n: number) => (n >= 1_000_000 ? milyon : n >= 1_000 ? 'bin' : '');
-  const sayi = (n: number) => {
-    const b = birim(n);
-    const v = b === milyon ? n / 1_000_000 : b === 'bin' ? n / 1_000 : n;
-    return new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 2 }).format(v);
-  };
-  const tam = (n: number) => [sayi(n), birim(n)].filter(Boolean).join(' ');
-  if (min && max && min !== max) {
-    return birim(min) === birim(max) ? `${sayi(min)} – ${tam(max)} TL` : `${tam(min)} – ${tam(max)} TL`;
-  }
+export function compactBudget(min?: number | null, max?: number | null): string {
+  const tam = (n: number) => new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 }).format(n);
+  if (min && max && min !== max) return `${tam(min)} – ${tam(max)} TL`;
   if (max) return min === max ? `${tam(max)} TL` : `En çok ${tam(max)} TL`;
   if (min) return `En az ${tam(min)} TL`;
   return '';

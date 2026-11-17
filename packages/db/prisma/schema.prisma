@@ -715,6 +715,9 @@ model CatalogSeries {
   name       String
   /// Bu serinin tiplerinin girdiği kategoriler (Karar 19 sözlüğü)
   categories String[]
+  /// Wikimedia Commons kategorisi (model geneli fotoğraf adayları; sahip isteği, 17 Kasım 2026) ve son bakılma
+  commonsCategory  String?   @map("commons_category")
+  commonsCheckedAt DateTime? @map("commons_checked_at") @db.Timestamptz(3)
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
   make        CatalogMake         @relation(fields: [makeId], references: [id])
@@ -723,6 +726,7 @@ model CatalogSeries {
   variants    CatalogVariant[]
   generations CatalogGeneration[]
   lineup      CatalogLineup?
+  images      CatalogImage[]
 
   @@index([makeId])
   @@map("catalog_series")
@@ -879,8 +883,14 @@ model CatalogGeneration {
 /// Yalnızca ticari kullanıma izin veren lisanslar (kamu malı, CC0, CC BY, CC BY-SA); NC ve ND alınmaz.
 model CatalogImage {
   id                 String    @id @db.Uuid
-  /// Nesil kodu satırı (Wikidata kaynağı; kasa kuşakları kodla bu fotoğrafı paylaşır)
-  generationId       String    @map("generation_id") @db.Uuid
+  /// Nesil kodu satırı (Wikidata kaynağı; kasa kuşakları kodla bu fotoğrafı paylaşır) ya da kodsuz kasa kuşağı.
+  /// Seri fotoğrafında boş (ikisinden biri dolu)
+  generationId       String?   @map("generation_id") @db.Uuid
+  /// Model geneli fotoğraf (sahip isteği, 17 Kasım 2026): nesil ya da kasa bilinmeyen talepler için; isteğe bağlı yıl
+  /// aralığıyla (talebin yıllarına en yakın olan gösterilir)
+  seriesId           String?   @map("series_id") @db.Uuid
+  yearFrom           Int?      @map("year_from")
+  yearTo             Int?      @map("year_to")
   /// Commons dosya adı (File:… olmadan)
   commonsFile        String    @map("commons_file")
   /// Commons dosya sayfası
@@ -896,7 +906,7 @@ model CatalogImage {
   licenseUrl         String?   @map("license_url")
   /// Sıralama puanı: büyüklük, yatay kadraj, dosya adındaki ipuçları (ön, iç mekân, motor …)
   score              Int       @default(0)
-  /// aday | secildi | reddedildi
+  /// aday | secildi | reddedildi | geri_alindi (galeri izni kalktı) | kaldirildi (seçili fotoğraf konsoldan kaldırıldı)
   status             String    @default("aday")
   /// Seçilince depodaki kopyanın anahtarı ve özeti (plaka bulanıklaştırıldıysa düzenlenmiş kopya)
   storageKey         String?   @map("storage_key")
@@ -909,7 +919,8 @@ model CatalogImage {
   /// Düzenlemeden önceki kopya (geri almak için) ve bulanıklaştırılan alanlar (0–1 oranlarıyla x, y, w, h)
   originalKey        String?   @map("original_key")
   blurAreas          Json?     @map("blur_areas")
-  /// Kaynak (Karar 34): commons; Commons'ta fotoğraf yoksa galeri (izin verilen portföy fotoğrafı, galeri adı atfıyla).
+  /// Kaynak (Karar 34): commons; yukleme (katalog sorumlusunun elle eklediği, kaynak/yazar/lisans zorunlu);
+  /// Commons'ta fotoğraf yoksa galeri (izin verilen portföy fotoğrafı, galeri adı atfıyla).
   /// Galeri fotoğrafında commonsFile "galeri:<foto id>", author galeri adı, pageUrl galeri profili
   origin             String    @default("commons")
   /// Galeri fotoğrafı: kaynak portföy fotoğrafı, aracı ve galeri hesabı (izin kalkınca fotoğraf geri çekilir)
@@ -920,10 +931,13 @@ model CatalogImage {
   decidedAt          DateTime? @map("decided_at") @db.Timestamptz(3)
   createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  generation CatalogGeneration @relation(fields: [generationId], references: [id])
+  generation CatalogGeneration? @relation(fields: [generationId], references: [id])
+  series     CatalogSeries?     @relation(fields: [seriesId], references: [id])
 
   @@unique([generationId, commonsFile])
+  @@unique([seriesId, commonsFile])
   @@index([status])
+  @@index([seriesId])
   @@index([portfolioVehicleId])
   @@map("catalog_images")
 }

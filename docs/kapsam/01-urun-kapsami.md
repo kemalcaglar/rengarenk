@@ -631,7 +631,7 @@ Talep sayfasında, ana araç ve alternatifin yıl aralığına göre katalogdan 
 - **Eşleştirme:** Katalogda her model için kasa kuşağı, makyaj durumu (ör. G20 makyajsız 2019–2022, G20 makyajlı 2022 ve sonrası) ve yıl aralığı tutulur; alıcının seçtiği kasa hangisiyse onun görseli gelir. Her alternatif kendi görselini gösterir; talepte renk seçildiyse görsel o renkte olabilir.
 - **Kaynak:** Wikimedia Commons'taki açık lisanslı gerçek fotoğraflar, nesil ve makyaj başına seçilir ve atfıyla gösterilir (Karar 34).
 - **Yapılmayacak:** Başka sitelerdeki ilan fotoğrafları veya lisanssız üretici görselleri kullanılmaz.
-- **Görsel yoksa:** 2017 öncesi araçlarda ve araba dışı kategorilerde kasa tipine uygun silüet gösterilir; yönetim panelinde işlem gerekmez.
+- **Görsel yoksa (sahip kararı, 17 Kasım 2026):** her talep görselle yayına girer. Katalogda fotoğraf bulunana kadar görsel alanında aracın markası ve modeliyle tasarlanmış dolu bir kapak gösterilir; talep yönetim panelinde "Görsel bekleyen talepler" listesine düşer ve katalog sorumlusuna uyarı gider (Karar 34).
 
 ## Karar 25: Mesaj güvenliği uyarısı
 
@@ -728,6 +728,7 @@ Katalogda seçilemeyen araç bırakılmaz ve kimse elle veri girmez. Kaynaklar o
 - **Atfı zorunlu:** fotoğrafın altında "Fotoğraf: \[yazar\] · \[lisans\] · Wikimedia Commons · temsilî görsel" yazar; lisans ve kaynak sayfasına bağlantı verilir. Plaka okunuyorsa bulanıklaştırılır; değiştirilen fotoğraf aynı lisansla yayınlanır ve atfında "düzenlendi" yazar.
 - **Barındırma:** seçilen fotoğrafın bir kopyası atfıyla birlikte kendi depolamamıza (SeaweedFS, S3 uyumlu) alınır; böylece Commons'taki bir değişiklik sitemizi bozmaz.
 - **Commons'ta fotoğraf yoksa:** galerinin izin verdiği portföy fotoğraflarından biri (plaka bulanık, galeri adı atfıyla) kullanılır; o da yoksa en yakın neslin fotoğrafı "önceki nesil" etiketiyle gösterilir. Silüet kullanılmaz.
+- **Her talep görselli (sahip kararı, 17 Kasım 2026):** fotoğraf nesil koduna, kasa kuşağına ya da modele (model geneli, isteğe bağlı yıl aralığıyla) bağlanabilir. Talebin kasası yoksa yıllarına uyan neslin fotoğrafı, o da yoksa model geneli fotoğrafı gösterilir. Hiçbiri yoksa marka ve model kapağı gösterilir; talep yönetim panelindeki "Görsel bekleyen talepler" listesine düşer, katalog sorumlusuna uyarı gider. Katalog sorumlusu Commons adaylarından seçer ya da bulduğu fotoğrafı elle yükler: kaynak sayfası, yazar ve lisans zorunludur (kamu malı, CC0, CC BY, CC BY-SA, kendi çekimimiz ya da yazılı izin). Başka sitelerdeki ilan fotoğrafları ve lisanssız üretici görselleri yine yüklenmez. Yayındaki fotoğraf değiştirilebilir ve kaldırılabilir; kayıtlar silinmez.
 - **İleride ücretli seçenek:** auto-data.net'in görsel veritabanı nesil ve makyaj başına gerçek fotoğraf sunar; Commons'ta ciddi boşluk çıkarsa düşünülür. IMAGIN.studio gerekmez.
 
 ## Karar 35: Büyüme ve reklam ölçümü

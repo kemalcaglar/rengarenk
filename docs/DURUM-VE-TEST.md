@@ -94,6 +94,13 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
   seçilince model yılı kasadan gelir, yıl elle girilirse kasa seçilmez; kasaya göre yakıt, vites ve kasa tipi daralır;
   hasar kaydı, motor hacmi ve motor gücü sorulmaz; bütçe tek rakam; sorular yukarıdan aşağı adım adım açılır; her adımın
   tanıtımı üye başına bir kez; açıklamada kalın, italik, renk ve boyut; talep sayfasında açıklama sabit yükseklikte kaydırılır.
+- Her talep görselli (17 Kasım 2026, sahip isteği): fotoğraf nesle, kasa kuşağına ya da modele (model geneli) bağlanır; kasa
+  yoksa talebin yıllarına uyan neslin fotoğrafı gelir. Fotoğraf yoksa liste, vitrin ve talep sayfasında marka ve model kapağı
+  görünür; talep konsolda Entegrasyonlar › Araç görselleri › "Görsel bekleyen talepler" listesine düşer ve katalog
+  sorumlusuna uyarı gider. Konsolda Commons'ta kategoriyle aday arama, elle yükleme (kaynak, yazar, lisans zorunlu),
+  seçili fotoğrafı değiştirme ve kaldırma, "Araç ara" ile her modelin bütün görsel yerleri. İşçi, görsel bekleyen
+  modeller için Commons'ta "Marka Seri" kategorisine kendiliğinden bakar.
+- Kartlarda fiyat tam yazılır (17 Kasım 2026, sahip isteği): "1.000.200 TL", kısaltma ("1 mn TL") yok.
 - Talep sihirbazı (web ve mobil), yaşam döngüsü ve süreler, ilk talep ücretsiz (numara ve hesap başına bir kez).
 - Liste ve arama (OpenSearch), il/ilçe ve komşu il, talep detayı, favoriler, kayıtlı aramalar.
 - Ana sayfa vitrini ve son talepler; giriş yapmamış ziyaretçide de görünür, API'ye ulaşılamazsa yeniden dener.
