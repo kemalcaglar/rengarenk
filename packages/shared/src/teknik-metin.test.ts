@@ -155,3 +155,22 @@ Jant\t17 inç alaşım`);
     expect(donanimOku(donanimYaz(g))).toEqual(g);
   });
 });
+
+describe('okunamayan satırdan ek satır adayı', () => {
+  it('bölüm başlığı bilinen bölüme eşlenir, değersiz satır aday olmaz', () => {
+    const r = teknikMetniOku(
+      [
+        '--Boyutlar ve Ağırlık--',
+        'Römork kapasitesi\t1.200 kg',
+        '--Elektrik--',
+        'Şarj soketi\tTip 2',
+        'Tuhaf satır',
+      ].join('\n'),
+    );
+    expect(r.ekAdaylari).toEqual([
+      { bolum: 'Ölçüler ve ağırlık', etiket: 'Römork kapasitesi', deger: '1.200 kg' },
+      { bolum: 'Elektrik', etiket: 'Şarj soketi', deger: 'Tip 2' },
+    ]);
+    expect(r.okunamayan).toContain('Tuhaf satır');
+  });
+});

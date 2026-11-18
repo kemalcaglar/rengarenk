@@ -5,6 +5,8 @@ import {
   bosOzet,
   duzeltmeUygula,
   teknikBolumleri,
+  teknikEksikleri,
+  teknikOneCikanlar,
   teknikSatirlari,
   vitesYaz,
 } from './teknik.js';
@@ -119,5 +121,61 @@ describe('elle düzeltme (sahip isteği, 17 Kasım 2026)', () => {
       surum: 0,
     });
     expect(duzeltmeUygula(o, [])).toBe(o);
+  });
+});
+
+describe('satır gizleme ve ek satırlar (sahip isteği, 18 Kasım 2026)', () => {
+  const o = {
+    ...bosOzet(),
+    hp: [90, 90] as [number, number],
+    tork: [142, 142] as [number, number],
+    segmentler: ['B'],
+    kapilar: [5, 5] as [number, number],
+    uzunluk: [4053, 4053] as [number, number],
+  };
+  it('gizlenen satır görünmez, eksik sayılmaz; ek satır bölümüne ya da yeni bölüme eklenir', () => {
+    const r = duzeltmeUygula(
+      o,
+      [],
+      [
+        {
+          gizli: ['segmentler', 'hizlanma'],
+          ekSatirlar: [{ bolum: 'Genel', etiket: 'Garanti', deger: '5 yıl' }],
+        },
+        { ekSatirlar: [{ bolum: 'Elektrik', etiket: 'Şarj soketi', deger: 'Tip 2' }] },
+      ],
+    ) as NonNullable<ReturnType<typeof duzeltmeUygula>>;
+    const b = teknikBolumleri(r);
+    expect(b[0]).toEqual({
+      baslik: 'Genel',
+      satirlar: [
+        ['Kapı sayısı', '5'],
+        ['Garanti', '5 yıl'],
+      ],
+    });
+    expect(b.at(-1)).toEqual({ baslik: 'Elektrik', satirlar: [['Şarj soketi', 'Tip 2']] });
+    expect(teknikEksikleri(r)).not.toContain('0-100 km/s');
+    expect(teknikEksikleri(o)).toContain('0-100 km/s');
+    expect(r.kaynaklar).toContain('manuel');
+  });
+  it('aynı etiketli ek satır kaynaktaki satırın yerine geçer; sonraki kayıt öncekini ezer', () => {
+    const r = duzeltmeUygula(
+      o,
+      [],
+      [
+        { ekSatirlar: [{ bolum: 'Motor', etiket: 'Güç', deger: '91 hp' }] },
+        { ekSatirlar: [{ bolum: 'Motor', etiket: 'güç', deger: '92 hp' }] },
+      ],
+    ) as NonNullable<ReturnType<typeof duzeltmeUygula>>;
+    const motor = teknikBolumleri(r).find((x) => x.baslik === 'Motor');
+    expect(motor?.satirlar).toEqual([
+      ['güç', '92 hp'],
+      ['Tork', '142 Nm'],
+    ]);
+  });
+  it('öne çıkanlar gizlenen değeri atlar', () => {
+    expect(teknikOneCikanlar(o).map((x) => x.etiket)).toEqual(['Güç', 'Tork']);
+    expect(teknikOneCikanlar({ ...o, gizli: ['tork'] }).map((x) => x.etiket)).toEqual(['Güç']);
+    expect(teknikSatirlari({ ...o, gizli: ['hp'] })).toEqual([]);
   });
 });

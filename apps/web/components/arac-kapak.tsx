@@ -48,6 +48,8 @@ export function AracKapak({
     <span
       role="img"
       aria-label={ad ? `${ad} kapak görseli` : 'Araç kapak görseli'}
+      // Telefonda büyük kapağın yazıları küçülür (telefon.css: kutu 16:9 daralınca etiketler sığsın)
+      className={boyut === 'buyuk' ? 'rr-kapak-buyuk' : undefined}
       style={{
         position: 'relative',
         display: 'block',
@@ -118,6 +120,7 @@ export function AracKapak({
           </span>
         ) : null}
         <span
+          className="rr-kapak-seri"
           style={{
             display: '-webkit-box',
             WebkitLineClamp: 2,
@@ -133,7 +136,10 @@ export function AracKapak({
           {seri ?? marka ?? 'Araç'}
         </span>
         {satir.length && boyut === 'buyuk' ? (
-          <span style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10, paddingRight: '28%' }}>
+          <span
+            className="rr-kapak-etiketler"
+            style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10, paddingRight: '28%' }}
+          >
             {satir.map((x) => (
               <span
                 key={x}

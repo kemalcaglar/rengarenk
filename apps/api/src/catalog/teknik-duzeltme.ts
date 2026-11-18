@@ -1,4 +1,4 @@
-import type { DonanimGrubu, TeknikDuzeltme } from '@rengarenk/shared';
+import type { DonanimGrubu, EkSatir, TeknikDuzeltme, TeknikDuzen } from '@rengarenk/shared';
 import type { Db } from '../database/prisma.js';
 
 export interface MotorDonanimi {
@@ -15,6 +15,8 @@ export interface ElleKayit {
   gearbox: string | null;
   values: TeknikDuzeltme;
   equipment: DonanimGrubu[] | null;
+  /** Satır düzeni: gizlenen satırlar ve ek satırlar */
+  duzen: TeknikDuzen;
 }
 
 /**
@@ -50,6 +52,8 @@ export async function elleKayitlari(
       equipment: true,
       trimId: true,
       gearbox: true,
+      hiddenRows: true,
+      extraRows: true,
       createdAt: true,
       trim: { select: { name: true } },
     },
@@ -66,6 +70,7 @@ export async function elleKayitlari(
       gearbox: r.gearbox,
       values: r.values as TeknikDuzeltme,
       equipment: (r.equipment as DonanimGrubu[] | null) ?? null,
+      duzen: { gizli: r.hiddenRows, ekSatirlar: (r.extraRows as EkSatir[] | null) ?? [] },
     }));
 }
 
@@ -78,7 +83,7 @@ export function kayitlariSec(
   kayitlar: readonly ElleKayit[],
   modelId: string,
   vitesler: readonly string[] | null,
-): { degerler: TeknikDuzeltme[]; donanim: MotorDonanimi[] } {
+): { degerler: TeknikDuzeltme[]; donanim: MotorDonanimi[]; duzen: TeknikDuzen[] } {
   const uyan = kayitlar.filter(
     (k) => k.modelId === modelId && (!k.gearbox || (vitesler ?? []).includes(k.gearbox)),
   );
@@ -90,15 +95,21 @@ export function kayitlariSec(
   const donanim = [...paketBasina.values()].sort((a, b) =>
     a.paket === null ? -1 : b.paket === null ? 1 : a.paket.localeCompare(b.paket, 'tr'),
   );
-  return { degerler, donanim };
+  const duzen = uyan.map((k) => k.duzen).filter((d) => d.gizli?.length || d.ekSatirlar?.length);
+  return { degerler, donanim, duzen };
 }
 
-/** Yalnızca teknik değerler, vitessiz kayıtlar (sihirbazdaki seri ayrıntısı; pakete özel kayıtlar uygulanmaz) */
+/** Teknik değerler ve satır düzeni, vitessiz kayıtlar (sihirbazdaki seri ayrıntısı; pakete özel kayıtlar uygulanmaz) */
 export async function duzeltmeleri(
   db: Db,
   modelIds: readonly string[],
   aralik: [number, number] | null,
-): Promise<Map<string, TeknikDuzeltme[]>> {
+): Promise<Map<string, { degerler: TeknikDuzeltme[]; duzen: TeknikDuzen[] }>> {
   const kayitlar = await elleKayitlari(db, modelIds, aralik);
-  return new Map(modelIds.map((id) => [id, kayitlariSec(kayitlar, id, null).degerler]));
+  return new Map(
+    modelIds.map((id) => {
+      const k = kayitlariSec(kayitlar, id, null);
+      return [id, { degerler: k.degerler, duzen: k.duzen }];
+    }),
+  );
 }

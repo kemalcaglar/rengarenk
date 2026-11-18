@@ -1,5 +1,5 @@
 import { kasaTipiOf } from './sihirbaz.js';
-import type { DonanimGrubu, TeknikDuzeltme } from './teknik.js';
+import type { DonanimGrubu, EkSatir, TeknikDuzeltme } from './teknik.js';
 
 /**
  * Konsolda yapıştırılan teknik özellik ve donanım metni (sahip isteği, 18 Kasım 2026). Satırlar "Etiket<TAB>Değer"
@@ -13,6 +13,22 @@ export interface TeknikMetinSonucu {
   /** "Model Üretim Yılı (İlk / Son)": [2020, null] (devam ediyor) */
   yillar: [number | null, number | null] | null;
   okunamayan: string[];
+  /** Okunamayan ama "Etiket – Değer" biçimindeki satırlar: konsolda tek tıkla ek satır yapılabilir (bölüm metindeki
+   * başlıktan; bilinen bir bölüme benziyorsa o bölümün adı) */
+  ekAdaylari: EkSatir[];
+}
+
+/** Metindeki "--Bölüm--" başlığı → talep sayfasındaki bölüm (benzemiyorsa başlığın kendisi) */
+export function bolumEsle(baslik: string): string {
+  const n = etiketNorm(baslik);
+  if (/sanziman|vites|cekis/.test(n)) return 'Şanzıman ve çekiş';
+  if (/tuketim|emisyon|yakit/.test(n)) return 'Yakıt tüketimi ve emisyon';
+  if (/olcu|boyut|agirlik|hacim|kapasite/.test(n)) return 'Ölçüler ve ağırlık';
+  if (/lastik|fren|jant|tekerlek/.test(n)) return 'Lastik ve fren';
+  if (/performans/.test(n)) return 'Performans';
+  if (/motor/.test(n)) return 'Motor';
+  if (/genel/.test(n)) return 'Genel';
+  return baslik.trim();
 }
 
 /** Karşılaştırma için: küçük harf, Türkçe harfler sadeleşir, noktalama boşluk olur */
@@ -310,7 +326,8 @@ function bol(satir: string): [string, string] {
 
 /** Yapıştırılan metni okur (bkz. `TeknikMetinSonucu`) */
 export function teknikMetniOku(metin: string): TeknikMetinSonucu {
-  const s: TeknikMetinSonucu = { degerler: {}, donanim: [], yillar: null, okunamayan: [] };
+  const s: TeknikMetinSonucu = { degerler: {}, donanim: [], yillar: null, okunamayan: [], ekAdaylari: [] };
+  let bolum = 'Genel';
   const d = s.degerler as Record<string, [number, number] | string[]>;
   let donanimda = false;
   let grup: DonanimGrubu | null = null;
@@ -331,7 +348,7 @@ export function teknikMetniOku(metin: string): TeknikMetinSonucu {
       else if (/donanim|ozellik listesi|ekipman/.test(n)) {
         donanimda = true;
         grup = null;
-      }
+      } else bolum = bolumEsle(ad);
       continue;
     }
     const [etiket, deger] = bol(satir.replace(/^\s*[-•*·]\s+/, ''));
@@ -347,7 +364,11 @@ export function teknikMetniOku(metin: string): TeknikMetinSonucu {
     if (BILGI.test(n)) continue;
     const kural = deger ? KURALLAR.find(([re]) => re.test(n)) : undefined;
     const okundu = kural ? kural[1](deger, etiketNorm(`${etiket} ${deger}`), d, s) : false;
-    if (!okundu) s.okunamayan.push(satir.trim());
+    if (!okundu) {
+      s.okunamayan.push(satir.trim());
+      if (etiket && deger && etiket.length <= 80 && deger.length <= 200)
+        s.ekAdaylari.push({ bolum, etiket, deger });
+    }
   }
   s.donanim = s.donanim.filter((g) => g.ogeler.length);
   return s;

@@ -138,7 +138,9 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
   const metin = tek(q.q);
   const baslik = metin
     ? `“${metin}” için talepler`
-    : `${markaAd ?? altKat?.name ?? kat?.name ?? 'Tüm'} talepleri`;
+    : markaAd || altKat || kat
+      ? `${markaAd ?? altKat?.name ?? kat?.name} talepleri`
+      : 'Tüm talepler';
   const aktif = [
     ...seriler.map((s) => y?.filtreler.seri.find((x) => x.key === s)?.ad ?? s),
     ...makyaj.map((m) => (m === 'makyajsiz' ? 'Makyajsız' : 'Makyajlı')),
@@ -463,10 +465,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
           </div>
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
-            {(aktif.length
-              ? aktif
-              : [`${baslik.replace(/ talepleri$/, '')} talepleri`.replace(/^Tüm talepleri$/, 'Tüm talepler')]
-            ).map((a) => (
+            {(aktif.length ? aktif : [baslik]).map((a) => (
               <span
                 key={a}
                 style={{
@@ -618,14 +617,20 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                     </span>
                   </div>
                 </div>
-                <span style={{ flex: '1 1 100px', fontSize: 14, fontWeight: 600 }}>
+                <span className="rr-ts-bilgi" style={{ flex: '1 1 100px', fontSize: 14, fontWeight: 600 }}>
                   {yilAraligi(t.yilMin, t.yilMax) || '—'}
                 </span>
-                <span style={{ flex: '1 1 100px', fontSize: 14, fontWeight: 600 }}>
+                <span
+                  className="rr-ts-bilgi"
+                  data-bos={t.kmMax ? undefined : ''}
+                  style={{ flex: '1 1 100px', fontSize: 14, fontWeight: 600 }}
+                >
                   {t.kmMax ? `${binlik(t.kmMax)} km` : '—'}
                 </span>
                 <span
+                  className="rr-ts-butce"
                   style={{
+                    whiteSpace: 'nowrap',
                     flex: '1 1 170px',
                     fontSize: 14.5,
                     fontWeight: 800,

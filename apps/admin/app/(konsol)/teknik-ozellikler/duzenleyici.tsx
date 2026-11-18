@@ -6,7 +6,11 @@ import {
   type DonanimGrubu,
   donanimOku,
   donanimYaz,
+  type EkSatir,
   TEKNIK_ALANLARI,
+  TEKNIK_BOLUMLER,
+  TEKNIK_SATIR_ANAHTARLARI,
+  TEKNIK_SATIRLAR,
   type TeknikAlan,
   type TeknikDuzeltme,
   type TeknikOzet,
@@ -33,6 +37,8 @@ interface ModelVerisi {
     vites: string | null;
     degerler: TeknikDuzeltme;
     donanim: DonanimGrubu[] | null;
+    gizli: string[];
+    ekSatirlar: EkSatir[];
     not: string | null;
     zaman: string;
   }[];
@@ -61,6 +67,15 @@ const VITES_AD: Record<string, string> = {
   manuel: 'Manuel',
   otomatik: 'Otomatik',
   yari_otomatik: 'Yarı otomatik',
+};
+
+/** Satır anahtarı → talep sayfasındaki etiketi */
+const satirAdi = (k: string) => TEKNIK_SATIRLAR.find((t) => t.key === k)?.etiket ?? k;
+/** Satırı olmayan alanlar hangi satırda gösterilir */
+const SATIR_ICINDE: Record<string, string> = {
+  kw: 'Güç satırında',
+  gucDevir: 'Güç satırında',
+  torkDevir: 'Tork satırında',
 };
 
 const ogeSayisi = (g: readonly DonanimGrubu[] | null | undefined) =>
@@ -118,6 +133,11 @@ export function Duzenleyici({
   const [form, setForm] = useState<Record<string, string | string[]>>({});
   const [metin, setMetin] = useState('');
   const [okunamayan, setOkunamayan] = useState<string[]>([]);
+  const [adaylar, setAdaylar] = useState<EkSatir[]>([]);
+  /** Bu kayıtla gizlenecek satırlar */
+  const [gizli, setGizli] = useState<string[]>([]);
+  /** Bu kayıtla eklenecek serbest satırlar */
+  const [ekSatirlar, setEkSatirlar] = useState<EkSatir[]>([]);
   const [donanimMetni, setDonanimMetni] = useState('');
   const [not, setNot] = useState('');
   const [hata, setHata] = useState<string | null>(null);
@@ -138,11 +158,17 @@ export function Duzenleyici({
 
   function metniOku() {
     setHata(null);
+    setMesaj(null);
     const r = teknikMetniOku(metin);
     const alan = Object.keys(r.degerler).length;
     const oge = ogeSayisi(r.donanim);
     if (!alan && !oge && !r.yillar) {
       setOkunamayan(r.okunamayan);
+      setAdaylar(r.ekAdaylari);
+      if (r.ekAdaylari.length)
+        return setMesaj(
+          `Tanınan alan yok; ${r.ekAdaylari.length} satırı aşağıdan teknik tabloya ek satır olarak ekleyebilirsin.`,
+        );
       return setHata(
         'Metinden hiçbir değer okunamadı. Satırlar "Etiket<TAB>Değer" ya da "Etiket: Değer" olmalı.',
       );
@@ -158,6 +184,7 @@ export function Duzenleyici({
     const vitesSecildi = !vites && tur && veri?.vitesler.includes(tur) && (veri?.vitesler.length ?? 0) > 1;
     if (vitesSecildi) setVites(tur);
     setOkunamayan(r.okunamayan);
+    setAdaylar(r.ekAdaylari);
     setMesaj(
       `${alan} alan${r.yillar ? ', yıl aralığı' : ''} ve ${oge} donanım öğesi dolduruldu${vitesSecildi ? `; vites "${VITES_AD[tur] ?? tur}" seçildi` : ''}. Kaydetmeden önce hangi araçlara uygulanacağını ve değerleri kontrol et.`,
     );
@@ -184,7 +211,14 @@ export function Duzenleyici({
       } else degerler[a.key] = v as string[];
     }
     const donanim = donanimMetni.trim() ? donanimOku(donanimMetni) : [];
-    if (!Object.keys(degerler).length && !donanim.length) return setHata('En az bir değer ya da donanım yaz');
+    const ekler = ekSatirlar
+      .map((e) => ({ bolum: e.bolum.trim(), etiket: e.etiket.trim(), deger: e.deger.trim() }))
+      .filter((e) => e.etiket || e.deger);
+    const yarim = ekler.find((e) => !e.bolum || !e.etiket || !e.deger);
+    if (yarim)
+      return setHata(`Ek satır "${yarim.etiket || yarim.deger}": bölüm, etiket ve değer dolu olmalı`);
+    if (!Object.keys(degerler).length && !donanim.length && !gizli.length && !ekler.length)
+      return setHata('En az bir değer, donanım, gizlenen ya da eklenen satır yaz');
     setMesgul(true);
     try {
       await yonetim(`catalog/teknik/model/${modelId}`, {
@@ -197,6 +231,8 @@ export function Duzenleyici({
           yerine,
           degerler,
           donanim: donanim.length ? donanim : null,
+          gizli,
+          ekSatirlar: ekler,
           not: not.trim() || null,
           bildirim: bildirim ?? null,
         },
@@ -206,6 +242,9 @@ export function Duzenleyici({
       setMetin('');
       setDonanimMetni('');
       setOkunamayan([]);
+      setAdaylar([]);
+      setGizli([]);
+      setEkSatirlar([]);
       const m = yerine
         ? 'Kayıt güncellendi (eskisi kaldırıldı); talep sayfasında hemen görünür.'
         : 'Kaydedildi; talep sayfasında ve sihirbazda hemen görünür.';
@@ -229,8 +268,11 @@ export function Duzenleyici({
     setVites(d.vites ?? '');
     setForm(formaYaz(d.degerler));
     setDonanimMetni(d.donanim?.length ? donanimYaz(d.donanim) : '');
+    setGizli(d.gizli);
+    setEkSatirlar(d.ekSatirlar);
     setNot(d.not ?? '');
     setOkunamayan([]);
+    setAdaylar([]);
     setHata(null);
     setMesaj(null);
     document.getElementById(`hedef-${modelId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -240,8 +282,22 @@ export function Duzenleyici({
     setYerine(null);
     setForm({});
     setDonanimMetni('');
+    setGizli([]);
+    setEkSatirlar([]);
     setNot('');
   }
+
+  const gizleDegistir = (k: string) =>
+    setGizli((g) => (g.includes(k) ? g.filter((x) => x !== k) : [...g, k]));
+  const ekGuncelle = (i: number, alan: keyof EkSatir, v: string) =>
+    setEkSatirlar((l) => l.map((e, j) => (j === i ? { ...e, [alan]: v } : e)));
+  const adayEkle = (a: EkSatir[]) => {
+    setEkSatirlar((l) => [
+      ...l,
+      ...a.filter((x) => !l.some((e) => e.etiket === x.etiket && e.bolum === x.bolum)),
+    ]);
+    setAdaylar((l) => l.filter((x) => !a.includes(x)));
+  };
 
   async function kaldir(id: string) {
     if (!window.confirm('Kayıt kaldırılsın mı? Kayıt silinmez; kaynaktaki değer yeniden gösterilir.')) return;
@@ -409,6 +465,35 @@ export function Duzenleyici({
             </ul>
           </div>
         ) : null}
+        {adaylar.length ? (
+          <div style={{ marginTop: 10 }}>
+            <p style={{ margin: '0 0 6px', fontSize: 13, fontWeight: 700 }}>
+              Bunları teknik tabloya ek satır olarak ekleyebilirsin:{' '}
+              <button
+                type="button"
+                className="k-btn-line"
+                style={{ fontSize: 12.5, padding: '3px 9px' }}
+                onClick={() => adayEkle(adaylar)}
+              >
+                Hepsini ekle ({adaylar.length})
+              </button>
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {adaylar.map((a) => (
+                <button
+                  key={`${a.bolum}|${a.etiket}`}
+                  type="button"
+                  className="k-btn-line"
+                  style={{ fontSize: 12.5, padding: '4px 9px' }}
+                  title={`${a.bolum} bölümüne eklenir`}
+                  onClick={() => adayEkle([a])}
+                >
+                  + {a.etiket}: {a.deger}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <form onSubmit={kaydet}>
@@ -426,6 +511,7 @@ export function Duzenleyici({
                 <th style={{ padding: '6px 8px' }}>Şu an gösterilen</th>
                 <th style={{ padding: '6px 8px' }}>Kaynaktaki</th>
                 <th style={{ padding: '6px 8px', minWidth: 220 }}>Yeni değer</th>
+                <th style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>Talep sayfasında</th>
               </tr>
             </thead>
             <tbody>
@@ -434,10 +520,20 @@ export function Duzenleyici({
                 const kaynak = oku(veri.kaynak, a);
                 const yeni = form[a.key];
                 const dolu = Array.isArray(yeni) ? yeni.length > 0 : !!yeni?.trim();
+                const satirVar = TEKNIK_SATIR_ANAHTARLARI.has(a.key);
+                const buKayit = gizli.includes(a.key);
+                // Düzenlenen kayıt dışındaki, bu seçime uyan bir kayıt gizliyorsa
+                const baskaKayit =
+                  !buKayit &&
+                  !!veri.sonuc?.gizli?.includes(a.key) &&
+                  veri.duzeltmeler.some((d) => d.id !== yerine && d.gizli.includes(a.key));
                 return (
                   <tr
                     key={a.key}
-                    style={{ borderTop: '1px solid #EEF0F5', background: dolu ? '#F2FBF6' : undefined }}
+                    style={{
+                      borderTop: '1px solid #EEF0F5',
+                      background: buKayit ? '#FFF4F4' : dolu ? '#F2FBF6' : undefined,
+                    }}
                   >
                     <td style={{ padding: '6px 8px', fontWeight: 700 }}>
                       {a.ad}
@@ -484,11 +580,104 @@ export function Duzenleyici({
                         />
                       )}
                     </td>
+                    <td style={{ padding: '6px 8px', whiteSpace: 'nowrap', fontSize: 12.5 }}>
+                      {satirVar ? (
+                        <label
+                          style={{ display: 'flex', gap: 6, alignItems: 'center', cursor: 'pointer' }}
+                          title="İşareti kaldırırsan bu satır bu araçta gösterilmez"
+                        >
+                          <input
+                            type="checkbox"
+                            aria-label={`${a.ad} satırını göster`}
+                            checked={!buKayit && !baskaKayit}
+                            disabled={baskaKayit}
+                            onChange={() => gizleDegistir(a.key)}
+                          />
+                          {buKayit ? (
+                            <span style={{ color: '#A3271F', fontWeight: 700 }}>Gizlenecek</span>
+                          ) : baskaKayit ? (
+                            <span style={{ color: '#A3271F' }}>Başka kayıtta gizli</span>
+                          ) : (
+                            'Göster'
+                          )}
+                        </label>
+                      ) : (
+                        <span style={{ color: '#5A6073' }}>{SATIR_ICINDE[a.key] ?? '—'}</span>
+                      )}
+                    </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
+        </div>
+
+        <div style={{ marginTop: 16 }}>
+          <p style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 800 }}>Ek satırlar</p>
+          <p style={{ margin: '0 0 8px', fontSize: 12.5, color: '#5A6073' }}>
+            Tabloda olmayan bir bilgiyi ekle (ör. Genel › Garanti: 5 yıl). Var olan bir bölümü seçebilir ya da
+            yeni bölüm adı yazabilirsin; aynı bölümde aynı adlı satır varsa onun yerine geçer.
+          </p>
+          <datalist id={`bolumler-${modelId}`}>
+            {TEKNIK_BOLUMLER.map((b) => (
+              <option key={b} value={b} />
+            ))}
+          </datalist>
+          {ekSatirlar.map((e, i) => (
+            <div
+              // biome-ignore lint/suspicious/noArrayIndexKey: satırlar yalnızca sırayla düzenlenir
+              key={i}
+              style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 6, alignItems: 'center' }}
+            >
+              <input
+                aria-label="Bölüm"
+                list={`bolumler-${modelId}`}
+                value={e.bolum}
+                placeholder="Bölüm"
+                maxLength={60}
+                onChange={(x) => ekGuncelle(i, 'bolum', x.target.value)}
+                style={{ ...kutu, flex: '1 1 170px', width: 'auto' }}
+              />
+              <input
+                aria-label="Etiket"
+                value={e.etiket}
+                placeholder="Etiket (ör. Garanti)"
+                maxLength={80}
+                onChange={(x) => ekGuncelle(i, 'etiket', x.target.value)}
+                style={{ ...kutu, flex: '1 1 170px', width: 'auto' }}
+              />
+              <input
+                aria-label="Değer"
+                value={e.deger}
+                placeholder="Değer (ör. 5 yıl)"
+                maxLength={200}
+                onChange={(x) => ekGuncelle(i, 'deger', x.target.value)}
+                style={{ ...kutu, flex: '2 1 220px', width: 'auto' }}
+              />
+              <button
+                type="button"
+                className="k-btn-line"
+                style={{ fontSize: 12.5, padding: '5px 9px', color: '#A3271F' }}
+                onClick={() => setEkSatirlar((l) => l.filter((_, j) => j !== i))}
+              >
+                Sil
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            className="k-btn-line"
+            style={{ fontSize: 13, padding: '5px 10px' }}
+            onClick={() => setEkSatirlar((l) => [...l, { bolum: 'Genel', etiket: '', deger: '' }])}
+          >
+            + Satır ekle
+          </button>
+          {veri.sonuc?.ekSatirlar?.length && !yerine ? (
+            <p style={{ margin: '8px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+              Şu an eklenmiş:{' '}
+              {veri.sonuc.ekSatirlar.map((e) => `${e.bolum} › ${e.etiket}: ${e.deger}`).join(' · ')}
+            </p>
+          ) : null}
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 16 }}>
@@ -567,6 +756,10 @@ export function Duzenleyici({
               </strong>
               {Object.keys(d.degerler).length ? ` · ${yaz(d.degerler)}` : ''}
               {d.donanim?.length ? ` · Donanım: ${ogeSayisi(d.donanim)} öğe` : ''}
+              {d.gizli.length ? ` · Gizli: ${d.gizli.map(satirAdi).join(', ')}` : ''}
+              {d.ekSatirlar.length
+                ? ` · Ek: ${d.ekSatirlar.map((e) => `${e.etiket}: ${e.deger}`).join(', ')}`
+                : ''}
               {d.not ? <span style={{ color: '#5A6073' }}> · {d.not}</span> : null}
               <span style={{ color: '#5A6073' }}> · {tarih(d.zaman)}</span>
             </span>

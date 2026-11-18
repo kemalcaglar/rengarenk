@@ -157,7 +157,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
           >
             {basHarf(p.ad)}
           </span>
-          <div style={{ flex: '999 1 360px', minWidth: 0, paddingTop: 58 }}>
+          <div className="rr-galeri-ad" style={{ flex: '999 1 360px', minWidth: 0, paddingTop: 58 }}>
             <h1 id="gad" style={{ margin: 0, fontSize: 28, fontWeight: 800, letterSpacing: -0.4 }}>
               {p.ad}
             </h1>
@@ -224,6 +224,7 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
             </p>
           </div>
           <div
+            className="rr-galeri-dugme"
             style={{
               flex: '1 1 260px',
               display: 'flex',

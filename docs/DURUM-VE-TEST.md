@@ -113,6 +113,15 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
   kaydı günceller (eskisi silinmez), "Araç ara ve bilgi gir" Marka → Model → Motor seçimiyle her araca açıktır.
   Talep sayfasında bir motorun manuel ve otomatik tipi ayrı sekmede.
   Test: konsolda bir aracın "Bilgi gir" düğmesi → metni yapıştır → "Metni oku ve doldur" → Kaydet → talep sayfası.
+- Teknik tabloda satır gizleme ve ekleme (18 Kasım 2026, sahip isteği): düzenleyicide her satırın "Talep sayfasında
+  Göster" işareti (kaldırılınca o araçta, kaydın yıl, paket ve vitesinde gösterilmez; gizlenen satır "bilgisi eksik"
+  sayılmaz) ve "Ek satırlar" (bölüm, etiket, değer; yeni bölüm adı da yazılabilir, aynı adlı satırın yerine geçer).
+  Metinde tanınmayan "Etiket – Değer" satırları tek tıkla ek satır olur. Talep sayfasının teknik bölümü yeni tasarımda:
+  öne çıkan değerler renkli kutularda, bölümler noktalı başlıklı kartlarda (genişte iki sütun), donanım grup kartlarında,
+  paketler sekmeli, uzun grup "+N özellik daha" (web, mobil).
+- Telefon görünümü (web, 18 Kasım 2026): talep sayfasında kategori kenar çubuğu ve Hesabım sayfalarındaki yatay şerit
+  telefonda gizli; Hesabım bağlantıları ☰ çekmecesinde. Galeri paneli menüsü yatay sekme, galeri profilinde boşluk
+  kalmaz, talep listesinde bütçe tek satır, büyük araç kapağı yazıları sığar. Sayfalar 360 ve 390 px'te tarandı.
 - Talep sayfasında fotoğraf alana kırpılmadan sığar ve tıklanınca tam ekran büyür (web; mobilde dokununca tam ekran).
 - Konsol menüsü Katalog'da "Araç görselleri" (görselsiz talep sayısı) ve "Teknik özellikler" (açık bildirim sayısı).
 - Kartlarda fiyat tam yazılır (17 Kasım 2026, sahip isteği): "1.000.200 TL", kısaltma ("1 mn TL") yok.

@@ -467,6 +467,15 @@ pnpm format        # Biome ile biçimlendir
   `kayitlariSec` ile tip grubuna (paket, vites; genelden özele) uygulanır. Konsolda "Düzenle" yeni kaydı eskisinin
   yerine koyar (`yerine`, eski kayıt `kaldirildi` + `replaced_by`), düzenleyici kaydın uygulanacağı TSB tiplerini
   listeler, "Araç ara" Marka → Model → Motor seçimidir. API'de 245, ortak pakette 147 test.
+- **Teknik tablo düzeni ve yeni tasarım (18 Kasım 2026, sahip isteği):** tablonun satırları ortak `TEKNIK_SATIRLAR`'da
+  (anahtar, bölüm, etiket, değer); kayıtta `hidden_rows` (o araçta gösterilmez, eksik sayılmaz) ve `extra_rows`
+  (`EkSatir`; yeni bölüm de olabilir). `duzeltmeUygula(o, degerler, duzen)`: üçüncü argüman `kayitlariSec(...).duzen`;
+  yeni bir yerde özet gösterirken bunu da geçir. Yeni tablo satırı eklerken `TEKNIK_SATIRLAR`'a ekle (`teknikBolumleri`
+  ve konsoldaki "Göster" işareti oradan). Öne çıkan kutular `teknikOneCikanlar`. `teknikMetniOku` tanınmayan satırları
+  `ekAdaylari` olarak döner (bölüm `bolumEsle`). Web telefon görünümü: kenar menüler `rr-yalniz-genis` ile telefonda
+  gizlenir, Hesabım bağlantıları ☰ çekmecesinde (`OGELER`); yeni bir kenar menü eklerken telefonda ikinci menü bırakma.
+  Telefon taraması scratchpad `betik/mobil_tara2.mjs` (e-posta girişi, `RR_GEN` genişlik, taşan öğeleri yazar).
+  API'de 246, ortak pakette 151 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

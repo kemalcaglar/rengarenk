@@ -661,3 +661,39 @@ describe('teknik kayıt vitese bağlanır ve düzenlenir (sahip isteği, 18 Kas�
     expect(seriler.map((x: { ad: string }) => x.ad)).toEqual(['3 Serisi', '5 Serisi']);
   });
 });
+
+describe('teknik tabloda satır gizleme ve ekleme (sahip isteği, 18 Kasım 2026)', () => {
+  it('gizlenen satır ve ek satır talep sayfasının özetine geçer; bilinmeyen satır reddedilir', async () => {
+    const owner = (await loginAs(app, await createStaff(db, 'OWNER'))).token;
+    const model = await db.catalogModel.findUniqueOrThrow({ where: { key: 'bmw/3-serisi/320i' } });
+    const ekle = (b: object) => staffCall(app, 'POST', `/staff/catalog/teknik/model/${model.id}`, b, owner);
+    expect((await ekle({ degerler: {}, gizli: ['olmayan'] })).status).toBe(400);
+    expect(
+      (await ekle({ degerler: {}, ekSatirlar: [{ bolum: 'Genel', etiket: '', deger: 'x' }] })).status,
+    ).toBe(400);
+    const r = await ekle({
+      yilBas: 2024,
+      vites: 'otomatik',
+      degerler: {},
+      gizli: ['segmentler', 'tork'],
+      ekSatirlar: [{ bolum: 'Genel', etiket: 'Garanti', deger: '2 yıl' }],
+    });
+    expect(r.status).toBe(200);
+
+    const t = await talep(
+      '3-serisi',
+      '320i',
+      { butce: { max: 2_000_000 }, yil: { min: 2024, max: 2024 }, vites: ['otomatik'] },
+      { il: 'Bursa' },
+    );
+    const m = (await call(app, 'GET', `/talepler/${t.no}`)).body.gorunum.alternatifler[0].motorlar[0];
+    expect(m.ozet.gizli).toEqual(expect.arrayContaining(['segmentler', 'tork']));
+    expect(m.ozet.ekSatirlar).toEqual([{ bolum: 'Genel', etiket: 'Garanti', deger: '2 yıl' }]);
+
+    const k = (await staffCall(app, 'GET', `/staff/catalog/teknik/model/${model.id}`, undefined, owner)).body;
+    expect(k.duzeltmeler.find((x: { id: string }) => x.id === r.body.id)).toMatchObject({
+      gizli: ['segmentler', 'tork'],
+      ekSatirlar: [{ bolum: 'Genel', etiket: 'Garanti', deger: '2 yıl' }],
+    });
+  });
+});

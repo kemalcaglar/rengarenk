@@ -851,6 +851,10 @@ model CatalogSpecOverride {
   gearbox    String?
   /// Düzenlenince yerine geçen kayıt (eski kayıt kaldırılır, silinmez)
   replacedBy String?   @map("replaced_by") @db.Uuid
+  /// Satır düzeni (sahip isteği, 18 Kasım 2026): gizlenen satır anahtarları (TEKNIK_SATIRLAR) ve ek satırlar
+  /// (EkSatir[]: { bolum, etiket, deger })
+  hiddenRows String[]  @default([]) @map("hidden_rows")
+  extraRows  Json?     @map("extra_rows")
   note       String?
   /// aktif | kaldirildi
   status     String    @default("aktif")

@@ -372,6 +372,7 @@ export function GaleriPaneli() {
       >
         <nav
           aria-label="Galeri paneli"
+          className="rr-panel-menu"
           style={{
             flex: '1 1 220px',
             maxWidth: 250,

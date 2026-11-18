@@ -300,7 +300,8 @@ export class CatalogController {
             return o ? [o] : [];
           }),
         ),
-        duz.get(mid) ?? [],
+        duz.get(mid)?.degerler ?? [],
+        duz.get(mid)?.duzen ?? [],
       ),
     }));
     const bodies = [...group((v) => v.body)].map(([name, vs]) => ({ name, years: yearsOf(vs) }));

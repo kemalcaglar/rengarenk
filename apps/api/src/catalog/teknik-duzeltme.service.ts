@@ -12,7 +12,9 @@ import { Prisma, uuidv7 } from '@rengarenk/db';
 import {
   type DonanimGrubu,
   duzeltmeUygula,
+  type EkSatir,
   TEKNIK_ALANLARI,
+  TEKNIK_SATIR_ANAHTARLARI,
   type TeknikDuzeltme,
   teknikEksikleri,
 } from '@rengarenk/shared';
@@ -287,6 +289,8 @@ export class TeknikDuzeltmeService {
         values: true,
         equipment: true,
         gearbox: true,
+        hiddenRows: true,
+        extraRows: true,
         note: true,
         createdAt: true,
         trim: { select: { id: true, name: true } },
@@ -322,7 +326,7 @@ export class TeknikDuzeltmeService {
         }))
         .sort((a, b) => a.ad.localeCompare(b.ad, 'tr')),
       kaynak,
-      sonuc: duzeltmeUygula(kaynak, elle.degerler),
+      sonuc: duzeltmeUygula(kaynak, elle.degerler, elle.duzen),
       // Gösterilen donanım: paketin kendi listesi, yoksa bütün paketlerinki
       donanim:
         (
@@ -337,6 +341,8 @@ export class TeknikDuzeltmeService {
         vites: d.gearbox,
         degerler: d.values as TeknikDuzeltme,
         donanim: (d.equipment as DonanimGrubu[] | null) ?? null,
+        gizli: d.hiddenRows,
+        ekSatirlar: (d.extraRows as EkSatir[] | null) ?? [],
         not: d.note,
         zaman: d.createdAt.toISOString(),
       })),
@@ -424,7 +430,7 @@ export class TeknikDuzeltmeService {
       }),
       this.db.catalogSpecOverride.findMany({
         where: { modelId: { in: ids }, status: 'aktif' },
-        select: { modelId: true, values: true, equipment: true },
+        select: { modelId: true, values: true, equipment: true, hiddenRows: true },
         orderBy: { createdAt: 'asc' },
       }),
     ]);
@@ -439,6 +445,7 @@ export class TeknikDuzeltmeService {
       const sonuc = duzeltmeUygula(
         ozetler.length ? (ozetBirlestir(ozetler) as TeknikOzet) : null,
         kendi.map((k) => k.values as TeknikDuzeltme).filter((v) => Object.keys(v).length),
+        kendi.map((k) => ({ gizli: k.hiddenRows })),
       );
       const no = motorTalepleri.get(m.key) ?? [];
       return {
@@ -481,6 +488,10 @@ export class TeknikDuzeltmeService {
       vites?: string | null;
       degerler: TeknikDuzeltme;
       donanim?: DonanimGrubu[] | null;
+      /** Bu araçta gösterilmeyecek satırlar (TEKNIK_SATIRLAR anahtarı) */
+      gizli?: string[] | null;
+      /** Serbest ek satırlar */
+      ekSatirlar?: EkSatir[] | null;
       not?: string | null;
       bildirim?: string | null;
       /** Düzenlenen kayıt: yeni kayıt aynı işlemde onun yerine geçer (eski kayıt kaldırılır, silinmez) */
@@ -522,8 +533,12 @@ export class TeknikDuzeltmeService {
     }
     const degerler = dogrula(b.degerler);
     const donanim = b.donanim?.length ? donanimDogrula(b.donanim) : null;
-    if (!Object.keys(degerler).length && !donanim)
-      throw new BadRequestException('En az bir değer ya da donanım yaz');
+    const gizli = [...new Set(b.gizli ?? [])];
+    const bilinmeyen = gizli.find((g) => !TEKNIK_SATIR_ANAHTARLARI.has(g));
+    if (bilinmeyen) throw new BadRequestException(`Bilinmeyen satır: ${bilinmeyen}`);
+    const ekSatirlar = ekSatirDogrula(b.ekSatirlar ?? []);
+    if (!Object.keys(degerler).length && !donanim && !gizli.length && !ekSatirlar.length)
+      throw new BadRequestException('En az bir değer, donanım, gizlenen ya da eklenen satır yaz');
     return this.db.$transaction(async (tx) => {
       const d = await tx.catalogSpecOverride.create({
         data: {
@@ -535,6 +550,8 @@ export class TeknikDuzeltmeService {
           yearTo: b.yilSon ?? null,
           values: degerler as Prisma.InputJsonValue,
           equipment: donanim ? (donanim as unknown as Prisma.InputJsonValue) : Prisma.DbNull,
+          hiddenRows: gizli,
+          extraRows: ekSatirlar.length ? (ekSatirlar as unknown as Prisma.InputJsonValue) : Prisma.DbNull,
           note: b.not ?? null,
           createdBy: staffId,
         },
@@ -555,7 +572,9 @@ export class TeknikDuzeltmeService {
             yillar: [b.yilBas ?? null, b.yilSon ?? null],
             degerler,
             donanim: donanim ? donanim.reduce((n, g) => n + g.ogeler.length, 0) : 0,
-          } as Prisma.InputJsonValue,
+            ...(gizli.length ? { gizli } : {}),
+            ...(ekSatirlar.length ? { ekSatirlar } : {}),
+          } as unknown as Prisma.InputJsonValue,
           ip,
         },
         tx,
@@ -657,4 +676,19 @@ export function donanimDogrula(gruplar: readonly DonanimGrubu[]): DonanimGrubu[]
   }
   if (out.length > 30) throw new BadRequestException('En çok 30 donanım grubu');
   return out;
+}
+
+/** Ek satırlar: bölüm, etiket ve değer dolu ve kısa; aynı bölüm ve etikette sonuncusu kalır */
+export function ekSatirDogrula(satirlar: readonly EkSatir[]): EkSatir[] {
+  const m = new Map<string, EkSatir>();
+  for (const e of satirlar) {
+    const r = { bolum: e.bolum.trim(), etiket: e.etiket.trim(), deger: e.deger.trim() };
+    if (!r.bolum || !r.etiket || !r.deger)
+      throw new BadRequestException('Ek satırda bölüm, etiket ve değer dolu olmalı');
+    if (r.bolum.length > 60 || r.etiket.length > 80 || r.deger.length > 200)
+      throw new BadRequestException(`${r.etiket}: bölüm en çok 60, etiket 80, değer 200 karakter`);
+    m.set(`${r.bolum.toLocaleLowerCase('tr-TR')}|${r.etiket.toLocaleLowerCase('tr-TR')}`, r);
+  }
+  if (m.size > 60) throw new BadRequestException('En çok 60 ek satır');
+  return [...m.values()];
 }

@@ -506,8 +506,11 @@ export class DemandService {
         const gv = g.gearbox ? [g.gearbox] : vites?.length === 1 ? vites : null;
         const elle = kayitlariSec(kayitlar, g.modelId, gv);
         const ozet =
-          duzeltmeUygula(g.ozetler.length ? (ozetBirlestir(g.ozetler) as TeknikOzet) : null, elle.degerler) ??
-          (elle.donanim.length ? bosOzet() : null);
+          duzeltmeUygula(
+            g.ozetler.length ? (ozetBirlestir(g.ozetler) as TeknikOzet) : null,
+            elle.degerler,
+            elle.duzen,
+          ) ?? (elle.donanim.length ? bosOzet() : null);
         const ad =
           (vitesSayisi.get(g.modelId) ?? 0) > 1
             ? `${g.ad} · ${g.gearbox ? (VITES_AD[g.gearbox] ?? g.gearbox) : 'vites belirtilmemiş'}`

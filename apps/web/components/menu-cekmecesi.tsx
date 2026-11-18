@@ -2,9 +2,11 @@
 
 import { DOTS } from '@rengarenk/shared';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { istek, useGiris } from '../lib/istemci';
 import { colors } from '../lib/renk';
+import { OGELER } from './hesabim-menu';
 import { Logo } from './logo';
 
 /** Kategori kareleri: tasarımdaki TINTS sırası (AnasayfaMobil.dc.html; DOTS ile aynı sırada) */
@@ -60,6 +62,7 @@ export function MenuCekmecesi({ kategoriler }: { kategoriler: MenuKategori[] }) 
   const [acik, setAcik] = useState(false);
   const [vasita, setVasita] = useState(true);
   const giris = useGiris();
+  const yol = usePathname();
   const [ben, setBen] = useState<Ben | null>(null);
   const dugme = useRef<HTMLButtonElement>(null);
   const kapatDugme = useRef<HTMLButtonElement>(null);
@@ -152,7 +155,9 @@ export function MenuCekmecesi({ kategoriler }: { kategoriler: MenuKategori[] }) 
               background: colors.surface,
               color: colors.ink,
               boxShadow: '8px 0 24px rgba(30,35,51,0.18)',
-              overflow: 'hidden',
+              // Hesabım bağlantılarıyla uzayabilir: çekmecenin tamamı kayar
+              overflowY: 'auto',
+              overscrollBehavior: 'contain',
               display: 'flex',
               flexDirection: 'column',
             }}
@@ -164,6 +169,10 @@ export function MenuCekmecesi({ kategoriler }: { kategoriler: MenuKategori[] }) 
                 justifyContent: 'space-between',
                 padding: '10px 8px 10px 16px',
                 borderBottom: '1px solid #EEF0F5',
+                position: 'sticky',
+                top: 0,
+                zIndex: 1,
+                background: colors.surface,
               }}
             >
               <Logo />
@@ -234,6 +243,32 @@ export function MenuCekmecesi({ kategoriler }: { kategoriler: MenuKategori[] }) 
               </Link>
             ) : null}
 
+            {giris ? (
+              // Hesabım bağlantıları (geniş ekranda sayfanın kenarındaki Hesabım menüsü)
+              <nav aria-label="Hesabım" style={{ padding: '4px 0 6px', borderBottom: '1px solid #EEF0F5' }}>
+                {OGELER.filter((o) => o.href && o.href !== '/yardim').map((o) => (
+                  <Link
+                    key={o.ad}
+                    href={o.href as string}
+                    onClick={kapat}
+                    aria-current={o.href === yol ? 'page' : undefined}
+                    style={{
+                      display: 'block',
+                      margin: '0 12px',
+                      padding: '9px 12px',
+                      borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
+                      background: o.href === yol ? '#EEF3FF' : 'transparent',
+                      fontSize: 14,
+                      fontWeight: o.href === yol ? 800 : 600,
+                      color: colors.ink,
+                    }}
+                  >
+                    {o.ad}
+                  </Link>
+                ))}
+              </nav>
+            ) : null}
+
             {giris === false ? (
               // Üye ol ve Giriş yap ayrı (Karar 18)
               <div style={{ display: 'flex', gap: 8, margin: '12px 12px 4px' }}>
@@ -275,7 +310,7 @@ export function MenuCekmecesi({ kategoriler }: { kategoriler: MenuKategori[] }) 
               </div>
             ) : null}
 
-            <div style={{ flex: 1, overflowY: 'auto', padding: '6px 0 0' }}>
+            <div style={{ flex: '1 0 auto', padding: '6px 0 0' }}>
               <button
                 type="button"
                 onClick={() => setVasita(!vasita)}

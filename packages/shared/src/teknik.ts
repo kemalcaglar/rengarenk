@@ -70,6 +70,17 @@ export interface TeknikOzet {
   sanzimanlar?: string[];
   /** Kaynaklar: "ademe", "vmm", "tsb", "manuel" */
   kaynaklar?: string[];
+  /** Konsolda bu araç için gizlenen satırlar (satır anahtarı: `TEKNIK_SATIRLAR`; sahip isteği, 18 Kasım 2026) */
+  gizli?: string[];
+  /** Konsolda bu araca eklenen serbest satırlar (bölümün sonuna ya da yeni bölüme) */
+  ekSatirlar?: EkSatir[];
+}
+
+/** Konsoldan eklenen serbest teknik satır: "Ölçüler ve ağırlık" › "Bagaj (koltuklar yatık)" = "1.146 l" */
+export interface EkSatir {
+  bolum: string;
+  etiket: string;
+  deger: string;
 }
 
 /** Donanım grubu (sahip isteği, 18 Kasım 2026): "Güvenlik" → ["ABS", "Isofix"]; konsoldan elle girilir */
@@ -144,14 +155,15 @@ type Satir = [string, string];
 
 /** Kısa özet satırları (sihirbazda model seçilince): [etiket, değer] */
 export function teknikSatirlari(o: TeknikOzet): Satir[] {
+  const g = new Set(o.gizli ?? []);
   const out: Satir[] = [];
-  if (o.vitesler.length) out.push(['Vites', o.vitesler.map(vitesYaz).join(' ya da ')]);
-  if (o.hp) out.push(['Güç', `${aralik(o.hp)} hp${o.kw ? ` (${aralik(o.kw)} kW)` : ''}`]);
-  if (o.hizlanma) out.push(['0-100 km/s', `${aralik(o.hizlanma, 1)} sn`]);
-  if (o.tuketim) out.push(['Karma tüketim', `${aralik(o.tuketim, 1)} l/100 km`]);
-  if (o.co2) out.push(['CO₂', `${aralik(o.co2)} g/km`]);
-  if (o.agirlik) out.push(['Boş ağırlık', `${aralik(o.agirlik)} kg`]);
-  if (o.euro.length) out.push(['Emisyon', o.euro.map((e) => `Euro ${e}`).join(', ')]);
+  if (o.vitesler.length && !g.has('vitesler')) out.push(['Vites', o.vitesler.map(vitesYaz).join(' ya da ')]);
+  if (o.hp && !g.has('hp')) out.push(['Güç', `${aralik(o.hp)} hp${o.kw ? ` (${aralik(o.kw)} kW)` : ''}`]);
+  if (o.hizlanma && !g.has('hizlanma')) out.push(['0-100 km/s', `${aralik(o.hizlanma, 1)} sn`]);
+  if (o.tuketim && !g.has('tuketim')) out.push(['Karma tüketim', `${aralik(o.tuketim, 1)} l/100 km`]);
+  if (o.co2 && !g.has('co2')) out.push(['CO₂', `${aralik(o.co2)} g/km`]);
+  if (o.agirlik && !g.has('agirlik')) out.push(['Boş ağırlık', `${aralik(o.agirlik)} kg`]);
+  if (o.euro.length && !g.has('euro')) out.push(['Emisyon', o.euro.map((e) => `Euro ${e}`).join(', ')]);
   return out;
 }
 
@@ -160,95 +172,191 @@ export interface TeknikBolum {
   satirlar: Satir[];
 }
 
-/** Talep sayfasındaki ayrıntılı tablo: bölüm bölüm (boş bölüm gelmez) */
-export function teknikBolumleri(o: TeknikOzet): TeknikBolum[] {
-  const sat = (pairs: (Satir | null)[]): Satir[] => pairs.filter((p): p is Satir => p !== null);
-  const ar = (a: Aralik | undefined, birim: string, basamak = 0): string | null =>
-    a ? `${aralik(a, basamak)} ${birim}` : null;
-  const s = (etiket: string, deger: string | null): Satir | null => (deger ? [etiket, deger] : null);
-  const liste = (xs: string[] | undefined, f: (x: string) => string = (x) => x) =>
-    xs?.length ? [...new Set(xs.map(f))].join(' ya da ') : null;
+/** Bölümlerin sırası (ek satırda yeni bölüm adı da yazılabilir; yeni bölümler sona eklenir) */
+export const TEKNIK_BOLUMLER = [
+  'Genel',
+  'Motor',
+  'Performans',
+  'Şanzıman ve çekiş',
+  'Yakıt tüketimi ve emisyon',
+  'Ölçüler ve ağırlık',
+  'Lastik ve fren',
+] as const;
 
-  const devir = (a: Aralik | undefined) => (a ? `, ${aralik(a)} d/d` : '');
-  const bolumler: TeknikBolum[] = [
-    {
-      baslik: 'Genel',
-      satirlar: sat([
-        s(
-          'Kasa tipi',
-          liste(o.govdeler, (g) => GOVDE[g] ?? g),
-        ),
-        s('Segment', liste(o.segmentler)),
-        s('Kapı sayısı', o.kapilar ? aralik(o.kapilar) : null),
-        s('Koltuk sayısı', o.koltuklar ? aralik(o.koltuklar) : null),
-      ]),
-    },
-    {
-      baslik: 'Motor',
-      satirlar: sat([
-        s('Motor hacmi', ar(o.hacimCc, 'cm³')),
-        s('Silindir', liste(o.silindirler, silindirYaz)),
-        s(
-          'Güç',
-          o.hp ? `${aralik(o.hp)} hp${o.kw ? ` (${aralik(o.kw)} kW)` : ''}${devir(o.gucDevir)}` : null,
-        ),
-        s('Tork', o.tork ? `${aralik(o.tork)} Nm${devir(o.torkDevir)}` : null),
-        s('Yakıt sistemi', liste(o.yakitSistemleri, teknikCevir)),
-      ]),
-    },
-    {
-      baslik: 'Performans',
-      satirlar: sat([s('0-100 km/s', ar(o.hizlanma, 'sn', 1)), s('Azami hız', ar(o.azamiHiz, 'km/s'))]),
-    },
-    {
-      baslik: 'Şanzıman ve çekiş',
-      satirlar: sat([
-        s('Vites', liste(o.vitesler, vitesYaz)),
-        s('Şanzıman', liste(o.sanzimanlar)),
-        s(
-          'Çekiş',
-          liste(o.cekisler, (c) => CEKIS[c] ?? c),
-        ),
-      ]),
-    },
-    {
-      baslik: 'Yakıt tüketimi ve emisyon',
-      satirlar: sat([
-        s('Şehir içi', ar(o.tuketimSehir, 'l/100 km', 1)),
-        s('Şehir dışı', ar(o.tuketimSehirDisi, 'l/100 km', 1)),
-        s('Karma', ar(o.tuketim, 'l/100 km', 1)),
-        s('CO₂', ar(o.co2, 'g/km')),
-        s('Emisyon normu', o.euro.length ? o.euro.map((e) => `Euro ${e}`).join(', ') : null),
-        s('Yakıt deposu', ar(o.depo, 'l')),
-        s('Menzil', ar(o.menzil, 'km')),
-        s('Batarya', ar(o.batarya, 'kWh', 1)),
-      ]),
-    },
-    {
-      baslik: 'Ölçüler ve ağırlık',
-      satirlar: sat([
-        s('Uzunluk', ar(o.uzunluk, 'mm')),
-        s('Genişlik', ar(o.genislik, 'mm')),
-        s('Yükseklik', ar(o.yukseklik, 'mm')),
-        s('Dingil mesafesi', ar(o.dingil, 'mm')),
-        s('Yerden yükseklik', ar(o.yerden, 'mm')),
-        s('Bagaj hacmi', ar(o.bagaj, 'l')),
-        s('Boş ağırlık', ar(o.agirlik, 'kg')),
-        s('Azami yüklü ağırlık', ar(o.azamiAgirlik, 'kg')),
-        s('Dönüş çapı', ar(o.donme, 'm', 1)),
-        s('Sürtünme katsayısı (Cd)', o.cd ? aralik(o.cd, 2) : null),
-      ]),
-    },
-    {
-      baslik: 'Lastik ve fren',
-      satirlar: sat([
-        s('Lastik ölçüsü', liste(o.lastikler)),
-        s('Ön fren', liste(o.frenOn, teknikCevir)),
-        s('Arka fren', liste(o.frenArka, teknikCevir)),
-      ]),
-    },
-  ];
-  return bolumler.filter((b) => b.satirlar.length > 0);
+type SatirTanimi = {
+  /** Satırın anahtarı (gizlemede kullanılır): değerin ana alanı */
+  key: string;
+  bolum: (typeof TEKNIK_BOLUMLER)[number];
+  etiket: string;
+  deger: (o: TeknikOzet) => string | null;
+};
+
+const ar = (a: Aralik | undefined, birim: string, basamak = 0): string | null =>
+  a ? `${aralik(a, basamak)} ${birim}` : null;
+const liste = (xs: string[] | undefined, f: (x: string) => string = (x) => x) =>
+  xs?.length ? [...new Set(xs.map(f))].join(' ya da ') : null;
+const devir = (a: Aralik | undefined) => (a ? `, ${aralik(a)} d/d` : '');
+
+/** Talep sayfasındaki ayrıntılı tablonun satırları, bölüm sırasıyla (konsolda gizlenebilir) */
+export const TEKNIK_SATIRLAR: readonly SatirTanimi[] = [
+  {
+    key: 'govdeler',
+    bolum: 'Genel',
+    etiket: 'Kasa tipi',
+    deger: (o) => liste(o.govdeler, (g) => GOVDE[g] ?? g),
+  },
+  { key: 'segmentler', bolum: 'Genel', etiket: 'Segment', deger: (o) => liste(o.segmentler) },
+  {
+    key: 'kapilar',
+    bolum: 'Genel',
+    etiket: 'Kapı sayısı',
+    deger: (o) => (o.kapilar ? aralik(o.kapilar) : null),
+  },
+  {
+    key: 'koltuklar',
+    bolum: 'Genel',
+    etiket: 'Koltuk sayısı',
+    deger: (o) => (o.koltuklar ? aralik(o.koltuklar) : null),
+  },
+  { key: 'hacimCc', bolum: 'Motor', etiket: 'Motor hacmi', deger: (o) => ar(o.hacimCc, 'cm³') },
+  { key: 'silindirler', bolum: 'Motor', etiket: 'Silindir', deger: (o) => liste(o.silindirler, silindirYaz) },
+  {
+    key: 'hp',
+    bolum: 'Motor',
+    etiket: 'Güç',
+    deger: (o) =>
+      o.hp ? `${aralik(o.hp)} hp${o.kw ? ` (${aralik(o.kw)} kW)` : ''}${devir(o.gucDevir)}` : null,
+  },
+  {
+    key: 'tork',
+    bolum: 'Motor',
+    etiket: 'Tork',
+    deger: (o) => (o.tork ? `${aralik(o.tork)} Nm${devir(o.torkDevir)}` : null),
+  },
+  {
+    key: 'yakitSistemleri',
+    bolum: 'Motor',
+    etiket: 'Yakıt sistemi',
+    deger: (o) => liste(o.yakitSistemleri, teknikCevir),
+  },
+  { key: 'hizlanma', bolum: 'Performans', etiket: '0-100 km/s', deger: (o) => ar(o.hizlanma, 'sn', 1) },
+  { key: 'azamiHiz', bolum: 'Performans', etiket: 'Azami hız', deger: (o) => ar(o.azamiHiz, 'km/s') },
+  { key: 'vitesler', bolum: 'Şanzıman ve çekiş', etiket: 'Vites', deger: (o) => liste(o.vitesler, vitesYaz) },
+  { key: 'sanzimanlar', bolum: 'Şanzıman ve çekiş', etiket: 'Şanzıman', deger: (o) => liste(o.sanzimanlar) },
+  {
+    key: 'cekisler',
+    bolum: 'Şanzıman ve çekiş',
+    etiket: 'Çekiş',
+    deger: (o) => liste(o.cekisler, (c) => CEKIS[c] ?? c),
+  },
+  {
+    key: 'tuketimSehir',
+    bolum: 'Yakıt tüketimi ve emisyon',
+    etiket: 'Şehir içi',
+    deger: (o) => ar(o.tuketimSehir, 'l/100 km', 1),
+  },
+  {
+    key: 'tuketimSehirDisi',
+    bolum: 'Yakıt tüketimi ve emisyon',
+    etiket: 'Şehir dışı',
+    deger: (o) => ar(o.tuketimSehirDisi, 'l/100 km', 1),
+  },
+  {
+    key: 'tuketim',
+    bolum: 'Yakıt tüketimi ve emisyon',
+    etiket: 'Karma',
+    deger: (o) => ar(o.tuketim, 'l/100 km', 1),
+  },
+  { key: 'co2', bolum: 'Yakıt tüketimi ve emisyon', etiket: 'CO₂', deger: (o) => ar(o.co2, 'g/km') },
+  {
+    key: 'euro',
+    bolum: 'Yakıt tüketimi ve emisyon',
+    etiket: 'Emisyon normu',
+    deger: (o) => (o.euro.length ? o.euro.map((e) => `Euro ${e}`).join(', ') : null),
+  },
+  { key: 'depo', bolum: 'Yakıt tüketimi ve emisyon', etiket: 'Yakıt deposu', deger: (o) => ar(o.depo, 'l') },
+  { key: 'menzil', bolum: 'Yakıt tüketimi ve emisyon', etiket: 'Menzil', deger: (o) => ar(o.menzil, 'km') },
+  {
+    key: 'batarya',
+    bolum: 'Yakıt tüketimi ve emisyon',
+    etiket: 'Batarya',
+    deger: (o) => ar(o.batarya, 'kWh', 1),
+  },
+  { key: 'uzunluk', bolum: 'Ölçüler ve ağırlık', etiket: 'Uzunluk', deger: (o) => ar(o.uzunluk, 'mm') },
+  { key: 'genislik', bolum: 'Ölçüler ve ağırlık', etiket: 'Genişlik', deger: (o) => ar(o.genislik, 'mm') },
+  { key: 'yukseklik', bolum: 'Ölçüler ve ağırlık', etiket: 'Yükseklik', deger: (o) => ar(o.yukseklik, 'mm') },
+  { key: 'dingil', bolum: 'Ölçüler ve ağırlık', etiket: 'Dingil mesafesi', deger: (o) => ar(o.dingil, 'mm') },
+  {
+    key: 'yerden',
+    bolum: 'Ölçüler ve ağırlık',
+    etiket: 'Yerden yükseklik',
+    deger: (o) => ar(o.yerden, 'mm'),
+  },
+  { key: 'bagaj', bolum: 'Ölçüler ve ağırlık', etiket: 'Bagaj hacmi', deger: (o) => ar(o.bagaj, 'l') },
+  { key: 'agirlik', bolum: 'Ölçüler ve ağırlık', etiket: 'Boş ağırlık', deger: (o) => ar(o.agirlik, 'kg') },
+  {
+    key: 'azamiAgirlik',
+    bolum: 'Ölçüler ve ağırlık',
+    etiket: 'Azami yüklü ağırlık',
+    deger: (o) => ar(o.azamiAgirlik, 'kg'),
+  },
+  { key: 'donme', bolum: 'Ölçüler ve ağırlık', etiket: 'Dönüş çapı', deger: (o) => ar(o.donme, 'm', 1) },
+  {
+    key: 'cd',
+    bolum: 'Ölçüler ve ağırlık',
+    etiket: 'Sürtünme katsayısı (Cd)',
+    deger: (o) => (o.cd ? aralik(o.cd, 2) : null),
+  },
+  { key: 'lastikler', bolum: 'Lastik ve fren', etiket: 'Lastik ölçüsü', deger: (o) => liste(o.lastikler) },
+  { key: 'frenOn', bolum: 'Lastik ve fren', etiket: 'Ön fren', deger: (o) => liste(o.frenOn, teknikCevir) },
+  {
+    key: 'frenArka',
+    bolum: 'Lastik ve fren',
+    etiket: 'Arka fren',
+    deger: (o) => liste(o.frenArka, teknikCevir),
+  },
+];
+
+/**
+ * Talep sayfasındaki ayrıntılı tablo: bölüm bölüm (boş bölüm gelmez). Konsolda gizlenen satırlar çıkar, eklenen
+ * serbest satırlar bölümünün sonuna (aynı etiket varsa onun yerine) ya da yeni bölüm olarak sona eklenir.
+ */
+export function teknikBolumleri(o: TeknikOzet): TeknikBolum[] {
+  const gizli = new Set(o.gizli ?? []);
+  const bolumler = new Map<string, Satir[]>(TEKNIK_BOLUMLER.map((b) => [b, []]));
+  for (const t of TEKNIK_SATIRLAR) {
+    if (gizli.has(t.key)) continue;
+    const d = t.deger(o);
+    if (d) bolumler.get(t.bolum)?.push([t.etiket, d]);
+  }
+  for (const e of o.ekSatirlar ?? []) {
+    const bolum = e.bolum.trim() || 'Diğer';
+    const satirlar = bolumler.get(bolum) ?? bolumler.set(bolum, []).get(bolum) ?? [];
+    const i = satirlar.findIndex(
+      ([et]) => et.toLocaleLowerCase('tr-TR') === e.etiket.toLocaleLowerCase('tr-TR'),
+    );
+    if (i >= 0) satirlar[i] = [e.etiket, e.deger];
+    else satirlar.push([e.etiket, e.deger]);
+  }
+  return [...bolumler]
+    .filter(([, satirlar]) => satirlar.length > 0)
+    .map(([baslik, satirlar]) => ({ baslik, satirlar }));
+}
+
+/** Öne çıkan dört değer (talep sayfasının üstündeki renkli kutular): gizlenmeyen ve bilinenler */
+export function teknikOneCikanlar(o: TeknikOzet): { etiket: string; deger: string; birim: string }[] {
+  const gizli = new Set(o.gizli ?? []);
+  const out: { etiket: string; deger: string; birim: string }[] = [];
+  const ekle = (key: string, etiket: string, a: Aralik | undefined, birim: string, basamak = 0) => {
+    if (a && !gizli.has(key)) out.push({ etiket, deger: aralik(a, basamak), birim });
+  };
+  ekle('hp', 'Güç', o.hp, 'hp');
+  ekle('tork', 'Tork', o.tork, 'Nm');
+  ekle('hizlanma', '0-100 km/s', o.hizlanma, 'sn', 1);
+  if (o.tuketim) ekle('tuketim', 'Karma tüketim', o.tuketim, 'l/100 km', 1);
+  else if (o.menzil) ekle('menzil', 'Menzil', o.menzil, 'km');
+  else ekle('azamiHiz', 'Azami hız', o.azamiHiz, 'km/s');
+  return out;
 }
 
 /** Teknik değerlerin kaynağı (kullanıcıya gösterilen not) */
@@ -348,6 +456,15 @@ export const TEKNIK_ALANLARI: readonly TeknikAlan[] = [
 /** Elle düzeltme değerleri: alan → aralık ya da liste (yazılmayan alan kaynaklardan gelir) */
 export type TeknikDuzeltme = Partial<Record<TeknikAlan['key'], [number, number] | string[]>>;
 
+/** Bir kaydın satır düzeni: gizlenen satırlar ve eklenen serbest satırlar (sahip isteği, 18 Kasım 2026) */
+export interface TeknikDuzen {
+  gizli?: string[];
+  ekSatirlar?: EkSatir[];
+}
+
+/** Gizlenebilen satır anahtarları */
+export const TEKNIK_SATIR_ANAHTARLARI: ReadonlySet<string> = new Set(TEKNIK_SATIRLAR.map((t) => t.key));
+
 /** "150", "1,5–1,7", "150-170" → [a, b]; okunamazsa null */
 export function aralikOku(metin: string): [number, number] | null {
   const sayi = (s: string) => {
@@ -378,33 +495,48 @@ export function aralikMetni(a: [number, number] | null | undefined, basamak = 0)
 export function duzeltmeUygula(
   o: TeknikOzet | null | undefined,
   duzeltmeler: readonly TeknikDuzeltme[],
+  duzenler: readonly TeknikDuzen[] = [],
 ): TeknikOzet | null {
-  if (!duzeltmeler.length) return o ?? null;
+  const duzenli = duzenler.filter((d) => d.gizli?.length || d.ekSatirlar?.length);
+  if (!duzeltmeler.length && !duzenli.length) return o ?? null;
   const out: TeknikOzet = { ...(o ?? bosOzet()) };
   const yaz = out as unknown as Record<string, unknown>;
   for (const d of duzeltmeler) for (const [k, v] of Object.entries(d)) if (v !== undefined) yaz[k] = v;
-  out.kaynaklar = [...new Set([...(out.kaynaklar ?? []), 'manuel'])];
+  // Gizlenenler birleşir; aynı bölüm ve etiketli ek satırda sonraki (daha özel ya da yeni kayıt) geçerlidir
+  const gizli = new Set(out.gizli ?? []);
+  const ek = new Map((out.ekSatirlar ?? []).map((e) => [ekAnahtari(e), e]));
+  for (const d of duzenli) {
+    for (const g of d.gizli ?? []) gizli.add(g);
+    for (const e of d.ekSatirlar ?? []) ek.set(ekAnahtari(e), e);
+  }
+  if (gizli.size) out.gizli = [...gizli];
+  if (ek.size) out.ekSatirlar = [...ek.values()];
+  if (duzeltmeler.length || ek.size) out.kaynaklar = [...new Set([...(out.kaynaklar ?? []), 'manuel'])];
   return out;
 }
+
+const ekAnahtari = (e: EkSatir) =>
+  `${e.bolum.trim().toLocaleLowerCase('tr-TR')}|${e.etiket.trim().toLocaleLowerCase('tr-TR')}`;
 
 /**
  * Bilgisi eksik sayılan alanlar (sahip isteği, 18 Kasım 2026: konsolda "Bilgisi eksik araçlar"): özette yoksa eksiktir.
  * Tüketimde karma ya da şehir içi değerden biri yeter.
  */
-const EKSIK_KONTROL: readonly (readonly [string, (o: TeknikOzet) => boolean])[] = [
-  ['Vites', (o) => o.vitesler.length > 0],
-  ['Güç', (o) => !!o.hp],
-  ['Tork', (o) => !!o.tork],
-  ['0-100 km/s', (o) => !!o.hizlanma],
-  ['Azami hız', (o) => !!o.azamiHiz],
-  ['Yakıt tüketimi', (o) => !!(o.tuketim || o.tuketimSehir)],
-  ['Yakıt deposu', (o) => !!(o.depo || o.batarya)],
-  ['Ölçüler', (o) => !!o.uzunluk],
-  ['Bagaj hacmi', (o) => !!o.bagaj],
-  ['Boş ağırlık', (o) => !!o.agirlik],
+const EKSIK_KONTROL: readonly (readonly [string, string, (o: TeknikOzet) => boolean])[] = [
+  ['Vites', 'vitesler', (o) => o.vitesler.length > 0],
+  ['Güç', 'hp', (o) => !!o.hp],
+  ['Tork', 'tork', (o) => !!o.tork],
+  ['0-100 km/s', 'hizlanma', (o) => !!o.hizlanma],
+  ['Azami hız', 'azamiHiz', (o) => !!o.azamiHiz],
+  ['Yakıt tüketimi', 'tuketim', (o) => !!(o.tuketim || o.tuketimSehir)],
+  ['Yakıt deposu', 'depo', (o) => !!(o.depo || o.batarya)],
+  ['Ölçüler', 'uzunluk', (o) => !!o.uzunluk],
+  ['Bagaj hacmi', 'bagaj', (o) => !!o.bagaj],
+  ['Boş ağırlık', 'agirlik', (o) => !!o.agirlik],
 ];
 
-/** Özette eksik olan temel alanların adları (özet yoksa hepsi) */
+/** Özette eksik olan temel alanların adları (özet yoksa hepsi); konsolda gizlenen satır eksik sayılmaz */
 export function teknikEksikleri(o: TeknikOzet | null | undefined): string[] {
-  return EKSIK_KONTROL.filter(([, var_]) => !o || !var_(o)).map(([ad]) => ad);
+  const gizli = new Set(o?.gizli ?? []);
+  return EKSIK_KONTROL.filter(([, key, var_]) => !gizli.has(key) && (!o || !var_(o))).map(([ad]) => ad);
 }

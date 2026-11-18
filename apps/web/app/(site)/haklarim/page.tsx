@@ -499,7 +499,7 @@ export default function Haklarim() {
                 </h2>
                 {!secili.length ? (
                   <p style={{ margin: 0, fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
-                    Sepetin boş. Soldan bir hak veya öne çıkarma seç.
+                    Sepetin boş. Listeden bir hak veya öne çıkarma seç.
                   </p>
                 ) : (
                   <>
@@ -1079,8 +1079,7 @@ export default function Haklarim() {
                       color: 'var(--rr-baglanti, #2450C8)',
                     }}
                   >
-                    Kart bilgilerini soldaki ödeme çerçevesine gir. Ödeme onaylanınca bu sayfa kendiliğinden
-                    ilerler.
+                    Kart bilgilerini ödeme çerçevesine gir. Ödeme onaylanınca bu sayfa kendiliğinden ilerler.
                   </p>
                 ) : odeHazir ? (
                   <button

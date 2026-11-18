@@ -17,7 +17,8 @@ export function HesabimMenu({ aktif }: { aktif: string }) {
   return (
     <nav
       aria-label="Hesabım"
-      className="rr-serit"
+      // Telefonda bu bağlantılar üst çubuktaki ☰ çekmecesinde (sayfada ikinci bir menü olmasın)
+      className="rr-yalniz-genis"
       style={{
         flex: '1 1 220px',
         maxWidth: 250,

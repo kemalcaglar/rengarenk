@@ -162,6 +162,9 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   (`teknikMetniOku`), pakete özel kayıt ve donanım listesi; talep sayfasında Genel ve Donanım bölümleri (web, mobil).
   Teknik sekmesi talepteki yakıt, vites, kasa tipi ve çekişe uyar. Kayıt vitese bağlanır, düzenlenir; araç seçimi
   marka, model ve motorla; uygulanacak tipler listelenir.
+- [x] Teknik tabloda araç başına satır gizleme ve ek satır (18 Kasım 2026, sahip isteği; `hidden_rows`, `extra_rows`),
+  talep sayfasının teknik ve donanım bölümü yeni tasarım (web, mobil); web telefon görünümü bütün sayfalarda tarandı ve
+  düzeltildi (çift menü, taşan alanlar).
 
 ## Sprint 30 · üyelik ve giriş yeniden (Karar 18 ve 50, 12 Kasım 2026)
 

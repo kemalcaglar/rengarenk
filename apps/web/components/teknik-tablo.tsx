@@ -6,16 +6,22 @@ import {
   TEKNIK_KAYNAK,
   type TeknikOzet,
   teknikBolumleri,
+  teknikOneCikanlar,
 } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useState } from 'react';
 import { istek, useGiris } from '../lib/istemci';
 import { colors } from '../lib/renk';
 
+/** Gökkuşağı açık zeminleri ve noktalar (tasarım: TINTS, DOTS; talep sayfasındaki "Aranan araç" kutularıyla aynı) */
+const TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0'];
+const NOKTA = [colors.blue, colors.pink, colors.yellow, colors.green];
+
 /**
- * Talep sayfasında aracın ayrıntılı teknik özellikleri (sahip isteği, 17 Kasım 2026): motor sürümü başına bölüm bölüm
- * (motor, performans, şanzıman ve çekiş, tüketim ve emisyon, ölçüler ve ağırlık, lastik ve fren). Değerler Türkiye'de
- * satılan sürümlerle eşleşen kayıtlardan; sürümler arasında farklıysa aralık.
+ * Talep sayfasında aracın ayrıntılı teknik özellikleri (sahip isteği, 17 ve 18 Kasım 2026): motor sürümü başına öne
+ * çıkan değerler (renkli kutular), bölüm kartları (genel, motor, performans, şanzıman ve çekiş, tüketim ve emisyon,
+ * ölçüler ve ağırlık, lastik ve fren; konsolda gizlenen satırlar çıkar, eklenenler girer) ve paket donanımı. Değerler
+ * Türkiye'de satılan sürümlerle eşleşen kayıtlardan; sürümler arasında farklıysa aralık.
  */
 export function TeknikTablo({
   motorlar,
@@ -37,20 +43,30 @@ export function TeknikTablo({
   const [secili, setSecili] = useState(0);
   if (!motorlar.length) {
     return (
-      <p style={{ margin: 0, fontSize: 14.5, color: colors.muted }}>
+      <div
+        style={{
+          padding: '18px 16px',
+          borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
+          background: colors.background,
+          fontSize: 14.5,
+          color: colors.muted,
+        }}
+      >
         Bu araç için katalogda teknik bilgi bulunamadı. Motor ya da kasa seçilince ayrıntı genişler.
-      </p>
+      </div>
     );
   }
   const m = motorlar[Math.min(secili, motorlar.length - 1)] as (typeof motorlar)[number];
   const bolumler = teknikBolumleri(m.ozet);
+  const one = teknikOneCikanlar(m.ozet);
   return (
     <div>
       {motorlar.length > 1 ? (
         <div
           role="tablist"
           aria-label="Motor seçenekleri"
-          style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}
+          className="rr-yatay-kay"
+          style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 }}
         >
           {motorlar.map((x, i) => (
             <button
@@ -60,10 +76,12 @@ export function TeknikTablo({
               aria-selected={i === secili}
               onClick={() => setSecili(i)}
               style={{
-                border: i === secili ? `1.5px solid ${colors.blue}` : '1px solid #D5DAE5',
+                flex: 'none',
+                whiteSpace: 'nowrap',
+                border: i === secili ? `1.5px solid ${colors.blue}` : `1px solid ${colors.line}`,
                 background: i === secili ? '#EEF3FF' : colors.surface,
                 borderRadius: 'var(--rr-etiket-kose)',
-                padding: i === secili ? '7px 13px' : '7.5px 13.5px',
+                padding: i === secili ? '8px 14px' : '8.5px 14.5px',
                 fontSize: 13.5,
                 fontWeight: i === secili ? 800 : 600,
                 color: colors.ink,
@@ -76,64 +94,132 @@ export function TeknikTablo({
           ))}
         </div>
       ) : (
-        <p style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>{m.ad}</p>
+        <p style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>{m.ad}</p>
       )}
       {not ? <p style={{ margin: '8px 0 0', fontSize: 13, color: colors.muted }}>{not}</p> : null}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '18px 28px',
-          marginTop: 16,
-        }}
-      >
-        {bolumler.map((b) => (
-          <section key={b.baslik} aria-label={b.baslik}>
-            <h3
+
+      {one.length ? (
+        <ul
+          aria-label="Öne çıkan değerler"
+          style={{
+            listStyle: 'none',
+            padding: 0,
+            margin: '16px 0 0',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+            gap: 10,
+          }}
+        >
+          {one.map((x, i) => (
+            <li
+              key={x.etiket}
               style={{
-                margin: '0 0 6px',
-                fontSize: 13,
-                fontWeight: 800,
-                letterSpacing: 0.3,
-                textTransform: 'uppercase',
-                color: colors.muted,
+                background: TINTS[i % TINTS.length],
+                borderRadius: 'var(--rr-buton-kose)',
+                padding: '12px 14px',
               }}
             >
+              <div style={{ fontSize: 12.5, fontWeight: 600, color: '#4A5064' }}>{x.etiket}</div>
+              <div
+                style={{
+                  marginTop: 2,
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'baseline',
+                  columnGap: 4,
+                }}
+              >
+                <span style={{ fontSize: 21, fontWeight: 800, letterSpacing: -0.3, whiteSpace: 'nowrap' }}>
+                  {x.deger}
+                </span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#4A5064', whiteSpace: 'nowrap' }}>
+                  {x.birim}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {/* Bölümler sütunlara akar (genişse iki sütun, kısa ve uzun bölümler boşluk bırakmadan) */}
+      <div style={{ columns: '270px 2', columnGap: 12, marginTop: 14 }}>
+        {bolumler.map((b, i) => (
+          <section
+            key={b.baslik}
+            aria-label={b.baslik}
+            style={{
+              breakInside: 'avoid',
+              marginBottom: 12,
+              border: `1px solid ${colors.line}`,
+              borderRadius: 'calc(var(--rr-kart-kose) * 14 / 18)',
+              background: colors.surface,
+              overflow: 'hidden',
+            }}
+          >
+            <h3
+              style={{
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '11px 14px',
+                fontSize: 14.5,
+                fontWeight: 800,
+                background: colors.background,
+                borderBottom: `1px solid ${colors.line}`,
+              }}
+            >
+              <span
+                aria-hidden="true"
+                style={{
+                  width: 9,
+                  height: 9,
+                  borderRadius: '50%',
+                  background: NOKTA[i % NOKTA.length],
+                  flex: 'none',
+                }}
+              />
               {b.baslik}
             </h3>
-            <dl style={{ margin: 0 }}>
-              {b.satirlar.map(([etiket, deger]) => (
+            <dl style={{ margin: 0, padding: '2px 14px' }}>
+              {b.satirlar.map(([etiket, deger], j) => (
                 <div
                   key={etiket}
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    gap: 12,
-                    padding: '8px 0',
-                    borderBottom: `1px solid ${colors.line}`,
+                    alignItems: 'baseline',
+                    gap: 14,
+                    padding: '9px 0',
+                    borderTop: j ? '1px solid #EEF0F5' : 0,
                     fontSize: 14,
                   }}
                 >
-                  <dt style={{ color: colors.muted }}>{etiket}</dt>
-                  <dd style={{ margin: 0, fontWeight: 700, textAlign: 'right' }}>{deger}</dd>
+                  <dt style={{ color: colors.muted, flex: '0 1 auto' }}>{etiket}</dt>
+                  <dd style={{ margin: 0, fontWeight: 700, textAlign: 'right', minWidth: 0 }}>{deger}</dd>
                 </div>
               ))}
             </dl>
           </section>
         ))}
       </div>
-      {m.donanim?.length ? <Donanim liste={m.donanim} /> : null}
+
+      {m.donanim?.length ? <Donanim key={m.ad} liste={m.donanim} /> : null}
+
       <div
         style={{
           display: 'flex',
           flexWrap: 'wrap',
-          alignItems: 'flex-start',
+          alignItems: 'center',
           justifyContent: 'space-between',
           gap: 10,
-          marginTop: 14,
+          marginTop: 4,
+          padding: '10px 14px',
+          borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
+          background: colors.background,
         }}
       >
-        <p style={{ margin: 0, fontSize: 12, color: colors.muted, flex: '1 1 320px' }}>
+        <p style={{ margin: 0, fontSize: 12, color: colors.muted, flex: '1 1 320px', lineHeight: 1.5 }}>
           {TEKNIK_KAYNAK}.
           {m.ozet.kaynaklar?.includes('manuel') || m.donanim?.length
             ? ' Bazı değerler ve donanım ekibimizce girildi.'
@@ -292,55 +378,144 @@ function YanlisBildir({ talepNo, motor, ad }: { talepNo: number; motor: string; 
   );
 }
 
-/** Donanım listesi: paket başına (pakete özelse başlığıyla), grup grup işaretli öğeler */
+/** Bir grupta ilk bakışta gösterilen öğe sayısı (fazlası "+N daha" ile açılır) */
+const GRUP_ILK = 8;
+
+/**
+ * Donanım (sahip isteği, 18 Kasım 2026): birden çok paket listesi varsa paket sekmeleri; gruplar renkli başlıklı
+ * kartlarda, öğeler yeşil işaretle. Uzun gruplar kısaltılır.
+ */
 function Donanim({ liste }: { liste: { paket: string | null; gruplar: DonanimGrubu[] }[] }) {
+  const [secili, setSecili] = useState(0);
+  const [acik, setAcik] = useState<Record<string, boolean>>({});
+  const d = liste[Math.min(secili, liste.length - 1)] as (typeof liste)[number];
+  const toplam = d.gruplar.reduce((n, g) => n + g.ogeler.length, 0);
   return (
-    <section aria-label="Donanım" style={{ marginTop: 22 }}>
-      <h3
-        style={{
-          margin: '0 0 6px',
-          fontSize: 13,
-          fontWeight: 800,
-          letterSpacing: 0.3,
-          textTransform: 'uppercase',
-          color: colors.muted,
-        }}
-      >
-        Donanım
-      </h3>
-      {liste.map((d) => (
-        <div key={d.paket ?? ''} style={{ marginTop: 8 }}>
-          {d.paket ? (
-            <p style={{ margin: '0 0 8px', fontSize: 14, fontWeight: 800 }}>{d.paket} paketi</p>
-          ) : null}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: '14px 28px',
-            }}
-          >
-            {d.gruplar.map((g) => (
-              <div key={g.ad}>
-                <p style={{ margin: '0 0 4px', fontSize: 13.5, fontWeight: 800 }}>{g.ad}</p>
-                <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                  {g.ogeler.map((o) => (
-                    <li
-                      key={o}
-                      style={{ display: 'flex', gap: 8, padding: '4px 0', fontSize: 13.5, lineHeight: 1.4 }}
-                    >
-                      <span aria-hidden="true" style={{ color: colors.green, fontWeight: 800 }}>
-                        ✓
-                      </span>
-                      {o}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+    <section aria-label="Donanım" style={{ marginTop: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+        <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>Donanım</h3>
+        <span style={{ fontSize: 13, color: colors.muted }}>
+          {d.paket ? `${d.paket} paketi · ` : ''}
+          {toplam} özellik
+        </span>
+      </div>
+      {liste.length > 1 ? (
+        <div
+          role="tablist"
+          aria-label="Paketler"
+          className="rr-yatay-kay"
+          style={{ display: 'flex', gap: 8, overflowX: 'auto', marginTop: 10 }}
+        >
+          {liste.map((x, i) => (
+            <button
+              key={x.paket ?? ''}
+              type="button"
+              role="tab"
+              aria-selected={i === secili}
+              onClick={() => setSecili(i)}
+              style={{
+                flex: 'none',
+                whiteSpace: 'nowrap',
+                border: 0,
+                background: i === secili ? colors.ink : colors.background,
+                color: i === secili ? colors.surface : colors.ink,
+                borderRadius: 'var(--rr-etiket-kose)',
+                padding: '7px 13px',
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+              }}
+            >
+              {x.paket ?? 'Bütün paketler'}
+            </button>
+          ))}
         </div>
-      ))}
+      ) : null}
+      <div style={{ columns: '240px 3', columnGap: 12, marginTop: 12 }}>
+        {d.gruplar.map((g, i) => {
+          const anahtar = `${d.paket ?? ''}|${g.ad}`;
+          const hepsi = acik[anahtar] || g.ogeler.length <= GRUP_ILK + 1;
+          const ogeler = hepsi ? g.ogeler : g.ogeler.slice(0, GRUP_ILK);
+          return (
+            <div
+              key={g.ad}
+              style={{
+                breakInside: 'avoid',
+                marginBottom: 12,
+                border: `1px solid ${colors.line}`,
+                borderRadius: 'calc(var(--rr-kart-kose) * 14 / 18)',
+                overflow: 'hidden',
+                background: colors.surface,
+              }}
+            >
+              <p
+                style={{
+                  margin: 0,
+                  padding: '10px 14px',
+                  background: TINTS[i % TINTS.length],
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  gap: 8,
+                  fontSize: 14,
+                  fontWeight: 800,
+                }}
+              >
+                {g.ad}
+                <span style={{ fontSize: 12.5, fontWeight: 700, color: '#4A5064' }}>{g.ogeler.length}</span>
+              </p>
+              <ul style={{ margin: 0, padding: '6px 14px 10px', listStyle: 'none' }}>
+                {ogeler.map((o) => (
+                  <li
+                    key={o}
+                    style={{ display: 'flex', gap: 9, padding: '5px 0', fontSize: 13.5, lineHeight: 1.4 }}
+                  >
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        flex: 'none',
+                        width: 18,
+                        height: 18,
+                        marginTop: 1,
+                        borderRadius: '50%',
+                        background: '#E7FAF0',
+                        color: '#11683F',
+                        fontSize: 11,
+                        fontWeight: 800,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      ✓
+                    </span>
+                    {o}
+                  </li>
+                ))}
+              </ul>
+              {g.ogeler.length > ogeler.length ? (
+                <button
+                  type="button"
+                  onClick={() => setAcik((a) => ({ ...a, [anahtar]: true }))}
+                  style={{
+                    margin: '0 14px 12px',
+                    padding: 0,
+                    border: 0,
+                    background: 'transparent',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    color: colors.link,
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                >
+                  +{g.ogeler.length - ogeler.length} özellik daha
+                </button>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
     </section>
   );
 }

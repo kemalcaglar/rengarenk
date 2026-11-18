@@ -212,3 +212,11 @@ textarea {
   background: #eef3ff;
   text-decoration: none;
 }
+
+/* Yatay kaydırılan sekme şeridi (motor ve paket seçimi): kaydırma çubuğu gizli */
+.rr-yatay-kay {
+  scrollbar-width: none;
+}
+.rr-yatay-kay::-webkit-scrollbar {
+  display: none;
+}

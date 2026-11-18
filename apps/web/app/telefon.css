@@ -198,3 +198,73 @@
     display: none !important;
   }
 }
+@media (max-width: 720px) {
+  /* Talep satırı: yıl ve km yan yana küçük, bütçe tek satırda, boş km gösterilmez */
+  .rr-talep-satir > .rr-ts-bilgi {
+    flex: 0 0 auto !important;
+    font-size: 13px !important;
+    color: var(--rr-soluk, #5a6073);
+  }
+  .rr-talep-satir > .rr-ts-bilgi[data-bos] {
+    display: none !important;
+  }
+  .rr-talep-satir > .rr-ts-butce {
+    flex: 1 1 100% !important;
+    order: 5;
+  }
+}
+@media (max-width: 720px) {
+  /* Galeri profili: ad logonun altında, takip düğmesi adın hemen altında tam genişlikte (boşluk kalmaz) */
+  .rr-galeri-ad {
+    flex: 1 1 100% !important;
+    padding-top: 0 !important;
+  }
+  .rr-galeri-ad h1 {
+    font-size: 24px !important;
+  }
+  .rr-galeri-dugme {
+    flex: 1 1 100% !important;
+    padding-top: 0 !important;
+    justify-content: stretch !important;
+  }
+  .rr-galeri-dugme > * {
+    flex: 1 1 auto;
+  }
+}
+@media (max-width: 720px) {
+  /* Galeri paneli menüsü: telefonda sayfanın üstünü kaplayan liste yerine yatay kaydırılan sekmeler */
+  .rr-panel-menu {
+    flex: 1 1 100% !important;
+    max-width: none !important;
+    padding: 6px !important;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .rr-panel-menu::-webkit-scrollbar {
+    display: none;
+  }
+  .rr-panel-menu > ul {
+    flex-direction: row !important;
+    gap: 4px !important;
+  }
+  .rr-panel-menu > ul > li > button {
+    white-space: nowrap;
+    padding: 9px 12px !important;
+    gap: 6px !important;
+  }
+}
+@media (max-width: 720px) {
+  /* Talep sayfasının büyük araç kapağı: 16:9 kutu daralınca ad ve etiketler küçülür, üstteki "Temsili görsel" ile çakışmaz */
+  .rr-kapak-buyuk .rr-kapak-seri {
+    font-size: 24px !important;
+  }
+  .rr-kapak-buyuk .rr-kapak-etiketler {
+    gap: 4px !important;
+    margin-top: 6px !important;
+    padding-right: 0 !important;
+  }
+  .rr-kapak-buyuk .rr-kapak-etiketler > span {
+    font-size: 11.5px !important;
+    padding: 3px 8px !important;
+  }
+}

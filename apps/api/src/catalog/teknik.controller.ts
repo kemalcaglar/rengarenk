@@ -44,6 +44,18 @@ const ekleSchema = z
       .max(100)
       .nullable()
       .optional(),
+    /** Bu araçta gösterilmeyecek satırlar (sahip isteği, 18 Kasım 2026) */
+    gizli: z.array(z.string().max(40)).max(60).nullable().optional(),
+    /** Serbest ek satırlar: bölüm, etiket, değer */
+    ekSatirlar: z
+      .array(
+        z
+          .object({ bolum: z.string().max(60), etiket: z.string().max(80), deger: z.string().max(200) })
+          .strict(),
+      )
+      .max(60)
+      .nullable()
+      .optional(),
     not: z.string().trim().max(500).nullable().optional(),
     /** Bir bildirimden gelindiyse: düzeltmeyle birlikte kapanır */
     bildirim: z.uuid().nullable().optional(),
