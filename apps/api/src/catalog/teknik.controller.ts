@@ -20,7 +20,12 @@ const yil = z.coerce.number().int().min(1900).max(2100);
 const durumSchema = z.enum(['acik', 'kapali']).optional();
 const kararSchema = z.object({ durum: z.enum(['duzeltildi', 'reddedildi']) }).strict();
 const yilSorgu = z
-  .object({ yilBas: yil.optional(), yilSon: yil.optional(), paket: z.uuid().optional() })
+  .object({
+    yilBas: yil.optional(),
+    yilSon: yil.optional(),
+    paket: z.uuid().optional(),
+    vites: z.enum(['manuel', 'otomatik', 'yari_otomatik']).optional(),
+  })
   .refine((v) => !v.yilBas || !v.yilSon || v.yilBas <= v.yilSon, 'Yıl aralığı ters');
 const ekleSchema = z
   .object({
@@ -28,6 +33,10 @@ const ekleSchema = z
     yilSon: yil.nullable().optional(),
     /** Pakete özel kayıt (donanım pakete göre değişir); boşsa bütün paketler */
     paket: z.uuid().nullable().optional(),
+    /** Vitese özel kayıt (aynı paketin manuel ve otomatik tipi ayrı bilgi taşır); boşsa bütün vitesler */
+    vites: z.enum(['manuel', 'otomatik', 'yari_otomatik']).nullable().optional(),
+    /** Düzenlenen kayıt: yeni kayıt onun yerine geçer */
+    yerine: z.uuid().nullable().optional(),
     /** Alan → [en az, en çok] ya da metin listesi; servis alan tanımına göre denetler */
     degerler: z.record(z.string(), z.union([z.tuple([z.number(), z.number()]), z.array(z.string())])),
     donanim: z
@@ -74,6 +83,18 @@ export class StaffTeknikController {
     return this.teknik.eksikler();
   }
 
+  @Get('markalar')
+  @RequirePermission('kategori.ayarla')
+  markalar() {
+    return this.teknik.markalar();
+  }
+
+  @Get('marka/:id')
+  @RequirePermission('kategori.ayarla')
+  marka(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.teknik.markaSerileri(id);
+  }
+
   @Get('seri/:id')
   @RequirePermission('kategori.ayarla')
   seri(@Param('id', new ParseUUIDPipe()) id: string) {
@@ -91,7 +112,7 @@ export class StaffTeknikController {
       q.yilBas || q.yilSon
         ? ([q.yilBas ?? 1950, q.yilSon ?? new Date().getFullYear() + 1] as [number, number])
         : null;
-    return this.teknik.model(id, a, q.paket ?? null);
+    return this.teknik.model(id, a, q.paket ?? null, q.vites ?? null);
   }
 
   @Post('model/:id')

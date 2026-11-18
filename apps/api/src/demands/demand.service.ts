@@ -38,7 +38,7 @@ import { AuditService } from '../audit/audit.service.js';
 import { sha256 } from '../auth/tokens.js';
 import { CatalogImageService } from '../catalog/catalog-image.service.js';
 import { fotoVerisi, talepFotolari } from '../catalog/talep-foto.js';
-import { elleGirilenler, type MotorDonanimi } from '../catalog/teknik-duzeltme.js';
+import { elleKayitlari, kayitlariSec, type MotorDonanimi } from '../catalog/teknik-duzeltme.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { EntitlementService } from '../entitlements/entitlement.service.js';
 import { ContentRulesService } from '../moderation/content-rules.service.js';
@@ -86,6 +86,13 @@ function invalid(issues: { path: PropertyKey[]; message: string }[]): never {
  * pasife düşer ve uzatılabilir (ilk uzatma ücretsiz). Her durum değişikliği geçmişe, işlem kaydına ve outbox'a
  * aynı veritabanı işleminde yazılır.
  */
+
+/** Teknik sekmesinde motor ve vites adı ("1.0 TCe · Otomatik") */
+const VITES_AD: Record<string, string> = {
+  manuel: 'Manuel',
+  otomatik: 'Otomatik',
+  yari_otomatik: 'Yarı otomatik',
+};
 @Injectable()
 export class DemandService {
   constructor(
@@ -463,26 +470,51 @@ export class DemandService {
       take: 2000,
     });
     const vites = Array.isArray(secim.vites) ? (secim.vites as string[]) : null;
-    const grup = new Map<string, { ad: string; key: string; ozetler: TeknikOzet[] }>();
+    // Motor sürümü ve vites başına grup (sahip isteği, 18 Kasım 2026: aynı paketin manuel ve otomatik tipi ayrı bilgi
+    // taşır); vitesi TSB adında yazmayan tipler ayrı grupta
+    const grup = new Map<
+      string,
+      { modelId: string; ad: string; key: string; gearbox: string | null; ozetler: TeknikOzet[] }
+    >();
     for (const t of tipler) {
       if (!tipSecimeUyar(t, secim)) continue;
-      const g = grup.get(t.model.id) ?? { ad: t.model.name, key: t.model.key, ozetler: [] };
+      const k = `${t.model.id}|${t.gearbox ?? ''}`;
+      const g = grup.get(k) ?? {
+        modelId: t.model.id,
+        ad: t.model.name,
+        key: t.model.key,
+        gearbox: t.gearbox,
+        ozetler: [],
+      };
       const o = tipTeknik(t.specs, acik, t, vites);
       if (o) g.ozetler.push(o);
-      grup.set(t.model.id, g);
+      grup.set(k, g);
     }
     // Elle girilenler (sahip isteği, 17 ve 18 Kasım 2026): kaynaktaki değerin yerine geçer; kaynakta bilgisi olmayan
-    // sürüme de değer eklenebilir. Donanım ve pakete özel kayıtlar talepte seçilen paketlere göre.
-    const elle = await elleGirilenler(this.db, [...grup.keys()], aralik, paketKeys);
-    return [...grup.entries()]
-      .flatMap(([id, g]) => {
-        const donanim = elle.donanim.get(id) ?? [];
+    // sürüme de değer eklenebilir. Pakete ve vitese özel kayıtlar yalnızca uyan tipe.
+    const kayitlar = await elleKayitlari(
+      this.db,
+      [...new Set([...grup.values()].map((g) => g.modelId))],
+      aralik,
+      paketKeys,
+    );
+    const vitesSayisi = new Map<string, number>();
+    for (const g of grup.values()) vitesSayisi.set(g.modelId, (vitesSayisi.get(g.modelId) ?? 0) + 1);
+    return [...grup.values()]
+      .flatMap((g) => {
+        // Vitesi bilinmeyen tipte talepte seçilen vites (tek ise) geçerli sayılır
+        const gv = g.gearbox ? [g.gearbox] : vites?.length === 1 ? vites : null;
+        const elle = kayitlariSec(kayitlar, g.modelId, gv);
         const ozet =
-          duzeltmeUygula(
-            g.ozetler.length ? (ozetBirlestir(g.ozetler) as TeknikOzet) : null,
-            elle.degerler.get(id) ?? [],
-          ) ?? (donanim.length ? bosOzet() : null);
-        return ozet ? [{ ad: g.ad, model: g.key, ozet, ...(donanim.length ? { donanim } : {}) }] : [];
+          duzeltmeUygula(g.ozetler.length ? (ozetBirlestir(g.ozetler) as TeknikOzet) : null, elle.degerler) ??
+          (elle.donanim.length ? bosOzet() : null);
+        const ad =
+          (vitesSayisi.get(g.modelId) ?? 0) > 1
+            ? `${g.ad} · ${g.gearbox ? (VITES_AD[g.gearbox] ?? g.gearbox) : 'vites belirtilmemiş'}`
+            : g.ad;
+        return ozet
+          ? [{ ad, model: g.key, ozet, ...(elle.donanim.length ? { donanim: elle.donanim } : {}) }]
+          : [];
       })
       .sort((a, b) => a.ad.localeCompare(b.ad, 'tr', { numeric: true }));
   }

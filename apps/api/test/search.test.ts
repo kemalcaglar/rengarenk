@@ -484,8 +484,13 @@ describe('teknik sekmesi talepteki vitese uyar (sahip bildirimi, 18 Kasım 2026)
       vitesler: ['manuel:6'],
       kaynaklar: ['vmm'],
     });
-    // Vites seçilmediyse iki tip birleşir
-    expect((await motorlar({}))[0].ozet.vitesler).toEqual(['manuel:6', 'otomatik:']);
+    // Vites seçilmediyse motorun iki vitesi ayrı sekmede
+    expect(
+      (await motorlar({})).map((m: { ad: string; ozet: { vitesler: string[] } }) => [m.ad, m.ozet.vitesler]),
+    ).toEqual([
+      ['320i · Manuel', ['manuel:6']],
+      ['320i · Otomatik', ['otomatik:']],
+    ]);
   });
 });
 
@@ -582,5 +587,77 @@ Isofix\t`);
     expect(k.duzeltmeler).toHaveLength(2);
 
     expect((await eksikler()).find((x) => x.modelId === model.id)).toBeUndefined();
+  });
+});
+
+describe('teknik kayıt vitese bağlanır ve düzenlenir (sahip isteği, 18 Kasım 2026)', () => {
+  it('otomatik kaydı manuel seçen görmez; düzenleme eskisinin yerine geçer; uygulanacak tipler listelenir', async () => {
+    const owner = (await loginAs(app, await createStaff(db, 'OWNER'))).token;
+    // Önceki testin 320i tipleri (2024, manuel ve otomatik)
+    const model = await db.catalogModel.findUniqueOrThrow({ where: { key: 'bmw/3-serisi/320i' } });
+    const ekle = (b: object) => staffCall(app, 'POST', `/staff/catalog/teknik/model/${model.id}`, b, owner);
+    const yil = { butce: { max: 2_000_000 }, yil: { min: 2024, max: 2024 } };
+    const motorlar = async (alt: Record<string, unknown>) => {
+      const t = await talep('3-serisi', '320i', { ...yil, ...alt }, { il: 'Bursa' });
+      return (await call(app, 'GET', `/talepler/${t.no}`)).body.gorunum.alternatifler[0].motorlar as {
+        ad: string;
+        ozet: { tork?: [number, number] };
+        donanim?: unknown[];
+      }[];
+    };
+
+    // Uygulanacak tipler ve vites seçenekleri
+    const m = (
+      await staffCall(
+        app,
+        'GET',
+        `/staff/catalog/teknik/model/${model.id}?yilBas=2024&vites=otomatik`,
+        undefined,
+        owner,
+      )
+    ).body;
+    expect(m.vitesler).toEqual(['manuel', 'otomatik']);
+    expect(m.tipler).toEqual([
+      { ad: 'test-320i-otomatik', paket: null, vites: 'otomatik', yillar: [2024, 2024] },
+    ]);
+
+    expect((await ekle({ vites: 'yari_otomatik', degerler: { tork: [300, 300] } })).status).toBe(400);
+    const r = await ekle({
+      yilBas: 2024,
+      vites: 'otomatik',
+      degerler: { tork: [300, 300] },
+      donanim: [{ ad: 'Konfor', ogeler: ['Klima'] }],
+    });
+    expect(r.status).toBe(200);
+    const oto = await motorlar({ vites: ['otomatik'] });
+    expect(oto[0]).toMatchObject({ ad: '320i', ozet: { tork: [300, 300] } });
+    expect(oto[0]?.donanim).toHaveLength(1);
+    const man = await motorlar({ vites: ['manuel'] });
+    expect(man[0]?.ozet.tork).toBeUndefined();
+    expect(man[0]?.donanim).toBeUndefined();
+
+    // Düzenle: yeni kayıt eskisinin yerine geçer, eski kaldırılır; kaldırılmış kayıt yeniden düzenlenemez
+    const d = await ekle({
+      yerine: r.body.id,
+      yilBas: 2024,
+      vites: 'otomatik',
+      degerler: { tork: [320, 320] },
+    });
+    expect(d.status).toBe(200);
+    expect(await db.catalogSpecOverride.findUniqueOrThrow({ where: { id: r.body.id } })).toMatchObject({
+      status: 'kaldirildi',
+      replacedBy: d.body.id,
+    });
+    expect((await motorlar({ vites: ['otomatik'] }))[0]?.ozet.tork).toEqual([320, 320]);
+    expect((await ekle({ yerine: r.body.id, degerler: { tork: [1, 1] } })).status).toBe(409);
+
+    // Araç seçimi: marka ve modeller
+    const bmw = (await staffCall(app, 'GET', '/staff/catalog/teknik/markalar', undefined, owner)).body.find(
+      (x: { ad: string }) => x.ad === 'BMW',
+    );
+    expect(bmw).toBeDefined();
+    const seriler = (await staffCall(app, 'GET', `/staff/catalog/teknik/marka/${bmw.id}`, undefined, owner))
+      .body;
+    expect(seriler.map((x: { ad: string }) => x.ad)).toEqual(['3 Serisi', '5 Serisi']);
   });
 });

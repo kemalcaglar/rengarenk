@@ -462,7 +462,11 @@ pnpm format        # Biome ile biçimlendir
   `catalog_spec_overrides.trim_id` (pakete özel kayıt yalnızca o paketi seçen talepte) ve `equipment` (donanım,
   `DonanimGrubu[]`). Okurken `elleGirilenler` (değerler ve donanım birlikte). Yeni özet alanları: `segmentler`,
   `kapilar`, `koltuklar`, `gucDevir`, `torkDevir`, `sanzimanlar`; talep sayfasında Genel ve Donanım bölümleri.
-  API'de 244, ortak pakette 147 test.
+  Kayıt vitese de bağlanır (`catalog_spec_overrides.gearbox`; aynı paketin manuel ve otomatik tipi ayrı bilgi taşır):
+  talep sayfasında motor sürümü ve vites başına ayrı sekme ("1.0 TCe · Otomatik"), kayıtlar `elleKayitlari` +
+  `kayitlariSec` ile tip grubuna (paket, vites; genelden özele) uygulanır. Konsolda "Düzenle" yeni kaydı eskisinin
+  yerine koyar (`yerine`, eski kayıt `kaldirildi` + `replaced_by`), düzenleyici kaydın uygulanacağı TSB tiplerini
+  listeler, "Araç ara" Marka → Model → Motor seçimidir. API'de 245, ortak pakette 147 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

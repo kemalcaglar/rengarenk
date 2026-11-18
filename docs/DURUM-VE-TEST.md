@@ -109,6 +109,9 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
   yılı ve donanım kutusu kendiliğinden dolar, okunamayan satırlar gösterilir. Kayıt bir pakete bağlanabilir (yalnızca o
   paketi seçen talepte uygulanır). Talep sayfasının teknik sekmesinde Genel bölümü (segment, kapı, koltuk), güç ve tork
   devri, şanzıman adı ve Donanım bölümü (web, mobil). Teknik sekmesi talepteki yakıt ve vitese uyar.
+  Kayıt yıl, paket ve vitese bağlanır; düzenleyici kaydın uygulanacağı TSB tiplerini adlarıyla listeler, "Düzenle"
+  kaydı günceller (eskisi silinmez), "Araç ara ve bilgi gir" Marka → Model → Motor seçimiyle her araca açıktır.
+  Talep sayfasında bir motorun manuel ve otomatik tipi ayrı sekmede.
   Test: konsolda bir aracın "Bilgi gir" düğmesi → metni yapıştır → "Metni oku ve doldur" → Kaydet → talep sayfası.
 - Talep sayfasında fotoğraf alana kırpılmadan sığar ve tıklanınca tam ekran büyür (web; mobilde dokununca tam ekran).
 - Konsol menüsü Katalog'da "Araç görselleri" (görselsiz talep sayısı) ve "Teknik özellikler" (açık bildirim sayısı).

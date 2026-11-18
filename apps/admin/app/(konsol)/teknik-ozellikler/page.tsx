@@ -37,6 +37,7 @@ interface Eksik {
   talepler: number[];
   eksik: string[];
   donanimVar: boolean;
+  makeId: string | null;
 }
 
 type Tab = 'eksik' | 'acik' | 'kapali' | 'ara';
@@ -54,8 +55,9 @@ export default function TeknikOzellikler() {
   const [acikDuzelt, setAcikDuzelt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [q, setQ] = useState('');
-  const [seriler, setSeriler] = useState<{ id: string; ad: string }[]>([]);
+  const [markalar, setMarkalar] = useState<{ id: string; ad: string }[] | null>(null);
+  const [marka, setMarka] = useState('');
+  const [seriler, setSeriler] = useState<{ id: string; ad: string; yillar: [number, number] | null }[]>([]);
   const [seri, setSeri] = useState<{ id: string; ad: string } | null>(null);
   const [surumler, setSurumler] = useState<Surum[] | null>(null);
   const [surum, setSurum] = useState<string | null>(null);
@@ -76,15 +78,21 @@ export default function TeknikOzellikler() {
   }, [tab]);
   useEffect(load, [load]);
 
+  // Araç seçimi: Türkiye'de satılan tipi olan markalar, markanın modelleri, modelin motor sürümleri
   useEffect(() => {
-    if (tab !== 'ara' || q.trim().length < 2) return setSeriler([]);
-    const t = setTimeout(() => {
-      yonetim<{ id: string; ad: string }[]>(`catalog/images/seriler?q=${encodeURIComponent(q.trim())}`)
-        .then(setSeriler)
-        .catch(() => setSeriler([]));
-    }, 250);
-    return () => clearTimeout(t);
-  }, [q, tab]);
+    if (tab !== 'ara' || markalar) return;
+    yonetim<{ id: string; ad: string }[]>('catalog/teknik/markalar')
+      .then(setMarkalar)
+      .catch((e: Error) => setError(e.message));
+  }, [tab, markalar]);
+
+  useEffect(() => {
+    setSeriler([]);
+    if (!marka) return;
+    yonetim<typeof seriler>(`catalog/teknik/marka/${marka}`)
+      .then(setSeriler)
+      .catch((e: Error) => setError(e.message));
+  }, [marka]);
 
   useEffect(() => {
     if (!seri) return;
@@ -222,6 +230,7 @@ export default function TeknikOzellikler() {
                             className="k-btn-line"
                             style={{ fontSize: 13, padding: '6px 12px' }}
                             onClick={() => {
+                              if (x.makeId) setMarka(x.makeId);
                               setSeri({ id: x.seriesId as string, ad: x.arac ?? '' });
                               setTab('ara');
                             }}
@@ -249,32 +258,58 @@ export default function TeknikOzellikler() {
       ) : tab === 'ara' ? (
         <>
           <div className="k-panel" style={{ padding: 16, marginBottom: 14 }}>
-            <label className="k-field">
-              Marka ya da model
-              <input
-                value={q}
-                placeholder="Ör. BMW 3 Serisi, Fiat Egea"
-                onChange={(e) => setQ(e.target.value)}
-              />
-            </label>
-            {seriler.length ? (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
-                {seriler.map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    className="k-chip"
-                    aria-pressed={seri?.id === s.id}
-                    onClick={() => setSeri(s)}
-                  >
-                    {s.ad}
-                  </button>
-                ))}
-              </div>
-            ) : null}
+            <p style={{ margin: '0 0 10px', fontSize: 13, color: '#5A6073' }}>
+              Türkiye'de satılan (TSB listesindeki) her araca istediğin zaman teknik özellik ve donanım
+              girebilirsin: marka, model ve motor sürümünü seç; paket, vites ve yılları düzenleyicide
+              seçersin.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+              <label className="k-field" style={{ flex: '1 1 200px' }}>
+                Marka
+                <select
+                  value={marka}
+                  onChange={(e) => {
+                    setMarka(e.target.value);
+                    setSeri(null);
+                    setSurumler(null);
+                    setSurum(null);
+                  }}
+                >
+                  <option value="">{markalar ? 'Marka seç' : 'Yükleniyor…'}</option>
+                  {(markalar ?? []).map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.ad}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="k-field" style={{ flex: '1 1 260px' }}>
+                Model
+                <select
+                  value={seri?.id ?? ''}
+                  disabled={!marka}
+                  onChange={(e) => {
+                    const x = seriler.find((s) => s.id === e.target.value);
+                    setSeri(x ? { id: x.id, ad: x.ad } : null);
+                  }}
+                >
+                  <option value="">Model seç</option>
+                  {seri && !seriler.some((s) => s.id === seri.id) ? (
+                    <option value={seri.id}>{seri.ad}</option>
+                  ) : null}
+                  {seriler.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.ad}
+                      {s.yillar ? ` (${s.yillar[0]}–${s.yillar[1]})` : ''}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
             {seri && surumler ? (
               surumler.length ? (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
+                  <span style={{ width: '100%', fontSize: 13, fontWeight: 700 }}>Motor sürümü</span>
                   {surumler.map((s) => (
                     <button
                       key={s.id}
@@ -285,7 +320,7 @@ export default function TeknikOzellikler() {
                     >
                       {s.ad}
                       {s.yillar ? ` · ${s.yillar[0]}–${s.yillar[1]}` : ''}
-                      {s.duzeltme ? ` · ${s.duzeltme} düzeltme` : ''}
+                      {s.duzeltme ? ` · ${s.duzeltme} kayıt` : ''}
                     </button>
                   ))}
                 </div>

@@ -837,23 +837,27 @@ model CatalogModel {
 /// TSB) değerin yerine geçer (`duzeltmeUygula`). Eşleştirme yeniden çalışınca kaybolmaz. Kayıtlar silinmez, kaldırılınca
 /// durumu "kaldirildi" olur.
 model CatalogSpecOverride {
-  id        String    @id @db.Uuid
-  modelId   String    @map("model_id") @db.Uuid
-  yearFrom  Int?      @map("year_from")
-  yearTo    Int?      @map("year_to")
+  id         String    @id @db.Uuid
+  modelId    String    @map("model_id") @db.Uuid
+  yearFrom   Int?      @map("year_from")
+  yearTo     Int?      @map("year_to")
   /// TeknikDuzeltme: alan → [min, max] ya da metin listesi
-  values    Json
+  values     Json
   /// Pakete özel kayıt (sahip isteği, 18 Kasım 2026): yalnızca o paketi seçen talepte uygulanır; boşsa bütün paketler
-  trimId    String?   @map("trim_id") @db.Uuid
+  trimId     String?   @map("trim_id") @db.Uuid
   /// Donanım listesi: DonanimGrubu[] ({ ad, ogeler }); boşsa kayıt donanım taşımaz
-  equipment Json?
-  note      String?
+  equipment  Json?
+  /// Vitese özel kayıt (sahip isteği, 18 Kasım 2026): manuel | otomatik | yari_otomatik; boşsa bütün vitesler
+  gearbox    String?
+  /// Düzenlenince yerine geçen kayıt (eski kayıt kaldırılır, silinmez)
+  replacedBy String?   @map("replaced_by") @db.Uuid
+  note       String?
   /// aktif | kaldirildi
-  status    String    @default("aktif")
-  createdBy String    @map("created_by") @db.Uuid
-  removedBy String?   @map("removed_by") @db.Uuid
-  removedAt DateTime? @map("removed_at") @db.Timestamptz(3)
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  status     String    @default("aktif")
+  createdBy  String    @map("created_by") @db.Uuid
+  removedBy  String?   @map("removed_by") @db.Uuid
+  removedAt  DateTime? @map("removed_at") @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
   model CatalogModel @relation(fields: [modelId], references: [id])
   trim  CatalogTrim? @relation(fields: [trimId], references: [id])

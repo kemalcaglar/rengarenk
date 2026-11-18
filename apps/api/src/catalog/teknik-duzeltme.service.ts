@@ -19,7 +19,7 @@ import {
 import { AuditService } from '../audit/audit.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { OutboxService } from '../outbox/outbox.service.js';
-import { elleGirilenler } from './teknik-duzeltme.js';
+import { elleKayitlari, kayitlariSec } from './teknik-duzeltme.js';
 
 /** Kullanıcı başına günde en çok bildirim (kötüye kullanım sınırı) */
 const GUNLUK_BILDIRIM = 10;
@@ -219,16 +219,22 @@ export class TeknikDuzeltmeService {
 
   /**
    * Bir motor sürümünün değerleri: kaynaklardan gelen (düzeltmesiz), elle girilenler ve sonuç. `aralik` verilirse
-   * yalnızca o yıllarda satılan tipler ve o yıllara uyan kayıtlar; `paketId` verilirse o paketin tipleri, pakete özel
-   * kayıtları ve donanımı. Paket listesi sürümün Türkiye'de satılan tiplerinden.
+   * yalnızca o yıllarda satılan tipler ve o yıllara uyan kayıtlar; `paketId` ve `vites` verilirse yalnızca o paketin ve
+   * vitesin tipleri, kayıtları ve donanımı. `tipler`: kaydın uygulanacağı Türkiye'de satılan tipler (TSB adlarıyla);
+   * paket ve vites seçenekleri sürümün tiplerinden.
    */
-  async model(modelId: string, aralik: [number, number] | null, paketId?: string | null) {
+  async model(
+    modelId: string,
+    aralik: [number, number] | null,
+    paketId?: string | null,
+    vites?: string | null,
+  ) {
     const model = await this.db.catalogModel.findUnique({
       where: { id: modelId },
       select: {
         id: true,
         name: true,
-        series: { select: { id: true, name: true, make: { select: { name: true } } } },
+        series: { select: { id: true, name: true, make: { select: { id: true, name: true } } } },
       },
     });
     if (!model) throw new NotFoundException('Sürüm bulunamadı');
@@ -236,9 +242,10 @@ export class TeknikDuzeltmeService {
     const yillar = aralik
       ? Array.from({ length: Math.min(aralik[1] - aralik[0] + 1, 80) }, (_, i) => aralik[0] + i)
       : null;
-    const tipler = await this.db.catalogVariant.findMany({
-      where: { modelId, source: { in: ['tsb', 'yerli'] }, ...(yillar ? { years: { hasSome: yillar } } : {}) },
+    const tum = await this.db.catalogVariant.findMany({
+      where: { modelId, source: { in: ['tsb', 'yerli'] } },
       select: {
+        rawName: true,
         gearbox: true,
         powerHp: true,
         years: true,
@@ -247,8 +254,9 @@ export class TeknikDuzeltmeService {
       },
       take: 2000,
     });
+    const yildaki = yillar ? tum.filter((t) => t.years.some((y) => yillar.includes(y))) : tum;
     const paketler = new Map<string, { id: string; key: string; ad: string; yillar: Set<number> }>();
-    for (const t of tipler) {
+    for (const t of tum) {
       if (!t.trim) continue;
       const p = paketler.get(t.trim.id) ?? {
         id: t.trim.id,
@@ -261,14 +269,16 @@ export class TeknikDuzeltmeService {
     }
     const paket = paketId ? paketler.get(paketId) : undefined;
     if (paketId && !paket) throw new BadRequestException('Bu sürümde böyle bir paket yok');
-    const ozetler = tipler
-      .filter((t) => !paket || t.trim?.id === paket.id)
-      .flatMap((t) => {
-        const o = tipTeknik(t.specs, acik, t);
-        return o ? [o] : [];
-      });
+    const pakettekiler = yildaki.filter((t) => !paket || t.trim?.id === paket.id);
+    // Vites seçenekleri: seçilen yıl ve paketteki tiplerin TSB adından bilinen vitesleri
+    const vitesler = [...new Set(pakettekiler.map((t) => t.gearbox).filter((g): g is string => !!g))].sort();
+    const hedef = pakettekiler.filter((t) => !vites || t.gearbox === vites);
+    const ozetler = hedef.flatMap((t) => {
+      const o = tipTeknik(t.specs, acik, t);
+      return o ? [o] : [];
+    });
     const kaynak = ozetler.length ? (ozetBirlestir(ozetler) as TeknikOzet) : null;
-    const tum = await this.db.catalogSpecOverride.findMany({
+    const kayitlar = await this.db.catalogSpecOverride.findMany({
       where: { modelId, status: 'aktif' },
       select: {
         id: true,
@@ -276,41 +286,95 @@ export class TeknikDuzeltmeService {
         yearTo: true,
         values: true,
         equipment: true,
+        gearbox: true,
         note: true,
         createdAt: true,
-        trim: { select: { name: true } },
+        trim: { select: { id: true, name: true } },
       },
       orderBy: { createdAt: 'asc' },
     });
-    const elle = await elleGirilenler(this.db, [modelId], aralik, paket ? [paket.key] : []);
-    const donanimlar = elle.donanim.get(modelId) ?? [];
+    const elle = kayitlariSec(
+      await elleKayitlari(this.db, [modelId], aralik, paket ? [paket.key] : []),
+      modelId,
+      vites ? [vites] : null,
+    );
+    const yil = (ys: number[]) => {
+      const y = [...ys].sort((a, b) => a - b);
+      return y.length ? ([y[0], y.at(-1)] as [number, number]) : null;
+    };
     return {
       id: model.id,
       ad: model.name,
       arac: model.series ? `${model.series.make.name} ${model.series.name}` : null,
       seriesId: model.series?.id ?? null,
+      makeId: model.series?.make.id ?? null,
       paketler: [...paketler.values()]
-        .map((p) => {
-          const y = [...p.yillar].sort((a, b) => a - b);
-          return { id: p.id, ad: p.ad, yillar: y.length ? ([y[0], y.at(-1)] as [number, number]) : null };
-        })
+        .map((p) => ({ id: p.id, ad: p.ad, yillar: yil([...p.yillar]) }))
+        .sort((a, b) => a.ad.localeCompare(b.ad, 'tr')),
+      vitesler,
+      // Kaydın uygulanacağı tipler (yıl aralığı, paket ve vitesle)
+      tipler: hedef
+        .map((t) => ({
+          ad: t.rawName,
+          paket: t.trim?.name ?? null,
+          vites: t.gearbox,
+          yillar: yil(t.years),
+        }))
         .sort((a, b) => a.ad.localeCompare(b.ad, 'tr')),
       kaynak,
-      sonuc: duzeltmeUygula(kaynak, elle.degerler.get(modelId) ?? []),
+      sonuc: duzeltmeUygula(kaynak, elle.degerler),
       // Gösterilen donanım: paketin kendi listesi, yoksa bütün paketlerinki
       donanim:
-        (donanimlar.find((d) => paket && d.paket === paket.ad) ?? donanimlar.find((d) => d.paket === null))
-          ?.gruplar ?? null,
-      duzeltmeler: tum.map((d) => ({
+        (
+          elle.donanim.find((d) => paket && d.paket === paket.ad) ??
+          elle.donanim.find((d) => d.paket === null)
+        )?.gruplar ?? null,
+      duzeltmeler: kayitlar.map((d) => ({
         id: d.id,
         yillar: [d.yearFrom, d.yearTo] as [number | null, number | null],
         paket: d.trim?.name ?? null,
+        paketId: d.trim?.id ?? null,
+        vites: d.gearbox,
         degerler: d.values as TeknikDuzeltme,
         donanim: (d.equipment as DonanimGrubu[] | null) ?? null,
         not: d.note,
         zaman: d.createdAt.toISOString(),
       })),
     };
+  }
+
+  /** Türkiye'de satılan tipi olan markalar (konsol › araç seçimi) */
+  async markalar() {
+    const rows = await this.db.catalogVariant.groupBy({
+      by: ['makeId'],
+      where: { source: { in: ['tsb', 'yerli'] } },
+    });
+    const markalar = await this.db.catalogMake.findMany({
+      where: { id: { in: rows.map((r) => r.makeId) } },
+      select: { id: true, name: true },
+    });
+    return markalar.map((m) => ({ id: m.id, ad: m.name })).sort((a, b) => a.ad.localeCompare(b.ad, 'tr'));
+  }
+
+  /** Markanın Türkiye'de satılan tipi olan modelleri (seri), yıllarıyla */
+  async markaSerileri(makeId: string) {
+    const tipler = await this.db.catalogVariant.findMany({
+      where: { makeId, source: { in: ['tsb', 'yerli'] }, seriesId: { not: null } },
+      select: { years: true, series: { select: { id: true, name: true } } },
+    });
+    const m = new Map<string, { id: string; ad: string; min: number; max: number }>();
+    for (const t of tipler) {
+      if (!t.series) continue;
+      const g = m.get(t.series.id) ?? { id: t.series.id, ad: t.series.name, min: 9999, max: 0 };
+      for (const y of t.years) {
+        g.min = Math.min(g.min, y);
+        g.max = Math.max(g.max, y);
+      }
+      m.set(t.series.id, g);
+    }
+    return [...m.values()]
+      .map((g) => ({ id: g.id, ad: g.ad, yillar: g.max ? ([g.min, g.max] as [number, number]) : null }))
+      .sort((a, b) => a.ad.localeCompare(b.ad, 'tr', { numeric: true }));
   }
 
   /**
@@ -338,12 +402,12 @@ export class TeknikDuzeltmeService {
           id: true,
           key: true,
           name: true,
-          series: { select: { id: true, name: true, make: { select: { name: true } } } },
+          series: { select: { id: true, name: true, make: { select: { id: true, name: true } } } },
         },
       }),
       this.db.catalogSeries.findMany({
         where: { key: { in: [...seriTalepleri.keys()] } },
-        select: { id: true, key: true, name: true, make: { select: { name: true } } },
+        select: { id: true, key: true, name: true, make: { select: { id: true, name: true } } },
       }),
     ]);
     const ids = modeller.map((m) => m.id);
@@ -380,6 +444,7 @@ export class TeknikDuzeltmeService {
       return {
         modelId: m.id as string | null,
         seriesId: m.series?.id ?? null,
+        makeId: m.series?.make.id ?? null,
         arac: m.series ? `${m.series.make.name} ${m.series.name}` : null,
         motor: m.name as string | null,
         talepSayisi: no.length,
@@ -393,6 +458,7 @@ export class TeknikDuzeltmeService {
       return {
         modelId: null,
         seriesId: s.id as string | null,
+        makeId: s.make.id as string | null,
         arac: `${s.make.name} ${s.name}`,
         motor: null,
         talepSayisi: no.length,
@@ -412,10 +478,13 @@ export class TeknikDuzeltmeService {
       yilBas?: number | null;
       yilSon?: number | null;
       paket?: string | null;
+      vites?: string | null;
       degerler: TeknikDuzeltme;
       donanim?: DonanimGrubu[] | null;
       not?: string | null;
       bildirim?: string | null;
+      /** Düzenlenen kayıt: yeni kayıt aynı işlemde onun yerine geçer (eski kayıt kaldırılır, silinmez) */
+      yerine?: string | null;
     },
     staffId: string,
     ip?: string,
@@ -430,6 +499,27 @@ export class TeknikDuzeltmeService {
       }))
     )
       throw new BadRequestException('Bu sürümde böyle bir paket yok');
+    if (
+      b.vites &&
+      !(await this.db.catalogVariant.findFirst({
+        where: {
+          modelId,
+          gearbox: b.vites,
+          source: { in: ['tsb', 'yerli'] },
+          ...(b.paket ? { trimId: b.paket } : {}),
+        },
+        select: { id: true },
+      }))
+    )
+      throw new BadRequestException('Bu sürümde (ve pakette) bu vitesle satılan tip yok');
+    if (b.yerine) {
+      const eski = await this.db.catalogSpecOverride.findUnique({
+        where: { id: b.yerine },
+        select: { modelId: true, status: true },
+      });
+      if (eski?.modelId !== modelId || eski.status !== 'aktif')
+        throw new ConflictException('Düzenlenen kayıt artık etkin değil; sayfayı yenile');
+    }
     const degerler = dogrula(b.degerler);
     const donanim = b.donanim?.length ? donanimDogrula(b.donanim) : null;
     if (!Object.keys(degerler).length && !donanim)
@@ -440,6 +530,7 @@ export class TeknikDuzeltmeService {
           id: uuidv7(),
           modelId,
           trimId: b.paket ?? null,
+          gearbox: b.vites ?? null,
           yearFrom: b.yilBas ?? null,
           yearTo: b.yilSon ?? null,
           values: degerler as Prisma.InputJsonValue,
@@ -453,12 +544,14 @@ export class TeknikDuzeltmeService {
         {
           actorType: 'STAFF',
           actorId: staffId,
-          action: 'teknik_ozellik_duzeltildi',
+          action: b.yerine ? 'teknik_duzeltme_degistirildi' : 'teknik_ozellik_duzeltildi',
           entityType: 'catalog_spec_override',
           entityId: d.id,
           after: {
             model: modelId,
+            ...(b.yerine ? { yerine: b.yerine } : {}),
             paket: b.paket ?? null,
+            vites: b.vites ?? null,
             yillar: [b.yilBas ?? null, b.yilSon ?? null],
             degerler,
             donanim: donanim ? donanim.reduce((n, g) => n + g.ogeler.length, 0) : 0,
@@ -467,6 +560,14 @@ export class TeknikDuzeltmeService {
         },
         tx,
       );
+      // Düzenlenen kayıt aynı işlemde kaldırılır (yarışta iki kişi aynı kaydı düzenlerse biri reddedilir)
+      if (b.yerine) {
+        const u = await tx.catalogSpecOverride.updateMany({
+          where: { id: b.yerine, status: 'aktif' },
+          data: { status: 'kaldirildi', removedBy: staffId, removedAt: new Date(), replacedBy: d.id },
+        });
+        if (u.count !== 1) throw new ConflictException('Düzenlenen kayıt artık etkin değil; sayfayı yenile');
+      }
       // Bildirimden gelindiyse bildirim aynı işlemde kapanır
       if (b.bildirim)
         await tx.catalogSpecReport.updateMany({

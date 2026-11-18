@@ -160,7 +160,8 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
   fotoğraf tam sığar ve büyütülür.
 - [x] Teknik özellik ve donanım girişi (18 Kasım 2026, sahip isteği): konsolda bilgisi eksik araçlar, metinden doldurma
   (`teknikMetniOku`), pakete özel kayıt ve donanım listesi; talep sayfasında Genel ve Donanım bölümleri (web, mobil).
-  Teknik sekmesi talepteki yakıt, vites, kasa tipi ve çekişe uyar.
+  Teknik sekmesi talepteki yakıt, vites, kasa tipi ve çekişe uyar. Kayıt vitese bağlanır, düzenlenir; araç seçimi
+  marka, model ve motorla; uygulanacak tipler listelenir.
 
 ## Sprint 30 · üyelik ve giriş yeniden (Karar 18 ve 50, 12 Kasım 2026)
 

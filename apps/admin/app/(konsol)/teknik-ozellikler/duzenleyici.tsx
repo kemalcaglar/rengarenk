@@ -20,6 +20,8 @@ interface ModelVerisi {
   ad: string;
   arac: string | null;
   paketler: { id: string; ad: string; yillar: [number, number] | null }[];
+  vitesler: string[];
+  tipler: { ad: string; paket: string | null; vites: string | null; yillar: [number, number] | null }[];
   kaynak: TeknikOzet | null;
   sonuc: TeknikOzet | null;
   donanim: DonanimGrubu[] | null;
@@ -27,6 +29,8 @@ interface ModelVerisi {
     id: string;
     yillar: [number | null, number | null];
     paket: string | null;
+    paketId: string | null;
+    vites: string | null;
     degerler: TeknikDuzeltme;
     donanim: DonanimGrubu[] | null;
     not: string | null;
@@ -52,6 +56,12 @@ const yaz = (d: TeknikDuzeltme) =>
       return `${a?.ad ?? k}: ${deger}${a?.birim && Array.isArray(v) && typeof v[0] === 'number' ? ` ${a.birim}` : ''}`;
     })
     .join(' · ');
+
+const VITES_AD: Record<string, string> = {
+  manuel: 'Manuel',
+  otomatik: 'Otomatik',
+  yari_otomatik: 'Yarı otomatik',
+};
 
 const ogeSayisi = (g: readonly DonanimGrubu[] | null | undefined) =>
   (g ?? []).reduce((n, x) => n + x.ogeler.length, 0);
@@ -100,6 +110,10 @@ export function Duzenleyici({
   const [yilBas, setYilBas] = useState(yillar?.[0] ? String(yillar[0]) : '');
   const [yilSon, setYilSon] = useState(yillar?.[1] ? String(yillar[1]) : '');
   const [paket, setPaket] = useState('');
+  const [vites, setVites] = useState('');
+  /** Düzenlenen kayıt: kaydedince yenisi onun yerine geçer */
+  const [yerine, setYerine] = useState<string | null>(null);
+  const [tumTipler, setTumTipler] = useState(false);
   const [veri, setVeri] = useState<ModelVerisi | null>(null);
   const [form, setForm] = useState<Record<string, string | string[]>>({});
   const [metin, setMetin] = useState('');
@@ -115,10 +129,11 @@ export function Duzenleyici({
     if (/^\d{4}$/.test(yilBas)) q.set('yilBas', yilBas);
     if (/^\d{4}$/.test(yilSon)) q.set('yilSon', yilSon);
     if (paket) q.set('paket', paket);
+    if (vites) q.set('vites', vites);
     yonetim<ModelVerisi>(`catalog/teknik/model/${modelId}?${q}`)
       .then(setVeri)
       .catch((e: Error) => setHata(e.message));
-  }, [modelId, yilBas, yilSon, paket]);
+  }, [modelId, yilBas, yilSon, paket, vites]);
   useEffect(yukle, [yukle]);
 
   function metniOku() {
@@ -138,9 +153,13 @@ export function Duzenleyici({
       setYilSon(r.yillar[1] ? String(r.yillar[1]) : '');
     }
     if (oge) setDonanimMetni(donanimYaz(r.donanim));
+    // Metindeki vites türü bu sürümde satılıyorsa kayıt o vitese bağlanır (değiştirilebilir)
+    const tur = r.degerler.vitesler?.length === 1 ? (r.degerler.vitesler[0] as string).split(':')[0] : null;
+    const vitesSecildi = !vites && tur && veri?.vitesler.includes(tur) && (veri?.vitesler.length ?? 0) > 1;
+    if (vitesSecildi) setVites(tur);
     setOkunamayan(r.okunamayan);
     setMesaj(
-      `${alan} alan${r.yillar ? ', yıl aralığı' : ''} ve ${oge} donanım öğesi dolduruldu. Kaydetmeden önce kontrol et.`,
+      `${alan} alan${r.yillar ? ', yıl aralığı' : ''} ve ${oge} donanım öğesi dolduruldu${vitesSecildi ? `; vites "${VITES_AD[tur] ?? tur}" seçildi` : ''}. Kaydetmeden önce hangi araçlara uygulanacağını ve değerleri kontrol et.`,
     );
   }
 
@@ -174,6 +193,8 @@ export function Duzenleyici({
           yilBas: /^\d{4}$/.test(yilBas) ? Number(yilBas) : null,
           yilSon: /^\d{4}$/.test(yilSon) ? Number(yilSon) : null,
           paket: paket || null,
+          vites: vites || null,
+          yerine,
           degerler,
           donanim: donanim.length ? donanim : null,
           not: not.trim() || null,
@@ -185,7 +206,10 @@ export function Duzenleyici({
       setMetin('');
       setDonanimMetni('');
       setOkunamayan([]);
-      const m = 'Kaydedildi; talep sayfasında ve sihirbazda hemen görünür.';
+      const m = yerine
+        ? 'Kayıt güncellendi (eskisi kaldırıldı); talep sayfasında hemen görünür.'
+        : 'Kaydedildi; talep sayfasında ve sihirbazda hemen görünür.';
+      setYerine(null);
       setMesaj(m);
       yukle();
       bitti?.(m);
@@ -194,6 +218,29 @@ export function Duzenleyici({
     } finally {
       setMesgul(false);
     }
+  }
+
+  /** Kaydı forma yükler; kaydedince yenisi onun yerine geçer */
+  function duzenle(d: ModelVerisi['duzeltmeler'][number]) {
+    setYerine(d.id);
+    setYilBas(d.yillar[0] ? String(d.yillar[0]) : '');
+    setYilSon(d.yillar[1] ? String(d.yillar[1]) : '');
+    setPaket(d.paketId ?? '');
+    setVites(d.vites ?? '');
+    setForm(formaYaz(d.degerler));
+    setDonanimMetni(d.donanim?.length ? donanimYaz(d.donanim) : '');
+    setNot(d.not ?? '');
+    setOkunamayan([]);
+    setHata(null);
+    setMesaj(null);
+    document.getElementById(`hedef-${modelId}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function vazgec() {
+    setYerine(null);
+    setForm({});
+    setDonanimMetni('');
+    setNot('');
   }
 
   async function kaldir(id: string) {
@@ -224,9 +271,114 @@ export function Duzenleyici({
         vehicle-makes-models, TSB) gelmeye devam eder. Aralık için "150–170", liste için virgül kullan.
       </p>
 
+      <div
+        id={`hedef-${modelId}`}
+        style={{
+          border: yerine ? '2px solid #4F7BF7' : '1px solid #D5DAE5',
+          borderRadius: 10,
+          padding: 12,
+          marginBottom: 14,
+        }}
+      >
+        <p style={{ margin: '0 0 8px', fontSize: 14, fontWeight: 800 }}>
+          {yerine ? 'Kaydı düzenliyorsun: hangi araçlara uygulanacak?' : '1. Hangi araçlara uygulanacak?'}
+        </p>
+        {yerine ? (
+          <p style={{ margin: '0 0 10px', fontSize: 13, color: '#2B4FB8' }}>
+            Değerler ve donanım aşağıya yüklendi. Kaydedince bu kayıt eskisinin yerine geçer (eskisi silinmez,
+            kaldırılır).{' '}
+            <button
+              type="button"
+              className="k-btn-line"
+              style={{ fontSize: 12.5, padding: '3px 9px' }}
+              onClick={vazgec}
+            >
+              Düzenlemeyi bırak
+            </button>
+          </p>
+        ) : null}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+          <label className="k-field" style={{ flex: '0 1 120px' }}>
+            İlk yıl
+            <input
+              inputMode="numeric"
+              value={yilBas}
+              placeholder="hepsi"
+              onChange={(e) => setYilBas(e.target.value)}
+            />
+          </label>
+          <label className="k-field" style={{ flex: '0 1 120px' }}>
+            Son yıl
+            <input
+              inputMode="numeric"
+              value={yilSon}
+              placeholder="devam"
+              onChange={(e) => setYilSon(e.target.value)}
+            />
+          </label>
+          <label className="k-field" style={{ flex: '0 1 220px' }}>
+            Paket
+            <select value={paket} onChange={(e) => setPaket(e.target.value)}>
+              <option value="">Bütün paketler</option>
+              {veri.paketler.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.ad}
+                  {p.yillar ? ` (${p.yillar[0]}–${p.yillar[1]})` : ''}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="k-field" style={{ flex: '0 1 180px' }}>
+            Vites
+            <select value={vites} onChange={(e) => setVites(e.target.value)}>
+              <option value="">Bütün vitesler</option>
+              {[...new Set([...veri.vitesler, ...(vites ? [vites] : [])])].map((v) => (
+                <option key={v} value={v}>
+                  {VITES_AD[v] ?? v}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <p style={{ margin: '8px 0 4px', fontSize: 13, fontWeight: 700 }}>
+          {veri.tipler.length
+            ? `Bu kayıt Türkiye'de satılan şu ${veri.tipler.length} tipe uygulanır:`
+            : 'Bu yıl, paket ve vitesle satılan tip yok; seçimi değiştir.'}
+        </p>
+        {veri.tipler.length ? (
+          <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, color: '#3A4052', columns: '2 280px' }}>
+            {(tumTipler ? veri.tipler : veri.tipler.slice(0, 10)).map((t) => (
+              <li key={`${t.ad}-${t.paket}-${t.vites}`}>
+                {t.ad}
+                <span style={{ color: '#5A6073' }}>
+                  {' '}
+                  · {t.vites ? (VITES_AD[t.vites] ?? t.vites) : 'vites belirtilmemiş'}
+                  {t.yillar ? ` · ${t.yillar[0]}–${t.yillar[1]}` : ''}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {veri.tipler.length > 10 ? (
+          <button
+            type="button"
+            className="k-btn-line"
+            style={{ fontSize: 12.5, padding: '3px 9px', marginTop: 6 }}
+            onClick={() => setTumTipler((v) => !v)}
+          >
+            {tumTipler ? 'Daha az göster' : `Hepsini göster (${veri.tipler.length})`}
+          </button>
+        ) : null}
+        <p style={{ margin: '8px 0 0', fontSize: 12, color: '#5A6073' }}>
+          Talep açan kişi bu yılları, paketi ve vitesi seçtiğinde teknik sekmesinde bu kaydı görür; başka
+          paket ya da vites seçene başka kayıt girebilirsin. Vitesi TSB adında yazmayan tipler yalnızca "Bütün
+          vitesler" kaydını alır.
+        </p>
+      </div>
+
       <div style={{ background: '#F6F8FC', borderRadius: 10, padding: 12, marginBottom: 14 }}>
         <label className="k-field" style={{ margin: 0 }}>
-          Metinden doldur
+          2. Metinden doldur (isteğe bağlı)
           <textarea
             value={metin}
             rows={7}
@@ -261,31 +413,6 @@ export function Duzenleyici({
 
       <form onSubmit={kaydet}>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 12 }}>
-          <label className="k-field" style={{ flex: '0 1 130px' }}>
-            İlk yıl (boşsa hepsi)
-            <input inputMode="numeric" value={yilBas} onChange={(e) => setYilBas(e.target.value)} />
-          </label>
-          <label className="k-field" style={{ flex: '0 1 130px' }}>
-            Son yıl (boşsa devam)
-            <input inputMode="numeric" value={yilSon} onChange={(e) => setYilSon(e.target.value)} />
-          </label>
-          <label className="k-field" style={{ flex: '0 1 220px' }}>
-            Paket
-            <select value={paket} onChange={(e) => setPaket(e.target.value)}>
-              <option value="">Bütün paketler</option>
-              {veri.paketler.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.ad}
-                  {p.yillar ? ` (${p.yillar[0]}–${p.yillar[1]})` : ''}
-                </option>
-              ))}
-            </select>
-            <span style={{ fontSize: 12, color: '#5A6073', fontWeight: 400 }}>
-              {paket
-                ? 'Kayıt yalnızca bu paketi seçen talepte uygulanır.'
-                : 'Kayıt bu motorun bütün paketlerinde uygulanır.'}
-            </span>
-          </label>
           <label className="k-field" style={{ flex: '1 1 240px' }}>
             Not (isteğe bağlı, kaynak ya da gerekçe)
             <input value={not} maxLength={500} onChange={(e) => setNot(e.target.value)} />
@@ -405,7 +532,13 @@ export function Duzenleyici({
           </p>
         ) : null}
         <button type="submit" className="k-btn-ok" disabled={mesgul} style={{ marginTop: 12 }}>
-          {mesgul ? 'Kaydediliyor…' : bildirim ? 'Kaydet ve bildirimi kapat' : 'Kaydet'}
+          {mesgul
+            ? 'Kaydediliyor…'
+            : yerine
+              ? 'Değişikliği kaydet'
+              : bildirim
+                ? 'Kaydet ve bildirimi kapat'
+                : 'Kaydet'}
         </button>
       </form>
 
@@ -429,21 +562,33 @@ export function Duzenleyici({
             <span style={{ flex: '1 1 400px' }}>
               <strong>
                 {d.yillar[0] || d.yillar[1] ? `${d.yillar[0] ?? '…'}–${d.yillar[1] ?? '…'}` : 'Bütün yıllar'}
-                {d.paket ? ` · ${d.paket} paketi` : ''}
+                {d.paket ? ` · ${d.paket} paketi` : ' · bütün paketler'}
+                {d.vites ? ` · ${VITES_AD[d.vites] ?? d.vites}` : ' · bütün vitesler'}
               </strong>
               {Object.keys(d.degerler).length ? ` · ${yaz(d.degerler)}` : ''}
               {d.donanim?.length ? ` · Donanım: ${ogeSayisi(d.donanim)} öğe` : ''}
               {d.not ? <span style={{ color: '#5A6073' }}> · {d.not}</span> : null}
               <span style={{ color: '#5A6073' }}> · {tarih(d.zaman)}</span>
             </span>
-            <button
-              type="button"
-              className="k-btn-line"
-              style={{ fontSize: 13, padding: '5px 10px', color: '#A3271F' }}
-              onClick={() => kaldir(d.id)}
-            >
-              Kaldır
-            </button>
+            <span style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+              <button
+                type="button"
+                className="k-btn-line"
+                style={{ fontSize: 13, padding: '5px 10px' }}
+                disabled={yerine === d.id}
+                onClick={() => duzenle(d)}
+              >
+                {yerine === d.id ? 'Düzenleniyor' : 'Düzenle'}
+              </button>
+              <button
+                type="button"
+                className="k-btn-line"
+                style={{ fontSize: 13, padding: '5px 10px', color: '#A3271F' }}
+                onClick={() => kaldir(d.id)}
+              >
+                Kaldır
+              </button>
+            </span>
           </div>
         ))
       )}
