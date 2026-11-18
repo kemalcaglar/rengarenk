@@ -455,6 +455,14 @@ pnpm format        # Biome ile biçimlendir
   vites, kasa tipi ve çekişe uyan tiplerden (`tipSecimeUyar`, 18 Kasım 2026: otomatik Clio'da "manuel" yazıyordu); vites
   türü tipin TSB adından, kaynakta eşleşmesi olmayan tipte adından vites ve güç (`tipTeknik`, kaynak `tsb`). Tip özeti
   okurken `teknikOku` yerine `tipTeknik` kullan. API'de 243, katalogda 72, ortak pakette 144 test.
+- **Teknik özellik ve donanım girişi (18 Kasım 2026, sahip isteği):** konsol Katalog › Teknik özellikler'de "Bilgisi
+  eksik araçlar" (`TeknikDuzeltmeService.eksikler`, eksik alanlar ortak `teknikEksikleri`) ve düzenleyicide "Metinden
+  doldur": yapıştırılan metin ortak `teknikMetniOku` (`packages/shared/src/teknik-metin.ts`) ile okunur, tanınmayan
+  satır `okunamayan`'a düşer (tahmin edilmez; yeni bir etiket yazımı eklerken `KURALLAR`'a ve testine ekle).
+  `catalog_spec_overrides.trim_id` (pakete özel kayıt yalnızca o paketi seçen talepte) ve `equipment` (donanım,
+  `DonanimGrubu[]`). Okurken `elleGirilenler` (değerler ve donanım birlikte). Yeni özet alanları: `segmentler`,
+  `kapilar`, `koltuklar`, `gucDevir`, `torkDevir`, `sanzimanlar`; talep sayfasında Genel ve Donanım bölümleri.
+  API'de 244, ortak pakette 147 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
   AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar

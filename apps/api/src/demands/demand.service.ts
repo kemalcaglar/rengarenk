@@ -12,6 +12,7 @@ import { type Demand, type DemandStatus, type Prisma, uuidv7 } from '@rengarenk/
 import {
   aciklamaDuz,
   aranabilir,
+  bosOzet,
   type CategoryDefinition,
   type CategoryField,
   DEMAND_STATUS_NAMES,
@@ -37,7 +38,7 @@ import { AuditService } from '../audit/audit.service.js';
 import { sha256 } from '../auth/tokens.js';
 import { CatalogImageService } from '../catalog/catalog-image.service.js';
 import { fotoVerisi, talepFotolari } from '../catalog/talep-foto.js';
-import { duzeltmeleri } from '../catalog/teknik-duzeltme.js';
+import { elleGirilenler, type MotorDonanimi } from '../catalog/teknik-duzeltme.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { EntitlementService } from '../entitlements/entitlement.service.js';
 import { ContentRulesService } from '../moderation/content-rules.service.js';
@@ -438,7 +439,7 @@ export class DemandService {
     paketKeys: string[],
     acik: ReadonlySet<string>,
     secim: Record<string, unknown>,
-  ): Promise<{ ad: string; model: string; ozet: TeknikOzet }[]> {
+  ): Promise<{ ad: string; model: string; ozet: TeknikOzet; donanim?: MotorDonanimi[] }[]> {
     const yillar = aralik
       ? Array.from({ length: Math.min(aralik[1] - aralik[0] + 1, 80) }, (_, i) => aralik[0] + i)
       : null;
@@ -470,16 +471,18 @@ export class DemandService {
       if (o) g.ozetler.push(o);
       grup.set(t.model.id, g);
     }
-    // Elle düzeltmeler (sahip isteği, 17 Kasım 2026): kaynaktaki değerin yerine geçer; kaynakta bilgisi olmayan
-    // sürüme de değer eklenebilir
-    const duz = await duzeltmeleri(this.db, [...grup.keys()], aralik);
+    // Elle girilenler (sahip isteği, 17 ve 18 Kasım 2026): kaynaktaki değerin yerine geçer; kaynakta bilgisi olmayan
+    // sürüme de değer eklenebilir. Donanım ve pakete özel kayıtlar talepte seçilen paketlere göre.
+    const elle = await elleGirilenler(this.db, [...grup.keys()], aralik, paketKeys);
     return [...grup.entries()]
       .flatMap(([id, g]) => {
-        const ozet = duzeltmeUygula(
-          g.ozetler.length ? (ozetBirlestir(g.ozetler) as TeknikOzet) : null,
-          duz.get(id) ?? [],
-        );
-        return ozet ? [{ ad: g.ad, model: g.key, ozet }] : [];
+        const donanim = elle.donanim.get(id) ?? [];
+        const ozet =
+          duzeltmeUygula(
+            g.ozetler.length ? (ozetBirlestir(g.ozetler) as TeknikOzet) : null,
+            elle.degerler.get(id) ?? [],
+          ) ?? (donanim.length ? bosOzet() : null);
+        return ozet ? [{ ad: g.ad, model: g.key, ozet, ...(donanim.length ? { donanim } : {}) }] : [];
       })
       .sort((a, b) => a.ad.localeCompare(b.ad, 'tr', { numeric: true }));
   }

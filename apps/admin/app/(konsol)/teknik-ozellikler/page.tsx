@@ -28,7 +28,18 @@ interface Surum {
   duzeltme: number;
 }
 
-type Tab = 'acik' | 'kapali' | 'ara';
+interface Eksik {
+  modelId: string | null;
+  seriesId: string | null;
+  arac: string | null;
+  motor: string | null;
+  talepSayisi: number;
+  talepler: number[];
+  eksik: string[];
+  donanimVar: boolean;
+}
+
+type Tab = 'eksik' | 'acik' | 'kapali' | 'ara';
 const DURUM_AD = { acik: 'Açık', duzeltildi: 'Düzeltildi', reddedildi: 'Reddedildi' } as const;
 
 /**
@@ -37,8 +48,9 @@ const DURUM_AD = { acik: 'Açık', duzeltildi: 'Düzeltildi', reddedildi: 'Redde
  * geçer, talep sayfasında ve sihirbazda hemen görünür; kayıtlar silinmez.
  */
 export default function TeknikOzellikler() {
-  const [tab, setTab] = useState<Tab>('acik');
+  const [tab, setTab] = useState<Tab>('eksik');
   const [liste, setListe] = useState<Bildirim[] | null>(null);
+  const [eksikler, setEksikler] = useState<Eksik[] | null>(null);
   const [acikDuzelt, setAcikDuzelt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -50,6 +62,13 @@ export default function TeknikOzellikler() {
 
   const load = useCallback(() => {
     if (tab === 'ara') return;
+    if (tab === 'eksik') {
+      setEksikler(null);
+      yonetim<Eksik[]>('catalog/teknik/eksikler')
+        .then(setEksikler)
+        .catch((e: Error) => setError(e.message));
+      return;
+    }
     setListe(null);
     yonetim<Bildirim[]>(`catalog/teknik/bildirimler?durum=${tab}`)
       .then(setListe)
@@ -92,9 +111,9 @@ export default function TeknikOzellikler() {
       <div style={{ marginBottom: 16 }}>
         <h1 className="k-h1">Teknik özellikler</h1>
         <p className="k-sub">
-          Kullanıcılar talep sayfasının teknik sekmesinden yanlış gördükleri değeri bildirir; bildirimler
-          burada bekler. Bir motor sürümünün değerini düzeltebilir ya da kaynaklarda olmayan değeri
-          ekleyebilirsin (isteğe bağlı yıl aralığıyla). Düzeltme kaynaktaki değerin yerine geçer ve hemen
+          Yayındaki taleplerde geçen ve bilgisi eksik araçlar, kullanıcıların "yanlış" bildirimleri ve araç
+          arama burada. Bir motor sürümünün teknik değerlerini ve paket donanımını elle girebilirsin: metni
+          yapıştırınca alanlar kendiliğinden dolar. Girdiğin değer kaynaktaki değerin yerine geçer ve hemen
           görünür; kaldırınca kaynaktaki değer geri gelir.
         </p>
       </div>
@@ -112,9 +131,10 @@ export default function TeknikOzellikler() {
         <legend className="sr-only">Bölüm</legend>
         {(
           [
+            ['eksik', 'Bilgisi eksik araçlar'],
             ['acik', 'Açık bildirimler'],
             ['kapali', 'Kapanan bildirimler'],
-            ['ara', 'Araç ara ve düzelt'],
+            ['ara', 'Araç ara ve bilgi gir'],
           ] as const
         ).map(([k, ad]) => (
           <button key={k} type="button" className="k-chip" aria-pressed={tab === k} onClick={() => setTab(k)}>
@@ -123,7 +143,110 @@ export default function TeknikOzellikler() {
         ))}
       </fieldset>
 
-      {tab === 'ara' ? (
+      {tab === 'eksik' ? (
+        eksikler === null ? (
+          <div className="k-panel k-empty">Yükleniyor…</div>
+        ) : eksikler.length === 0 ? (
+          <div className="k-panel k-empty">Yayındaki taleplerin araçlarında eksik bilgi yok.</div>
+        ) : (
+          <>
+            <p style={{ margin: '0 0 10px', fontSize: 13, color: '#5A6073' }}>
+              Yayındaki taleplerde geçen motor sürümleri; vites, güç, tork, 0-100, azami hız, tüketim, depo,
+              ölçüler, bagaj ya da ağırlık eksikse veya donanım girilmemişse listelenir. En çok talepte geçen
+              önce.
+            </p>
+            {eksikler.map((x) => {
+              const anahtar = x.modelId ?? `seri-${x.seriesId}`;
+              return (
+                <div key={anahtar}>
+                  <section
+                    className="k-panel"
+                    style={{ padding: 14, marginBottom: 10 }}
+                    aria-label={`${x.arac} ${x.motor ?? ''}`}
+                  >
+                    <div
+                      style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 8 }}
+                    >
+                      <div style={{ flex: '1 1 420px' }}>
+                        <strong style={{ fontSize: 15 }}>
+                          {x.arac} {x.motor ?? <span style={{ color: '#5A6073' }}>(motor seçilmemiş)</span>}
+                        </strong>
+                        <p style={{ margin: '4px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+                          {x.talepSayisi} talep:{' '}
+                          {x.talepler.map((no, i) => (
+                            <span key={no}>
+                              {i ? ', ' : ''}
+                              <a href={`${WEB}/talep/${no}`} target="_blank" rel="noreferrer">
+                                #{no}
+                              </a>
+                            </span>
+                          ))}
+                          {x.talepSayisi > x.talepler.length ? ' …' : ''}
+                        </p>
+                        {x.modelId ? (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                            {x.eksik.map((e) => (
+                              <span
+                                key={e}
+                                className="k-pill"
+                                style={{ background: '#FFF6DD', color: '#7A5A00' }}
+                              >
+                                {e}
+                              </span>
+                            ))}
+                            {!x.donanimVar ? (
+                              <span className="k-pill" style={{ background: '#FFEEF6', color: '#8A1F4F' }}>
+                                Donanım yok
+                              </span>
+                            ) : null}
+                          </div>
+                        ) : (
+                          <p style={{ margin: '6px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+                            Talepte motor seçilmediği için modelin sürümlerinden birini seçip bilgi gir.
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        {x.modelId ? (
+                          <button
+                            type="button"
+                            className="k-btn-ok"
+                            style={{ fontSize: 13, padding: '6px 12px' }}
+                            onClick={() => setAcikDuzelt((v) => (v === anahtar ? null : anahtar))}
+                          >
+                            {acikDuzelt === anahtar ? 'Kapat' : 'Bilgi gir'}
+                          </button>
+                        ) : x.seriesId ? (
+                          <button
+                            type="button"
+                            className="k-btn-line"
+                            style={{ fontSize: 13, padding: '6px 12px' }}
+                            onClick={() => {
+                              setSeri({ id: x.seriesId as string, ad: x.arac ?? '' });
+                              setTab('ara');
+                            }}
+                          >
+                            Sürümleri aç
+                          </button>
+                        ) : null}
+                      </div>
+                    </div>
+                  </section>
+                  {acikDuzelt === anahtar && x.modelId ? (
+                    <Duzenleyici
+                      modelId={x.modelId}
+                      bitti={(m) => {
+                        setNotice(m);
+                        load();
+                      }}
+                    />
+                  ) : null}
+                </div>
+              );
+            })}
+          </>
+        )
+      ) : tab === 'ara' ? (
         <>
           <div className="k-panel" style={{ padding: 16, marginBottom: 14 }}>
             <label className="k-field">

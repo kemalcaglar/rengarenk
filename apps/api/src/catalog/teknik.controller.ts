@@ -20,14 +20,21 @@ const yil = z.coerce.number().int().min(1900).max(2100);
 const durumSchema = z.enum(['acik', 'kapali']).optional();
 const kararSchema = z.object({ durum: z.enum(['duzeltildi', 'reddedildi']) }).strict();
 const yilSorgu = z
-  .object({ yilBas: yil.optional(), yilSon: yil.optional() })
+  .object({ yilBas: yil.optional(), yilSon: yil.optional(), paket: z.uuid().optional() })
   .refine((v) => !v.yilBas || !v.yilSon || v.yilBas <= v.yilSon, 'Yıl aralığı ters');
 const ekleSchema = z
   .object({
     yilBas: yil.nullable().optional(),
     yilSon: yil.nullable().optional(),
+    /** Pakete özel kayıt (donanım pakete göre değişir); boşsa bütün paketler */
+    paket: z.uuid().nullable().optional(),
     /** Alan → [en az, en çok] ya da metin listesi; servis alan tanımına göre denetler */
     degerler: z.record(z.string(), z.union([z.tuple([z.number(), z.number()]), z.array(z.string())])),
+    donanim: z
+      .array(z.object({ ad: z.string().max(200), ogeler: z.array(z.string().max(500)).max(500) }).strict())
+      .max(100)
+      .nullable()
+      .optional(),
     not: z.string().trim().max(500).nullable().optional(),
     /** Bir bildirimden gelindiyse: düzeltmeyle birlikte kapanır */
     bildirim: z.uuid().nullable().optional(),
@@ -36,8 +43,8 @@ const ekleSchema = z
   .refine((v) => !v.yilBas || !v.yilSon || v.yilBas <= v.yilSon, 'Yıl aralığı ters');
 
 /**
- * Konsol › Katalog › Teknik özellikler (sahip isteği, 17 Kasım 2026): kullanıcıların "yanlış" bildirimleri ve motor
- * sürümlerinin değerlerini elle düzeltme ya da ekleme.
+ * Konsol › Katalog › Teknik özellikler (sahip isteği, 17 ve 18 Kasım 2026): kullanıcıların "yanlış" bildirimleri,
+ * bilgisi eksik araçlar, motor sürümlerinin değerlerini ve paket donanımını elle girme.
  */
 @Controller('staff/catalog/teknik')
 @UseGuards(StaffGuard)
@@ -61,6 +68,12 @@ export class StaffTeknikController {
     return this.teknik.bildirimKarar(id, b.durum, req.staff.staff.id, req.ip);
   }
 
+  @Get('eksikler')
+  @RequirePermission('kategori.ayarla')
+  eksikler() {
+    return this.teknik.eksikler();
+  }
+
   @Get('seri/:id')
   @RequirePermission('kategori.ayarla')
   seri(@Param('id', new ParseUUIDPipe()) id: string) {
@@ -73,9 +86,12 @@ export class StaffTeknikController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query(new ZodPipe(yilSorgu)) q: z.output<typeof yilSorgu>,
   ) {
+    // Boş son yıl "devam ediyor", boş ilk yıl "baştan" demektir (kayıttaki yıl aralığıyla aynı)
     const a =
-      q.yilBas || q.yilSon ? ([q.yilBas ?? q.yilSon, q.yilSon ?? q.yilBas] as [number, number]) : null;
-    return this.teknik.model(id, a);
+      q.yilBas || q.yilSon
+        ? ([q.yilBas ?? 1950, q.yilSon ?? new Date().getFullYear() + 1] as [number, number])
+        : null;
+    return this.teknik.model(id, a, q.paket ?? null);
   }
 
   @Post('model/:id')

@@ -60,8 +60,22 @@ export interface TeknikOzet {
   /** Elektrikli: menzil (km) ve batarya (kWh) */
   menzil?: Aralik;
   batarya?: Aralik;
-  /** Kaynaklar: "ademe", "vmm" */
+  /** Konsoldan elle girilen (sahip isteği, 18 Kasım 2026): segment ("B", "C-SUV"), kapı ve koltuk sayısı, azami gücün ve
+   * torkun devri (d/d), şanzımanın adı ("X-Tronic", "EDC") */
+  segmentler?: string[];
+  kapilar?: Aralik;
+  koltuklar?: Aralik;
+  gucDevir?: Aralik;
+  torkDevir?: Aralik;
+  sanzimanlar?: string[];
+  /** Kaynaklar: "ademe", "vmm", "tsb", "manuel" */
   kaynaklar?: string[];
+}
+
+/** Donanım grubu (sahip isteği, 18 Kasım 2026): "Güvenlik" → ["ABS", "Isofix"]; konsoldan elle girilir */
+export interface DonanimGrubu {
+  ad: string;
+  ogeler: string[];
 }
 
 const VITES: Record<string, string> = {
@@ -155,14 +169,30 @@ export function teknikBolumleri(o: TeknikOzet): TeknikBolum[] {
   const liste = (xs: string[] | undefined, f: (x: string) => string = (x) => x) =>
     xs?.length ? [...new Set(xs.map(f))].join(' ya da ') : null;
 
+  const devir = (a: Aralik | undefined) => (a ? `, ${aralik(a)} d/d` : '');
   const bolumler: TeknikBolum[] = [
+    {
+      baslik: 'Genel',
+      satirlar: sat([
+        s(
+          'Kasa tipi',
+          liste(o.govdeler, (g) => GOVDE[g] ?? g),
+        ),
+        s('Segment', liste(o.segmentler)),
+        s('Kapı sayısı', o.kapilar ? aralik(o.kapilar) : null),
+        s('Koltuk sayısı', o.koltuklar ? aralik(o.koltuklar) : null),
+      ]),
+    },
     {
       baslik: 'Motor',
       satirlar: sat([
         s('Motor hacmi', ar(o.hacimCc, 'cm³')),
         s('Silindir', liste(o.silindirler, silindirYaz)),
-        s('Güç', o.hp ? `${aralik(o.hp)} hp${o.kw ? ` (${aralik(o.kw)} kW)` : ''}` : null),
-        s('Tork', ar(o.tork, 'Nm')),
+        s(
+          'Güç',
+          o.hp ? `${aralik(o.hp)} hp${o.kw ? ` (${aralik(o.kw)} kW)` : ''}${devir(o.gucDevir)}` : null,
+        ),
+        s('Tork', o.tork ? `${aralik(o.tork)} Nm${devir(o.torkDevir)}` : null),
         s('Yakıt sistemi', liste(o.yakitSistemleri, teknikCevir)),
       ]),
     },
@@ -174,6 +204,7 @@ export function teknikBolumleri(o: TeknikOzet): TeknikBolum[] {
       baslik: 'Şanzıman ve çekiş',
       satirlar: sat([
         s('Vites', liste(o.vitesler, vitesYaz)),
+        s('Şanzıman', liste(o.sanzimanlar)),
         s(
           'Çekiş',
           liste(o.cekisler, (c) => CEKIS[c] ?? c),
@@ -196,10 +227,6 @@ export function teknikBolumleri(o: TeknikOzet): TeknikBolum[] {
     {
       baslik: 'Ölçüler ve ağırlık',
       satirlar: sat([
-        s(
-          'Kasa tipi',
-          liste(o.govdeler, (g) => GOVDE[g] ?? g),
-        ),
         s('Uzunluk', ar(o.uzunluk, 'mm')),
         s('Genişlik', ar(o.genislik, 'mm')),
         s('Yükseklik', ar(o.yukseklik, 'mm')),
@@ -262,15 +289,33 @@ export interface TeknikAlan {
 
 /** Konsolda elle düzeltilebilen alanlar, talep sayfasındaki bölüm sırasıyla */
 export const TEKNIK_ALANLARI: readonly TeknikAlan[] = [
+  {
+    key: 'govdeler',
+    ad: 'Kasa tipi',
+    tur: 'secim',
+    secenekler: Object.entries(GOVDE) as [string, string][],
+  },
+  { key: 'segmentler', ad: 'Segment', tur: 'liste', ipucu: 'B, C-SUV' },
+  { key: 'kapilar', ad: 'Kapı sayısı', tur: 'aralik' },
+  { key: 'koltuklar', ad: 'Koltuk sayısı', tur: 'aralik' },
   { key: 'hacimCc', ad: 'Motor hacmi', tur: 'aralik', birim: 'cm³' },
   { key: 'silindirler', ad: 'Silindir', tur: 'liste', ipucu: 'L4, V6, H4' },
   { key: 'hp', ad: 'Güç', tur: 'aralik', birim: 'hp' },
   { key: 'kw', ad: 'Güç (kW)', tur: 'aralik' },
+  { key: 'gucDevir', ad: 'Azami güç devri', tur: 'aralik', birim: 'd/d' },
   { key: 'tork', ad: 'Tork', tur: 'aralik', birim: 'Nm' },
+  {
+    key: 'torkDevir',
+    ad: 'Azami tork devri',
+    tur: 'aralik',
+    birim: 'd/d',
+    ipucu: 'ör. 1750 ya da 1750–3500',
+  },
   { key: 'yakitSistemleri', ad: 'Yakıt sistemi', tur: 'liste', ipucu: 'Turbo direkt enjeksiyon' },
   { key: 'hizlanma', ad: '0-100 km/s', tur: 'aralik', birim: 'sn', basamak: 1 },
   { key: 'azamiHiz', ad: 'Azami hız', tur: 'aralik', birim: 'km/s' },
   { key: 'vitesler', ad: 'Vites', tur: 'liste', ipucu: 'manuel:6, otomatik:7, yari_otomatik:6' },
+  { key: 'sanzimanlar', ad: 'Şanzıman', tur: 'liste', ipucu: 'X-Tronic, EDC, DSG' },
   {
     key: 'cekisler',
     ad: 'Çekiş',
@@ -285,12 +330,6 @@ export const TEKNIK_ALANLARI: readonly TeknikAlan[] = [
   { key: 'depo', ad: 'Yakıt deposu', tur: 'aralik', birim: 'l' },
   { key: 'menzil', ad: 'Menzil', tur: 'aralik', birim: 'km' },
   { key: 'batarya', ad: 'Batarya', tur: 'aralik', birim: 'kWh', basamak: 1 },
-  {
-    key: 'govdeler',
-    ad: 'Kasa tipi',
-    tur: 'secim',
-    secenekler: Object.entries(GOVDE) as [string, string][],
-  },
   { key: 'uzunluk', ad: 'Uzunluk', tur: 'aralik', birim: 'mm' },
   { key: 'genislik', ad: 'Genişlik', tur: 'aralik', birim: 'mm' },
   { key: 'yukseklik', ad: 'Yükseklik', tur: 'aralik', birim: 'mm' },
@@ -346,4 +385,26 @@ export function duzeltmeUygula(
   for (const d of duzeltmeler) for (const [k, v] of Object.entries(d)) if (v !== undefined) yaz[k] = v;
   out.kaynaklar = [...new Set([...(out.kaynaklar ?? []), 'manuel'])];
   return out;
+}
+
+/**
+ * Bilgisi eksik sayılan alanlar (sahip isteği, 18 Kasım 2026: konsolda "Bilgisi eksik araçlar"): özette yoksa eksiktir.
+ * Tüketimde karma ya da şehir içi değerden biri yeter.
+ */
+const EKSIK_KONTROL: readonly (readonly [string, (o: TeknikOzet) => boolean])[] = [
+  ['Vites', (o) => o.vitesler.length > 0],
+  ['Güç', (o) => !!o.hp],
+  ['Tork', (o) => !!o.tork],
+  ['0-100 km/s', (o) => !!o.hizlanma],
+  ['Azami hız', (o) => !!o.azamiHiz],
+  ['Yakıt tüketimi', (o) => !!(o.tuketim || o.tuketimSehir)],
+  ['Yakıt deposu', (o) => !!(o.depo || o.batarya)],
+  ['Ölçüler', (o) => !!o.uzunluk],
+  ['Bagaj hacmi', (o) => !!o.bagaj],
+  ['Boş ağırlık', (o) => !!o.agirlik],
+];
+
+/** Özette eksik olan temel alanların adları (özet yoksa hepsi) */
+export function teknikEksikleri(o: TeknikOzet | null | undefined): string[] {
+  return EKSIK_KONTROL.filter(([, var_]) => !o || !var_(o)).map(([ad]) => ad);
 }

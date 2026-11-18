@@ -1,6 +1,12 @@
 'use client';
 
-import { TEKNIK_ALANLARI, TEKNIK_KAYNAK, type TeknikOzet, teknikBolumleri } from '@rengarenk/shared';
+import {
+  type DonanimGrubu,
+  TEKNIK_ALANLARI,
+  TEKNIK_KAYNAK,
+  type TeknikOzet,
+  teknikBolumleri,
+} from '@rengarenk/shared';
 import Link from 'next/link';
 import { useState } from 'react';
 import { istek, useGiris } from '../lib/istemci';
@@ -16,7 +22,13 @@ export function TeknikTablo({
   not,
   talepNo,
 }: {
-  motorlar: { ad: string; model?: string; ozet: TeknikOzet }[];
+  motorlar: {
+    ad: string;
+    model?: string;
+    ozet: TeknikOzet;
+    /** Konsoldan girilen donanım (sahip isteği, 18 Kasım 2026); pakete özelse paketin adıyla */
+    donanim?: { paket: string | null; gruplar: DonanimGrubu[] }[];
+  }[];
   /** Verilirse "Yanlış mı? Bildir" düğmesi görünür (sahip isteği, 17 Kasım 2026) */
   talepNo?: number;
   /** Başlık altı açıklama (ör. "G20 makyajsız kasa, 2019–2022") */
@@ -110,6 +122,7 @@ export function TeknikTablo({
           </section>
         ))}
       </div>
+      {m.donanim?.length ? <Donanim liste={m.donanim} /> : null}
       <div
         style={{
           display: 'flex',
@@ -122,8 +135,10 @@ export function TeknikTablo({
       >
         <p style={{ margin: 0, fontSize: 12, color: colors.muted, flex: '1 1 320px' }}>
           {TEKNIK_KAYNAK}.
-          {m.ozet.kaynaklar?.includes('manuel') ? ' Bazı değerler ekibimizce düzeltildi.' : ''} Değerler
-          pakete ve model yılına göre değişebilir.
+          {m.ozet.kaynaklar?.includes('manuel') || m.donanim?.length
+            ? ' Bazı değerler ve donanım ekibimizce girildi.'
+            : ''}{' '}
+          Değerler pakete ve model yılına göre değişebilir.
         </p>
         {talepNo && m.model ? (
           <YanlisBildir key={m.model} talepNo={talepNo} motor={m.model} ad={m.ad} />
@@ -274,5 +289,58 @@ function YanlisBildir({ talepNo, motor, ad }: { talepNo: number; motor: string; 
         </button>
       </div>
     </form>
+  );
+}
+
+/** Donanım listesi: paket başına (pakete özelse başlığıyla), grup grup işaretli öğeler */
+function Donanim({ liste }: { liste: { paket: string | null; gruplar: DonanimGrubu[] }[] }) {
+  return (
+    <section aria-label="Donanım" style={{ marginTop: 22 }}>
+      <h3
+        style={{
+          margin: '0 0 6px',
+          fontSize: 13,
+          fontWeight: 800,
+          letterSpacing: 0.3,
+          textTransform: 'uppercase',
+          color: colors.muted,
+        }}
+      >
+        Donanım
+      </h3>
+      {liste.map((d) => (
+        <div key={d.paket ?? ''} style={{ marginTop: 8 }}>
+          {d.paket ? (
+            <p style={{ margin: '0 0 8px', fontSize: 14, fontWeight: 800 }}>{d.paket} paketi</p>
+          ) : null}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gap: '14px 28px',
+            }}
+          >
+            {d.gruplar.map((g) => (
+              <div key={g.ad}>
+                <p style={{ margin: '0 0 4px', fontSize: 13.5, fontWeight: 800 }}>{g.ad}</p>
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                  {g.ogeler.map((o) => (
+                    <li
+                      key={o}
+                      style={{ display: 'flex', gap: 8, padding: '4px 0', fontSize: 13.5, lineHeight: 1.4 }}
+                    >
+                      <span aria-hidden="true" style={{ color: colors.green, fontWeight: 800 }}>
+                        ✓
+                      </span>
+                      {o}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </section>
   );
 }

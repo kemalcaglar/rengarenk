@@ -1,5 +1,6 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { uuidv7 } from '@rengarenk/db';
+import { teknikMetniOku } from '@rengarenk/shared';
 import sharp from 'sharp';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { Db } from '../src/database/prisma.js';
@@ -485,5 +486,101 @@ describe('teknik sekmesi talepteki vitese uyar (sahip bildirimi, 18 Kasım 2026)
     });
     // Vites seçilmediyse iki tip birleşir
     expect((await motorlar({}))[0].ozet.vitesler).toEqual(['manuel:6', 'otomatik:']);
+  });
+});
+
+describe('teknik özellik ve donanım girişi (sahip isteği, 18 Kasım 2026)', () => {
+  it('eksik araç listelenir; metinden okunan değerler ve pakete özel donanım talep sayfasında görünür', async () => {
+    const owner = (await loginAs(app, await createStaff(db, 'OWNER'))).token;
+    const model = await db.catalogModel.findUniqueOrThrow({ where: { key: 'bmw/5-serisi/520i' } });
+    const paket = await db.catalogTrim.findUniqueOrThrow({ where: { key: 'bmw/5-serisi/paket/m-sport' } });
+    const baska = await db.catalogTrim.findUniqueOrThrow({ where: { key: 'bmw/3-serisi/paket/m-sport' } });
+    await db.catalogVariant.create({
+      data: {
+        id: uuidv7(),
+        source: 'tsb',
+        sourceKey: 'test-520i-msport',
+        makeId: model.makeId,
+        seriesId: model.seriesId,
+        modelId: model.id,
+        trimId: paket.id,
+        categories: ['otomobil'],
+        years: [2023],
+        fuel: 'benzin',
+        gearbox: 'otomatik',
+        powerHp: 170,
+        rawName: '520I M SPORT',
+        confidence: 'yuksek',
+        firstVersion: 't',
+        lastVersion: 't',
+      },
+    });
+    const yil = { butce: { max: 3_000_000 }, yil: { min: 2023, max: 2023 } };
+    const pakette = await talep('5-serisi', '520i', { ...yil, paket: [paket.key] }, { il: 'Bursa' });
+    const paketsiz = await talep('5-serisi', '520i', yil, { il: 'Bursa' });
+    const motor = async (no: number) =>
+      (await call(app, 'GET', `/talepler/${no}`)).body.gorunum.alternatifler[0].motorlar[0];
+    const eksikler = async () =>
+      (await staffCall(app, 'GET', '/staff/catalog/teknik/eksikler', undefined, owner)).body as {
+        modelId: string;
+        talepSayisi: number;
+        eksik: string[];
+        donanimVar: boolean;
+      }[];
+
+    const once = (await eksikler()).find((x) => x.modelId === model.id);
+    expect(once?.donanimVar).toBe(false);
+    expect(once?.talepSayisi).toBeGreaterThanOrEqual(2);
+    expect(once?.eksik).toContain('Tork');
+
+    const r = teknikMetniOku(`--Motor ve Performans--
+Maksimum Güç\t170 hp (125 kw) / 5.000 rpm
+Maksimum Tork\t250 Nm / 1.500 rpm
+Hızlanma 0-100 km/saat\t8.1 sn
+Azami Sürat\t225 km/saat
+Yakıt Tüketimi (Şehir içi / Şehir dışı)\t7.9 lt / 5.4 lt
+Yakıt Depo Hacmi\t68 lt
+Uzunluk\t5060 mm
+Net Ağırlık\t1695 kg
+Bagaj Kapasitesi\t520 lt
+--Donanım--
+-Güvenlik-
+ABS\t
+Isofix\t`);
+    const ekle = (b: object) => staffCall(app, 'POST', `/staff/catalog/teknik/model/${model.id}`, b, owner);
+    expect((await ekle({ paket: baska.id, degerler: r.degerler })).status).toBe(400);
+    expect((await ekle({ degerler: {}, donanim: [] })).status).toBe(400);
+    expect((await ekle({ paket: paket.id, degerler: r.degerler, donanim: r.donanim })).status).toBe(200);
+
+    // Pakete özel kayıt yalnızca o paketi seçen talepte
+    const m = await motor(pakette.no);
+    expect(m.ozet).toMatchObject({ hp: [170, 170], tork: [250, 250], torkDevir: [1500, 1500] });
+    expect(m.donanim).toEqual([
+      { paket: 'M Sport', gruplar: [{ ad: 'Güvenlik', ogeler: ['ABS', 'Isofix'] }] },
+    ]);
+    const p = await motor(paketsiz.no);
+    expect(p.donanim).toBeUndefined();
+    expect(p.ozet.tork).toBeUndefined();
+
+    // Bütün paketler için donanım: paketsiz talepte de görünür, konsolda paketin listesi önce gelir
+    await ekle({ donanim: [{ ad: 'Konfor', ogeler: ['Klima'] }], degerler: {} });
+    expect((await motor(paketsiz.no)).donanim).toEqual([
+      { paket: null, gruplar: [{ ad: 'Konfor', ogeler: ['Klima'] }] },
+    ]);
+    const k = (
+      await staffCall(
+        app,
+        'GET',
+        `/staff/catalog/teknik/model/${model.id}?paket=${paket.id}`,
+        undefined,
+        owner,
+      )
+    ).body;
+    expect(k.paketler).toEqual([{ id: paket.id, ad: 'M Sport', yillar: [2023, 2023] }]);
+    expect(k.donanim).toEqual([{ ad: 'Güvenlik', ogeler: ['ABS', 'Isofix'] }]);
+    expect(k.sonuc.tork).toEqual([250, 250]);
+    expect(k.duzeltmeler).toHaveLength(2);
+
+    expect((await eksikler()).find((x) => x.modelId === model.id)).toBeUndefined();
   });
 });

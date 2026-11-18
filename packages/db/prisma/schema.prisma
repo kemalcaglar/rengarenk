@@ -843,6 +843,10 @@ model CatalogSpecOverride {
   yearTo    Int?      @map("year_to")
   /// TeknikDuzeltme: alan → [min, max] ya da metin listesi
   values    Json
+  /// Pakete özel kayıt (sahip isteği, 18 Kasım 2026): yalnızca o paketi seçen talepte uygulanır; boşsa bütün paketler
+  trimId    String?   @map("trim_id") @db.Uuid
+  /// Donanım listesi: DonanimGrubu[] ({ ad, ogeler }); boşsa kayıt donanım taşımaz
+  equipment Json?
   note      String?
   /// aktif | kaldirildi
   status    String    @default("aktif")
@@ -852,8 +856,10 @@ model CatalogSpecOverride {
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
 
   model CatalogModel @relation(fields: [modelId], references: [id])
+  trim  CatalogTrim? @relation(fields: [trimId], references: [id])
 
   @@index([modelId, status])
+  @@index([trimId])
   @@map("catalog_spec_overrides")
 }
 
@@ -893,9 +899,10 @@ model CatalogTrim {
   name      String
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
 
-  make     CatalogMake      @relation(fields: [makeId], references: [id])
-  series   CatalogSeries?   @relation(fields: [seriesId], references: [id])
-  variants CatalogVariant[]
+  make          CatalogMake           @relation(fields: [makeId], references: [id])
+  series        CatalogSeries?        @relation(fields: [seriesId], references: [id])
+  variants      CatalogVariant[]
+  specOverrides CatalogSpecOverride[]
 
   @@index([seriesId])
   @@map("catalog_trims")

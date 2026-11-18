@@ -1,5 +1,6 @@
 import {
   colors,
+  type DonanimGrubu,
   radii,
   TEKNIK_ALANLARI,
   TEKNIK_KAYNAK,
@@ -23,7 +24,13 @@ export function TeknikTablo({
   not,
   talepNo,
 }: {
-  motorlar: { ad: string; model?: string; ozet: TeknikOzet }[];
+  motorlar: {
+    ad: string;
+    model?: string;
+    ozet: TeknikOzet;
+    /** Konsoldan girilen donanım (sahip isteği, 18 Kasım 2026); pakete özelse paketin adıyla */
+    donanim?: { paket: string | null; gruplar: DonanimGrubu[] }[];
+  }[];
   /** Verilirse "Bir değer yanlış mı? Bildir" görünür (sahip isteği, 17 Kasım 2026) */
   talepNo?: number;
   /** Başlık altı açıklama (ör. "G20 makyajsız kasa, 2019–2022") */
@@ -92,8 +99,12 @@ export function TeknikTablo({
           ))}
         </View>
       ))}
+      {m.donanim?.length ? <Donanim liste={m.donanim} /> : null}
       <T style={{ fontSize: 12, lineHeight: 17, color: colors.muted, marginTop: 14 }}>
-        {TEKNIK_KAYNAK}.{m.ozet.kaynaklar?.includes('manuel') ? ' Bazı değerler ekibimizce düzeltildi.' : ''}{' '}
+        {TEKNIK_KAYNAK}.
+        {m.ozet.kaynaklar?.includes('manuel') || m.donanim?.length
+          ? ' Bazı değerler ve donanım ekibimizce girildi.'
+          : ''}{' '}
         Değerler pakete ve model yılına göre değişebilir.
       </T>
       {talepNo && m.model ? <YanlisBildir key={m.model} talepNo={talepNo} motor={m.model} ad={m.ad} /> : null}
@@ -206,6 +217,50 @@ function YanlisBildir({ talepNo, motor, ad }: { talepNo: number; motor: string; 
           <T style={{ fontSize: 13, fontWeight: '700', color: colors.link }}>Vazgeç</T>
         </Pressable>
       </View>
+    </View>
+  );
+}
+
+/** Donanım listesi (web `Donanim` ile aynı): paket başına, grup grup işaretli öğeler */
+function Donanim({ liste }: { liste: { paket: string | null; gruplar: DonanimGrubu[] }[] }) {
+  return (
+    <View accessibilityLabel="Donanım" style={{ marginTop: 18 }}>
+      <T
+        accessibilityRole="header"
+        style={{
+          fontSize: 12.5,
+          fontWeight: '800',
+          letterSpacing: 0.3,
+          color: colors.muted,
+          marginBottom: 4,
+        }}
+      >
+        DONANIM
+      </T>
+      {liste.map((d) => (
+        <View key={d.paket ?? ''} style={{ marginTop: 6 }}>
+          {d.paket ? (
+            <T style={{ fontSize: 14, fontWeight: '800', marginBottom: 6 }}>{d.paket} paketi</T>
+          ) : null}
+          {d.gruplar.map((g) => (
+            <View key={g.ad} style={{ marginBottom: 10 }}>
+              <T style={{ fontSize: 13.5, fontWeight: '800', marginBottom: 2 }}>{g.ad}</T>
+              {g.ogeler.map((o) => (
+                <View key={o} style={{ flexDirection: 'row', gap: 8, paddingVertical: 3 }}>
+                  <T
+                    accessibilityElementsHidden
+                    importantForAccessibility="no"
+                    style={{ color: colors.green, fontWeight: '800' }}
+                  >
+                    ✓
+                  </T>
+                  <T style={{ flex: 1, fontSize: 13.5, lineHeight: 19 }}>{o}</T>
+                </View>
+              ))}
+            </View>
+          ))}
+        </View>
+      ))}
     </View>
   );
 }

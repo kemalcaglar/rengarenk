@@ -103,6 +103,13 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
 - Teknik özellik bildirimi ve elle düzeltme (17 Kasım 2026, sahip isteği): talep sayfasının teknik sekmesinde "Bir değer
   yanlış mı? Bildir"; bildirim konsolda Katalog › Teknik özellikler'e düşer, uyarı gider. Konsolda motor sürümü başına
   değer düzeltme ya da ekleme (yıl aralığıyla); düzeltme hemen görünür, kaldırınca kaynaktaki değer döner.
+- Teknik özellik ve donanım girişi (18 Kasım 2026, sahip isteği): konsol Katalog › Teknik özellikler › "Bilgisi eksik
+  araçlar" (yayındaki taleplerde geçen ve temel alanı ya da donanımı eksik motor sürümleri, en çok talepte geçen önce) ve
+  "Araç ara ve bilgi gir". Düzenleyicide "Metinden doldur": teknik özellik ve donanım metni yapıştırılır, alanlar, üretim
+  yılı ve donanım kutusu kendiliğinden dolar, okunamayan satırlar gösterilir. Kayıt bir pakete bağlanabilir (yalnızca o
+  paketi seçen talepte uygulanır). Talep sayfasının teknik sekmesinde Genel bölümü (segment, kapı, koltuk), güç ve tork
+  devri, şanzıman adı ve Donanım bölümü (web, mobil). Teknik sekmesi talepteki yakıt ve vitese uyar.
+  Test: konsolda bir aracın "Bilgi gir" düğmesi → metni yapıştır → "Metni oku ve doldur" → Kaydet → talep sayfası.
 - Talep sayfasında fotoğraf alana kırpılmadan sığar ve tıklanınca tam ekran büyür (web; mobilde dokununca tam ekran).
 - Konsol menüsü Katalog'da "Araç görselleri" (görselsiz talep sayısı) ve "Teknik özellikler" (açık bildirim sayısı).
 - Kartlarda fiyat tam yazılır (17 Kasım 2026, sahip isteği): "1.000.200 TL", kısaltma ("1 mn TL") yok.
