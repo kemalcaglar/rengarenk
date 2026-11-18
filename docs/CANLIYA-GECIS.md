@@ -241,7 +241,7 @@ yapar, ama her biri için önce senin onayını ister.
    Teslim raporu).
 9. [ ] **Kapalı beta** (önerilen): 10 galeri, 100 alıcı davet edilir. Geri bildirim toplanır, sonra herkese duyurulur.
 
-Bir sorun çıkarsa geri alma: önceki sürüm etiketine dönülür (`deploy/README.md` › Günlük işler). Bakım modu Konsol › Büyüme ›
+Bir sorun çıkarsa geri alma: önceki sürüm etiketine dönülür (`deploy/README.md` › Günlük işler). Bakım modu Konsol › Sistem ›
 Özellik anahtarları ve bakım'dan tek düğmeyle açılır.
 
 ---
