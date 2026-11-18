@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import type { SmsResult, SmsSender } from './sms.js';
+import { SmsError, type SmsResult, type SmsSender } from './sms.js';
 
 /** Geliştirme: kodu API günlüğüne yazar. Canlıda kullanılamaz (env.ts engeller). */
 export class ConsoleSmsSender implements SmsSender {
@@ -27,5 +27,13 @@ export class MemorySmsSender implements SmsSender {
   lastCode(to: string): string | undefined {
     const m = [...this.sent].reverse().find((s) => s.to === to);
     return m?.text.match(/\d{6}/)?.[0];
+  }
+}
+
+/** SMS kapalı (SMS_PROVIDER=none): hiçbir şey göndermez; çağıran "atlandı" yazar. */
+export class NoSmsSender implements SmsSender {
+  readonly name = 'none';
+  async send(): Promise<SmsResult> {
+    throw new SmsError('SMS kapalı', this.name, true);
   }
 }

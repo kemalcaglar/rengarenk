@@ -20,30 +20,32 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
 | Sunucu | AWS Frankfurt'ta `rengarenk-1` çalışıyor, kapalı test olarak. Yalnızca senin IP adresin girebiliyor. Adres `beta.rengarenksite.com` |
 | Yazılım | 59 kararın kodu bitti. Testler, lint ve tip denetimi temiz. Test sunucusunda son sürüm `test-f0c0f12` |
 | Konsol girişi | Google Workspace ile açık, sahip hesabın tanımlı |
-| E-posta (SES) | Alan adı doğrulandı. **Üretim erişimi AWS incelemesinde**; onaya kadar yalnızca doğrulanmış adreslere gider |
+| E-posta (SES) | Hazır: alan adı doğrulandı, **üretim erişimi verildi** (günde 50.000 e-posta) |
 | Telefon kodu | Gönderilmiyor; kapalı testte ekranda gösteriliyor (`VERIFY_CHANNELS=ekran`, `KAPALI_TEST=1`) |
-| SMS | İleti Merkezi hesabı açık. **Bakiye ve `RENGARENK` başlığı bekleniyor** |
+| SMS | Şirket kurulana kadar **yok** (sahip kararı, 19 Kasım 2026). Kod yalnızca WhatsApp'tan gider; canlıda `SMS_PROVIDER=none` |
 | Ödeme, fatura, mağaza, push, yapay zekâ | Kapalı (`none`). Kod hazır, hesaplar bekleniyor (e-Arşiv bağdaştırıcısı henüz yazılmadı) |
 | Yedek, izleme, sırların şifrelenmesi | **Henüz kurulmadı** |
 
 ---
 
-## 0. Önce senin vermen gereken kararlar
+## 0. Kararlar (19 Kasım 2026, sahip)
 
-- [ ] **Canlı sunucu hangisi olacak?** Öneri: şu anki `rengarenk-1` canlı sunucu olur. Açılıştan hemen önce
-  veritabanındaki test kullanıcıları silinir; katalog ve ayarlar yeniden aktarılır. Denemeler bundan sonra bu
-  bilgisayardaki canlı provasında yapılır. İstersen ileride ayrı ve küçük bir test sunucusu da açılabilir (aylık ek ücret).
-- [ ] **Açılışta neler açık olacak?** Ödeme, fatura ve mağaza hesapları gelmeden de site açılabilir: talepler ve
-  mesajlaşma çalışır, satın alma kapalı kalır, ilk talep zaten ücretsiz. Ödemeyi beklemek ya da önce kapalı betayla
-  başlamak (10 galeri, 100 alıcı; plan Aşama 10) senin kararın.
-- [ ] **Mobil uygulama paket adı:** şu an `tr.com.rengarenk.app`. Alan adın `rengarenksite.com` olduğu için
-  `com.rengarenksite.app` gibi bir ad da seçilebilir. Uygulama mağazaya bir kez yüklendikten sonra bu ad **değiştirilemez**.
-  Karar verip Claude'a söyle.
-- [ ] **Sürümleri nasıl kuracağız?** Şu an imajlar sunucuda derleniyor. Canlıda iki yol var:
-  - GitHub'daki `deploy.yml` ile, `v*` etiketi atılınca kurulum başlar. Bunun için GitHub'a sunucu adresi ve SSH anahtarı girilir.
-  - Şimdiki gibi sunucuda derleme.
-
-  Öneri: şimdiki yolla devam. Sunucu anahtarı GitHub'a hiç girmez.
+- [x] **Canlı sunucu:** şu anki `rengarenk-1` canlı sunucu olur. Açılıştan hemen önce veritabanındaki test
+  kullanıcıları silinir; katalog ve ayarlar yeniden aktarılır. Denemeler bundan sonra bu bilgisayardaki canlı
+  provasında yapılır.
+- [x] **Ödemesiz açılış:** ödeme ve fatura hesapları gelmeden açılabilir; talepler ve mesajlaşma çalışır, satın
+  alma kapalı kalır. Önce kapalı beta (10 galeri, 100 alıcı).
+- [x] **Mobil uygulama paket adı:** `com.rengarenksite.app` (alan adının tersi; iOS ve Android'de aynı).
+  Mağazaya yüklendikten sonra değişmez.
+- [x] **Sürüm kurma:** imajlar sunucuda derlenir (`~/derle.sh`); sunucu anahtarı GitHub'a girmez. `deploy.yml`
+  kullanılmaz.
+- [x] **Şirket:** şahıs şirketi kurulacak. Kurulana kadar SMS yok, telefon kodu yalnızca WhatsApp'tan gider
+  (`VERIFY_CHANNELS=whatsapp`, `SMS_PROVIDER=none`; SMS bildirimleri "atlandı" yazılır).
+- [ ] **Barındırma yeri (Frankfurt ya da İstanbul):** avukatın görüşüne göre. AWS İstanbul Local Zone 20 Mayıs
+  2026'da açıldı; sunucu, disk, yedek ve S3 orada var, Lightsail ve Bedrock yok (Frankfurt'a bağlı). Veritabanı
+  İstanbul'da olsa da AWS yabancı şirket ve e-posta, WhatsApp, Google, Apple yurt dışında kalır; aktarımın tamamen
+  kalkıp kalkmadığını avukat söyleyecek (avukat notu S8–S11). İstanbul seçilirse Lightsail yerine EC2'ye taşınma
+  1–2 günlük iş, aylık maliyet artar.
 
 ---
 
@@ -56,7 +58,8 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
 - [ ] **Marka tescili başvurusu (Türk Patent).** İleti Merkezi, `RENGARENK` başlığı için marka tescili istedi.
   - Nasıl: turkpatent.gov.tr üzerinden e-Devlet ile ya da bir marka vekili aracılığıyla başvur. Başvuru belgesini
     İleti Merkezi'ne gönder.
-- [ ] **Avukat görüşmesi.** Sorular hazır:
+- [ ] **Avukat görüşmesi.** Bilgi notu ve 46 soruluk liste PDF olarak hazır: masaüstünde
+  `Rengarenk-avukat-gorusme-notu.pdf` (19 Kasım 2026). Kaynaklar:
   - `docs/kapsam/01-urun-kapsami.md` › Karar 37 ve 39'daki "Avukata sorulacaklar".
   - Yasal metin taslakları: `docs/kapsam/06-yasal-metin-taslaklari.md`.
   - Ayrıca: AWS ile KVKK standart sözleşmesi; 5651 trafik kayıtları ile fatura kayıtlarının yurt dışında tutulması;
@@ -94,28 +97,32 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
 Bunlar olmadan yeni kullanıcı üye olamaz ya da e-posta alamaz.
 
 - [ ] **WhatsApp doğrulama kodu (Karar 18).** Üyelikte telefon kodu önce WhatsApp'tan gider.
-  1. business.facebook.com'da işletme hesabı aç; mümkünse işletme doğrulamasını yap (şirket belgeleriyle).
+  1. business.facebook.com'da işletme hesabı aç. Şahıs şirketi kurulunca işletme doğrulamasını yap (vergi levhası
+     ve adres belgesiyle). Doğrulanmamış işletmenin günlük gönderim sınırı düşüktür; kapalı beta için yeter, herkese
+     açmadan önce doğrulama gerekir (Meta'nın güncel sınırına bak).
   2. WhatsApp Business Platform'a bir telefon numarası ekle. Bu numara normal WhatsApp'ta kullanılmıyor olmalı.
   3. "Kimlik doğrulama" (Authentication) türünde, Türkçe, adı `rengarenk_kod` olan bir mesaj şablonu oluştur ve
      onaya gönder.
   4. Sistem kullanıcısıyla süresiz bir erişim jetonu üret. Jetonu ve telefon numarası kimliğini
      (`Phone number ID`) `Desktop\gizli\`'ye koy.
   5. Claude sunucuda `WHATSAPP_TOKEN` ve `WHATSAPP_PHONE_NUMBER_ID` değerlerini girer, kendi numarana deneme kodu gönderir.
-- [ ] **SMS (yedek kanal, İleti Merkezi).**
-  - Nasıl: İleti Merkezi'nden SMS paketi al ve `RENGARENK` başlığının onaylanmasını sağla (marka tescili belgesi istenebilir).
-  - Onay gelince Claude'a söyle. Sunucuda `SMS_SENDER_ID=RENGARENK` olur ve `sms:dene` ile deneme SMS'i atılır.
-- [ ] **Amazon SES üretim erişimi.**
-  - Nasıl: AWS konsolu › Amazon SES › Account dashboard'da durumu kontrol et. Hâlâ "Sandbox" ise ya da AWS soru
-    sorduysa yanıtla: işlemsel e-postalar, gönderim sıklığı, abonelikten çıkma ve geri dönen e-postanın işlenmesi.
-    Yanıt metnini Claude yazabilir.
-  - Onay gelince Claude kendi adresine olmayan bir deneme e-postası gönderir.
+- [ ] **SMS (şirket kurulunca, açılış için zorunlu değil).** Şirket ve marka tescili başvurusundan sonra İleti
+  Merkezi'nden SMS paketi al ve `RENGARENK` başlığını onaylat. Onay gelince Claude sunucuda `SMS_PROVIDER=iletimerkezi`,
+  `SMS_SENDER_ID=RENGARENK`, `VERIFY_CHANNELS=whatsapp,sms` yapar ve `sms:dene` ile dener. O zamana kadar WhatsApp'ı
+  olmayan kişi üye olamaz.
+- [x] **Amazon SES üretim erişimi:** verildi (inceleme sonucu "GRANTED", günde 50.000 e-posta, saniyede 14;
+  19 Kasım 2026'da kontrol edildi). Açılışta yalnızca kendi adresin dışındaki bir adrese deneme e-postası atılır.
 - [ ] **Google ile üye girişini yayına al.** Şu an Test modunda; yalnızca eklediğin test kullanıcıları girebiliyor.
-  1. Google Cloud › `rengarenk-uye` projesi › Google Auth Platform › Marka: uygulama adı, logo, ana sayfa
-     `https://rengarenksite.com`, gizlilik politikası bağlantısı, yetkili alan adı `rengarenksite.com`.
-  2. Alan adını Google Search Console'da doğrula (DNS'e bir TXT kaydı eklenir).
-  3. İstemci › Yetkili yönlendirme adresleri: `https://rengarenksite.com/api/oturum/google/donus` ekle.
-  4. Kitle › "Uygulamayı yayınla". Yalnızca ad, e-posta ve profil istendiği için ağır bir inceleme beklenmez; logo
-     varsa marka doğrulaması birkaç gün sürebilir.
+  Yalnızca ad, e-posta ve profil (`openid email profile`) istendiği için Google incelemesi gerekmez; şimdi yapılabilir.
+  Site kapalı testte olduğundan yayına almak bir şeyi açmaz.
+  1. console.cloud.google.com, üstten `rengarenk-uye` projesini seç.
+  2. Google Auth Platform › İstemciler › üye istemcisi › Yetkili yönlendirme URI'leri:
+     `https://rengarenksite.com/api/oturum/google/donus` ekle (beta adresi kalsın) › Kaydet.
+  3. Google Auth Platform › Kitle › "Uygulamayı yayınla" › Onayla. Durum "Üretimde" olur.
+  4. **Logo yükleme** (yükleme yaparsan marka doğrulaması istenir; birkaç gün sürer). Sonraya bırakılabilir: kök alan
+     adı yayına girip gizlilik politikası herkese açık olunca Marka bölümüne logo, ana sayfa, gizlilik politikası
+     bağlantısı ve yetkili alan adı `rengarenksite.com` girilir; alan adı Google Search Console'da DNS TXT kaydıyla
+     doğrulanır. O zamana kadar giriş ekranında logo görünmez, giriş yine çalışır.
 
 ---
 
@@ -192,7 +199,7 @@ Bu bölümü Claude yapar; senden yalnızca onay ve birkaç bilgi ister.
 
 ## 6. Mobil uygulama
 
-- [ ] Paket adını kararlaştır (bölüm 0).
+- [x] Paket adı `com.rengarenksite.app` (`apps/mobile/app.json`, Apple girişinin hedef kitlesi `APPLE_CLIENT_IDS`).
 - [ ] **Telefonda deneme.** Uygulamanın son değişiklikleri (tasarım değerleri, teknik tablo) gerçek telefonda
   denenmedi. Yöntem: `docs/DURUM-VE-TEST.md` › 8. Gördüğün sorunları ekran görüntüsüyle Claude'a ver.
 - [ ] **EAS derleme ayarı.** Claude `eas.json` dosyasını ve canlı API adresini
@@ -217,9 +224,9 @@ yapar, ama her biri için önce senin onayını ister.
 3. [ ] **Sunucu ayarları (`.env.prod`):**
    - `WEB_HOSTS=rengarenksite.com`
    - `WEB_ORIGIN=https://rengarenksite.com`
-   - `VERIFY_CHANNELS=whatsapp,sms`
+   - `VERIFY_CHANNELS=whatsapp` (SMS gelince `whatsapp,sms`)
+   - `SMS_PROVIDER=none` (SMS gelince `iletimerkezi` ve `SMS_SENDER_ID=RENGARENK`)
    - `KAPALI_TEST` satırı silinir
-   - `SMS_SENDER_ID=RENGARENK`
    - Ayrıca hazır olan sağlayıcılar açılır.
 
    `www.rengarenksite.com` kök adrese yönlendirilir; bu Caddy'de küçük bir ek, Claude yapar.

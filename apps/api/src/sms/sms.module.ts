@@ -3,7 +3,7 @@ import { AgentService } from '../agent/agent.service.js';
 import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { ChannelCodeSender, CODE_SENDER, WhatsAppCodeSender } from './code-sender.js';
-import { ConsoleSmsSender, MemorySmsSender } from './console.sender.js';
+import { ConsoleSmsSender, MemorySmsSender, NoSmsSender } from './console.sender.js';
 import { FailoverSmsSender } from './failover.sender.js';
 import { IletiMerkeziSender } from './iletimerkezi.sender.js';
 import { SMS_SENDER, type SmsSender } from './sms.js';
@@ -18,6 +18,8 @@ function create(kind: Env['SMS_PROVIDER'], env: Env): SmsSender {
       );
     case 'test':
       return new MemorySmsSender();
+    case 'none':
+      return new NoSmsSender();
     default:
       return new ConsoleSmsSender();
   }

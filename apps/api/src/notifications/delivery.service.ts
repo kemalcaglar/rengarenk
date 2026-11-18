@@ -242,6 +242,7 @@ export class DeliveryService {
     if (d.kanal === 'sms') {
       const metin = this.templates.sms(sablon, veri);
       if (!metin) return this.sonuc(d, { durum: 'atlandi', neden: 'Şablonda SMS yok' });
+      if (this.sms.name === 'none') return this.sonuc(d, { durum: 'atlandi', neden: 'SMS kapalı' });
       try {
         const r = await this.sms.send(user.phone, metin);
         return this.sonuc(d, { durum: 'gonderildi', saglayici: r.provider, no: r.messageId ?? null });

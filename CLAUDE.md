@@ -354,7 +354,7 @@ pnpm format        # Biome ile biçimlendir
   taşındı (kullanıcı verisi taşınmaz). Google girişi açık: konsol `rengarenk-yonetim` (Dahili), üye `rengarenk-uye`
   (Harici, Test modunda yalnızca eklenen test kullanıcıları). Sahip `kemal.caglar@rengarenksite.com`. SES: alan adı ve
   `bildirim.`/`bulten.` alt alan adları doğrulandı; e-posta `akis` alanıyla işlemsel/ticari yapılandırma kümesine gider
-  (`sesBasliklari`, `SES_YAPILANDIRMA_ISLEMSEL/TICARI`); üretim erişimi AWS incelemesinde. Sırlar sohbete yazılmaz:
+  (`sesBasliklari`, `SES_YAPILANDIRMA_ISLEMSEL/TICARI`); üretim erişimi verildi (19 Kasım 2026'da doğrulandı, günde 50.000). Sırlar sohbete yazılmaz:
   sahip dosyayı `Desktop\gizli\`'ye kaydeder, değerler ekrana basılmadan sunucuya aktarılır. API'de 229 test.
   Google ya da Apple'dan gelen ad, soyad ve e-posta üyelikte kilitli (jetondaki değer yazılır, formdaki yok sayılır).
   WhatsApp gelene kadar test sunucusunda `VERIFY_CHANNELS=ekran` + `KAPALI_TEST=1`: kod gönderilmez, yanıtta
@@ -478,8 +478,13 @@ pnpm format        # Biome ile biçimlendir
   API'de 246, ortak pakette 151 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
   yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
-  AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50; SES hazır olana kadar
-  canlıda `EMAIL_PROVIDER=none`), yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
+  AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50, hazır), yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
+- **Canlıya geçiş (19 Kasım 2026, sahip kararları):** liste `docs/CANLIYA-GECIS.md` (iş bitince kutusunu işaretle).
+  Canlı sunucu bugünkü `rengarenk-1` (açılıştan önce test kullanıcıları silinir), ödemesiz açılış ve önce kapalı beta,
+  imajlar sunucuda derlenir (`deploy.yml` kullanılmaz), mobil paket adı `com.rengarenksite.app`. Şahıs şirketi
+  kurulana kadar SMS yok: `SMS_PROVIDER=none` (`NoSmsSender`; SMS bildirimi "atlandı"), `VERIFY_CHANNELS=whatsapp`
+  (none iken `sms` kanalı env.ts'te reddedilir). Barındırma yeri (Frankfurt ya da AWS İstanbul Local Zone) avukat
+  görüşüne bağlı; avukat bilgi notu PDF'i masaüstünde, üreten betik scratchpad `avukat/pdf_yap.py`. API'de 247 test.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, AWS Activate kredisi ve KVKK standart sözleşmesi, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu
   gerçek anahtarla deneme; test/sahte sağlayıcı kullan.

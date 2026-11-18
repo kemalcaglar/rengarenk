@@ -7,12 +7,12 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "ios": {
-      "bundleIdentifier": "tr.com.rengarenk.app",
+      "bundleIdentifier": "com.rengarenksite.app",
       "supportsTablet": false,
       "usesAppleSignIn": true
     },
     "android": {
-      "package": "tr.com.rengarenk.app"
+      "package": "com.rengarenksite.app"
     },
     "plugins": [
       "expo-router",

@@ -67,8 +67,7 @@ KVKK standart sözleşmesi bildirilene kadar sunucu dışarıya kapalı bir test
   politikası, alan adı doğrulaması). Sahip hesabı `sahip` komutuyla açıldı.
 - E-posta (13 Kasım 2026): SES'te `rengarenksite.com`, `bildirim.` ve `bulten.` alt alan adları doğrulandı (DKIM,
   MAIL FROM `posta.*`), yapılandırma kümeleri `rengarenk-islemsel` / `rengarenk-ticari`, SMTP kimliği ayrı IAM
-  kullanıcısıyla, `EMAIL_PROVIDER=smtp`. Üretim erişimi istendi; onaya kadar yalnızca doğrulanmış adreslere gider
-  (alan adının kendi adresleri dahil).
+  kullanıcısıyla, `EMAIL_PROVIDER=smtp`. Üretim erişimi verildi (günde 50.000 e-posta; 19 Kasım 2026'da doğrulandı).
 - Telefon kodu (13 Kasım 2026, sahip isteği): İleti Merkezi'nin `APITEST` başlığı kodu değil sabit bir deneme metni
   gönderdiği için WhatsApp hazır olana kadar `VERIFY_CHANNELS=ekran` ve `KAPALI_TEST=1`: kod gönderilmez, ekrandaki
   kutuya yazılır. Site herkese açılmadan önce ikisi de kaldırılır (`ekran` tek başına canlıda açılmaz, env.ts).
@@ -143,5 +142,4 @@ Adresler: web http://localhost:18080, API http://localhost:14000, konsol http://
   `basarili` ya da `hata` ve `started_at`/`finished_at` yazar. Görev ayda bir kendiliğinden de çalışır.
 - İzleme: Prometheus, Grafana, Loki, Alertmanager, GlitchTip (Teknik tasarım §13). API `/metrics` hazır.
 - SOPS ile şifreli `.env.prod`.
-- E-posta: Amazon SES (Karar 50, 12 Kasım 2026'da kendi posta sunucusu yerine). Alan adı doğrulanıp üretim erişimi
-  gelene kadar canlıda e-posta kapalı (`EMAIL_PROVIDER=none`).
+- E-posta: Amazon SES (Karar 50) hazır: alan adı doğrulandı, üretim erişimi verildi.

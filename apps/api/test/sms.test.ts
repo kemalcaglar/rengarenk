@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { MemorySmsSender } from '../src/sms/console.sender.js';
+import { loadEnv } from '../src/config/env.js';
+import { MemorySmsSender, NoSmsSender } from '../src/sms/console.sender.js';
 import { FailoverSmsSender } from '../src/sms/failover.sender.js';
 import { IletiMerkeziSender } from '../src/sms/iletimerkezi.sender.js';
 import { SmsError } from '../src/sms/sms.js';
+import { createSmsSender } from '../src/sms/sms.module.js';
 
 describe('ana ve yedek SMS', () => {
   it('ana sağlayıcı hata verirse aynı mesaj yedekle gider', async () => {
@@ -75,5 +77,23 @@ describe('İleti Merkezi', () => {
     expect(e401).toBeInstanceOf(SmsError);
     expect(e401.permanent).toBe(false);
     expect(e466.permanent).toBe(true);
+  });
+});
+
+describe('SMS kapalı (şirket kurulana kadar, sahip kararı 19 Kasım 2026)', () => {
+  it('none hiçbir şey göndermez; doğrulama kanalında sms olamaz, yalnızca WhatsApp kalır', async () => {
+    await expect(new NoSmsSender().send()).rejects.toMatchObject({ permanent: true, provider: 'none' });
+    const temel = { DATABASE_URL: 'postgresql://x@localhost/x', JWT_SECRET: 'x'.repeat(32) };
+    expect(() => loadEnv({ ...temel, SMS_PROVIDER: 'none', VERIFY_CHANNELS: 'whatsapp,sms' })).toThrow(
+      'SMS kapalıyken',
+    );
+    const env = loadEnv({
+      ...temel,
+      SMS_PROVIDER: 'none',
+      VERIFY_CHANNELS: 'whatsapp',
+      WHATSAPP_TOKEN: 'jeton',
+      WHATSAPP_PHONE_NUMBER_ID: '123',
+    });
+    expect(createSmsSender(env).name).toBe('none');
   });
 });

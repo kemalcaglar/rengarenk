@@ -96,7 +96,7 @@ describe('Apple ile giriş: kimlik jetonu doğrulaması', () => {
   };
   const gecerli = {
     iss: 'https://appleid.apple.com',
-    aud: 'tr.com.rengarenk.app',
+    aud: 'com.rengarenksite.app',
     exp: Math.floor(Date.now() / 1000) + 600,
     sub: '001234.abc',
     email: 'Gizli@PrivateRelay.AppleID.com',
@@ -104,7 +104,7 @@ describe('Apple ile giriş: kimlik jetonu doğrulaması', () => {
   };
 
   it('imza, yayıncı, hedef kitle ve süre denetlenir', async () => {
-    const v = new AppleJwksVerifier(['tr.com.rengarenk.app'], fetchFn);
+    const v = new AppleJwksVerifier(['com.rengarenksite.app'], fetchFn);
     expect(await v.verify(jeton(gecerli))).toEqual({
       sub: '001234.abc',
       email: 'gizli@privaterelay.appleid.com',

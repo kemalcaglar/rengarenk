@@ -284,8 +284,8 @@ Sıra, "canlıya çıkışı en çok hızlandıran ve en az bekleten" mantığı
 2. **Üyelik kanalları (Karar 18).** WhatsApp (Meta İşletme hesabı, numara, şablon) olmadan yeni üyelik açılamaz;
    Google ile giriş için OAuth istemcisi, konsol girişi için Google Workspace.
 3. **Amazon SES (Karar 50).** Alan adı ve gönderen alt alan adları doğrulandı, SMTP kimliği ve yapılandırma kümeleri
-   test sunucusunda (13 Kasım 2026). Üretim erişimi AWS incelemesinde; o zamana kadar yalnızca doğrulanmış adreslere
-   (alan adının kendi adresleri dahil) gider.
+   test sunucusunda (13 Kasım 2026). Üretim erişimi verildi (19 Kasım 2026'da doğrulandı). Canlıya geçiş listesi:
+   `docs/CANLIYA-GECIS.md`.
 4. **Apple ve Google Play hesapları → EAS derleme → TestFlight ve iç test.** Mağaza hesapları (özellikle Apple D-U-N-S)
    gecikmeye açık; kapalı beta buna bağlı.
 5. **PayTR ve e-Arşiv** (aynı anda; fatura olmadan satış açılmaz). O zamana kadar canlıda satın alma kapalı

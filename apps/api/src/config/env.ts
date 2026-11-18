@@ -113,7 +113,11 @@ const schema = z.object({
   VERTEX_LOCATION: z.string().default('europe-west4'),
   /** API'nin dışarıdan görünen adresi (sahte ödeme sayfası, bildirim adresi) */
   API_PUBLIC_URL: z.string().default('http://localhost:4000'),
-  SMS_PROVIDER: z.enum(['console', 'test', 'iletimerkezi']).default('console'),
+  /**
+   * SMS sağlayıcısı. none: SMS kapalı (şirket kurulup gönderici başlığı onaylanana kadar canlıda; doğrulama kodu
+   * yalnızca WhatsApp'tan gider, SMS bildirimleri "atlandı" yazılır).
+   */
+  SMS_PROVIDER: z.enum(['console', 'test', 'iletimerkezi', 'none']).default('console'),
   /** Ana sağlayıcı arızalanınca kullanılacak yedek (Teknik tasarım §9). */
   SMS_FALLBACK_PROVIDER: z.enum(['console', 'test', 'iletimerkezi']).optional(),
   /** BTK onaylı gönderici adı (başlık) */
@@ -174,7 +178,7 @@ const schema = z.object({
   /** Kimlik jetonunun hedef kitlesi: uygulamanın paket kimliği (virgülle birden çok) */
   APPLE_CLIENT_IDS: z
     .string()
-    .default('tr.com.rengarenk.app')
+    .default('com.rengarenksite.app')
     .transform((v) =>
       v
         .split(',')
@@ -287,6 +291,9 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     throw new Error(
       "Doğrulama kodu ekranda yalnızca kapalı testte gösterilir (VERIFY_CHANNELS'tan 'ekran'ı kaldır)",
     );
+  }
+  if (e.SMS_PROVIDER === 'none' && e.VERIFY_CHANNELS.includes('sms')) {
+    throw new Error("SMS kapalıyken (SMS_PROVIDER=none) VERIFY_CHANNELS'ta sms olamaz");
   }
   if (e.VERIFY_CHANNELS.includes('whatsapp') && !(e.WHATSAPP_TOKEN && e.WHATSAPP_PHONE_NUMBER_ID)) {
     throw new Error('WhatsApp kodu için WHATSAPP_TOKEN ve WHATSAPP_PHONE_NUMBER_ID gerekli');
