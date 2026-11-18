@@ -9,6 +9,7 @@ tarihli kopyasıdır. Amaç, IDE içinde çalışırken her şeyin depoda okunab
   (git'e eklenmez, yalnızca bu bilgisayarda durur)
 
 **Güncel durum, kalan işler, mobil test ve demo giriş bilgileri:** [`DURUM-VE-TEST.md`](DURUM-VE-TEST.md).
+**Canlıya geçmeden önce yapılacaklar ve nasıl yapılacakları:** [`CANLIYA-GECIS.md`](CANLIYA-GECIS.md).
 
 ## kapsam/
 
