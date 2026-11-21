@@ -1,10 +1,12 @@
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Test } from '@nestjs/testing';
+import { uuidv7 } from '@rengarenk/db';
 import { normalizeTrMobile, type SignupConsents, type TokenPair } from '@rengarenk/shared';
 import { AppModule } from '../src/app.module.js';
 import { registerXlsxBody } from '../src/catalog/xlsx-body.js';
 import { registerUploadBodies } from '../src/common/upload-body.js';
 import { type Db, PRISMA } from '../src/database/prisma.js';
+import { IysKayitService } from '../src/notifications/iys.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
 import { SMS_SENDER } from '../src/sms/sms.js';
 import { STORAGE, type Storage } from '../src/storage/storage.service.js';
@@ -120,4 +122,27 @@ export async function uyeOl(
   if (v.status !== 200) throw new Error(`üyelik tamamlanmadı (${v.status}): ${JSON.stringify(v.body)}`);
   const u = await db.user.findUniqueOrThrow({ where: { phone: tel }, select: { id: true } });
   return { ...v.body, userId: u.id, challengeId: r.body.challengeId };
+}
+
+/**
+ * Kişinin İYS kayıtlarını yazar ve paketini "Yüklendi" işaretler: ticari e-posta ve SMS yalnızca İYS'ye yüklenmiş
+ * onaya gider (Karar 49).
+ */
+export async function iysYuklendi(app: NestFastifyApplication, userId: string) {
+  const db = app.get<Db>(PRISMA);
+  await app.get(IysKayitService).esitle(userId);
+  const ids = (await db.iysRecord.findMany({ where: { userId, batchId: null }, select: { id: true } })).map(
+    (r) => r.id,
+  );
+  if (!ids.length) return;
+  const b = await db.iysBatch.create({
+    data: {
+      id: uuidv7(),
+      count: ids.length,
+      createdBy: uuidv7(),
+      uploadedAt: new Date(),
+      uploadedBy: uuidv7(),
+    },
+  });
+  await db.iysRecord.updateMany({ where: { id: { in: ids } }, data: { batchId: b.id } });
 }

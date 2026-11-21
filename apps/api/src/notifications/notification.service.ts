@@ -26,6 +26,7 @@ import { ENV, type Env } from '../config/env.js';
 import { ConsentService } from '../consents/consent.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { SecretBox } from '../staff/secret-box.js';
+import { iysYukluOnay } from './iys.js';
 import { SwitchService } from './switches.js';
 import { TemplatesService } from './templates.service.js';
 
@@ -104,8 +105,19 @@ export class NotificationService implements OnModuleDestroy {
     const sonuc = { ...t.varsayilan } as Record<PrefChannel, boolean>;
     for (const s of satir) sonuc[s.kanal as PrefChannel] = s.acik;
     for (const k of t.kilitli as readonly PrefChannel[]) sonuc[k] = true;
-    if (t.tur === 'ticari' && !(await this.ticariOnay(userId)))
-      return { uygulama: false, eposta: false, sms: false };
+    if (t.tur === 'ticari') {
+      if (!(await this.ticariOnay(userId))) return { uygulama: false, eposta: false, sms: false };
+      // E-posta ve SMS: onay İYS'ye yüklenmeden ticari ileti gitmez (Karar 49, İYS kuralı)
+      if (sonuc.eposta || sonuc.sms) {
+        const u = await this.db.user.findUnique({
+          where: { id: userId },
+          select: { email: true, phone: true },
+        });
+        const iys = u ? await iysYukluOnay(this.db, userId, u) : { eposta: false, sms: false };
+        sonuc.eposta &&= iys.eposta;
+        sonuc.sms &&= iys.sms;
+      }
+    }
     return sonuc;
   }
 

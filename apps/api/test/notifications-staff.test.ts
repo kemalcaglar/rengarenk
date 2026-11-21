@@ -14,7 +14,7 @@ import { SwitchService } from '../src/notifications/switches.js';
 import { TemplatesService } from '../src/notifications/templates.service.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, uyeOl } from './helpers.js';
+import { call, createTestApp, iysYuklendi, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
@@ -139,6 +139,7 @@ describe('konsol: şablonlar, bildirim merkezi, teslim raporu, otomatik akışla
       { tercihler: [{ konu: 'kampanya', kanal: 'eposta', acik: true }] },
       u.token,
     );
+    await iysYuklendi(app, u.userId);
     await app.get(NotificationService).notify({
       userIds: [u.userId],
       sablon: 'kampanya.duyuru',

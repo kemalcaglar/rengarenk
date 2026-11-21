@@ -1,10 +1,10 @@
 'use client';
 
-import type { RegisterStarted } from '@rengarenk/shared';
-import { tints } from '@rengarenk/shared';
+import type { RegisterStarted, TicariKanallar } from '@rengarenk/shared';
+import { TICARI_ILETI_KUTU, tints } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { type FormEvent, useEffect, useState } from 'react';
+import { type FormEvent, Fragment, useEffect, useState } from 'react';
 import {
   Ayrac,
   field,
@@ -29,11 +29,6 @@ import { colors } from '../../lib/renk';
 const ONAYLAR = [
   { key: 'kullanimKosullari', text: 'Kullanım koşullarını okudum ve kabul ediyorum.', zorunlu: true },
   { key: 'kvkkAydinlatma', text: 'KVKK aydınlatma metnini okudum.', zorunlu: true },
-  {
-    key: 'ticariIleti',
-    text: 'Kampanya ve duyurular için ticari elektronik ileti almak istiyorum (isteğe bağlı).',
-    zorunlu: false,
-  },
   {
     key: 'reklamOlcum',
     text: 'Reklamların ölçülmesi için telefon numaramın şifrelenmiş hâlinin Meta ve Google ile paylaşılmasına ve yurt dışına aktarılmasına açık rıza veriyorum (isteğe bağlı).',
@@ -65,9 +60,10 @@ export default function UyeOl() {
   const [onay, setOnay] = useState<Record<OnayKey, boolean>>({
     kullanimKosullari: false,
     kvkkAydinlatma: false,
-    ticariIleti: false,
     reklamOlcum: false,
   });
+  // Ticari ileti onayı kanal başına (yasal metin taslağı bölüm 4, İYS onayı kanal başına)
+  const [ticari, setTicari] = useState<TicariKanallar>({ eposta: false, sms: false, bildirim: false });
   const [kod, setKod] = useState<RegisterStarted | null>(null);
   const [code, setCode] = useState('');
   const [expiresAt, setExpiresAt] = useState(0);
@@ -142,7 +138,11 @@ export default function UyeOl() {
           eposta,
           telefon: `+90${phone.replace(/\D/g, '').replace(/^(90|0)/, '')}`,
           ...(google ? { kayitJetonu: google.kayitJetonu } : { sifre }),
-          consents: onay,
+          consents: {
+            ...onay,
+            ticariIleti: ticari.eposta || ticari.sms || ticari.bildirim,
+            ticariKanallar: ticari,
+          },
           platform: 'WEB',
         }),
       );
@@ -330,14 +330,39 @@ export default function UyeOl() {
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '20px 0 22px' }}>
               {ONAYLAR.map((o) => (
-                <OnayKutusu
-                  key={o.key}
-                  checked={onay[o.key]}
-                  onChange={(v) => setOnay({ ...onay, [o.key]: v })}
-                  style={{ padding: '6px 0', fontSize: 13.5, lineHeight: 1.5, color: colors.inkSoft }}
-                >
-                  {o.text}
-                </OnayKutusu>
+                <Fragment key={o.key}>
+                  {o.key === 'reklamOlcum' ? (
+                    <fieldset style={{ border: 0, margin: 0, padding: '6px 0' }}>
+                      <legend style={{ padding: 0, fontSize: 13.5, lineHeight: 1.5, color: colors.inkSoft }}>
+                        {TICARI_ILETI_KUTU.metin}
+                      </legend>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginTop: 6 }}>
+                        {TICARI_ILETI_KUTU.kanallar.map((k) => (
+                          <OnayKutusu
+                            key={k.anahtar}
+                            checked={ticari[k.anahtar]}
+                            onChange={(v) => setTicari({ ...ticari, [k.anahtar]: v })}
+                            style={{
+                              padding: '4px 0',
+                              fontSize: 13.5,
+                              lineHeight: 1.5,
+                              color: colors.inkSoft,
+                            }}
+                          >
+                            {k.ad}
+                          </OnayKutusu>
+                        ))}
+                      </div>
+                    </fieldset>
+                  ) : null}
+                  <OnayKutusu
+                    checked={onay[o.key]}
+                    onChange={(v) => setOnay({ ...onay, [o.key]: v })}
+                    style={{ padding: '6px 0', fontSize: 13.5, lineHeight: 1.5, color: colors.inkSoft }}
+                  >
+                    {o.text}
+                  </OnayKutusu>
+                </Fragment>
               ))}
             </div>
             <button type="submit" disabled={busy} aria-disabled={!zorunlu} style={primary(zorunlu)}>

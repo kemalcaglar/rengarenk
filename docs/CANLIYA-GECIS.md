@@ -88,8 +88,13 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
 - [ ] **İYS kaydı** (ileti yönetim sistemi; sahip kararı 21 Kasım 2026: entegratör yok, izinler elle yüklenir).
   - Nasıl: şirket kurulunca iys.org.tr'de hizmet sağlayıcı olarak kaydol (marka: Rengarenk). Entegratöre para
     verilmez; API gerekmez.
-  - Ticari e-posta İYS sorgusu yapılmadan gider. Onay ve retler kanal başına (e-posta, SMS) kaydedilir: Konsol › Uyum
-    ve KVKK › Rıza ve çerez kayıtları › **İYS'ye aktarım**.
+  - Onay ve retler kanal başına (e-posta, SMS) kaydedilir: Konsol › Uyum ve KVKK › Rıza ve çerez kayıtları › **İYS'ye
+    aktarım**. Üyelikte ticari ileti onayı kanal kanal alınır (e-posta, SMS, bildirim; yasal metin taslağı bölüm 4);
+    işaretlenen kanalın kampanya ayarı açılır.
+  - İYS kuralı: "İYS üzerinde onayı bulunmayan alıcılara ticari elektronik ileti gönderilemez." Bu yüzden ticari
+    e-posta ve SMS yalnızca paketi **"Yüklendi"** işaretlenmiş onaylara gider; adres değişince yeni adres yüklenene kadar
+    gitmez. Uygulama içi bildirim ve push İYS kapsamında değildir, onay verilince gider. "Yüklendi"ye yalnızca dosya
+    İYS'de başarıyla yüklendikten sonra bas.
   - Her gün sonunda "CSV'yi hazırla ve indir"e bas. Dosyayı İYS Web'de (hs.iys.org.tr) İzin Ekle › Dosyadan Çoklu
     İzin Yükle ekranından **Bireysel** olarak yükle, sonra pakette "Yüklendi"ye bas.
   - İYS bir dosyada en fazla 50 izin aktarır (fazlası yok sayılır). Bu yüzden her paket en fazla 50 satırdır; 50'den
@@ -104,8 +109,9 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
   - **Dikkat:** kişi iznini doğrudan İYS'den (İYS uygulaması ya da sitesi) geri alabilir. Bunu sistem göremez; İYS
     panelinde gelen retleri ara ara kontrol et, ret varsa kişinin kampanya iletisini Ayarlar'dan kapat ya da Claude'a
     bildir.
-  - İYS kaydı yapılana kadar ticari ileti göndermek istemiyorsan Konsol › Büyüme › Bildirim merkezi'nde ticari
-    iletiyi kapat. İşlemsel iletiler (kod, talep ve mesaj bildirimi) bundan etkilenmez.
+  - İYS kaydı yapılana kadar paket yüklenemeyeceği için ticari e-posta ve SMS zaten gitmez. Uygulama içi kampanya
+    bildirimini de durdurmak istersen Konsol › Büyüme › Bildirim merkezi'nde ticari iletiyi kapat. İşlemsel iletiler
+    (kod, talep ve mesaj bildirimi) bundan etkilenmez.
 - [ ] **TSB yazılı izni.** Katalog TSB listesini kullanıyor; yazışma taslağı Claude dokümanında. İzin yazısı gelince
   Veri kaynakları sayfasına işlenir.
 - [ ] **VERBİS:** 50 çalışan ve 100 milyon TL bilanço altında zorunlu değil (Karar 37); bir şey yapmana gerek yok.

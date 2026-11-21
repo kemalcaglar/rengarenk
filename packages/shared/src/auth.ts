@@ -23,13 +23,44 @@ export type OtpRequest = z.input<typeof otpRequestSchema>;
  * Üyelik onayları (Karar 59 rıza kayıtları, Karar 49 ticari ileti, Karar 35 reklam ölçümü). Kullanım koşulları ve
  * KVKK aydınlatma metni zorunludur; diğer ikisi isteğe bağlı ve varsayılan kapalıdır.
  */
+/**
+ * Ticari ileti onayının kanalları: yasal metin taslağı bölüm 4'teki gibi her kanal için ayrı, işaretsiz kutu (İYS onayı
+ * kanal başınadır). `bildirim` uygulama içi bildirim ve push'tur (İYS kapsamında değil). İşaretlenen kanalın kampanya
+ * tercihi açılır.
+ */
+export const ticariKanallarSchema = z.object({
+  eposta: z.boolean().default(false),
+  sms: z.boolean().default(false),
+  bildirim: z.boolean().default(false),
+});
+export type TicariKanallar = z.output<typeof ticariKanallarSchema>;
+
+/** Üyelikteki ticari ileti onayı metni (yasal metin taslağı bölüm 4) */
+export const TICARI_ILETI_KUTU = {
+  metin:
+    "Rengarenk'in kampanya, indirim ve yeniliklerinden haberdar olmak için şu yollarla ticari elektronik ileti almayı kabul ediyorum (isteğe bağlı):",
+  kanallar: [
+    { anahtar: 'eposta', ad: 'E-posta' },
+    { anahtar: 'sms', ad: 'SMS' },
+    { anahtar: 'bildirim', ad: 'Bildirim' },
+  ] as const,
+};
+
 export const signupConsentsSchema = z.object({
   kullanimKosullari: z.literal(true, 'Kullanım koşullarını kabul etmelisin'),
   kvkkAydinlatma: z.literal(true, 'KVKK aydınlatma metnini okuduğunu işaretlemelisin'),
+  /** Eski istemciler; `ticariKanallar` varsa onay ondan hesaplanır */
   ticariIleti: z.boolean().default(false),
+  ticariKanallar: ticariKanallarSchema.optional(),
   reklamOlcum: z.boolean().default(false),
 });
 export type SignupConsents = z.input<typeof signupConsentsSchema>;
+
+/** Üyelikte ticari ileti onayı verildi mi (en az bir kanal ya da eski tek kutu) */
+export function ticariOnayVar(c: Pick<SignupConsents, 'ticariIleti' | 'ticariKanallar'>) {
+  const k = c.ticariKanallar;
+  return k ? !!(k.eposta || k.sms || k.bildirim) : !!c.ticariIleti;
+}
 
 export const otpVerifySchema = z.object({
   challengeId: z.uuid(),

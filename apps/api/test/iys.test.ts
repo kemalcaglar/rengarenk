@@ -12,6 +12,8 @@ import {
   iysDosyaTarihi,
   iysTarih,
 } from '../src/notifications/iys.js';
+import { NotificationService } from '../src/notifications/notification.service.js';
+import { TemplatesService } from '../src/notifications/templates.service.js';
 import { StaffAlertService } from '../src/staff-alerts/staff-alert.service.js';
 import { createTestApp, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
@@ -70,7 +72,7 @@ describe("İYS'ye elle aktarım (sahip kararı 21 Kasım 2026, Karar 49)", () =>
     expect([...cp1254('aşİı')]).toEqual([0x61, 0xfe, 0xdd, 0xfd]);
   });
 
-  it('kanal başına onay ve ret yazılır, adres değişince eski adrese ret; paket Excel olarak iner', async () => {
+  it('kanal başına onay ve ret yazılır, adres değişince eski adrese ret; paket CSV olarak iner', async () => {
     const u = await uyeOl(app, '05321110001');
     const token = u.accessToken as string;
     // Ticari onay olmadan kayıt yok
@@ -206,5 +208,50 @@ describe("İYS'ye elle aktarım (sahip kararı 21 Kasım 2026, Karar 49)", () =>
     });
     const enYeniPaket = await db.iysBatch.findFirstOrThrow({ orderBy: { no: 'desc' } });
     expect(son.batchId).toBe(enYeniPaket.id);
+  });
+
+  it('üyelikte işaretlenen ticari ileti kanalları kampanya tercihini açar; e-posta İYS yüklenmeden gitmez', async () => {
+    const u = await uyeOl(app, '05321110004', {
+      consents: { ticariKanallar: { eposta: true, sms: false, bildirim: true } },
+    });
+    const onay = await db.consent.findFirstOrThrow({ where: { userId: u.userId, kind: 'ticari_ileti' } });
+    expect(onay.granted).toBe(true);
+    const tercih = await db.notificationPref.findMany({
+      where: { userId: u.userId, konu: 'kampanya' },
+      orderBy: { kanal: 'asc' },
+    });
+    expect(tercih.map((t) => [t.kanal, t.acik])).toEqual([
+      ['eposta', true],
+      ['uygulama', true],
+    ]);
+    expect(
+      await db.outboxEvent.count({
+        where: { type: 'iys.izin_degisti', payload: { path: ['userId'], equals: u.userId } },
+      }),
+    ).toBe(1);
+    // İşçi olayı işleyince yalnızca e-posta için İYS onayı yazılır (bildirim İYS kapsamında değil)
+    expect(await iys.esitle(u.userId)).toBe(1);
+    expect((await kayitlar(u.userId)).map((r) => [r.type, r.status])).toEqual([['EPOSTA', 'ONAY']]);
+
+    const ns = app.get(NotificationService);
+    const { sablon } = await app.get(TemplatesService).get('kampanya.duyuru');
+    expect(await ns.kanallar(u.userId, sablon)).toMatchObject({ uygulama: true, eposta: false, sms: false });
+    // Paket İYS'ye yüklendi işaretlenince e-posta açılır
+    const p = await staffCall(app, 'POST', '/staff/iys/paket', undefined, sahip);
+    expect(await ns.kanallar(u.userId, sablon)).toMatchObject({ eposta: false });
+    await staffCall(app, 'POST', `/staff/iys/paket/${p.body.id}/yuklendi`, undefined, sahip);
+    expect(await ns.kanallar(u.userId, sablon)).toMatchObject({ uygulama: true, eposta: true });
+    // Adres değişince yeni adres İYS'ye yüklenene kadar e-posta yine kapalı
+    await db.user.update({ where: { id: u.userId }, data: { email: 'baska@ornek.com' } });
+    expect(await ns.kanallar(u.userId, sablon)).toMatchObject({ eposta: false });
+  });
+
+  it('kanal seçmeden üye olan kişide ticari onay ve kampanya tercihi yok', async () => {
+    const u = await uyeOl(app, '05321110005', {
+      consents: { ticariKanallar: { eposta: false, sms: false, bildirim: false } },
+    });
+    const onay = await db.consent.findFirstOrThrow({ where: { userId: u.userId, kind: 'ticari_ileti' } });
+    expect(onay.granted).toBe(false);
+    expect(await db.notificationPref.count({ where: { userId: u.userId, konu: 'kampanya' } })).toBe(0);
   });
 });

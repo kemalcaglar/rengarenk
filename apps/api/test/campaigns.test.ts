@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ApprovalExecutor } from '../src/approvals/approval-executor.js';
 import { CampaignService } from '../src/campaigns/campaign.service.js';
 import type { Db } from '../src/database/prisma.js';
-import { createTestApp } from './helpers.js';
+import { createTestApp, iysYuklendi } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
@@ -16,7 +16,10 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 /** Bireysel kişi: il, ticari onay ve kampanya bildirimi tercihi isteğe göre */
-async function kisi(phone: string, o: { il?: string; onay?: boolean; uygulama?: boolean; eposta?: boolean }) {
+async function kisi(
+  phone: string,
+  o: { il?: string; onay?: boolean; uygulama?: boolean; eposta?: boolean; iys?: boolean },
+) {
   const id = uuidv7();
   await db.user.create({
     data: {
@@ -42,6 +45,8 @@ async function kisi(phone: string, o: { il?: string; onay?: boolean; uygulama?: 
   for (const kanal of ['uygulama', 'eposta'] as const)
     if (o[kanal])
       await db.notificationPref.create({ data: { userId: id, konu: 'kampanya', kanal, acik: true } });
+  // Ticari e-posta yalnızca İYS'ye yüklenmiş onaya gider (Karar 49)
+  if (o.iys !== false) await iysYuklendi(app, id);
   return id;
 }
 

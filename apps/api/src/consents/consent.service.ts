@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { uuidv7 } from '@rengarenk/db';
-import type { SignupConsents } from '@rengarenk/shared';
+import { type SignupConsents, ticariOnayVar } from '@rengarenk/shared';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 
 /** Yasal metin anahtarları (docs/kapsam/06-yasal-metin-taslaklari.md bölümleriyle aynı sıra) */
@@ -53,7 +53,7 @@ export class ConsentService {
     const rows: { kind: string; granted: boolean; key: LegalKey }[] = [
       { kind: 'kullanim_kosullari', granted: true, key: 'kullanim_kosullari' },
       { kind: 'kvkk_aydinlatma', granted: true, key: 'kvkk_aydinlatma' },
-      { kind: 'ticari_ileti', granted: Boolean(c.ticariIleti), key: 'ticari_ileti' },
+      { kind: 'ticari_ileti', granted: ticariOnayVar(c), key: 'ticari_ileti' },
       { kind: 'reklam_olcum', granted: Boolean(c.reklamOlcum), key: 'reklam_olcum' },
     ];
     for (const r of rows) {

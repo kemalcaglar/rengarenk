@@ -198,6 +198,24 @@ export class SignupService {
           channelOf(platform),
           ip,
         );
+        // Ticari ileti kutuları kanal başına (yasal metin taslağı bölüm 4): işaretlenen kanalın kampanya tercihi açılır,
+        // işçi İYS kaydını yazar (Karar 49)
+        const tk = (p.consents as unknown as SignupConsents).ticariKanallar;
+        const kanallar = tk
+          ? (
+              [
+                ['eposta', tk.eposta],
+                ['sms', tk.sms],
+                ['uygulama', tk.bildirim],
+              ] as const
+            ).filter(([, acik]) => acik)
+          : [];
+        if (kanallar.length) {
+          await tx.notificationPref.createMany({
+            data: kanallar.map(([kanal]) => ({ userId: user.id, konu: 'kampanya', kanal, acik: true })),
+          });
+          await this.outbox.add(tx, 'iys.izin_degisti', { userId: user.id, onay: true });
+        }
         // Reklam ölçümü (Karar 35): telefonla doğrulanmış yeni üyelik; tarayıcı aynı kimliği (kod isteği) kullanır
         await this.ads?.olay(tx, user.id, 'CompleteRegistration', {
           ref: challengeId,

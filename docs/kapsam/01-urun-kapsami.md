@@ -901,7 +901,7 @@ Sitenin ve uygulamanın görünümü ile pazarlama içerikleri geliştiriciye ge
 ## Karar 49: İleti türleri, İYS ve sıklık
 
 - **İşlemsel iletiler** (doğrulama kodu, ödeme ve fatura, ilk mesaj geldi, talep süresi doluyor, hesap güvenliği) izin istemez; sessiz saatte de gider.
-- **21 Kasım 2026'da değişti (sahip kararı):** İYS entegratörü kullanılmaz. Ticari ileti İYS sorgusu yapılmadan, platformda onay veren kişilere gider; onay ve retler kanal başına kaydedilir ve konsoldan İYS Web'in resmî CSV biçiminde (dosya başına en fazla 50 izin) indirilip her gün İYS paneline elle yüklenir (yasal süre 3 iş günü; 2 iş gününde sahibe uyarı).
+- **21 Kasım 2026'da değişti (sahip kararı):** İYS entegratörü kullanılmaz. Onay ve retler kanal başına kaydedilir ve konsoldan İYS Web'in resmî CSV biçiminde (dosya başına en fazla 50 izin) indirilip her gün İYS paneline elle yüklenir (yasal süre 3 iş günü; 2 iş gününde sahibe uyarı). İYS kuralı gereği ticari e-posta ve SMS yalnızca İYS'ye yüklendi diye işaretlenmiş onaya gider; üyelikte onay kanal kanal alınır (e-posta, SMS, bildirim).
 - **Ticari iletiler** (kampanya, indirim, duyuru) yalnızca İYS'de onayı olan kişilere gider. Kişi başına haftada en fazla 2 ticari ileti; 21.00–09.00 arasında gönderilmez, sabaha ertelenir. Her ticari iletide tek tıkla ayrılma bağlantısı vardır.
 - **SMS:** ilk sürümde yalnızca doğrulama kodu ve kritik durumlarda (hesap güvenliği, ödeme sorunu) kullanılır. Kampanya SMS'i panelde hazırdır ama sahip açana kadar kapalıdır.
 - 1.000 kişiyi aşan her gönderim sahip veya yönetici onayı ister (Karar 40).

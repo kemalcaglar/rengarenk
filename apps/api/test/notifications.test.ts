@@ -12,7 +12,7 @@ import { SwitchService } from '../src/notifications/switches.js';
 import { TemplatesService } from '../src/notifications/templates.service.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
-import { call, createTestApp, uyeOl } from './helpers.js';
+import { call, createTestApp, iysYuklendi, uyeOl } from './helpers.js';
 
 let app: NestFastifyApplication;
 let sms: MemorySmsSender;
@@ -326,6 +326,12 @@ describe('bildirim katmanı (Karar 30, 48, 49, 50)', () => {
       u.token,
     );
     expect(await db.outboxEvent.count({ where: { type: 'iys.izin_degisti' } })).toBeGreaterThan(0);
+    // Onay İYS'ye yüklenmeden ticari e-posta açılmaz (Karar 49); uygulama içi bildirim İYS kapsamında değil
+    const tpl = app.get(TemplatesService);
+    const { sablon: ks } = await tpl.get('kampanya.duyuru');
+    expect(await ns.kanallar(u.userId, ks)).toMatchObject({ uygulama: true, eposta: false });
+    await iysYuklendi(app, u.userId);
+    expect(await ns.kanallar(u.userId, ks)).toMatchObject({ uygulama: true, eposta: true });
     expect(await ns.notify({ userIds: [u.userId], sablon: 'kampanya.duyuru', veri: kampanya })).toBe(1);
     expect(await ns.notify({ userIds: [u.userId], sablon: 'kampanya.duyuru', veri: kampanya })).toBe(1);
     expect(await ns.notify({ userIds: [u.userId], sablon: 'kampanya.duyuru', veri: kampanya })).toBe(0); // haftada 2

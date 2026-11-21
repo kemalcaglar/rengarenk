@@ -282,6 +282,8 @@ function IysAktarim() {
             Ticari ileti onayı ya da reti 3 iş günü içinde İYS'ye yüklenmeli. Gün sonunda CSV dosyasını indir,
             İYS Web'de İzin Ekle › Dosyadan Çoklu İzin Yükle ekranından "Bireysel" olarak yükle, sonra paketi
             "Yüklendi" diye işaretle. İYS bir dosyada en fazla {IYS_SINIR} izin alır; her paket bir dosyadır.
+            Ticari e-posta ve SMS yalnızca İYS'de onayı olan, yani paketi "Yüklendi" işaretlenmiş kişilere
+            gider; "Yüklendi"ye dosya İYS'de başarıyla yüklendikten sonra bas.
           </p>
         </div>
         <button

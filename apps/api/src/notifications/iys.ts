@@ -105,6 +105,33 @@ export function iysCsv(
 const iysTelefon = (phone: string) => (/^\+905\d{9}$/.test(phone) ? phone : null);
 
 /**
+ * Ticari e-posta ve SMS yalnızca İYS'de onayı olan alıcıya gider (İYS: "İYS üzerinde onayı bulunmayan alıcılara ticari
+ * elektronik ileti gönderilemez"). Entegratör olmadığı için ölçüt: kanalın son kaydı ONAY, adresi kişinin bugünkü
+ * adresi ve paketi İYS'ye "Yüklendi" diye işaretlenmiş. Uygulama içi bildirim ve push İYS kapsamında değildir.
+ */
+export async function iysYukluOnay(
+  db: Db | Tx,
+  userId: string,
+  adres: { email: string | null; phone: string },
+) {
+  const sonlar = await Promise.all(
+    IYS_TURLERI.map((t) =>
+      db.iysRecord.findFirst({
+        where: { userId, type: t.tur },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        select: { status: true, recipient: true, batch: { select: { uploadedAt: true } } },
+      }),
+    ),
+  );
+  const hedef = [adres.email?.trim().toLowerCase() ?? null, iysTelefon(adres.phone)];
+  const tamam = (i: number) => {
+    const r = sonlar[i];
+    return !!r && r.status === 'ONAY' && !!r.batch?.uploadedAt && !!hedef[i] && r.recipient === hedef[i];
+  };
+  return { eposta: tamam(0), sms: tamam(1) };
+}
+
+/**
  * İYS izin kayıtları (Karar 49; sahip kararı 21 Kasım 2026): entegratör olmadan ticari ileti gönderilir, onay ve retler
  * kanal başına `iys_records`'a yazılır; çalışan gün sonunda bekleyenleri CSV olarak indirip İYS paneline yükler.
  * İYS kuralı: İYS dışında alınan onay ve ret 3 iş günü içinde İYS'ye kaydedilir.

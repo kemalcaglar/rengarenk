@@ -280,7 +280,7 @@ await queue.consume<{ staffId: string }>(
     log.log(`çalışan daveti e-postası: ${await uyarilar.davetGonder(staffId)}`);
   },
 );
-// Ticari ileti onayı, kampanya kanalı, adres ya da hesap değişti: İYS kaydı yazılır (konsoldan Excel ile yüklenir)
+// Ticari ileti onayı, kampanya kanalı, adres ya da hesap değişti: İYS kaydı yazılır (konsoldan CSV ile yüklenir)
 await queue.consume<{ userId: string; onay?: boolean }>(
   'iys.izin_degisti',
   'iys-esitle',

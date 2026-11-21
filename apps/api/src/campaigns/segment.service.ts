@@ -107,7 +107,15 @@ export class SegmentService {
           EXISTS (SELECT 1 FROM notification_prefs p WHERE p.user_id = s.id AND p.konu = 'kampanya'
                   AND p.kanal = 'uygulama' AND p.acik) AS uyg,
           EXISTS (SELECT 1 FROM notification_prefs p WHERE p.user_id = s.id AND p.konu = 'kampanya'
-                  AND p.kanal = 'eposta' AND p.acik) AS ep,
+                  AND p.kanal = 'eposta' AND p.acik)
+          -- E-posta onayı İYS'ye yüklenmiş olmalı (iysYukluOnay ile aynı ölçüt)
+          AND EXISTS (SELECT 1 FROM (
+                SELECT r.status, r.recipient, b.uploaded_at FROM iys_records r
+                LEFT JOIN iys_batches b ON b.id = r.batch_id
+                WHERE r.user_id = s.id AND r.type = 'EPOSTA'
+                ORDER BY r.created_at DESC, r.id DESC LIMIT 1) son
+              WHERE son.status = 'ONAY' AND son.uploaded_at IS NOT NULL
+                AND son.recipient = lower(trim(u.email))) AS ep,
           EXISTS (SELECT 1 FROM push_tokens t WHERE t.user_id = s.id AND t.disabled_at IS NULL) AS cihaz,
           (u.email IS NOT NULL AND u.email_verified_at IS NOT NULL) AS dogrulandi,
           (SELECT count(*) FROM notifications n WHERE n.user_id = s.id AND n.ticari
