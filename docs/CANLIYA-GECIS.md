@@ -1,6 +1,6 @@
 # Canlıya geçiş listesi
 
-Son güncelleme: 19 Kasım 2026. Siteyi ve uygulamayı herkese açmadan önce yapılacak her işi ve nasıl yapılacağını
+Son güncelleme: 21 Kasım 2026 (kod, sunucu, DNS ve AWS ile karşılaştırılarak doğrulandı). Siteyi ve uygulamayı herkese açmadan önce yapılacak her işi ve nasıl yapılacağını
 toplar. Biten maddenin kutusunu işaretle (`[ ]` → `[x]`); Claude da iş bitince işaretler.
 
 **Kim yapar:**
@@ -13,17 +13,19 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
 
 ---
 
-## Şu an ne durumda (19 Kasım 2026)
+## Şu an ne durumda (21 Kasım 2026)
 
 | Konu | Durum |
 | --- | --- |
-| Sunucu | AWS Frankfurt'ta `rengarenk-1` çalışıyor, kapalı test olarak. Yalnızca senin IP adresin girebiliyor. Adres `beta.rengarenksite.com` |
-| Yazılım | 59 kararın kodu bitti. Testler, lint ve tip denetimi temiz. Test sunucusunda son sürüm `test-f0c0f12` |
+| Sunucu | AWS Frankfurt'ta `rengarenk-1` çalışıyor, kapalı test olarak. Siteye yalnızca izin verilen 4 IP adresi, sunucu bağlantısına (SSH) 2 adres girebiliyor. Adres `beta.rengarenksite.com` |
+| Yazılım | 59 kararın kodu bitti. Testler, lint ve tip denetimi temiz. Test sunucusunda `test-f0c0f12`; bilgisayarda 4 commit daha var (SMS kapalı seçeneği, yeni paket adı, bu belge), GitHub'a ve sunucuya henüz gitmedi |
 | Konsol girişi | Google Workspace ile açık, sahip hesabın tanımlı |
 | E-posta (SES) | Hazır: alan adı doğrulandı, **üretim erişimi verildi** (günde 50.000 e-posta) |
+| Google ile üye girişi | **Yayında** (21 Kasım 2026, sahip): kök alan adının dönüş adresi eklendi |
+| Yasal metinler | Sunucuda 8 metnin **hepsi taslak, hiçbiri yayında değil**. KVKK aydınlatma metninin iki taslağında da barındırma yeri hâlâ "Radore" |
 | Telefon kodu | Gönderilmiyor; kapalı testte ekranda gösteriliyor (`VERIFY_CHANNELS=ekran`, `KAPALI_TEST=1`) |
 | SMS | Şirket kurulana kadar **yok** (sahip kararı, 19 Kasım 2026). Kod yalnızca WhatsApp'tan gider; canlıda `SMS_PROVIDER=none` |
-| Ödeme, fatura, mağaza, push, yapay zekâ | Kapalı (`none`). Kod hazır, hesaplar bekleniyor (e-Arşiv bağdaştırıcısı henüz yazılmadı) |
+| Ödeme, fatura, mağaza, push, yapay zekâ | Kapalı (`none`). Kod hazır, hesaplar bekleniyor. Henüz yazılmayanlar: e-Arşiv ve İYS bağdaştırıcısı, mobilde RevenueCat ve iPhone push'u için Firebase SDK |
 | Yedek, izleme, sırların şifrelenmesi | **Henüz kurulmadı** |
 | AWS kredisi | Activate kabul edildi: 1.000 USD (21 Kasım 2026). Kasım'ın ilk 20 gününde kullanım 11,95 USD, tamamı krediden |
 
@@ -74,8 +76,9 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
   - Aynı işlem, açıldıkça öteki yurt dışı aktarımlar için de yapılır: Firebase/Apple push, Meta ve Google reklam
     ölçümü, hata raporlama.
 - [ ] **Yasal metinleri güncelle ve yayınla.**
-  - Nasıl: Konsol › Yardım ve yasal metinler › ilgili metin › taslak › düzenle › onayla. Bu metinleri yalnızca sen
-    onaylayabilirsin.
+  - Nasıl: Konsol › Görünüm › Yardım ve yasal metinler › ilgili metin › taslak › düzenle › onayla. Bu metinleri
+    yalnızca sen onaylayabilirsin. Sunucuda 8 metnin hepsi henüz taslak; açılıştan önce hepsi yayına alınmalı (üyelikte
+    kullanım koşulları onaylatılıyor).
   - Bilinen düzeltme: KVKK aydınlatma metni barındırma yeri olarak hâlâ "Radore" yazıyor; "Amazon Web Services,
     Frankfurt (Almanya)" olmalı. Avukatın son hâli gelince bütün metinler (kullanım koşulları, KVKK aydınlatma, çerez,
     ön bilgilendirme, mesafeli sözleşme) yayına alınır. Esaslı değişiklikte kullanıcılardan yeniden onay istenir.
@@ -85,7 +88,11 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
 - [ ] **İYS kaydı** (ileti yönetim sistemi).
   - Nasıl: iys.org.tr'de hizmet sağlayıcı olarak kaydol, API erişim bilgilerini al ve `Desktop\gizli\`'ye koy.
     Claude İYS bağdaştırıcısını yazar; şu an kodda yalnızca sahte sağlayıcı var.
-  - İYS bağlanana kadar ticari e-posta ve kampanya gönderimi kapalı kalır. İşlemsel iletiler (kod, bildirim) bundan etkilenmez.
+  - **Dikkat:** kod, İYS bağlanmadan ticari iletiyi kendiliğinden durdurmuyor. Onay veren kullanıcıya kampanya ve
+    "İlk talebini oluştur" otomatik akışı (varsayılanda açık) gider; yalnızca İYS'ye bildirim bekler. İYS kaydı olmadan
+    göndermemek için açılıştan önce Konsol › Büyüme › Bildirim merkezi'nde **ticari iletiyi kapat**, ya da Claude
+    "İYS yokken ticari ileti gitmesin" kuralını koda eklesin. İşlemsel iletiler (kod, talep ve mesaj bildirimi) bundan
+    etkilenmez.
 - [ ] **TSB yazılı izni.** Katalog TSB listesini kullanıyor; yazışma taslağı Claude dokümanında. İzin yazısı gelince
   Veri kaynakları sayfasına işlenir.
 - [ ] **VERBİS:** 50 çalışan ve 100 milyon TL bilanço altında zorunlu değil (Karar 37); bir şey yapmana gerek yok.
@@ -113,17 +120,11 @@ Bunlar olmadan yeni kullanıcı üye olamaz ya da e-posta alamaz.
   olmayan kişi üye olamaz.
 - [x] **Amazon SES üretim erişimi:** verildi (inceleme sonucu "GRANTED", günde 50.000 e-posta, saniyede 14;
   19 Kasım 2026'da kontrol edildi). Açılışta yalnızca kendi adresin dışındaki bir adrese deneme e-postası atılır.
-- [ ] **Google ile üye girişini yayına al.** Şu an Test modunda; yalnızca eklediğin test kullanıcıları girebiliyor.
-  Yalnızca ad, e-posta ve profil (`openid email profile`) istendiği için Google incelemesi gerekmez; şimdi yapılabilir.
-  Site kapalı testte olduğundan yayına almak bir şeyi açmaz.
-  1. console.cloud.google.com, üstten `rengarenk-uye` projesini seç.
-  2. Google Auth Platform › İstemciler › üye istemcisi › Yetkili yönlendirme URI'leri:
-     `https://rengarenksite.com/api/oturum/google/donus` ekle (beta adresi kalsın) › Kaydet.
-  3. Google Auth Platform › Kitle › "Uygulamayı yayınla" › Onayla. Durum "Üretimde" olur.
-  4. **Logo yükleme** (yükleme yaparsan marka doğrulaması istenir; birkaç gün sürer). Sonraya bırakılabilir: kök alan
-     adı yayına girip gizlilik politikası herkese açık olunca Marka bölümüne logo, ana sayfa, gizlilik politikası
-     bağlantısı ve yetkili alan adı `rengarenksite.com` girilir; alan adı Google Search Console'da DNS TXT kaydıyla
-     doğrulanır. O zamana kadar giriş ekranında logo görünmez, giriş yine çalışır.
+- [x] **Google ile üye girişi yayında** (21 Kasım 2026, sahip): `rengarenk-uye` uygulaması "Üretimde", dönüş adresi
+  `https://rengarenksite.com/api/oturum/google/donus` eklendi. Kalan tek iş sonraya: kök alan adı açılıp gizlilik
+  politikası herkese açık olunca Marka bölümüne logo, ana sayfa, gizlilik politikası bağlantısı ve yetkili alan adı
+  girilir, alan adı Google Search Console'da DNS TXT kaydıyla doğrulanır (marka incelemesi birkaç gün). O zamana kadar
+  giriş ekranında logo görünmez, giriş çalışır.
 
 ---
 
@@ -143,11 +144,11 @@ Bunlar gelmeden site satın alma kapalı açılabilir.
   - Nasıl: bir entegratör seç (ör. özel entegratör firmalarından biri) ve sözleşme imzala. API belgesini ve test
     hesabını Claude'a ver.
   - Kod tarafında bağdaştırıcı henüz yazılmadı; tahminen 2–3 gün sürer. O zamana kadar faturalar kuyrukta bekler.
-- [ ] **Apple Developer Program (kurumsal).** Önce D-U-N-S numarası gerekir: Apple'ın D-U-N-S sorgu sayfasından
-  şirketin için iste; birkaç gün ile birkaç hafta sürebilir. Sonra kurumsal geliştirici hesabını aç (yıllık ücretli).
-  App Store Small Business Program'a başvur (komisyon %15).
-- [ ] **Google Play Console** (kurumsal hesap, tek seferlik ücret). Yeni hesaplarda yayından önce kapalı test şartı
-  olabilir; Google'ın güncel kuralına bak.
+- [ ] **Apple Developer Program.** Apple, şahıs şirketlerinin "bireysel" hesapla kaydolmasını istiyor; o zaman mağazada
+  satıcı adı olarak senin adın görünür (Apple'ın güncel kuralına bak). Kurumsal hesap (şirket adı görünür) tüzel kişilik
+  ve D-U-N-S numarası ister. Hesap yıllık ücretli. Sonra App Store Small Business Program'a başvur (komisyon %15).
+- [ ] **Google Play Console** (tek seferlik ücret). Kişisel hesaplarda yayından önce belirli sayıda test kullanıcısıyla
+  kapalı test şartı var; kurumsal hesap D-U-N-S ister. Google'ın güncel kuralına bak.
 - [ ] **RevenueCat (mağaza içi satın alma, Karar 38).**
   - Nasıl: hesap aç. Apple ve Google'da ürünleri `rr_<ürün>` adıyla tanımla (fiyatlar Karar 38'de).
   - Webhook adresi `https://api.rengarenksite.com/odeme/magaza`. Yetki başlığı en az 24 karakterlik rastgele bir değer
@@ -156,6 +157,8 @@ Bunlar gelmeden site satın alma kapalı açılabilir.
 - [ ] **Firebase (push bildirimi).**
   - Nasıl: Firebase projesi aç, iOS ve Android uygulamalarını ekle. Apple'dan APNs anahtarı alıp Firebase'e yükle.
   - Hizmet hesabı JSON dosyasını `Desktop\gizli\`'ye koy; Claude `FCM_SERVICE_ACCOUNT` olarak girer.
+  - Şirket gerektirmez, şimdi açılabilir. Android hazır; iPhone'da uygulama bugün Apple'ın kendi anahtarını
+    gönderiyor, FCM bununla gönderemez. Claude uygulamaya Firebase SDK'sını ekler (yaklaşık 1 gün).
 
 ---
 
@@ -177,7 +180,7 @@ Bu bölümü Claude yapar; senden yalnızca onay ve birkaç bilgi ister.
 - [ ] **Yedek (Karar 56).**
   - Hemen: Lightsail'de günlük otomatik anlık görüntü açılır (birkaç dakikalık iş, küçük aylık ücret).
   - Sonra: pgBackRest ile günlük tam ve sürekli artımlı veritabanı yedeği, başka bir AB bölgesine kopya.
-  - Ayda bir geri yükleme provası yapılır; Konsol › Sistem sağlığı yedekleri gösterir.
+  - Ayda bir geri yükleme provası yapılır; Konsol › Sistem › Sistem sağlığı ve yedek yedekleri gösterir.
   - Söylemen yeterli: "yedeği kur".
 - [ ] **Sırların şifrelenmesi (SOPS).** `.env.prod` ve `.env.iade` şifrelenip depoya konur. Şifre anahtarı (age)
   yalnızca sende ve bir yedekte durur; Claude nasıl saklayacağını adım adım gösterir.
@@ -194,7 +197,8 @@ Bu bölümü Claude yapar; senden yalnızca onay ve birkaç bilgi ister.
   - Sızma testi için dış bir firma önerilir (yılda bir; teknik tasarım §13). Firmaya test edilecek adresleri ve
     kapsamı Claude hazırlar.
 - [ ] **Yönetim konsolunu kısıtla.** `yonetim.rengarenksite.com` yalnızca belirlediğin IP adreslerinden açılsın.
-  Ev ya da ofis IP'n sabit değilse bir VPN kullanmak gerekir; karar senin.
+  IP adresin sık değiştiği için (modem her açılışta yeni adres alıyor) IP listesi pratik değil: ya bir VPN kullanılır ya
+  da konsol şimdiki gibi Google Workspace girişi ve zorunlu iki adımlı doğrulamayla açık kalır. Karar senin.
 
 ---
 
@@ -216,10 +220,11 @@ Bu bölümü Claude yapar; senden yalnızca onay ve birkaç bilgi ister.
 
 ## 7. Açılış günü sırası
 
-Yukarıdaki zorunlu maddeler (bölüm 1'deki KVKK ve yasal metinler, bölüm 2'nin tamamı) bitince. Her adımı Claude
+Yukarıdaki zorunlu maddeler (bölüm 1'deki KVKK ve yasal metinler, bölüm 2'deki WhatsApp) bitince. Her adımı Claude
 yapar, ama her biri için önce senin onayını ister.
 
-1. [ ] **Son sürüm ve testler:** lint, tip denetimi ve testler temiz; commit GitHub'a gönderilir.
+1. [ ] **Son sürüm ve testler:** lint, tip denetimi ve testler temiz; commit GitHub'a gönderilir. Yasal metinler
+   yayında, ticari ileti kararı verilmiş (bölüm 1 › İYS).
 2. [ ] **Test verisinin silinmesi** (geri alınamaz): sunucudaki veritabanının yedeği alınır. Veritabanı sıfırlanır,
    katalog ve ayarlar yeniden aktarılır (`deploy/veri-aktar.py`). Sahip hesabı yeniden açılır.
 3. [ ] **Sunucu ayarları (`.env.prod`):**
@@ -228,11 +233,14 @@ yapar, ama her biri için önce senin onayını ister.
    - `VERIFY_CHANNELS=whatsapp` (SMS gelince `whatsapp,sms`)
    - `SMS_PROVIDER=none` (SMS gelince `iletimerkezi` ve `SMS_SENDER_ID=RENGARENK`)
    - `KAPALI_TEST` satırı silinir
+   - Google girişi `USER_AUTH_PROVIDER=google` olarak kalır (dönüş adresi `WEB_ORIGIN`'den; kök adres Google'a eklendi)
    - Ayrıca hazır olan sağlayıcılar açılır.
 
    `www.rengarenksite.com` kök adrese yönlendirilir; bu Caddy'de küçük bir ek, Claude yapar.
-4. [ ] **DNS:** alan adı firmasının panelinde `rengarenksite.com` ve `www` kayıtları `63.184.9.173`'e çevrilir.
-   Güzel Hosting'deki tanıtım sayfası bununla kapanır. `beta.` kaydı bir süre yönlendirme olarak kalabilir.
+4. [ ] **DNS:** alan adı firmasının panelinde yalnızca `rengarenksite.com` ve `www` **A kayıtları** (bugün
+   104.247.165.131, Güzel Hosting) `63.184.9.173` olur. Güzel Hosting'deki tanıtım sayfası bununla kapanır.
+   **MX kaydına** (Google Workspace e-postası, `smtp.google.com`) ve SES ile Google'ın TXT/CNAME doğrulama kayıtlarına
+   dokunulmaz; yoksa şirket e-postası ve gönderim durur. `beta.` kaydı bir süre yönlendirme olarak kalabilir.
 5. [ ] **Güvenlik duvarı:** 443 portu herkese açılır; SSH (22) yalnızca senin IP adresinde kalır. Claude, Lightsail
    komutuyla yapar.
 6. [ ] **Kurulum:** yeni sürüm kurulur, göçler çalışır.
@@ -249,7 +257,8 @@ yapar, ama her biri için önce senin onayını ister.
    Teslim raporu).
 9. [ ] **Kapalı beta** (önerilen): 10 galeri, 100 alıcı davet edilir. Geri bildirim toplanır, sonra herkese duyurulur.
 
-Bir sorun çıkarsa geri alma: önceki sürüm etiketine dönülür (`deploy/README.md` › Günlük işler). Bakım modu Konsol › Sistem ›
+Bir sorun çıkarsa geri alma: her kurulumdan önce sunucuda `.env.prod.yedek-<sürüm>` alınır; `.env.prod`'daki `TAG`
+önceki `test-<commit>` değerine çevrilip `up -d` yapılır (göçler geriye uyumlu). Bakım modu Konsol › Sistem ›
 Özellik anahtarları ve bakım'dan tek düğmeyle açılır.
 
 ---

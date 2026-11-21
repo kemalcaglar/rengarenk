@@ -352,7 +352,7 @@ pnpm format        # Biome ile biçimlendir
   Apple yasak: `.env.prod`'a `USER_AUTH_PROVIDER=none`, `APPLE_AUTH_PROVIDER=none` (istemci gelene kadar). API'de 227 test.
 - **Test sunucusu eşitlendi (13 Kasım 2026):** veritabanı sıfırlandı, yereldeki katalog ve ayarlar `deploy/veri-aktar.py` ile
   taşındı (kullanıcı verisi taşınmaz). Google girişi açık: konsol `rengarenk-yonetim` (Dahili), üye `rengarenk-uye`
-  (Harici, Test modunda yalnızca eklenen test kullanıcıları). Sahip `kemal.caglar@rengarenksite.com`. SES: alan adı ve
+  (Harici; 21 Kasım 2026'dan beri yayında, logo ve marka doğrulaması kök alan adı açılınca). Sahip `kemal.caglar@rengarenksite.com`. SES: alan adı ve
   `bildirim.`/`bulten.` alt alan adları doğrulandı; e-posta `akis` alanıyla işlemsel/ticari yapılandırma kümesine gider
   (`sesBasliklari`, `SES_YAPILANDIRMA_ISLEMSEL/TICARI`); üretim erişimi verildi (19 Kasım 2026'da doğrulandı, günde 50.000). Sırlar sohbete yazılmaz:
   sahip dosyayı `Desktop\gizli\`'ye kaydeder, değerler ekrana basılmadan sunucuya aktarılır. API'de 229 test.

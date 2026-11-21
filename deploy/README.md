@@ -61,10 +61,9 @@ KVKK standart sözleşmesi bildirilene kadar sunucu dışarıya kapalı bir test
   --instance-name rengarenk-1 ...` ile 443 ve 22 kuralındaki adres güncellenir.
 - Google OAuth (13 Kasım 2026): iki ayrı Google Cloud projesi. `rengarenk-yonetim` kitlesi Dahili (yalnızca
   Workspace), dönüş `https://yonetim.rengarenksite.com/api/oturum/google/donus` (`GOOGLE_CLIENT_*`); `rengarenk-uye`
-  kitlesi Harici, yayın durumu Test (yalnızca eklenen test kullanıcıları), dönüş
-  `https://beta.rengarenksite.com/api/oturum/google/donus` (`USER_GOOGLE_CLIENT_*`, `USER_AUTH_PROVIDER=google`).
-  Canlıya geçişte üye istemcisine kök alan adının dönüş adresi eklenir ve uygulama yayına alınır (logo, gizlilik
-  politikası, alan adı doğrulaması). Sahip hesabı `sahip` komutuyla açıldı.
+  kitlesi Harici, yayında (21 Kasım 2026), dönüş adresleri `https://beta.rengarenksite.com/api/oturum/google/donus`
+  ve `https://rengarenksite.com/api/oturum/google/donus` (`USER_GOOGLE_CLIENT_*`, `USER_AUTH_PROVIDER=google`).
+  Logo, gizlilik politikası ve alan adı doğrulaması (marka incelemesi) kök alan adı açılınca. Sahip hesabı `sahip` komutuyla açıldı.
 - E-posta (13 Kasım 2026): SES'te `rengarenksite.com`, `bildirim.` ve `bulten.` alt alan adları doğrulandı (DKIM,
   MAIL FROM `posta.*`), yapılandırma kümeleri `rengarenk-islemsel` / `rengarenk-ticari`, SMTP kimliği ayrı IAM
   kullanıcısıyla, `EMAIL_PROVIDER=smtp`. Üretim erişimi verildi (günde 50.000 e-posta; 19 Kasım 2026'da doğrulandı).
