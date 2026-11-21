@@ -335,8 +335,8 @@ pnpm format        # Biome ile biçimlendir
   modülüne `PricingCoreModule` eklendi (sahip onayıyla; `test/refund-executor-module.test.ts` modülü canlıdaki gibi kurar).
   Yapay zekâ
   AWS Bedrock (`AI_PROVIDER=bedrock`, `BedrockAiProvider` Converse API, model tablosu `AI_MODELS.bedrock` Nova Lite/Pro
-  `eu.` profili; Vertex de duruyor, `aiCostMicroUsd(sağlayıcı, boy, …)`). AWS Activate Founders başvurusu yapıldı (sonuç
-  5–10 iş günü); o zamana kadar 100 USD yeni hesap kredisi. Tanıtım sayfası `deploy/tanitim` (Güzel Hosting, cPanel).
+  `eu.` profili; Vertex de duruyor, `aiCostMicroUsd(sağlayıcı, boy, …)`). AWS Activate Founders kabul edildi: 1.000 USD kredi
+  (21 Kasım 2026; Kasım'ın ilk 20 gününde kullanım 11,95 USD, tamamı krediden). Tanıtım sayfası `deploy/tanitim` (Güzel Hosting, cPanel).
   API'de 216 test.
 - **Üyelik ve giriş (12 Kasım 2026, Sprint 30, Karar 18 ve 50):** SMS sağlayıcısı şirket ve marka tescili istediği için
   giriş telefona bağlı olmaktan çıktı. Üye ol (`/auth/register` → `/auth/register/verify`; bilgiler `pending_signups`'ta,

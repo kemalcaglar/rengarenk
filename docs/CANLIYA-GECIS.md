@@ -25,6 +25,7 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
 | SMS | Şirket kurulana kadar **yok** (sahip kararı, 19 Kasım 2026). Kod yalnızca WhatsApp'tan gider; canlıda `SMS_PROVIDER=none` |
 | Ödeme, fatura, mağaza, push, yapay zekâ | Kapalı (`none`). Kod hazır, hesaplar bekleniyor (e-Arşiv bağdaştırıcısı henüz yazılmadı) |
 | Yedek, izleme, sırların şifrelenmesi | **Henüz kurulmadı** |
+| AWS kredisi | Activate kabul edildi: 1.000 USD (21 Kasım 2026). Kasım'ın ilk 20 gününde kullanım 11,95 USD, tamamı krediden |
 
 ---
 
@@ -186,7 +187,7 @@ Bu bölümü Claude yapar; senden yalnızca onay ve birkaç bilgi ister.
   - Site çökerse sana e-posta giden uyarılar.
 - [ ] **5651 erişim kayıtları.** Uygulama kayıtları zaten 2 yıl saklanıyor. Web sunucusunun erişim günlüklerinin de
   bütünlük özetiyle 2 yıl saklanması gerekiyorsa (avukata sor) Claude Caddy günlüğünü açar ve saklama düzenini kurar.
-- [ ] **AWS bütçe uyarısı.** Şu an aylık 10 USD; sunucunun kendi ücreti bunun üstünde. Gerçek aylık tutara göre güncelle
+- [ ] **AWS bütçe uyarısı.** Şu an aylık 10 USD; kullanım ayda yaklaşık 18 USD (krediden düşüyor), uyarı boşuna çalar. Gerçek aylık tutara göre güncelle
   (AWS konsolu › Billing › Budgets), ya da Claude'dan iste.
 - [ ] **Yük testi ve sızma testi.**
   - Yük testini Claude yazar ve canlı provasında çalıştırır.
