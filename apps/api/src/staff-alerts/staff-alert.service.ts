@@ -441,7 +441,7 @@ export class StaffAlertService {
     return this.raise('iys_aktarim', {
       dedupe: `${Math.floor(now.getTime() / DAY)}`,
       title: gun >= 3 ? "İYS'ye aktarım süresi doldu" : "İYS'ye aktarım için 1 iş günü kaldı",
-      body: `En eski izin ${gunAy(enEski.consentAt)} tarihli: ${isler.join(', ')}. Excel Rıza ve çerez kayıtları ekranında; İYS paneline yükleyip "Yüklendi" de.`,
+      body: `En eski izin ${gunAy(enEski.consentAt)} tarihli: ${isler.join(', ')}. CSV dosyası Rıza ve çerez kayıtları ekranında; İYS paneline yükleyip "Yüklendi" de.`,
     });
   }
 

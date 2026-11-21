@@ -22,7 +22,7 @@ const zaman = (iso: string) =>
 
 /**
  * Rıza ve çerez kayıtları (YonetimSistem.dc.html › riza; Karar 59): her rıza tarih, metin sürümü ve kanalıyla saklanır,
- * kayıtlar değiştirilmez. İYS entegratörü yokken (sahip kararı 21 Kasım 2026) ticari ileti onay ve retleri Excel
+ * kayıtlar değiştirilmez. İYS entegratörü yokken (sahip kararı 21 Kasım 2026) ticari ileti onay ve retleri CSV
  * olarak indirilip İYS paneline elle yüklenir.
  */
 export default function Riza() {
@@ -56,7 +56,7 @@ export default function Riza() {
       <div style={{ marginBottom: 16 }}>
         <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Rıza ve çerez kayıtları</h1>
         <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
-          Her rıza tarih, metin sürümü ve kanalıyla saklanır. Ticari ileti izinleri İYS'ye Excel ile yüklenir.
+          Her rıza tarih, metin sürümü ve kanalıyla saklanır. Ticari ileti izinleri İYS'ye CSV ile yüklenir.
         </p>
       </div>
       {hata ? <p style={{ color: '#A3271F', fontWeight: 700 }}>{hata}</p> : null}
@@ -225,9 +225,11 @@ const ikincil: CSSProperties = {
 };
 
 /**
- * İYS'ye elle aktarım: izin değişince kanal başına (e-posta, SMS) satır birikir; "Excel'i hazırla" bekleyenleri pakete
- * alır, dosya İYS paneline yüklenir ve paket "Yüklendi" diye işaretlenir. Yasal süre 3 iş günü.
+ * İYS'ye elle aktarım: izin değişince kanal başına (e-posta, SMS) satır birikir; "CSV'yi hazırla" en eski 50 satırı
+ * pakete alır (İYS bir dosyada en fazla 50 izin aktarır), dosya İYS Web › İzin Ekle › Dosyadan Çoklu İzin Yükle'den
+ * yüklenir ve paket "Yüklendi" diye işaretlenir. Yasal süre 3 iş günü.
  */
+const IYS_SINIR = 50;
 function IysAktarim() {
   const [o, setO] = useState<IysOzet | null>(null);
   const [hata, setHata] = useState<string | null>(null);
@@ -254,7 +256,7 @@ function IysAktarim() {
   };
   const indir = (id: string) => {
     const a = document.createElement('a');
-    a.href = `/api/yonetim/iys/paket/${id}/excel`;
+    a.href = `/api/yonetim/iys/paket/${id}/csv`;
     a.download = '';
     document.body.appendChild(a);
     a.click();
@@ -277,8 +279,9 @@ function IysAktarim() {
             İYS'ye aktarım
           </h2>
           <p style={{ margin: '4px 0 0', fontSize: 13, color: '#5A6073', maxWidth: 640 }}>
-            Ticari ileti onayı ya da reti 3 iş günü içinde İYS'ye yüklenmeli. Gün sonunda Excel'i indir, İYS
-            panelinde toplu izin yükleme ekranından yükle, sonra paketi "Yüklendi" diye işaretle.
+            Ticari ileti onayı ya da reti 3 iş günü içinde İYS'ye yüklenmeli. Gün sonunda CSV dosyasını indir,
+            İYS Web'de İzin Ekle › Dosyadan Çoklu İzin Yükle ekranından "Bireysel" olarak yükle, sonra paketi
+            "Yüklendi" diye işaretle. İYS bir dosyada en fazla {IYS_SINIR} izin alır; her paket bir dosyadır.
           </p>
         </div>
         <button
@@ -292,7 +295,7 @@ function IysAktarim() {
             })
           }
         >
-          {b?.toplam ? `Excel'i hazırla ve indir (${b.toplam})` : 'Bekleyen izin yok'}
+          {b?.toplam ? `CSV'yi hazırla ve indir (${Math.min(b.toplam, IYS_SINIR)})` : 'Bekleyen izin yok'}
         </button>
       </div>
       {hata ? <p style={{ color: '#A3271F', fontWeight: 700, margin: '10px 0 0' }}>{hata}</p> : null}
@@ -308,6 +311,9 @@ function IysAktarim() {
           Bekleyen: e-posta {b.eposta.onay} onay, {b.eposta.ret} ret · SMS {b.sms.onay} onay, {b.sms.ret} ret
           · en eskisi {tarih(b.enEski)}
           {b.gecikti ? ' · 3 iş günü doldu' : ''}
+          {b.toplam > IYS_SINIR
+            ? ` · ${b.toplam} izin ${Math.ceil(b.toplam / IYS_SINIR)} dosyaya bölünür, düğmeye her dosya için bir kez bas`
+            : ''}
         </p>
       ) : null}
       {o?.paketler.length ? (

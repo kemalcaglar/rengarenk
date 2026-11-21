@@ -56,7 +56,7 @@ export interface IysProvider {
 }
 
 /**
- * İYS entegratörü yokken (sahip kararı 21 Kasım 2026) onay ve retler `iys_records`'a yazılır ve konsoldan Excel ile
+ * İYS entegratörü yokken (sahip kararı 21 Kasım 2026) onay ve retler `iys_records`'a yazılır ve konsoldan CSV ile
  * İYS paneline elle yüklenir (`iys.ts`). Entegratör gelince bu arayüze bağdaştırıcı yazılır.
  */
 export class NoIys implements IysProvider {
@@ -149,7 +149,7 @@ export class CommercialService {
 
   /**
    * İşçi: ticari ileti onayı, kampanya kanalı, adres ya da hesap değişince kanal başına İYS kaydını yazar (konsoldan
-   * Excel ile elle yüklenir; sahip kararı 21 Kasım 2026). İYS bağdaştırıcısı varsa ayrıca ona bildirir.
+   * CSV ile elle yüklenir; sahip kararı 21 Kasım 2026). İYS bağdaştırıcısı varsa ayrıca ona bildirir.
    */
   async iysEsitle(iys: IysProvider, userId: string, onay?: boolean) {
     await this.iysKayit.esitle(userId);

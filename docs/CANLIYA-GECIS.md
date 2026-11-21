@@ -25,7 +25,7 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
 | Yasal metinler | Sunucuda 8 metnin **hepsi taslak, hiçbiri yayında değil**. KVKK aydınlatma metninin iki taslağında da barındırma yeri hâlâ "Radore" |
 | Telefon kodu | Gönderilmiyor; kapalı testte ekranda gösteriliyor (`VERIFY_CHANNELS=ekran`, `KAPALI_TEST=1`) |
 | SMS | Şirket kurulana kadar **yok** (sahip kararı, 19 Kasım 2026). Kod yalnızca WhatsApp'tan gider; canlıda `SMS_PROVIDER=none` |
-| Ödeme, fatura, mağaza, push, yapay zekâ | Kapalı (`none`). Kod hazır, hesaplar bekleniyor. Henüz yazılmayanlar: e-Arşiv bağdaştırıcısı (İYS'ye izinler Excel ile elle yüklenir), mobilde RevenueCat ve iPhone push'u için Firebase SDK |
+| Ödeme, fatura, mağaza, push, yapay zekâ | Kapalı (`none`). Kod hazır, hesaplar bekleniyor. Henüz yazılmayanlar: e-Arşiv bağdaştırıcısı (İYS'ye izinler CSV ile elle yüklenir), mobilde RevenueCat ve iPhone push'u için Firebase SDK |
 | Yedek, izleme, sırların şifrelenmesi | **Henüz kurulmadı** |
 | AWS kredisi | Activate kabul edildi: 1.000 USD (21 Kasım 2026). Kasım'ın ilk 20 gününde kullanım 11,95 USD, tamamı krediden |
 
@@ -90,11 +90,15 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
     verilmez; API gerekmez.
   - Ticari e-posta İYS sorgusu yapılmadan gider. Onay ve retler kanal başına (e-posta, SMS) kaydedilir: Konsol › Uyum
     ve KVKK › Rıza ve çerez kayıtları › **İYS'ye aktarım**.
-  - Her gün sonunda "Excel'i hazırla ve indir"e bas. Dosyayı İYS panelinde toplu izin yükleme ekranından yükle, sonra
-    pakette "Yüklendi"ye bas.
-  - Excel'in sütunları: alıcı (+90'lı telefon ya da e-posta), izin türü (EPOSTA, MESAJ), durum (ONAY, RET), alıcı tipi
-    (BIREYSEL), izin kaynağı (HS_WEB, HS_MOBIL) ve izin tarihi (Türkiye saatiyle `YYYY-AA-GG SS:DD:ss`). İYS panelinin
-    şablonundaki başlıklar farklıysa şablonu Claude'a gönder, sütunlar ona göre düzeltilir.
+  - Her gün sonunda "CSV'yi hazırla ve indir"e bas. Dosyayı İYS Web'de (hs.iys.org.tr) İzin Ekle › Dosyadan Çoklu
+    İzin Yükle ekranından **Bireysel** olarak yükle, sonra pakette "Yüklendi"ye bas.
+  - İYS bir dosyada en fazla 50 izin aktarır (fazlası yok sayılır). Bu yüzden her paket en fazla 50 satırdır; 50'den
+    fazla bekleyen varsa düğmeye her dosya için bir kez bas, en eskiler önce gelir.
+  - Dosya biçimi İYS Web'in resmî örnek dosyasıyla aynı (`Ornek_Bireysel.csv`, 21 Kasım 2026'da indirildi): .csv,
+    Windows-1254 kodlama, virgülle ayrılmış, ilk satır `IZIN TURU,ALICI,ONAY(1)-RET(0),IZIN KAYNAGI,IZIN TARIHI,IZNIN
+    ALINDIGI BAYI IYS NO`. Durum onay 1 / ret 0, telefon +90'sız 10 hane, tarih Türkiye saatiyle `GG-AA-YYYY SS:DD:ss`,
+    kaynak HS_WEB ya da HS_MOBIL, bayi sütunu boş. Dosyayı Excel'de açıp kaydetme (biçimi bozabilir), indirdiğin
+    gibi yükle.
   - Yasal süre: İYS dışında alınan onay ve ret 3 iş günü içinde İYS'ye kaydedilmeli; kaydedilmeyen onay geçersiz
     sayılır. 2 iş günü geçince sahibe "İYS aktarımı gecikiyor" uyarısı gelir.
   - **Dikkat:** kişi iznini doğrudan İYS'den (İYS uygulaması ya da sitesi) geri alabilir. Bunu sistem göremez; İYS

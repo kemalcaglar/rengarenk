@@ -67,7 +67,7 @@ export const STAFF_ALERT_RULES = {
   iys_aktarim: {
     ad: 'İYS aktarımı gecikiyor',
     kosul:
-      'Ticari ileti onayı ya da reti 2 iş günüdür İYS paneline yüklenmediyse (yasal süre 3 iş günü; Excel Rıza ve çerez kayıtlarında)',
+      'Ticari ileti onayı ya da reti 2 iş günüdür İYS paneline yüklenmediyse (yasal süre 3 iş günü; CSV Rıza ve çerez kayıtlarında)',
     kritik: false,
     izin: 'kvkk.yanitla',
     yol: '/riza',

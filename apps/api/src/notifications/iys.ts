@@ -15,7 +15,6 @@ import {
 import { uuidv7 } from '@rengarenk/db';
 import { NOTIFY_TOPICS } from '@rengarenk/shared';
 import { AuditService } from '../audit/audit.service.js';
-import { writeSheet } from '../common/files.js';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 import { RequirePermission } from '../staff/permissions.js';
 import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
@@ -29,10 +28,24 @@ export const IYS_TURLERI = [
 ] as const;
 export type IysTur = (typeof IYS_TURLERI)[number]['tur'];
 
-/** İYS paneline yüklenen Excel'in sütunları (İYS izin alanları: alıcı, tür, durum, alıcı tipi, kaynak, izin tarihi) */
-export const IYS_SUTUNLAR = ['Alıcı', 'İzin türü', 'Durum', 'Alıcı tipi', 'İzin kaynağı', 'İzin tarihi'];
+/**
+ * İYS Web › İzin Ekle › Dosyadan Çoklu İzin Yükle (hs.iys.org.tr). Biçim resmî örnek dosyadan
+ * (`https://hs.iys.org.tr/Ornek_Bireysel.csv`, 21 Kasım 2026'da indirildi): yalnızca .csv, ilk satır örnekteki gibi
+ * değiştirilmeden, virgülle ayrılmış, Windows-1254 kodlamalı; durum onay 1 / ret 0, tarih "GG-AA-YYYY SS:DD:ss",
+ * telefon başında +90 olmadan. Bir dosyada en fazla 50 izin aktarılır (fazlası yok sayılır), bu yüzden paket 50 satırdır.
+ * Alıcı tipi sütun değildir: bireysel ve tacir ayrı dosyayla yüklenir; bizde yalnızca bireysel alıcı var.
+ */
+export const IYS_SUTUNLAR = [
+  'IZIN TURU',
+  'ALICI',
+  'ONAY(1)-RET(0)',
+  'IZIN KAYNAGI',
+  'IZIN TARIHI',
+  'IZNIN ALINDIGI BAYI IYS NO',
+];
+export const IYS_PAKET_SINIRI = 50;
 
-/** İYS izin tarihi Türkiye saatiyle "YYYY-AA-GG SS:DD:ss" */
+/** İzin tarihi Türkiye saatiyle "YYYY-AA-GG SS:DD:ss" (iş günü hesabı ve ekran) */
 export function iysTarih(d: Date) {
   const p = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Europe/Istanbul',
@@ -48,12 +61,52 @@ export function iysTarih(d: Date) {
   return `${v('year')}-${v('month')}-${v('day')} ${v('hour')}:${v('minute')}:${v('second')}`;
 }
 
+/** İYS dosyasındaki izin tarihi: "GG-AA-YYYY SS:DD:ss", Türkiye saati */
+export function iysDosyaTarihi(d: Date) {
+  const t = iysTarih(d);
+  return `${t.slice(8, 10)}-${t.slice(5, 7)}-${t.slice(0, 4)} ${t.slice(11)}`;
+}
+
+/** Dosyadaki alıcı: telefon örnekteki gibi +90'sız 10 hane, e-posta olduğu gibi */
+const iysAlici = (r: { type: string; recipient: string }) =>
+  r.type === 'MESAJ' && r.recipient.startsWith('+90') ? r.recipient.slice(3) : r.recipient;
+
+/** CSV alanı: virgül, tırnak ya da satır sonu varsa tırnak içinde (İYS okuyucusu tırnak olarak `"` kullanır) */
+const csvAlan = (s: string) => (/[",;\r\n]/.test(s) ? `"${s.replaceAll('"', '""')}"` : s);
+
+/** Windows-1254 (İYS okuyucusunun kodlaması): ASCII ve Latin-1 aynı, Türkçe harfler ayrı kodda */
+const CP1254: Record<string, number> = { Ğ: 0xd0, İ: 0xdd, Ş: 0xde, ğ: 0xf0, ı: 0xfd, ş: 0xfe };
+export function cp1254(s: string) {
+  const out = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i] as string;
+    const c = ch.charCodeAt(0);
+    const ozel = CP1254[ch];
+    out[i] =
+      ozel ??
+      (c < 0x80 || (c >= 0xa0 && c <= 0xff && ![0xd0, 0xdd, 0xde, 0xf0, 0xfd, 0xfe].includes(c)) ? c : 0x3f);
+  }
+  return out;
+}
+
+/** Paketin İYS'ye yüklenecek CSV metni */
+export function iysCsv(
+  rows: { type: string; recipient: string; status: string; source: string; consentAt: Date }[],
+) {
+  const satirlar = rows.map((r) =>
+    [r.type, iysAlici(r), r.status === 'ONAY' ? '1' : '0', r.source, iysDosyaTarihi(r.consentAt), '']
+      .map(csvAlan)
+      .join(','),
+  );
+  return `${[IYS_SUTUNLAR.join(','), ...satirlar].join('\n')}\n`;
+}
+
 /** Kapatılmış hesabın telefon alanı (`kapali:<id>`) ve yabancı numara İYS'ye gitmez */
 const iysTelefon = (phone: string) => (/^\+905\d{9}$/.test(phone) ? phone : null);
 
 /**
  * İYS izin kayıtları (Karar 49; sahip kararı 21 Kasım 2026): entegratör olmadan ticari ileti gönderilir, onay ve retler
- * kanal başına `iys_records`'a yazılır; çalışan gün sonunda bekleyenleri Excel olarak indirip İYS paneline yükler.
+ * kanal başına `iys_records`'a yazılır; çalışan gün sonunda bekleyenleri CSV olarak indirip İYS paneline yükler.
  * İYS kuralı: İYS dışında alınan onay ve ret 3 iş günü içinde İYS'ye kaydedilir.
  */
 @Injectable()
@@ -175,12 +228,20 @@ export class IysKayitService {
     return new Map(rows.map((r) => [r.id, r.name]));
   }
 
-  /** Bekleyen bütün satırları yeni pakete alır; boşsa paket açılmaz */
+  /**
+   * Bekleyen en eski satırları (en fazla 50, İYS'nin dosya başına sınırı) yeni pakete alır; boşsa paket açılmaz.
+   * Bir paket İYS'ye tek dosyayla yüklenir; aynı adresin onayı ve sonraki reti sırayla gider.
+   */
   async paketle(staffId: string, ip?: string) {
     return this.db.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('iys:paket'))`;
       const ids = (
-        await tx.iysRecord.findMany({ where: { batchId: null }, select: { id: true }, take: 50_000 })
+        await tx.iysRecord.findMany({
+          where: { batchId: null, recipientType: 'BIREYSEL' },
+          orderBy: [{ consentAt: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
+          select: { id: true },
+          take: IYS_PAKET_SINIRI,
+        })
       ).map((r) => r.id);
       if (!ids.length) return null;
       const p = await tx.iysBatch.create({ data: { id: uuidv7(), count: ids.length, createdBy: staffId } });
@@ -201,13 +262,13 @@ export class IysKayitService {
     });
   }
 
-  /** Paketin Excel dosyası (kişisel veri içerir; her indirme işlem kaydına yazılır) */
-  async excel(staffId: string, id: string, ip?: string) {
+  /** Paketin İYS'ye yüklenecek CSV dosyası (kişisel veri içerir; her indirme işlem kaydına yazılır) */
+  async csv(staffId: string, id: string, ip?: string) {
     const p = await this.db.iysBatch.findUnique({ where: { id } });
     if (!p) throw new NotFoundException('Paket bulunamadı');
     const rows = await this.db.iysRecord.findMany({
       where: { batchId: id },
-      orderBy: [{ consentAt: 'asc' }, { createdAt: 'asc' }],
+      orderBy: [{ consentAt: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
     });
     await this.audit.record({
       actorType: 'STAFF',
@@ -218,23 +279,7 @@ export class IysKayitService {
       after: { no: p.no, sayi: rows.length },
       ip,
     });
-    return {
-      ad: `iys_izinleri_${p.no}.xlsx`,
-      dosya: writeSheet(
-        [
-          IYS_SUTUNLAR,
-          ...rows.map((r) => [
-            r.recipient,
-            r.type,
-            r.status,
-            r.recipientType,
-            r.source,
-            iysTarih(r.consentAt),
-          ]),
-        ],
-        'İzinler',
-      ),
-    };
+    return { ad: `iys_izinleri_${p.no}.csv`, dosya: cp1254(iysCsv(rows)) };
   }
 
   /** Çalışan paketi İYS paneline yüklediğini işaretler */
@@ -323,11 +368,11 @@ export class IysStaffController {
     return this.iys.paketle(req.staff.staff.id, req.ip);
   }
 
-  @Get('paket/:id/excel')
+  @Get('paket/:id/csv')
   @RequirePermission('kvkk.yanitla', 'tam')
-  async excel(@Req() req: StaffRequest, @Param('id', new ParseUUIDPipe()) id: string, @Res() reply: Reply) {
-    const f = await this.iys.excel(req.staff.staff.id, id, req.ip);
-    reply.header('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  async csv(@Req() req: StaffRequest, @Param('id', new ParseUUIDPipe()) id: string, @Res() reply: Reply) {
+    const f = await this.iys.csv(req.staff.staff.id, id, req.ip);
+    reply.header('content-type', 'text/csv; charset=windows-1254');
     reply.header('content-disposition', `attachment; filename="${f.ad}"`);
     reply.header('cache-control', 'no-store');
     return reply.send(Buffer.from(f.dosya));

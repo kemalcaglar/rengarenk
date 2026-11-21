@@ -488,9 +488,9 @@ pnpm format        # Biome ile biçimlendir
 - **İYS elle (21 Kasım 2026, sahip kararı; Karar 49):** entegratör yok, ticari ileti İYS sorgusuz gider. Onay ve retler
   kanal başına (EPOSTA, MESAJ) `iys_records`'a yazılır (`apps/api/src/notifications/iys.ts` `IysKayitService.esitle`;
   işçi `iys.izin_degisti`, `hesap.telefon_degisti`, `hesap.kapatildi` olaylarında). Konsol › Rıza ve çerez kayıtları ›
-  İYS'ye aktarım: paket (`iys_batches`) Excel olarak iner, "Yüklendi" işaretlenir; 2 iş gününde `iys_aktarim` uyarısı.
+  İYS'ye aktarım: paket (`iys_batches`, en fazla 50 satır: İYS dosya sınırı) İYS Web'in resmî CSV biçiminde iner (`iysCsv`; Windows-1254, onay 1/ret 0, `GG-AA-YYYY`, telefon +90'sız; biçim `Ornek_Bireysel.csv`'dan, testi `iys.test.ts`), "Yüklendi" işaretlenir; 2 iş gününde `iys_aktarim` uyarısı.
   Ticari onayı, kampanya kanalını ya da e-posta/telefonu değiştiren yeni bir yol eklersen aynı işlemde
-  `iys.izin_degisti` olayı yaz. Satırlar silinmez. API'de 250 test.
+  `iys.izin_degisti` olayı yaz. Satırlar silinmez. API'de 252 test.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, AWS Activate kredisi ve KVKK standart sözleşmesi, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu
   gerçek anahtarla deneme; test/sahte sağlayıcı kullan.

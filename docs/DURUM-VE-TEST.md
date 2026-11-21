@@ -240,7 +240,7 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 | Yetki belgesi, GİB, MERSİS | Kurum erişimleri | `verification.ts` gerçek sağlayıcı (şimdi her başvuru insana) | 2–3 gün |
 | Amazon SES (Karar 50) | Alan adı doğrulaması (DNS: DKIM, MAIL FROM, DMARC), üretim erişimi talebi | SMTP kimliği `.env.prod`'a, gelen destek e-postası | 1 gün |
 | WhatsApp doğrulama kodu (Karar 18) | Meta İşletme hesabı, WhatsApp numarası, kimlik doğrulama şablonu onayı | Cloud API bağdaştırıcısı | Sprint 30 |
-| İYS | İYS kaydı | Entegratör yok (sahip kararı 21 Kasım 2026): izinler Konsol › Rıza ve çerez kayıtları'ndan Excel ile elle yüklenir; kod hazır | — |
+| İYS | İYS kaydı | Entegratör yok (sahip kararı 21 Kasım 2026): izinler Konsol › Rıza ve çerez kayıtları'ndan İYS'nin resmî CSV biçiminde (dosya başına 50 izin) elle yüklenir; kod hazır | — |
 | Meta (mobil SDK) | Meta uygulama kimliği | `react-native-fbsdk-next`, KVKK izin ekranı, iOS ATT | 1–2 gün |
 | Google Ads | Ads hesabı, Data Manager erişimi | Çevrimdışı dönüşüm ve harcama çekimi | 1–2 gün |
 | AWS Bedrock (yapay zekâ) | `rengarenk-bedrock` IAM anahtarı | Bağdaştırıcı hazır; gerçek modelle deneme, ajanın sınıflandırma ve yorumları | 1 gün |
