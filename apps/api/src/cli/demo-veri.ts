@@ -378,7 +378,12 @@ async function galeriBasvur(
       `${g.ad} belge`,
     );
   const s = olmali(
-    await istek('POST', '/gallery-applications/me/submit', { sozlesme: true, ticariIleti: true }, k.token),
+    await istek(
+      'POST',
+      '/gallery-applications/me/submit',
+      { sozlesme: true, ticariKanallar: { eposta: true, sms: false, bildirim: true } },
+      k.token,
+    ),
     `${g.ad} gönderim`,
   );
   await app.get(GalleryApplicationService).runChecks(s.id);

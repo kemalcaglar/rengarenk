@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { uuidv7 } from '@rengarenk/db';
-import { type SignupConsents, ticariOnayVar } from '@rengarenk/shared';
+import { type SignupConsents, type TicariKanallar, ticariOnayVar } from '@rengarenk/shared';
 import { type Db, PRISMA, type Tx } from '../database/prisma.js';
 
 /** Yasal metin anahtarları (docs/kapsam/06-yasal-metin-taslaklari.md bölümleriyle aynı sıra) */
@@ -75,11 +75,19 @@ export class ConsentService {
 
   /**
    * Galeri başvurusu (Karar 39): galeri hizmet sözleşmesi onayı ve isteğe bağlı ticari ileti onayı, metin sürümüyle.
-   * Ticari ileti işaretlenmezse var olan tercih değişmez.
+   * Ticari ileti kanal kanal verilir: işaretlenen kanalın kampanya tercihi açılır (`ticariKanallariAc`). Hiçbir kanal
+   * işaretlenmezse var olan tercih değişmez.
    */
-  async recordGallery(tx: Tx, userId: string, ticariIleti: boolean, channel: Channel, ip?: string) {
+  async recordGallery(
+    tx: Tx,
+    userId: string,
+    ticari: { ticariIleti?: boolean; ticariKanallar?: TicariKanallar },
+    channel: Channel,
+    ip?: string,
+  ) {
     const rows: { kind: string; key: LegalKey }[] = [{ kind: 'galeri_sozlesmesi', key: 'galeri_sozlesmesi' }];
-    if (ticariIleti) rows.push({ kind: 'ticari_ileti', key: 'ticari_ileti' });
+    const onay = ticariOnayVar(ticari);
+    if (onay) rows.push({ kind: 'ticari_ileti', key: 'ticari_ileti' });
     for (const r of rows) {
       const text = await this.current(r.key, tx);
       await tx.consent.create({
@@ -95,6 +103,32 @@ export class ConsentService {
         },
       });
     }
+    if (onay && ticari.ticariKanallar) await this.ticariKanallariAc(tx, userId, ticari.ticariKanallar);
+  }
+
+  /**
+   * Ticari ileti kutuları kanal başına (yasal metin taslağı bölüm 4): işaretlenen kanalın kampanya tercihi açılır,
+   * işaretlenmeyenin tercihi değişmez; işçi İYS kaydını yazar (Karar 49). Rıza kaydıyla aynı işlemde çağrılır.
+   */
+  async ticariKanallariAc(tx: Tx, userId: string, k: Partial<TicariKanallar>) {
+    const kanallar = (
+      [
+        ['eposta', k.eposta],
+        ['sms', k.sms],
+        ['uygulama', k.bildirim],
+      ] as const
+    )
+      .filter(([, acik]) => acik)
+      .map(([kanal]) => kanal);
+    if (!kanallar.length) return;
+    for (const kanal of kanallar) {
+      await tx.notificationPref.upsert({
+        where: { userId_konu_kanal: { userId, konu: 'kampanya', kanal } },
+        create: { userId, konu: 'kampanya', kanal, acik: true },
+        update: { acik: true },
+      });
+    }
+    await tx.outboxEvent.create({ data: { type: 'iys.izin_degisti', payload: { userId, onay: true } } });
   }
 
   /**

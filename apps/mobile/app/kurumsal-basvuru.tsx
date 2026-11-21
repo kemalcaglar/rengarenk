@@ -9,11 +9,13 @@ import {
   kartOran,
   maskTrMobile,
   radii,
+  TICARI_ILETI_KUTU,
+  type TicariKanallar,
 } from '@rengarenk/shared';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useState } from 'react';
 import { Alert, Linking, Platform, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ikon } from '../components/ikon';
@@ -71,7 +73,7 @@ export default function KurumsalBasvuru() {
   const [veri, setVeri] = useState<GalleryApplicationDraft>({});
   const [adSoyad, setAdSoyad] = useState('');
   const [sozlesme, setSozlesme] = useState(false);
-  const [ticari, setTicari] = useState(false);
+  const [ticari, setTicari] = useState<TicariKanallar>({ eposta: false, sms: false, bildirim: false });
   const [kaydedildi, setKaydedildi] = useState(false);
   const [dogru, setDogru] = useState<{ sonuc: string; not?: string; unvan?: string } | null>(null);
   const [hata, setHata] = useState<string | null>(null);
@@ -147,7 +149,7 @@ export default function KurumsalBasvuru() {
         setB(
           await istek<Basvuru>('/gallery-applications/me/submit', {
             method: 'POST',
-            body: { sozlesme, ticariIleti: ticari, kanal: Platform.OS === 'ios' ? 'ios' : 'android' },
+            body: { sozlesme, ticariKanallar: ticari, kanal: Platform.OS === 'ios' ? 'ios' : 'android' },
           }),
         );
       }
@@ -604,46 +606,59 @@ export default function KurumsalBasvuru() {
                 metin: 'Galeri hizmet sözleşmesini ve aydınlatma metnini okudum.',
                 bag: `${WEB}/galeri-sozlesmesi`,
               },
-              {
-                on: ticari,
-                set: setTicari,
-                metin: 'Kampanya ve duyuru iletileri almak istiyorum (isteğe bağlı, İYS’ye kaydedilir).',
-              },
-            ].map((o) => (
-              <Pressable
-                key={o.metin}
-                accessibilityRole="checkbox"
-                accessibilityState={{ checked: o.on }}
-                onPress={() => o.set(!o.on)}
-                style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start', marginTop: 12 }}
-              >
-                <View
+              // Ticari ileti onayı kanal kanal (yasal metin taslağı bölüm 4; Karar 49)
+              ...TICARI_ILETI_KUTU.kanallar.map((k) => ({
+                on: ticari[k.anahtar],
+                set: (v: boolean) => setTicari((x) => ({ ...x, [k.anahtar]: v })),
+                metin: k.ad,
+                bag: undefined,
+              })),
+            ].map((o, i) => (
+              <Fragment key={o.metin}>
+                {i === 1 ? (
+                  <T style={{ marginTop: 14, fontSize: 13, color: '#3A4052', lineHeight: 19 }}>
+                    {TICARI_ILETI_KUTU.metin}
+                  </T>
+                ) : null}
+                <Pressable
+                  accessibilityRole="checkbox"
+                  accessibilityState={{ checked: o.on }}
+                  onPress={() => o.set(!o.on)}
                   style={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: butonOran(5),
-                    borderWidth: 2,
-                    borderColor: o.on ? colors.blue : '#AEB5C4',
-                    backgroundColor: o.on ? colors.blue : colors.surface,
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    flexDirection: 'row',
+                    gap: 10,
+                    alignItems: 'flex-start',
+                    marginTop: i === 0 ? 12 : 8,
                   }}
                 >
-                  {o.on ? <Ikon d="onay" size={14} width={3} color={colors.surface} /> : null}
-                </View>
-                <T style={{ flex: 1, fontSize: 13, color: '#3A4052', lineHeight: 19 }}>
-                  {o.metin}
-                  {o.bag ? (
-                    <T
-                      style={{ fontSize: 13, color: colors.link, fontWeight: '700' }}
-                      onPress={() => Linking.openURL(o.bag)}
-                    >
-                      {' '}
-                      Sözleşmeyi oku
-                    </T>
-                  ) : null}
-                </T>
-              </Pressable>
+                  <View
+                    style={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: butonOran(5),
+                      borderWidth: 2,
+                      borderColor: o.on ? colors.blue : '#AEB5C4',
+                      backgroundColor: o.on ? colors.blue : colors.surface,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {o.on ? <Ikon d="onay" size={14} width={3} color={colors.surface} /> : null}
+                  </View>
+                  <T style={{ flex: 1, fontSize: 13, color: '#3A4052', lineHeight: 19 }}>
+                    {o.metin}
+                    {o.bag ? (
+                      <T
+                        style={{ fontSize: 13, color: colors.link, fontWeight: '700' }}
+                        onPress={() => Linking.openURL(o.bag)}
+                      >
+                        {' '}
+                        Sözleşmeyi oku
+                      </T>
+                    ) : null}
+                  </T>
+                </Pressable>
+              </Fragment>
             ))}
           </>
         ) : null}

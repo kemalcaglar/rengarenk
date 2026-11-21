@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { phoneSchema } from './auth.js';
+import { phoneSchema, ticariKanallarSchema } from './auth.js';
 import { ILLER } from './iller.js';
 import type { PlanTable } from './pricing.js';
 
@@ -248,10 +248,15 @@ export const galleryApplicationSchema = z
   });
 export type GalleryApplicationData = z.output<typeof galleryApplicationSchema>;
 
-/** Gönderim: galeri hizmet sözleşmesi onayı zorunlu, ticari ileti isteğe bağlı (BasvuruMobil.dc.html; Karar 39, 49) */
+/**
+ * Gönderim: galeri hizmet sözleşmesi onayı zorunlu, ticari ileti isteğe bağlı ve kanal kanal (BasvuruMobil.dc.html;
+ * Karar 39, 49; yasal metin taslağı bölüm 4)
+ */
 export const applicationSubmitSchema = z.object({
   sozlesme: z.literal(true, { message: 'Galeri hizmet sözleşmesini ve aydınlatma metnini onayla' }),
+  /** Eski istemciler; `ticariKanallar` varsa onay ondan hesaplanır */
   ticariIleti: z.boolean().optional(),
+  ticariKanallar: ticariKanallarSchema.optional(),
   kanal: z.enum(['web', 'ios', 'android']).default('web'),
 });
 export type ApplicationSubmit = z.output<typeof applicationSubmitSchema>;

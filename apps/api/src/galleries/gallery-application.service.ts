@@ -220,7 +220,7 @@ export class GalleryApplicationService {
         },
         tx,
       );
-      await this.consents.recordGallery(tx, userId, Boolean(onay.ticariIleti), onay.kanal, ip);
+      await this.consents.recordGallery(tx, userId, onay, onay.kanal, ip);
       await this.outbox.add(tx, 'galeri.basvuru_alindi', { applicationId: a.id });
       // Reklam ölçümü (Karar 35): ilk gönderim (belge sonrası yeniden gönderim sayılmaz)
       if (!a.submittedAt)

@@ -71,7 +71,7 @@ async function basvur(token: string, yetkiNo: string, ad: string) {
     app,
     'POST',
     '/gallery-applications/me/submit',
-    { sozlesme: true, ticariIleti: true },
+    { sozlesme: true, ticariKanallar: { eposta: true, sms: false, bildirim: true } },
     token,
   );
   expect(s.status).toBe(200);
@@ -125,6 +125,17 @@ describe('kurumsal hesap başvurusu (Karar 03, 12.5, 17)', () => {
       where: { kind: { in: ['galeri_sozlesmesi', 'ticari_ileti'] }, granted: true, textKey: { not: null } },
     });
     expect(rizalar.map((r) => r.kind)).toEqual(expect.arrayContaining(['galeri_sozlesmesi', 'ticari_ileti']));
+    // Ticari ileti kanal kanal: işaretlenen kanalların kampanya tercihi açılır, SMS işaretlenmedi; İYS eşitlemesi olayla
+    const sahipId = rizalar.find((x) => x.kind === 'ticari_ileti')?.userId as string;
+    const kampanya = await db.notificationPref.findMany({
+      where: { userId: sahipId, konu: 'kampanya', acik: true },
+    });
+    expect(kampanya.map((x) => x.kanal).sort()).toEqual(['eposta', 'uygulama']);
+    expect(
+      await db.outboxEvent.count({
+        where: { type: 'iys.izin_degisti', payload: { path: ['userId'], equals: sahipId } },
+      }),
+    ).toBe(1);
 
     const r = await apps.runChecks(id);
     expect(r?.hepsi).toBe(true);

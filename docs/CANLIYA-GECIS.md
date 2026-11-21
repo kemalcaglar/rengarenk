@@ -44,11 +44,9 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
   kullanılmaz.
 - [x] **Şirket:** şahıs şirketi kurulacak. Kurulana kadar SMS yok, telefon kodu yalnızca WhatsApp'tan gider
   (`VERIFY_CHANNELS=whatsapp`, `SMS_PROVIDER=none`; SMS bildirimleri "atlandı" yazılır).
-- [ ] **Barındırma yeri (Frankfurt ya da İstanbul):** avukatın görüşüne göre. AWS İstanbul Local Zone 20 Mayıs
-  2026'da açıldı; sunucu, disk, yedek ve S3 orada var, Lightsail ve Bedrock yok (Frankfurt'a bağlı). Veritabanı
-  İstanbul'da olsa da AWS yabancı şirket ve e-posta, WhatsApp, Google, Apple yurt dışında kalır; aktarımın tamamen
-  kalkıp kalkmadığını avukat söyleyecek (avukat notu S8–S11). İstanbul seçilirse Lightsail yerine EC2'ye taşınma
-  1–2 günlük iş, aylık maliyet artar.
+- [x] **Barındırma yeri: Frankfurt** (avukat görüşü, 21 Kasım 2026). Sistem AWS `eu-central-1`'de (Lightsail,
+  Bedrock, SES) kalır; İstanbul Local Zone'a (EC2) taşınılmaz. Yurt dışına aktarım bu yüzden sürer: AWS ile KVKK
+  standart sözleşmesi ve Kurum'a bildirim (aşağıda) canlıdan önce zorunlu.
 
 ---
 
@@ -89,7 +87,7 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
   - Nasıl: şirket kurulunca iys.org.tr'de hizmet sağlayıcı olarak kaydol (marka: Rengarenk). Entegratöre para
     verilmez; API gerekmez.
   - Onay ve retler kanal başına (e-posta, SMS) kaydedilir: Konsol › Uyum ve KVKK › Rıza ve çerez kayıtları › **İYS'ye
-    aktarım**. Üyelikte ticari ileti onayı kanal kanal alınır (e-posta, SMS, bildirim; yasal metin taslağı bölüm 4);
+    aktarım**. Üyelikte ve galeri başvurusunda ticari ileti onayı kanal kanal alınır (e-posta, SMS, bildirim; yasal metin taslağı bölüm 4);
     işaretlenen kanalın kampanya ayarı açılır.
   - İYS kuralı: "İYS üzerinde onayı bulunmayan alıcılara ticari elektronik ileti gönderilemez." Bu yüzden ticari
     e-posta ve SMS yalnızca paketi **"Yüklendi"** işaretlenmiş onaylara gider; adres değişince yeni adres yüklenene kadar

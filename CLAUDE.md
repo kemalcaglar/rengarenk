@@ -483,12 +483,12 @@ pnpm format        # Biome ile biçimlendir
   Canlı sunucu bugünkü `rengarenk-1` (açılıştan önce test kullanıcıları silinir), ödemesiz açılış ve önce kapalı beta,
   imajlar sunucuda derlenir (`deploy.yml` kullanılmaz), mobil paket adı `com.rengarenksite.app`. Şahıs şirketi
   kurulana kadar SMS yok: `SMS_PROVIDER=none` (`NoSmsSender`; SMS bildirimi "atlandı"), `VERIFY_CHANNELS=whatsapp`
-  (none iken `sms` kanalı env.ts'te reddedilir). Barındırma yeri (Frankfurt ya da AWS İstanbul Local Zone) avukat
-  görüşüne bağlı; avukat bilgi notu PDF'i masaüstünde, üreten betik scratchpad `avukat/pdf_yap.py`. API'de 247 test.
+  (none iken `sms` kanalı env.ts'te reddedilir). Barındırma yeri Frankfurt (avukat görüşü, 21 Kasım 2026; İstanbul
+  Local Zone'a geçilmez, standart sözleşme ve bildirim yine zorunlu); avukat bilgi notu PDF'i masaüstünde, üreten betik scratchpad `avukat/pdf_yap.py`. API'de 247 test.
 - **İYS elle (21 Kasım 2026, sahip kararı; Karar 49):** entegratör yok, ticari ileti İYS sorgusuz gider. Onay ve retler
   kanal başına (EPOSTA, MESAJ) `iys_records`'a yazılır (`apps/api/src/notifications/iys.ts` `IysKayitService.esitle`;
   işçi `iys.izin_degisti`, `hesap.telefon_degisti`, `hesap.kapatildi` olaylarında). Konsol › Rıza ve çerez kayıtları ›
-  İYS'ye aktarım: paket (`iys_batches`, en fazla 50 satır: İYS dosya sınırı) İYS Web'in resmî CSV biçiminde iner (`iysCsv`; Windows-1254, onay 1/ret 0, `GG-AA-YYYY`, telefon +90'sız; biçim `Ornek_Bireysel.csv`'dan, testi `iys.test.ts`), "Yüklendi" işaretlenir; 2 iş gününde `iys_aktarim` uyarısı. Ticari e-posta ve SMS yalnızca İYS'ye yüklenmiş onaya gider (`iysYukluOnay`: son kayıt ONAY, adres bugünkü, paket yüklendi; `NotificationService.kanallar` ve segment ulaşımı; testte `iysYuklendi(app, id)`). Üyelikte ticari onay kanal kanal (`ticariKanallar`, `TICARI_ILETI_KUTU`; işaretlenen kanalın kampanya tercihi açılır), mobil üyelikte kutu yok (Ayarlar).
+  İYS'ye aktarım: paket (`iys_batches`, en fazla 50 satır: İYS dosya sınırı) İYS Web'in resmî CSV biçiminde iner (`iysCsv`; Windows-1254, onay 1/ret 0, `GG-AA-YYYY`, telefon +90'sız; biçim `Ornek_Bireysel.csv`'dan, testi `iys.test.ts`), "Yüklendi" işaretlenir; 2 iş gününde `iys_aktarim` uyarısı. Ticari e-posta ve SMS yalnızca İYS'ye yüklenmiş onaya gider (`iysYukluOnay`: son kayıt ONAY, adres bugünkü, paket yüklendi; `NotificationService.kanallar` ve segment ulaşımı; testte `iysYuklendi(app, id)`). Üyelikte ve galeri başvurusunda (web, mobil) ticari onay kanal kanal (`ticariKanallar`, `TICARI_ILETI_KUTU`; işaretlenen kanalın kampanya tercihi `ConsentService.ticariKanallariAc` ile aynı işlemde açılır), mobil üyelikte kutu yok (Ayarlar).
   Ticari onayı, kampanya kanalını ya da e-posta/telefonu değiştiren yeni bir yol eklersen aynı işlemde
   `iys.izin_degisti` olayı yaz. Satırlar silinmez. API'de 254 test.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google

@@ -10,6 +10,8 @@ import {
   galleryApplicationSchema,
   ILLER,
   maskTrMobile,
+  TICARI_ILETI_KUTU,
+  type TicariKanallar,
 } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -90,7 +92,7 @@ export function KurumsalBasvuru() {
   const [adSoyad, setAdSoyad] = useState('');
   const [telefon, setTelefon] = useState('');
   const [sozlesme, setSozlesme] = useState(false);
-  const [ticariIleti, setTicariIleti] = useState(false);
+  const [ticari, setTicari] = useState<TicariKanallar>({ eposta: false, sms: false, bildirim: false });
   const [hata, setHata] = useState<string | null>(null);
   const [kaydedildi, setKaydedildi] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
@@ -187,7 +189,7 @@ export function KurumsalBasvuru() {
         const ilk = !b?.gonderildi;
         const r = await istek<Basvuru>('/gallery-applications/me/submit', {
           method: 'POST',
-          body: { sozlesme, ticariIleti, kanal: 'web' },
+          body: { sozlesme, ticariKanallar: ticari, kanal: 'web' },
         });
         if (ilk) olcumOlayi('SubmitApplication', r.id);
         setB(r);
@@ -867,23 +869,34 @@ export function KurumsalBasvuru() {
                     okudum.
                   </span>
                 </label>
-                <label
-                  style={{
-                    display: 'flex',
-                    gap: 10,
-                    alignItems: 'flex-start',
-                    fontSize: 14,
-                    lineHeight: 1.5,
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    className="rr-isaret"
-                    checked={ticariIleti}
-                    onChange={(e) => setTicariIleti(e.target.checked)}
-                  />
-                  <span>Kampanya ve duyuru iletileri almak istiyorum (isteğe bağlı, İYS’ye kaydedilir).</span>
-                </label>
+                {/* Ticari ileti onayı kanal kanal (yasal metin taslağı bölüm 4; Karar 49) */}
+                <fieldset style={{ border: 0, margin: 0, padding: 0 }}>
+                  <legend style={{ padding: 0, fontSize: 14, lineHeight: 1.5 }}>
+                    {TICARI_ILETI_KUTU.metin}
+                  </legend>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 20px', marginTop: 8 }}>
+                    {TICARI_ILETI_KUTU.kanallar.map((k) => (
+                      <label
+                        key={k.anahtar}
+                        style={{
+                          display: 'flex',
+                          gap: 8,
+                          alignItems: 'center',
+                          fontSize: 14,
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          className="rr-isaret"
+                          checked={ticari[k.anahtar]}
+                          onChange={(e) => setTicari({ ...ticari, [k.anahtar]: e.target.checked })}
+                        />
+                        <span>{k.ad}</span>
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
               </div>
             </>
           ) : null}
