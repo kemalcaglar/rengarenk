@@ -113,6 +113,7 @@ model User {
   priceExposures      PriceExperimentExposure[]
   uiExperimentEvents  UiExperimentEvent[]
   specReports         CatalogSpecReport[]
+  iysRecords          IysRecord[]
 
   @@map("users")
 }
@@ -1137,6 +1138,51 @@ model Consent {
   @@index([userId, kind, createdAt])
   @@index([visitorId])
   @@map("consents")
+}
+
+/// İYS'ye bildirilecek izin satırı (Karar 49; sahip kararı 21 Kasım 2026: entegratör yok, izinler konsoldan Excel
+/// olarak indirilip İYS paneline elle yüklenir). Kişi ve kanal (e-posta, SMS) başına durum değişince bir satır eklenir;
+/// satır silinmez (onayın ispatı), pakete girince batch_id dolar.
+model IysRecord {
+  id            String   @id @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  /// EPOSTA | MESAJ (İYS izin türü)
+  type          String
+  /// @pii Alıcı: +90 ile cep telefonu ya da küçük harfle e-posta adresi
+  recipient     String
+  /// ONAY | RET
+  status        String
+  /// HS_WEB | HS_MOBIL (İYS izin kaynağı)
+  source        String
+  /// BIREYSEL | TACIR
+  recipientType String   @default("BIREYSEL") @map("recipient_type")
+  /// İznin verildiği ya da geri alındığı an (İYS "izin tarihi")
+  consentAt     DateTime @map("consent_at") @db.Timestamptz(3)
+  /// İndirilen paket; boşsa İYS'ye aktarılmayı bekliyor
+  batchId       String?  @map("batch_id") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  user  User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+  batch IysBatch? @relation(fields: [batchId], references: [id])
+
+  @@index([userId, type, createdAt])
+  @@index([batchId])
+  @@map("iys_records")
+}
+
+/// İYS'ye elle yükleme paketi: konsoldan indirilen Excel (tekrar indirilebilir). Yüklendiği çalışan tarafından işaretlenir.
+model IysBatch {
+  id         String    @id @db.Uuid
+  no         Int       @unique @default(autoincrement())
+  count      Int
+  createdBy  String    @map("created_by") @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  uploadedBy String?   @map("uploaded_by") @db.Uuid
+  uploadedAt DateTime? @map("uploaded_at") @db.Timestamptz(3)
+
+  records IysRecord[]
+
+  @@map("iys_batches")
 }
 
 // ── Kategoriler (Aşama 2; Karar 23, 45; Teknik tasarım §4–5) ──────

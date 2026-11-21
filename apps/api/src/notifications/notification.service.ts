@@ -172,10 +172,14 @@ export class NotificationService implements OnModuleDestroy {
         const istenen = kampanya.length > 0;
         if (simdi !== istenen) {
           await this.consents.recordCommercial(tx, userId, istenen, meta.kanal ?? 'web', meta.ip);
-          await tx.outboxEvent.create({
-            data: { type: 'iys.izin_degisti', payload: { userId, onay: istenen } },
-          });
         }
+        // Onay aynı kalsa da e-posta ya da SMS kanalı açılıp kapanmış olabilir: İYS kaydı kanal başına (iys.ts)
+        await tx.outboxEvent.create({
+          data: {
+            type: 'iys.izin_degisti',
+            payload: simdi !== istenen ? { userId, onay: istenen } : { userId },
+          },
+        });
       }
     });
     return this.prefs(userId);
@@ -411,7 +415,11 @@ export class NotificationService implements OnModuleDestroy {
     const baskasi = await this.db.user.findUnique({ where: { email: adres }, select: { id: true } });
     if (baskasi && baskasi.id !== userId) throw new ConflictException('Bu e-posta başka bir hesapta kayıtlı');
     try {
-      await this.db.user.update({ where: { id: userId }, data: { email: adres, emailVerifiedAt: null } });
+      await this.db.$transaction(async (tx) => {
+        await tx.user.update({ where: { id: userId }, data: { email: adres, emailVerifiedAt: null } });
+        // Ticari ileti onayı varsa eski adrese İYS reti, yeniye onay (iys.ts)
+        await tx.outboxEvent.create({ data: { type: 'iys.izin_degisti', payload: { userId } } });
+      });
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
         throw new ConflictException('Bu e-posta başka bir hesapta kayıtlı');

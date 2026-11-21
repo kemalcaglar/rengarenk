@@ -64,6 +64,14 @@ export const STAFF_ALERT_RULES = {
     izin: 'kvkk.yanitla',
     yol: '/imha',
   },
+  iys_aktarim: {
+    ad: 'İYS aktarımı gecikiyor',
+    kosul:
+      'Ticari ileti onayı ya da reti 2 iş günüdür İYS paneline yüklenmediyse (yasal süre 3 iş günü; Excel Rıza ve çerez kayıtlarında)',
+    kritik: false,
+    izin: 'kvkk.yanitla',
+    yol: '/riza',
+  },
   verbis: {
     ad: 'VERBİS eşiği',
     kosul: 'Çalışan sayısı ya da yıllık bilanço VERBİS muafiyet eşiğinin %80’ine ulaşır ya da aşarsa',

@@ -485,6 +485,12 @@ pnpm format        # Biome ile biçimlendir
   kurulana kadar SMS yok: `SMS_PROVIDER=none` (`NoSmsSender`; SMS bildirimi "atlandı"), `VERIFY_CHANNELS=whatsapp`
   (none iken `sms` kanalı env.ts'te reddedilir). Barındırma yeri (Frankfurt ya da AWS İstanbul Local Zone) avukat
   görüşüne bağlı; avukat bilgi notu PDF'i masaüstünde, üreten betik scratchpad `avukat/pdf_yap.py`. API'de 247 test.
+- **İYS elle (21 Kasım 2026, sahip kararı; Karar 49):** entegratör yok, ticari ileti İYS sorgusuz gider. Onay ve retler
+  kanal başına (EPOSTA, MESAJ) `iys_records`'a yazılır (`apps/api/src/notifications/iys.ts` `IysKayitService.esitle`;
+  işçi `iys.izin_degisti`, `hesap.telefon_degisti`, `hesap.kapatildi` olaylarında). Konsol › Rıza ve çerez kayıtları ›
+  İYS'ye aktarım: paket (`iys_batches`) Excel olarak iner, "Yüklendi" işaretlenir; 2 iş gününde `iys_aktarim` uyarısı.
+  Ticari onayı, kampanya kanalını ya da e-posta/telefonu değiştiren yeni bir yol eklersen aynı işlemde
+  `iys.izin_degisti` olayı yaz. Satırlar silinmez. API'de 250 test.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, AWS Activate kredisi ve KVKK standart sözleşmesi, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu
   gerçek anahtarla deneme; test/sahte sağlayıcı kullan.

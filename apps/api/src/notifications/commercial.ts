@@ -16,6 +16,7 @@ import { z } from 'zod';
 import { ENV, type Env } from '../config/env.js';
 import { ConsentService } from '../consents/consent.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
+import { IysKayitService } from './iys.js';
 
 const DAY = 86_400_000;
 
@@ -55,8 +56,8 @@ export interface IysProvider {
 }
 
 /**
- * İYS hesabı açılana kadar kayıt bekler (onaylar rıza kaydında, zaman ve sürümle). Hesap açılınca İYS API'sine göre
- * bağdaştırıcı yazılır; bekleyen kayıtlar `iys.izin_degisti` olaylarından yeniden gönderilir.
+ * İYS entegratörü yokken (sahip kararı 21 Kasım 2026) onay ve retler `iys_records`'a yazılır ve konsoldan Excel ile
+ * İYS paneline elle yüklenir (`iys.ts`). Entegratör gelince bu arayüze bağdaştırıcı yazılır.
  */
 export class NoIys implements IysProvider {
   readonly ad = 'none';
@@ -86,6 +87,7 @@ export class CommercialService {
     @Inject(PRISMA) private readonly db: Db,
     @Inject(ENV) private readonly env: Env,
     private readonly consents: ConsentService,
+    private readonly iysKayit: IysKayitService,
   ) {}
 
   async ayril(k: string) {
@@ -145,9 +147,13 @@ export class CommercialService {
     return { ok: true };
   }
 
-  /** İşçi: ticari ileti onayı değişince İYS'ye bildirir; İYS bağlantısı yoksa rıza kaydında bekler */
-  async iysEsitle(iys: IysProvider, userId: string, onay: boolean) {
-    if (iys.ad === 'none') return false;
+  /**
+   * İşçi: ticari ileti onayı, kampanya kanalı, adres ya da hesap değişince kanal başına İYS kaydını yazar (konsoldan
+   * Excel ile elle yüklenir; sahip kararı 21 Kasım 2026). İYS bağdaştırıcısı varsa ayrıca ona bildirir.
+   */
+  async iysEsitle(iys: IysProvider, userId: string, onay?: boolean) {
+    await this.iysKayit.esitle(userId);
+    if (iys.ad === 'none' || onay === undefined) return false;
     const u = await this.db.user.findUnique({ where: { id: userId }, select: { phone: true, email: true } });
     if (!u) return false;
     await iys.bildir({ telefon: u.phone, eposta: u.email, onay, zaman: new Date() });

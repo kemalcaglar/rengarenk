@@ -280,10 +280,19 @@ await queue.consume<{ staffId: string }>(
     log.log(`çalışan daveti e-postası: ${await uyarilar.davetGonder(staffId)}`);
   },
 );
-// Ticari ileti onayı değişti: İYS'ye bildirilir (bağlantı yoksa rıza kaydında bekler)
-await queue.consume<{ userId: string; onay: boolean }>('iys.izin_degisti', 'iys-esitle', ({ userId, onay }) =>
-  ticari.iysEsitle(iys, userId, onay),
+// Ticari ileti onayı, kampanya kanalı, adres ya da hesap değişti: İYS kaydı yazılır (konsoldan Excel ile yüklenir)
+await queue.consume<{ userId: string; onay?: boolean }>(
+  'iys.izin_degisti',
+  'iys-esitle',
+  ({ userId, onay }) => ticari.iysEsitle(iys, userId, onay),
 );
+// Numara değişti ya da hesap kapandı: eski adrese İYS reti yazılır (yeni numarada onay sürüyorsa yeni adrese onay)
+for (const [olay, kuyruk] of [
+  ['hesap.telefon_degisti', 'iys-telefon'],
+  ['hesap.kapatildi', 'iys-kapanis'],
+] as const) {
+  await queue.consume<{ userId: string }>(olay, kuyruk, ({ userId }) => ticari.iysEsitle(iys, userId));
+}
 // İade yürütüldü (iade yürütücü süreci): iade faturası kesilir; entegratör yoksa kuyrukta bekler
 await queue.consume<{ refundId: string }>('iade.yurutuldu', 'iade-fatura', ({ refundId }) =>
   orders.issueRefundInvoice(refundId),

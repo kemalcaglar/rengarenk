@@ -25,6 +25,7 @@ import { DashboardService } from '../dashboard/dashboard.service.js';
 import { ExperimentService } from '../dashboard/experiments.service.js';
 import { type Db, PRISMA } from '../database/prisma.js';
 import { EMAIL_SENDER, type EmailSender } from '../notifications/channels.js';
+import { isGunuFarki } from '../notifications/iys.js';
 import { grantsFor } from '../staff/permissions.js';
 
 const HOUR = 3_600_000;
@@ -366,6 +367,7 @@ export class StaffAlertService {
       kvkk: await this.kvkkSure(now),
       imha: await this.imhaOnayi(now),
       verbis: await this.verbis(now),
+      iys: await this.iysAktarim(now),
       odeme: await this.odemeHatasi(now),
       ajan: await this.ajanGeriAlma(now),
       olcu: await this.anaOlcu(now),
@@ -412,6 +414,34 @@ export class StaffAlertService {
       dedupe: r.id,
       title: `İmha listesi onayını bekliyor: ${r.no}`,
       body: `Dönem günü ${gunAy(r.scheduledFor)}. Ajanın son sayımında ${toplam} kayıt var; liste onaylanmazsa imha yapılmaz.`,
+    });
+  }
+
+  /**
+   * İYS'ye elle aktarım (sahip kararı 21 Kasım 2026): İYS dışında alınan onay ve ret 3 iş günü içinde İYS'ye
+   * kaydedilmeli. İndirilmemiş ya da yüklendi işaretlenmemiş en eski satır 2 iş gününe ulaşınca günde bir uyarı.
+   */
+  async iysAktarim(now = new Date()) {
+    const enEski = await this.db.iysRecord.findFirst({
+      where: { OR: [{ batchId: null }, { batch: { uploadedAt: null } }] },
+      orderBy: { consentAt: 'asc' },
+      select: { consentAt: true },
+    });
+    if (!enEski) return 0;
+    const gun = isGunuFarki(enEski.consentAt, now);
+    if (gun < 2) return 0;
+    const [bekleyen, paket] = await Promise.all([
+      this.db.iysRecord.count({ where: { batchId: null } }),
+      this.db.iysBatch.count({ where: { uploadedAt: null } }),
+    ]);
+    const isler = [
+      bekleyen && `${bekleyen} izin satırı indirilmedi`,
+      paket && `${paket} paket İYS'ye yüklendi diye işaretlenmedi`,
+    ].filter(Boolean);
+    return this.raise('iys_aktarim', {
+      dedupe: `${Math.floor(now.getTime() / DAY)}`,
+      title: gun >= 3 ? "İYS'ye aktarım süresi doldu" : "İYS'ye aktarım için 1 iş günü kaldı",
+      body: `En eski izin ${gunAy(enEski.consentAt)} tarihli: ${isler.join(', ')}. Excel Rıza ve çerez kayıtları ekranında; İYS paneline yükleyip "Yüklendi" de.`,
     });
   }
 

@@ -74,7 +74,7 @@ Her modülün PostgreSQL'de kendi şeması vardır. Ana tablolar:
 | Güven | ratings, reports, moderation\_cases, appeals, badges |  |
 | Destek | tickets, ticket\_messages, canned\_replies |  |
 | Bildirim | notifications, templates, template\_versions, segments, campaigns, flows, flow\_runs, deliveries, suppression\_list |  |
-| Uyum | consents, consent\_texts, iys\_sync, kvkk\_requests, retention\_policies, destruction\_logs, legal\_requests, breach\_cases |  |
+| Uyum | consents, consent\_texts, iys\_records, iys\_batches, kvkk\_requests, retention\_policies, destruction\_logs, legal\_requests, breach\_cases |  |
 | Ajan | agent\_tasks, agent\_actions, ai\_usage | Her eylem geri alma bilgisiyle saklanır |
 | Ayar | settings, feature\_flags, packages, prices | Sürümlü |
 

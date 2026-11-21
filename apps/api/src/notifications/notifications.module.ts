@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   Module,
   Post,
@@ -19,6 +20,7 @@ import { AuthModule } from '../auth/auth.module.js';
 import type { AccessClaims } from '../auth/auth.service.js';
 import { ZodPipe } from '../common/zod.pipe.js';
 import { ENV, type Env } from '../config/env.js';
+import { channelOf } from '../consents/consent.service.js';
 import { OutboxService } from '../outbox/outbox.service.js';
 import { SearchModule } from '../search/search.module.js';
 import { StaffModule } from '../staff/staff.module.js';
@@ -28,6 +30,7 @@ import { createEmailSender, createPushSender, EMAIL_SENDER, PUSH_SENDER } from '
 import { CommercialController, CommercialService, FakeIys, IYS, NoIys } from './commercial.js';
 import { DeliveryService } from './delivery.service.js';
 import { FlowService } from './flows.js';
+import { IysKayitService, IysStaffController } from './iys.js';
 import { NotificationService } from './notification.service.js';
 import { NotificationEvents } from './notification-events.js';
 import { NotificationsStaffController, NotificationsStaffService } from './notifications-staff.js';
@@ -78,8 +81,10 @@ export class NotificationsController {
   setPrefs(
     @Req() req: AuthedRequest,
     @Body(new ZodPipe(notifyPrefsSchema)) b: z.output<typeof notifyPrefsSchema>,
+    @Headers('x-rr-platform') platform?: string,
   ) {
-    return this.n.setPrefs(req.user.sub, b.tercihler, { ip: req.ip });
+    // Kanal İYS izin kaynağıdır (web: HS_WEB, uygulama: HS_MOBIL)
+    return this.n.setPrefs(req.user.sub, b.tercihler, { ip: req.ip, kanal: channelOf(platform) });
   }
 
   @Post('me/push-tokens')
@@ -118,11 +123,17 @@ const KANALLAR = [
 /** API: uçlar ve bildirim üretimi (e-posta doğrulama) */
 @Module({
   imports: [AuthModule, StaffModule],
-  controllers: [NotificationsController, CommercialController, NotificationsStaffController],
+  controllers: [
+    NotificationsController,
+    CommercialController,
+    NotificationsStaffController,
+    IysStaffController,
+  ],
   providers: [
     NotificationService,
     TemplatesService,
     CommercialService,
+    IysKayitService,
     SwitchService,
     NotificationsStaffService,
     ReputationService,
@@ -143,6 +154,7 @@ export class NotificationsModule {}
     DeliveryService,
     NotificationEvents,
     CommercialService,
+    IysKayitService,
     SwitchService,
     AutomationService,
     FlowService,
@@ -161,6 +173,7 @@ export class NotificationsModule {}
     DeliveryService,
     NotificationEvents,
     CommercialService,
+    IysKayitService,
     AutomationService,
     ReputationService,
     IYS,

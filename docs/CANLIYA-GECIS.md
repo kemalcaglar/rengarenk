@@ -25,7 +25,7 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
 | Yasal metinler | Sunucuda 8 metnin **hepsi taslak, hiçbiri yayında değil**. KVKK aydınlatma metninin iki taslağında da barındırma yeri hâlâ "Radore" |
 | Telefon kodu | Gönderilmiyor; kapalı testte ekranda gösteriliyor (`VERIFY_CHANNELS=ekran`, `KAPALI_TEST=1`) |
 | SMS | Şirket kurulana kadar **yok** (sahip kararı, 19 Kasım 2026). Kod yalnızca WhatsApp'tan gider; canlıda `SMS_PROVIDER=none` |
-| Ödeme, fatura, mağaza, push, yapay zekâ | Kapalı (`none`). Kod hazır, hesaplar bekleniyor. Henüz yazılmayanlar: e-Arşiv ve İYS bağdaştırıcısı, mobilde RevenueCat ve iPhone push'u için Firebase SDK |
+| Ödeme, fatura, mağaza, push, yapay zekâ | Kapalı (`none`). Kod hazır, hesaplar bekleniyor. Henüz yazılmayanlar: e-Arşiv bağdaştırıcısı (İYS'ye izinler Excel ile elle yüklenir), mobilde RevenueCat ve iPhone push'u için Firebase SDK |
 | Yedek, izleme, sırların şifrelenmesi | **Henüz kurulmadı** |
 | AWS kredisi | Activate kabul edildi: 1.000 USD (21 Kasım 2026). Kasım'ın ilk 20 gününde kullanım 11,95 USD, tamamı krediden |
 
@@ -85,14 +85,23 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
 - [ ] **ETBİS kaydı** (e-ticaret bilgi sistemi; Karar 39 yayın öncesi listesi).
   - Nasıl: şirket yetkilisi etbis.ticaret.gov.tr'ye e-Devlet ile girer ve `rengarenksite.com`'u kaydeder.
   - Kayıttan sonra verilen karekodu Claude'a gönder; sitenin altına konur.
-- [ ] **İYS kaydı** (ileti yönetim sistemi).
-  - Nasıl: iys.org.tr'de hizmet sağlayıcı olarak kaydol, API erişim bilgilerini al ve `Desktop\gizli\`'ye koy.
-    Claude İYS bağdaştırıcısını yazar; şu an kodda yalnızca sahte sağlayıcı var.
-  - **Dikkat:** kod, İYS bağlanmadan ticari iletiyi kendiliğinden durdurmuyor. Onay veren kullanıcıya kampanya ve
-    "İlk talebini oluştur" otomatik akışı (varsayılanda açık) gider; yalnızca İYS'ye bildirim bekler. İYS kaydı olmadan
-    göndermemek için açılıştan önce Konsol › Büyüme › Bildirim merkezi'nde **ticari iletiyi kapat**, ya da Claude
-    "İYS yokken ticari ileti gitmesin" kuralını koda eklesin. İşlemsel iletiler (kod, talep ve mesaj bildirimi) bundan
-    etkilenmez.
+- [ ] **İYS kaydı** (ileti yönetim sistemi; sahip kararı 21 Kasım 2026: entegratör yok, izinler elle yüklenir).
+  - Nasıl: şirket kurulunca iys.org.tr'de hizmet sağlayıcı olarak kaydol (marka: Rengarenk). Entegratöre para
+    verilmez; API gerekmez.
+  - Ticari e-posta İYS sorgusu yapılmadan gider. Onay ve retler kanal başına (e-posta, SMS) kaydedilir: Konsol › Uyum
+    ve KVKK › Rıza ve çerez kayıtları › **İYS'ye aktarım**.
+  - Her gün sonunda "Excel'i hazırla ve indir"e bas. Dosyayı İYS panelinde toplu izin yükleme ekranından yükle, sonra
+    pakette "Yüklendi"ye bas.
+  - Excel'in sütunları: alıcı (+90'lı telefon ya da e-posta), izin türü (EPOSTA, MESAJ), durum (ONAY, RET), alıcı tipi
+    (BIREYSEL), izin kaynağı (HS_WEB, HS_MOBIL) ve izin tarihi (Türkiye saatiyle `YYYY-AA-GG SS:DD:ss`). İYS panelinin
+    şablonundaki başlıklar farklıysa şablonu Claude'a gönder, sütunlar ona göre düzeltilir.
+  - Yasal süre: İYS dışında alınan onay ve ret 3 iş günü içinde İYS'ye kaydedilmeli; kaydedilmeyen onay geçersiz
+    sayılır. 2 iş günü geçince sahibe "İYS aktarımı gecikiyor" uyarısı gelir.
+  - **Dikkat:** kişi iznini doğrudan İYS'den (İYS uygulaması ya da sitesi) geri alabilir. Bunu sistem göremez; İYS
+    panelinde gelen retleri ara ara kontrol et, ret varsa kişinin kampanya iletisini Ayarlar'dan kapat ya da Claude'a
+    bildir.
+  - İYS kaydı yapılana kadar ticari ileti göndermek istemiyorsan Konsol › Büyüme › Bildirim merkezi'nde ticari
+    iletiyi kapat. İşlemsel iletiler (kod, talep ve mesaj bildirimi) bundan etkilenmez.
 - [ ] **TSB yazılı izni.** Katalog TSB listesini kullanıyor; yazışma taslağı Claude dokümanında. İzin yazısı gelince
   Veri kaynakları sayfasına işlenir.
 - [ ] **VERBİS:** 50 çalışan ve 100 milyon TL bilanço altında zorunlu değil (Karar 37); bir şey yapmana gerek yok.
