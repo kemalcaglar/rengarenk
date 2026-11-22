@@ -1,6 +1,6 @@
 # Rengarenk · Durum, kalan işler ve test rehberi
 
-Son güncelleme: 10 Kasım 2026. Bu dosya projenin nerede olduğunu, biten ve kalan işleri, alınan kararları, kalan işlerin
+Son güncelleme: 22 Kasım 2026. Bu dosya projenin nerede olduğunu, biten ve kalan işleri, alınan kararları, kalan işlerin
 nasıl yapılacağını, yerelde ve telefonda nasıl test edileceğini ve demo giriş bilgilerini tek yerde toplar. Ayrıntılı
 kararlar `docs/kapsam/01-urun-kapsami.md` (Karar 01–59), teknik tasarım `02-teknik-tasarim.md`, sprint sprint iş listesi
 `03-gelistirme-plani.md` içindedir.
@@ -31,15 +31,17 @@ kararlar `docs/kapsam/01-urun-kapsami.md` (Karar 01–59), teknik tasarım `02-t
 | | |
 | --- | --- |
 | Aşama | Aşama 0–9'un kodu bitti (planda lansman 14 Ocak 2028; kod tarafı plandan çok önde) |
-| Sıradaki büyük adım | AWS Lightsail'de (Frankfurt) ilk kurulum, kapalı test ortamı olarak (Karar 37, 12 Kasım 2026'da AWS'ye değişti), yedek, izleme ve sırların şifrelenmesi (SOPS) |
-| Bekleyen | Dış hesaplar ve sözleşmeler (SMS, Google Workspace, Apple/Google Play, PayTR, e-Arşiv, EİDS, avukat, TSB izni, EEA) |
-| Testler | API 212, ortak paket 128, katalog 36 test; hepsi geçiyor. Lint ve tür denetimi temiz |
-| Depo | `main` dalı GitHub'da (kemalcaglar/rengarenk). Canlıya dağıtım yalnızca `v*` etiketiyle ve sahip onayıyla |
+| Sunucu | AWS Frankfurt'ta kapalı test sunucusu `rengarenk-1` çalışıyor (`beta.rengarenksite.com`, yalnızca izinli IP adresleri; sürüm `test-16b685f`). Açılıştan önce bu sunucu canlı olur (Karar 37) |
+| Sıradaki büyük adım | Yedek, izleme, sırların şifrelenmesi (SOPS) ve dış hesaplar. Açılış listesi: `docs/CANLIYA-GECIS.md` |
+| Bekleyen | Dış hesaplar ve sözleşmeler (WhatsApp/Meta, AWS ile KVKK standart sözleşmesi, Apple/Google Play, PayTR, e-Arşiv, EİDS, İYS kaydı, avukat, TSB izni, EEA) |
+| Testler | API 255, ortak paket 151, katalog 72 test; hepsi geçiyor. Lint ve tür denetimi temiz |
+| Depo | `main` dalı GitHub'da (kemalcaglar/rengarenk). İmajlar sunucuda derlenir (`deploy.yml` kullanılmaz); her `git push` ve kurulum sahip onayıyla |
 | Plan dosyası | `docs/kapsam/03-gelistirme-plani.md`: 250'den fazla madde işaretli |
 
-Kısaca: ürünün bütün ekranları ve iş kuralları web, mobil, API ve yönetim konsolunda yazıldı ve testli. Gerçek dünyaya
-bağlanan her şey (SMS, ödeme, fatura, bakanlık, mağaza, e-posta sunucusu) şu an **sahte sağlayıcıyla** çalışıyor; hesaplar
-açıldıkça gerçeğiyle değiştirilecek. Canlıya çıkmak için asıl eksik sunucu ve dış hesaplar.
+Kısaca: ürünün bütün ekranları ve iş kuralları web, mobil, API ve yönetim konsolunda yazıldı ve testli. Test sunucusunda
+e-posta (Amazon SES), konsol girişi (Google Workspace) ve Google ile üye girişi gerçek. WhatsApp, ödeme, fatura, bakanlık,
+mağaza, push ve yapay zekâ kapalı (`none`); hesaplar açıldıkça gerçeğiyle açılacak. Canlıya çıkmak için asıl eksik dış
+hesaplar, sözleşmeler (KVKK standart sözleşmesi, yasal metinler) ve yedek, izleme.
 
 ---
 
@@ -52,7 +54,8 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
 - Oturum: 15 dk erişim, 90 gün yenileme jetonu, döndürme, çalınan jeton kullanılırsa bütün oturumların kapanması;
   kaybolan yenileme yanıtı için 2 dk hoşgörü. Giriş 12 Kasım 2026'dan beri e-posta ve şifre, Google ya da Apple ile;
   telefon üyelikte bir kez kodla doğrulanır (Karar 18, Sprint 30).
-- Ana ve yedek SMS yönlendirici, İleti Merkezi bağdaştırıcısı (anahtar bekliyor), IP hız sınırı.
+- Ana ve yedek SMS yönlendirici, İleti Merkezi bağdaştırıcısı, IP hız sınırı. 22 Kasım 2026'dan beri SMS kapalı yedek:
+  yalnızca doğrulama kodunun yedeği, kullanıcıya SMS gitmez (sahip kararı).
 - İşlem kaydı (yalnızca ekleme), outbox ve pg-boss kuyruğu, hak defteri (yalnızca ekleme), iade kilidi.
 - Günlük maskeleri (telefon, kod, jeton, çerez yazılmaz), `/metrics`, GlitchTip bildirimi.
 - Yönetim girişi: Google Workspace + zorunlu iki adımlı doğrulama, 30 dk hareketsizlik, kurtarma kodları, yeni cihaz uyarısı.
@@ -175,6 +178,20 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
   oranlı köşeler (0 seçilince hepsi kalkar), mevsimsel temalar; web, mobil ve e-postaya uygulanır.
 - Web düzeltmeleri: Hesabım açılır menüsü ve çıkış, oturumun bazen düşmesi, ana sayfa kategori bağlantısı.
 
+### Sprint 30 ve canlıya hazırlık (12–22 Kasım 2026)
+- Üyelik ve giriş (Karar 18, 50): Üye ol ve Giriş yap ayrı; giriş e-posta ve şifre, Google ya da Apple ile. Telefon
+  yalnızca üyelikte, numara değiştirirken ve hassas işlemlerde kodla doğrulanır; şifremi unuttum, e-posta doğrulama.
+- AWS Frankfurt'ta kapalı test sunucusu (Lightsail, `rengarenk-1`): imajlar sunucuda derlenir, katalog ve ayarlar
+  yereldeki veritabanından taşındı (`deploy/veri-aktar.py`, kullanıcı verisi taşınmaz).
+- Amazon SES: alan adı ve gönderen alt alan adları doğrulandı, işlemsel ve ticari ayrı yapılandırma kümesi, üretim
+  erişimi (günde 50.000 e-posta).
+- Konsol girişi Google Workspace ile, Google ile üye girişi yayında. Yapay zekâ bağdaştırıcısı AWS Bedrock (kapalı, KVKK).
+- İYS elle (entegratör yok): izinler kanal başına kaydedilir, konsoldan İYS'nin resmî CSV biçiminde (dosya başına 50)
+  indirilir; ticari e-posta yalnızca İYS'ye yüklenmiş onaya gider. Üyelikte ve galeri başvurusunda ticari ileti onayı
+  kanal kanal (e-posta, bildirim).
+- SMS'in yerine WhatsApp: doğrulama kodu ve kritik bildirimler (talebin son günü, paket ödemesi alınamadı) Meta'nın onaylı
+  şablonlarıyla; kampanya yalnızca e-posta ve bildirimle; eski kampanya SMS onayları İYS'ye ret. Arayüzde "WhatsApp kodu".
+
 ---
 
 ## 3. Alınan notlar ve sahip kararları
@@ -206,6 +223,17 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
   onaylar; galeri sahibi bu yoldan kapatamaz). Kritik çalışan uyarısı SMS ile gitmez.
 - **10 Kasım 2026:** "Kalan geliştirmeleri sırayla hepsini yap" (bitti). Yazı tipi seçeneği çok olsun (70). Tasarım
   panelinden her alan düzenlenebilsin; köşeler tamamen kaldırılabilsin; mavi butonlarda yazı rengi seçilebilsin.
+- **11–12 Kasım 2026:** Barındırma AWS Frankfurt (Lightsail; yapay zekâ Bedrock). Alan adı `rengarenksite.com`. SMS
+  sağlayıcısı şirket ve marka tescili istediği için giriş telefondan ayrıldı (Karar 18). E-posta Amazon SES (Karar 50).
+- **13–18 Kasım 2026:** Katalog adım adım, önce otomobil; otomobil ve SUV'de marka, seri ve yılları sahibin listesi
+  belirler (ana liste); Türkiye'de satılan motor ve paketler bütün yıllarda; teknik özellikler ve donanım konsoldan
+  düzeltilebilir; her talep görselli; sihirbaz düzenlemeleri.
+- **19 Kasım 2026:** Bugünkü `rengarenk-1` canlı sunucu olur (açılıştan önce test kullanıcıları silinir). Ödemesiz açılış,
+  önce kapalı beta. İmajlar sunucuda derlenir. Mobil paket adı `com.rengarenksite.app`. Şahıs şirketi kurulacak.
+- **21 Kasım 2026:** İYS'ye entegratörsüz, elle CSV yüklemesi. Barındırma yeri Frankfurt kalır (avukat görüşü; İstanbul
+  Local Zone'a geçilmez, standart sözleşme ve bildirim yine zorunlu).
+- **22 Kasım 2026:** SMS'in yerine WhatsApp (doğrulama kodu ve kritik bildirimler). SMS altyapısı kapalı yedek kalır.
+  Kampanya WhatsApp'tan gitmez, yalnızca e-posta ve bildirimle.
 
 ### Bilinen teknik notlar
 - Docker'daki PostgreSQL **5433** portunda (5432'de bilgisayarda başka PostgreSQL var).
@@ -230,9 +258,9 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 | --- | --- | --- | --- |
 | WhatsApp (Meta Cloud API) | İşletme hesabı, numara, üç onaylı şablon (`rengarenk_kod`, `rengarenk_talep_doluyor`, `rengarenk_odeme_alinamadi`) | Sunucuda `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_PROVIDER=meta` | 1 gün |
 | SMS kapalı yedek (İleti Merkezi; isteğe bağlı, yalnızca doğrulama kodunun yedeği) | **Hesap açıldı, anahtar `.env`'de (11 Kasım 2026).** Eksik: SMS paketi (bakiye 0) ve `RENGARENK` gönderici başlığı onayı | Bağdaştırıcı gerçek API'yle denendi (kimlik doğrulama geçti; başlık onaysız olduğu için kod 450). Paket ve başlık gelince `sms:dene` ile deneme SMS'i, sonra canlıda `SMS_PROVIDER=iletimerkezi` | 0,5 gün |
-| SMS yedek (aday Netgsm) | Hesap ve API belgesi | `apps/api/src/sms/` altına bağdaştırıcı, yedeğe geçiş testi | 1 gün |
-| Google Workspace (konsol girişi) | `rengarenksite.com` Workspace, OAuth istemcisi | `STAFF_AUTH_PROVIDER=google`, gerçek giriş denemesi | 0,5 gün |
-| AWS hesabı | IAM erişimi (`rengarenk` profili), Activate kredisi, KVKK standart sözleşmesi ve bildirimi, alan adı DNS | İlk dağıtım, Caddy/TLS, yedek, izleme, SOPS (bkz. 4.2) | 3–5 gün |
+| SMS yedek (aday Netgsm; isteğe bağlı) | Hesap ve API belgesi | `apps/api/src/sms/` altına bağdaştırıcı, yedeğe geçiş testi | 1 gün |
+| Google Workspace (konsol girişi) | **Bitti** (13 Kasım 2026): konsol girişi Google Workspace ile, Google ile üye girişi yayında (21 Kasım 2026) | — | — |
+| AWS hesabı | Hesap, `rengarenk` profili ve Activate kredisi (1.000 USD) hazır. Eksik: KVKK standart sözleşmesi ve bildirimi, açılışta kök alan adının DNS kaydı | Kapalı test sunucusu çalışıyor; kalan yedek, izleme, SOPS (bkz. 4.2) | 2–3 gün |
 | Apple Developer + Google Play | Hesaplar (Apple için D-U-N-S) | EAS derleme, TestFlight / iç test, mağaza ürünleri, RevenueCat | 3–4 gün |
 | RevenueCat (mağaza ödemeleri) | Hesap, ürünler `rr_<ürün>` | `react-native-purchases`, sunucu bildirimi | 2 gün |
 | Firebase (push) | Firebase projesi, iOS için APNs anahtarı | FCM gerçek gönderim, iOS Firebase SDK | 1 gün |
@@ -240,8 +268,7 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 | e-Arşiv entegratörü | Sözleşme ve API belgesi | Bağdaştırıcı, fatura ve iade faturası | 2–3 gün |
 | EİDS (Ticaret Bakanlığı) | Entegrasyon erişimi | `eids.ts` gerçek sağlayıcı | 2 gün |
 | Yetki belgesi, GİB, MERSİS | Kurum erişimleri | `verification.ts` gerçek sağlayıcı (şimdi her başvuru insana) | 2–3 gün |
-| Amazon SES (Karar 50) | Alan adı doğrulaması (DNS: DKIM, MAIL FROM, DMARC), üretim erişimi talebi | SMTP kimliği `.env.prod`'a, gelen destek e-postası | 1 gün |
-| WhatsApp doğrulama kodu (Karar 18) | Meta İşletme hesabı, WhatsApp numarası, kimlik doğrulama şablonu onayı | Cloud API bağdaştırıcısı | Sprint 30 |
+| Amazon SES (Karar 50) | **Bitti**: alan adı doğrulandı, üretim erişimi verildi (19 Kasım 2026) | — | — |
 | İYS | İYS kaydı | Entegratör yok (sahip kararı 21 Kasım 2026): izinler Konsol › Rıza ve çerez kayıtları'ndan İYS'nin resmî CSV biçiminde (dosya başına 50 izin) elle yüklenir; kod hazır | — |
 | Meta (mobil SDK) | Meta uygulama kimliği | `react-native-fbsdk-next`, KVKK izin ekranı, iOS ATT | 1–2 gün |
 | Google Ads | Ads hesabı, Data Manager erişimi | Çevrimdışı dönüşüm ve harcama çekimi | 1–2 gün |
@@ -251,7 +278,8 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 | Avukat görüşü | Yasal metinlerin son hali | Metinler konsoldan yayınlanır (Sahip onayı); çerezsiz ölçüm ve Google Fonts notu | 1 gün |
 
 ### 4.2 Altyapı ve canlıya çıkış
-- AWS'ye ilk dağıtım (Lightsail'de `deploy/` Docker Compose + Caddy), alan adları ve TLS.
+- AWS'ye ilk dağıtım (Lightsail'de `deploy/` Docker Compose + Caddy) yapıldı: kapalı test sunucusu. Kalan: açılışta kök
+  alan adı (DNS), `www` yönlendirmesi ve 443'ün herkese açılması (`docs/CANLIYA-GECIS.md` bölüm 7).
 - Sırlar: `.env.prod` ve `.env.iade` SOPS ile şifreli; iade sürecinin anahtarı ayrı.
 - Yedek: pgBackRest, ikinci veri merkezine kopya, `backup_runs` kaydı (betik örneği `deploy/README.md`), aylık geri
   yükleme provası (Karar 56).
@@ -280,21 +308,19 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 
 Sıra, "canlıya çıkışı en çok hızlandıran ve en az bekleten" mantığıyla:
 
-1. **AWS Lightsail kurulumu + KVKK standart sözleşmesi + ilk dağıtım (en kritik).** Diğer bütün gerçek entegrasyonlar (SMS, e-posta, ödeme bildirimi)
-   herkese açık bir adres ister. Standart sözleşme Kurum'a bildirilip proje açılınca: `deploy/README.md` adımları → prova (`deploy/prova/`) zaten yapıldı →
-   SOPS ile sırlar → `v0.1.0` etiketi (senin onayınla) → yedek ve izleme.
-2. **Üyelik kanalları (Karar 18).** WhatsApp (Meta İşletme hesabı, numara, şablon) olmadan yeni üyelik açılamaz;
-   Google ile giriş için OAuth istemcisi, konsol girişi için Google Workspace.
-3. **Amazon SES (Karar 50).** Alan adı ve gönderen alt alan adları doğrulandı, SMTP kimliği ve yapılandırma kümeleri
-   test sunucusunda (13 Kasım 2026). Üretim erişimi verildi (19 Kasım 2026'da doğrulandı). Canlıya geçiş listesi:
-   `docs/CANLIYA-GECIS.md`.
+1. **KVKK standart sözleşmesi + yedek, izleme, SOPS (en kritik).** AWS'deki kapalı test sunucusu çalışıyor (12–13
+   Kasım 2026). Gerçek kullanıcı verisi için AWS ile standart sözleşme ve Kurum'a bildirim şart; sunucu tarafında
+   yedek, izleme ve sırların şifrelenmesi kalıyor. Açılışın adım adım sırası `docs/CANLIYA-GECIS.md` bölüm 7'de.
+2. **WhatsApp (Karar 18, 48).** Meta İşletme hesabı, numara ve üç onaylı şablon olmadan yeni üyelik açılamaz ve kritik
+   bildirimler gitmez. Google ile üye girişi ve konsol girişi zaten açık.
+3. **Amazon SES (Karar 50):** bitti (alan adı doğrulandı, üretim erişimi 19 Kasım 2026).
 4. **Apple ve Google Play hesapları → EAS derleme → TestFlight ve iç test.** Mağaza hesapları (özellikle Apple D-U-N-S)
    gecikmeye açık; kapalı beta buna bağlı.
 5. **PayTR ve e-Arşiv** (aynı anda; fatura olmadan satış açılmaz). O zamana kadar canlıda satın alma kapalı
    (`PAYMENT_PROVIDER=none`).
 6. **EİDS ve kurum doğrulamaları.** Gelene kadar galeri başvuruları insana düşer, araçlar EİDS olmadan yayınlanmaz
    (canlıda `none`).
-7. **Firebase, İYS, Meta, Google Ads, Bedrock:** beta sırasında sırayla.
+7. **Firebase, İYS kaydı, Meta reklam ölçümü, Google Ads, Bedrock:** beta sırasında sırayla.
 8. **Aşama 10:** yük ve sızma testi → kapalı beta → mağaza incelemesi → lansman.
 
 Her adımın sonunda: testler, `pnpm lint; pnpm typecheck; pnpm test`, plan dosyasında kutu işaretleme ve bu dosyanın
@@ -306,7 +332,7 @@ güncellenmesi.
 
 **Yapabileceklerim (bu bilgisayardan, senin onayınla):**
 - Her yeni hesap için bağdaştırıcıyı yazmak, sahte sağlayıcıyla ve testlerle denemek, belge ve `.env` örneğini güncellemek
-  (SMS, Netgsm, Google, PayTR, e-Arşiv, EİDS, GİB/MERSİS, FCM, RevenueCat, Meta, Google Ads, Bedrock, EEA).
+  (WhatsApp, PayTR, e-Arşiv, EİDS, GİB/MERSİS, FCM, RevenueCat, Meta, Google Ads, Bedrock, EEA, gerekirse Netgsm).
 - AWS dağıtımında adım adım yönlendirme, Compose/Caddy ayarı, SOPS kurulumu, yedek ve geri yükleme betikleri,
   izleme panoları, işletme el kitabı. (Sunucuya komut çalıştırmak ve `git push` / etiket için her seferinde önce sorarım.)
 - EAS derleme ayarları (`eas.json`), TestFlight ve Google Play iç test dağıtım adımları, mağaza açıklama metinleri.
@@ -370,7 +396,8 @@ an `192.168.1.27` (değişirse `ipconfig` ile bak).
    pnpm --filter @rengarenk/mobile dev              # 3. pencere: mobil (karekod)
    ```
 6. Ekrandaki karekodu telefonda okut: iPhone'da Kamera, Android'de Expo Go içinden "Scan QR code".
-7. Uygulama açılınca giriş ekranında demo numarayı yaz (bkz. 9); yerelde kod kutuya kendiliğinden yazılır.
+7. Uygulama açılınca giriş ekranında demo e-postası ve şifresiyle gir (bkz. 9.1). Yeni üyelikte telefon kodu yerelde
+   kutuya kendiliğinden yazılır.
 
 Kodda değişiklik yaptıkça uygulama telefonda anında yenilenir. Telefondan API'nin açık olduğunu denemek için telefon
 tarayıcısında `http://192.168.1.27:4000/health` açılmalı.
@@ -509,12 +536,13 @@ onaylar (Sahip hariç); iadeyi yalnızca Sahip onaylar.
 
 ---
 
-### SMS (İleti Merkezi) denemesi
+### SMS (İleti Merkezi, kapalı yedek) denemesi
+SMS 22 Kasım 2026'dan beri yalnızca doğrulama kodunun yedeği; kullanıcıya bildirim ya da kampanya SMS'i gitmez.
 - Hesap durumu, SMS göndermeden: `pnpm --filter @rengarenk/api sms:dene` (bakiye, onaylı başlıklar, `SMS_SENDER_ID` onaylı mı).
 - Deneme SMS'i (bakiyeden düşer): `pnpm --filter @rengarenk/api sms:dene 05XXXXXXXXX`.
-- Gerçek girişle deneme: `.env`'de `SMS_PROVIDER=iletimerkezi`, API'yi yeniden başlat, kendi numaranla giriş yap. Bu
-  sırada kod ekranda görünmez ve demo numaralarına (0555 100 00 0x) SMS gönderilmeye çalışılır; denemeden sonra
-  `SMS_PROVIDER=console`'a geri dön.
+- Gerçek kodla deneme: `.env`'de `SMS_PROVIDER=iletimerkezi` (yerelde `VERIFY_CHANNELS` varsayılanı `sms`), API'yi
+  yeniden başlat, üyelikte kendi numaranı yaz. Bu sırada kod ekranda görünmez ve yazılan her numaraya SMS gönderilmeye
+  çalışılır; denemeden sonra `SMS_PROVIDER=console`'a geri dön.
 
 ## 11. Sorun giderme
 
@@ -523,7 +551,7 @@ onaylar (Sahip hariç); iadeyi yalnızca Sahip onaylar.
 | Ana sayfa boş, her şey hata veriyor | Docker servisleri kapanmış olabilir: `pnpm infra:up`. (Artık kendiliğinden açılmaları gerekir.) |
 | "rengarenk rolü mevcut değil" | Yanlış porta bağlanılmış; PostgreSQL 5433'te. |
 | "Yeni kod için biraz bekle" | Aynı numaraya 60 sn içinde ikinci kod. Bekle ya da başka demo numarası kullan. |
-| "Çok fazla istek" (giriş kodu) | Saatte 20 kod sınırı. Yalnızca yerelde: `docker exec rengarenk-redis-1 sh -c "redis-cli --scan --pattern 'rl:otp:ip:*' \| xargs -r redis-cli del"` |
+| "Çok fazla istek" (doğrulama kodu) | Saatte 20 kod sınırı. Yalnızca yerelde: `docker exec rengarenk-redis-1 sh -c "redis-cli --scan --pattern 'rl:otp:ip:*' \| xargs -r redis-cli del"` |
 | Konsolda "kod geçersiz" | Telefonun saati otomatik olmalı; aynı kod ikinci kez kullanılamaz, 30 sn bekleyip yeni kodu dene. |
 | Telefonda uygulama API'ye bağlanmıyor | `apps/mobile/.env.local` adresi, güvenlik duvarı kuralı, aynı Wi-Fi, ağ profili "Özel". Telefonda `http://192.168.1.27:4000/health` açılmalı. |
 | E-posta gelmedi | Yerelde e-postalar gerçekten gitmez; http://localhost:8025 (Mailpit). |

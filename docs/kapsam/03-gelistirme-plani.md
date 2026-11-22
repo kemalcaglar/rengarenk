@@ -191,6 +191,16 @@ SMS sağlayıcısı özel gönderici adı için şirket ve marka tescili istedi�
   üretim erişimi talebi; Meta İşletme hesabı ve WhatsApp numarası (geliştirmede Meta'nın test numarası); Apple geliştirici
   hesabı
 
+### SMS'in yerine WhatsApp (22 Kasım 2026, sahip kararı; Karar 18, 48, 49)
+
+- [x] Bildirim kanalı `sms` → `whatsapp`: kritik iletiler (talebin son günü, paket ödemesi alınamadı) Meta Cloud API'nin
+  onaylı utility şablonlarıyla (`rengarenk_talep_doluyor`, `rengarenk_odeme_alinamadi`); göç SMS tercihlerini taşır
+- [x] Kampanya SMS ya da WhatsApp'tan gitmez (yalnızca e-posta ve bildirim); eski kampanya SMS onayları İYS'ye ret
+- [x] SMS altyapısı kapalı yedek: yalnızca doğrulama kodunun yedeği (`VERIFY_CHANNELS=whatsapp,sms`)
+- [x] Web, mobil, konsol: "WhatsApp kodu", Ayarlar'da WhatsApp sütunu, konsolda şablonun WhatsApp sekmesi (salt okunur)
+- [x] Test sunucusunda kuruldu (`test-16b685f`; `WHATSAPP_PROVIDER=none`, `SMS_PROVIDER=none`)
+- [ ] Meta'da üç şablonun onayı ve gerçek gönderim denemesi (sahibin işi; `docs/CANLIYA-GECIS.md` bölüm 2)
+
 ## Sprint 29 · konsolun kalan dört ekranı ve web düzeltmeleri (10 Kasım 2026)
 
 Konsolda "sonra" diye duran dört ekranın tasarımı hazır (YonetimPazar, YonetimIcerik, YonetimSistem); ekranlar ve
@@ -612,7 +622,8 @@ sistem sağlığı, tasarım değerleri.
 , şablonlar, otomatik akışlar (Aşama 7, 8 Kasım 2026)
 
 - [x] Tek bildirim katmanı (Karar 48): olay → alıcı → tercih ve rıza → kanal sırası (uygulama içi ve push hemen,
-  e-posta bildirim okunmadıysa gecikmeyle, SMS yalnızca kritik: talebin son günü, ödeme sorunu) → teslim kaydı
+  e-posta bildirim okunmadıysa gecikmeyle, SMS yalnızca kritik: talebin son günü, ödeme sorunu; 22 Kasım 2026'dan beri
+  SMS yerine WhatsApp) → teslim kaydı
   (`deliveries`, silinmez). Olay eşlemesi: talep süresi 7/3/1 gün, talep yayında, ilk ve yeni mesaj, güvenlik uyarısı,
   eşleşme, takip özeti, kayıtlı arama (anlık ve günlük özet), ödeme, abonelik, iade, galeri başvurusu, deneme, EİDS
 - [x] Kanallar: SMTP (yerelde Mailpit; işlemsel ve ticari ayrı gönderen), FCM HTTP v1, mevcut SMS ana ve yedek; kalıcı

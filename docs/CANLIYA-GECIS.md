@@ -1,6 +1,6 @@
 # Canlıya geçiş listesi
 
-Son güncelleme: 21 Kasım 2026 (kod, sunucu, DNS ve AWS ile karşılaştırılarak doğrulandı). Siteyi ve uygulamayı herkese açmadan önce yapılacak her işi ve nasıl yapılacağını
+Son güncelleme: 22 Kasım 2026 (kod, sunucu, DNS ve AWS ile karşılaştırılarak doğrulandı). Siteyi ve uygulamayı herkese açmadan önce yapılacak her işi ve nasıl yapılacağını
 toplar. Biten maddenin kutusunu işaretle (`[ ]` → `[x]`); Claude da iş bitince işaretler.
 
 **Kim yapar:**
@@ -13,18 +13,18 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
 
 ---
 
-## Şu an ne durumda (21 Kasım 2026)
+## Şu an ne durumda (22 Kasım 2026)
 
 | Konu | Durum |
 | --- | --- |
 | Sunucu | AWS Frankfurt'ta `rengarenk-1` çalışıyor, kapalı test olarak. Siteye yalnızca izin verilen 4 IP adresi, sunucu bağlantısına (SSH) 2 adres girebiliyor. Adres `beta.rengarenksite.com` |
-| Yazılım | 59 kararın kodu bitti. Testler, lint ve tip denetimi temiz. Test sunucusunda `test-f0c0f12`; bilgisayarda 4 commit daha var (SMS kapalı seçeneği, yeni paket adı, bu belge), GitHub'a ve sunucuya henüz gitmedi |
+| Yazılım | 59 kararın kodu bitti. Testler, lint ve tip denetimi temiz. Test sunucusunda `test-16b685f` (22 Kasım 2026); GitHub ile bilgisayar aynı, gönderilmemiş commit yok |
 | Konsol girişi | Google Workspace ile açık, sahip hesabın tanımlı |
 | E-posta (SES) | Hazır: alan adı doğrulandı, **üretim erişimi verildi** (günde 50.000 e-posta) |
 | Google ile üye girişi | **Yayında** (21 Kasım 2026, sahip): kök alan adının dönüş adresi eklendi |
 | Yasal metinler | Sunucuda 8 metnin **hepsi taslak, hiçbiri yayında değil**. KVKK aydınlatma metninin iki taslağında da barındırma yeri hâlâ "Radore" |
 | Telefon kodu | Gönderilmiyor; kapalı testte ekranda gösteriliyor (`VERIFY_CHANNELS=ekran`, `KAPALI_TEST=1`) |
-| SMS | **WhatsApp'a geçildi** (sahip kararı, 22 Kasım 2026): doğrulama kodu ve kritik bildirimler WhatsApp'tan, kampanya yalnızca e-posta ve bildirimle. SMS kapalı yedek (`SMS_PROVIDER=none`); canlıda `WHATSAPP_PROVIDER=none` (Meta hesabı gelene kadar) |
+| SMS | **WhatsApp'a geçildi** (sahip kararı, 22 Kasım 2026): doğrulama kodu ve kritik bildirimler WhatsApp'tan, kampanya yalnızca e-posta ve bildirimle. SMS kapalı yedek: test sunucusunda `SMS_PROVIDER=none` ve `WHATSAPP_PROVIDER=none` (Meta hesabı gelene kadar; kritik WhatsApp bildirimi teslim kaydına "atlandı" yazılır) |
 | Ödeme, fatura, mağaza, push, yapay zekâ | Kapalı (`none`). Kod hazır, hesaplar bekleniyor. Henüz yazılmayanlar: e-Arşiv bağdaştırıcısı (İYS'ye izinler CSV ile elle yüklenir), mobilde RevenueCat ve iPhone push'u için Firebase SDK |
 | Yedek, izleme, sırların şifrelenmesi | **Henüz kurulmadı** |
 | AWS kredisi | Activate kabul edildi: 1.000 USD (21 Kasım 2026). Kasım'ın ilk 20 gününde kullanım 11,95 USD, tamamı krediden |
@@ -43,7 +43,10 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
 - [x] **Sürüm kurma:** imajlar sunucuda derlenir (`~/derle.sh`); sunucu anahtarı GitHub'a girmez. `deploy.yml`
   kullanılmaz.
 - [x] **Şirket:** şahıs şirketi kurulacak. Kurulana kadar SMS yok, telefon kodu yalnızca WhatsApp'tan gider
-  (`VERIFY_CHANNELS=whatsapp`, `SMS_PROVIDER=none`; SMS bildirimleri "atlandı" yazılır).
+  (`VERIFY_CHANNELS=whatsapp`, `SMS_PROVIDER=none`).
+- [x] **SMS'in yerine WhatsApp** (22 Kasım 2026): kritik bildirimler (talebin son günü, paket ödemesi alınamadı) de
+  WhatsApp'tan gider; kampanya SMS ya da WhatsApp'tan gitmez, yalnızca e-posta ve bildirimle. SMS altyapısı kapalı
+  yedek olarak durur (yalnızca doğrulama kodunun yedeği).
 - [x] **Barındırma yeri: Frankfurt** (avukat görüşü, 21 Kasım 2026). Sistem AWS `eu-central-1`'de (Lightsail,
   Bedrock, SES) kalır; İstanbul Local Zone'a (EC2) taşınılmaz. Yurt dışına aktarım bu yüzden sürer: AWS ile KVKK
   standart sözleşmesi ve Kurum'a bildirim (aşağıda) canlıdan önce zorunlu.
@@ -86,11 +89,12 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
 - [ ] **İYS kaydı** (ileti yönetim sistemi; sahip kararı 21 Kasım 2026: entegratör yok, izinler elle yüklenir).
   - Nasıl: şirket kurulunca iys.org.tr'de hizmet sağlayıcı olarak kaydol (marka: Rengarenk). Entegratöre para
     verilmez; API gerekmez.
-  - Onay ve retler kanal başına (e-posta, SMS) kaydedilir: Konsol › Uyum ve KVKK › Rıza ve çerez kayıtları › **İYS'ye
-    aktarım**. Üyelikte ve galeri başvurusunda ticari ileti onayı kanal kanal alınır (e-posta, SMS, bildirim; yasal metin taslağı bölüm 4);
-    işaretlenen kanalın kampanya ayarı açılır.
+  - Onay ve retler kanal başına kaydedilir: Konsol › Uyum ve KVKK › Rıza ve çerez kayıtları › **İYS'ye aktarım**.
+    Üyelikte ve galeri başvurusunda ticari ileti onayı kanal kanal alınır (e-posta ve bildirim; yasal metin taslağı
+    bölüm 4); işaretlenen kanalın kampanya ayarı açılır. İYS'ye yalnızca e-posta (EPOSTA) onayları gider; kampanya
+    SMS'ten gitmediği için eski SMS (MESAJ) onayları İYS'ye ret olarak aktarılır (22 Kasım 2026).
   - İYS kuralı: "İYS üzerinde onayı bulunmayan alıcılara ticari elektronik ileti gönderilemez." Bu yüzden ticari
-    e-posta ve SMS yalnızca paketi **"Yüklendi"** işaretlenmiş onaylara gider; adres değişince yeni adres yüklenene kadar
+    e-posta yalnızca paketi **"Yüklendi"** işaretlenmiş onaylara gider; adres değişince yeni adres yüklenene kadar
     gitmez. Uygulama içi bildirim ve push İYS kapsamında değildir, onay verilince gider. "Yüklendi"ye yalnızca dosya
     İYS'de başarıyla yüklendikten sonra bas.
   - Her gün sonunda "CSV'yi hazırla ve indir"e bas. Dosyayı İYS Web'de (hs.iys.org.tr) İzin Ekle › Dosyadan Çoklu
@@ -107,7 +111,7 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
   - **Dikkat:** kişi iznini doğrudan İYS'den (İYS uygulaması ya da sitesi) geri alabilir. Bunu sistem göremez; İYS
     panelinde gelen retleri ara ara kontrol et, ret varsa kişinin kampanya iletisini Ayarlar'dan kapat ya da Claude'a
     bildir.
-  - İYS kaydı yapılana kadar paket yüklenemeyeceği için ticari e-posta ve SMS zaten gitmez. Uygulama içi kampanya
+  - İYS kaydı yapılana kadar paket yüklenemeyeceği için ticari e-posta zaten gitmez. Uygulama içi kampanya
     bildirimini de durdurmak istersen Konsol › Büyüme › Bildirim merkezi'nde ticari iletiyi kapat. İşlemsel iletiler
     (kod, talep ve mesaj bildirimi) bundan etkilenmez.
 - [ ] **TSB yazılı izni.** Katalog TSB listesini kullanıyor; yazışma taslağı Claude dokümanında. İzin yazısı gelince
@@ -294,7 +298,8 @@ Bir sorun çıkarsa geri alma: her kurulumdan önce sunucuda `.env.prod.yedek-<s
 - [ ] **AWS Bedrock (yapay zekâ):** KVKK sözleşmesinden sonra `AI_PROVIDER=bedrock`. Ajanın yorumları ve sınıflandırması
   yapay zekâyla çalışır.
 - [ ] **Meta ve Google Ads reklam ölçümü:** hesaplar ve KVKK bildirimi gelince.
-- [ ] **Yedek SMS sağlayıcısı (Netgsm):** hesap açılınca bağdaştırıcı yazılır.
+- [ ] **Yedek SMS sağlayıcısı (Netgsm, isteğe bağlı):** SMS artık yalnızca doğrulama kodunun kapalı yedeği; gerek
+  görülürse hesap açılınca bağdaştırıcı yazılır.
 - [ ] **EEA teknik değerleri:** EEA'dan erişim gelince.
 - [ ] **Eşleştirme ayarı:** ilk gerçek taleplerle uyum kurallarının ağırlıkları gözden geçirilir.
 

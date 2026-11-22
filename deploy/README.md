@@ -71,8 +71,11 @@ KVKK standart sözleşmesi bildirilene kadar sunucu dışarıya kapalı bir test
   gönderdiği için WhatsApp hazır olana kadar `VERIFY_CHANNELS=ekran` ve `KAPALI_TEST=1`: kod gönderilmez, ekrandaki
   kutuya yazılır. Site herkese açılmadan önce ikisi de kaldırılır (`ekran` tek başına canlıda açılmaz, env.ts).
 - Bekleyenler: yedek, izleme, SOPS. `AI_PROVIDER=none` (KVKK).
-- SMS: `RENGARENK` başlığı onaylanana kadar sunucuda geçici olarak `SMS_SENDER_ID=APITEST` (sahip kararı, 12 Kasım
-  2026; İleti Merkezi test kredisi). Başlık onaylanınca `.env.prod`'da `RENGARENK`'e döndür, `api` ve `worker`'ı yeniden aç.
+- SMS (22 Kasım 2026, sahip kararı: SMS'in yerine WhatsApp): sunucuda `SMS_PROVIDER=none`, kapalı yedek. İleti Merkezi
+  anahtarları `.env.prod`'da duruyor; yedek açılırsa `SMS_PROVIDER=iletimerkezi`, `SMS_SENDER_ID=RENGARENK` (başlık
+  onaylanınca) ve `VERIFY_CHANNELS=whatsapp,sms`.
+- WhatsApp: Meta hesabı ve şablonlar gelene kadar `WHATSAPP_PROVIDER=none` (kritik WhatsApp bildirimi teslim kaydına
+  "atlandı"). Gelince `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID` ve `WHATSAPP_PROVIDER=meta`; `api` ve `worker` yeniden açılır.
 
 ### Veri aktarımı (13 Kasım 2026, sahip kararı)
 

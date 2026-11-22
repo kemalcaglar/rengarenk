@@ -41,7 +41,8 @@ pnpm dev                 # API :4000, web :3000, yönetim :3001, Expo
 ```
 
 - API belgeleri: http://localhost:4000/docs
-- Giriş kodu (SMS) yerelde API günlüğüne yazılır: `Rengarenk giriş kodun: 123456`
+- Doğrulama kodu (üyelik, numara değiştirme, hassas işlem) yerelde gönderilmez: ekrandaki kutuya yazılır ve API
+  günlüğüne düşer. Giriş e-posta ve şifreyle (demo hesapları `docs/DURUM-VE-TEST.md` › 9)
 - E-postalar: http://localhost:8025 (Mailpit)
 
 **İlk göç hakkında:** `packages/db/prisma/migrations/20261109000000_init` elle yazıldı, çünkü
@@ -86,6 +87,8 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
   aynı mesaj yedekle gider; art arda 3 hatada ana sağlayıcı 5 dakika devre dışı kalır. Geçersiz numara
   gibi kalıcı hatalarda yedeğe geçilmez. Şu an `iletimerkezi` bağdaştırıcısı var; ikinci sağlayıcı
   seçildiğinde `apps/api/src/sms/` altına eklenir. Canlıda `console` kullanılamaz.
+  22 Kasım 2026'dan beri (sahip kararı) SMS kapalı yedek: doğrulama kodu ve kritik bildirimler WhatsApp'tan
+  (`apps/api/src/sms/whatsapp.ts`, `WHATSAPP_PROVIDER`), SMS yalnızca `VERIFY_CHANNELS=whatsapp,sms` ile kodun yedeği.
 - **Hız sınırı:** aynı IP'den saatte en fazla 20 kod isteği ve 60 doğrulama (Redis).
 - **Günlük:** JSON (pino); telefon, kod, jeton, çerez ve yetki başlığı maskelenir. Geliştirmede okunur biçimde.
 - **Ölçümler:** `GET /metrics` (Prometheus). Canlıda `METRICS_TOKEN` zorunlu.
@@ -371,7 +374,9 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 
 - **Katman:** `apps/api/src/notifications/`; şablonlar ve konular `packages/shared/src/notifications.ts`. Olaylar işçide
   bildirime çevrilir (`notification-events.ts`), teslimi işçi 5 saniyede bir yapar (`delivery.service.ts`). Yerelde
-  e-postalar Mailpit'e düşer (http://localhost:8025), push sahte, SMS kodları API günlüğüne yazılır.
+  e-postalar Mailpit'e düşer (http://localhost:8025), push sahte, WhatsApp bildirimleri yalnızca günlüğe şablon adıyla
+  yazılır (`WHATSAPP_PROVIDER=console`). Kritik iletiler (talebin son günü, ödeme alınamadı) WhatsApp'tan; kampanya
+  yalnızca e-posta ve bildirimle.
 - **Uçlar:** `GET /notifications`, `GET /notifications/unread`, `POST /notifications/read`, `GET/PUT /me/notification-preferences`,
   `POST/DELETE /me/push-tokens`, `POST /me/email`, `POST /eposta/dogrula`, `POST /iletisim/ayril`, e-posta sunucusu
   geri bildirimi `POST /eposta/geri-bildirim` (`x-rr-eposta-imza` = `EPOSTA_WEBHOOK_SECRET` ile HMAC).
