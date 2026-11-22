@@ -1,7 +1,7 @@
 # Belgeler
 
-Bu klasördeki dosyalar, Claude'da tutulan ürün kapsam dokümanının ve tasarımların 7 Kasım 2026
-tarihli kopyasıdır. Amaç, IDE içinde çalışırken her şeyin depoda okunabilir olmasıdır.
+Bu klasördeki dosyalar, Claude'da tutulan ürün kapsam dokümanının ve tasarımların kopyasıdır; iki taraf en son
+22 Kasım 2026'da eşitlendi. Amaç, IDE içinde çalışırken her şeyin depoda okunabilir olmasıdır.
 
 - Ürün kapsam dokümanı (asıl kaynak, 7 sekme): https://claude.ai/artifact/RMkAC6ibrZAduxGnkhdLNK
 - Tasarımlar (canlı tuval, 37 ekran): https://claude.ai/artifact/RyR9zdEhL6JcTHgL5tDS72
@@ -26,12 +26,15 @@ Kopyalanmayan sekme: **Yazışma taslakları** (TSB, sağlayıcılar vb. ile yaz
 Claude dokümanında durur.
 
 **Çelişki olursa:** altyapıyla ilgili konularda `02-teknik-tasarim.md` (sürüm 0.2) geçerlidir.
-`01-urun-kapsami.md` içindeki Karar 16 ve 37, sadeleştirmeden önce yazıldı ve hâlâ RabbitMQ, k3s
-kümesi ve MinIO'dan söz eder. Bunların yerine şimdilik pg-boss (PostgreSQL kuyruğu), tek sunucuda
-Docker Compose ve SeaweedFS kullanılıyor; k3s'e büyüme eşikleri aşılınca geçilecek.
+`01-urun-kapsami.md` içindeki Karar 16'nın tablosu sadeleştirmeden önce yazıldı ve RabbitMQ ile
+Kubernetes'ten söz eder; kararın altındaki "Uygulamadaki durum" notu bugünkü yapıyı verir: pg-boss
+(PostgreSQL kuyruğu), AWS Lightsail'de tek sunucuda Docker Compose ve SeaweedFS. Büyüme eşikleri aşılınca
+tablodaki yapıya geçilir.
 
 **Güncelleme:** bir ürün kararı değişirse önce sahibine sorulur, sonra hem bu kopya hem Claude
-dokümanı güncellenir. İkisi ayrışırsa Claude dokümanı esas alınır.
+dokümanı güncellenir. İkisi ayrışırsa Claude dokümanı esas alınır. Tek istisna geliştirme planı: Claude
+dokümanında yalnızca özet tablolar ve Sprint 1–6 durur; Sprint 7–30'un madde listesi yalnızca
+`kapsam/03-gelistirme-plani.md` içindedir.
 
 ## tasarim/
 

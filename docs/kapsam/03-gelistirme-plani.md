@@ -86,14 +86,14 @@ Sprint 1 işleri 7 Kasım 2026'da bitti; CI yeşil. Bilgisayarda Docker Desktop 
 - [x] İzleme: `GET /metrics` (Prometheus), 5xx hataları GlitchTip'e (Sentry uyumlu)
 - [x] Hesabım: profil güncelleme, açık oturumları listeleme ve kapatma
 - [x] Web oturumu: yenileme jetonu httpOnly çerezde (`rr_yenileme`), erişim jetonu yalnızca bellekte
-- [ ] Yedek SMS sağlayıcısı bağdaştırıcısı (sağlayıcı seçilince; aday Netgsm)
+- [ ] Yedek SMS sağlayıcısı bağdaştırıcısı (isteğe bağlı; aday Netgsm; 22 Kasım 2026'dan beri SMS yalnızca doğrulama kodunun kapalı yedeği)
 
 ## Sprint 3 · yönetim girişi, roller, dört göz (öne çekildi, 7 Kasım 2026'da yapıldı)
 
 - [x] Yönetim konsoluna Google Workspace ile giriş ve zorunlu 2FA, 30 dk hareketsizlikte oturum kapanır (T10, Karar 40)
 - [x] Çalışan rolleri ve izin matrisi; her API uç noktası için izin denetimi (Karar 40)
 - [x] Dört göz onay motoru: istek, onaylayıcı, süre, sonuç (Teknik tasarım 11)
-- [ ] Gerçek Google Workspace istemcisiyle deneme (hesap açılınca; şimdilik sahte sağlayıcı)
+- [x] Gerçek Google Workspace istemcisiyle giriş (13 Kasım 2026, test sunucusunda açık)
 
 Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, diğer herkes için isteyen ve onaylayan farklı kişidir. Onay motoru iade isteklerini taşır, yalnızca Sahip onaylar; iade kaydı ve yürütme ödeme aşamasında, iade kilidi tetikleyicilerine dokunulmadan yazılır. Eski "Katalog" rolü hazır rollerden çıkarıldı; gerekirse özel rol olarak açılır. Yönetim girişinin e-posta alanı rengarenksite.com.
 
@@ -102,9 +102,9 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Canlı provası: dört imaj bu bilgisayarda derlendi, compose.prod.yml canlı kipinde ayağa kalktı, göçler uygulandı; üç dağıtım hatası bulunup düzeltildi (Prisma derlemesi, .dockerignore, web API adresi)
 - [x] İşletme el kitabı: deploy/README.md (ilk kurulum, günlük işler, geri alma, prova)
 - [x] Özellik anahtarları ve bakım modu (T13, Karar 47): kitle, yüzde, platform, deneme kullanıcıları; konsol ekranı; web ve mobilde bakım duyurusu
-- [ ] AWS'ye ilk dağıtım: Lightsail sunucusu, `eu-central-1` (Karar 37; 12 Kasım 2026'da AWS'ye değişti), kapalı test ortamı olarak
+- [x] AWS'ye ilk dağıtım: Lightsail sunucusu `rengarenk-1`, `eu-central-1` (Karar 37; 12–13 Kasım 2026), kapalı test ortamı olarak
 - [ ] Yedek (pgBackRest), izleme yığını (Prometheus, Grafana, Loki, GlitchTip) ve SOPS (sunucuyla birlikte)
-- [ ] Test ortamı (yalnızca sentetik veri; Lightsail)
+- [x] Test ortamı: `rengarenk-1` kapalı test (yalnızca sentetik veri); açılışta canlı sunucu olur, sonraki denemeler bu bilgisayardaki canlı provasında (sahip kararı, 19 Kasım 2026)
 
 ## Sprint 5 · katalog veri modeli ve TSB hattı (Aşama 2, 7 Kasım 2026'da başladı)
 
@@ -119,7 +119,7 @@ Sahip kararları (7 Kasım 2026): Sahip kendi açtığı isteği onaylayabilir, 
 - [x] Türkiye'ye özgü eski modeller (sahip kararı: kaynaklı liste): Tofaş Şahin, Doğan, Kartal, Serçe, Murat 124 ve 131; Renault 12 ve Toros; Anadol A1, A2, STC-16, SV-1600, Böcek, A8-16, Kamyonet. Wikidata'da yılları yoktu; değerler Türkçe Vikipedi maddelerinden, her kayıt kaynağıyla. Katalog 1967–2026
 - [x] Kasa kuşağı ve makyaj yılları → Sprint 6
 - [x] Ad eşleme → Sprint 6
-- [ ] Açık kaynaklar: EEA teknik değerleri, VehiclesDB (motosiklet, kamyon, otobüs), Commons fotoğrafları (Sprint 6)
+- [x] Açık kaynaklar → Sprint 6 (VehiclesDB ve Commons fotoğrafları bitti; EEA teknik değerleri erişim bekliyor)
 - [x] 14 kategori şeması ve kategori yönetimi (Karar 45) → Sprint 7
 
 ## Sprint 6 · kasa kuşağı, nesil kodu, ad eşleme (8 Kasım 2026'da başladı)
