@@ -6,7 +6,8 @@ import { variantSchema } from './experiments.js';
  * birleşir; kişi sayısı ve kanal bazında ulaşılabilir kişi canlı hesaplanır, kayıtlı segment her gönderimde yeniden
  * hesaplanır. Kampanya ticari iletidir: yalnızca ticari ileti onayı olanlara, kişi başı haftada en çok 2, 21.00–09.00
  * arası sabaha ertelenir (bildirim katmanı). 1.000 kişiyi aşan gönderim sahip ya da yönetici onayı ister.
- * Kampanya SMS'i sahip açana kadar kapalıdır.
+ * Kampanya yalnızca uygulama içi, push ve e-postayla gider; SMS ve WhatsApp kampanya kanalı değildir (sahip kararı
+ * 22 Kasım 2026).
  */
 
 export const SEGMENT_ROLES = [
@@ -124,11 +125,10 @@ export const segmentSchema = z
   })
   .strict();
 
-/** Kampanya kanalları: uygulama içi bildirim push'u da kapsar; SMS kapalı (Karar 49) */
+/** Kampanya kanalları: uygulama içi bildirim push'u da kapsar (Karar 49; SMS ve WhatsApp yok, sahip kararı) */
 export const CAMPAIGN_CHANNELS = [
   { key: 'uygulama', ad: 'Uygulama içi ve push', acik: true },
   { key: 'eposta', ad: 'E-posta (ticari)', acik: true },
-  { key: 'sms', ad: 'SMS', acik: false },
 ] as const;
 export type CampaignChannel = 'uygulama' | 'eposta';
 

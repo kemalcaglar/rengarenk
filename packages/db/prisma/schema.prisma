@@ -1141,7 +1141,7 @@ model Consent {
 }
 
 /// İYS'ye bildirilecek izin satırı (Karar 49; sahip kararı 21 Kasım 2026: entegratör yok, izinler konsoldan Excel
-/// olarak indirilip İYS paneline elle yüklenir). Kişi ve kanal (e-posta, SMS) başına durum değişince bir satır eklenir;
+/// olarak indirilip İYS paneline elle yüklenir). Kişi ve kanal (e-posta; MESAJ yalnızca eski onayların reti) başına durum değişince bir satır eklenir;
 /// satır silinmez (onayın ispatı), pakete girince batch_id dolar.
 model IysRecord {
   id            String   @id @db.Uuid
@@ -2476,7 +2476,7 @@ model NotificationPref {
   userId    String   @map("user_id") @db.Uuid
   /// mesaj | arama | sure | odeme | kampanya | galeri
   konu      String
-  /// uygulama | eposta | sms
+  /// uygulama | eposta | whatsapp (sms 22 Kasım 2026'da whatsapp'a taşındı)
   kanal     String
   acik      Boolean
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -2494,7 +2494,7 @@ model Delivery {
   userId         String?   @map("user_id") @db.Uuid
   /// Çalışana giden (yönetim bildirimi)
   staffId        String?   @map("staff_id") @db.Uuid
-  /// push | eposta | sms
+  /// push | eposta | whatsapp (eski kayıtlarda sms)
   kanal          String
   sablon         String
   sablonSurum    Int       @map("sablon_surum")

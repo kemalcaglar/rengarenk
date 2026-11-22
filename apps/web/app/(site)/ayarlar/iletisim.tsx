@@ -268,7 +268,7 @@ export function GorunenAd({
 }
 
 /**
- * "Numarayı değiştir" (Yardim.dc.html: yeni numarana gelen SMS kodunu gir). Doğrulanınca diğer cihazlardaki oturumlar
+ * "Numarayı değiştir" (Yardim.dc.html: yeni numarana WhatsApp’tan gelen kodu gir). Doğrulanınca diğer cihazlardaki oturumlar
  * kapanır; bu cihaz açık kalır.
  */
 export function NumaraDegistir({ bitti }: { bitti: (mesaj: string) => void }) {
@@ -357,7 +357,7 @@ export function NumaraDegistir({ bitti }: { bitti: (mesaj: string) => void }) {
           style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}
         >
           <label className="sr-only" htmlFor="yeni-kod">
-            SMS kodu
+            WhatsApp kodu
           </label>
           <input
             id="yeni-kod"

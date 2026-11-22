@@ -3,16 +3,17 @@ import { z } from 'zod';
 /**
  * Bildirim katmanı (Karar 30, 48, 49, 50; Teknik tasarım §9). Sistemin her parçası "bu kişiye bu olayı bildir" der;
  * kanal seçimi, tercih ve rıza, sıklık sınırı, sessiz saat ve teslim kaydı bu katmanda yapılır. Kanal sırası maliyete
- * göre: uygulama içi ve push, sonra e-posta (bildirim okunmadıysa gecikmeyle), en son SMS.
+ * göre: uygulama içi ve push, sonra e-posta (bildirim okunmadıysa gecikmeyle), en son WhatsApp (yalnızca kritik iletiler;
+ * sahip kararı 22 Kasım 2026: SMS'in yerine WhatsApp, kampanya WhatsApp'tan gitmez).
  */
 
 /** Ayarlar ekranındaki kanallar; "Uygulama" uygulama içi bildirim ve push'u birlikte açar */
-export const PREF_CHANNELS = ['uygulama', 'eposta', 'sms'] as const;
+export const PREF_CHANNELS = ['uygulama', 'eposta', 'whatsapp'] as const;
 export type PrefChannel = (typeof PREF_CHANNELS)[number];
 export const PREF_CHANNEL_NAMES: Record<PrefChannel, string> = {
   uygulama: 'Uygulama',
   eposta: 'E-posta',
-  sms: 'SMS',
+  whatsapp: 'WhatsApp',
 };
 
 export type IletiTuru = 'islemsel' | 'ticari';
@@ -21,10 +22,12 @@ export interface NotifyTopic {
   ad: string;
   not: string;
   tur: IletiTuru;
-  /** Varsayılan: uygulama, e-posta, SMS (Ayarlar.dc.html) */
+  /** Varsayılan: uygulama, e-posta, WhatsApp (Ayarlar.dc.html) */
   varsayilan: Record<PrefChannel, boolean>;
   /** Kapatılamayan kanallar */
   kilitli: PrefChannel[];
+  /** Bu konuda sunulmayan kanallar (Ayarlar'da kutu yok, açılamaz) */
+  kapali?: PrefChannel[];
   /** Yalnızca galeri üyelerine gösterilir */
   galeri?: true;
 }
@@ -35,42 +38,44 @@ export const NOTIFY_TOPICS = {
     ad: 'Yeni mesaj',
     not: 'Biri talebine veya sohbetine yazdığında',
     tur: 'islemsel',
-    varsayilan: { uygulama: true, eposta: true, sms: false },
+    varsayilan: { uygulama: true, eposta: true, whatsapp: false },
     kilitli: [],
   },
   arama: {
     ad: 'Kayıtlı aramana uyan yeni talep',
     not: 'Her aramada ayrıca anlık veya günlük seçebilirsin',
     tur: 'islemsel',
-    varsayilan: { uygulama: true, eposta: true, sms: false },
+    varsayilan: { uygulama: true, eposta: true, whatsapp: false },
     kilitli: [],
   },
   sure: {
     ad: 'Talep süresi hatırlatması',
     not: 'Süre dolmadan 7, 3 ve 1 gün önce',
     tur: 'islemsel',
-    varsayilan: { uygulama: true, eposta: true, sms: true },
+    varsayilan: { uygulama: true, eposta: true, whatsapp: true },
     kilitli: [],
   },
   odeme: {
     ad: 'Ödeme ve fatura',
     not: 'Kapatılamaz',
     tur: 'islemsel',
-    varsayilan: { uygulama: true, eposta: true, sms: false },
+    varsayilan: { uygulama: true, eposta: true, whatsapp: false },
     kilitli: ['uygulama', 'eposta'],
   },
   kampanya: {
     ad: 'Kampanya ve duyurular',
     not: 'Ticari ileti onayı gerekir',
     tur: 'ticari',
-    varsayilan: { uygulama: false, eposta: false, sms: false },
+    varsayilan: { uygulama: false, eposta: false, whatsapp: false },
     kilitli: [],
+    // Kampanya WhatsApp'tan gitmez (sahip kararı 22 Kasım 2026: e-posta ve bildirim yeter)
+    kapali: ['whatsapp'],
   },
   galeri: {
     ad: 'Galeri: portföyüne uyan talepler ve ekip',
     not: 'Eşleşme, deneme süresi, ekip daveti',
     tur: 'islemsel',
-    varsayilan: { uygulama: true, eposta: true, sms: false },
+    varsayilan: { uygulama: true, eposta: true, whatsapp: false },
     kilitli: [],
     galeri: true,
   },
@@ -80,7 +85,7 @@ export const TOPIC_KEYS = Object.keys(NOTIFY_TOPICS) as TopicKey[];
 
 /**
  * Şablonun konusu: ayardaki konulardan biri, `guvenlik` (hesap güvenliği; uygulama ve e-posta her zaman, kritik
- * durumda SMS) ya da `genel` (yalnızca uygulama içi; ör. talebin yayında).
+ * durumda WhatsApp) ya da `genel` (yalnızca uygulama içi; ör. talebin yayında).
  */
 export type TemplateTopic = TopicKey | 'guvenlik' | 'genel';
 
@@ -96,9 +101,20 @@ export const NOTIFY_GROUP_STYLE: Record<NotifyGroup, { ikon: string; tint: strin
 };
 
 /**
- * Bildirim şablonu (Karar 48: tek şablondan uygulama içi, push, e-posta ve SMS metni). Metinlerde `{{degisken}}`
+ * Bildirim şablonu (Karar 48: tek şablondan uygulama içi, push, e-posta ve WhatsApp iletisi). Metinlerde `{{degisken}}`
  * kullanılır; e-posta gövdesi paragraflar halindedir ve kurumsal e-posta düzenine (MJML) yerleştirilir.
  */
+/**
+ * WhatsApp iletisi (Meta WhatsApp Cloud API, "utility" şablonu). Metin Meta'da onaylı şablondadır ve konsoldan
+ * değiştirilemez; burada şablonun adı, gövdedeki {{1}}, {{2}} … yerlerine sırayla girecek değişkenler ve konsolda
+ * gösterilecek önizleme durur. Meta'daki şablon metni `onizleme` ile aynı yazılır.
+ */
+export interface WhatsAppTemplate {
+  sablon: string;
+  parametreler: string[];
+  onizleme: string;
+}
+
 export interface NotifyTemplate {
   ad: string;
   konu: TemplateTopic;
@@ -109,12 +125,12 @@ export interface NotifyTemplate {
   /** Uygulama içinde açılacak adres (web yolu; mobil aynı yolu karşılar) */
   url?: string;
   eposta?: { konu: string; paragraflar: string[]; dugme?: { yazi: string; url: string } };
-  /** SMS (Türkçe karakter kullanılabilir; 160 karakteri aşmamalı) */
-  sms?: string;
+  /** WhatsApp (yalnızca kritik iletiler) */
+  whatsapp?: WhatsAppTemplate;
   /** E-posta, bildirim bu kadar dakika okunmadıysa gider (0: hemen) */
   epostaGecikmeDk?: number;
-  /** SMS yalnızca bu koşulda: `son_gun` (gun ≤ 1) */
-  smsKosul?: 'son_gun';
+  /** WhatsApp yalnızca bu koşulda: `son_gun` (gun ≤ 1) */
+  whatsappKosul?: 'son_gun';
   /** Aynı konuda okunmamış bildirimi güncelle (ör. sohbet başına tek bildirim): `{{conversationId}}` gibi */
   tekil?: string;
   /** Uygulama içi bildirim yazılmaz (ör. e-posta doğrulama) */
@@ -140,8 +156,12 @@ export const NOTIFY_TEMPLATES = {
       ],
       dugme: { yazi: 'Taleplerime git', url: '/taleplerim' },
     },
-    sms: 'Rengarenk: "{{talepKisa}}" talebin yarin doluyor. Uzatmak icin: {{link}}',
-    smsKosul: 'son_gun',
+    whatsapp: {
+      sablon: 'rengarenk_talep_doluyor',
+      parametreler: ['talepKisa', 'link'],
+      onizleme: 'Rengarenk: “{{talepKisa}}” talebinin süresi yarın doluyor. Uzatmak için: {{link}}',
+    },
+    whatsappKosul: 'son_gun',
   },
   'talep.suresi_doldu': {
     ad: 'Talep süresi doldu',
@@ -405,7 +425,12 @@ export const NOTIFY_TEMPLATES = {
       ],
       dugme: { yazi: 'Kartı güncelle ve öde', url: '/galeri-paneli?bolum=paket' },
     },
-    sms: 'Rengarenk: {{galeriKisa}} paket yenileme odemesi alinamadi. Karti guncellemek icin: {{link}}',
+    whatsapp: {
+      sablon: 'rengarenk_odeme_alinamadi',
+      parametreler: ['galeriKisa', 'link'],
+      onizleme:
+        'Rengarenk: {{galeriKisa}} paketinin yenileme ödemesi alınamadı. Kartını güncellemek için: {{link}}',
+    },
   },
   'fiyat.degisiyor': {
     ad: 'Paket fiyatı değişiyor (galeri)',
@@ -1076,7 +1101,7 @@ export const AUTOMATIONS = {
       },
       {
         tip: 'Koşul ve ileti',
-        baslik: 'E-posta; son gün SMS',
+        baslik: 'E-posta; son gün WhatsApp',
         detay: 'Kişinin tercihine göre (Ayarlar › Bildirimler)',
       },
       { tip: 'Hedef', baslik: 'Talep uzatıldı', detay: 'Akıştan çıkış' },
@@ -1144,7 +1169,7 @@ export const AUTOMATIONS = {
       },
       {
         tip: 'İleti',
-        baslik: 'Uygulama içi, e-posta ve SMS: kartı güncelle',
+        baslik: 'Uygulama içi, e-posta ve WhatsApp: kartı güncelle',
         detay: 'Ödeme sorunu kritik sayılır (Karar 49)',
       },
       { tip: 'Hedef', baslik: 'Ödeme alındı', detay: 'Akıştan çıkış; alınamazsa paket askıya alınır' },
@@ -1159,7 +1184,7 @@ export const AUTOMATION_KEYS = Object.keys(AUTOMATIONS) as AutomationKey[];
  * Tetikleyici ve ilk ileti kodda tanımlıdır; "Adım ekle" ile ilk iletiden sonra bekleme, koşul ve ileti adımları
  * eklenir. Her adımdan önce hedefe bakılır: hedefe ulaşan kişi akıştan çıkar. Koşul sağlanmazsa kişi akıştan çıkar.
  * İleti adımı akışın kendi şablonuyla (`akis.adim.<akış>`) bildirim katmanından gider: tercih, ticari onay, haftada 2
- * ve sessiz saat orada uygulanır. SMS ileti adımında yoktur (yalnızca kritik iletiler SMS ile gider, Karar 49).
+ * ve sessiz saat orada uygulanır. WhatsApp ileti adımında yoktur (yalnızca kritik iletiler WhatsApp ile gider, Karar 49).
  */
 export const FLOW_CONDITIONS = {
   okunmadi: {
@@ -1232,7 +1257,7 @@ export function flowStepText(a: FlowStep): { tip: string; baslik: string; detay:
 /** İleti adımında kullanılabilecek değişkenler: akışın ilk iletisindekiler ve kişinin adı */
 export function flowVariables(key: AutomationKey): string[] {
   const ilk = AUTOMATIONS[key].sablonlar[0] as TemplateKey;
-  // {{link}} yalnızca SMS'te, gönderim anında dolar
+  // {{link}} yalnızca WhatsApp'ta, gönderim anında dolar
   return [
     ...new Set([
       'ad',
@@ -1251,7 +1276,7 @@ export function templateVariables(t: NotifyTemplate): string[] {
     t.baslik,
     t.metin,
     t.url ?? '',
-    t.sms ?? '',
+    t.whatsapp?.onizleme ?? '',
     t.eposta?.konu ?? '',
     ...(t.eposta?.paragraflar ?? []),
     t.eposta?.dugme?.yazi ?? '',
@@ -1267,7 +1292,6 @@ export const templateEditSchema = z
   .object({
     baslik: z.string().trim().min(2).max(120),
     metin: z.string().trim().max(400),
-    sms: z.string().trim().max(320).optional(),
     eposta: z
       .object({
         konu: z.string().trim().min(2).max(160),

@@ -42,7 +42,7 @@ const ADIM = [
   ['İşletme bilgileri', 'Vergi levhandaki bilgilerle aynı olmalı.'],
   ['Yetki ve belgeler', ''],
   ['Hesabın sahibi', 'Bu kişi hesabın sahibi olur; paketleri ve ekibi yönetir.'],
-  ['Kontrol et ve gönder', 'Başvurunu yönetici ekibimiz inceler; sonucu SMS ve e-postayla bildiririz.'],
+  ['Kontrol et ve gönder', 'Başvurunu yönetici ekibimiz inceler; sonucu e-postayla ve bildirimle iletiriz.'],
 ] as const;
 const ALAN: { id: keyof GalleryApplicationDraft; ad: string; sayi?: true }[] = [
   { id: 'unvan', ad: 'Ticari unvan' },
@@ -73,7 +73,7 @@ export default function KurumsalBasvuru() {
   const [veri, setVeri] = useState<GalleryApplicationDraft>({});
   const [adSoyad, setAdSoyad] = useState('');
   const [sozlesme, setSozlesme] = useState(false);
-  const [ticari, setTicari] = useState<TicariKanallar>({ eposta: false, sms: false, bildirim: false });
+  const [ticari, setTicari] = useState<TicariKanallar>({ eposta: false, bildirim: false });
   const [kaydedildi, setKaydedildi] = useState(false);
   const [dogru, setDogru] = useState<{ sonuc: string; not?: string; unvan?: string } | null>(null);
   const [hata, setHata] = useState<string | null>(null);
@@ -583,7 +583,7 @@ export default function KurumsalBasvuru() {
                   }}
                 >
                   <T style={{ fontSize: 15 }}>{me ? maskTrMobile(me.phone) : ''}</T>
-                  <T style={{ fontSize: 12, fontWeight: '800', color: '#11683F' }}>SMS ile doğrulandı</T>
+                  <T style={{ fontSize: 12, fontWeight: '800', color: '#11683F' }}>WhatsApp ile doğrulandı</T>
                 </View>
               </View>
               <View>
@@ -885,7 +885,7 @@ function MobilDurum({ b }: { b: Basvuru }) {
           ? `${GALLERY_TRIAL.gun} günlük ücretsiz denemen başladı.`
           : ret
             ? 'Gerekçeyi aşağıda görebilirsin; eksikleri tamamlayıp yeniden başvurabilirsin.'
-            : 'Yönetici ekibimiz inceler; sonucu SMS ve e-postayla bildiririz. Genellikle 1 iş günü sürer.'}
+            : 'Yönetici ekibimiz inceler; sonucu e-postayla ve bildirimle iletiriz. Genellikle 1 iş günü sürer.'}
       </T>
       {adimlar.map((a, i) => {
         const kirmizi = ret && i === 3;

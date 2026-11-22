@@ -9,9 +9,11 @@ import { T, TInput } from '../components/t';
 import { useOturum } from '../lib/oturum';
 
 interface Kanal {
-  kanal: 'uygulama' | 'eposta' | 'sms';
+  kanal: 'uygulama' | 'eposta' | 'whatsapp';
   acik: boolean;
   kilitli: boolean;
+  /** Bu konuda sunulmayan kanal (kampanyada WhatsApp): gösterilmez */
+  kapali?: boolean;
 }
 interface Tercihler {
   konular: { konu: string; ad: string; not: string; kanallar: Kanal[] }[];
@@ -19,7 +21,7 @@ interface Tercihler {
   eposta: { adres: string; dogrulandi: boolean } | null;
 }
 
-const KANAL_AD = { uygulama: 'Uygulama', eposta: 'E-posta', sms: 'SMS' } as const;
+const KANAL_AD = { uygulama: 'Uygulama', eposta: 'E-posta', whatsapp: 'WhatsApp' } as const;
 const kart = {
   get backgroundColor() {
     return colors.surface;
@@ -288,46 +290,48 @@ export default function Ayarlar() {
                 <T style={{ fontSize: 14.5, fontWeight: '700' }}>{r.ad}</T>
                 <T style={{ fontSize: 12.5, color: colors.muted, marginTop: 2 }}>{r.not}</T>
                 <View style={{ flexDirection: 'row', gap: 8, marginTop: 10 }}>
-                  {r.kanallar.map((k) => (
-                    <Pressable
-                      key={k.kanal}
-                      accessibilityRole="checkbox"
-                      accessibilityState={{ checked: k.acik, disabled: k.kilitli }}
-                      accessibilityLabel={`${r.ad} · ${KANAL_AD[k.kanal]}`}
-                      onPress={() => degistir(r.konu, k)}
-                      style={{
-                        flex: 1,
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 6,
-                        borderWidth: 1,
-                        borderColor: k.acik ? colors.blue : '#D5DAE5',
-                        backgroundColor: k.acik ? '#EEF3FF' : colors.surface,
-                        borderRadius: butonOran(10),
-                        paddingVertical: 9,
-                        opacity: k.kilitli ? 0.5 : 1,
-                      }}
-                    >
-                      <View
+                  {r.kanallar
+                    .filter((k) => !k.kapali)
+                    .map((k) => (
+                      <Pressable
+                        key={k.kanal}
+                        accessibilityRole="checkbox"
+                        accessibilityState={{ checked: k.acik, disabled: k.kilitli }}
+                        accessibilityLabel={`${r.ad} · ${KANAL_AD[k.kanal]}`}
+                        onPress={() => degistir(r.konu, k)}
                         style={{
-                          width: 18,
-                          height: 18,
-                          borderRadius: butonOran(5),
-                          borderWidth: 2,
-                          borderColor: k.acik ? colors.blue : '#AEB5C4',
-                          backgroundColor: k.acik ? colors.blue : colors.surface,
+                          flex: 1,
+                          flexDirection: 'row',
                           alignItems: 'center',
                           justifyContent: 'center',
+                          gap: 6,
+                          borderWidth: 1,
+                          borderColor: k.acik ? colors.blue : '#D5DAE5',
+                          backgroundColor: k.acik ? '#EEF3FF' : colors.surface,
+                          borderRadius: butonOran(10),
+                          paddingVertical: 9,
+                          opacity: k.kilitli ? 0.5 : 1,
                         }}
                       >
-                        {k.acik ? (
-                          <T style={{ fontSize: 11, fontWeight: '800', color: '#FFFFFF' }}>✓</T>
-                        ) : null}
-                      </View>
-                      <T style={{ fontSize: 13, fontWeight: '700' }}>{KANAL_AD[k.kanal]}</T>
-                    </Pressable>
-                  ))}
+                        <View
+                          style={{
+                            width: 18,
+                            height: 18,
+                            borderRadius: butonOran(5),
+                            borderWidth: 2,
+                            borderColor: k.acik ? colors.blue : '#AEB5C4',
+                            backgroundColor: k.acik ? colors.blue : colors.surface,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {k.acik ? (
+                            <T style={{ fontSize: 11, fontWeight: '800', color: '#FFFFFF' }}>✓</T>
+                          ) : null}
+                        </View>
+                        <T style={{ fontSize: 13, fontWeight: '700' }}>{KANAL_AD[k.kanal]}</T>
+                      </Pressable>
+                    ))}
                 </View>
               </View>
             ))}
@@ -340,8 +344,8 @@ export default function Ayarlar() {
                 color: colors.muted,
               }}
             >
-              Kampanya e-posta ve SMS’leri ticari elektronik ileti onayınla gönderilir ve İYS’ye kaydedilir.
-              Onayını istediğin zaman geri alabilirsin.
+              Kampanya e-postaları ticari elektronik ileti onayınla gönderilir ve İYS’ye kaydedilir; kampanya
+              WhatsApp’tan gönderilmez. Onayını istediğin zaman geri alabilirsin.
             </T>
           </View>
         </ScrollView>

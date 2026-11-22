@@ -34,7 +34,7 @@ const kapatDugme: CSSProperties = {
 };
 
 /**
- * Ayarlar › Hesap › Hesabı kapat (Ayarlar.dc.html; Karar 31, 39, 59). SMS koduyla onaylanır. Kullanılmamış hakların
+ * Ayarlar › Hesap › Hesabı kapat (Ayarlar.dc.html; Karar 31, 39, 59). WhatsApp koduyla onaylanır. Kullanılmamış hakların
  * iadesi Sahip'in onayına gider; ekranda tutar "iade edilir" diye gösterilir, onaydan sonra karta yansır.
  */
 export function HesabiKapat({ bildir }: { bildir: (m: string | null, h?: string | null) => void }) {
@@ -148,7 +148,7 @@ export function HesabiKapat({ bildir }: { bildir: (m: string | null, h?: string 
           </select>
           {challengeId ? (
             <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginTop: 12 }}>
-              SMS kodu
+              WhatsApp kodu
               <input
                 value={kod}
                 onChange={(e) => setKod(e.target.value.replace(/\D/g, '').slice(0, 6))}
@@ -174,7 +174,7 @@ export function HesabiKapat({ bildir }: { bildir: (m: string | null, h?: string 
           ? 'Hesabımı kapatmak istiyorum'
           : challengeId
             ? 'Hesabı kapat'
-            : 'SMS kodu gönder ve hesabı kapat'}
+            : 'WhatsApp kodu gönder ve hesabı kapat'}
       </button>
     </section>
   );

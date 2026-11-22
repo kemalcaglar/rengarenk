@@ -16,6 +16,7 @@ import {
   NOTIFY_TOPICS,
   type NotifyGroup,
   type NotifyTemplate,
+  PREF_CHANNEL_NAMES,
   PREF_CHANNELS,
   type PrefChannel,
   TOPIC_KEYS,
@@ -55,7 +56,7 @@ export function sessizSaatSonu(t: Date): Date {
 /**
  * Bildirim katmanı (Karar 30, 48, 49; Teknik tasarım §9). "Bu kişiye bu olayı bildir": tercih ve rıza kontrolü,
  * ticari iletide sıklık sınırı ve sessiz saat, kanal sırası (uygulama içi ve push hemen; e-posta bildirim okunmadıysa
- * gecikmeyle; SMS yalnızca şablon izin verirse) ve teslim kaydı. Gönderimi işçideki DeliveryService yapar.
+ * gecikmeyle; WhatsApp yalnızca şablon izin verirse) ve teslim kaydı. Gönderimi işçideki DeliveryService yapar.
  */
 @Injectable()
 export class NotificationService implements OnModuleDestroy {
@@ -97,25 +98,25 @@ export class NotificationService implements OnModuleDestroy {
 
   /** Şablonun bu kişi için açık kanalları */
   async kanallar(userId: string, sablon: NotifyTemplate): Promise<Record<PrefChannel, boolean>> {
-    if (sablon.konu === 'genel') return { uygulama: true, eposta: false, sms: false };
-    if (sablon.konu === 'guvenlik') return { uygulama: true, eposta: true, sms: !!sablon.sms };
+    if (sablon.konu === 'genel') return { uygulama: true, eposta: false, whatsapp: false };
+    if (sablon.konu === 'guvenlik') return { uygulama: true, eposta: true, whatsapp: !!sablon.whatsapp };
     const konu = sablon.konu as TopicKey;
     const t = NOTIFY_TOPICS[konu];
     const satir = await this.db.notificationPref.findMany({ where: { userId, konu } });
     const sonuc = { ...t.varsayilan } as Record<PrefChannel, boolean>;
     for (const s of satir) sonuc[s.kanal as PrefChannel] = s.acik;
     for (const k of t.kilitli as readonly PrefChannel[]) sonuc[k] = true;
+    for (const k of ('kapali' in t ? t.kapali : []) as readonly PrefChannel[]) sonuc[k] = false;
     if (t.tur === 'ticari') {
-      if (!(await this.ticariOnay(userId))) return { uygulama: false, eposta: false, sms: false };
-      // E-posta ve SMS: onay İYS'ye yüklenmeden ticari ileti gitmez (Karar 49, İYS kuralı)
-      if (sonuc.eposta || sonuc.sms) {
+      if (!(await this.ticariOnay(userId))) return { uygulama: false, eposta: false, whatsapp: false };
+      // E-posta: onay İYS'ye yüklenmeden ticari ileti gitmez (Karar 49, İYS kuralı)
+      if (sonuc.eposta) {
         const u = await this.db.user.findUnique({
           where: { id: userId },
           select: { email: true, phone: true },
         });
-        const iys = u ? await iysYukluOnay(this.db, userId, u) : { eposta: false, sms: false };
+        const iys = u ? await iysYukluOnay(this.db, userId, u) : { eposta: false };
         sonuc.eposta &&= iys.eposta;
-        sonuc.sms &&= iys.sms;
       }
     }
     return sonuc;
@@ -142,10 +143,13 @@ export class NotificationService implements OnModuleDestroy {
           not: t.not,
           kanallar: PREF_CHANNELS.map((kanal) => {
             const kilitli = (t.kilitli as readonly string[]).includes(kanal);
+            // Bu konuda sunulmayan kanal (kampanyada WhatsApp): Ayarlar'da kutu yok
+            const kapali = (('kapali' in t ? t.kapali : []) as readonly string[]).includes(kanal);
             const s = satir.find((x) => x.konu === k && x.kanal === kanal);
             const acik =
-              kilitli || (t.tur === 'ticari' && !ticari ? false : (s?.acik ?? t.varsayilan[kanal]));
-            return { kanal, acik, kilitli };
+              !kapali &&
+              (kilitli || (t.tur === 'ticari' && !ticari ? false : (s?.acik ?? t.varsayilan[kanal])));
+            return { kanal, acik, kilitli, kapali };
           }),
         };
       }),
@@ -167,6 +171,10 @@ export class NotificationService implements OnModuleDestroy {
       if ((NOTIFY_TOPICS[t.konu].kilitli as readonly string[]).includes(t.kanal) && !t.acik) {
         throw new BadRequestException(`${NOTIFY_TOPICS[t.konu].ad} bildirimleri kapatılamaz`);
       }
+      const tk = NOTIFY_TOPICS[t.konu];
+      if (t.acik && (('kapali' in tk ? tk.kapali : []) as readonly string[]).includes(t.kanal)) {
+        throw new BadRequestException(`${tk.ad} ${PREF_CHANNEL_NAMES[t.kanal]} ile gönderilmez`);
+      }
     }
     await this.db.$transaction(async (tx) => {
       for (const t of tercihler) {
@@ -178,14 +186,14 @@ export class NotificationService implements OnModuleDestroy {
       }
       if (tercihler.some((t) => t.konu === 'kampanya')) {
         const kampanya = await tx.notificationPref.findMany({
-          where: { userId, konu: 'kampanya', acik: true },
+          where: { userId, konu: 'kampanya', acik: true, kanal: { in: ['uygulama', 'eposta'] } },
         });
         const simdi = await this.ticariOnay(userId);
         const istenen = kampanya.length > 0;
         if (simdi !== istenen) {
           await this.consents.recordCommercial(tx, userId, istenen, meta.kanal ?? 'web', meta.ip);
         }
-        // Onay aynı kalsa da e-posta ya da SMS kanalı açılıp kapanmış olabilir: İYS kaydı kanal başına (iys.ts)
+        // Onay aynı kalsa da e-posta kanalı açılıp kapanmış olabilir: İYS kaydı kanal başına (iys.ts)
         await tx.outboxEvent.create({
           data: {
             type: 'iys.izin_degisti',
@@ -232,7 +240,7 @@ export class NotificationService implements OnModuleDestroy {
     const kanal = await this.kanallar(userId, sablon);
     if (izinli)
       for (const k of Object.keys(kanal) as PrefChannel[]) if (!izinli.includes(k)) kanal[k] = false;
-    if (!kanal.uygulama && !kanal.eposta && !kanal.sms) return false;
+    if (!kanal.uygulama && !kanal.eposta && !kanal.whatsapp) return false;
     const now = new Date();
     let due = now;
     if (ticari) {
@@ -300,12 +308,12 @@ export class NotificationService implements OnModuleDestroy {
         hedef: maskEposta(user.email),
       });
     }
-    const smsUygun = sablon.smsKosul !== 'son_gun' || Number(veri.gun) <= 1;
-    if (kanal.sms && sablon.sms && smsUygun) {
+    const waUygun = sablon.whatsappKosul !== 'son_gun' || Number(veri.gun) <= 1;
+    if (kanal.whatsapp && sablon.whatsapp && waUygun) {
       await this.teslim({
         userId,
         bildirimId,
-        kanal: 'sms',
+        kanal: 'whatsapp',
         key,
         surum,
         ticari,
@@ -322,7 +330,7 @@ export class NotificationService implements OnModuleDestroy {
     campaignId?: string;
     userId: string;
     bildirimId: string | null;
-    kanal: 'push' | 'eposta' | 'sms';
+    kanal: 'push' | 'eposta' | 'whatsapp';
     key: string;
     surum: number;
     ticari: boolean;

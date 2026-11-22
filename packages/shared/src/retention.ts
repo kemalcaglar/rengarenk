@@ -162,8 +162,8 @@ export const BREACH_FORM_FIELDS = [
 export const BREACH_PERSON_NOTICE =
   'Rengarenk hesabınla ilgili kişisel verilerinin bir kısmı {{tarih}} tarihinde yetkisiz erişime maruz kalmış olabilir. ' +
   'Etkilenen bilgiler: {{veriler}}. Sorunu durdurduk ve Kişisel Verileri Koruma Kurulu’na bildirdik. ' +
-  'Hesabının güvenliği için açık oturumlarını Ayarlar › Gizlilik ve güvenlik bölümünden kontrol et; sana kimse SMS kodu ' +
-  'sormaz. Soruların için Yardım › Destek’ten bize yazabilirsin.';
+  'Hesabının güvenliği için açık oturumlarını Ayarlar › Gizlilik ve güvenlik bölümünden kontrol et; sana kimse doğrulama ' +
+  'kodunu sormaz. Soruların için Yardım › Destek’ten bize yazabilirsin.';
 
 export const breachStartSchema = z
   .object({

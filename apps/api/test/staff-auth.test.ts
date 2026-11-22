@@ -264,6 +264,7 @@ describe('yönetim girişi ayarları', () => {
     SMS_PROVIDER: 'iletimerkezi',
     ILETIMERKEZI_KEY: 'k',
     ILETIMERKEZI_HASH: 'h',
+    WHATSAPP_PROVIDER: 'none',
     METRICS_TOKEN: 't',
     STAFF_AUTH_PROVIDER: 'google',
     GOOGLE_CLIENT_ID: 'id',

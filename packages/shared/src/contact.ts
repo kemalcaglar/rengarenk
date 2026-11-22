@@ -64,7 +64,7 @@ export function ilIlceKontrol(v: { il?: string | null; ilce?: string | null }, c
     ctx.addIssue({ code: 'custom', message: 'İlçe bu ilde yok', path: ['ilce'] });
 }
 
-/** Numarayı değiştir (Yardim.dc.html: "yeni numarana gelen SMS kodunu gir") */
+/** Numarayı değiştir (Yardim.dc.html: yeni numarana WhatsApp’tan gelen kodu gir) */
 export const phoneChangeRequestSchema = z.object({ phone: phoneSchema }).strict();
 export const phoneChangeVerifySchema = z
   .object({ challengeId: z.uuid(), code: z.string().regex(/^\d{6}$/, '6 haneli kodu gir') })

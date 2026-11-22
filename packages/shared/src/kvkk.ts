@@ -4,7 +4,7 @@ import { z } from 'zod';
  * KVKK başvuruları ve kendi verini indirme (Karar 58; YonetimSistem.dc.html › kvkk, Ayarlar.dc.html › Kişisel
  * verilerim). Başvurular (m.11) en geç 30 gün içinde yanıtlanır (m.13); 7 gün kala ajan uyarır. Ajan türü belirler, kişinin
  * verilerini toplar ve taslak yazar; yanıtı her zaman bir çalışan okuyup gönderir. Hesaptan gelen başvuru ve veri indirme
- * SMS koduyla doğrulanır.
+ * telefon koduyla (WhatsApp) doğrulanır.
  */
 
 export const KVKK_KINDS = {
@@ -53,7 +53,7 @@ export function kvkkDraft(kind: KvkkKind, ad: string, veriler: string[]): string
   const liste = veriler.length ? veriler.join(', ') : 'hesap bilgileriniz';
   switch (kind) {
     case 'bilgi':
-      return `${hitap} başvurunuz için teşekkür ederiz. Hakkınızda şu verileri işliyoruz: ${liste}. Verileriniz yalnızca hizmeti sunmak için ödeme kuruluşu, SMS sağlayıcısı ve fatura entegratörüyle paylaşılır ve Türkiye'deki sunucularda saklanır. Saklama süreleri ve haklarınız aydınlatma metnimizde yer alır. Verilerinizin bir kopyasını Ayarlar > Gizlilik ve güvenlik bölümünden "Verilerimi indir" ile alabilirsiniz.`;
+      return `${hitap} başvurunuz için teşekkür ederiz. Hakkınızda şu verileri işliyoruz: ${liste}. Verileriniz yalnızca hizmeti sunmak için ödeme kuruluşu, ileti hizmeti sağlayıcıları (e-posta ve WhatsApp) ve fatura entegratörüyle paylaşılır; sunucularımız Almanya'dadır (Amazon Web Services, Frankfurt). Saklama süreleri ve haklarınız aydınlatma metnimizde yer alır. Verilerinizin bir kopyasını Ayarlar > Gizlilik ve güvenlik bölümünden "Verilerimi indir" ile alabilirsiniz.`;
     case 'duzeltme':
       return `${hitap} düzeltme başvurunuzu aldık ve ilgili kayıtlarınızı (${liste}) güncelledik. Kesilmiş e-arşiv faturalar değiştirilemediğinden gerekiyorsa düzeltme faturası düzenlenir.`;
     case 'silme':
@@ -64,7 +64,7 @@ export function kvkkDraft(kind: KvkkKind, ad: string, veriler: string[]): string
 }
 
 /**
- * Hesap kapatma (Karar 31, 39, 59; Ayarlar.dc.html › Hesap). SMS koduyla onaylanır; kişisel veri hemen anonimleşir.
+ * Hesap kapatma (Karar 31, 39, 59; Ayarlar.dc.html › Hesap). WhatsApp koduyla onaylanır; kişisel veri hemen anonimleşir.
  * Web'den alınıp kullanılmamış hakların iadesi yalnızca öneri olarak Sahip'in onay kuyruğuna düşer (sahip kararı,
  * 9 Kasım 2026); iadeyi Sahip onaylar, iade yürütücü yapar. Başlamış öne çıkarma iade edilmez, mağaza satışının
  * iadesi mağazadan yapılır.

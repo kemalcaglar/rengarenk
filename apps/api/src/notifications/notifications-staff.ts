@@ -30,7 +30,6 @@ import {
   templateEditSchema,
   templateOf,
   templateVariables,
-  tlYaz,
 } from '@rengarenk/shared';
 import { z } from 'zod';
 import { AuditService } from '../audit/audit.service.js';
@@ -46,8 +45,6 @@ import { SwitchService } from './switches.js';
 import { TemplatesService } from './templates.service.js';
 
 const DAY = 86_400_000;
-/** SMS birim maliyeti (kuruş; teklif netleşince ayara taşınır) */
-const SMS_KURUS = 25;
 
 /** Önizleme ve test için örnek değerler ("Ayşe için") */
 const ORNEK: Record<string, unknown> = {
@@ -98,7 +95,7 @@ const kanallarOf = (t: NotifyTemplate) =>
     t.yalnizcaEposta ? null : 'uygulama içi',
     t.yalnizcaEposta ? null : 'push',
     t.eposta ? 'e-posta' : null,
-    t.sms ? 'SMS' : null,
+    t.whatsapp ? 'WhatsApp' : null,
   ].filter(Boolean) as string[];
 
 /**
@@ -150,7 +147,9 @@ export class NotificationsStaffService {
       surum,
       kanallar: kanallarOf(sablon),
       degiskenler: templateVariables(kod),
-      icerik: { baslik: sablon.baslik, metin: sablon.metin, sms: sablon.sms, eposta: sablon.eposta },
+      icerik: { baslik: sablon.baslik, metin: sablon.metin, eposta: sablon.eposta },
+      // WhatsApp metni Meta'daki onaylı şablondadır; konsoldan değişmez (değişiklik Meta'da yeni onay ister)
+      whatsapp: sablon.whatsapp ?? null,
       kural:
         sablon.konu === 'kampanya'
           ? 'Ticari ileti: yalnızca onay verenlere, kişi başına haftada 2, 21.00–09.00 arası sabaha ertelenir, tek tıkla ayrılma bağlantısı eklenir.'
@@ -169,7 +168,6 @@ export class NotificationsStaffService {
       ...kod,
       baslik: icerik.baslik,
       metin: icerik.metin,
-      sms: icerik.sms || undefined,
       eposta: icerik.eposta ?? kod.eposta,
     };
     const bilinen = new Set(templateVariables(kod));
@@ -179,7 +177,6 @@ export class NotificationsStaffService {
         `Bu şablonda kullanılamayan değişken: ${yabanci.map((v) => `{{${v}}}`).join(', ')}`,
       );
     }
-    if (kod.sms === undefined && icerik.sms) throw new BadRequestException('Bu şablon SMS göndermez');
     return t;
   }
 
@@ -188,7 +185,7 @@ export class NotificationsStaffService {
     const veri = ornek(t);
     const r = this.templates.render(t, veri);
     const e = await this.templates.email(t, veri, t.konu === 'kampanya' ? '#ayril' : undefined);
-    const sms = this.templates.sms(t, { ...veri, link: 'https://rgnk.tr/a1' });
+    const wa = this.templates.whatsapp(t, { ...veri, link: 'https://rengarenksite.com/taleplerim' });
     return {
       uygulama: { baslik: r.baslik, metin: r.metin },
       eposta: e
@@ -198,7 +195,7 @@ export class NotificationsStaffService {
             html: e.html,
           }
         : null,
-      sms: sms ? { metin: sms, karakter: sms.length, adet: Math.ceil(sms.length / 160) } : null,
+      whatsapp: wa ? { sablon: wa.sablon, metin: wa.metin } : null,
     };
   }
 
@@ -266,13 +263,11 @@ export class NotificationsStaffService {
         teslim !== null && teslim < 0.95 ? 'Sorunlu' : kuyruk > 100 ? 'Kuyruk birikti' : 'Sağlıklı';
       return { bugun, teslim, kuyruk, durum };
     };
-    const anaSms = this.env.SMS_PROVIDER;
-    const [push, islemsel, ticariE, sms, smsYedek, uygBugun, ticariAcik, engel, oran] = await Promise.all([
+    const [push, islemsel, ticariE, wa, uygBugun, ticariAcik, engel, oran] = await Promise.all([
       kanal('push'),
       kanal('eposta', false),
       kanal('eposta', true),
-      kanal('sms', undefined, { OR: [{ saglayici: anaSms }, { saglayici: null }] }),
-      kanal('sms', undefined, { saglayici: { not: anaSms } }),
+      kanal('whatsapp'),
       this.db.notification.count({ where: { createdAt: { gte: gunBasi } } }),
       this.switches.ticariAcik(),
       this.db.emailSuppression.groupBy({ by: ['reason'], _count: true }),
@@ -306,12 +301,19 @@ export class NotificationsStaffService {
                 ? `Isınıyor · ${hafta_}/6`
                 : 'Sağlıklı',
         },
-        { ad: 'SMS · ana', saglayici: `${anaSms} · doğrulama ve kritik`, ...sms },
         {
-          ad: 'SMS · yedek',
-          saglayici: this.env.SMS_FALLBACK_PROVIDER ?? 'Tanımlı değil',
-          ...smsYedek,
-          durum: this.env.SMS_FALLBACK_PROVIDER ? (smsYedek.bugun ? 'Kullanıldı' : 'Beklemede') : 'Yok',
+          ad: 'WhatsApp · kritik',
+          saglayici: `Meta WhatsApp Cloud API (${this.env.WHATSAPP_PROVIDER})`,
+          ...wa,
+          durum: this.env.WHATSAPP_PROVIDER === 'none' ? 'Kapalı' : wa.durum,
+        },
+        {
+          ad: 'SMS · kapalı yedek',
+          saglayici: `${this.env.SMS_PROVIDER} · yalnızca doğrulama kodunun yedeği`,
+          bugun: 0,
+          teslim: null,
+          kuyruk: 0,
+          durum: this.env.VERIFY_CHANNELS.includes('sms') ? 'Açık' : 'Kapalı',
         },
         {
           ad: 'Uygulama içi',
@@ -337,15 +339,19 @@ export class NotificationsStaffService {
       kurallar: [
         { ad: 'Ticari ileti sıklığı', not: 'Kişi başına (Karar 49)', deger: 'Haftada 2' },
         { ad: 'Sessiz saat', not: 'Ticari ileti sabaha ertelenir; işlemsel gider', deger: '21.00–09.00' },
-        { ad: 'Kanal sırası', not: 'Maliyete göre (Karar 48)', deger: 'Uygulama → push → e-posta → SMS' },
+        {
+          ad: 'Kanal sırası',
+          not: 'Maliyete göre (Karar 48)',
+          deger: 'Uygulama → push → e-posta → WhatsApp',
+        },
         {
           ad: 'Okunmayan mesajda e-posta',
           not: 'Uygulama içi bildirim okunmadıysa',
           deger: '15–30 dakika sonra',
         },
         {
-          ad: 'SMS',
-          not: 'Doğrulama kodu ve kritik durumlar (son gün hatırlatması, ödeme sorunu)',
+          ad: 'WhatsApp',
+          not: 'Doğrulama kodu ve kritik durumlar (son gün hatırlatması, ödeme sorunu); kampanya gitmez',
           deger: 'Yalnızca kritik',
         },
         {
@@ -404,7 +410,6 @@ export class NotificationsStaffService {
       const h = say(k, t, 'hata');
       return { ad, not, gonderilen: g, teslim: g + h ? g / (g + h) : null, ...ek };
     };
-    const sms = say('sms', null, 'gonderildi');
     return {
       kanallar: [
         satir('Mobil ve web push', 'Firebase Cloud Messaging', 'push', null, { maliyetKurus: 0 }),
@@ -414,9 +419,9 @@ export class NotificationsStaffService {
           sikayet,
           maliyetKurus: 0,
         }),
-        satir('SMS · doğrulama ve kritik', 'Ana sağlayıcı + yedek (doğrulama kodları hariç)', 'sms', null, {
-          maliyetKurus: sms * SMS_KURUS,
-          maliyet: tlYaz(sms * SMS_KURUS),
+        // WhatsApp ücreti Meta faturasında (ileti türü ve ülkeye göre); burada tutulmaz
+        satir('WhatsApp · kritik', 'Meta WhatsApp Cloud API (doğrulama kodları hariç)', 'whatsapp', null, {
+          maliyetKurus: 0,
         }),
         {
           ad: 'Uygulama içi',

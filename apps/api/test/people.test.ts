@@ -8,6 +8,7 @@ import { DeliveryService } from '../src/notifications/delivery.service.js';
 import { SwitchService } from '../src/notifications/switches.js';
 import { TemplatesService } from '../src/notifications/templates.service.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
+import { MemoryWhatsAppSender } from '../src/sms/whatsapp.js';
 import { call, createTestApp, SIGNUP_CONSENTS, TEST_SIFRE, testEposta, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
@@ -321,7 +322,7 @@ describe('kullanıcı ve galeri kartı, kara liste (Karar 40, 43, 52)', () => {
       app.get<Env>(ENV),
       eposta,
       new FakePush(),
-      sms,
+      new MemoryWhatsAppSender(),
       app.get(TemplatesService),
       app.get(SwitchService),
     );

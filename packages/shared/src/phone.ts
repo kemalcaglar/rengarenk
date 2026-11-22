@@ -1,6 +1,6 @@
 /**
  * Türkiye cep telefonu numarasını E.164 biçimine çevirir: "0532 123 45 67" → "+905321234567".
- * Geçersizse null döner. Yalnızca 5 ile başlayan cep numaraları kabul edilir (SMS ile doğrulama).
+ * Geçersizse null döner. Yalnızca 5 ile başlayan cep numaraları kabul edilir (WhatsApp ile doğrulama).
  */
 export function normalizeTrMobile(input: string): string | null {
   let d = input.replace(/[^\d+]/g, '');

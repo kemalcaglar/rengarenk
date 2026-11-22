@@ -491,6 +491,15 @@ pnpm format        # Biome ile biçimlendir
   İYS'ye aktarım: paket (`iys_batches`, en fazla 50 satır: İYS dosya sınırı) İYS Web'in resmî CSV biçiminde iner (`iysCsv`; Windows-1254, onay 1/ret 0, `GG-AA-YYYY`, telefon +90'sız; biçim `Ornek_Bireysel.csv`'dan, testi `iys.test.ts`), "Yüklendi" işaretlenir; 2 iş gününde `iys_aktarim` uyarısı. Ticari e-posta ve SMS yalnızca İYS'ye yüklenmiş onaya gider (`iysYukluOnay`: son kayıt ONAY, adres bugünkü, paket yüklendi; `NotificationService.kanallar` ve segment ulaşımı; testte `iysYuklendi(app, id)`). Üyelikte ve galeri başvurusunda (web, mobil) ticari onay kanal kanal (`ticariKanallar`, `TICARI_ILETI_KUTU`; işaretlenen kanalın kampanya tercihi `ConsentService.ticariKanallariAc` ile aynı işlemde açılır), mobil üyelikte kutu yok (Ayarlar).
   Ticari onayı, kampanya kanalını ya da e-posta/telefonu değiştiren yeni bir yol eklersen aynı işlemde
   `iys.izin_degisti` olayı yaz. Satırlar silinmez. API'de 254 test.
+- **SMS'in yerine WhatsApp (22 Kasım 2026, sahip kararı; Karar 48, 49):** bildirim kanalı `sms` → `whatsapp`
+  (`PREF_CHANNELS`, göç `20261201000054_sms_yerine_whatsapp`: SMS tercihleri taşındı, eski kampanya SMS onayları İYS'ye
+  ret). Kritik iletiler (`talep.suresi_doluyor` son gün, `abonelik.odeme_basarisiz`) Meta Cloud API'nin onaylı utility
+  şablonlarıyla (`NotifyTemplate.whatsapp`: `sablon`, sırayla `parametreler`, `onizleme`; gönderici `sms/whatsapp.ts`,
+  `WHATSAPP_PROVIDER` meta/none/console/test, canlıda none ya da meta). WhatsApp metni Meta'da; konsoldan değişmez,
+  yeni kritik ileti eklersen Meta'da şablonu onaylat ve `CANLIYA-GECIS.md`'ye yaz. Kampanya SMS ya da WhatsApp'tan
+  gitmez (`NOTIFY_TOPICS.kampanya.kapali`, `ticariKanallar` yalnızca e-posta ve bildirim; İYS'de MESAJ yalnızca eski
+  onayların reti). SMS altyapısı kapalı yedek: yalnızca doğrulama kodunun yedeği (`VERIFY_CHANNELS=whatsapp,sms`).
+  Arayüzde "SMS kodu" yerine "WhatsApp kodu". API'de 255 test.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, AWS Activate kredisi ve KVKK standart sözleşmesi, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu
   gerçek anahtarla deneme; test/sahte sağlayıcı kullan.

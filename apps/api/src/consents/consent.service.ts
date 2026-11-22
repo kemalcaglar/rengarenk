@@ -114,7 +114,6 @@ export class ConsentService {
     const kanallar = (
       [
         ['eposta', k.eposta],
-        ['sms', k.sms],
         ['uygulama', k.bildirim],
       ] as const
     )

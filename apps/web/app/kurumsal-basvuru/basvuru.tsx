@@ -92,7 +92,7 @@ export function KurumsalBasvuru() {
   const [adSoyad, setAdSoyad] = useState('');
   const [telefon, setTelefon] = useState('');
   const [sozlesme, setSozlesme] = useState(false);
-  const [ticari, setTicari] = useState<TicariKanallar>({ eposta: false, sms: false, bildirim: false });
+  const [ticari, setTicari] = useState<TicariKanallar>({ eposta: false, bildirim: false });
   const [hata, setHata] = useState<string | null>(null);
   const [kaydedildi, setKaydedildi] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
@@ -822,7 +822,7 @@ export function KurumsalBasvuru() {
                       fontWeight: 600,
                     }}
                   >
-                    SMS koduyla doğrulandı
+                    WhatsApp koduyla doğrulandı
                   </span>
                 </div>
                 <div style={{ gridColumn: '1 / -1' }}>
@@ -905,7 +905,7 @@ export function KurumsalBasvuru() {
             <>
               <h2 style={{ margin: '0 0 6px', fontSize: 21, fontWeight: 800 }}>Kontrol et ve gönder</h2>
               <p style={{ margin: '0 0 18px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
-                Başvurunu yönetici ekibimiz inceler; sonucu SMS ve e-postayla bildiririz.
+                Başvurunu yönetici ekibimiz inceler; sonucu e-postayla ve bildirimle iletiriz.
               </p>
               <dl
                 className="rr-iki-sutun"

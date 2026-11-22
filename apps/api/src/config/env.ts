@@ -142,6 +142,12 @@ const schema = z.object({
    * kanalı yalnızca bununla açılır; site herkese açılmadan önce ikisi de kaldırılır.
    */
   KAPALI_TEST: z.enum(['0', '1']).default('0'),
+  /**
+   * WhatsApp bildirimleri (kritik iletiler, SMS'in yerine; sahip kararı 22 Kasım 2026). meta: Cloud API (jeton ve numara
+   * kimliği gerekir); none: kapalı, teslim kaydına "atlandı" (Meta hesabı açılana kadar canlıda); console: yerel;
+   * test: bellek.
+   */
+  WHATSAPP_PROVIDER: z.enum(['meta', 'console', 'test', 'none']).default('console'),
   /** WhatsApp Cloud API: kalıcı erişim jetonu ve gönderen numaranın kimliği (Meta İşletme hesabı) */
   WHATSAPP_TOKEN: z.string().optional(),
   WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
@@ -238,6 +244,8 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
   if (e.NODE_ENV === 'production') {
     if (e.SMS_PROVIDER === 'console' || e.SMS_PROVIDER === 'test')
       throw new Error('Canlıda gerçek bir SMS sağlayıcısı gerekli');
+    if (e.WHATSAPP_PROVIDER === 'console' || e.WHATSAPP_PROVIDER === 'test')
+      throw new Error("Canlıda WHATSAPP_PROVIDER 'meta' ya da 'none' olmalı");
     if (!e.METRICS_TOKEN) throw new Error('Canlıda METRICS_TOKEN gerekli');
     if (e.GALLERY_VERIFY_PROVIDER === 'fake')
       throw new Error('Canlıda sahte galeri doğrulaması kullanılamaz');
@@ -294,6 +302,9 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
   }
   if (e.SMS_PROVIDER === 'none' && e.VERIFY_CHANNELS.includes('sms')) {
     throw new Error("SMS kapalıyken (SMS_PROVIDER=none) VERIFY_CHANNELS'ta sms olamaz");
+  }
+  if (e.WHATSAPP_PROVIDER === 'meta' && !(e.WHATSAPP_TOKEN && e.WHATSAPP_PHONE_NUMBER_ID)) {
+    throw new Error('WhatsApp bildirimi için WHATSAPP_TOKEN ve WHATSAPP_PHONE_NUMBER_ID gerekli');
   }
   if (e.VERIFY_CHANNELS.includes('whatsapp') && !(e.WHATSAPP_TOKEN && e.WHATSAPP_PHONE_NUMBER_ID)) {
     throw new Error('WhatsApp kodu için WHATSAPP_TOKEN ve WHATSAPP_PHONE_NUMBER_ID gerekli');

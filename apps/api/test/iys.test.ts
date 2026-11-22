@@ -33,7 +33,7 @@ beforeAll(async () => {
 afterAll(() => app.close());
 
 /** Ayarlar › Bildirimler › Kampanya kanalı (mobil uygulamadan) */
-async function kampanya(token: string, kanal: 'eposta' | 'sms', acik: boolean) {
+async function kampanya(token: string, kanal: 'eposta' | 'uygulama', acik: boolean) {
   const r = await app.inject({
     method: 'PUT',
     url: '/me/notification-preferences',
@@ -82,8 +82,20 @@ describe("İYS'ye elle aktarım (sahip kararı 21 Kasım 2026, Karar 49)", () =>
     expect(await iys.esitle(u.userId)).toBe(1);
     // Aynı olay ikinci kez işlenirse yeni satır çıkmaz
     expect(await iys.esitle(u.userId)).toBe(0);
-    await kampanya(token, 'sms', true);
+    // Eski kampanya SMS onayı (22 Kasım 2026'dan önce): kampanya artık SMS ya da WhatsApp'tan gitmez, eşitleme ret yazar
+    await db.iysRecord.create({
+      data: {
+        id: uuidv7(),
+        userId: u.userId,
+        type: 'MESAJ',
+        recipient: '+905321110001',
+        status: 'ONAY',
+        source: 'HS_MOBIL',
+        consentAt: new Date(),
+      },
+    });
     expect(await iys.esitle(u.userId)).toBe(1);
+    expect(await iys.esitle(u.userId)).toBe(0);
 
     const eski = (await db.user.findUniqueOrThrow({ where: { id: u.userId } })).email as string;
     await db.user.update({ where: { id: u.userId }, data: { email: 'Yeni.Adres@Ornek.com' } });
@@ -92,6 +104,7 @@ describe("İYS'ye elle aktarım (sahip kararı 21 Kasım 2026, Karar 49)", () =>
     expect((await kayitlar(u.userId)).map((r) => [r.type, r.status, r.recipient, r.source])).toEqual([
       ['EPOSTA', 'ONAY', eski, 'HS_MOBIL'],
       ['MESAJ', 'ONAY', '+905321110001', 'HS_MOBIL'],
+      ['MESAJ', 'RET', '+905321110001', 'HS_MOBIL'],
       ['EPOSTA', 'RET', eski, 'HS_MOBIL'],
       ['EPOSTA', 'ONAY', 'yeni.adres@ornek.com', 'HS_MOBIL'],
     ]);
@@ -102,13 +115,13 @@ describe("İYS'ye elle aktarım (sahip kararı 21 Kasım 2026, Karar 49)", () =>
 
     const o = await staffCall(app, 'GET', '/staff/iys', undefined, sahip);
     expect(o.body.bekleyen).toMatchObject({
-      toplam: 4,
+      toplam: 5,
       eposta: { onay: 2, ret: 1 },
-      sms: { onay: 1, ret: 0 },
+      mesaj: { onay: 1, ret: 1 },
       gecikti: false,
     });
     const p = await staffCall(app, 'POST', '/staff/iys/paket', undefined, sahip);
-    expect(p.body.sayi).toBe(4);
+    expect(p.body.sayi).toBe(5);
     // Bekleyen kalmayınca yeni paket açılmaz
     expect((await staffCall(app, 'POST', '/staff/iys/paket', undefined, sahip)).body ?? null).toBeNull();
 
@@ -131,6 +144,7 @@ describe("İYS'ye elle aktarım (sahip kararı 21 Kasım 2026, Karar 49)", () =>
       expect.arrayContaining([
         ['EPOSTA', eski, '1', 'HS_MOBIL'],
         ['MESAJ', '5321110001', '1', 'HS_MOBIL'],
+        ['MESAJ', '5321110001', '0', 'HS_MOBIL'],
         ['EPOSTA', eski, '0', 'HS_MOBIL'],
         ['EPOSTA', 'yeni.adres@ornek.com', '1', 'HS_MOBIL'],
       ]),
@@ -152,18 +166,16 @@ describe("İYS'ye elle aktarım (sahip kararı 21 Kasım 2026, Karar 49)", () =>
     ).toBe(200);
     const o2 = await staffCall(app, 'GET', '/staff/iys', undefined, sahip);
     expect(o2.body.bekleyen.toplam).toBe(0);
-    expect(o2.body.paketler[0]).toMatchObject({ id: p.body.id, sayi: 4 });
+    expect(o2.body.paketler[0]).toMatchObject({ id: p.body.id, sayi: 5 });
     expect(o2.body.paketler[0].yuklendi).toBeTruthy();
     expect(await uyari.iysAktarim(sonra)).toBe(0);
 
-    // Kanallar kapanınca onay geri alınır: iki kanalda ret
+    // Kanal kapanınca onay geri alınır: e-postaya ret
     await kampanya(token, 'eposta', false);
-    await kampanya(token, 'sms', false);
-    expect(await iys.esitle(u.userId)).toBe(2);
-    const son = (await kayitlar(u.userId)).slice(-2);
+    expect(await iys.esitle(u.userId)).toBe(1);
+    const son = (await kayitlar(u.userId)).slice(-1);
     expect(son.map((r) => [r.type, r.status, r.recipient])).toEqual([
       ['EPOSTA', 'RET', 'yeni.adres@ornek.com'],
-      ['MESAJ', 'RET', '+905321110001'],
     ]);
     // Satırlar silinmez (onayın ispatı)
     await expect(db.iysRecord.deleteMany({ where: { userId: u.userId } })).rejects.toThrow();
@@ -212,7 +224,7 @@ describe("İYS'ye elle aktarım (sahip kararı 21 Kasım 2026, Karar 49)", () =>
 
   it('üyelikte işaretlenen ticari ileti kanalları kampanya tercihini açar; e-posta İYS yüklenmeden gitmez', async () => {
     const u = await uyeOl(app, '05321110004', {
-      consents: { ticariKanallar: { eposta: true, sms: false, bildirim: true } },
+      consents: { ticariKanallar: { eposta: true, bildirim: true } },
     });
     const onay = await db.consent.findFirstOrThrow({ where: { userId: u.userId, kind: 'ticari_ileti' } });
     expect(onay.granted).toBe(true);
@@ -235,7 +247,11 @@ describe("İYS'ye elle aktarım (sahip kararı 21 Kasım 2026, Karar 49)", () =>
 
     const ns = app.get(NotificationService);
     const { sablon } = await app.get(TemplatesService).get('kampanya.duyuru');
-    expect(await ns.kanallar(u.userId, sablon)).toMatchObject({ uygulama: true, eposta: false, sms: false });
+    expect(await ns.kanallar(u.userId, sablon)).toMatchObject({
+      uygulama: true,
+      eposta: false,
+      whatsapp: false,
+    });
     // Paket İYS'ye yüklendi işaretlenince e-posta açılır
     const p = await staffCall(app, 'POST', '/staff/iys/paket', undefined, sahip);
     expect(await ns.kanallar(u.userId, sablon)).toMatchObject({ eposta: false });
@@ -248,7 +264,7 @@ describe("İYS'ye elle aktarım (sahip kararı 21 Kasım 2026, Karar 49)", () =>
 
   it('kanal seçmeden üye olan kişide ticari onay ve kampanya tercihi yok', async () => {
     const u = await uyeOl(app, '05321110005', {
-      consents: { ticariKanallar: { eposta: false, sms: false, bildirim: false } },
+      consents: { ticariKanallar: { eposta: false, bildirim: false } },
     });
     const onay = await db.consent.findFirstOrThrow({ where: { userId: u.userId, kind: 'ticari_ileti' } });
     expect(onay.granted).toBe(false);

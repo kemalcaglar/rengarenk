@@ -129,8 +129,8 @@ export function Engellediklerin({ bildir }: { bildir: (m: string | null, h?: str
 }
 
 /**
- * Kişisel verilerim (Ayarlar.dc.html; Karar 58): "Verilerimi indir" SMS koduyla istenir, 24 saat içinde hazırlanır,
- * bağlantı 7 gün geçerli. KVKK başvurusu (bilgi alma, düzeltme, silme, itiraz) da SMS koduyla yapılır; 30 gün içinde
+ * Kişisel verilerim (Ayarlar.dc.html; Karar 58): "Verilerimi indir" WhatsApp koduyla istenir, 24 saat içinde hazırlanır,
+ * bağlantı 7 gün geçerli. KVKK başvurusu (bilgi alma, düzeltme, silme, itiraz) da WhatsApp koduyla yapılır; 30 gün içinde
  * yanıtlanır.
  */
 export function KisiselVerilerim({ bildir }: { bildir: (m: string | null, h?: string | null) => void }) {
@@ -241,7 +241,7 @@ export function KisiselVerilerim({ bildir }: { bildir: (m: string | null, h?: st
       }}
     >
       <label style={{ flex: '0 1 180px', fontSize: 13, fontWeight: 700 }}>
-        SMS kodu
+        WhatsApp kodu
         <input
           value={kod}
           onChange={(e) => setKod(e.target.value.replace(/\D/g, '').slice(0, 6))}

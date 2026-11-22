@@ -13,6 +13,7 @@ Object.assign(process.env, {
   DATABASE_URL: url,
   JWT_SECRET: 'test-icin-en-az-otuz-iki-karakterlik-gizli-anahtar',
   SMS_PROVIDER: 'test',
+  WHATSAPP_PROVIDER: 'test',
   STAFF_AUTH_PROVIDER: 'fake',
   STAFF_EMAIL_DOMAINS: 'rengarenksite.com',
   STAFF_SECRET_KEY: 'test-icin-yonetim-sirlarini-sifreleyen-anahtar',

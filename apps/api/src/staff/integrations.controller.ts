@@ -48,6 +48,12 @@ export class IntegrationsController {
         // console ve test yalnızca geliştirmede; gerçek sağlayıcı hesabı açılınca değişir
         ana: this.env.SMS_PROVIDER,
         yedek: this.env.SMS_FALLBACK_PROVIDER ?? null,
+        // SMS kapalı yedek: yalnızca doğrulama kodu, VERIFY_CHANNELS'ta varsa (sahip kararı 22 Kasım 2026)
+        dogrulamada: this.env.VERIFY_CHANNELS.includes('sms'),
+      },
+      whatsapp: {
+        bildirim: this.env.WHATSAPP_PROVIDER,
+        dogrulamada: this.env.VERIFY_CHANNELS.includes('whatsapp'),
       },
       sources,
       bekleyen: { adEsleme: aliasPending, fotograf: photoGenerations },

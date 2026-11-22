@@ -538,8 +538,8 @@ export default function Akislar() {
                       </div>
                     </fieldset>
                     <p style={{ margin: 0, fontSize: 12.5, color: '#5A6073' }}>
-                      Kullanılabilir değişkenler: {akis.degiskenler.map((v) => `{{${v}}}`).join(', ')}. SMS
-                      yalnızca kritik iletilerde kullanılır.
+                      Kullanılabilir değişkenler: {akis.degiskenler.map((v) => `{{${v}}}`).join(', ')}.
+                      WhatsApp yalnızca kritik iletilerde kullanılır.
                     </p>
                   </>
                 ) : null}

@@ -45,7 +45,7 @@ const saat = (h: number) => (h === 24 ? '24.00' : saatYaz(h));
 
 /**
  * Ayarlar › Profil ve İletişim (Ayarlar.dc.html'nin mobil karşılığı; Karar 29): ad, soyad, il, ilçe, talepte görünen ad,
- * numarayı değiştir (yeni numaraya SMS kodu), telefon ve WhatsApp izni, aranabilir saatler.
+ * numarayı değiştir (yeni numaraya WhatsApp kodu), telefon ve WhatsApp izni, aranabilir saatler.
  */
 export function ProfilVeIletisim() {
   const { istek } = useOturum();
@@ -211,7 +211,7 @@ export function ProfilVeIletisim() {
             Cep telefonu · +90 5XX XXX XX {ben.phone.slice(-2)}
           </T>
           <T style={{ fontSize: 12.5, color: '#11683F', fontWeight: '700', marginTop: 2 }}>
-            SMS ile doğrulandı
+            WhatsApp ile doğrulandı
           </T>
           {numara === 'kapali' ? (
             <Pressable
@@ -246,7 +246,7 @@ export function ProfilVeIletisim() {
                     Yeni numarana gelen 6 haneli kodu gir.
                   </T>
                   <TInput
-                    accessibilityLabel="SMS kodu"
+                    accessibilityLabel="WhatsApp kodu"
                     placeholder="6 haneli kod"
                     keyboardType="number-pad"
                     textContentType="oneTimeCode"

@@ -137,7 +137,7 @@ export default function TeslimRaporu() {
               }}
             >
               E-postada açılma ve tıklama ölçülmez: izleme pikseli ve bağlantı yönlendirmesi kullanılmıyor.
-              SMS maliyeti doğrulama kodları hariç, tahminidir.
+              WhatsApp ücreti Meta faturasındadır (ileti türü ve ülkeye göre); burada gösterilmez.
             </p>
           </section>
 

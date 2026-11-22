@@ -24,7 +24,7 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
 | Google ile üye girişi | **Yayında** (21 Kasım 2026, sahip): kök alan adının dönüş adresi eklendi |
 | Yasal metinler | Sunucuda 8 metnin **hepsi taslak, hiçbiri yayında değil**. KVKK aydınlatma metninin iki taslağında da barındırma yeri hâlâ "Radore" |
 | Telefon kodu | Gönderilmiyor; kapalı testte ekranda gösteriliyor (`VERIFY_CHANNELS=ekran`, `KAPALI_TEST=1`) |
-| SMS | Şirket kurulana kadar **yok** (sahip kararı, 19 Kasım 2026). Kod yalnızca WhatsApp'tan gider; canlıda `SMS_PROVIDER=none` |
+| SMS | **WhatsApp'a geçildi** (sahip kararı, 22 Kasım 2026): doğrulama kodu ve kritik bildirimler WhatsApp'tan, kampanya yalnızca e-posta ve bildirimle. SMS kapalı yedek (`SMS_PROVIDER=none`); canlıda `WHATSAPP_PROVIDER=none` (Meta hesabı gelene kadar) |
 | Ödeme, fatura, mağaza, push, yapay zekâ | Kapalı (`none`). Kod hazır, hesaplar bekleniyor. Henüz yazılmayanlar: e-Arşiv bağdaştırıcısı (İYS'ye izinler CSV ile elle yüklenir), mobilde RevenueCat ve iPhone push'u için Firebase SDK |
 | Yedek, izleme, sırların şifrelenmesi | **Henüz kurulmadı** |
 | AWS kredisi | Activate kabul edildi: 1.000 USD (21 Kasım 2026). Kasım'ın ilk 20 gününde kullanım 11,95 USD, tamamı krediden |
@@ -71,8 +71,8 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
   - Nasıl: AWS ile KVKK'nın standart sözleşmesi imzalanır. AWS'nin hazır bir metni olup olmadığını ve imza yolunu
     avukatla birlikte AWS'ye sor. İmzadan sonra **5 iş günü içinde** Kişisel Verileri Koruma Kurumu'na bildirilir;
     bildirimin biçimini avukat söyler.
-  - Aynı işlem, açıldıkça öteki yurt dışı aktarımlar için de yapılır: Firebase/Apple push, Meta ve Google reklam
-    ölçümü, hata raporlama.
+  - Aynı işlem, açıldıkça öteki yurt dışı aktarımlar için de yapılır: WhatsApp (Meta; telefon numarası ve kritik
+    bildirim metni gider), Firebase/Apple push, Meta ve Google reklam ölçümü, hata raporlama.
 - [ ] **Yasal metinleri güncelle ve yayınla.**
   - Nasıl: Konsol › Görünüm › Yardım ve yasal metinler › ilgili metin › taslak › düzenle › onayla. Bu metinleri
     yalnızca sen onaylayabilirsin. Sunucuda 8 metnin hepsi henüz taslak; açılıştan önce hepsi yayına alınmalı (üyelikte
@@ -130,11 +130,20 @@ Bunlar olmadan yeni kullanıcı üye olamaz ya da e-posta alamaz.
      onaya gönder.
   4. Sistem kullanıcısıyla süresiz bir erişim jetonu üret. Jetonu ve telefon numarası kimliğini
      (`Phone number ID`) `Desktop\gizli\`'ye koy.
-  5. Claude sunucuda `WHATSAPP_TOKEN` ve `WHATSAPP_PHONE_NUMBER_ID` değerlerini girer, kendi numarana deneme kodu gönderir.
-- [ ] **SMS (şirket kurulunca, açılış için zorunlu değil).** Şirket ve marka tescili başvurusundan sonra İleti
-  Merkezi'nden SMS paketi al ve `RENGARENK` başlığını onaylat. Onay gelince Claude sunucuda `SMS_PROVIDER=iletimerkezi`,
-  `SMS_SENDER_ID=RENGARENK`, `VERIFY_CHANNELS=whatsapp,sms` yapar ve `sms:dene` ile dener. O zamana kadar WhatsApp'ı
-  olmayan kişi üye olamaz.
+  5. Kritik bildirimler için "Yardımcı" (Utility) türünde, Türkçe iki şablon daha oluştur ve onaya gönder (metin
+     aynen böyle; `{{1}}`, `{{2}}` değişkendir):
+     - `rengarenk_talep_doluyor`: `Rengarenk: “{{1}}” talebinin süresi yarın doluyor. Uzatmak için: {{2}}`
+     - `rengarenk_odeme_alinamadi`: `Rengarenk: {{1}} paketinin yenileme ödemesi alınamadı. Kartını güncellemek için: {{2}}`
+     Meta örnek değer ister: `BMW 3 Serisi 320i` / `Yıldız Otomotiv` ve `https://rengarenksite.com/taleplerim`.
+  6. Claude sunucuda `WHATSAPP_TOKEN` ve `WHATSAPP_PHONE_NUMBER_ID` değerlerini girer, `WHATSAPP_PROVIDER=meta` yapar,
+     kendi numarana deneme kodu ve bildirimi gönderir.
+  - Meta'nın kuralı: işletme, kişiye WhatsApp'tan yazmadan önce onun bunu kabul ettiğini almış olmalı. Üyelikte numara
+    WhatsApp koduyla doğrulanıyor; kritik bildirimlerin WhatsApp'tan gideceği aydınlatma metninde ve Ayarlar'da yazılı,
+    kişi Ayarlar › Bildirimler'den kapatabilir. Bunun yeterli olup olmadığını avukata da sor.
+- [ ] **SMS, kapalı yedek (isteğe bağlı; sahip kararı 22 Kasım 2026: SMS'in yerine WhatsApp).** Kullanıcıya SMS
+  gitmez. Şirket kurulunca istersen İleti Merkezi'nden SMS paketi al ve `RENGARENK` başlığını onaylat; Claude
+  `SMS_PROVIDER=iletimerkezi`, `VERIFY_CHANNELS=whatsapp,sms` yapar: SMS yalnızca WhatsApp'a ulaşamayan kişiye
+  doğrulama kodu için kullanılır. O zamana kadar WhatsApp'ı olmayan kişi üye olamaz.
 - [x] **Amazon SES üretim erişimi:** verildi (inceleme sonucu "GRANTED", günde 50.000 e-posta, saniyede 14;
   19 Kasım 2026'da kontrol edildi). Açılışta yalnızca kendi adresin dışındaki bir adrese deneme e-postası atılır.
 - [x] **Google ile üye girişi yayında** (21 Kasım 2026, sahip): `rengarenk-uye` uygulaması "Üretimde", dönüş adresi

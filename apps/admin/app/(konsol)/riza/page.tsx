@@ -187,7 +187,7 @@ interface IysOzet {
   bekleyen: {
     toplam: number;
     eposta: { onay: number; ret: number };
-    sms: { onay: number; ret: number };
+    mesaj: { onay: number; ret: number };
     enEski: string | null;
     gecikti: boolean;
   };
@@ -225,7 +225,7 @@ const ikincil: CSSProperties = {
 };
 
 /**
- * İYS'ye elle aktarım: izin değişince kanal başına (e-posta, SMS) satır birikir; "CSV'yi hazırla" en eski 50 satırı
+ * İYS'ye elle aktarım: izin değişince kanal başına (e-posta; eski SMS onaylarının retleri mesaj) satır birikir; "CSV'yi hazırla" en eski 50 satırı
  * pakete alır (İYS bir dosyada en fazla 50 izin aktarır), dosya İYS Web › İzin Ekle › Dosyadan Çoklu İzin Yükle'den
  * yüklenir ve paket "Yüklendi" diye işaretlenir. Yasal süre 3 iş günü.
  */
@@ -282,8 +282,8 @@ function IysAktarim() {
             Ticari ileti onayı ya da reti 3 iş günü içinde İYS'ye yüklenmeli. Gün sonunda CSV dosyasını indir,
             İYS Web'de İzin Ekle › Dosyadan Çoklu İzin Yükle ekranından "Bireysel" olarak yükle, sonra paketi
             "Yüklendi" diye işaretle. İYS bir dosyada en fazla {IYS_SINIR} izin alır; her paket bir dosyadır.
-            Ticari e-posta ve SMS yalnızca İYS'de onayı olan, yani paketi "Yüklendi" işaretlenmiş kişilere
-            gider; "Yüklendi"ye dosya İYS'de başarıyla yüklendikten sonra bas.
+            Ticari e-posta yalnızca İYS'de onayı olan, yani paketi "Yüklendi" işaretlenmiş kişilere gider;
+            "Yüklendi"ye dosya İYS'de başarıyla yüklendikten sonra bas.
           </p>
         </div>
         <button
@@ -310,8 +310,8 @@ function IysAktarim() {
             color: b.gecikti ? '#A3271F' : '#3A4052',
           }}
         >
-          Bekleyen: e-posta {b.eposta.onay} onay, {b.eposta.ret} ret · SMS {b.sms.onay} onay, {b.sms.ret} ret
-          · en eskisi {tarih(b.enEski)}
+          Bekleyen: e-posta {b.eposta.onay} onay, {b.eposta.ret} ret · mesaj {b.mesaj.onay} onay,{' '}
+          {b.mesaj.ret} ret · en eskisi {tarih(b.enEski)}
           {b.gecikti ? ' · 3 iş günü doldu' : ''}
           {b.toplam > IYS_SINIR
             ? ` · ${b.toplam} izin ${Math.ceil(b.toplam / IYS_SINIR)} dosyaya bölünür, düğmeye her dosya için bir kez bas`

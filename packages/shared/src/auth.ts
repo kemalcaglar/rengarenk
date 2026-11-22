@@ -26,11 +26,11 @@ export type OtpRequest = z.input<typeof otpRequestSchema>;
 /**
  * Ticari ileti onayının kanalları: yasal metin taslağı bölüm 4'teki gibi her kanal için ayrı, işaretsiz kutu (İYS onayı
  * kanal başınadır). `bildirim` uygulama içi bildirim ve push'tur (İYS kapsamında değil). İşaretlenen kanalın kampanya
- * tercihi açılır.
+ * tercihi açılır. Kampanya SMS ya da WhatsApp'tan gitmez (sahip kararı 22 Kasım 2026); eski istemcinin `sms` alanı yok
+ * sayılır.
  */
 export const ticariKanallarSchema = z.object({
   eposta: z.boolean().default(false),
-  sms: z.boolean().default(false),
   bildirim: z.boolean().default(false),
 });
 export type TicariKanallar = z.output<typeof ticariKanallarSchema>;
@@ -41,7 +41,6 @@ export const TICARI_ILETI_KUTU = {
     "Rengarenk'in kampanya, indirim ve yeniliklerinden haberdar olmak için şu yollarla ticari elektronik ileti almayı kabul ediyorum (isteğe bağlı):",
   kanallar: [
     { anahtar: 'eposta', ad: 'E-posta' },
-    { anahtar: 'sms', ad: 'SMS' },
     { anahtar: 'bildirim', ad: 'Bildirim' },
   ] as const,
 };
@@ -59,7 +58,7 @@ export type SignupConsents = z.input<typeof signupConsentsSchema>;
 /** Üyelikte ticari ileti onayı verildi mi (en az bir kanal ya da eski tek kutu) */
 export function ticariOnayVar(c: Pick<SignupConsents, 'ticariIleti' | 'ticariKanallar'>) {
   const k = c.ticariKanallar;
-  return k ? !!(k.eposta || k.sms || k.bildirim) : !!c.ticariIleti;
+  return k ? !!(k.eposta || k.bildirim) : !!c.ticariIleti;
 }
 
 export const otpVerifySchema = z.object({

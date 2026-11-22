@@ -11,11 +11,11 @@ import { NotificationEvents } from '../src/notifications/notification-events.js'
 import { SwitchService } from '../src/notifications/switches.js';
 import { TemplatesService } from '../src/notifications/templates.service.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
+import { MemoryWhatsAppSender } from '../src/sms/whatsapp.js';
 import { call, createTestApp, iysYuklendi, uyeOl } from './helpers.js';
 
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
+let wa: MemoryWhatsAppSender;
 let db: Db;
 let eposta: MemoryEmail;
 let push: FakePush;
@@ -23,15 +23,16 @@ let teslim: DeliveryService;
 let olaylar: NotificationEvents;
 
 beforeAll(async () => {
-  ({ app, sms, db } = await createTestApp());
+  ({ app, db } = await createTestApp());
   eposta = new MemoryEmail();
   push = new FakePush();
+  wa = new MemoryWhatsAppSender();
   teslim = new DeliveryService(
     db,
     app.get<Env>(ENV),
     eposta,
     push,
-    sms,
+    wa,
     app.get(TemplatesService),
     app.get(SwitchService),
   );
@@ -69,7 +70,7 @@ async function talep(token: string) {
 }
 
 describe('bildirim katmanı (Karar 30, 48, 49, 50)', () => {
-  it('talep süresi dolmadan üç kanaldan hatırlatma: uygulama ve push, e-posta, SMS (son gün)', async () => {
+  it('talep süresi dolmadan üç kanaldan hatırlatma: uygulama ve push, e-posta, WhatsApp (son gün)', async () => {
     const phone = '+905339990001';
     const u = await login(phone);
 
@@ -92,9 +93,9 @@ describe('bildirim katmanı (Karar 30, 48, 49, 50)', () => {
       u.token,
     );
     const d = await talep(u.token);
-    const smsOnce = sms.sent.length;
+    const waOnce = wa.sent.length;
 
-    // 3 gün kala: uygulama, push ve e-posta; SMS yalnızca son gün
+    // 3 gün kala: uygulama, push ve e-posta; WhatsApp yalnızca son gün
     await olaylar.handle('talep.suresi_doluyor', { demandId: d.id, userId: u.userId, gun: 3 });
     await teslim.dispatchDue();
     expect(push.sent.at(-1)).toMatchObject({ baslik: 'Talebin 3 gün sonra doluyor' });
@@ -103,16 +104,18 @@ describe('bildirim katmanı (Karar 30, 48, 49, 50)', () => {
       to: 'ayse@ornek.com',
     });
     expect(eposta.sent.at(-1)?.html).toContain('Taleplerime git');
-    expect(sms.sent.length).toBe(smsOnce);
+    expect(wa.sent.length).toBe(waOnce);
 
     await olaylar.handle('talep.suresi_doluyor', { demandId: d.id, userId: u.userId, gun: 1 });
     await teslim.dispatchDue();
     expect(push.sent.at(-1)?.baslik).toBe('Talebin 1 gün sonra doluyor');
     expect(eposta.sent.at(-1)?.subject).toBe('Talebin 1 gün sonra doluyor');
-    const son = sms.sent.at(-1);
+    // WhatsApp: Meta'daki onaylı şablon, gövde değerleri sırasıyla talep ve bağlantı
+    const son = wa.sent.at(-1);
     expect(son?.to).toBe(phone);
-    expect(son?.text).toContain('yarin doluyor');
-    expect(son?.text).not.toMatch(/[ğüşıöçİ]/);
+    expect(son?.sablon).toBe('rengarenk_talep_doluyor');
+    expect(son?.parametreler).toHaveLength(2);
+    expect(son?.parametreler[1]).toMatch(/^https?:\/\/.+\/taleplerim$/);
 
     const teslimler = await db.delivery.findMany({
       where: { userId: u.userId, sablon: 'talep.suresi_doluyor' },
@@ -122,7 +125,7 @@ describe('bildirim katmanı (Karar 30, 48, 49, 50)', () => {
         .filter((t) => t.durum === 'gonderildi')
         .map((t) => t.kanal)
         .sort(),
-    ).toEqual(['eposta', 'eposta', 'push', 'push', 'sms']);
+    ).toEqual(['eposta', 'eposta', 'push', 'push', 'whatsapp']);
 
     // Zil: liste, okunmamış sayısı, tümünü okundu say
     const l = await call(app, 'GET', '/notifications', undefined, u.token);
@@ -155,10 +158,27 @@ describe('bildirim katmanı (Karar 30, 48, 49, 50)', () => {
       'kampanya',
     ]);
     expect(p.body.konular.find((k: { konu: string }) => k.konu === 'sure').kanallar).toEqual([
-      { kanal: 'uygulama', acik: true, kilitli: false },
-      { kanal: 'eposta', acik: true, kilitli: false },
-      { kanal: 'sms', acik: true, kilitli: false },
+      { kanal: 'uygulama', acik: true, kilitli: false, kapali: false },
+      { kanal: 'eposta', acik: true, kilitli: false, kapali: false },
+      { kanal: 'whatsapp', acik: true, kilitli: false, kapali: false },
     ]);
+    // Kampanya WhatsApp'tan gitmez: kutu yok, açılamaz (sahip kararı 22 Kasım 2026)
+    expect(
+      p.body.konular
+        .find((k: { konu: string }) => k.konu === 'kampanya')
+        .kanallar.find((k: { kanal: string }) => k.kanal === 'whatsapp'),
+    ).toMatchObject({ acik: false, kapali: true });
+    expect(
+      (
+        await call(
+          app,
+          'PUT',
+          '/me/notification-preferences',
+          { tercihler: [{ konu: 'kampanya', kanal: 'whatsapp', acik: true }] },
+          u.token,
+        )
+      ).status,
+    ).toBe(400);
     expect(
       (
         await call(
@@ -177,7 +197,7 @@ describe('bildirim katmanı (Karar 30, 48, 49, 50)', () => {
       {
         tercihler: [
           { konu: 'sure', kanal: 'eposta', acik: false },
-          { konu: 'sure', kanal: 'sms', acik: false },
+          { konu: 'sure', kanal: 'whatsapp', acik: false },
         ],
       },
       u.token,
@@ -354,7 +374,7 @@ describe('bildirim katmanı (Karar 30, 48, 49, 50)', () => {
       { ...env, EPOSTA_ISINMA_BASLANGIC: new Date(Date.now() - 70 * 86_400_000).toISOString().slice(0, 10) },
       eposta,
       push,
-      sms,
+      wa,
       app.get(TemplatesService),
       app.get(SwitchService),
     );

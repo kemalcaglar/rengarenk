@@ -160,8 +160,8 @@ export default function KisiselVerilerim() {
         onChangeText={(v) => setKod(v.replace(/\D/g, '').slice(0, 6))}
         keyboardType="number-pad"
         textContentType="oneTimeCode"
-        accessibilityLabel="SMS kodu"
-        placeholder="SMS kodu"
+        accessibilityLabel="WhatsApp kodu"
+        placeholder="WhatsApp kodu"
         style={{
           flex: 1,
           borderWidth: 1,
@@ -466,7 +466,7 @@ export default function KisiselVerilerim() {
                 ) : (
                   <>
                     <T style={{ fontSize: 12.5, color: '#A3271F', marginTop: 10 }}>
-                      Onaylamak için telefonuna bir SMS kodu göndereceğiz.
+                      Onaylamak için WhatsApp’ına bir kod göndereceğiz.
                     </T>
                     <Pressable
                       accessibilityRole="button"
@@ -482,7 +482,7 @@ export default function KisiselVerilerim() {
                       }}
                     >
                       <T style={{ fontSize: 14.5, fontWeight: '800', color: '#A3271F' }}>
-                        SMS kodu gönder ve hesabı kapat
+                        WhatsApp kodu gönder ve hesabı kapat
                       </T>
                     </Pressable>
                   </>

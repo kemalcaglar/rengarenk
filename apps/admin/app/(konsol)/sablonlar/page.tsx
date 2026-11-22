@@ -14,7 +14,6 @@ interface Satir {
 interface Icerik {
   baslik: string;
   metin: string;
-  sms?: string;
   eposta?: { konu: string; paragraflar: string[]; dugme?: { yazi: string; url: string } };
 }
 interface Detay {
@@ -25,14 +24,16 @@ interface Detay {
   kanallar: string[];
   degiskenler: string[];
   icerik: Icerik;
+  /** Meta'da onaylı WhatsApp şablonu (konsoldan değişmez) */
+  whatsapp: { sablon: string; parametreler: string[]; onizleme: string } | null;
   kural: string;
 }
 interface Onizleme {
   uygulama: { baslik: string; metin: string };
   eposta: { kimden: string; konu: string; html: string } | null;
-  sms: { metin: string; karakter: number; adet: number } | null;
+  whatsapp: { sablon: string; metin: string } | null;
 }
-type Kanal = 'eposta' | 'push' | 'sms' | 'uygulama';
+type Kanal = 'eposta' | 'push' | 'whatsapp' | 'uygulama';
 
 const girdi: CSSProperties = {
   display: 'block',
@@ -49,7 +50,8 @@ const girdi: CSSProperties = {
 const etiket: CSSProperties = { display: 'block', fontSize: 12.5, fontWeight: 700, marginBottom: 10 };
 
 /**
- * Şablonlar (YonetimKampanya.dc.html › şablonlar; Karar 48): tek şablondan e-posta, push, SMS ve uygulama içi metin.
+ * Şablonlar (YonetimKampanya.dc.html › şablonlar; Karar 48): tek şablondan e-posta, push, WhatsApp ve uygulama içi metin.
+ * WhatsApp metni Meta'da onaylı şablondadır ve burada yalnızca gösterilir (sahip kararı 22 Kasım 2026: SMS'in yerine).
  * Değişkenler {{ad}} biçiminde; yalnızca şablonun tanıdığı değişkenler kullanılabilir. Kayıt yeni sürüm olarak eklenir,
  * önizleme "Ayşe için" örnek değerlerle sunucuda üretilir (gönderilecek e-postanın aynısı).
  */
@@ -125,7 +127,7 @@ export default function Sablonlar() {
   const kanallar: [Kanal, string, boolean][] = [
     ['eposta', 'E-posta', !!ic?.eposta],
     ['push', 'Push', !!d?.kanallar.includes('push')],
-    ['sms', 'SMS', d?.icerik.sms !== undefined],
+    ['whatsapp', 'WhatsApp', !!d?.whatsapp],
     ['uygulama', 'Uygulama içi', !!d?.kanallar.includes('uygulama içi')],
   ];
 
@@ -134,7 +136,7 @@ export default function Sablonlar() {
       <div style={{ marginBottom: 16 }}>
         <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Şablonlar</h1>
         <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
-          Tek şablondan e-posta, push, SMS ve uygulama içi metin. Değişkenler süslü parantezle yazılır.
+          Tek şablondan e-posta, push, WhatsApp ve uygulama içi metin. Değişkenler süslü parantezle yazılır.
         </p>
       </div>
       {hata ? <p style={{ color: '#A3271F', fontWeight: 700 }}>{hata}</p> : null}
@@ -350,17 +352,20 @@ export default function Sablonlar() {
                       </label>
                     ) : null}
                   </>
-                ) : kanal === 'sms' ? (
-                  <label style={etiket}>
-                    SMS metni
-                    <textarea
-                      rows={3}
-                      value={ic.sms ?? ''}
-                      readOnly={!duzenler}
-                      onChange={(e) => setIc({ ...ic, sms: e.target.value })}
-                      style={girdi}
-                    />
-                  </label>
+                ) : kanal === 'whatsapp' ? (
+                  d?.whatsapp ? (
+                    <div style={{ fontSize: 13.5, lineHeight: 1.55 }}>
+                      <div style={etiket}>
+                        Meta şablonu: <code>{d.whatsapp.sablon}</code>
+                      </div>
+                      <textarea rows={3} value={d.whatsapp.onizleme} readOnly style={girdi} />
+                      <p style={{ margin: '8px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+                        WhatsApp metni Meta'da onaylı şablondadır, buradan değişmez. Değiştirmek için Meta'da
+                        yeni şablon onaylatılır ve kodda adı güncellenir. Gövdedeki yerler sırasıyla:{' '}
+                        {d.whatsapp.parametreler.map((v) => `{{${v}}}`).join(', ')}.
+                      </p>
+                    </div>
+                  ) : null
                 ) : (
                   <>
                     <label style={etiket}>
@@ -435,9 +440,11 @@ export default function Sablonlar() {
                       style={{ width: '100%', height: 420, border: 0, background: '#FFFFFF' }}
                     />
                   </div>
-                ) : kanal === 'sms' && onz?.sms ? (
-                  <div style={{ background: '#F3F5FA', borderRadius: 14, padding: 14 }}>
-                    <div style={{ fontSize: 11.5, fontWeight: 800, color: '#5A6073' }}>RENGARENK</div>
+                ) : kanal === 'whatsapp' && onz?.whatsapp ? (
+                  <div style={{ background: '#EFEAE2', borderRadius: 14, padding: 14 }}>
+                    <div style={{ fontSize: 11.5, fontWeight: 800, color: '#5A6073' }}>
+                      Rengarenk · WhatsApp
+                    </div>
                     <div
                       style={{
                         background: '#FFFFFF',
@@ -447,11 +454,10 @@ export default function Sablonlar() {
                         fontSize: 13.5,
                       }}
                     >
-                      {onz.sms.metin}
+                      {onz.whatsapp.metin}
                     </div>
                     <div style={{ fontSize: 11.5, color: '#5A6073', marginTop: 6 }}>
-                      {onz.sms.karakter} karakter · {onz.sms.adet} SMS · Türkçe karakter kullanılmaz (tek
-                      SMS’e sığması için)
+                      Meta şablonu {onz.whatsapp.sablon} · ücret Meta faturasında
                     </div>
                   </div>
                 ) : onz ? (

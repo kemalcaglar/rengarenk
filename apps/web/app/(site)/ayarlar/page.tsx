@@ -10,9 +10,11 @@ import { HesabiKapat } from './hesap';
 import { GorunenAd, Iletisim, type IletisimTercihi, NumaraDegistir } from './iletisim';
 
 interface Kanal {
-  kanal: 'uygulama' | 'eposta' | 'sms';
+  kanal: 'uygulama' | 'eposta' | 'whatsapp';
   acik: boolean;
   kilitli: boolean;
+  /** Bu konuda sunulmayan kanal (kampanyada WhatsApp) */
+  kapali?: boolean;
 }
 interface Tercihler {
   konular: { konu: string; ad: string; not: string; kanallar: Kanal[] }[];
@@ -350,7 +352,7 @@ export default function Ayarlar() {
                       marginTop: 2,
                     }}
                   >
-                    SMS ile doğrulandı
+                    WhatsApp ile doğrulandı
                   </span>
                 </span>
                 <NumaraDegistir
@@ -454,7 +456,7 @@ export default function Ayarlar() {
               }}
             >
               <span style={{ flex: 1 }}>Bildirim</span>
-              {['Uygulama', 'E-posta', 'SMS'].map((k) => (
+              {['Uygulama', 'E-posta', 'WhatsApp'].map((k) => (
                 <span key={k} style={{ width: 72, textAlign: 'center' }}>
                   {k}
                 </span>
@@ -484,34 +486,44 @@ export default function Ayarlar() {
                     {r.not}
                   </span>
                 </span>
-                {r.kanallar.map((k) => (
-                  <span key={k.kanal} style={{ width: 72, display: 'flex', justifyContent: 'center' }}>
-                    {/* biome-ignore lint/a11y/useSemanticElements: tasarımdaki gibi role=checkbox düğmesi (Ayarlar.dc.html) */}
-                    <button
-                      type="button"
-                      role="checkbox"
-                      aria-checked={k.acik}
-                      aria-disabled={k.kilitli}
-                      aria-label={`${r.ad} · ${k.kanal === 'uygulama' ? 'Uygulama' : k.kanal === 'eposta' ? 'E-posta' : 'SMS'}`}
-                      onClick={() => degistir(r.konu, k)}
-                      style={{
-                        width: 24,
-                        height: 24,
-                        borderRadius: 'calc(var(--rr-buton-kose) * 7 / 14)',
-                        border: `2px solid ${k.acik ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}`,
-                        background: k.acik ? 'var(--rr-mavi, #5B8CFF)' : '#FFFFFF',
-                        color: '#FFFFFF',
-                        fontSize: 14,
-                        fontWeight: 800,
-                        cursor: k.kilitli ? 'not-allowed' : 'pointer',
-                        padding: 0,
-                        opacity: k.kilitli ? 0.5 : 1,
-                      }}
+                {r.kanallar.map((k) =>
+                  k.kapali ? (
+                    <span
+                      key={k.kanal}
+                      title="Bu bildirim bu kanaldan gönderilmez"
+                      style={{ width: 72, textAlign: 'center', color: 'var(--rr-soluk, #5A6073)' }}
                     >
-                      {k.acik ? '✓' : ''}
-                    </button>
-                  </span>
-                ))}
+                      —
+                    </span>
+                  ) : (
+                    <span key={k.kanal} style={{ width: 72, display: 'flex', justifyContent: 'center' }}>
+                      {/* biome-ignore lint/a11y/useSemanticElements: tasarımdaki gibi role=checkbox düğmesi (Ayarlar.dc.html) */}
+                      <button
+                        type="button"
+                        role="checkbox"
+                        aria-checked={k.acik}
+                        aria-disabled={k.kilitli}
+                        aria-label={`${r.ad} · ${k.kanal === 'uygulama' ? 'Uygulama' : k.kanal === 'eposta' ? 'E-posta' : 'WhatsApp'}`}
+                        onClick={() => degistir(r.konu, k)}
+                        style={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: 'calc(var(--rr-buton-kose) * 7 / 14)',
+                          border: `2px solid ${k.acik ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}`,
+                          background: k.acik ? 'var(--rr-mavi, #5B8CFF)' : '#FFFFFF',
+                          color: '#FFFFFF',
+                          fontSize: 14,
+                          fontWeight: 800,
+                          cursor: k.kilitli ? 'not-allowed' : 'pointer',
+                          padding: 0,
+                          opacity: k.kilitli ? 0.5 : 1,
+                        }}
+                      >
+                        {k.acik ? '✓' : ''}
+                      </button>
+                    </span>
+                  ),
+                )}
               </div>
             ))}
             <p
@@ -523,8 +535,8 @@ export default function Ayarlar() {
                 borderTop: '1px solid #EEF0F5',
               }}
             >
-              Kampanya e-posta ve SMS’leri ticari elektronik ileti onayınla gönderilir ve İYS’ye kaydedilir.
-              Onayını istediğin zaman geri alabilirsin.
+              Kampanya e-postaları ticari elektronik ileti onayınla gönderilir ve İYS’ye kaydedilir; kampanya
+              WhatsApp’tan gönderilmez. Onayını istediğin zaman geri alabilirsin.
             </p>
           </section>
         ) : null}

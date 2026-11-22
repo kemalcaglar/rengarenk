@@ -13,12 +13,11 @@ import { ReputationService } from '../src/notifications/reputation.js';
 import { SwitchService } from '../src/notifications/switches.js';
 import { TemplatesService } from '../src/notifications/templates.service.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
+import { MemoryWhatsAppSender } from '../src/sms/whatsapp.js';
 import { call, createTestApp, iysYuklendi, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
 let db: Db;
 let eposta: MemoryEmail;
 let teslim: DeliveryService;
@@ -27,14 +26,14 @@ let destek: string;
 let sahipEposta: string;
 
 beforeAll(async () => {
-  ({ app, sms, db } = await createTestApp());
+  ({ app, db } = await createTestApp());
   eposta = new MemoryEmail();
   teslim = new DeliveryService(
     db,
     app.get<Env>(ENV),
     eposta,
     new FakePush(),
-    sms,
+    new MemoryWhatsAppSender(),
     app.get(TemplatesService),
     app.get(SwitchService),
   );
@@ -57,7 +56,7 @@ describe('konsol: şablonlar, bildirim merkezi, teslim raporu, otomatik akışla
     expect(l.body.find((t: { key: string }) => t.key === 'talep.suresi_doluyor')).toMatchObject({
       tur: 'İşlemsel',
       surum: 0,
-      kanallar: ['uygulama içi', 'push', 'e-posta', 'SMS'],
+      kanallar: ['uygulama içi', 'push', 'e-posta', 'WhatsApp'],
     });
     const t = await staffCall(
       app,
@@ -89,7 +88,10 @@ describe('konsol: şablonlar, bildirim merkezi, teslim raporu, otomatik akışla
     );
     expect(o.body.uygulama.baslik).toBe('Talebinin bitmesine 3 gün var');
     expect(o.body.eposta.html).toContain('Taleplerime git');
-    expect(o.body.sms.metin).toContain('yarin doluyor');
+    // WhatsApp metni Meta'daki onaylı şablondan gösterilir, konsoldan değişmez
+    expect(o.body.whatsapp).toMatchObject({ sablon: 'rengarenk_talep_doluyor' });
+    expect(o.body.whatsapp.metin).toContain('yarın doluyor');
+    expect(t.body.whatsapp.parametreler).toEqual(['talepKisa', 'link']);
 
     expect(
       (await staffCall(app, 'POST', '/staff/notifications/templates/talep.suresi_doluyor', icerik, destek))

@@ -5,6 +5,7 @@ import { AppleJwksVerifier } from '../src/auth/user-identity.js';
 import { ChannelCodeSender, WhatsAppCodeSender } from '../src/sms/code-sender.js';
 import { MemorySmsSender } from '../src/sms/console.sender.js';
 import { SmsError } from '../src/sms/sms.js';
+import { MetaWhatsAppSender, waParametre } from '../src/sms/whatsapp.js';
 
 describe('telefon doğrulama kodu kanalları (Karar 18)', () => {
   it('WhatsApp kimlik doğrulama şablonu: kod gövdede ve kopyala düğmesinde, numara + işaretsiz', async () => {
@@ -34,6 +35,49 @@ describe('telefon doğrulama kodu kanalları (Karar 18)', () => {
         ],
       },
     });
+  });
+
+  it('WhatsApp bildirimi (SMS yerine): onaylı şablon, gövde değerleri sırayla, Meta kuralına uygun', async () => {
+    const istekler: Record<string, unknown>[] = [];
+    const fetchFn = (async (_url: string, init: RequestInit) => {
+      istekler.push(JSON.parse(String(init.body)));
+      return new Response(JSON.stringify({ messages: [{ id: 'wamid.2' }] }), { status: 200 });
+    }) as unknown as typeof fetch;
+    const wa = new MetaWhatsAppSender('jeton', '123456', 'tr', 'v23.0', fetchFn);
+    expect(
+      await wa.sendTemplate('+905321112233', 'rengarenk_talep_doluyor', [
+        'BMW 3 Serisi\n320i',
+        'https://rengarenksite.com/taleplerim',
+      ]),
+    ).toEqual({ messageId: 'wamid.2' });
+    expect(istekler[0]).toMatchObject({
+      to: '905321112233',
+      template: {
+        name: 'rengarenk_talep_doluyor',
+        language: { code: 'tr' },
+        components: [
+          {
+            type: 'body',
+            parameters: [
+              { type: 'text', text: 'BMW 3 Serisi 320i' },
+              { type: 'text', text: 'https://rengarenksite.com/taleplerim' },
+            ],
+          },
+        ],
+      },
+    });
+    expect(waParametre('a     b\t')).toBe('a   b');
+    const red = new MetaWhatsAppSender(
+      'jeton',
+      '1',
+      'tr',
+      'v23.0',
+      (async () =>
+        new Response(JSON.stringify({ error: { code: 132001 } }), {
+          status: 400,
+        })) as unknown as typeof fetch,
+    );
+    await expect(red.sendTemplate('+905321112233', 'yok', [])).rejects.toThrow('132001');
   });
 
   it('WhatsApp reddederse SMS yedeği; numara geçersizse yedek denenmez', async () => {

@@ -381,7 +381,7 @@ async function galeriBasvur(
     await istek(
       'POST',
       '/gallery-applications/me/submit',
-      { sozlesme: true, ticariKanallar: { eposta: true, sms: false, bildirim: true } },
+      { sozlesme: true, ticariKanallar: { eposta: true, bildirim: true } },
       k.token,
     ),
     `${g.ad} gönderim`,

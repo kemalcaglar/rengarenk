@@ -266,7 +266,6 @@ export default function Segmentler() {
           sayi: u.eposta,
           not: 'Ticari onaylı, e-postası doğrulanmış ve kampanya e-postasına izinli',
         },
-        { ad: 'SMS', sayi: 0, not: 'Kampanya SMS’i kapalı (Karar 49)' },
         { ad: 'Uygulama içi', sayi: u.uygulama, not: 'Ticari onaylı ve kampanya bildirimine izin veren' },
       ]
     : [];

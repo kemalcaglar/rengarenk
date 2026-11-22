@@ -21,10 +21,13 @@ import { StaffGuard, type StaffRequest } from '../staff/staff.guard.js';
 
 const DAY = 86_400_000;
 
-/** İYS izin türleri ve bizdeki kampanya kanalı (uygulama içi ve push İYS kapsamında değil) */
+/**
+ * İYS izin türleri ve bizdeki kampanya kanalı (uygulama içi ve push İYS kapsamında değil). Kampanya SMS ya da
+ * WhatsApp'tan gitmez (sahip kararı 22 Kasım 2026): MESAJ için kanal yok; eski MESAJ onayları eşitlemede RET olur.
+ */
 export const IYS_TURLERI = [
   { tur: 'EPOSTA', kanal: 'eposta' },
-  { tur: 'MESAJ', kanal: 'sms' },
+  { tur: 'MESAJ', kanal: null },
 ] as const;
 export type IysTur = (typeof IYS_TURLERI)[number]['tur'];
 
@@ -105,7 +108,7 @@ export function iysCsv(
 const iysTelefon = (phone: string) => (/^\+905\d{9}$/.test(phone) ? phone : null);
 
 /**
- * Ticari e-posta ve SMS yalnızca İYS'de onayı olan alıcıya gider (İYS: "İYS üzerinde onayı bulunmayan alıcılara ticari
+ * Ticari e-posta yalnızca İYS'de onayı olan alıcıya gider (İYS: "İYS üzerinde onayı bulunmayan alıcılara ticari
  * elektronik ileti gönderilemez"). Entegratör olmadığı için ölçüt: kanalın son kaydı ONAY, adresi kişinin bugünkü
  * adresi ve paketi İYS'ye "Yüklendi" diye işaretlenmiş. Uygulama içi bildirim ve push İYS kapsamında değildir.
  */
@@ -128,7 +131,7 @@ export async function iysYukluOnay(
     const r = sonlar[i];
     return !!r && r.status === 'ONAY' && !!r.batch?.uploadedAt && !!hedef[i] && r.recipient === hedef[i];
   };
-  return { eposta: tamam(0), sms: tamam(1) };
+  return { eposta: tamam(0) };
 }
 
 /**
@@ -165,9 +168,9 @@ export class IysKayitService {
       const kaynak = riza?.channel === 'ios' || riza?.channel === 'android' ? 'HS_MOBIL' : 'HS_WEB';
       let n = 0;
       for (const { tur, kanal } of IYS_TURLERI) {
-        const pref = prefs.find((p) => p.kanal === kanal);
+        const pref = kanal ? prefs.find((p) => p.kanal === kanal) : undefined;
         const alici = tur === 'EPOSTA' ? (u.email?.trim().toLowerCase() ?? null) : iysTelefon(u.phone);
-        const kanalAcik = pref?.acik ?? NOTIFY_TOPICS.kampanya.varsayilan[kanal];
+        const kanalAcik = kanal ? (pref?.acik ?? NOTIFY_TOPICS.kampanya.varsayilan[kanal]) : false;
         const onayli = Boolean(riza?.granted && kanalAcik && alici);
         const son = await tx.iysRecord.findFirst({
           where: { userId, type: tur },
@@ -231,7 +234,7 @@ export class IysKayitService {
       bekleyen: {
         toplam: bekleyen.reduce((a, b) => a + b._count._all, 0),
         eposta: { onay: say('EPOSTA', 'ONAY'), ret: say('EPOSTA', 'RET') },
-        sms: { onay: say('MESAJ', 'ONAY'), ret: say('MESAJ', 'RET') },
+        mesaj: { onay: say('MESAJ', 'ONAY'), ret: say('MESAJ', 'RET') },
         enEski: enEski?.consentAt ?? null,
         gecikti: !!enEski && isGunuFarki(enEski.consentAt, now) >= 3,
       },

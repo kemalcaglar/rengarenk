@@ -116,7 +116,7 @@ export const HELP_TOPICS = [
     sorular: [
       [
         'Telefon numaramı nasıl değiştiririm?',
-        'Ayarlar > Profil bölümünde “Numarayı değiştir”i seç ve yeni numarana gelen SMS kodunu gir.',
+        'Ayarlar > Profil bölümünde “Numarayı değiştir”i seç ve yeni numarana WhatsApp’tan gelen kodu gir.',
       ],
       [
         'Verilerimin kopyasını alabilir miyim?',

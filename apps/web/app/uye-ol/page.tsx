@@ -45,7 +45,7 @@ const showPhone = (digits: string) => {
 
 /**
  * Üye ol (Karar 18, 12 Kasım 2026): Google ile ya da formla. Her yolda ad, soyad, e-posta ve telefon alınır; telefon
- * bir kez kodla doğrulanır (önce WhatsApp, yedek SMS) ve hesap o zaman açılır. Doğrulanmış bir numara başka hesapta
+ * bir kez kodla doğrulanır (WhatsApp; SMS yalnızca kapalı yedek) ve hesap o zaman açılır. Doğrulanmış bir numara başka hesapta
  * kullanılamaz. Onaylar sürümüyle kaydedilir (Karar 59).
  */
 export default function UyeOl() {
@@ -63,7 +63,7 @@ export default function UyeOl() {
     reklamOlcum: false,
   });
   // Ticari ileti onayı kanal başına (yasal metin taslağı bölüm 4, İYS onayı kanal başına)
-  const [ticari, setTicari] = useState<TicariKanallar>({ eposta: false, sms: false, bildirim: false });
+  const [ticari, setTicari] = useState<TicariKanallar>({ eposta: false, bildirim: false });
   const [kod, setKod] = useState<RegisterStarted | null>(null);
   const [code, setCode] = useState('');
   const [expiresAt, setExpiresAt] = useState(0);
@@ -140,7 +140,7 @@ export default function UyeOl() {
           ...(google ? { kayitJetonu: google.kayitJetonu } : { sifre }),
           consents: {
             ...onay,
-            ticariIleti: ticari.eposta || ticari.sms || ticari.bildirim,
+            ticariIleti: ticari.eposta || ticari.bildirim,
             ticariKanallar: ticari,
           },
           platform: 'WEB',

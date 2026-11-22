@@ -18,17 +18,6 @@ const hb = Handlebars.create();
 const metin = (s: string, veri: object) => hb.compile(s, { noEscape: true })(veri);
 const html = (s: string, veri: object) => hb.compile(s)(veri);
 
-/** SMS: Türkçe karakterler GSM 7 bit karşılığına (tek SMS 160 karakter) */
-const gsm = (s: string) =>
-  s
-    .replace(/[ğĞ]/g, (c) => (c === 'ğ' ? 'g' : 'G'))
-    .replace(/[üÜ]/g, (c) => (c === 'ü' ? 'u' : 'U'))
-    .replace(/[şŞ]/g, (c) => (c === 'ş' ? 's' : 'S'))
-    .replace(/ı/g, 'i')
-    .replace(/İ/g, 'I')
-    .replace(/[öÖ]/g, (c) => (c === 'ö' ? 'o' : 'O'))
-    .replace(/[çÇ]/g, (c) => (c === 'ç' ? 'c' : 'C'));
-
 /**
  * Bildirim şablonları (Karar 48; Teknik tasarım §9). Kod içindeki şablon sürüm 0'dır; konsolda düzenlenen şablon yeni
  * sürüm olarak eklenir ve en yeni sürüm kullanılır. Değişkenler Handlebars ile doldurulur; e-posta MJML düzeninden
@@ -65,7 +54,7 @@ export class TemplatesService {
     this.onbellek.clear();
   }
 
-  /** Mutlak bağlantı (e-posta ve SMS) */
+  /** Mutlak bağlantı (e-posta ve WhatsApp) */
   link(yol: string) {
     return yol.startsWith('http') ? yol : `${this.env.WEB_ORIGIN}${yol}`;
   }
@@ -79,8 +68,15 @@ export class TemplatesService {
     };
   }
 
-  sms(sablon: NotifyTemplate, veri: Record<string, unknown>) {
-    return sablon.sms ? gsm(metin(sablon.sms, veri)).slice(0, 320) : null;
+  /** WhatsApp: Meta'daki onaylı şablonun adı, gövde değerleri ({{1}}, {{2}} … sırasıyla) ve önizleme metni */
+  whatsapp(sablon: NotifyTemplate, veri: Record<string, unknown>) {
+    const w = sablon.whatsapp;
+    if (!w) return null;
+    return {
+      sablon: w.sablon,
+      parametreler: w.parametreler.map((p) => String(veri[p] ?? '')),
+      metin: metin(w.onizleme, veri),
+    };
   }
 
   /** E-posta: konu, HTML (MJML) ve düz metin. Ticari iletide tek tıkla ayrılma bağlantısı eklenir (Karar 49). */

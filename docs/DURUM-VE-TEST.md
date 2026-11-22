@@ -150,7 +150,8 @@ Aşama ve sprint sırasıyla. Her madde API, web, mobil ve gerekiyorsa konsol ta
 - Ön bilgilendirme formu ve sözleşme PDF'i fatura e-postasında; kuponlar; fiyat listesi ve fiyat deneyleri.
 
 ### Aşama 7 · Bildirimler (Sprint 17)
-- Olay → tercih ve rıza → kanal sırası → teslim kaydı. Uygulama içi, push (FCM), e-posta (SMTP), SMS (yalnızca kritik).
+- Olay → tercih ve rıza → kanal sırası → teslim kaydı. Uygulama içi, push (FCM), e-posta (SES), WhatsApp (yalnızca
+  kritik; 22 Kasım 2026'da SMS'in yerine, sahip kararı). Kampanya SMS ya da WhatsApp'tan gitmez.
 - Ticari iletide onay, haftada 2 sınırı, sessiz saat, tek tıkla ayrılma, İYS olayı, ısınma ve itibar denetimi.
 - Konsolda şablonlar (sürümlü), bildirim merkezi, teslim raporu, otomatik akışlar.
 
@@ -227,7 +228,8 @@ Kod hazır, sahte sağlayıcıyla çalışıyor; hesap açılınca gerçek bağd
 
 | İş | Senden gereken | Kod tarafında yapılacak | Tahmini süre |
 | --- | --- | --- | --- |
-| SMS ana sağlayıcı (İleti Merkezi) | **Hesap açıldı, anahtar `.env`'de (11 Kasım 2026).** Eksik: SMS paketi (bakiye 0) ve `RENGARENK` gönderici başlığı onayı | Bağdaştırıcı gerçek API'yle denendi (kimlik doğrulama geçti; başlık onaysız olduğu için kod 450). Paket ve başlık gelince `sms:dene` ile deneme SMS'i, sonra canlıda `SMS_PROVIDER=iletimerkezi` | 0,5 gün |
+| WhatsApp (Meta Cloud API) | İşletme hesabı, numara, üç onaylı şablon (`rengarenk_kod`, `rengarenk_talep_doluyor`, `rengarenk_odeme_alinamadi`) | Sunucuda `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_PROVIDER=meta` | 1 gün |
+| SMS kapalı yedek (İleti Merkezi; isteğe bağlı, yalnızca doğrulama kodunun yedeği) | **Hesap açıldı, anahtar `.env`'de (11 Kasım 2026).** Eksik: SMS paketi (bakiye 0) ve `RENGARENK` gönderici başlığı onayı | Bağdaştırıcı gerçek API'yle denendi (kimlik doğrulama geçti; başlık onaysız olduğu için kod 450). Paket ve başlık gelince `sms:dene` ile deneme SMS'i, sonra canlıda `SMS_PROVIDER=iletimerkezi` | 0,5 gün |
 | SMS yedek (aday Netgsm) | Hesap ve API belgesi | `apps/api/src/sms/` altına bağdaştırıcı, yedeğe geçiş testi | 1 gün |
 | Google Workspace (konsol girişi) | `rengarenksite.com` Workspace, OAuth istemcisi | `STAFF_AUTH_PROVIDER=google`, gerçek giriş denemesi | 0,5 gün |
 | AWS hesabı | IAM erişimi (`rengarenk` profili), Activate kredisi, KVKK standart sözleşmesi ve bildirimi, alan adı DNS | İlk dağıtım, Caddy/TLS, yedek, izleme, SOPS (bkz. 4.2) | 3–5 gün |

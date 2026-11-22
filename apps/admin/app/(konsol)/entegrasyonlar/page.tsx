@@ -23,7 +23,8 @@ interface ReklamAgi {
   hata: string | null;
 }
 interface Durum {
-  sms: { ana: string; yedek: string | null };
+  sms: { ana: string; yedek: string | null; dogrulamada: boolean };
+  whatsapp: { bildirim: string; dogrulamada: boolean };
   reklam: { meta: ReklamAgi; google: ReklamAgi } | null;
   sources: Source[];
   bekleyen: { adEsleme: number; fotograf: number };
@@ -51,6 +52,13 @@ const SMS_ADI: Record<string, string> = {
   iletimerkezi: 'İleti Merkezi',
   console: 'geliştirme (SMS gönderilmez)',
   test: 'test',
+  none: 'kapalı',
+};
+const WA_ADI: Record<string, string> = {
+  meta: 'Meta',
+  console: 'geliştirme (gönderilmez)',
+  test: 'test',
+  none: 'kapalı',
 };
 
 /** Kaynak listesinden kartın durumu: hata varsa Uyarı, hiç başarılı değilse Beklemede */
@@ -127,18 +135,18 @@ export default function Entegrasyonlar() {
         bekleyen('App Store ve Google Play', 'Mobil satın alma · RevenueCat üzerinden'),
         bekleyen('e-Arşiv fatura entegratörü', 'Fatura kesme'),
         {
-          ad: 'SMS · ana sağlayıcı',
-          amac: 'Doğrulama kodu ve kritik bildirim',
-          durum: d.sms.ana === 'iletimerkezi' ? 'Sağlıklı' : 'Beklemede',
+          ad: 'WhatsApp (Meta Cloud API)',
+          amac: 'Doğrulama kodu ve kritik bildirim (talebin son günü, ödeme sorunu)',
+          durum: d.whatsapp.bildirim === 'meta' ? 'Sağlıklı' : 'Beklemede',
           son: '—',
-          anahtar: `Sağlayıcı: ${SMS_ADI[d.sms.ana] ?? d.sms.ana}`,
+          anahtar: `Bildirim: ${WA_ADI[d.whatsapp.bildirim] ?? d.whatsapp.bildirim} · doğrulama kodu ${d.whatsapp.dogrulamada ? 'açık' : 'kapalı'}`,
         },
         {
-          ad: 'SMS · yedek sağlayıcı',
-          amac: 'Ana sağlayıcı yanıt vermezse',
-          durum: 'Beklemede',
+          ad: 'SMS · kapalı yedek',
+          amac: 'Yalnızca doğrulama kodunun yedeği (şirket kurulunca açılabilir)',
+          durum: d.sms.dogrulamada ? 'Sağlıklı' : 'Beklemede',
           son: '—',
-          anahtar: d.sms.yedek ? `Sağlayıcı: ${SMS_ADI[d.sms.yedek] ?? d.sms.yedek}` : 'Sağlayıcı seçilmedi',
+          anahtar: `Sağlayıcı: ${SMS_ADI[d.sms.ana] ?? d.sms.ana}${d.sms.yedek ? ` · yedek ${SMS_ADI[d.sms.yedek] ?? d.sms.yedek}` : ''} · ${d.sms.dogrulamada ? 'açık' : 'kapalı'}`,
         },
         bekleyen('İYS', 'Ticari ileti onaylarının eşitlenmesi'),
         bekleyen('Firebase Cloud Messaging', 'Mobil ve web push'),

@@ -128,7 +128,7 @@ export const KANAL_ADI: Record<Kanal, string> = {
 };
 
 const UCRETLI = new Set(['cpc', 'ppc', 'paid', 'paid_social', 'paidsocial', 'cpm', 'display', 'ads']);
-const BILDIRIM = new Set(['email', 'e-posta', 'eposta', 'push', 'bildirim', 'sms']);
+const BILDIRIM = new Set(['email', 'e-posta', 'eposta', 'push', 'bildirim', 'sms', 'whatsapp']);
 
 /** Temasın kanalı: tıklama kimliği ya da ücretli araç reklam, e-posta ve bildirim kendi kanalımız, gerisi organik */
 export function kanalOf(

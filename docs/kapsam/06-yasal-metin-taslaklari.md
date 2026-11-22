@@ -29,7 +29,7 @@ Avukat notu: Platformun 6563 sayılı Kanun ve ilgili yönetmelik kapsamında "a
 
 ### 1.3 Üyelik
 
-- Üye olmak için 18 yaşını doldurmuş olmak ve cep telefonu numarasını SMS koduyla doğrulamak gerekir. Bir telefon numarasıyla yalnızca bir bireysel hesap açılabilir.
+- Üye olmak için 18 yaşını doldurmuş olmak ve cep telefonu numarasını WhatsApp'a gönderilen kodla doğrulamak gerekir. Bir telefon numarasıyla yalnızca bir bireysel hesap açılabilir.
 - Kullanıcı, verdiği bilgilerin doğru olduğunu ve hesabının güvenliğinden kendisinin sorumlu olduğunu kabul eder. Doğrulama kodunu kimseyle paylaşmaz; Rengarenk çalışanları kodu hiçbir zaman sormaz.
 - Kurumsal hesap, başvuru ve belge kontrolünden sonra açılır.
 
@@ -129,7 +129,7 @@ Dolandırıcılığı önlemek, destek taleplerine hızlı yanıt vermek ve tale
 | Amazon Web Services (barındırma, Amazon Bedrock) | Verilerin saklanması ve işlenmesi; maskeli yapay zekâ işlemleri | Yurt dışı (Almanya, AB), standart sözleşmeyle |
 | PayTR (ödeme kuruluşu) | Web ödemeleri | Türkiye |
 | e-Arşiv fatura entegratörü | Fatura düzenleme | Türkiye |
-| SMS sağlayıcıları | Doğrulama kodu ve kritik bildirimler | Türkiye |
+| Meta Platforms (WhatsApp Business) | Doğrulama kodu ve kritik bildirimler | Yurt dışı, standart sözleşmeyle |
 | İleti Yönetim Sistemi (İYS) | Ticari ileti onaylarının kaydı | Türkiye |
 | Google (Firebase Cloud Messaging) | Bildirim iletimi | Yurt dışı, standart sözleşmeyle |
 | Apple ve Google mağazaları, RevenueCat | Mobil satın almaların doğrulanması | Yurt dışı, standart sözleşmeyle |
@@ -183,7 +183,9 @@ Açıklama (kutunun altında, "Ayrıntılar" bağlantısıyla açılır):
 
 Üyelikte ve Ayarlar'da, her kanal için ayrı ve işaretsiz kutu:
 
-> Rengarenk'in kampanya, indirim ve yeniliklerinden haberdar olmak için \[ \] e-posta \[ \] SMS \[ \] bildirim yoluyla ticari elektronik ileti almayı kabul ediyorum.
+> Rengarenk'in kampanya, indirim ve yeniliklerinden haberdar olmak için \[ \] e-posta \[ \] bildirim yoluyla ticari elektronik ileti almayı kabul ediyorum.
+
+Kampanya SMS ya da WhatsApp'tan gönderilmez (sahip kararı, 22 Kasım 2026).
 
 - Onay, ret ve geri alma İleti Yönetim Sistemi'ne (İYS) iletilir; İYS üzerinden verilen ret de Rengarenk'e yansır.
 - Her ticari iletide tek tıkla ayrılma bağlantısı bulunur.

@@ -96,7 +96,7 @@ export class CommercialService {
     if (!d?.userId) throw new NotFoundException('Bağlantı geçersiz');
     const u = await this.db.user.findUniqueOrThrow({ where: { id: d.userId }, select: { email: true } });
     await this.db.$transaction(async (tx) => {
-      for (const kanal of ['uygulama', 'eposta', 'sms']) {
+      for (const kanal of ['uygulama', 'eposta']) {
         await tx.notificationPref.upsert({
           where: { userId_konu_kanal: { userId: d.userId as string, konu: 'kampanya', kanal } },
           create: { userId: d.userId as string, konu: 'kampanya', kanal, acik: false },

@@ -897,13 +897,14 @@ Sitenin ve uygulamanın görünümü ile pazarlama içerikleri geliştiriciye ge
 - **Kanal sırası maliyete göre:** önce uygulama içi ve push, sonra e-posta, en son SMS. Push okunmazsa belirlenen süre sonra e-posta denenir.
 - **Şablonlar:** tek şablondan e-posta, push ve SMS metni üretilir; değişkenler (ad, talep, galeri, tutar), önizleme ve sürüm vardır. E-posta şablonları tasarım değerlerini (Karar 46) kullanır.
 - **Kullanıcı tercihleri:** Ayarlar ekranında kanal ve konu bazında açılıp kapatılır; ticari ileti tercihleri İYS ile eşitlenir.
+- **22 Kasım 2026'da değişti (sahip kararı): SMS'in yerine WhatsApp.** Kullanıcının gördüğü her yerde SMS kanalı WhatsApp'tır: doğrulama kodu ve kritik bildirimler (talebin son günü, galeri paket ödemesi alınamadı) Meta WhatsApp Cloud API ile, Meta'da onaylı şablonlarla gider. Kanal sırası: uygulama içi ve push, e-posta, en son WhatsApp. WhatsApp metni Meta'daki şablondadır, konsoldan değişmez. SMS altyapısı (İleti Merkezi) kapalı yedek olarak durur; şirket kurulunca yalnızca doğrulama kodunun yedeği olarak açılabilir.
 
 ## Karar 49: İleti türleri, İYS ve sıklık
 
 - **İşlemsel iletiler** (doğrulama kodu, ödeme ve fatura, ilk mesaj geldi, talep süresi doluyor, hesap güvenliği) izin istemez; sessiz saatte de gider.
-- **21 Kasım 2026'da değişti (sahip kararı):** İYS entegratörü kullanılmaz. Onay ve retler kanal başına kaydedilir ve konsoldan İYS Web'in resmî CSV biçiminde (dosya başına en fazla 50 izin) indirilip her gün İYS paneline elle yüklenir (yasal süre 3 iş günü; 2 iş gününde sahibe uyarı). İYS kuralı gereği ticari e-posta ve SMS yalnızca İYS'ye yüklendi diye işaretlenmiş onaya gider; üyelikte onay kanal kanal alınır (e-posta, SMS, bildirim).
+- **21 Kasım 2026'da değişti (sahip kararı):** İYS entegratörü kullanılmaz. Onay ve retler kanal başına kaydedilir ve konsoldan İYS Web'in resmî CSV biçiminde (dosya başına en fazla 50 izin) indirilip her gün İYS paneline elle yüklenir (yasal süre 3 iş günü; 2 iş gününde sahibe uyarı). İYS kuralı gereği ticari e-posta yalnızca İYS'ye yüklendi diye işaretlenmiş onaya gider; üyelikte ve galeri başvurusunda onay kanal kanal alınır (e-posta, bildirim).
 - **Ticari iletiler** (kampanya, indirim, duyuru) yalnızca İYS'de onayı olan kişilere gider. Kişi başına haftada en fazla 2 ticari ileti; 21.00–09.00 arasında gönderilmez, sabaha ertelenir. Her ticari iletide tek tıkla ayrılma bağlantısı vardır.
-- **SMS:** ilk sürümde yalnızca doğrulama kodu ve kritik durumlarda (hesap güvenliği, ödeme sorunu) kullanılır. Kampanya SMS'i panelde hazırdır ama sahip açana kadar kapalıdır.
+- **WhatsApp (22 Kasım 2026'da SMS'in yerine, sahip kararı):** yalnızca doğrulama kodu ve kritik durumlarda (talebin son günü, ödeme sorunu) kullanılır. Kampanya SMS ya da WhatsApp'tan gitmez; kampanya kanalları uygulama içi, push ve e-postadır. Eski kampanya SMS onayları İYS'ye ret olarak aktarılır.
 - 1.000 kişiyi aşan her gönderim sahip veya yönetici onayı ister (Karar 40).
 
 ## Karar 50: E-posta gönderimi (Amazon SES)

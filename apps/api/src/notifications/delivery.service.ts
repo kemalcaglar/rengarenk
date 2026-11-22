@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import type { Delivery, Prisma } from '@rengarenk/db';
 import { ENV, type Env } from '../config/env.js';
 import { type Db, PRISMA } from '../database/prisma.js';
-import { SMS_SENDER, type SmsSender } from '../sms/sms.js';
+import { WHATSAPP_SENDER, type WhatsAppSender } from '../sms/whatsapp.js';
 import { SecretBox } from '../staff/secret-box.js';
 import { EMAIL_SENDER, type EmailSender, PUSH_SENDER, type PushSender } from './channels.js';
 import { ayrilmaKodu, isinmaLimiti } from './commercial.js';
@@ -26,7 +26,7 @@ export class DeliveryService {
     @Inject(ENV) private readonly env: Env,
     @Inject(EMAIL_SENDER) private readonly email: EmailSender,
     @Inject(PUSH_SENDER) private readonly push: PushSender,
-    @Inject(SMS_SENDER) private readonly sms: SmsSender,
+    @Inject(WHATSAPP_SENDER) private readonly whatsapp: WhatsAppSender,
     private readonly templates: TemplatesService,
     private readonly switches: SwitchService,
   ) {}
@@ -239,21 +239,24 @@ export class DeliveryService {
       return this.sonuc(d, { durum: 'gonderildi', saglayici: this.email.ad, no: r.id });
     }
 
-    if (d.kanal === 'sms') {
-      const metin = this.templates.sms(sablon, veri);
-      if (!metin) return this.sonuc(d, { durum: 'atlandi', neden: 'Şablonda SMS yok' });
-      if (this.sms.name === 'none') return this.sonuc(d, { durum: 'atlandi', neden: 'SMS kapalı' });
+    if (d.kanal === 'whatsapp') {
+      const w = this.templates.whatsapp(sablon, veri);
+      if (!w) return this.sonuc(d, { durum: 'atlandi', neden: 'Şablonda WhatsApp yok' });
+      if (this.whatsapp.name === 'none') return this.sonuc(d, { durum: 'atlandi', neden: 'WhatsApp kapalı' });
       try {
-        const r = await this.sms.send(user.phone, metin);
-        return this.sonuc(d, { durum: 'gonderildi', saglayici: r.provider, no: r.messageId ?? null });
+        const r = await this.whatsapp.sendTemplate(user.phone, w.sablon, w.parametreler);
+        return this.sonuc(d, { durum: 'gonderildi', saglayici: this.whatsapp.name, no: r.messageId ?? null });
       } catch (e) {
         return this.sonuc(d, {
           durum: 'tekrar',
           neden: (e as Error).message.slice(0, 300),
-          saglayici: this.sms.name,
+          saglayici: this.whatsapp.name,
         });
       }
     }
+
+    // Eski SMS teslimi (22 Kasım 2026'da kaldırıldı): göç bekleyenleri atladı, sonradan gelen de gönderilmez
+    if (d.kanal !== 'push') return this.sonuc(d, { durum: 'atlandi', neden: `Kanal yok (${d.kanal})` });
 
     // push
     const cihaz = await this.db.pushToken.findUnique({ where: { id: String(veri.tokenId ?? '') } });

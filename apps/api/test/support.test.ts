@@ -11,14 +11,13 @@ import { NotificationEvents } from '../src/notifications/notification-events.js'
 import { SwitchService } from '../src/notifications/switches.js';
 import { TemplatesService } from '../src/notifications/templates.service.js';
 import { DemandSearchService } from '../src/search/demand-search.service.js';
-import type { MemorySmsSender } from '../src/sms/console.sender.js';
+import { MemoryWhatsAppSender } from '../src/sms/whatsapp.js';
 import { SupportService } from '../src/support/support.service.js';
 import { call, createTestApp, uyeOl } from './helpers.js';
 import { createStaff, loginAs, staffCall } from './staff-helpers.js';
 
 const SIR = 'test-icin-eposta-webhook-anahtari';
 let app: NestFastifyApplication;
-let sms: MemorySmsSender;
 let db: Db;
 let destek: string;
 let destek2: string;
@@ -26,7 +25,7 @@ let pazarlama: string;
 
 beforeAll(async () => {
   process.env.EPOSTA_WEBHOOK_SECRET = SIR;
-  ({ app, sms, db } = await createTestApp());
+  ({ app, db } = await createTestApp());
   destek = (await loginAs(app, await createStaff(db, 'SUPPORT'))).token;
   destek2 = (await loginAs(app, await createStaff(db, 'ADMIN'))).token;
   pazarlama = (await loginAs(app, await createStaff(db, 'MARKETING'))).token;
@@ -178,7 +177,7 @@ describe('destek (Karar 54)', () => {
       app.get<Env>(ENV),
       eposta,
       new FakePush(),
-      sms,
+      new MemoryWhatsAppSender(),
       app.get(TemplatesService),
       app.get(SwitchService),
     );

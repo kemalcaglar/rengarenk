@@ -7,6 +7,14 @@ import { ConsoleSmsSender, MemorySmsSender, NoSmsSender } from './console.sender
 import { FailoverSmsSender } from './failover.sender.js';
 import { IletiMerkeziSender } from './iletimerkezi.sender.js';
 import { SMS_SENDER, type SmsSender } from './sms.js';
+import {
+  ConsoleWhatsAppSender,
+  MemoryWhatsAppSender,
+  MetaWhatsAppSender,
+  NoWhatsAppSender,
+  WHATSAPP_SENDER,
+  type WhatsAppSender,
+} from './whatsapp.js';
 
 function create(kind: Env['SMS_PROVIDER'], env: Env): SmsSender {
   switch (kind) {
@@ -61,6 +69,25 @@ export function createCodeSender(env: Env, sms: SmsSender) {
   return new ChannelCodeSender(env.VERIFY_CHANNELS, sms, wa);
 }
 
+/** WhatsApp bildirimleri (kritik iletiler; SMS'in yerine) */
+export function createWhatsAppSender(env: Env): WhatsAppSender {
+  switch (env.WHATSAPP_PROVIDER) {
+    case 'meta':
+      return new MetaWhatsAppSender(
+        env.WHATSAPP_TOKEN ?? '',
+        env.WHATSAPP_PHONE_NUMBER_ID ?? '',
+        env.WHATSAPP_TEMPLATE_LANG,
+        env.WHATSAPP_API_VERSION,
+      );
+    case 'test':
+      return new MemoryWhatsAppSender();
+    case 'none':
+      return new NoWhatsAppSender();
+    default:
+      return new ConsoleWhatsAppSender();
+  }
+}
+
 @Global()
 @Module({
   providers: [
@@ -74,7 +101,8 @@ export function createCodeSender(env: Env, sms: SmsSender) {
       inject: [ENV, SMS_SENDER],
       useFactory: createCodeSender,
     },
+    { provide: WHATSAPP_SENDER, inject: [ENV], useFactory: createWhatsAppSender },
   ],
-  exports: [SMS_SENDER, CODE_SENDER],
+  exports: [SMS_SENDER, CODE_SENDER, WHATSAPP_SENDER],
 })
 export class SmsModule {}
