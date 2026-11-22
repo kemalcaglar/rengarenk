@@ -1,6 +1,6 @@
 # Teknik tasarım
 
-Sürüm 0.2 · 7 Kasım 2026. Bu sekme, ürün kapsamındaki 59 kararın teknik karşılığıdır. Teknik kararların hepsi onaylandı.
+Sürüm 0.2 · 7 Kasım 2026 (son güncelleme 22 Kasım 2026). Bu sekme, ürün kapsamındaki 59 kararın teknik karşılığıdır. Teknik kararların hepsi onaylandı.
 
 ## 1. Teknik kararlar
 
@@ -17,7 +17,7 @@ Sürüm 0.2 · 7 Kasım 2026. Bu sekme, ürün kapsamındaki 59 kararın teknik 
 | T09 | Kullanıcı girişi | Google, Apple ya da e-posta ve şifre; telefon üyelikte bir kez WhatsApp koduyla; uzun oturum (12 Kasım 2026'da değişti, Karar 18) | Kesin |
 | T10 | Yönetim girişi | Şirket e-postasıyla Google Workspace tek oturum ve zorunlu 2FA | Kesin |
 | T11 | Yapay zekâ | Tüm görevlerde AWS Bedrock (Amazon Nova, AB çıkarım profili; 12 Kasım 2026'da Vertex AI'dan değişti); ağ geçidi sağlayıcıdan bağımsız, Vertex bağdaştırıcısı da durur | Kesin |
-| T12 | Hata izleme | GlitchTip (Sentry uyumlu) kendi sunucumuzda; kayıtlar yurtdışına çıkmaz | Kesin |
+| T12 | Hata izleme | GlitchTip (Sentry uyumlu) kendi sunucumuzda (AWS Frankfurt, Karar 37); kayıtlar başka bir hizmete gitmez | Kesin |
 | T13 | Özellik anahtarları | Kendi tablomuz ve Redis önbelleği; ayrı ürün yok | Kesin |
 | T14 | Mobil yayın | Expo EAS Build; küçük düzeltmeler mağaza beklemeden EAS Update ile | Kesin |
 
@@ -29,9 +29,9 @@ Geliştirmeyi sahip tek başına yapacak; ürün kapsamı değişmedi (Karar 15:
 
 | Önce | Şimdi | Ne zaman geri dönülür |
 | --- | --- | --- |
-| 3 düğümlü k3s kümesi | Tek uygulama sunucusunda Docker Compose; PostgreSQL ayrı sunucuda | Uygulama sunucusunda işlemci veya bellek sürekli %70'in üstündeyse ya da kesintisiz güncelleme gerekirse |
+| 3 düğümlü k3s kümesi | Tek sunucuda Docker Compose; PostgreSQL aynı sunucuda (AWS Lightsail, Karar 37) | Uygulama sunucusunda işlemci veya bellek sürekli %70'in üstündeyse ya da kesintisiz güncelleme gerekirse |
 | RabbitMQ | PostgreSQL tabanlı kuyruk (pg-boss), outbox korunur | Kuyrukta saniyede 200'den fazla iş birikirse |
-| Argo CD | GitHub Actions ile imaj çekip Compose yeniden başlatma | k3s'e geçilince |
+| Argo CD | İmajlar sunucuda derlenir, Compose yeniden başlatılır (sahip kararı, 19 Kasım 2026; `deploy.yml` kullanılmaz) | k3s'e geçilince |
 | Kubernetes sırları | SOPS ile şifreli dosya, yalnızca sunucuda açılır | k3s'e geçilince |
 
 Kuyruk, depolama ve arama birer arayüzün arkasındadır; geri dönüşte yalnızca o arayüzün uygulaması değişir.
@@ -50,8 +50,8 @@ Not (12 Kasım 2026): yukarıdaki çizim eski barındırma kararını gösteriyo
 ## 3. Altyapı, ortamlar ve dağıtım
 
 - **AWS (`eu-central-1`, Frankfurt):** başlangıçta Amazon Lightsail'de tek sunucu (Docker Compose, Caddy ile otomatik TLS, PostgreSQL aynı sunucuda). Kurulum 8 GB'lık pakette başlar, kredi gelince 16 GB'lık pakete büyütülür (anlık görüntüden). Aşağıdaki büyüme eşiklerinden biri aşılınca EC2 ya da yönetilen servislere geçilir; uygulama baştan konteyner olarak paketlendiği için geçiş kod değişikliği gerektirmez. E-posta Amazon SES ile gönderilir (Karar 50).
-- **Ortamlar:** geliştirme (yerelde Docker Compose), test (AWS Lightsail, yalnızca sentetik veri), canlı (AWS Lightsail). Canlı veri test ortamına hiçbir zaman kopyalanmaz.
-- **Dağıtım:** GitHub Actions ile test, tip kontrolü ve güvenlik taraması; canlıya yine GitHub Actions ile, etiketli sürümün imajı sunucuya çekilip Compose yeniden başlatılarak. Geri alma, önceki imaj etiketine dönmekle tek adımdır.
+- **Ortamlar:** geliştirme (yerelde Docker Compose), canlı provası (bu bilgisayarda, `deploy/prova/`, uydurma değerlerle) ve AWS Lightsail'deki `rengarenk-1`. Bu sunucu bugün kapalı test ortamıdır (yalnızca sentetik veri); açılıştan önce test kullanıcıları silinip canlı sunucu olur (sahip kararı, 19 Kasım 2026). Canlı veri test ortamına hiçbir zaman kopyalanmaz.
+- **Dağıtım:** GitHub Actions ile lint, derleme, tip kontrolü ve testler (CI). Sürüm, kaynak arşivi sunucuya kopyalanıp imajlar sunucuda derlenerek kurulur (`~/derle.sh`, etiket `test-<commit>`); sunucu anahtarı GitHub'a girmez, `deploy.yml` kullanılmaz (sahip kararı, 19 Kasım 2026). Her kurulum sahibin onayıyla yapılır. Geri alma, `.env.prod`'daki `TAG`'i önceki etikete çevirmekle tek adımdır (`deploy/README.md`).
 - **Veritabanı göçleri** geriye uyumludur: önce yeni yapı eklenir, veri taşınır, eski yapı sonra kaldırılır. Böylece dağıtım sırasında kesinti olmaz.
 - **Yedek:** pgBackRest ile günlük tam yedek ve sürekli artımlı yedek; şifreli olarak başka bir AB bölgesindeki depolama alanında (ör. `eu-west-1`, İrlanda). Günlük yedekler 30 gün, aylık yedekler 12 ay saklanır. Ayda bir yedek ayrı bir ortama otomatik geri yüklenerek test edilir (Karar 56).
 
@@ -108,6 +108,7 @@ create table entitlement_ledger (
 - **Şema:** her kategori sürümü alan tanımları (tip, zorunluluk, filtre, eşleşme, sihirbaz adımı, talep ya da alternatif kapsamı, koşul), kurallar ve ağırlıklardan oluşur; taban şema (konum, bütçe, açıklama) koddadır ve her kategoriye eklenir. Doğrulayıcı ve JSON Schema bu tanımdan üretilir (`packages/shared/src/category-schema.ts`); web, mobil ve API aynısıyla doğrular. Veritabanı kilidi yayındaki sürümü değiştirmeye, silmeye ve onaysız yayına almaya izin vermez (RR030–RR033).
 - **Yayın:** taslak → önizleme → dört göz onayı → yayında. Talep o anki sürümle kaydedilir; eski talepler eski sürümle okunur (Karar 45).
 - **Arama:** şemada "filtrede" işaretli alanlar OpenSearch eşlemesine kendiliğinden eklenir; yeni alan için yeniden indeksleme arka planda yapılır.
+- **Sonradan eklenenler (13–18 Kasım 2026, sahip istekleri; Karar 33):** otomobil ve SUV'de marka, seri ve yılları sahibin ana listesi belirler (`packages/catalog/src/ana-liste/`, kaynak `ana`); 2006–2019 TSB listeleri ve "15 model yılından eski araçlar" listeleri İnternet Arşivi'nden alınır, böylece yalnızca Türkiye'de satılmış motor ve paketler 1950'ye kadar seçilir; teknik özellikler ADEME (Fransa araç onay verisi, Licence Ouverte) ve vehicle-makes-models motor kayıtlarından Türkiye'deki tiple eşleştirilir (`catalog_specs`, `catalog_variant_specs`); katalog sorumlusu konsoldan düzeltme, donanım ve ek satır girer (`catalog_spec_overrides`, silinmez). EEA verisi erişim izni bekliyor; aşağıdaki tabloda EEA'ya verilen işlerin 2001–2015 ve güncel kısmını şimdilik ADEME karşılar.
 - **Katalog hattı (kişisel veri yok):** işçideki zamanlanmış işler ana kaynak olan TSB listesini ayda bir, VehiclesDB'yi ayda bir, Wikidata ve vehicle-makes-models'ı haftada bir, AB Çevre Ajansı veri setini yayınlandıkça, motodb'yi haftada bir çeker. Adımlar: indir → normalize et → önceki sürümle karşılaştır → kalite kontrolü (kaybolan model, olağandışı değişim) → imzalı paket olarak canlı ortama yayınla. Kontrol geçmezse yayın durur ve ajan bildirir.
 - **Ad eşleme:** aynı modelin farklı kaynaklardaki adları catalog\_aliases tablosunda birleşir; eşleşmeyenler ajan önerisiyle onaya düşer (Karar 33). Ajan gelene kadar öneriyi kural üretir (ek, bitişik yazım, noktalama farkı, tek harf farkı, elektrikli sürüm); onaylanan eşleme tipleri hedef seriye taşır ve sonraki içe aktarmalarda uygulanır. TSB'nin yapısal yazım farkları (Jeep'in Chrysler altında olması, Range Rover'da seri adının yazılmaması, Transit kısaltmaları) ayrıştırıcıda düzeltilir; ayrıştırıcının sürümü vardır, kurallar değişince aynı dosya yeniden işlenir.
 - **Kasa kuşağı ve makyaj:** vehicle-makes-models kuşağı kasa başına ve makyaj dönemine göre ayrı verir (ör. 3 Serisi Sedan 2018, 2022, 2024); bütün yıllar için kuşak olarak saklanır, tip kaydı yalnızca eski yıllar için alınır. Wikidata nesil kodunu (G20) verir; yıl Wikidata'da yoksa İngilizce Vikipedi bilgi kutusundaki üretim yılından alınır, madde ve sürüm numarası saklanır. Kuşak, başlangıç yılını kapsayan en geç kodla eşleşir; aynı kod ve kasada sırası makyaj numarasıdır. Kodu eksik nesli önceki kodun makyajı saymamak için çakışan kuşak ve kodun bitişini aşan kuşak kodsuz bırakılır. Kodsuz yıllarda makyaj TSB'deki işaretten okunur. vehicle-makes-models kapatılırsa kuşakları da görünmez.
@@ -195,10 +196,10 @@ Bu değerler başlangıç içindir ve ayardadır; gerçek taleplerle ayarlanacak
 
 ## 9. Bildirim katmanı
 
-- **Akış:** olay → alıcıların bulunması → tercih ve rıza kontrolü (İYS) → sıklık sınırı (ticari iletide kişi başı haftada 2) → sessiz saat (ticari ileti 21.00–09.00 arasında sabaha ertelenir) → kanal sırası (uygulama içi → push → e-posta → SMS) → kanal bağdaştırıcısı → teslim kaydı (Karar 48, 49).
-- **Bağdaştırıcılar:** uygulama içi (veritabanı ve WebSocket), push (FCM, web ve mobil), e-posta (Amazon SES, SMTP ile; Karar 50), SMS (ana ve yedek sağlayıcı; hata oranı eşiği aşılınca otomatik yedeğe geçiş).
+- **Akış:** olay → alıcıların bulunması → tercih ve rıza kontrolü (İYS) → sıklık sınırı (ticari iletide kişi başı haftada 2) → sessiz saat (ticari ileti 21.00–09.00 arasında sabaha ertelenir) → kanal sırası (uygulama içi → push → e-posta → WhatsApp) → kanal bağdaştırıcısı → teslim kaydı (Karar 48, 49).
+- **Bağdaştırıcılar:** uygulama içi (veritabanı ve WebSocket), push (FCM, web ve mobil), e-posta (Amazon SES, SMTP ile; Karar 50), WhatsApp (Meta Cloud API, onaylı utility şablonlarıyla; yalnızca kritik iletiler, 22 Kasım 2026'da SMS'in yerine). SMS (ana ve yedek sağlayıcı, hata oranı eşiği aşılınca otomatik yedeğe geçiş) yalnızca doğrulama kodunun kapalı yedeğidir.
 - **E-posta gönderimi:** Amazon SES (SMTP ile, Karar 50). İşlemsel ve ticari ayrı alt alan adı ve yapılandırma kümesi; ticari gönderim limiti bildirim servisinde uygulanır; geri dönen ve şikâyet bildirimleri adresleri otomatik olarak gönderim dışı listesine alır.
-- **Şablonlar:** e-postalar MJML'den HTML'e derlenir; değişkenler Handlebars ile doldurulur; tasarım değerleri (Karar 46) derlemede eklenir. Her teslim kaydı kullanılan şablon sürümünü taşır.
+- **Şablonlar:** e-postalar MJML'den HTML'e derlenir; değişkenler Handlebars ile doldurulur; tasarım değerleri (Karar 46) derlemede eklenir. WhatsApp metni Meta'daki şablondadır; uygulama yalnızca şablon adını ve sıralı değişkenleri gönderir. Her teslim kaydı kullanılan şablon sürümünü taşır.
 - **Otomatik akışlar:** her akış bir JSON tanımıdır (tetikleyici, bekleme, koşul, ileti, hedef); beklemeler gecikmeli kuyrukla yapılır; her kişinin akıştaki durumu ayrı tutulur (Karar 51).
 
 ## 10. Yapay zekâ katmanı ve ajan
@@ -231,7 +232,7 @@ Bu değerler başlangıç içindir ve ayardadır; gerçek taleplerle ayarlanacak
 - **Şifreleme:** aktarımda TLS, diskte şifreleme; telefon, e-posta, T.C. kimlik no ve mesaj gövdesi uygulama düzeyinde ayrıca şifrelenir. Şifreleme anahtarları veriden ayrı tutulur.
 - **Sırlar:** depoda SOPS ile şifreli saklanır, yalnızca sunucuda açılır; hiçbir anahtar kodda ya da ekranda görünmez (Karar 56).
 - **Uygulama güvenliği:** hız sınırları, bot koruması, OWASP kontrolleri, bağımlılık taraması; yılda bir dış sızma testi.
-- **İzleme:** Prometheus, Grafana, Loki, Alertmanager ve GlitchTip. Kritik uyarılar push ve SMS ile gelir.
+- **İzleme:** Prometheus, Grafana, Loki, Alertmanager ve GlitchTip (henüz kurulmadı). Kritik uyarılar konsolda ve şirket e-postasıyla gelir; SMS ile gitmez (sahip kararı, 9 Kasım 2026).
 
 ## 14. Aylık maliyet tahmini
 
@@ -245,14 +246,14 @@ Bu değerler başlangıç içindir ve ayardadır; gerçek taleplerle ayarlanacak
 | Apple ve Google geliştirici hesabı | 99 USD/yıl ve 25 USD bir kez |  |
 | RevenueCat | Başlangıçta ücretsiz | Gelir eşiği aşılınca ücretli |
 
-Krediler sürerken sabit gider yalnızca geliştirici hesapları ve SMS; krediler bitince ayda yaklaşık 105–120 USD (sunucu, yedek, yapay zekâ) ve SMS.
+Krediler sürerken sabit gider yalnızca geliştirici hesapları ve WhatsApp mesajları; krediler bitince ayda yaklaşık 105–120 USD (sunucu, yedek, yapay zekâ) ve WhatsApp. WhatsApp'ın kritik bildirim (utility) mesajları da Meta'nın Türkiye fiyatıyla ücretlidir; tutar Meta faturasında görünür.
 
 ## 15. Geliştirme sırası
 
-1. **Temel:** monorepo, CI/CD, ortamlar, kullanıcı girişi, yetki ve işlem kaydı iskeleti, outbox, izleme. E-posta sunucusu bu aşamada kurulur ve yalnızca işlemsel e-postalarla ısınmaya başlar; ısınma 4–6 hafta sürdüğü için erken başlamak gerekir.
+1. **Temel:** monorepo, CI/CD, ortamlar, kullanıcı girişi, yetki ve işlem kaydı iskeleti, outbox, izleme. (İlk plandaki kendi e-posta sunucusu ve ısınması yerine 12 Kasım 2026'dan beri Amazon SES; Karar 50.)
 2. **Pazar çekirdeği:** katalog hattı, kategori şemaları, talep sihirbazı, liste ve arama, galeri başvurusu, portföy, eşleştirme, ilk mesaj, sohbet, haklar.
 3. **Ödemeler:** PayTR, mağaza ödemeleri, abonelik, e-Arşiv, iade akışı.
-4. **Bildirimler:** bildirim katmanı, push, e-posta, SMS, şablonlar, otomatik akışlar.
+4. **Bildirimler:** bildirim katmanı, push, e-posta, WhatsApp (SMS'in yerine), şablonlar, otomatik akışlar.
 5. **Güven ve yönetim:** moderasyon, destek, rozetler, yönetim konsolu; ajan görevleri tek tek açılır.
 6. **Büyüme:** kampanyalar, açılış sayfaları, reklam ölçümü, raporlar.
 
@@ -262,9 +263,10 @@ Her aşama özellik anahtarının arkasında canlıya çıkar; önce çalışanl
 
 - [x] Yapay zekâ sağlayıcısı: tüm görevlerde AWS Bedrock, Amazon Nova (12 Kasım 2026'da Vertex AI'dan değişti)
 - [x] Yönetim girişi için Google Workspace (onaylandı)
-- [ ] AWS canlı kurulumu: Lightsail sunucusu, statik IP, güvenlik duvarı, yedek alanı, Bedrock IAM kullanıcısı, KVKK standart sözleşmesi ve bildirimi (Karar 37)
-- [ ] E-posta: Amazon SES alan adı doğrulaması ve üretim erişimi (Karar 50)
-- [ ] Telefon doğrulama kodu: WhatsApp (Meta İşletme hesabı ve numara); SMS yedeği şirket kurulunca (Karar 18)
+- [x] AWS kurulumu: Lightsail sunucusu, statik IP, güvenlik duvarı (12–13 Kasım 2026, kapalı test)
+- [ ] AWS: yedek alanı, izleme, SOPS, Bedrock'un açılması, KVKK standart sözleşmesi ve bildirimi (Karar 37)
+- [x] E-posta: Amazon SES alan adı doğrulaması ve üretim erişimi (Karar 50; 19 Kasım 2026)
+- [ ] Telefon doğrulama kodu ve kritik bildirimler: WhatsApp (Meta İşletme hesabı, numara, üç onaylı şablon); SMS kapalı yedek (Karar 18, 48)
 - [ ] e-Arşiv entegratörünün seçimi
 - [ ] Apple ve Google geliştirici hesaplarının şirket adına açılması (Apple kurumsal hesap için D-U-N-S numarası gerekir)
 - [ ] Eşleştirme uyum kurallarının ilk değerlerinin gerçek taleplerle ayarlanması

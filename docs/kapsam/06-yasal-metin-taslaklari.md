@@ -138,7 +138,7 @@ Dolandırıcılığı önlemek, destek taleplerine hızlı yanıt vermek ve tale
 
 Yurt dışına aktarımlar KVKK m.9 kapsamında standart sözleşmeyle yapılır ve sözleşmeler imzadan sonra 5 iş günü içinde Kurum'a bildirilir.
 
-Avukat notu: (0) Barındırma 12 Kasım 2026'da Amazon Web Services Frankfurt'a taşındı (Karar 37): AWS ile KVKK standart sözleşmesinin nasıl imzalanacağı, bildirimin zamanı, e-Arşiv/fatura kayıtları ve 5651 trafik kayıtlarının yurt dışında tutulabilmesi teyit edilmeli. (1) Meta ve Google'ın reklam ürünleri için KVKK standart sözleşmesi imzalayıp imzalamadığı teyit edilmeli; imzalamıyorlarsa düzenli bir aktarım için açık rıza tek başına yeterli olmayabilir. (2) RevenueCat ile standart sözleşme imkanı araştırılmalı; push bildirimleri için cihaz kimlikleri Google'a (FCM) ve Apple'a (APNs) gider, bunlar için de aynı soru geçerlidir. (3) Maskeli verinin kişisel veri sayılıp sayılmadığı değerlendirilmeli; sayılsa da sayılmasa da standart sözleşme yapılması önerilir.
+Avukat notu: (0) Barındırma 12 Kasım 2026'da Amazon Web Services Frankfurt'a taşındı (Karar 37); avukat Frankfurt'ta kalınmasını uygun buldu (21 Kasım 2026), standart sözleşme ve bildirim yine zorunlu: AWS ile KVKK standart sözleşmesinin nasıl imzalanacağı, bildirimin zamanı, e-Arşiv/fatura kayıtları ve 5651 trafik kayıtlarının yurt dışında tutulabilmesi teyit edilmeli. (1) Meta ve Google'ın reklam ürünleri için KVKK standart sözleşmesi imzalayıp imzalamadığı teyit edilmeli; imzalamıyorlarsa düzenli bir aktarım için açık rıza tek başına yeterli olmayabilir. (2) RevenueCat ile standart sözleşme imkanı araştırılmalı; push bildirimleri için cihaz kimlikleri Google'a (FCM) ve Apple'a (APNs) gider, bunlar için de aynı soru geçerlidir. (3) Maskeli verinin kişisel veri sayılıp sayılmadığı değerlendirilmeli; sayılsa da sayılmasa da standart sözleşme yapılması önerilir.
 
 ### 2.5 Verileri nasıl topluyoruz
 
@@ -283,7 +283,7 @@ Avukat notu: Galeri'nin veri sorumlusu sıfatı (madde 9), ağır ihlalde iade e
 
 - <span class="ck">○</span> <span class="todo">Platformun aracı hizmet sağlayıcı ve ilan platformu sayılıp sayılmadığı; buna göre doğrulama, saklama ve bildirim yükümlülükleri</span>
 - <span class="ck">○</span> <span class="todo">Hakların (ek talep, ilk mesaj) cayma istisnasına girip girmediği ve oranlı iade kuralı</span>
-- <span class="ck">○</span> <span class="todo">Barındırmanın AWS Frankfurt'a taşınması (Karar 37): standart sözleşme ve bildirim; e-Arşiv/fatura ve 5651 kayıtlarının yurt dışında tutulabilmesi</span>
+- <span class="ck">○</span> <span class="todo">Barındırmanın AWS Frankfurt'a taşınması (Karar 37; yer avukat görüşüyle kesinleşti, 21 Kasım 2026): standart sözleşme ve bildirim; e-Arşiv/fatura ve 5651 kayıtlarının yurt dışında tutulabilmesi</span>
 - <span class="ck">○</span> <span class="todo">Meta, Google ve RevenueCat aktarımları için standart sözleşme imkanı; reklam ölçümünde açık rızanın yeterliliği</span>
 - <span class="ck">○</span> <span class="todo">Maskeli verinin yapay zekâ sağlayıcısına aktarımının kişisel veri aktarımı sayılıp sayılmadığı</span>
 - <span class="ck">○</span> <span class="todo">Anayasa Mahkemesi'nin 2026/42 sayılı kararının ticari ileti metnine etkisi</span>

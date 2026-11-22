@@ -1,6 +1,6 @@
 # Geliştirme planı
 
-Sürüm 0.1 · 7 Kasım 2026. Geliştirmeyi sahip tek başına yapacak. Kapsam değişmedi: 59 kararın tamamı ilk sürümde (Karar 15). Altyapı tek geliştiriciye göre sadeleştirildi (Teknik tasarım, bölüm 1).
+Sürüm 0.1 · 7 Kasım 2026 (son güncelleme 22 Kasım 2026: kod Aşama 9'a kadar bitti, kapalı test sunucusu AWS'de çalışıyor; güncel durum `docs/DURUM-VE-TEST.md`, açılış listesi `docs/CANLIYA-GECIS.md`). Geliştirmeyi sahip tek başına yapacak. Kapsam değişmedi: 59 kararın tamamı ilk sürümde (Karar 15). Altyapı tek geliştiriciye göre sadeleştirildi (Teknik tasarım, bölüm 1).
 
 ## Özet
 
@@ -19,13 +19,13 @@ Tahmin belirsizdir: ilk 3 sprintin gerçek hızına bakıp planı yeniden ölçe
 | Aşama | Sprint | Bitiş | Kapsam | Demo ölçütü |
 | --- | --- | --- | --- | --- |
 | 0 · Hazırlık | 1 | 20 Kas 2026 | Monorepo, yerel ortam, CI, tasarım dili (renk, yazı, bileşenler), veritabanı şemasının ilk hali | Boş web, yönetim ve mobil uygulama açılıyor; testler CI'da geçiyor |
-| 1 · Temel | 2–4 | 1 Oca 2027 | Telefon ve SMS ile giriş, hesaplar, roller ve izinler, işlem kaydı, outbox ve kuyruk, yönetim girişi (Google Workspace + 2FA), izleme, AWS'ye dağıtım, test ortamı | Telefonla giriş canlı sunucuda çalışıyor |
+| 1 · Temel | 2–4 | 1 Oca 2027 | Telefon ve SMS ile giriş (12 Kasım 2026'dan beri e-posta/şifre, Google, Apple; Karar 18), hesaplar, roller ve izinler, işlem kaydı, outbox ve kuyruk, yönetim girişi (Google Workspace + 2FA), izleme, AWS'ye dağıtım, test ortamı | Telefonla giriş canlı sunucuda çalışıyor |
 | 2 · Katalog ve kategoriler | 5–7 | 12 Şub 2027 | Katalog veri modeli, TSB ve açık kaynak içe aktarma hattı, ad eşleme, Commons görselleri, 14 kategori şeması, katalog yönetimi | BMW 3 Serisi 320i'nin kasa, makyaj ve paketleri katalogdan geliyor |
 | 3 · Talep | 8–10 | 26 Mar 2027 | Talep sihirbazı (web ve mobil), yaşam döngüsü, süre ve hatırlatmalar, liste ve arama, talep detayı, favori, kayıtlı arama, ana sayfa ve vitrin ızgarası | Talep yayınlanıp aramada bulunuyor |
 | 4 · Galeri | 11–13 | 7 May 2027 | Kurumsal başvuru ve onay, yetki belgesi kontrolü, portföy (elle, Excel/CSV, API), EİDS, galeri profili, çalışanlar | Onaylı galeri portföyüne araç ekliyor |
 | 5 · Eşleştirme ve mesajlaşma | 14–17 | 2 Tem 2027 | Eşleştirme motoru ve skor, ilk mesaj ve haklar defteri, sohbet (WebSocket), numara paylaşımı, mesaj güvenliği, yıldız ve rozetler | Uçtan uca: talep → eşleşme → ilk mesaj → sohbet |
 | 6 · Ödemeler | 18–20 | 13 Ağu 2027 | PayTR, galeri abonelikleri, mağaza ödemeleri ve RevenueCat, e-Arşiv, iade akışı (4 kilit), ön bilgilendirme ve sözleşmeler | Test kartıyla üst sıra alınıyor, fatura kesiliyor, iade sahip onayı olmadan yapılamıyor |
-| 7 · Bildirimler | 21–22 | 10 Eyl 2027 | Bildirim katmanı, FCM, kendi e-posta sunucusu ve ısınma, SMS ana ve yedek, İYS, şablonlar, otomatik akışlar | Talep süresi dolmadan 3 kanaldan hatırlatma gidiyor |
+| 7 · Bildirimler | 21–22 | 10 Eyl 2027 | Bildirim katmanı, FCM, e-posta (ilk planda kendi sunucu ve ısınma; Amazon SES'e değişti), SMS ana ve yedek (22 Kasım 2026'da WhatsApp'a değişti), İYS, şablonlar, otomatik akışlar | Talep süresi dolmadan 3 kanaldan hatırlatma gidiyor |
 | 8 · Yönetim ve güven | 23–26 | 5 Kas 2027 | Yönetim konsolu modülleri, moderasyon, destek, Rengarenk Ajanı, KVKK araçları (veri indirme, başvuru, imha, rıza, ihlal) | Moderatör bir şikayeti uçtan uca kapatıyor |
 | 9 · Büyüme | 27–28 | 3 Ara 2027 | Kampanyalar ve segmentler, açılış sayfaları, reklam ölçümü, raporlar ve kontrol paneli | Kampanya segmentli gönderiliyor, panel gerçek veriyle doluyor |
 | 10 · Lansman hazırlığı | 29–31 | 14 Oca 2028 | Sızma ve yük testi, kapalı beta (10 galeri, 100 alıcı), mağaza incelemeleri, yasal metinlerin son hali, yedekten geri yükleme provası | Mağazalarda yayında, canlı trafik |
@@ -36,15 +36,15 @@ Bunları sahip yürütüyor; tarihten sonra gelirse ilgili aşama bekler.
 
 | İş | Gereken sprint | En geç |
 | --- | --- | --- |
-| SMS sağlayıcısı (ana) ve gönderici başlığı | 2 | 23 Kas 2026 |
-| AWS hesabı, Activate kredisi ve KVKK standart sözleşmesi (Karar 37) | 4 | 21 Ara 2026 |
-| Google Workspace (yönetim girişi için) | 3 | 7 Ara 2026 |
+| WhatsApp (Meta İşletme hesabı, numara, şablonlar; 22 Kasım 2026'da SMS sağlayıcısının yerine) | 2 | Açılıştan önce |
+| AWS hesabı ve Activate kredisi (hazır, 21 Kasım 2026) ve KVKK standart sözleşmesi (Karar 37) | 4 | 21 Ara 2026 |
+| Google Workspace (yönetim girişi için): açıldı, 13 Kasım 2026 | 3 | 7 Ara 2026 |
 | Apple geliştirici hesabı (D-U-N-S ile) ve Google Play hesabı | 8 | 1 Şub 2027 |
 | EİDS entegrasyon erişimi | 12 | 29 Mar 2027 |
 | Avukat görüşü ve yasal metinlerin son hali | 18 | 21 Haz 2027 |
 | PayTR üye işyeri sözleşmesi | 18 | 21 Haz 2027 |
 | e-Arşiv entegratörü | 19 | 5 Tem 2027 |
-| İYS kaydı ve SMS yedek sağlayıcı | 21 | 2 Ağu 2027 |
+| İYS kaydı (entegratörsüz, elle CSV; SMS yedek sağlayıcı isteğe bağlı) | 21 | 2 Ağu 2027 |
 | TSB yazılı izni (katalog zaten TSB ile kuruluyor) | — | Lansmandan önce |
 
 ## Çalışma düzeni
@@ -410,7 +410,7 @@ sistem sağlığı, tasarım değerleri.
 - [x] Ayarlar › İletişim ve Profil (Ayarlar.dc.html, Karar 29): telefon ve WhatsApp izni, aranabilir saatler (varsayılan
   09.00–21.00; dışında talep sayfasında numara ve WhatsApp gizli, "Telefon ve WhatsApp 09.00–21.00 arasında görünür"),
   profilde il, ilçe ve görünen ad (tam ya da "Ayşe Y."). Yeni talep bu tercihlerle ve profildeki konumla açılır (web, mobil)
-- [x] Numarayı değiştir (Yardim.dc.html): yeni numaraya SMS kodu; numara başka hesapta kayıtlıysa reddedilir; doğrulanınca
+- [x] Numarayı değiştir (Yardim.dc.html): yeni numaraya telefon kodu (bugün WhatsApp); numara başka hesapta kayıtlıysa reddedilir; doğrulanınca
   diğer cihazlardaki oturumlar kapanır, işlem kaydı ve güvenlik bildirimi. Ücretsiz ilk talep numara ve hesap başına bir
   kez (numara değiştirmek hakkı yenilemez)
 - [x] Oturum kapatma düzeltmesi: elle kapatılan oturumun (Ayarlar, numara değişikliği) jetonu yalnızca reddedilir; çalınma
@@ -550,16 +550,16 @@ sistem sağlığı, tasarım değerleri.
 
 ## Sprint 21 · KVKK başvuruları, verilerimi indir, rıza kayıtları (Aşama 8 dördüncü bölüm, 9 Kasım 2026)
 
-- [x] Verilerimi indir (Karar 58): SMS koduyla istenir; işçi profil, talepler, mesajlar, ödemeler, rızalar, destek ve
+- [x] Verilerimi indir (Karar 58): telefon koduyla (bugün WhatsApp) istenir; işçi profil, talepler, mesajlar, ödemeler, rızalar, destek ve
   başvuruları JSON olarak hazırlar; yalnızca hesabıyla 7 gün indirilir; istek ve indirme işlem kaydına girer. Web Ayarlar ›
   Gizlilik ve güvenlik, mobil Hesabım › Kişisel verilerim (indirme web'den)
-- [x] KVKK başvurusu (m.11): hesaptan SMS koduyla ya da konsoldan dışarıdan (kimlik çalışanca doğrulanır); 30 gün süre
+- [x] KVKK başvurusu (m.11): hesaptan telefon koduyla (bugün WhatsApp) ya da konsoldan dışarıdan (kimlik çalışanca doğrulanır); 30 gün süre
   (m.13). Konsol › KVKK başvuruları: dört sayı, süre sayacı, ajanın topladığı veriler ve türe göre taslak, "okudum"
   onayıyla yalnızca tam yetkili çalışan gönderir; yanıt uygulama içi ve e-postayla; menüde açık başvuru sayısı
 - [x] Konsol › Rıza ve çerez kayıtları: reklam ölçümü, analitik çerez ve ticari ileti oranları, kişinin rıza geçmişi
   (metin sürümü, tarih, kanal)
 - [x] Ayarlar › Gizlilik ve güvenlik: Engellediklerin (engeli kaldır)
-- [x] Hesap kapatma ve anonimleştirme (Karar 31, 39, 59; sahip onayı 9 Kasım 2026): SMS koduyla; talepler kapanır,
+- [x] Hesap kapatma ve anonimleştirme (Karar 31, 39, 59; sahip onayı 9 Kasım 2026): telefon koduyla (bugün WhatsApp); talepler kapanır,
   araçlar kalkar, sohbetler karşı tarafta "Kapatılmış hesap" ve yalnızca okunur; ad, e-posta, telefon, cihaz anahtarları,
   favoriler, kayıtlı aramalar, takipler, engeller ve bildirim metinleri silinir; kimlik ve telefon doğrulaması 5 yıl şifreli
   (`account_closures`), mesajlar 1 yıl sonra imha listesine. Web'den alınıp kullanılmamış hakların iadesi yalnızca öneri:
@@ -582,7 +582,7 @@ sistem sağlığı, tasarım değerleri.
 - [x] Yanıt kullanıcıya uygulama içi ve e-postayla; çözümden 24 saat sonra 1–5 memnuniyet sorusu (işçi); kullanıcı yazınca
   çözülen talep yeniden açılır
 - [x] Destek e-postası için imzalı uç `POST /destek/eposta`; eşleşmeyen adrese yanıt doğrudan e-postayla
-- [ ] Gelen e-postanın posta sunucusundan iletilmesi (kendi posta sunucumuz kurulunca); yapay zekâ taslağı ve güven oranı,
+- [ ] Gelen e-postanın `POST /destek/eposta` ucuna iletilmesi (kendi posta sunucusu kurulmayacak, Karar 50; iletme yolu sahiple belirlenecek); yapay zekâ taslağı ve güven oranı,
   %90 üstünde ajanın kendi yanıtı (Rengarenk Ajanı, Bedrock); hazır yanıtların konsoldan düzenlenmesi
 
 ## Sprint 19 · kullanıcı ve galeri kartı, kara liste (Aşama 8 ikinci bölüm, 8 Kasım 2026)
@@ -643,7 +643,7 @@ sistem sağlığı, tasarım değerleri.
   göre okunma), Otomatik akışlar (yedi akış, aç/kapat, adımlar, son 30 gün)
 - [x] Zamanlı akışlar (Karar 51) her gün 09.30'dan sonra: ilk talebini oluştur (üyeliğin 3. günü, ticari), ilk mesajı
   okumadın (varsayılan kapalı), galeri 7 gündür mesaj göndermedi; hoş geldin kayıt olayıyla
-- [ ] Gerçek hesaplar: Firebase projesi (iOS'ta FCM için Firebase SDK), Amazon SES (Karar 50, 12 Kasım 2026'da kendi posta sunucusu yerine; alan adı doğrulaması ve üretim erişimi), İYS bağdaştırıcısı, SMS fiyatları ve yedek sağlayıcı (Netgsm)
+- [ ] Gerçek hesaplar: Firebase projesi (iOS'ta FCM için Firebase SDK), Amazon SES (Karar 50, 12 Kasım 2026'da kendi posta sunucusu yerine; alan adı doğrulaması ve üretim erişimi), İYS bağdaştırıcısı (21 Kasım 2026'da kaldırıldı: elle CSV), SMS fiyatları ve yedek sağlayıcı (Netgsm; 22 Kasım 2026'dan beri SMS kapalı yedek)
 - [ ] E-postada açılma ve tıklama ölçülmüyor (izleme pikseli ve yönlendirme yok); raporda uygulama içi okunma var
 - [x] Akış düzenleyicisi ("Adım ekle"): Sprint 28
 - [x] Çalışan olaylarının (yeni cihaz, iade sonucu, ticari gönderim durdu) sahibe iletilmesi (Sprint 24)

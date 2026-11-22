@@ -72,7 +72,8 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 
 ## Şu an neler var (Sprint 1)
 
-- Telefon ve SMS koduyla giriş: kod isteme, doğrulama, 15 dakikalık erişim jetonu, 90 günlük
+- Telefon ve SMS koduyla giriş (12 Kasım 2026'dan beri giriş e-posta ve şifre, Google ya da Apple ile; telefon
+  üyelikte bir kez WhatsApp koduyla doğrulanır, Karar 18, aşağıda Sprint 30): kod isteme, doğrulama, 15 dakikalık erişim jetonu, 90 günlük
   yenileme jetonu, jeton döndürme ve çalınan jetonun tekrar kullanımında tüm oturumları kapatma (T09)
 - İşlem kaydı (yalnızca ekleme), outbox ve PostgreSQL kuyruğu (pg-boss) ile olay aktarımı
 - Hak defteri: tek kaynak bir kez işlenir, eş zamanlı kullanım aynı hakkı iki kez harcayamaz
@@ -484,8 +485,6 @@ pnpm zaten kuruluysa bu adımı atlayabilirsin.
 
 Ayrıntılı el kitabı ve bu bilgisayarda canlı provası: [deploy/README.md](deploy/README.md).
 
-`deploy/` klasörü sunucuda `/srv/rengarenk` altına kopyalanır, `.env.prod` oluşturulur
-(gerçek değerler depoda SOPS ile şifreli tutulur). `v0.1.0` gibi bir etiket gönderildiğinde
-`.github/workflows/deploy.yml` imajları GitHub Container Registry'ye derler, sunucuda göçleri
-çalıştırır ve servisleri yeniler. Gerekli GitHub gizli değerleri: `DEPLOY_HOST`, `DEPLOY_USER`,
-`DEPLOY_SSH_KEY`.
+`deploy/` klasörü sunucuda `/srv/rengarenk` altına kopyalanır, `.env.prod` yalnızca sunucuda oluşturulur (SOPS ile
+şifreli kopyası henüz yok). Sürüm, kaynak arşivi sunucuya kopyalanıp imajlar sunucuda derlenerek kurulur
+(sahip kararı, 19 Kasım 2026); `.github/workflows/deploy.yml` kullanılmaz. Adımlar `deploy/README.md` › Sürüm kurma.

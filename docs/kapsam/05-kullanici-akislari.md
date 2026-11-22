@@ -51,7 +51,7 @@ Kiralıkta talep bir tarih aralığına bağlıdır ve eşleşme filonun müsait
 | Genel | Talep detayı | Talep bilgileri ve alternatifler; sağda iletişim kutusu (ad soyad, Mesaj at, izinliyse telefon ve WhatsApp); favori, şikayet | Web, mobil |
 | Genel | Galeri profili | İşletme adı, yetki belgesi no, konum, portföy | Web, mobil |
 | Genel | Portföy aracı detayı | Fotoğraflar, fiyat, taşıt tanıtım kartı alanları, galeri iletişimi | Web, mobil |
-| Genel | Giriş ve kayıt | Telefon numarası ve SMS kodu; galeri başvurusuna geçiş | Web, mobil |
+| Genel | Giriş ve kayıt | Üye ol ve Giriş yap ayrı: Google, Apple (iPhone) ya da e-posta ve şifre; telefon üyelikte bir kez WhatsApp koduyla doğrulanır (Karar 18, 12 Kasım 2026); şifremi unuttum; galeri başvurusuna geçiş | Web, mobil |
 | Genel | Yardım ve destek | SSS, güvenlik bilgileri, destek talebi, telefon (Karar 17) | Web, mobil |
 | Alıcı | Talep oluşturma | Adım adım sihirbaz: kategori, ana araç, kasa ve makyaj, donanım paketi, kriterler, alternatifler, konum ve izin, önizleme, yayın / ödeme; ilerleme çubuğu ve taslak kaydı | Web, mobil |
 | Alıcı | Taleplerim | Aktif, pasif, tamamlanan talepler; düzenle, pasife al, kapat, aracı buldum, uzat | Web, mobil |
@@ -74,7 +74,7 @@ Kiralıkta talep bir tarih aralığına bağlıdır ve eşleşme filonun müsait
 | Yönetim | Kullanıcılar | Hesap geçmişi, uyarı, engelleme | Web |
 | Yönetim | Şikayet kuyruğu ve içerik filtreleri | Şikayet inceleme, yasaklı kelime ve telefon numarası filtreleri | Web |
 | Yönetim | Paket, kota ve fiyatlar | Galeri paketleri, bireysel kotalar, öne çıkarma, deneme süresi, tarihli kurallar | Web |
-| Yönetim | Katalog | Otomatik katalog eşitlemesinin izlenmesi: kaynak durumu, otomatik eklenenler, kendiliğinden çözülen durumlar (işlem gerektirmez) | Web |
+| Yönetim | Katalog | Otomatik katalog eşitlemesinin izlenmesi (kaynak durumu, otomatik eklenenler); ad eşleme, araç görselleri, teknik özellik bildirimleri ve düzeltmeleri (Karar 33, 34) | Web |
 | Yönetim | Ödemeler ve raporlar | Abonelikler, başarısız ödemeler, faturalar; talep, mesaj ve gelir raporları | Web |
 
 ## Bu ekteki kararlar

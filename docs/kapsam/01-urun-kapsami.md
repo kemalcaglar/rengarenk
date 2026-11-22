@@ -29,7 +29,7 @@ Sürüm 0.59 · 59 karar kesinleşti; hukuki varsayılanlar (Karar 31 ve 39) avu
 | 13 | Yönetim paneli | Tam panel: onay, moderasyon, içerik filtreleri, paket/fiyat, ödeme, katalog, raporlar | Kesinleşti |
 | 14 | Platformlar | Web + iOS + Android birlikte, ortak arka uç, mobilde tek kod tabanı | Kesinleşti |
 | 15 | İlk sürüm kapsamı | Kararların tamamı ilk sürümde, fazlara bölünmeden | Kesinleşti |
-| 16 | Teknoloji yığını | TypeScript monorepo: Next.js + React Native (Expo) + NestJS; PostgreSQL, Redis, OpenSearch; Kubernetes | Kesinleşti |
+| 16 | Teknoloji yığını | TypeScript monorepo: Next.js + React Native (Expo) + NestJS; PostgreSQL, Redis, OpenSearch; başlangıçta tek sunucuda Docker Compose, kuyruk pg-boss (teknik tasarım T05, T06; Kubernetes büyüme eşiğinde) | Kesinleşti |
 | 17 | Portföy görünürlüğü ve ilan platformu yükümlülükleri | Portföy alıcıya görünür; EİDS, yetki belgesi kontrolü ve diğer yükümlülükler kapsamda; avukat teyidi | Kesinleşti |
 | 18 | Bireysel kullanıcı doğrulaması ve üyelik | Üye ol ve Giriş yap ayrı; Google, Apple ya da e-posta ve şifreyle; ad, soyad, e-posta ve telefon zorunlu, telefon üyelikte bir kez WhatsApp koduyla doğrulanır ve başka hesapta doğrulanamaz; e-Devlet yok (12 Kasım 2026'da değişti) | Kesinleşti |
 | 19 | Vasıta kategorileri | 14 kategorinin tamamı ilk sürümde | Kesinleşti |
@@ -44,9 +44,9 @@ Sürüm 0.59 · 59 karar kesinleşti; hukuki varsayılanlar (Karar 31 ve 39) avu
 | 28 | Galeri takibi | Takip edilen galerinin talebe uyan yeni araçları günlük özetle bildirilir | Kesinleşti |
 | 29 | Görünen ad ve aranabilir saatler | Tam ad veya soyadının baş harfi; saat dışında telefon ve WhatsApp gizli | Kesinleşti |
 | 30 | Kayıtlı arama ve bildirimler | En fazla 10 arama; anlık, günlük özet veya kapalı; kanal bazında tercih | Kesinleşti |
-| 31 | Ödeme ve hesap kapatma | Sözleşme ve cayma onayı, aracı buldum anketi, SMS onaylı hesap kapatma | Kesinleşti (avukatla gözden geçirilecek) |
+| 31 | Ödeme ve hesap kapatma | Sözleşme ve cayma onayı, aracı buldum anketi, telefon koduyla (WhatsApp) onaylı hesap kapatma | Kesinleşti (avukatla gözden geçirilecek) |
 | 32 | Donanım paketi ve makyaj | Katalogda paket ve makyajlı / makyajsız kasa ayrı tutulur; talep, filtre ve eşleştirmede kullanılır | Kesinleşti |
-| 33 | Kendi kendini güncelleyen katalog | TSB ana kaynak, eksikler açık kaynaklardan (VehiclesDB, AB Çevre Ajansı, Wikidata), otomatik; kaynaksız kategoriler kullanıcı girişleriyle büyür; elle veri girişi ve onay yok | Kesinleşti |
+| 33 | Kendi kendini güncelleyen katalog | TSB ana kaynak, eksikler açık kaynaklardan (VehiclesDB, ADEME, vehicle-makes-models, Wikidata), otomatik; kaynaksız kategoriler kullanıcı girişleriyle büyür; sınırlı istisnalar: yerli klasikler listesi, otomobilde sahibin ana listesi, konsoldan teknik özellik düzeltmesi | Kesinleşti |
 | 34 | Lisanslı araç görseli | Wikimedia Commons'tan açık lisanslı gerçek fotoğraf, nesil ve makyaj başına, atfıyla; ücretsiz | Kesinleşti |
 | 35 | Büyüme ve reklam ölçümü | Lansman yok; online reklam; Meta Pixel + Conversions API, izinli ölçüm | Kesinleşti |
 | 36 | Maliyet ilkesi | Sabit bütçe, ekip, takvim kuralı yok; önce ücretsiz veya kredili seçenek | Kesinleşti |
@@ -61,8 +61,8 @@ Sürüm 0.59 · 59 karar kesinleşti; hukuki varsayılanlar (Karar 31 ve 39) avu
 | 45 | Kategori ve alan yönetimi | Kategori ağacı, alan şeması, eşleştirme ağırlıkları ve kategori kuralları kodsuz ve sürümlü yönetilir | Kesinleşti |
 | 46 | Görünüm ve içerik yönetimi | Ana sayfa düzeni, vitrin, bannerlar, duyurular, açılış sayfaları ve tasarım değerleri panelden; önizleme, zamanlama, sürüm | Kesinleşti |
 | 47 | Genişletilebilirlik ilkesi | Kural, şema ve içerik ayar olarak tutulur; yeni modüller ortak yetki, kayıt, bildirim ve rapor altyapısına takılır | Kesinleşti |
-| 48 | Bildirim katmanı ve kanallar | Tek bildirim katmanı; uygulama içi → push → e-posta → SMS sırası; tek şablondan çok kanal | Kesinleşti |
-| 49 | İleti türleri, İYS ve sıklık | Ticari ileti yalnızca İYS onaylılara, kişi başı haftada en fazla 2, 21.00–09.00 arası yok; SMS ilk sürümde yalnız kod ve kritik durum | Kesinleşti |
+| 48 | Bildirim katmanı ve kanallar | Tek bildirim katmanı; uygulama içi → push → e-posta → WhatsApp sırası (22 Kasım 2026'da SMS'in yerine); tek şablondan çok kanal | Kesinleşti |
+| 49 | İleti türleri, İYS ve sıklık | Ticari ileti yalnızca İYS onaylılara, kişi başı haftada en fazla 2, 21.00–09.00 arası yok; WhatsApp yalnız kod ve kritik durum, kampanya yalnız e-posta ve bildirimle; İYS'ye elle CSV yüklemesi | Kesinleşti |
 | 50 | E-posta gönderimi | Amazon SES (Frankfurt); işlemsel ve ticari ayrı alt alan adı, SPF, DKIM, DMARC; geri dönme ve şikâyet izleme (12 Kasım 2026'da kendi sunucumuzdan SES'e değişti) | Kesinleşti |
 | 51 | Kampanya ve otomatik akışlar | Segment, şablon, kampanya, otomatik akış ve teslim raporu panelden; ajan önerir, toplu gönderimi başlatmaz | Kesinleşti |
 | 52 | Kullanıcı ve galeri kartı | Tek ekranda tüm geçmiş, maskeli kişisel veri; uyarı, askı, hak tanımlama; başvuru kuyruğu | Kesinleşti |
@@ -129,7 +129,7 @@ Kullanıcı gelişmiş filtrelerle arama yapabilir. Filtreler birbirine bağlı 
 | Favori talep pasife alındı veya kapandı | Favoriye ekleyen |
 | Yeni mesaj geldi | Alıcı ve satıcı |
 
-Bildirim kanalları ileride uygulama içi, push ve e-posta olarak yapılandırılabilir.
+Bildirim kanalları uygulama içi, push, e-posta ve (yalnızca kritik iletilerde) WhatsApp'tır; kişi konu ve kanal bazında seçer (Karar 30, 48).
 
 ## Karar 07: Galeri araç portföyü
 
@@ -396,6 +396,8 @@ Karar 01–14'ün tamamı ilk sürümde, fazlara bölünmeden yayına çıkar; w
 ## Karar 16: Teknoloji yığını
 
 Web, mobil ve arka uç tek bir TypeScript monorepo'sunda geliştirilir; tüm istemciler aynı API sözleşmesini kullanır ve yatay ölçeklenen bir altyapıda çalışır.
+
+**Uygulamadaki durum (7 Kasım 2026, tek geliştirici için sadeleştirme; teknik tasarım bölüm 1):** aşağıdaki tablodaki RabbitMQ yerine PostgreSQL tabanlı kuyruk (pg-boss), Kubernetes yerine tek sunucuda Docker Compose (AWS Lightsail, Karar 37), S3 deposu olarak SeaweedFS kullanılır; telefon kodu WhatsApp'tan gider (Karar 18). Büyüme eşikleri aşılınca tablodaki yapıya geçilir.
 
 ### 16.1 Web ve mobil uyumu
 
@@ -673,21 +675,21 @@ Alıcı, portföy aracı detay sayfasındaki "Bu araç için mesaj gönder" dü�
 ## Karar 30: Kayıtlı arama ve bildirim tercihleri
 
 - Kullanıcı en fazla 10 kayıtlı arama tutabilir ve her biri için anlık, günlük özet veya kapalı bildirim seçer.
-- Bildirimler uygulama, e-posta ve SMS kanallarında ayrı ayrı açılıp kapatılır. Ödeme ve güvenlik bildirimleri kapatılamaz.
-- Kampanya e-posta ve SMS'leri yalnızca ticari elektronik ileti onayıyla gönderilir ve İYS'ye kaydedilir; varsayılan olarak kapalıdır.
+- Bildirimler uygulama, e-posta ve WhatsApp kanallarında ayrı ayrı açılıp kapatılır (22 Kasım 2026'da SMS'in yerine WhatsApp, Karar 48). Ödeme ve güvenlik bildirimleri kapatılamaz.
+- Kampanya iletileri (e-posta ve uygulama bildirimi) yalnızca ticari elektronik ileti onayıyla gönderilir, e-posta onayları İYS'ye kaydedilir; varsayılan olarak kapalıdır. Kampanya SMS ya da WhatsApp'tan gitmez.
 
 ## Karar 31: Ödeme, aracı buldum ve hesap kapatma kuralları
 
 - Ödeme adımında sözleşme onayı her zaman, cayma hakkı onayı yalnızca hemen başlayan hizmetlerde ayrıca alınır (Karar 39). Ödeme tek çekimdir; e-arşiv fatura kesilir, istenirse vergi numarasıyla kurumsal fatura düzenlenir.
 - "Aracı buldum" talebi kapatırken aracın nereden bulunduğunu sorar: Rengarenk'te bir satıcıdan, başka bir siteden veya galeriden, tanıdık üzerinden, almaktan vazgeçtim. Cevap satıcıya gösterilmez ve başarı ölçümünde kullanılır.
-- Hesap kapatma SMS koduyla onaylanır. Yayındaki talepler kapanır, sohbetler karşı tarafta "Kapatılmış hesap" olarak görünür, fatura kayıtları yasal saklama süresi boyunca tutulur. Kullanılmamış hakların iadesi Karar 39'a göre yapılır.
+- Hesap kapatma telefon koduyla (WhatsApp) onaylanır. Yayındaki talepler kapanır, sohbetler karşı tarafta "Kapatılmış hesap" olarak görünür, fatura kayıtları yasal saklama süresi boyunca tutulur. Kullanılmamış hakların iadesi Karar 39'a göre yapılır.
 - Cayma ve iade kuralları Karar 39'daki varsayılanlara göre uygulanır; avukat görüşmesinde gözden geçirilir.
 
 ## Karar 32: Donanım paketi ve makyaj
 
 Katalogda her model için donanım paketleri (ör. Renault Clio Joy, Touch, Icon; BMW Sport Line, M Sport) ve kasa kuşağının makyajsız ya da makyajlı sürümü ayrı tutulur.
 
-- Alıcı her alternatif için kasa ve makyajı, ayrıca paketi çoklu seçer; "Fark etmez" de seçilebilir. Seçilen kasalar model yılı aralığını otomatik doldurur.
+- Alıcı her alternatif için bir kasa ve makyaj seçer (17 Kasım 2026, sahip isteği: başka kasa için alternatif eklenir), paketi çoklu seçer; "Fark etmez" de seçilebilir. Seçilen kasa model yılı aralığını otomatik doldurur; yıl elle girilirse kasa seçilmez.
 - Talep sayfası, talep listesi filtreleri ("Kasa ve makyaj", "Donanım paketi") ve otomatik eşleştirme paket ile makyajı kullanır.
 - Galeri aracını eklerken model yılından kasa ve makyaj önerilir, paket o kasanın listesinden seçilir. Toplu yüklemede paket eksikse satır hatası olarak gösterilir.
 - Geçiş yıllarında (aynı yıl iki kasa satıldığında) paket adı yalnızca bir kasada varsa o kasa seçilir; yoksa iki kasa da eşleşmeye girer.
@@ -717,7 +719,14 @@ Katalogda seçilemeyen araç bırakılmaz ve kimse elle veri girmez. Kaynaklar o
   tüketimi, CO2'si, boş ağırlığı ve Euro normu ADEME araç onay verisinden (Fransa, Licence Ouverte) alınır: aynı marka,
   seri, yakıt, güç ve yıldaki onaylı sürümler. Sürümler farklıysa seçenek ya da aralık gösterilir; eşleşme yoksa alan boş
   kalır, tahmin edilmez. Kaynak konsoldan kapatılabilir; atıf Veri kaynakları sayfasında. 2016–2024 için EEA verisi beklenir.
-- "Listede yok" bildirimi ve yönetici onayı kaldırıldı. Yönetim panelindeki katalog bölümü yalnızca izleme içindir; bir kaynak 48 saat güncellenmezse e-posta uyarısı gelir.
+- **Ayrıntılı teknik özellikler (sahip isteği, 17 Kasım 2026):** 0-100, azami hız, tork, silindir, çekiş, kasa, ölçüler,
+  depo, bagaj, tüketim, lastik ve fren vehicle-makes-models motor kayıtlarından alınır ve Türkiye'de satılan tiple (güç,
+  yakıt, yıl, vites) eşleşir. Çekiş ve kasa tipi yalnızca kesin bilindiğinde gösterilir ve sihirbazda sorulur.
+- **Elle düzeltme ve donanım girişi (sahip isteği, 17–18 Kasım 2026):** "kimse elle veri girmez" ilkesine ikinci sınırlı
+  istisna. Kullanıcı talep sayfasından yanlış değeri bildirir; katalog sorumlusu konsoldan motor sürümü, yıl, paket ve vites
+  başına değer düzeltir ya da ekler, donanım listesi ve ek satır girer, satır gizler. Kayıtlar silinmez, kaldırılınca
+  kaynaktaki değer döner; otomatik eşleştirme yeniden çalışınca düzeltme kaybolmaz.
+- "Listede yok" bildirimi ve yönetici onayı kaldırıldı. Yönetim panelindeki katalog bölümü kaynakları izler; elle iş yalnızca ad eşleme, araç görselleri ve teknik özellik düzeltmesindedir (yukarıda, Karar 34). Bir kaynak 48 saat güncellenmezse e-posta uyarısı gelir.
 - **Gerekenler:** Sahip kararıyla (7 Kasım 2026) katalog TSB listesiyle kurulur, yazılı izin sonra resmî kanaldan istenir; auto-data.net'e gerek kalmadı. Hukuki risk bilerek alındı: liste FSEK Ek m.8 (veri tabanı hakkı) ve TTK m.55 (haksız rekabet) kapsamında korunabilir. Riski sınırlamak için kasko değerleri hiçbir yerde gösterilmez, yalnızca yayınlanan aylık dosyalar kullanılır, her kaydın kaynağı saklanır ve TSB verisi ayrılabilir tutulur. İzin reddedilirse TSB kayıtları açık kaynaklar ve kullanıcı girdileriyle değiştirilir.
 - **Kalan risk:** TSB'nin teknik erişim yolu resmî bir API değil, değişebilir; geçiş yıllarında yanlış kasa ataması olabilir; Türkiye'ye özel modeller (Egea, Togg) açık kaynaklarda eksik olabilir, bu durumda TSB kaydı kasa bilgisi olmadan yayına girer ve ajan galeri girdilerinden tamamlar.
 
@@ -747,25 +756,25 @@ Lansman yapılmaz; büyüme online reklamlarla (ağırlıkla Meta, ayrıca Googl
 ## Karar 36: Maliyet ilkesi; bütçe, ekip ve takvim
 
 - Sabit bir bütçe, ekip veya takvim kuralı yoktur; ekibe biri katılırsa doküman güncellenir.
-- Her teknik seçimde önce ücretsiz ya da kredilerle karşılanabilen seçenek tercih edilir; Google for Startups Cloud kredileri kullanılır.
+- Her teknik seçimde önce ücretsiz ya da kredilerle karşılanabilen seçenek tercih edilir; AWS Activate kredileri kullanılır (1.000 USD, 21 Kasım 2026'da kabul edildi; Karar 37).
 - Aylık sabit gider tahmini yapılmaz; giderler en aza indirilir. Ücretli bir servise ancak ihtiyaç doğunca geçilir.
 
 ## Karar 37: Barındırma ve kişisel verilerin yurt dışına aktarımı
 
-**12 Kasım 2026'da değişti (sahip kararı).** İlk karar kişisel veriyi işleyen her şeyi Türkiye'de (Radore) çalıştırmaktı; sabit gider bütçeyi aştığı için 11 Kasım'da GCP Avrupa'ya, 12 Kasım'da kredi süresi ve kredi bittikten sonraki gider daha uygun olduğu için **AWS'ye (Frankfurt)** geçildi (Karar 36). AWS Activate Founders kredisine başvuruldu (12 Kasım 2026; 1.000 USD, sonuç 5–10 iş günü); o zamana kadar yeni hesap kredisi (100 USD) kullanılır.
+**12 Kasım 2026'da değişti (sahip kararı).** İlk karar kişisel veriyi işleyen her şeyi Türkiye'de (Radore) çalıştırmaktı; sabit gider bütçeyi aştığı için 11 Kasım'da GCP Avrupa'ya, 12 Kasım'da kredi süresi ve kredi bittikten sonraki gider daha uygun olduğu için **AWS'ye (Frankfurt)** geçildi (Karar 36). AWS Activate Founders kredisi kabul edildi (21 Kasım 2026, 1.000 USD).
 
 - **Hukuki dayanak:** KVKK bu tür bir platform için verinin Türkiye'de tutulmasını zorunlu kılmıyor. Yurt dışına aktarım 7499 sayılı Kanunla değişen m.9 kapsamında standart sözleşmeyle yapılır; sözleşme imzadan sonra 5 iş günü içinde Kurum'a bildirilir (Standart Sözleşme Bildirim Modülü ya da KEP). Bildirim yapılmazsa idari para cezası var. Aktarım aydınlatma metninde yazılır. **Bunlar tamamlanmadan canlıya gerçek kullanıcı verisi girmez;** sunucu o zamana kadar kapalı test ortamıdır.
 - **Yer:** AWS `eu-central-1` (Frankfurt, Almanya). Avukat görüşüyle kesinleşti (21 Kasım 2026): AWS İstanbul Local Zone'a geçilmez. Yedekler başka bir AB bölgesindeki depolama alanında (ör. `eu-west-1`, İrlanda).
-- **Başlangıç yapısı:** Amazon Lightsail'de tek sunucu üzerinde Docker Compose (API, web, konsol, işçi, PostgreSQL, Redis, OpenSearch, SeaweedFS, Caddy). Kurulum 8 GB'lık pakette başlar, Activate kredisi gelince 16 GB'lık pakete (4 çekirdek, 320 GB, 6 TB trafik, ayda 84 USD) büyütülür. Büyüyünce EC2 ya da yönetilen servislere geçilir; uygulama konteyner olduğu için kod değişmez.
+- **Başlangıç yapısı:** Amazon Lightsail'de tek sunucu üzerinde Docker Compose (API, web, konsol, işçi, PostgreSQL, Redis, OpenSearch, SeaweedFS, Caddy). Kurulum 8 GB'lık pakette başladı (22 Kasım 2026'da hâlâ 8 GB); gerektiğinde 16 GB'lık pakete (4 çekirdek, 320 GB, 6 TB trafik, ayda 84 USD) büyütülür. Büyüyünce EC2 ya da yönetilen servislere geçilir; uygulama konteyner olduğu için kod değişmez.
 - **Yapay zekâ:** AWS Bedrock (Amazon Nova, AB çıkarım profili; Karar 57, T11). Maskeleme aynen sürer; yapay zekâ isteklerine kişisel veri girmez. Uygulamanın anahtarı yalnızca model çağırma yetkili ayrı bir IAM kullanıcısına aittir.
 - **Erişim:** Kurulum `rengarenk-kurulum` IAM kullanıcısıyla (yalnızca Lightsail, Bedrock çağırma, harcama okuma) bu bilgisayardaki `rengarenk` AWS CLI profilinden yapılır; aylık 10 USD bütçe uyarısı kurulu.
 - **Şifreleme:** disk şifrelemenin yanında telefon numarası, mesajlar ve işlem kaydındaki IP uygulama düzeyinde şifrelenir (mevcut kod); anahtarlar SOPS ile şifreli sırlarda.
 - **Kayıtlar:** 5651 trafik kayıtları 2 yıl boyunca bütünlük özetiyle saklanır. Saklama yerinin yurt dışı olmasının sorun olup olmadığı avukata sorulur.
-- **Diğer yurt dışı aktarımlar** (FCM ve APNs bildirimleri, hata raporlama, Meta ve Google reklam ölçümü) için de standart sözleşme imzalanır ve bildirilir.
+- **Diğer yurt dışı aktarımlar** (WhatsApp kodu ve kritik bildirimler için Meta, FCM ve APNs bildirimleri, hata raporlama, Meta ve Google reklam ölçümü) için de standart sözleşme imzalanır ve bildirilir.
 - **Avukata sorulacaklar:** AWS ile KVKK standart sözleşmesinin nasıl imzalanacağı; e-Arşiv ve fatura kayıtları ile 5651 kayıtlarının yurt dışında tutulabilmesi.
 - VERBİS kaydı, 50 çalışan ve 100 milyon TL yıllık bilanço altında zorunlu değildir.
 - **Alan adı:** rengarenksite.com (12 Kasım 2026, sahip kararı); şirket e-postaları ve yönetim girişi @rengarenksite.com. Tanıtım sayfası canlı sistem açılana kadar alan adı firmasının hostinginde (`deploy/tanitim`).
-- **E-posta:** AWS 25. portu varsayılan olarak kapalı tutar, talep formuyla açılır; kendi posta sunucumuz Karar 50'ye göre Lightsail'de küçük ayrı bir sunucuda kurulabilir.
+- **E-posta:** Amazon SES ile gönderilir (Karar 50); kendi posta sunucusu kurulmaz, 25. port talebi gerekmez.
 
 ## Karar 38: Mobil ödeme
 
@@ -820,7 +829,7 @@ Rengarenk Ajanı, yönetim konsolunda çalışan bir yapay zekâ operasyon ajan�
   - Talep açıklamasında telefon, IBAN, link veya hakaret varsa kullanıcıdan düzeltme ister.
   - Destek taleplerini sınıflandırır, basit olanları (SSS, hesap durumu, hak bakiyesi) yanıtlar. İade gerektiren taleplerde yalnızca iade önerisi hazırlar.
   - Galeri başvurusunda belgeleri okur; yetki belgesi, vergi numarası ve MERSİS kontrollerinin hepsi geçerse başvuruyu onaylar ve sahibe bildirir. Bir kontrol bile geçmezse başvuruyu insan incelemesine bırakır.
-  - Metriklerdeki ani düşüş ve artışları bildirir; SMS sağlayıcısı çökerse yedek sağlayıcıya geçer; ödeme hata oranı yükselirse uyarır.
+  - Metriklerdeki ani düşüş ve artışları bildirir; doğrulama kodunun SMS yedeği açıksa ana SMS sağlayıcısı çökünce yedeğe geçer; ödeme hata oranı yükselirse uyarır.
   - Günlük ve haftalık özeti yazar, düşüşlerin nedenini analiz eder, doğal dille sorulan rapor sorularını yanıtlar.
   - Otomatik mesajlarda gönderim saatini ayarlar, A/B testinde kazananı uygular; belirlenen bütçe tavanını aşmaz.
 - **Önerir, onay bekler:** fiyat ve paket değişiklikleri, toplu kampanya gönderimi, kalıcı engelleme, iadeler (yalnızca sahip onaylar), reklam bütçesi değişikliği, yeni segment ve kampanya fikirleri.
@@ -893,9 +902,9 @@ Sitenin ve uygulamanın görünümü ile pazarlama içerikleri geliştiriciye ge
 ## Karar 48: Bildirim katmanı ve kanallar
 
 - Sistemin her parçası bildirimi tek bir katmana bırakır ("bu kişiye bu olayı bildir"); kanal seçimi, sıklık sınırı, sessiz saat, rıza kontrolü ve kayıt bu katmanda yapılır.
-- **Kanallar:** uygulama içi bildirim, mobil push ve web push (Firebase Cloud Messaging), e-posta (kendi SMTP sunucumuz, Karar 50), SMS (İYS entegrasyonlu yerli sağlayıcı, ana ve yedek).
-- **Kanal sırası maliyete göre:** önce uygulama içi ve push, sonra e-posta, en son SMS. Push okunmazsa belirlenen süre sonra e-posta denenir.
-- **Şablonlar:** tek şablondan e-posta, push ve SMS metni üretilir; değişkenler (ad, talep, galeri, tutar), önizleme ve sürüm vardır. E-posta şablonları tasarım değerlerini (Karar 46) kullanır.
+- **Kanallar:** uygulama içi bildirim, mobil push ve web push (Firebase Cloud Messaging), e-posta (Amazon SES, Karar 50), WhatsApp (yalnızca kritik iletiler; aşağıda 22 Kasım 2026 değişikliği). İlk karardaki SMS kanalı (İYS entegrasyonlu yerli sağlayıcı) kaldırıldı.
+- **Kanal sırası maliyete göre:** önce uygulama içi ve push, sonra e-posta, en son WhatsApp. Push okunmazsa belirlenen süre sonra e-posta denenir.
+- **Şablonlar:** tek şablondan e-posta ve push metni üretilir; WhatsApp metni Meta'da onaylı şablondur ve konsolda yalnızca önizlenir; değişkenler (ad, talep, galeri, tutar), önizleme ve sürüm vardır. E-posta şablonları tasarım değerlerini (Karar 46) kullanır.
 - **Kullanıcı tercihleri:** Ayarlar ekranında kanal ve konu bazında açılıp kapatılır; ticari ileti tercihleri İYS ile eşitlenir.
 - **22 Kasım 2026'da değişti (sahip kararı): SMS'in yerine WhatsApp.** Kullanıcının gördüğü her yerde SMS kanalı WhatsApp'tır: doğrulama kodu ve kritik bildirimler (talebin son günü, galeri paket ödemesi alınamadı) Meta WhatsApp Cloud API ile, Meta'da onaylı şablonlarla gider. Kanal sırası: uygulama içi ve push, e-posta, en son WhatsApp. WhatsApp metni Meta'daki şablondadır, konsoldan değişmez. SMS altyapısı (İleti Merkezi) kapalı yedek olarak durur; şirket kurulunca yalnızca doğrulama kodunun yedeği olarak açılabilir.
 
@@ -923,8 +932,8 @@ Sitenin ve uygulamanın görünümü ile pazarlama içerikleri geliştiriciye ge
 - **Segment oluşturucu:** il, kategori, rol (bireysel, galeri, kiralama firması), paket, son etkinlik, talep durumu ve rıza durumuna göre kural kurulur; kişi sayısı ve kanal bazında ulaşılabilir kişi canlı görünür. Segmentler kaydedilir ve her gönderimde yeniden hesaplanır.
 - **Kampanya oluşturucu:** hedef, segment, kanal, şablon, zamanlama, A/B testi ve kupon bağlama; gönderimden önce tahmini maliyet ve "kaç kişi sıklık sınırına takıldı" bilgisi görünür. Kampanya sonucu raporlara (Karar 44) ve grafik notlarına otomatik düşer.
 - **Otomatik akışlar:** tetikleyici → bekle → koşul → ileti adımlarıyla kurulur. İlk sürümdeki akışlar: hoş geldin, ilk talebini oluştur, talebin 3 gün sonra doluyor, ilk mesajı okumadın, galeri 7 gündür mesaj göndermedi, deneme bitiyor, ödeme başarısız.
-- **Teslim raporu:** gönderildi, teslim edildi, açıldı, tıklandı, ayrıldı, şikâyet; kanal ve kampanya bazında, maliyetiyle.
-- **Ajan:** segment ve kampanya önerir, metin taslaklarını yazar, A/B kazananını bildirir; toplu gönderimi hiçbir zaman kendisi başlatmaz. SMS sağlayıcısını yedeğe geçirmek ve itibar düşünce ticari e-postayı durdurmak kendi yapabildikleri arasındadır.
+- **Teslim raporu:** gönderildi, teslim edildi, okundu (uygulama içi), ayrıldı, şikâyet; kanal ve kampanya bazında, maliyetiyle. E-postada açılma ve tıklama ölçülmez (izleme pikseli ve yönlendirme yok; bilinçli karar).
+- **Ajan:** segment ve kampanya önerir, metin taslaklarını yazar, A/B kazananını bildirir; toplu gönderimi hiçbir zaman kendisi başlatmaz. Doğrulama kodunun SMS yedeğini yedek sağlayıcıya geçirmek ve itibar düşünce ticari e-postayı durdurmak kendi yapabildikleri arasındadır.
 
 ## Karar 52: Kullanıcı ve galeri kartı
 
@@ -961,10 +970,10 @@ Sitenin ve uygulamanın görünümü ile pazarlama içerikleri geliştiriciye ge
 ## Karar 56: Sistem ayarları
 
 - **Kurallar ve fiyatlar:** ücretsiz ilk mesaj sayıları, talep yayın süresi, paketler, web fiyatları ve kupon sınırları panelden değişir. Fiyat ve paket değişikliği dört göz onayı ister, ileri tarihe zamanlanır ve grafiklere not olarak düşer. Mobil fiyatlar mağaza panelinden yönetilir; konsol yalnızca gösterir.
-- **Entegrasyonlar:** PayTR, App Store ve Google Play ödemeleri, SMS sağlayıcıları, Firebase, e-posta sunucusu, Meta ve Google, katalog kaynakları (TSB, VehiclesDB, AB Çevre Ajansı, Wikidata, vehicle-makes-models, motodb), Wikimedia Commons ve yapay zekâ sağlayıcısı. Her birinin durumu, son başarılı çağrısı ve anahtar yenileme tarihi görünür. Gizli anahtarlar hiçbir zaman ekranda gösterilmez, yalnızca yenilenir.
+- **Entegrasyonlar:** PayTR, App Store ve Google Play ödemeleri, WhatsApp (Meta), SMS (kapalı yedek), Firebase, e-posta (Amazon SES), Meta ve Google, katalog kaynakları (TSB, VehiclesDB, AB Çevre Ajansı, Wikidata, vehicle-makes-models, motodb), Wikimedia Commons ve yapay zekâ sağlayıcısı. Her birinin durumu, son başarılı çağrısı ve anahtar yenileme tarihi görünür. Gizli anahtarlar hiçbir zaman ekranda gösterilmez, yalnızca yenilenir.
 - **Özellik anahtarları:** yeni özellik yüzde, platform, il veya kullanıcı grubuyla açılır; tek tıkla kapanır (Karar 47).
 - **Bakım modu:** sitenin tamamı ya da tek bir bölümü (ör. ödeme) kapatılabilir; kullanıcıya duyuru şeridi otomatik çıkar. Yalnız sahip ve yönetici.
-- **Sistem sağlığı ve yedek:** çalışma süresi, hata oranı, kuyruklar, son yedek ve son geri yükleme testi. Veritabanı her gece tam ve sürekli artımla yedeklenir; yedekler Türkiye'de ikinci bir konumda tutulur; geri yükleme ayda bir test edilir.
+- **Sistem sağlığı ve yedek:** çalışma süresi, hata oranı, kuyruklar, son yedek ve son geri yükleme testi. Veritabanı her gece tam ve sürekli artımla yedeklenir; yedekler başka bir AB bölgesinde tutulur (Karar 37); geri yükleme ayda bir test edilir.
 
 ## Karar 57: Yapay zekâ bütçesi ve ayarları
 
@@ -986,7 +995,7 @@ Sitenin ve uygulamanın görünümü ile pazarlama içerikleri geliştiriciye ge
 - **Erişim ve trafik kayıtları** 5651 sayılı Kanun kapsamında 2 yıl; kimlik ve telefon doğrulama kayıtları Motorlu Kara Taşıtları Ticareti Hakkında Yönetmelik m.22 kapsamında 5 yıl saklanır.
 - **Periyodik imha** 6 ayda bir yapılır. Saklama süresi dolan kayıtlar ajan tarafından listelenir, sahip onayıyla imha edilir ve imha tutanağı saklanır.
 - **Veri ihlali:** öğrenildiği andan itibaren 72 saat içinde Kurul'a bildirim. Panelde hazır bildirim şablonu, sorumlu kişi, kontrol listesi ve süre sayacı vardır; etkilenen kullanıcılara bildirim şablonu hazırdır.
-- **Rıza kayıtları:** açık rıza, çerez tercihleri ve İYS onayları tarih, sürüm ve kanalıyla saklanır; İYS ile her gece eşitlenir.
+- **Rıza kayıtları:** açık rıza, çerez tercihleri ve İYS onayları tarih, sürüm ve kanalıyla saklanır; İYS'ye her gün elle CSV ile yüklenir (Karar 49, 21 Kasım 2026).
 - **Resmi makam talepleri** (mahkeme, savcılık, kolluk) ayrı kuyrukta, yalnız sahip ve yönetici görür; verilen her veri kaydedilir.
 - **VERBİS:** yıllık çalışan sayısı 50'den az ve yıllık mali bilanço toplamı 100 milyon TL'den az olan, ana faaliyeti özel nitelikli kişisel veri işlemek olmayan veri sorumluları kayıttan muaftır; Rengarenk başlangıçta bu kapsamdadır. Kişisel veri envanteri yine de tutulur; eşiklerden biri aşılınca ajan kayıt için hatırlatır. Avukat teyidi gerekir.
 
@@ -1007,7 +1016,9 @@ Sitenin ve uygulamanın görünümü ile pazarlama içerikleri geliştiriciye ge
 * [x] Mobil teknoloji: React Native + Expo (Karar 16)
 
 - [x] Barındırma: sistemin tamamı AWS Frankfurt'ta (Lightsail, Bedrock) kredilerle, yurt dışına aktarım standart sözleşmeyle (Karar 37, 12 Kasım 2026'da değişti)
-- [ ] E-posta sunucusu: AWS'den 25. portun açılmasını iste; açılırsa Lightsail'de küçük ayrı sunucu, açılmazsa gönderim servisi sahibe sorulur (Karar 50)
+- [x] E-posta: Amazon SES (Karar 50, 12 Kasım 2026); alan adı doğrulandı, üretim erişimi verildi (19 Kasım 2026)
+- [x] Telefon kodu ve kritik bildirimler WhatsApp'tan; SMS kapalı yedek (Karar 18, 48; 22 Kasım 2026)
+- [x] İYS: entegratör yok, izinler konsoldan CSV ile elle yüklenir (Karar 49; 21 Kasım 2026)
 
 * [x] Başlangıç stratejisi: lansman yok, büyüme online reklamlarla; ölçüm Meta uyumlu (Karar 35)
 * [x] Uygulama mağazası ödeme kuralları: bireysel haklar mobilde App Store ve Google Play ile, galeri aboneliği yalnızca web'den (Karar 38)
@@ -1028,7 +1039,7 @@ Sitenin ve uygulamanın görünümü ile pazarlama içerikleri geliştiriciye ge
 * [ ] Avukat görüşmesi: Karar 39'daki varsayılanlar ve sorulacaklar
 * [ ] Veri ve hizmetlere e-posta atmadan erişmenin yollarını araştır (kullanım koşulları, self-servis paketler, deneme anahtarları, konsoldaki sözleşmeler); gerekirse taslakları güncelleyip gönder: Yazışma taslakları
 * [x] Yapay zekâ sağlayıcısı: AWS Bedrock (Amazon Nova, AB bölgesi; 12 Kasım 2026'da Google Vertex AI'dan değişti); maskeleme kuralları Karar 57'de; standart sözleşme AWS ile birlikte (teknik tasarım T11)
-* [ ] Satıcı puanının kuralları (kim puanlar, ne zaman görünür) Tur 4'te netleşecek (Karar 43)
+* [x] Satıcı puanının kuralları (kim puanlar, ne zaman görünür): Karar 55
 
 ## Değişiklik kaydı
 

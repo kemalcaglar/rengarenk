@@ -65,7 +65,7 @@ pnpm format        # Biome ile biçimlendir
 
 - API testleri gerçek veritabanı ister: `rengarenk_test` (Docker ilk kurulumda oluşturur) ve
   Redis 15 numaralı veritabanı. `apps/api/test/setup.ts` şemayı her çalıştırmada sıfırlar.
-- CI (`.github/workflows/ci.yml`): kurulum, lint, build, typecheck, test. `deploy.yml` yalnızca
+- CI (`.github/workflows/ci.yml`): kurulum, lint, build, typecheck, test. `deploy.yml` (kullanılmıyor: imajlar sunucuda derlenir) yalnızca
   `v*` etiketiyle ya da elle çalışır.
 
 ## Bu bilgisayardaki tuzaklar
@@ -84,7 +84,7 @@ pnpm format        # Biome ile biçimlendir
 - Depo kökündeki `rengarenk.bundle`, `rengarenk-depo.tar.gz`, PDF ve `*.patch` dosyaları
   `.git/info/exclude` ile dışarıda tutulur; bundle ve tar.gz artık gerekmiyor.
 
-## Nerede kaldık (7 Kasım 2026, Sprint 3 sonu)
+## Nerede kaldık (son güncelleme 22 Kasım 2026)
 
 - **Sprint 1 bitti:** monorepo, yerel ortam, telefon + SMS koduyla giriş (15 dk erişim, 90 gün
   yenileme jetonu, döndürme, çalınan jeton kullanılırsa tüm oturumları kapatma), işlem kaydı,
@@ -477,8 +477,9 @@ pnpm format        # Biome ile biçimlendir
   Telefon taraması scratchpad `betik/mobil_tara2.mjs` (e-posta girişi, `RR_GEN` genişlik, taşan öğeleri yazar).
   API'de 246, ortak pakette 151 test.
 - **Sıradaki:** Aşama 9 bitti (açık kalanlar plan dosyasında: mobil Meta SDK, Google gerçek bağdaştırıcı, ajanın
-  yapay zekâ yorumu); AWS Lightsail'e ilk kurulum (kapalı test ortamı, `deploy/README.md`;
-  AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50, hazır), yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
+  yapay zekâ yorumu); AWS Lightsail'de kapalı test sunucusu çalışıyor (`deploy/README.md`, sürüm kurma adımları orada;
+  AWS CLI profili `rengarenk`, bu bilgisayardaki `default` profiline dokunma; e-posta Amazon SES ile, Karar 50, hazır); kalan
+  yedek, izleme, SOPS (`.env.prod` ve `.env.iade`). Bir sprint bitince plan kutularını işaretle ve README'yi güncelle.
 - **Canlıya geçiş (19 Kasım 2026, sahip kararları):** liste `docs/CANLIYA-GECIS.md` (iş bitince kutusunu işaretle).
   Canlı sunucu bugünkü `rengarenk-1` (açılıştan önce test kullanıcıları silinir), ödemesiz açılış ve önce kapalı beta,
   imajlar sunucuda derlenir (`deploy.yml` kullanılmaz), mobil paket adı `com.rengarenksite.app`. Şahıs şirketi
@@ -501,9 +502,9 @@ pnpm format        # Biome ile biçimlendir
   onayların reti). SMS altyapısı kapalı yedek: yalnızca doğrulama kodunun yedeği (`VERIFY_CHANNELS=whatsapp,sms`).
   Arayüzde "SMS kodu" yerine "WhatsApp kodu". API'de 255 test.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
-  Play, AWS Activate kredisi ve KVKK standart sözleşmesi, SMS, PayTR, e-Arşiv, Google Workspace). Bunlar gelmeden ilgili entegrasyonu
+  Play, AWS ile KVKK standart sözleşmesi, WhatsApp (Meta İşletme hesabı ve şablonlar), PayTR, e-Arşiv, İYS kaydı). Bunlar gelmeden ilgili entegrasyonu
   gerçek anahtarla deneme; test/sahte sağlayıcı kullan.
-- **SMS önerisi:** ana sağlayıcı İleti Merkezi (bağdaştırıcı hazır; 11 Kasım 2026'da hesap açıldı, `ILETIMERKEZI_KEY/HASH`
+- **SMS (22 Kasım 2026'dan beri kapalı yedek, yalnızca doğrulama kodunun yedeği):** ana sağlayıcı İleti Merkezi (bağdaştırıcı hazır; 11 Kasım 2026'da hesap açıldı, `ILETIMERKEZI_KEY/HASH`
   yerel `.env`'de, API adı `rengarenksite`; bakiye ve `RENGARENK` başlığı bekleniyor; deneme `pnpm --filter @rengarenk/api sms:dene [numara]`). Yedek için aday Netgsm; bağdaştırıcısı hesap açılınca güncel API
   belgesine göre `apps/api/src/sms/` altına yazılacak. Fiyatlar teklifle netleşecek.
 
