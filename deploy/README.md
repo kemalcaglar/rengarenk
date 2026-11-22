@@ -50,7 +50,7 @@ KVKK standart sözleşmesi bildirilene kadar sunucu dışarıya kapalı bir test
 | Sunucu          | Lightsail `rengarenk-1`, `eu-central-1a`, Ubuntu 24.04, `large_3_0` (8 GB, 2 vCPU, 160 GB), 4 GB takas |
 | Sabit IP        | `rengarenk-ip` → 63.184.9.173 (IPv6 da açık)                                                           |
 | SSH             | `ssh -i ~/.ssh/rengarenk_lightsail deploy@63.184.9.173` (anahtar yalnızca sahibin bilgisayarında)      |
-| Güvenlik duvarı | 80 herkese (yalnızca TLS sertifikası ve HTTPS'e yönlendirme); 443 izinli 4 IP adresine, 22 iki adrese   |
+| Güvenlik duvarı | 80 herkese (yalnızca TLS sertifikası ve HTTPS'e yönlendirme); 443 izinli 4 IP adresine, 22 iki adrese  |
 | Adresler        | `beta.rengarenksite.com` (site), `api.`, `yonetim.`; kök alan adı tanıtım sayfasında kalır             |
 | Klasör          | `/srv/rengarenk`: `compose.prod.yml`, `Caddyfile`, `.env.prod`, `.env.iade`, `seaweedfs.s3.json`       |
 
@@ -79,6 +79,9 @@ KVKK standart sözleşmesi bildirilene kadar sunucu dışarıya kapalı bir test
 - Telefon kodu (13 Kasım 2026, sahip isteği): İleti Merkezi'nin `APITEST` başlığı kodu değil sabit bir deneme metni
   gönderdiği için WhatsApp hazır olana kadar `VERIFY_CHANNELS=ekran` ve `KAPALI_TEST=1`: kod gönderilmez, ekrandaki
   kutuya yazılır. Site herkese açılmadan önce ikisi de kaldırılır (`ekran` tek başına canlıda açılmaz, env.ts).
+- Galeri denemesi (23 Kasım 2026, sahip kararı): `GALLERY_VERIFY_PROVIDER=fake`, `EIDS_PROVIDER=fake`,
+  `PAYMENT_PROVIDER=fake`. Canlı ayarlarda yalnızca `KAPALI_TEST=1` iken izinli (env.ts); para hareketi ve fatura yok.
+  Herkese açılırken üçü `none` yapılır. Davranışları `docs/GALERI-TEST-REHBERI.md`'de.
 - Bekleyenler: yedek, izleme, SOPS. `AI_PROVIDER=none` (KVKK).
 - SMS (22 Kasım 2026, sahip kararı: SMS'in yerine WhatsApp): sunucuda `SMS_PROVIDER=none`, kapalı yedek. İleti Merkezi
   anahtarları `.env.prod`'da duruyor; yedek açılırsa `SMS_PROVIDER=iletimerkezi`, `SMS_SENDER_ID=RENGARENK` (başlık
@@ -105,13 +108,13 @@ segmentler, özellik anahtarları. Kullanıcı, çalışan ve işlem kaydı taş
 
 ## Günlük işler
 
-| İş         | Komut (sunucuda, `/srv/rengarenk`)                                                                      |
-| ---------- | ------------------------------------------------------------------------------------------------------- |
-| Yeni sürüm | Yukarıda "Sürüm kurma" (sahibin onayıyla)                                                               |
-| Geri alma  | `.env.prod`'da `TAG`'i önceki `test-<commit>` yap, `$C up -d` (göçler geriye uyumlu yazılır)            |
-| Günlükler  | `docker compose -f compose.prod.yml logs -f api worker`                                                 |
-| Durum      | `docker compose -f compose.prod.yml ps`                                                                 |
-| Bakım modu | Yönetim konsolu › Sistem › Özellik anahtarları ve bakım (kod ve dağıtım gerekmez)                       |
+| İş         | Komut (sunucuda, `/srv/rengarenk`)                                                           |
+| ---------- | -------------------------------------------------------------------------------------------- |
+| Yeni sürüm | Yukarıda "Sürüm kurma" (sahibin onayıyla)                                                    |
+| Geri alma  | `.env.prod`'da `TAG`'i önceki `test-<commit>` yap, `$C up -d` (göçler geriye uyumlu yazılır) |
+| Günlükler  | `docker compose -f compose.prod.yml logs -f api worker`                                      |
+| Durum      | `docker compose -f compose.prod.yml ps`                                                      |
+| Bakım modu | Yönetim konsolu › Sistem › Özellik anahtarları ve bakım (kod ve dağıtım gerekmez)            |
 
 ## Canlı provası (bu bilgisayarda)
 

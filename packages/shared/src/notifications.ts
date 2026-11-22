@@ -550,6 +550,23 @@ export const NOTIFY_TEMPLATES = {
       dugme: { yazi: 'Belgeyi yükle', url: '/kurumsal-basvuru' },
     },
   },
+  'galeri.davet_edildi': {
+    ad: 'Galeri ekibine davet',
+    konu: 'galeri',
+    grup: 'galeri',
+    baslik: '{{galeri}} seni ekibine davet etti',
+    metin: '{{rol}} olarak davet edildin. Daveti galeri panelinden kabul edebilirsin.',
+    url: '/galeri-paneli',
+    eposta: {
+      konu: '{{galeri}} seni ekibine davet etti',
+      paragraflar: [
+        'Merhaba {{ad}},',
+        '{{galeri}} seni Rengarenk galeri ekibine {{rol}} olarak davet etti. Davet {{gun}} gün geçerli.',
+        'Galeri panelini açıp "Kabul et" demen yeterli. Bu daveti beklemiyorsan yok sayabilirsin.',
+      ],
+      dugme: { yazi: 'Daveti gör', url: '/galeri-paneli' },
+    },
+  },
   'galeri.deneme_bitiyor': {
     ad: 'Galeri denemesi bitiyor',
     konu: 'galeri',

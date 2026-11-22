@@ -1,5 +1,6 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { uuidv7 } from '@rengarenk/db';
+import { gallerySlug } from '@rengarenk/shared';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { ENV, type Env } from '../src/config/env.js';
 import type { Db } from '../src/database/prisma.js';
@@ -408,5 +409,82 @@ describe('bildirim katmanı (Karar 30, 48, 49, 50)', () => {
     expect(isinmaLimiti(bas, new Date('2026-11-09'))).toBe(200);
     expect(isinmaLimiti(bas, new Date('2026-11-23'))).toBe(800);
     expect(isinmaLimiti(bas, new Date('2026-12-20'))).toBe(Number.POSITIVE_INFINITY);
+  });
+});
+
+describe('galeri daveti bildirimi (Karar 20, 48)', () => {
+  it('davet edilen numaranın hesabına uygulama içi bildirim ve e-posta; geçersiz davete gitmez', async () => {
+    const sahip = await login('+905339995001', 'Mert');
+    const calisan = await login('+905339995002', 'Elif');
+    const accountId = uuidv7();
+    const applicationId = uuidv7();
+    await db.account.create({
+      data: { id: accountId, kind: 'BUSINESS', name: 'Deniz Oto', businessKind: 'DEALER' },
+    });
+    await db.accountMember.create({ data: { accountId, userId: sahip.userId, role: 'OWNER' } });
+    await db.galleryApplication.create({
+      data: {
+        id: applicationId,
+        userId: sahip.userId,
+        status: 'APPROVED',
+        submittedAt: new Date(),
+        decidedAt: new Date(),
+        accountId,
+        data: {},
+      },
+    });
+    await db.gallery.create({
+      data: {
+        accountId,
+        slug: gallerySlug('Deniz Oto'),
+        businessKind: 'DEALER',
+        displayName: 'Deniz Oto',
+        legalName: 'Deniz Oto Ltd. Şti.',
+        taxNo: '1234567890',
+        taxOffice: 'Kadıköy',
+        mersisNo: '0123456789000015',
+        il: 'İstanbul',
+        ilce: 'Kadıköy',
+        address: 'Moda Cad. No: 1',
+        authorityNo: '34-2026-001',
+        plan: 'deneme',
+        trialEndsAt: new Date(Date.now() + 30 * 86_400_000),
+        applicationId,
+        approvedAt: new Date(),
+      },
+    });
+    const davet = async (phone: string, extra: Partial<{ revokedAt: Date }> = {}) => {
+      const id = uuidv7();
+      await db.accountInvite.create({
+        data: {
+          id,
+          accountId,
+          phone,
+          role: 'SALES',
+          invitedBy: sahip.userId,
+          expiresAt: new Date(Date.now() + 7 * 86_400_000),
+          ...extra,
+        },
+      });
+      return id;
+    };
+
+    // E-posta yalnızca doğrulanmış adrese gider
+    await db.user.update({ where: { id: calisan.userId }, data: { emailVerifiedAt: new Date() } });
+    await olaylar.handle('galeri.davet_edildi', { inviteId: await davet('+905339995002'), accountId });
+    const b = await db.notification.findFirstOrThrow({
+      where: { userId: calisan.userId, sablon: 'galeri.davet_edildi' },
+    });
+    expect(b).toMatchObject({ baslik: 'Deniz Oto seni ekibine davet etti', url: '/galeri-paneli' });
+    expect(b.metin).toContain('Satış temsilcisi');
+    await teslim.dispatchDue();
+    expect(eposta.sent.some((e) => e.subject === 'Deniz Oto seni ekibine davet etti')).toBe(true);
+
+    // Hesabı olmayan numaraya ve iptal edilmiş davete bildirim yazılmaz
+    expect(
+      await olaylar.handle('galeri.davet_edildi', { inviteId: await davet('+905339995099'), accountId }),
+    ).toBe(0);
+    const iptal = await davet('+905339995002', { revokedAt: new Date() });
+    expect(await olaylar.handle('galeri.davet_edildi', { inviteId: iptal, accountId })).toBe(0);
   });
 });

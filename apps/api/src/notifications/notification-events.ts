@@ -10,6 +10,8 @@ import {
   LEGAL_PATHS,
   LEGAL_TEXTS,
   type LegalKey,
+  MEMBER_ROLE_NAMES,
+  type MemberRoleKey,
   type MessageFlag,
   type PaidPlanKey,
   type PriceBook,
@@ -82,6 +84,7 @@ export const NOTIFY_EVENTS = [
   'galeri.onaylandi',
   'galeri.reddedildi',
   'galeri.belge_istendi',
+  'galeri.davet_edildi',
   'galeri.deneme_bitiyor',
   'galeri.deneme_bitti',
   'portfoy.eids_reddedildi',
@@ -408,6 +411,20 @@ export class NotificationEvents {
           userIds: [a.userId],
           sablon: type,
           veri: { galeri: g?.displayName ?? veri.gorunenAd ?? veri.unvan ?? 'Galerin' },
+        });
+      }
+      case 'galeri.davet_edildi': {
+        // Davet telefon numarasına bağlıdır; o numarayla hesabı olan kişiye gider (hesabı yoksa üye olunca panelde görür)
+        const d = await this.db.accountInvite.findUnique({ where: { id: s('inviteId') } });
+        if (!d || d.acceptedAt || d.revokedAt || d.expiresAt <= new Date()) return 0;
+        const u = await this.db.user.findFirst({ where: { phone: d.phone }, select: { id: true } });
+        if (!u) return 0;
+        const g = await this.galeriAdi(d.accountId);
+        const gun = Math.max(1, Math.ceil((d.expiresAt.getTime() - Date.now()) / 86_400_000));
+        return this.notifications.notify({
+          userIds: [u.id],
+          sablon: type,
+          veri: { galeri: g.displayName, rol: MEMBER_ROLE_NAMES[d.role as MemberRoleKey], gun },
         });
       }
       case 'moderasyon.karar': {

@@ -24,6 +24,7 @@ koy ve Claude'a yalnızca dosyanın adını söyle. Claude değerleri ekrana bas
 | Google ile üye girişi | **Yayında** (21 Kasım 2026, sahip): kök alan adının dönüş adresi eklendi |
 | Yasal metinler | Sunucuda 8 metnin **hepsi taslak, hiçbiri yayında değil**. KVKK aydınlatma metninin iki taslağında da barındırma yeri hâlâ "Radore" |
 | Telefon kodu | Gönderilmiyor; kapalı testte ekranda gösteriliyor (`VERIFY_CHANNELS=ekran`, `KAPALI_TEST=1`) |
+| Galeri denemesi | Kapalı testte sahte kurum doğrulaması, sahte EİDS ve sahte ödeme açık (`GALLERY_VERIFY_PROVIDER`, `EIDS_PROVIDER`, `PAYMENT_PROVIDER` = `fake`; sahip kararı 23 Kasım 2026). Para hareketi yok. Rehber: `docs/GALERI-TEST-REHBERI.md` |
 | SMS | **WhatsApp'a geçildi** (sahip kararı, 22 Kasım 2026): doğrulama kodu ve kritik bildirimler WhatsApp'tan, kampanya yalnızca e-posta ve bildirimle. SMS kapalı yedek: test sunucusunda `SMS_PROVIDER=none` ve `WHATSAPP_PROVIDER=none` (Meta hesabı gelene kadar; kritik WhatsApp bildirimi teslim kaydına "atlandı" yazılır) |
 | Ödeme, fatura, mağaza, push, yapay zekâ | Kapalı (`none`). Kod hazır, hesaplar bekleniyor. Henüz yazılmayanlar: e-Arşiv bağdaştırıcısı (İYS'ye izinler CSV ile elle yüklenir), mobilde RevenueCat ve iPhone push'u için Firebase SDK |
 | Yedek, izleme, sırların şifrelenmesi | **Henüz kurulmadı** |
@@ -263,6 +264,8 @@ yapar, ama her biri için önce senin onayını ister.
    - `VERIFY_CHANNELS=whatsapp` (SMS gelince `whatsapp,sms`)
    - `SMS_PROVIDER=none` (SMS gelince `iletimerkezi` ve `SMS_SENDER_ID=RENGARENK`)
    - `KAPALI_TEST` satırı silinir
+   - `GALLERY_VERIFY_PROVIDER`, `EIDS_PROVIDER` ve `PAYMENT_PROVIDER` `none` yapılır (gerçek erişim geldiyse o
+     sağlayıcı). `KAPALI_TEST` kalkınca sahte değerle API hiç açılmaz, unutulursa sunucu başlamaz
    - Google girişi `USER_AUTH_PROVIDER=google` olarak kalır (dönüş adresi `WEB_ORIGIN`'den; kök adres Google'a eklendi)
    - Ayrıca hazır olan sağlayıcılar açılır.
 

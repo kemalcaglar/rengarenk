@@ -290,7 +290,7 @@ export class GalleryService {
         },
         tx,
       );
-      // Davet edilen numaraya SMS bildirim katmanıyla gider (Aşama 7)
+      // Davet, o numarayla hesabı olan kişiye bildirim katmanıyla gider (uygulama içi, push, e-posta)
       await this.outbox.add(tx, 'galeri.davet_edildi', { inviteId: id, accountId });
     });
     return this.panel(userId, accountId);

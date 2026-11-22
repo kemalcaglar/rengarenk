@@ -292,6 +292,14 @@ describe('yönetim girişi ayarları', () => {
     // Kodun ekranda gösterilmesi yalnızca kapalı testte
     expect(() => loadEnv({ ...prod, VERIFY_CHANNELS: 'ekran' })).toThrow('kapalı testte');
     expect(() => loadEnv({ ...prod, VERIFY_CHANNELS: 'ekran', KAPALI_TEST: '1' })).not.toThrow();
+    // Sahte galeri doğrulaması, EİDS ve ödeme yalnızca kapalı testte; sahte iade ve e-Arşiv orada da yasak
+    const galeriSahte = { GALLERY_VERIFY_PROVIDER: 'fake', EIDS_PROVIDER: 'fake', PAYMENT_PROVIDER: 'fake' };
+    expect(() => loadEnv({ ...prod, EIDS_PROVIDER: 'fake' })).toThrow('sahte EİDS');
+    expect(() => loadEnv({ ...prod, PAYMENT_PROVIDER: 'fake' })).toThrow('sahte ödeme');
+    expect(() => loadEnv({ ...prod, GALLERY_VERIFY_PROVIDER: 'fake' })).toThrow('sahte galeri');
+    expect(() => loadEnv({ ...prod, ...galeriSahte, KAPALI_TEST: '1' })).not.toThrow();
+    expect(() => loadEnv({ ...prod, REFUND_PROVIDER: 'fake', KAPALI_TEST: '1' })).toThrow('sahte iade');
+    expect(() => loadEnv({ ...prod, EARSIV_PROVIDER: 'fake', KAPALI_TEST: '1' })).toThrow('sahte e-Arşiv');
     expect(() => loadEnv({ ...prod, APPLE_AUTH_PROVIDER: 'fake' })).toThrow('sahte Apple');
     expect(() => loadEnv({ ...prod, USER_AUTH_PROVIDER: 'google' })).toThrow('USER_GOOGLE_CLIENT_ID');
     expect(() => loadEnv({ ...prod, VERIFY_CHANNELS: 'whatsapp,sms' })).toThrow('WHATSAPP_TOKEN');

@@ -14,17 +14,17 @@ const schema = z.object({
   JWT_SECRET: z.string().min(32, 'JWT_SECRET en az 32 karakter olmalı'),
   /**
    * Galeri başvurusu kontrolleri (Karar 03, 17): yetki belgesi (Ticaret Bakanlığı), vergi (GİB), MERSİS. none: bağlantı
-   * yok, kontroller "yapılamadı" sayılır ve başvuru insana düşer. fake: geliştirme ve test; canlıda kullanılamaz.
+   * yok, kontroller "yapılamadı" sayılır ve başvuru insana düşer. fake: geliştirme ve test; canlıda yalnızca KAPALI_TEST=1.
    */
   GALLERY_VERIFY_PROVIDER: z.enum(['none', 'fake']).default('none'),
   /**
    * EİDS (Karar 17, m.22/ç): portföy aracının ruhsat sahibi onayı. none: bağlantı yok, araç doğrulama bekler ve
-   * alıcılara görünmez. fake: geliştirme ve test; canlıda kullanılamaz.
+   * alıcılara görünmez. fake: geliştirme ve test; canlıda yalnızca KAPALI_TEST=1.
    */
   EIDS_PROVIDER: z.enum(['none', 'fake']).default('none'),
   /**
    * Web ödemesi (Karar 12.7): none ödeme kapalı (PayTR sözleşmesi gelene kadar canlı), paytr gerçek iFrame API,
-   * fake geliştirme ve test için kendi sahte ödeme sayfası (canlıda kullanılamaz).
+   * fake geliştirme ve test için kendi sahte ödeme sayfası (canlıda yalnızca KAPALI_TEST=1).
    */
   PAYMENT_PROVIDER: z.enum(['none', 'fake', 'paytr']).default('none'),
   PAYTR_MERCHANT_ID: z.string().optional(),
@@ -247,10 +247,14 @@ export function loadEnv(source: NodeJS.ProcessEnv = process.env): Env {
     if (e.WHATSAPP_PROVIDER === 'console' || e.WHATSAPP_PROVIDER === 'test')
       throw new Error("Canlıda WHATSAPP_PROVIDER 'meta' ya da 'none' olmalı");
     if (!e.METRICS_TOKEN) throw new Error('Canlıda METRICS_TOKEN gerekli');
-    if (e.GALLERY_VERIFY_PROVIDER === 'fake')
+    // Kapalı test sunucusunda (KAPALI_TEST=1, site yalnızca sahibin IP adreslerine açık) galeri akışı baştan sona
+    // denenebilsin diye bu üç sahte sağlayıcıya izin var (sahip kararı 23 Kasım 2026). Para hareketi yoktur; iade,
+    // e-Arşiv ve mağaza sahteleri yine yasak. Herkese açılırken KAPALI_TEST kalkınca bu izin de kendiliğinden kapanır.
+    const kapaliTest = e.KAPALI_TEST === '1';
+    if (e.GALLERY_VERIFY_PROVIDER === 'fake' && !kapaliTest)
       throw new Error('Canlıda sahte galeri doğrulaması kullanılamaz');
-    if (e.EIDS_PROVIDER === 'fake') throw new Error('Canlıda sahte EİDS kullanılamaz');
-    if (e.PAYMENT_PROVIDER === 'fake') throw new Error('Canlıda sahte ödeme kullanılamaz');
+    if (e.EIDS_PROVIDER === 'fake' && !kapaliTest) throw new Error('Canlıda sahte EİDS kullanılamaz');
+    if (e.PAYMENT_PROVIDER === 'fake' && !kapaliTest) throw new Error('Canlıda sahte ödeme kullanılamaz');
     if (e.EARSIV_PROVIDER === 'fake') throw new Error('Canlıda sahte e-Arşiv kullanılamaz');
     if (e.META_PROVIDER === 'fake') throw new Error('Canlıda sahte Meta ölçümü kullanılamaz');
     if (e.GOOGLE_ADS_PROVIDER === 'fake') throw new Error('Canlıda sahte Google ölçümü kullanılamaz');

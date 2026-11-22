@@ -10,6 +10,9 @@ Bu klasördeki dosyalar, Claude'da tutulan ürün kapsam dokümanının ve tasar
 
 **Güncel durum, kalan işler, mobil test ve demo giriş bilgileri:** [`DURUM-VE-TEST.md`](DURUM-VE-TEST.md).
 **Canlıya geçmeden önce yapılacaklar ve nasıl yapılacakları:** [`CANLIYA-GECIS.md`](CANLIYA-GECIS.md).
+**Bugünden açılışa sırayla yapılacaklar ve maliyetleri:** [`YAPILACAKLAR.md`](YAPILACAKLAR.md).
+**Devlete, kurumlara ve hizmetlere ödenecek ücretler:** [`UCRETLER-VE-GIDERLER.md`](UCRETLER-VE-GIDERLER.md).
+**Galeriyi test sunucusunda baştan sona deneme:** [`GALERI-TEST-REHBERI.md`](GALERI-TEST-REHBERI.md).
 
 ## kapsam/
 

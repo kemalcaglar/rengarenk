@@ -501,6 +501,14 @@ pnpm format        # Biome ile biçimlendir
   gitmez (`NOTIFY_TOPICS.kampanya.kapali`, `ticariKanallar` yalnızca e-posta ve bildirim; İYS'de MESAJ yalnızca eski
   onayların reti). SMS altyapısı kapalı yedek: yalnızca doğrulama kodunun yedeği (`VERIFY_CHANNELS=whatsapp,sms`).
   Arayüzde "SMS kodu" yerine "WhatsApp kodu". API'de 255 test.
+- **Galeri denemesi ve rehberler (23 Kasım 2026, sahip kararı):** canlı ayarlarda sahte galeri doğrulaması, EİDS ve
+  ödeme yalnızca `KAPALI_TEST=1` iken izinli (env.ts); test sunucusunda üçü `fake`, herkese açılırken `none`. Galeri
+  daveti artık bildirim gönderir (`galeri.davet_edildi`: o numarayla hesabı olan kişiye uygulama içi ve e-posta).
+  Sahibin rehberleri: `docs/GALERI-TEST-REHBERI.md`, `docs/UCRETLER-VE-GIDERLER.md`, `docs/YAPILACAKLAR.md` (sıralı
+  yapılacaklar; avukat işleri sahibin isteğiyle yapılmış sayıldı). Bir adım bitince oradaki kutuyu da işaretle.
+  EİDS kuralı: ilanı yalnızca sahibi, eşi, 1.–2. derece yakını ya da sahibin e-Devlet'te yetkilendirdiği galeri
+  verebilir; bizde yalnızca galeri ilanı var. Canlıda EİDS erişimi gelmeden galeri kara taşıtı ilanı yayına giremez.
+  API'de 256 test.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, AWS ile KVKK standart sözleşmesi, WhatsApp (Meta İşletme hesabı ve şablonlar), PayTR, e-Arşiv, İYS kaydı). Bunlar gelmeden ilgili entegrasyonu
   gerçek anahtarla deneme; test/sahte sağlayıcı kullan.
