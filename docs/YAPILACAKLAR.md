@@ -64,16 +64,27 @@ Durumun: kuaför faaliyet kodlu bir şahıs işletmen var (esnaf odasına kayıt
 Yeni şirket kurman gerekmiyor.
 
 - [ ] **Ne:** vergi dairesine ikinci bir faaliyet kodu ekleme (değişiklik bildirimi).
+- **Kod (23 Kasım 2026, sahip ve mali müşavir kararı): 63.92.00 Diğer bilgi hizmeti faaliyetleri.**
+  - 63.91.02 "Web arama portalı" internet arama motorları içindir; bize uymaz.
+  - "Aracılık" geçen kodlar (47.92.00, 47.91.15) seçilmedi, çünkü platform araç satışına aracılık etmiyor.
 - **Nasıl:**
-  1. Mali müşavirinle platforma uyan kodu seç. Adaylar 2026 listesinden (NACE Rev.2.1):
-     - 63.92.00 Diğer bilgi hizmeti faaliyetleri
-     - 47.92.00 Uzmanlaşmış perakende ticaret için aracılık
-     - 47.91.15 Uzmanlaşmamış perakende ticaret için aracılık
-     Kodu mali müşavir seçer; eski 63.12 kodu artık listede yok.
-  2. Değişiklik bildirimini İnteraktif Vergi Dairesi'nden ya da mali müşavirle ver. Süre olaydan sonra **bir ay**;
+  1. Değişiklik bildirimini İnteraktif Vergi Dairesi'nden ya da mali müşavirle ver. Süre olaydan sonra **bir ay**;
      geç kalırsan usulsüzlük cezası kesilir (VUK md. 168).
-  3. Esnaf odan bu faaliyeti kabul ediyor mu, başka odaya da kayıt gerekiyor mu: mali müşavire ve odaya sor.
-  4. Vergi levhanı ve ilgili bilgileri Claude'a ver; site künyesine, ön bilgilendirme formuna ve sözleşmelere yazılır.
+  2. [ ] **Elektronikçiler (bilgisayarcılar) esnaf odasına kaydol** (mali müşavirin söylediği). Kuaför odası bu
+     faaliyeti kapsamıyor. Kayıt ücretini ve yıllık aidatı odaya sor. Site künyesinde "bağlı olduğun meslek odası"
+     olarak iki oda da yazılır.
+  3. Vergi levhanı, oda adını ve sicil numaranı Claude'a ver. Bunlar site künyesine, ön bilgilendirme formuna ve
+     sözleşmelere yazılır.
+- [ ] **Yurt dışından alınan hizmetlerin KDV'si (2 No.lu KDV beyannamesi; KDV Kanunu md. 9, sorumlu sıfatıyla).**
+  - Mali müşavirin söylediği iş. Yurt dışı firmalardan aldığın hizmetin KDV'sini (%20) her ay sen beyan eder ve
+    ödersin: AWS, Apple Developer, Google Play, Google Workspace, Meta (WhatsApp), Expo, RevenueCat.
+  - Ödediğin bu KDV, aynı ay 1 No.lu KDV beyannamesinde indirilir. Satış başlayınca satışların KDV'sinden düşülür.
+    Satış yokken "devreden KDV" olarak birikir ve sonra düşülür, yani gerçek gider olmaz, yalnızca önce cebinden çıkar.
+  - Her ay yurt dışı faturalarını (AWS faturası Billing › Invoices'tan indirilir) mali müşavire gönder.
+  - Faturada zaten Türk KDV'si yazıyorsa aynı tutar için ayrıca beyan edilmez. Bunu faturayı mali müşavire
+    göstererek netleştir. Firmaya vergi numaranı girmek KDV'nin faturaya eklenmesini durdurabilir.
+  - AWS faturası Activate kredisiyle 0 USD olduğunda ne beyan edileceğini mali müşavire sor.
+  - 2 No.lu beyannamenin de damga vergisi olabilir (1 No.lu için 791 TL). Mali müşavire sor.
 - **Bilanço defterine geçmen gerekmiyor.**
   - MERSİS numarası bilançoya geçmekle değil, ticaret siciline kayıtla verilir. Ticaret siciline kayıtlı kişi de
     işletme defteri tutabilir.
@@ -97,17 +108,17 @@ Yeni şirket kurman gerekmiyor.
   | Kalem | Tutar |
   | --- | --- |
   | Faaliyet kodu ekleme | Vergi dairesinde harç görülmedi |
+  | Elektronikçiler esnaf odası | Kayıt ücreti ve yıllık aidat odaya göre (odaya sor) |
+  | KDV2 (yurt dışı hizmetler) | Yurt dışı faturaların %20'si. Sonradan indirilir, gerçek gider değil |
   | Bağ-Kur / SGDP | 0. Emekli kendi işini yaparken sigortalı sayılmaz, SGDP de ödemez (5510 md. 6/1-n; 2016'dan beri) |
   | Mali müşavir | Zaten çalışıyorsa ek ücretini sor; e-ticaret faaliyeti için artırabilir |
   | Beyanname damga vergisi | KDV ve muhtasar 791 TL, yıllık gelir vergisi 1.189,50 TL (beyanname başına) |
 
 - **Mali müşavire sorulacaklar:**
-  - Hangi faaliyet kodu?
-  - Esnaf odası bu faaliyeti kabul ediyor mu, başka bir oda gerekiyor mu?
   - Kuaför ve platform hasılatı esnaflık sınırında birlikte mi sayılır?
   - Platform "ticari işletme" sayılıp ticaret siciline kayıt gerektirir mi?
   - KDV: platform hizmetlerinde %20.
-  - AWS faturasında KDV.
+  - KDV2: kredisiyle 0 USD çıkan AWS faturası, 2 No.lu beyannamenin damga vergisi.
 
 ### 6. adım: e-Tebligat'a katıl
 

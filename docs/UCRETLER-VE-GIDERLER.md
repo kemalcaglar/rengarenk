@@ -15,13 +15,18 @@ Bu belge, Claude belgesi "Ödenecek ücretler ve resmî giderler"in depodaki kop
 > yaptığı için Bağ-Kur ya da SGDP ödemez (5510 md. 6/1-n, 2016'dan beri). Sicil harcı, oda kaydı ve noter çoğu durumda
 > gerekmez. Aşağıdaki genel tablolarda bu kalemler yine duruyor; sana uymayanlar "Sahip için" notuyla işaretli.
 > Ayrıntı: `docs/YAPILACAKLAR.md` › 5. adım.
+>
+> **Mali müşavirle netleşenler (23 Kasım 2026):**
+> - Faaliyet kodu **63.92.00 Diğer bilgi hizmeti faaliyetleri**.
+> - Elektronikçiler (bilgisayarcılar) esnaf odasına kayıt gerekiyor. Kayıt ücreti ve aidat odaya göre değişir.
+> - Yurt dışından alınan hizmetlerin KDV'si 2 No.lu KDV beyannamesiyle beyan edilip ödenir (bölüm 3, Vergiler).
 
 ### Bir kerelik
 
 | Kalem | Kime | Tutar | Zorunlu mu |
 | --- | --- | --- | --- |
 | Ticaret sicili tescil harcı (gerçek kişi işletmesi) | Ticaret Sicil Müdürlüğü | 5.466,10 TL | Tacir sayılırsan evet. Sahip için: esnaf kaldıkça yok |
-| Oda kayıt ücreti | Ticaret ya da esnaf odası | 3.303 – 16.515 TL (odaya ve dereceye göre) | Evet. Sahip için: zaten esnaf odasına kayıtlı; yeni oda gerekirse mali müşavir söyler |
+| Oda kayıt ücreti | Ticaret ya da esnaf odası | 3.303 – 16.515 TL (odaya ve dereceye göre) | Evet. Sahip için: elektronikçiler esnaf odasına kayıt (mali müşavir, 23 Kasım 2026); tutarı odaya sor |
 | Noter imza beyannamesi | Noter | Resmî tutar bulunamadı (piyasada 700 – 2.000 TL) | Sicil için evet |
 | Marka tescili, 1 sınıf (başvuru + tescil) | TÜRKPATENT | 9.830 TL + KDV | İleti Merkezi SMS başlığı için istendi; adı korumak için önerilir |
 | Google Play Console | Google | 25 USD | Android için evet |
@@ -108,6 +113,7 @@ doğrulaması ve marka başvurusu.
 | Vergi | Ne zaman | Not |
 | --- | --- | --- |
 | KDV | Aylık beyan | Satılan hak ve paketlerin fiyatına %20 eklenir ve devlete ödenir. Galeri paket fiyatları KDV hariç yazılı (Karar 12); bu senin cebinden çıkmaz, alıcıdan alınır. |
+| KDV2 (sorumlu sıfatıyla, KDV Kanunu md. 9) | Aylık, 2 No.lu KDV beyannamesi | Yurt dışı firmalardan alınan hizmetin (AWS, Apple, Google, Meta, Expo, RevenueCat) %20'sini sen beyan eder ve ödersin. Aynı tutar 1 No.lu beyannamede indirilir: satış varken satış KDV'sinden düşer, satış yokken devreder. Gerçek gider değildir ama önce cebinden çıkar. Faturada Türk KDV'si zaten varsa ayrıca beyan edilmez; mali müşavir netleştirir. |
 | Gelir vergisi | Yıllık beyan; geçici vergi üç ayda bir | Kâr üzerinden, dilimli |
 | Genç girişimci istisnası | — | 18–29 yaş, ilk kez mükellef ve işi bizzat yürütüyorsan kârın 400.000 TL'si gelir vergisinden muaf. Süresi kaynaklarda çelişkili (3 ya da 5 yıl). Genç girişimciye verilen 1 yıllık Bağ-Kur desteği 1 Ocak 2026'da kaldırıldı (7566 sayılı Kanun). |
 | Damga vergisi | Beyanname başına | KDV 791 TL, muhtasar 791 TL, muhtasar ve prim hizmet 949,70 TL, yıllık gelir vergisi 1.189,50 TL. Sözleşmelerde binde 9,48. |
@@ -263,10 +269,11 @@ Kaynaklar:
 **Vergi notu:**
 
 - Kasım faturasında vergi satırı 0 görünüyor.
-- Mali müşavirine şunları sor:
-  - AWS, Türkiye'deki müşterilere KDV ekliyor mu?
-  - Şirket kurulunca vergi numarasını AWS hesabına girmek gerekiyor mu?
-- Yurt dışından alınan hizmetin KDV'sini senin beyan etmen (sorumlu sıfatıyla) gerekebilir.
+- Mali müşavir (23 Kasım 2026): AWS gibi yurt dışı hizmetlerin KDV'si 2 No.lu KDV beyannamesiyle senin tarafından
+  beyan edilip ödenir. Her ay AWS faturasını (Billing › Invoices) mali müşavire gönder.
+- Mali müşavire şunları da sor:
+  - Krediyle 0 USD çıkan faturada ne beyan edilir?
+  - Vergi numarasını AWS hesabına (Tax settings) girmek gerekiyor mu?
 
 Kaynaklar:
 
@@ -294,7 +301,7 @@ kapsamda olduğunu yaz:
 | --- | --- |
 | Ticaret Sicili Gazetesi ilan ücreti | Ticaret Sicil Müdürlüğü ya da mali müşavir |
 | Noter imza beyannamesi | Noter |
-| Hangi odaya ve hangi dereceden kaydolunacağı | Mali müşavir |
+| Elektronikçiler esnaf odası kayıt ücreti ve aidatı | Oda |
 | Bağ-Kur'un sana düşüp düşmediği (başka işte SGK'lıysan) | Mali müşavir |
 | Genç girişimci istisnasının süresi ve sana uyup uymadığı | Mali müşavir |
 | Mali mühür gerekip gerekmediği ve resmî fiyatı | e-Arşiv entegratörü, Kamu SM |
@@ -303,7 +310,7 @@ kapsamda olduğunu yaz:
 | Apple'ın Türkiye'deki TL fiyatı | Kayıt ekranı |
 | İYS fiyat tablosunun güncel olup olmadığı | iys.org.tr |
 | EİDS entegrasyonunun ücreti ve başvuru yolu | Ticaret Bakanlığı |
-| AWS faturasında KDV | Mali müşavir |
+| KDV2: krediyle 0 USD çıkan AWS faturası, 2 No.lu beyannamenin damga vergisi | Mali müşavir |
 | TSB yazılı izninin bir ücreti olup olmadığı | TSB |
 
 ### Ne zaman ne ödenir
