@@ -10,12 +10,18 @@ Bu belge, Claude belgesi "Ödenecek ücretler ve resmî giderler"in depodaki kop
 
 ## 1. Özet
 
+> **Sahibin durumu (23 Kasım 2026):** zaten kuaför faaliyet kodlu bir şahıs işletmesi var (esnaf, işletme hesabı)
+> ve sahip emekli. Bu yüzden yeni şirket kurulmaz; platform için ikinci bir faaliyet kodu eklenir. Emekli kendi işini
+> yaptığı için Bağ-Kur ya da SGDP ödemez (5510 md. 6/1-n, 2016'dan beri). Sicil harcı, oda kaydı ve noter çoğu durumda
+> gerekmez. Aşağıdaki genel tablolarda bu kalemler yine duruyor; sana uymayanlar "Sahip için" notuyla işaretli.
+> Ayrıntı: `docs/YAPILACAKLAR.md` › 5. adım.
+
 ### Bir kerelik
 
 | Kalem | Kime | Tutar | Zorunlu mu |
 | --- | --- | --- | --- |
-| Ticaret sicili tescil harcı (gerçek kişi işletmesi) | Ticaret Sicil Müdürlüğü | 5.466,10 TL | Tacir sayılırsan evet |
-| Oda kayıt ücreti | Ticaret ya da esnaf odası | 3.303 – 16.515 TL (odaya ve dereceye göre) | Evet |
+| Ticaret sicili tescil harcı (gerçek kişi işletmesi) | Ticaret Sicil Müdürlüğü | 5.466,10 TL | Tacir sayılırsan evet. Sahip için: esnaf kaldıkça yok |
+| Oda kayıt ücreti | Ticaret ya da esnaf odası | 3.303 – 16.515 TL (odaya ve dereceye göre) | Evet. Sahip için: zaten esnaf odasına kayıtlı; yeni oda gerekirse mali müşavir söyler |
 | Noter imza beyannamesi | Noter | Resmî tutar bulunamadı (piyasada 700 – 2.000 TL) | Sicil için evet |
 | Marka tescili, 1 sınıf (başvuru + tescil) | TÜRKPATENT | 9.830 TL + KDV | İleti Merkezi SMS başlığı için istendi; adı korumak için önerilir |
 | Google Play Console | Google | 25 USD | Android için evet |
@@ -25,7 +31,7 @@ Bu belge, Claude belgesi "Ödenecek ücretler ve resmî giderler"in depodaki kop
 
 | Kalem | Kime | Tutar | Sıklık | Zorunlu mu |
 | --- | --- | --- | --- | --- |
-| Bağ-Kur primi | SGK | 11.808,23 TL; prim borcu yoksa 10.156,73 TL | Aylık | Evet. Başka bir işte SGK'lıysan durum değişir (bölüm 2) |
+| Bağ-Kur primi | SGK | 11.808,23 TL; prim borcu yoksa 10.156,73 TL | Aylık | Evet. **Sahip için: 0** (emekli, kendi işini yapıyor; bölüm 2) |
 | Mali müşavir | SMMM | İşletme hesabında 3.593 TL'den başlar (KDV dahil). İstanbul'da %35 fazla, ilk iki yıl %50 indirim | Aylık | Fiilen evet |
 | AWS sunucu (Lightsail 8 GB) | AWS | 44 USD | Aylık | Evet. Şu an 1.000 USD krediden düşüyor |
 | Oda yıllık aidatı | Oda | Kayıt yılında yok; sonra odaya göre | Yıllık | Evet |
@@ -36,7 +42,7 @@ Bu belge, Claude belgesi "Ödenecek ücretler ve resmî giderler"in depodaki kop
 | Yapay zekâ (Bedrock) | AWS | Kullanım kadar; Kasım'da 0 USD'ye yakın | Kullanım kadar | Evet |
 | Google Workspace (`rengarenksite.com` e-postaları, konsol girişi) | Google | Kullanıcı başına aylık; tutarı kendi faturana bak | Aylık | Konsol girişi bununla yapılıyor |
 | `.com` alan adı yenileme | Kayıt firması | Toptan fiyat 10,97 USD + firma payı | Yıllık | Evet |
-| KEP adresi | PTT | Yıllık 215 TL, ileti başı 8,70 TL | Yıllık | Şahıs işletmesi için zorunlu değil |
+| KEP adresi | PTT | Yıllık 215 TL, ileti başı 8,70 TL | Yıllık | **Evet:** e-ticaret yönetmeliği (RG 29.12.2022) md. 5/1 sitede KEP adresinin yazılmasını istiyor |
 | Beyanname damga vergileri | GİB | KDV ve muhtasar beyannamesi 791 TL, yıllık gelir vergisi beyannamesi 1.189,50 TL | Beyanname başına | Evet |
 
 ### Satıştan kesilenler
@@ -62,10 +68,12 @@ Bu belge, Claude belgesi "Ödenecek ücretler ve resmî giderler"in depodaki kop
 **Sabit aylık giderler** Bağ-Kur, mali müşavir ve AWS'dir:
 
 - Bağ-Kur ödeniyorsa ayda yaklaşık 15.400 TL + 44 USD.
-- Bağ-Kur ödenmiyorsa ayda yaklaşık 3.600 TL + 44 USD.
+- Bağ-Kur ödenmiyorsa ayda yaklaşık 3.600 TL + 44 USD. **Sahip için geçerli olan bu** (emekli); mali müşavir zaten
+  çalışıyorsa ücreti değişebilir.
 - AWS kısmı kredi bitene kadar cepten çıkmaz.
 
-**Bir kerelik giderler** (sicil, oda, noter, marka, mağazalar, e-imza) toplamı yaklaşık 25.000 – 40.000 TL.
+**Bir kerelik giderler** (sicil, oda, noter, marka, mağazalar, e-imza) toplamı yaklaşık 25.000 – 40.000 TL. Sahip için
+sicil, oda ve noter düşer: marka, mağazalar, e-imza ve KEP toplamı yaklaşık 15.000 – 17.000 TL.
 
 **Bu toplamlara dahil olmayanlar:** avukat ve marka vekili ücretleri.
 
@@ -91,7 +99,7 @@ doğrulaması ve marka başvurusu.
 
 | Kalem | Tutar | Not |
 | --- | --- | --- |
-| Bağ-Kur (4/b) | 11.808,23 TL; prim borcu yoksa 10.156,73 TL (5 puan indirim) | Taban kazanç 33.030 TL × %35,75. Başka bir işte SGK'lı (4/a) çalışıyorsan iki sigorta birlikte işlemez. Hangisinin geçerli olacağını mali müşavire sor; bu kalem sıfıra inebilir. |
+| Bağ-Kur (4/b) | 11.808,23 TL; prim borcu yoksa 10.156,73 TL (5 puan indirim) | Taban kazanç 33.030 TL × %35,75. Başka bir işte SGK'lı (4/a) çalışıyorsan iki sigorta birlikte işlemez. **Emekli kendi işini yaparsa sigortalı sayılmaz ve SGDP de ödemez** (5510 md. 6/1-n; SGDP kesintisi 29.02.2016'da kalktı): tutar 0. Faaliyet kodu eklemek bunu değiştirmez. |
 | Mali müşavir, işletme hesabı | Ankara grubunda çalışansız 3.593 TL, çalışanlı 4.791 TL (KDV dahil) | Asgari ücret tarifesi (RG 17.12.2025). İstanbul'da %35 fazla. 2026'da ilk kez defter tutanlara ilk iki yıl %50 indirim. |
 | Mali müşavir, bilanço esası (büyürsen) | Mikro işletme 7.985 TL/ay; çalışansız %25 indirimli | — |
 

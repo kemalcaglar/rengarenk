@@ -56,33 +56,58 @@ adımda şunlar yazılı: ne yapılacağı, nasıl yapılacağı ve maliyeti. Bi
 
 ---
 
-## B. Şirket
+## B. Şirket (var olan şahıs işletmen)
 
-### 5. adım: Şahıs şirketini kur
+### 5. adım: Var olan şahıs işletmene platform faaliyetini ekle
 
-- [ ] **Ne:** vergi levhası ve şirket kaydı. Çoğu hesap (PayTR, e-Arşiv, ETBİS, İYS, Meta işletme doğrulaması, marka,
-  Apple) bunu ister.
+Durumun: kuaför faaliyet kodlu bir şahıs işletmen var (esnaf odasına kayıtlı, işletme defteri, MERSİS yok) ve emeklisin.
+Yeni şirket kurman gerekmiyor.
+
+- [ ] **Ne:** vergi dairesine ikinci bir faaliyet kodu ekleme (değişiklik bildirimi).
 - **Nasıl:**
-  1. Bir mali müşavir bul. Mali müşavir vergi dairesine işe başlamayı Dijital Vergi Dairesi üzerinden yapar.
-  2. Hangi odaya kaydolacağını (ticaret ya da esnaf odası) mali müşavirle netleştir. Ticaret sicili tescili ve oda
-     kaydını yap.
-  3. Noterde imza beyannamesi ver.
-  4. Mali müşavire şunları sor:
-     - Bağ-Kur'un sana düşüp düşmediği (başka bir işte SGK'lıysan değişir).
-     - Genç girişimci istisnasından yararlanıp yararlanamayacağın.
-     - AWS faturasındaki KDV.
-  5. Şirket unvanını, adresini, vergi numarasını ve MERSİS numarasını Claude'a ver. Bu bilgiler sitenin künyesine,
-     ön bilgilendirme formuna ve sözleşmelere yazılır.
+  1. Mali müşavirinle platforma uyan kodu seç. Adaylar 2026 listesinden (NACE Rev.2.1):
+     - 63.92.00 Diğer bilgi hizmeti faaliyetleri
+     - 47.92.00 Uzmanlaşmış perakende ticaret için aracılık
+     - 47.91.15 Uzmanlaşmamış perakende ticaret için aracılık
+     Kodu mali müşavir seçer; eski 63.12 kodu artık listede yok.
+  2. Değişiklik bildirimini İnteraktif Vergi Dairesi'nden ya da mali müşavirle ver. Süre olaydan sonra **bir ay**;
+     geç kalırsan usulsüzlük cezası kesilir (VUK md. 168).
+  3. Esnaf odan bu faaliyeti kabul ediyor mu, başka odaya da kayıt gerekiyor mu: mali müşavire ve odaya sor.
+  4. Vergi levhanı ve ilgili bilgileri Claude'a ver; site künyesine, ön bilgilendirme formuna ve sözleşmelere yazılır.
+- **Bilanço defterine geçmen gerekmiyor.**
+  - MERSİS numarası bilançoya geçmekle değil, ticaret siciline kayıtla verilir. Ticaret siciline kayıtlı kişi de
+    işletme defteri tutabilir.
+  - Senin işlerinin hiçbiri MERSİS istemiyor:
+    - PayTR: vergi levhası, kimlik, imza beyannamesi ve banka belgesi.
+    - İYS: "MERSİS numarası yoksa" diye ayrı bir başvuru yolu var.
+    - ETBİS: esnaftan TC kimlik ve vergi numarası.
+    - e-Arşiv: vergi numarası.
+    - Apple: bireysel hesap.
+    - Google Play: kişisel hesap.
+  - Sitede yazılacaklar (e-ticaret yönetmeliği md. 5/1; mesafeli sözleşmeler yönetmeliği md. 5/1-b): ad soyad, vergi
+    numarası, adres, **KEP adresi**, e-posta, telefon, bağlı olduğun meslek odası. MERSİS yerine vergi numarası
+    yeterli.
+- **Ne zaman değişir:**
+  - **Esnaflık sınırı:** hizmet hasılatı yılda 1.200.000 TL (2026). Bu aşılınca ticaret siciline geçmek isteğe
+    bağlı; 7.200.000 TL'yi (altı katı) aşınca kaydın ticaret siciline aktarılır.
+  - **Bilanço defteri:** bir yılda yaklaşık 1.440.000 TL'yi ya da iki yıl üst üste 1.200.000 TL'yi aşarsan ertesi
+    yıldan zorunlu. Kuaför ve platform hasılatının birlikte sayılıp sayılmadığını mali müşavire sor.
 - **Maliyet:**
 
-  | Kalem | Tutar | Sıklık |
-  | --- | --- | --- |
-  | Ticaret sicili tescil harcı | 5.466,10 TL | Bir kez |
-  | Oda kayıt ücreti | 3.303 – 16.515 TL | Bir kez; ilk yıl aidat yok |
-  | Noter imza beyannamesi | Yaklaşık 700 – 2.000 TL (resmî tutar bulunamadı) | Bir kez |
-  | Mali müşavir | Ayda 3.593 TL'den (KDV dahil; İstanbul %35 fazla; ilk iki yıl %50 indirim) | Aylık |
-  | Bağ-Kur | Ayda 11.808,23 TL (borcu yoksa 10.156,73 TL) | Aylık; başka işte SGK'lıysan değişebilir |
-  | Beyanname damga vergisi | KDV ve muhtasar 791 TL, yıllık gelir vergisi 1.189,50 TL | Beyanname başına |
+  | Kalem | Tutar |
+  | --- | --- |
+  | Faaliyet kodu ekleme | Vergi dairesinde harç görülmedi |
+  | Bağ-Kur / SGDP | 0. Emekli kendi işini yaparken sigortalı sayılmaz, SGDP de ödemez (5510 md. 6/1-n; 2016'dan beri) |
+  | Mali müşavir | Zaten çalışıyorsa ek ücretini sor; e-ticaret faaliyeti için artırabilir |
+  | Beyanname damga vergisi | KDV ve muhtasar 791 TL, yıllık gelir vergisi 1.189,50 TL (beyanname başına) |
+
+- **Mali müşavire sorulacaklar:**
+  - Hangi faaliyet kodu?
+  - Esnaf odası bu faaliyeti kabul ediyor mu, başka bir oda gerekiyor mu?
+  - Kuaför ve platform hasılatı esnaflık sınırında birlikte mi sayılır?
+  - Platform "ticari işletme" sayılıp ticaret siciline kayıt gerektirir mi?
+  - KDV: platform hizmetlerinde %20.
+  - AWS faturasında KDV.
 
 ### 6. adım: e-Tebligat'a katıl
 
@@ -90,12 +115,13 @@ adımda şunlar yazılı: ne yapılacağı, nasıl yapılacağı ve maliyeti. Bi
 - **Nasıl:** mali müşavir ya da Dijital Vergi Dairesi üzerinden.
 - **Maliyet:** ücretsiz.
 
-### 7. adım: Nitelikli e-imza al
+### 7. adım: Nitelikli e-imza ve KEP adresi al
 
-- [ ] **Ne:** e-Arşiv bağlantısı, KEP ve bazı kurum başvuruları için gerekir.
+- [ ] **Ne:** e-imza; e-Arşiv bağlantısı, KEP ve bazı kurum başvuruları için gerekir. KEP adresi zorunlu:
+  e-ticaret yönetmeliği sitede yazılmasını istiyor. Yıllık 215 TL, ileti başı 8,70 TL (PTT).
 - **Nasıl:** PTT şubesinden ya da PTT'nin e-imza sayfasından başvur. Mali mühür gerekip gerekmediğini e-Arşiv
   entegratörüne sor (gerçek kişi mükellef çoğu zaman e-imzayla idare eder).
-- **Maliyet:** 1 yıl 2.000 TL, 2 yıl 2.750 TL, 3 yıl 3.500 TL (KDV dahil).
+- **Maliyet:** e-imza 1 yıl 2.000 TL, 2 yıl 2.750 TL, 3 yıl 3.500 TL (KDV dahil); KEP yıllık 215 TL.
 
 ### 8. adım: Marka başvurusu
 
