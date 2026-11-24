@@ -193,7 +193,8 @@ Bunlar gelmeden site satın alma kapalı açılabilir.
   - [x] Anahtar (24 Kasım 2026): kuruluş kuralı `iam.managed.disableServiceAccountKeyCreation` yalnızca bu projede
     kapatıldı (diğer projelerde açık). Anahtar `Desktop\gizli\firebase-push-hizmet-hesabi.json`; FCM'e doğrulama
     kipinde denendi.
-  - [ ] Sunucuya `FCM_SERVICE_ACCOUNT` (base64) ve `PUSH_PROVIDER=fcm` olarak girilir (sahip onayıyla).
+  - [x] Test sunucusunda açık (24 Kasım 2026, sahip onayıyla): `.env.prod`'da `PUSH_PROVIDER=fcm` ve
+    `FCM_SERVICE_ACCOUNT` (base64), yedek `.env.prod.yedek-push`. Canlıya geçişte aynı değerler kalır.
   - [ ] iPhone: Apple'dan APNs anahtarı alınıp Firebase'e yüklenir. Uygulama bugün Apple'ın kendi anahtarını
     gönderiyor, FCM bununla gönderemez. Claude uygulamaya Firebase SDK'sını ekler (yaklaşık 1 gün). Android hazır.
 

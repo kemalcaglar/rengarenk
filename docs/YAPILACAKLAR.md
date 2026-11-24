@@ -41,7 +41,9 @@ adımda şunlar yazılı: ne yapılacağı, nasıl yapılacağı ve maliyeti. Bi
   - Sunucu için yalnızca bildirim yetkili hizmet hesabı açıldı.
 - [x] Sunucunun bildirim anahtarı oluşturuldu: kural yalnızca Firebase projesinde kapatıldı, anahtar
   `Desktop\gizli\`'de.
-- [ ] Senin onayınla anahtar test sunucusuna girer ve bildirim açılır.
+- [x] Anahtar test sunucusuna girdi, bildirim açık (24 Kasım 2026).
+- [ ] Android test APK'sını telefona kur ve bildirimi dene (Expo › Builds'teki bağlantıdan ya da Claude'un verdiği
+  adresten).
 - iPhone bildirimi Apple Developer hesabıyla (20. adım) gelir: APNs anahtarı ve Firebase SDK'sı.
 - **Maliyet:** ikisi de ücretsiz başlar. Expo'nun ücretsiz planında aylık derleme sayısı sınırlı.
 
