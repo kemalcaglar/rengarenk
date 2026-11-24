@@ -4,3 +4,7 @@
 
 expo-env.d.ts
 # @end expo-cli
+
+# Firebase ayar dosyaları depoya girmez; EAS'ta dosya değişkeni olarak durur (GOOGLE_SERVICES_JSON, GOOGLE_SERVICE_INFO_PLIST)
+google-services.json
+GoogleService-Info.plist

@@ -31,15 +31,20 @@ adımda şunlar yazılı: ne yapılacağı, nasıl yapılacağı ve maliyeti. Bi
 
 ### 3. adım: Expo ve Firebase hesaplarını aç
 
-- [ ] **Ne:**
+- [x] **Ne:**
   - Expo: mobil derleme için.
   - Firebase: push bildirimi için.
   - İkisi de şirket istemez.
-- **Nasıl:**
-  - expo.dev'de hesap aç; Claude `eas.json`'u ve canlı API adresini ekler.
-  - Firebase'de bir proje aç ve iOS ile Android uygulamalarını ekle (paket adı `com.rengarenksite.app`).
-  - Hizmet hesabı JSON dosyasını `Desktop\gizli\`'ye koy. Claude sunucuya girer ve iPhone için Firebase SDK'sını
-    uygulamaya ekler (yaklaşık 1 gün).
+- **Yapıldı (24 Kasım 2026):**
+  - Expo projesi bağlandı, `eas.json` yazıldı.
+  - Firebase'e Android ve iOS uygulamaları eklendi; ayar dosyaları Expo'ya yüklendi.
+  - Sunucu için yalnızca bildirim yetkili hizmet hesabı açıldı.
+- [ ] **Kalan, senin işin:** Google Cloud'da kuruluş (rengarenksite.com) düzeyinde kendine **Kuruluş Politikası
+  Yöneticisi** rolünü ver. "Admin" rolü kuruluş kurallarını değiştiremiyor. Sonra Claude:
+  - anahtar kuralını yalnızca Firebase projesinde kapatır;
+  - anahtarı oluşturur;
+  - senin onayınla sunucuda bildirimi açar.
+- iPhone bildirimi Apple Developer hesabıyla (20. adım) gelir: APNs anahtarı ve Firebase SDK'sı.
 - **Maliyet:** ikisi de ücretsiz başlar. Expo'nun ücretsiz planında aylık derleme sayısı sınırlı.
 
 ### 4. adım: Avukat görüşmesi

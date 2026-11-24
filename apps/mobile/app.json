@@ -1,7 +1,8 @@
 {
   "expo": {
     "name": "Rengarenk",
-    "slug": "rengarenk",
+    "slug": "rengarenksite",
+    "owner": "www.rengarenksite.com",
     "scheme": "rengarenk",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -33,6 +34,11 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8fb8249a-e7f4-486b-8ef9-ffd2c6bc7137"
+      }
     }
   }
 }

@@ -186,10 +186,15 @@ Bunlar gelmeden site satın alma kapalı açılabilir.
     olur; Claude üretip sunucuya girer.
   - Uygulama tarafı (`react-native-purchases`) hesap açılınca Claude tarafından yazılır.
 - [ ] **Firebase (push bildirimi).**
-  - Nasıl: Firebase projesi aç, iOS ve Android uygulamalarını ekle. Apple'dan APNs anahtarı alıp Firebase'e yükle.
-  - Hizmet hesabı JSON dosyasını `Desktop\gizli\`'ye koy; Claude `FCM_SERVICE_ACCOUNT` olarak girer.
-  - Şirket gerektirmez, şimdi açılabilir. Android hazır; iPhone'da uygulama bugün Apple'ın kendi anahtarını
-    gönderiyor, FCM bununla gönderemez. Claude uygulamaya Firebase SDK'sını ekler (yaklaşık 1 gün).
+  - [x] Proje `rengarenksite-firebase` (24 Kasım 2026). Uygulamalar "Rengarenk Android" ve "Rengarenk iOS"
+    (`com.rengarenksite.app`). Ayar dosyaları `apps/mobile` altında, Git dışında. EAS'ta dosya değişkeni
+    (`GOOGLE_SERVICES_JSON`, `GOOGLE_SERVICE_INFO_PLIST`), `app.config.ts` okur.
+  - [x] Sunucu için yalnızca FCM yetkili hizmet hesabı: `rengarenk-push@rengarenksite-firebase.iam.gserviceaccount.com`.
+  - [ ] Anahtar: kuruluş kuralı `iam.managed.disableServiceAccountKeyCreation` anahtar oluşturmayı engelliyor.
+    Sahip kendine kuruluş düzeyinde "Kuruluş Politikası Yöneticisi" rolünü verince kural yalnızca bu projede kapatılır.
+    Anahtar `Desktop\gizli\`'ye, oradan sunucuya `FCM_SERVICE_ACCOUNT` (base64) ve `PUSH_PROVIDER=fcm` olarak girer.
+  - [ ] iPhone: Apple'dan APNs anahtarı alınıp Firebase'e yüklenir. Uygulama bugün Apple'ın kendi anahtarını
+    gönderiyor, FCM bununla gönderemez. Claude uygulamaya Firebase SDK'sını ekler (yaklaşık 1 gün). Android hazır.
 
 ---
 
@@ -238,8 +243,12 @@ Bu bölümü Claude yapar; senden yalnızca onay ve birkaç bilgi ister.
 - [x] Paket adı `com.rengarenksite.app` (`apps/mobile/app.json`, Apple girişinin hedef kitlesi `APPLE_CLIENT_IDS`).
 - [ ] **Telefonda deneme.** Uygulamanın son değişiklikleri (tasarım değerleri, teknik tablo) gerçek telefonda
   denenmedi. Yöntem: `docs/DURUM-VE-TEST.md` › 8. Gördüğün sorunları ekran görüntüsüyle Claude'a ver.
-- [ ] **EAS derleme ayarı.** Claude `eas.json` dosyasını ve canlı API adresini
-  (`EXPO_PUBLIC_API_URL=https://api.rengarenksite.com`) ekler. Expo hesabı gerekir (ücretsiz başlanabilir).
+- [x] **EAS derleme ayarı (24 Kasım 2026).** Expo hesabı `www.rengarenksite.com`, proje `rengarenksite`
+  (slug da `rengarenksite`; `scheme` yine `rengarenk`). Komutlar robot kullanıcıyla çalışır: anahtar
+  `Desktop\gizli\expo-token.txt`, `EXPO_TOKEN` olarak verilir. `apps/mobile/eas.json` profilleri:
+  - `test`: Android APK, iç dağıtım, test sunucusu (`beta.rengarenksite.com`).
+  - `production`: mağaza, `rengarenksite.com`.
+  Her ikisinde API `https://api.rengarenksite.com`.
 - [ ] **TestFlight ve Google Play iç test.** Apple ve Google hesapları açılınca Claude derleme ve yükleme adımlarını
   yürütür.
 - [ ] **Mağaza sayfaları.** Uygulama açıklaması, ekran görüntüleri, gizlilik bilgileri (Apple "App Privacy", Google

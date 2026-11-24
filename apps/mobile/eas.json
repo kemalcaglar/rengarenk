@@ -1,0 +1,28 @@
+{
+  "cli": {
+    "version": ">= 24.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "test": {
+      "environment": "preview",
+      "distribution": "internal",
+      "android": { "buildType": "apk" },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.rengarenksite.com",
+        "EXPO_PUBLIC_WEB_URL": "https://beta.rengarenksite.com"
+      }
+    },
+    "production": {
+      "environment": "production",
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.rengarenksite.com",
+        "EXPO_PUBLIC_WEB_URL": "https://rengarenksite.com"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

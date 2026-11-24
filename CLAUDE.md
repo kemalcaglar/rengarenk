@@ -80,6 +80,9 @@ pnpm format        # Biome ile biçimlendir
 - `compose.prod.yml` ile yerel `docker-compose.yml` aynı proje adını (`rengarenk`) taşır. Canlı yapılandırmayı
   bu bilgisayarda yalnızca `deploy/prova/compose.prova.yml` ile çalıştır (proje adı `rengarenk-prova`); yoksa
   geliştirme kapsayıcıları değişir.
+- gcloud'un etkin hesabı başka bir şirketin (`hellosmpl.com`); ona ve `default` yapılandırmasına dokunma. Rengarenk
+  için her komutta `--account=kemal.caglar@rengarenksite.com` ver (REST çağrısında `x-goog-user-project:
+  rengarenksite-firebase` başlığı). Expo komutları robot kullanıcıyla: `EXPO_TOKEN` = `Desktop\gizli\expo-token.txt`.
 - Docker'ın içinden ad çözümleme zaman zaman düşüyor (`ENOTFOUND`, `no such host`); imaj derlemesini yeniden dene.
 - Depo kökündeki `rengarenk.bundle`, `rengarenk-depo.tar.gz`, PDF ve `*.patch` dosyaları
   `.git/info/exclude` ile dışarıda tutulur; bundle ve tar.gz artık gerekmiyor.
@@ -509,6 +512,11 @@ pnpm format        # Biome ile biçimlendir
   EİDS kuralı: ilanı yalnızca sahibi, eşi, 1.–2. derece yakını ya da sahibin e-Devlet'te yetkilendirdiği galeri
   verebilir; bizde yalnızca galeri ilanı var. Canlıda EİDS erişimi gelmeden galeri kara taşıtı ilanı yayına giremez.
   API'de 256 test.
+- **Expo ve Firebase (24 Kasım 2026):** Expo hesabı `www.rengarenksite.com`, proje ve slug `rengarenksite`
+  (`app.json` `owner`, `extra.eas.projectId`), `apps/mobile/eas.json` profilleri `test` (APK, beta) ve `production`.
+  Firebase projesi `rengarenksite-firebase`; ayar dosyaları Git dışında, EAS'ta dosya değişkeni, `app.config.ts` okur.
+  Sunucu hizmet hesabı `rengarenk-push` (yalnızca FCM). Anahtar, kuruluş kuralı kapatılınca oluşturulacak
+  (`docs/CANLIYA-GECIS.md` › Firebase).
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, AWS ile KVKK standart sözleşmesi, WhatsApp (Meta İşletme hesabı ve şablonlar), PayTR, e-Arşiv, İYS kaydı). Bunlar gelmeden ilgili entegrasyonu
   gerçek anahtarla deneme; test/sahte sağlayıcı kullan.
