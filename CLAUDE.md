@@ -515,8 +515,8 @@ pnpm format        # Biome ile biçimlendir
 - **Expo ve Firebase (24 Kasım 2026):** Expo hesabı `www.rengarenksite.com`, proje ve slug `rengarenksite`
   (`app.json` `owner`, `extra.eas.projectId`), `apps/mobile/eas.json` profilleri `test` (APK, beta) ve `production`.
   Firebase projesi `rengarenksite-firebase`; ayar dosyaları Git dışında, EAS'ta dosya değişkeni, `app.config.ts` okur.
-  Sunucu hizmet hesabı `rengarenk-push` (yalnızca FCM). Anahtar, kuruluş kuralı kapatılınca oluşturulacak
-  (`docs/CANLIYA-GECIS.md` › Firebase).
+  Sunucu hizmet hesabı `rengarenk-push` (yalnızca FCM). Anahtarı `Desktop\gizli\firebase-push-hizmet-hesabi.json`;
+  anahtar oluşturma kuralı yalnızca bu projede kapalı.
 - **Sahibin yürüttüğü dış işler:** avukat görüşmesi, TSB yazılı izni, EEA veri erişimi, hesaplar (Apple, Google
   Play, AWS ile KVKK standart sözleşmesi, WhatsApp (Meta İşletme hesabı ve şablonlar), PayTR, e-Arşiv, İYS kaydı). Bunlar gelmeden ilgili entegrasyonu
   gerçek anahtarla deneme; test/sahte sağlayıcı kullan.

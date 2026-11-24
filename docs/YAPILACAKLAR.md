@@ -39,11 +39,9 @@ adımda şunlar yazılı: ne yapılacağı, nasıl yapılacağı ve maliyeti. Bi
   - Expo projesi bağlandı, `eas.json` yazıldı.
   - Firebase'e Android ve iOS uygulamaları eklendi; ayar dosyaları Expo'ya yüklendi.
   - Sunucu için yalnızca bildirim yetkili hizmet hesabı açıldı.
-- [ ] **Kalan, senin işin:** Google Cloud'da kuruluş (rengarenksite.com) düzeyinde kendine **Kuruluş Politikası
-  Yöneticisi** rolünü ver. "Admin" rolü kuruluş kurallarını değiştiremiyor. Sonra Claude:
-  - anahtar kuralını yalnızca Firebase projesinde kapatır;
-  - anahtarı oluşturur;
-  - senin onayınla sunucuda bildirimi açar.
+- [x] Sunucunun bildirim anahtarı oluşturuldu: kural yalnızca Firebase projesinde kapatıldı, anahtar
+  `Desktop\gizli\`'de.
+- [ ] Senin onayınla anahtar test sunucusuna girer ve bildirim açılır.
 - iPhone bildirimi Apple Developer hesabıyla (20. adım) gelir: APNs anahtarı ve Firebase SDK'sı.
 - **Maliyet:** ikisi de ücretsiz başlar. Expo'nun ücretsiz planında aylık derleme sayısı sınırlı.
 

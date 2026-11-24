@@ -190,9 +190,10 @@ Bunlar gelmeden site satın alma kapalı açılabilir.
     (`com.rengarenksite.app`). Ayar dosyaları `apps/mobile` altında, Git dışında. EAS'ta dosya değişkeni
     (`GOOGLE_SERVICES_JSON`, `GOOGLE_SERVICE_INFO_PLIST`), `app.config.ts` okur.
   - [x] Sunucu için yalnızca FCM yetkili hizmet hesabı: `rengarenk-push@rengarenksite-firebase.iam.gserviceaccount.com`.
-  - [ ] Anahtar: kuruluş kuralı `iam.managed.disableServiceAccountKeyCreation` anahtar oluşturmayı engelliyor.
-    Sahip kendine kuruluş düzeyinde "Kuruluş Politikası Yöneticisi" rolünü verince kural yalnızca bu projede kapatılır.
-    Anahtar `Desktop\gizli\`'ye, oradan sunucuya `FCM_SERVICE_ACCOUNT` (base64) ve `PUSH_PROVIDER=fcm` olarak girer.
+  - [x] Anahtar (24 Kasım 2026): kuruluş kuralı `iam.managed.disableServiceAccountKeyCreation` yalnızca bu projede
+    kapatıldı (diğer projelerde açık). Anahtar `Desktop\gizli\firebase-push-hizmet-hesabi.json`; FCM'e doğrulama
+    kipinde denendi.
+  - [ ] Sunucuya `FCM_SERVICE_ACCOUNT` (base64) ve `PUSH_PROVIDER=fcm` olarak girilir (sahip onayıyla).
   - [ ] iPhone: Apple'dan APNs anahtarı alınıp Firebase'e yüklenir. Uygulama bugün Apple'ın kendi anahtarını
     gönderiyor, FCM bununla gönderemez. Claude uygulamaya Firebase SDK'sını ekler (yaklaşık 1 gün). Android hazır.
 
