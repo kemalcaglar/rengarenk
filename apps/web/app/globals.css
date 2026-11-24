@@ -220,3 +220,18 @@ textarea {
 .rr-yatay-kay::-webkit-scrollbar {
   display: none;
 }
+
+/* Sihirbaz seçim çipi (components/sihirbaz/alan.tsx): seçili olmayanın çerçeve ve zemini; üstüne gelince hafif mavi
+   zemin, seçilebilir olduğu belli olsun. Seçili çipin çerçevesi satır içi stilde. */
+.rr-cip[aria-pressed="false"] {
+  border: 1px solid #d5dae5;
+  background: var(--rr-kart, #ffffff);
+}
+.rr-cip[aria-pressed="false"]:hover {
+  background: #f3f6fc;
+  border-color: #b9c6e6;
+}
+.rr-cip:focus-visible {
+  outline: 2px solid var(--rr-mavi, #5b8cff);
+  outline-offset: 2px;
+}

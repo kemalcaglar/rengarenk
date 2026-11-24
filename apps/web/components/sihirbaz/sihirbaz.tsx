@@ -764,6 +764,7 @@ export function Sihirbaz() {
                         {u.children.map((x) => (
                           <Cip
                             key={x.slug}
+                            tur="tek"
                             on={taslak?.category.slug === x.slug}
                             onClick={() => kategoriSec(x.slug)}
                           >
@@ -1530,7 +1531,13 @@ function Kriterler({
               <span style={etiket}>{f.label}</span>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {gosterilen.map((x) => (
-                  <Cip key={x.value} on={x === seciliKusak} alt={x.alt} onClick={() => kusakSec(x.value)}>
+                  <Cip
+                    key={x.value}
+                    tur="tek"
+                    on={x === seciliKusak}
+                    alt={x.alt}
+                    onClick={() => kusakSec(x.value)}
+                  >
                     {x.label}
                   </Cip>
                 ))}
@@ -1552,7 +1559,7 @@ function Kriterler({
                   </button>
                 ) : null}
                 {yilAlani ? (
-                  <Cip on={elle} alt="Kasa seçmeden" onClick={elleGir}>
+                  <Cip tur="tek" on={elle} alt="Kasa seçmeden" onClick={elleGir}>
                     Yılı kendim gireceğim
                   </Cip>
                 ) : null}
@@ -1610,6 +1617,7 @@ function Kriterler({
                 {paketler.map((p) => (
                   <Cip
                     key={p.key}
+                    tur="coklu"
                     on={secili.includes(p.key)}
                     onClick={() => {
                       const next = secili.includes(p.key)
@@ -1622,6 +1630,7 @@ function Kriterler({
                   </Cip>
                 ))}
                 <Cip
+                  tur="coklu"
                   on={secili.length === 0 && gecilenler.has(f.key)}
                   alt="Tüm paketler"
                   onClick={() => {

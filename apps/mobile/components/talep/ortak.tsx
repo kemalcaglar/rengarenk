@@ -51,35 +51,79 @@ export const girdiStil = {
   },
 } as const;
 
-/** Seçim çipi: seçiliyken 2 px mavi çerçeve ve açık mavi zemin */
+/**
+ * Seçim işareti: tek seçimde yuvarlak, çoklu seçimde kare; seçilince mavi dolar (sahip isteği, 25 Kasım 2026: seçilecek
+ * kutular düz yazı gibi duruyordu).
+ */
+export function SecimIsareti({ on, tur }: { on: boolean; tur: 'tek' | 'coklu' }) {
+  const kare = tur === 'coklu';
+  return (
+    <View
+      style={{
+        width: 18,
+        height: 18,
+        borderRadius: kare ? Math.min(radii.etiket, 5) : 9,
+        borderWidth: on ? 0 : 1.5,
+        borderColor: '#AEB5C4',
+        backgroundColor: on ? colors.blue : colors.surface,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {on && kare ? (
+        <Svg width={12} height={12} viewBox="0 0 12 12">
+          <Path
+            d="M2.5 6.2l2.3 2.3 4.7-5"
+            fill="none"
+            stroke={colors.onBlue}
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </Svg>
+      ) : on ? (
+        <View style={{ width: 7, height: 7, borderRadius: 3.5, backgroundColor: colors.onBlue }} />
+      ) : null}
+    </View>
+  );
+}
+
+/**
+ * Seçim çipi: seçiliyken 2 px mavi çerçeve ve açık mavi zemin. `tur` verilirse başında seçim işareti durur (sihirbazdaki
+ * sorular); verilmezse sekme ya da eylem çipidir.
+ */
 export function Cip({
   on,
   children,
   onPress,
   hex,
+  tur,
 }: {
   on: boolean;
   children: ReactNode;
   onPress: () => void;
   hex?: string;
+  tur?: 'tek' | 'coklu';
 }) {
   return (
     <Pressable
-      accessibilityRole="button"
-      accessibilityState={{ selected: on }}
+      accessibilityRole={tur === 'coklu' ? 'checkbox' : tur ? 'radio' : 'button'}
+      accessibilityState={tur ? { checked: on } : { selected: on }}
       onPress={onPress}
-      style={{
+      style={({ pressed }) => ({
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 6,
+        gap: tur ? 8 : 6,
         borderWidth: on ? 2 : 1,
         borderColor: on ? colors.blue : '#D5DAE5',
-        backgroundColor: on ? '#EEF3FF' : colors.surface,
+        backgroundColor: on ? '#EEF3FF' : pressed ? '#F3F6FC' : colors.surface,
         borderRadius: radii.etiket,
-        paddingVertical: on ? 7 : 8,
-        paddingHorizontal: on ? 11 : 12,
-      }}
+        paddingVertical: tur ? (on ? 8 : 9) : on ? 7 : 8,
+        paddingLeft: tur ? (on ? 9 : 10) : on ? 11 : 12,
+        paddingRight: tur ? (on ? 13 : 14) : on ? 11 : 12,
+      })}
     >
+      {tur ? <SecimIsareti on={on} tur={tur} /> : null}
       {hex ? (
         <View
           style={{
@@ -314,6 +358,7 @@ export function Alan({
             key={o.value}
             on={secili.includes(o.value)}
             hex={o.hex}
+            tur={coklu ? 'coklu' : 'tek'}
             onPress={() => {
               if (!coklu) return onChange(secili[0] === o.value ? undefined : o.value);
               const next = secili.includes(o.value)
@@ -327,6 +372,7 @@ export function Alan({
         ))}
         {coklu && farkEtmez ? (
           <Cip
+            tur="coklu"
             on={secili.length === 0 && (gecildi ?? true)}
             onPress={() => {
               onChange(undefined);
@@ -342,13 +388,14 @@ export function Alan({
     const v = value as boolean | undefined;
     govde = (
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-        <Cip on={v === true} onPress={() => onChange(v === true ? undefined : true)}>
+        <Cip tur="tek" on={v === true} onPress={() => onChange(v === true ? undefined : true)}>
           Evet
         </Cip>
-        <Cip on={v === false} onPress={() => onChange(v === false ? undefined : false)}>
+        <Cip tur="tek" on={v === false} onPress={() => onChange(v === false ? undefined : false)}>
           Hayır
         </Cip>
         <Cip
+          tur="tek"
           on={v === undefined && (gecildi ?? true)}
           onPress={() => {
             onChange(undefined);

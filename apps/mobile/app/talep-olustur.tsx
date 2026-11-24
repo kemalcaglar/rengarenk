@@ -132,13 +132,22 @@ const HAZIR = [
   },
 ] as const;
 
-function hazirUygula(k: string, alanlar: Values, f: CategoryField[]): Values {
-  const a = { ...alanlar };
+const TRAMER_SINIRI = 25_000;
+/**
+ * Hazır seçim. Tramer alanı kategorinin yayındaki şemasına göre talepte ya da her alternatifte durur (eski şemalarda
+ * alternatif alanı); değer alanın kapsamına yazılır, daha düşük bir tutar girildiyse o kalır.
+ */
+function hazirUygula(k: string, veri: Veri, f: CategoryField[]): Veri {
+  const a = { ...veri.alanlar };
+  let alternatifler = veri.alternatifler;
   const tum = (s: string) => Object.fromEntries(PAINT_PARTS.map((p) => [p.key, s]));
   if (k === 'orijinal') {
     a.boya = { limit: 0, parts: tum('orijinal') };
     delete a.islemKabul;
-    if (f.some((x) => x.key === 'tramer')) a.tramer = 25_000;
+    const tramer = f.find((x) => x.key === 'tramer');
+    const sinirla = (v: unknown) => Math.min(typeof v === 'number' ? v : TRAMER_SINIRI, TRAMER_SINIRI);
+    if (tramer?.scope === 'talep') a.tramer = sinirla(a.tramer);
+    else if (tramer) alternatifler = alternatifler.map((x) => ({ ...x, tramer: sinirla(x.tramer) }));
   } else if (k === 'lokal') {
     a.boya = { limit: PAINT_PARTS.length, parts: tum('lokal') };
     delete a.islemKabul;
@@ -146,7 +155,22 @@ function hazirUygula(k: string, alanlar: Values, f: CategoryField[]): Values {
     a.boya = { limit: PAINT_PARTS.length, parts: tum('degisen') };
     a.islemKabul = ['podye', 'airbag'];
   }
-  return a;
+  return { alanlar: a, alternatifler };
+}
+
+/**
+ * Değerleri şemadaki kapsamına göre süzer: talep alanı yalnızca `alanlar`da, alternatif alanı yalnızca alternatiflerde
+ * kalır (sunucu başka yerdeki anahtarı reddeder). Eski sürümün yanlış yere yazdığı taslaklar böylece yayınlanabilir.
+ */
+function kapsamaUyar(veri: Veri, f: CategoryField[]): Veri {
+  if (!f.length) return veri;
+  const kapsam = new Map(f.map((x) => [x.key, x.scope]));
+  const suz = (v: Values, s: string) =>
+    Object.fromEntries(Object.entries(v).filter(([k]) => kapsam.get(k) === s));
+  return {
+    alanlar: suz(veri.alanlar, 'talep'),
+    alternatifler: veri.alternatifler.map((x) => suz(x, 'alternatif')),
+  };
 }
 function hazirOf(alanlar: Values) {
   const b = alanlar.boya as { parts: Record<string, string> } | undefined;
@@ -191,6 +215,14 @@ export default function TalepOlustur() {
   const [busy, setBusy] = useState(false);
   const kirli = useRef(false);
   const kaydirma = useRef<ComponentRef<typeof ScrollView>>(null);
+  // Kaydırma konumu ve görünen yükseklik: yeni açılan soru yalnızca görünmüyorsa, gerektiği kadar kaydırılır
+  const gorunum = useRef({ ust: 0, yukseklik: 0 });
+  const gorunurYap = (y: number, h: number) => {
+    const { ust, yukseklik } = gorunum.current;
+    if (!yukseklik || y + h + 24 <= ust + yukseklik) return;
+    // Kartın altı görünsün, ama üstü ekranın dışına taşmasın
+    kaydirma.current?.scrollTo({ y: Math.max(0, Math.min(y - 16, y + h + 24 - yukseklik)), animated: true });
+  };
 
   useEffect(() => {
     if (durum === 'misafir') router.replace('/giris');
@@ -202,10 +234,14 @@ export default function TalepOlustur() {
       if (!['DRAFT', 'PUBLISHED', 'PASSIVE'].includes(t.status))
         return router.replace('/(sekmeler)/taleplerim');
       setTaslak(t);
-      setVeri({
+      const ilk = {
         alanlar: t.data?.alanlar ?? {},
         alternatifler: t.data?.alternatifler?.length ? t.data.alternatifler : [{}],
-      });
+      };
+      const uyan = kapsamaUyar(ilk, t.schema?.fields ?? []);
+      // Yanlış yerde kalmış değer temizlendiyse taslak düzeltilmiş haliyle yeniden kaydedilir
+      if (t.status === 'DRAFT' && JSON.stringify(uyan) !== JSON.stringify(ilk)) kirli.current = true;
+      setVeri(uyan);
       setIletisim(t.contact);
       setBaslik(t.headline ?? '');
       setIslem(t.category.slug === 'kiralik' ? 'kirala' : 'al');
@@ -472,6 +508,13 @@ export default function TalepOlustur() {
 
       <ScrollView
         ref={kaydirma}
+        onLayout={(e) => {
+          gorunum.current.yukseklik = e.nativeEvent.layout.height;
+        }}
+        onScroll={(e) => {
+          gorunum.current.ust = e.nativeEvent.contentOffset.y;
+        }}
+        scrollEventThrottle={32}
         style={{ flex: 1, backgroundColor: colors.background }}
         contentContainerStyle={{ padding: 16, paddingTop: 18, paddingBottom: 32 }}
         keyboardShouldPersistTaps="handled"
@@ -664,6 +707,7 @@ export default function TalepOlustur() {
                     .map((c) => (
                       <Cip
                         key={c.slug}
+                        tur="tek"
                         on={taslak?.category.slug === c.slug}
                         onPress={() => kategoriSec(c.slug)}
                       >
@@ -851,6 +895,7 @@ export default function TalepOlustur() {
               alternatifEkle={
                 veri.alternatifler.length < MAX_ALTERNATIVES ? () => alternatifEkle(true) : undefined
               }
+              kaydir={gorunurYap}
             />
           </>
         ) : null}
@@ -867,9 +912,7 @@ export default function TalepOlustur() {
                         key={h.key}
                         accessibilityRole="button"
                         accessibilityState={{ selected: on }}
-                        onPress={() =>
-                          degistir((d) => ({ ...d, alanlar: hazirUygula(h.key, d.alanlar, alanlar) }))
-                        }
+                        onPress={() => degistir((d) => hazirUygula(h.key, d, alanlar))}
                         style={{
                           borderWidth: on ? 2 : 1,
                           borderColor: on ? colors.blue : colors.line,
@@ -931,6 +974,7 @@ export default function TalepOlustur() {
                               return (
                                 <Cip
                                   key={o.value}
+                                  tur="coklu"
                                   on={kabul.includes(o.value)}
                                   onPress={() => {
                                     const next = kabul.includes(o.value)
@@ -1184,7 +1228,10 @@ function Kriterler({
   gorunur,
   hataOf,
   alternatifEkle,
+  kaydir,
 }: {
+  /** Yeni açılan soruyu görünür yapar (y, h: kartın sayfa içeriğindeki konumu ve yüksekliği) */
+  kaydir: (y: number, h: number) => void;
   alanlar: CategoryField[];
   /** Seçili alternatifin değerleri */
   a: Values;
@@ -1258,6 +1305,32 @@ function Kriterler({
     f.key === 'kasa' ? Boolean(seciliKusak) || elle : deger(f) !== undefined;
   const acik = acikSoruSayisi(sorular, yanitli, gecilenler);
 
+  // Yanıtlanınca açılan soru ekranın altında kalmasın: yeni kart yerleşince ona kaydırılır (sahip isteği, 25 Kasım
+  // 2026). Kart konumu onLayout'tan gelir; etki ondan önce ya da sonra çalışabildiği için ikisi de bekleyeni dener.
+  const konumlar = useRef(new Map<string, { y: number; h: number }>());
+  const onceki = useRef({ alt, acik });
+  const bekleyen = useRef<string | null>(null);
+  const bekleyeniKaydir = () => {
+    const key = bekleyen.current;
+    const k = key ? konumlar.current.get(key) : undefined;
+    if (k) {
+      bekleyen.current = null;
+      kaydir(k.y, k.h);
+    }
+  };
+  const yeniSoru = sorular[acik - 1]?.key;
+  useEffect(() => {
+    const o = onceki.current;
+    onceki.current = { alt, acik };
+    if (o.alt !== alt) {
+      konumlar.current.clear();
+      bekleyen.current = null;
+    } else if (acik > o.acik && yeniSoru) {
+      bekleyen.current = yeniSoru;
+      bekleyeniKaydir();
+    }
+  });
+
   /** Kasa seçimi: model yılı kasadan gelir; kasaya uymayan yakıt, vites, kasa tipi, çekiş ve paket seçimden düşer */
   const kusakSec = (value: string) => {
     if (!kasaAlani) return;
@@ -1320,7 +1393,14 @@ function Kriterler({
   const gosterilen = k.kusaklar.filter((x) => eskiler || x.yeni || x === seciliKusak);
   const gizli = k.kusaklar.length - gosterilen.length;
   const kart = (children: ReactNode, key: string) => (
-    <View key={key} style={{ ...kartStil, marginBottom: 10 }}>
+    <View
+      key={key}
+      onLayout={(e) => {
+        konumlar.current.set(key, { y: e.nativeEvent.layout.y, h: e.nativeEvent.layout.height });
+        bekleyeniKaydir();
+      }}
+      style={{ ...kartStil, marginBottom: 10 }}
+    >
       {children}
     </View>
   );
@@ -1341,7 +1421,7 @@ function Kriterler({
               {katalogBaslik(f)}
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                 {gosterilen.map((x) => (
-                  <Cip key={x.value} on={x === seciliKusak} onPress={() => kusakSec(x.value)}>
+                  <Cip key={x.value} tur="tek" on={x === seciliKusak} onPress={() => kusakSec(x.value)}>
                     {`${x.label} (${x.alt})`}
                   </Cip>
                 ))}
@@ -1351,7 +1431,7 @@ function Kriterler({
                   </Cip>
                 ) : null}
                 {yilAlani ? (
-                  <Cip on={elle} onPress={elleGir}>
+                  <Cip tur="tek" on={elle} onPress={elleGir}>
                     Yılı kendim gireceğim
                   </Cip>
                 ) : null}
@@ -1393,6 +1473,7 @@ function Kriterler({
                 {paketler.map((p) => (
                   <Cip
                     key={p.key}
+                    tur="coklu"
                     on={secili.includes(p.key)}
                     onPress={() => {
                       const next = secili.includes(p.key)
@@ -1405,6 +1486,7 @@ function Kriterler({
                   </Cip>
                 ))}
                 <Cip
+                  tur="coklu"
                   on={secili.length === 0 && gecilenler.has(f.key)}
                   onPress={() => {
                     yaz(f)(undefined);

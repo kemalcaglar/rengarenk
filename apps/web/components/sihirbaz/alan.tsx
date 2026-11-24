@@ -27,45 +27,108 @@ const gizli: CSSProperties = {
   clip: 'rect(0 0 0 0)',
 };
 
-/** Yuvarlak seçim çipi (Yakıt, Vites …); `hex` verilirse renk noktası, `alt` verilirse ikinci satır */
+/**
+ * Seçim işareti: tek seçimde yuvarlak, çoklu seçimde kare; seçilince mavi dolar (sahip isteği, 25 Kasım 2026: seçilecek
+ * kutular düz yazı gibi duruyordu). Mobilde aynı adla.
+ */
+export function SecimIsareti({ on, tur }: { on: boolean; tur: 'tek' | 'coklu' }) {
+  const kare = tur === 'coklu';
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        flex: 'none',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 18,
+        height: 18,
+        boxSizing: 'border-box',
+        borderRadius: kare ? 'min(var(--rr-etiket-kose), 5px)' : '50%',
+        border: on ? 'none' : '1.5px solid #AEB5C4',
+        background: on ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-kart, #FFFFFF)',
+      }}
+    >
+      {on && kare ? (
+        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+          <path
+            d="M2.5 6.2l2.3 2.3 4.7-5"
+            fill="none"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ stroke: 'var(--rr-maviYazi, #1E2333)' }}
+          />
+        </svg>
+      ) : on ? (
+        <span
+          style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--rr-maviYazi, #1E2333)' }}
+        />
+      ) : null}
+    </span>
+  );
+}
+
+/**
+ * Yuvarlak seçim çipi (Yakıt, Vites …); `hex` verilirse renk noktası, `alt` verilirse ikinci satır. `tur` verilirse
+ * başında seçim işareti durur (sihirbazdaki sorular); verilmezse eylem çipidir.
+ */
 export function Cip({
   on,
   children,
   hex,
   alt,
+  tur,
   onClick,
 }: {
   on: boolean;
   children: ReactNode;
   hex?: string;
   alt?: string;
+  tur?: 'tek' | 'coklu';
   onClick: () => void;
 }) {
   const kare = Boolean(alt);
+  const altSatir = alt ? (
+    <span
+      style={{
+        display: 'block',
+        fontSize: 12,
+        fontWeight: on ? 600 : 500,
+        color: on ? 'var(--rr-baglanti, #2450C8)' : 'var(--rr-soluk, #5A6073)',
+        marginTop: 1,
+      }}
+    >
+      {alt}
+    </span>
+  ) : null;
+  // İşaretli çipte sol boşluk işarete göre biraz daha dar
+  const sol = (px: number) => (tur ? px - 4 : px);
   return (
     <button
       type="button"
       aria-pressed={on}
       onClick={onClick}
+      className="rr-cip"
       style={{
-        display: hex ? 'flex' : 'inline-block',
+        display: hex || tur ? 'inline-flex' : 'inline-block',
         alignItems: 'center',
-        gap: 7,
+        gap: tur ? 9 : 7,
         textAlign: 'left',
-        border: on ? '1.5px solid var(--rr-mavi, #5B8CFF)' : '1px solid #D5DAE5',
-        background: on ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
+        // Seçili olmayanın çerçeve ve zemini globals.css'te (.rr-cip; üstüne gelince değişir)
+        ...(on ? { border: '1.5px solid var(--rr-mavi, #5B8CFF)', background: '#EEF3FF' } : {}),
         borderRadius: kare ? 'var(--rr-buton-kose)' : 'var(--rr-etiket-kose)',
         padding: kare
           ? on
-            ? '9px 14px'
-            : '9.5px 14.5px'
+            ? `9px 14px 9px ${sol(14)}px`
+            : `9.5px 14.5px 9.5px ${sol(14.5)}px`
           : hex
             ? on
               ? '7px 13px 7px 8px'
               : '7.5px 13.5px 7.5px 8.5px'
             : on
-              ? '8px 14px'
-              : '8.5px 14.5px',
+              ? `8px 14px 8px ${sol(14)}px`
+              : `8.5px 14.5px 8.5px ${sol(14.5)}px`,
         fontSize: 14,
         fontWeight: on ? 700 : 600,
         color: on ? 'var(--rr-murekkep, #1E2333)' : '#3A4052',
@@ -73,26 +136,24 @@ export function Cip({
         fontFamily: 'inherit',
       }}
     >
+      {tur ? <SecimIsareti on={on} tur={tur} /> : null}
       {hex ? (
         <span
           aria-hidden="true"
           style={{ width: 18, height: 18, borderRadius: '50%', background: hex, border: '1px solid #AEB5C4' }}
         />
       ) : null}
-      {children}
-      {alt ? (
-        <span
-          style={{
-            display: 'block',
-            fontSize: 12,
-            fontWeight: on ? 600 : 500,
-            color: on ? 'var(--rr-baglanti, #2450C8)' : 'var(--rr-soluk, #5A6073)',
-            marginTop: 1,
-          }}
-        >
-          {alt}
+      {tur && alt ? (
+        <span>
+          {children}
+          {altSatir}
         </span>
-      ) : null}
+      ) : (
+        <>
+          {children}
+          {altSatir}
+        </>
+      )}
     </button>
   );
 }
@@ -196,7 +257,13 @@ export function Alan({
         <span style={etiket}>{ad}</span>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
           {(f.options ?? []).map((o) => (
-            <Cip key={o.value} on={secili.includes(o.value)} hex={o.hex} onClick={() => sec(o.value)}>
+            <Cip
+              key={o.value}
+              on={secili.includes(o.value)}
+              hex={o.hex}
+              tur={coklu ? 'coklu' : 'tek'}
+              onClick={() => sec(o.value)}
+            >
               {o.label}
             </Cip>
           ))}
@@ -204,6 +271,7 @@ export function Alan({
             <Cip
               on={secili.length === 0 && (gecildi ?? true)}
               hex={renkli ? '#F3F5FA' : undefined}
+              tur="coklu"
               onClick={() => {
                 onChange(undefined);
                 farkEtmez?.();
@@ -246,13 +314,14 @@ export function Alan({
       <div>
         <span style={etiket}>{f.label}</span>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-          <Cip on={v === true} onClick={() => onChange(v === true ? undefined : true)}>
+          <Cip tur="tek" on={v === true} onClick={() => onChange(v === true ? undefined : true)}>
             Evet
           </Cip>
-          <Cip on={v === false} onClick={() => onChange(v === false ? undefined : false)}>
+          <Cip tur="tek" on={v === false} onClick={() => onChange(v === false ? undefined : false)}>
             Hayır
           </Cip>
           <Cip
+            tur="tek"
             on={v === undefined && (gecildi ?? true)}
             onClick={() => {
               onChange(undefined);
