@@ -62,7 +62,7 @@ export default async function Home() {
   const kat = (
     // Telefonda kategoriler üst çubuktaki ☰ menüsünde (AnasayfaMobil.dc.html); kenar çubuğu yalnızca geniş ekranda
     <aside
-      className="rr-yalniz-genis"
+      className="rr-kenar"
       style={{
         ...card,
         flex: '1 1 220px',

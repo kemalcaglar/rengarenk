@@ -3,7 +3,7 @@
 import { type CSSProperties, type ReactNode, useState } from 'react';
 
 /**
- * Masaüstünde her zaman açık yan panel; telefonda (720 px ve altı) başlığına dokununca açılan kutu (ListeMobil.dc.html
+ * Masaüstünde her zaman açık yan panel; telefon ve tablette (1023 px ve altı) başlığına dokununca açılan kutu (ListeMobil.dc.html
  * "Filtrele"). Görünüm kuralları globals.css › Telefon görünümü.
  */
 export function DarAcilir({
@@ -24,7 +24,7 @@ export function DarAcilir({
     <aside aria-label={ariaLabel} className={className} data-acik={acik} style={style}>
       <button
         type="button"
-        className="rr-acilir-dugme rr-yalniz-dar"
+        className="rr-acilir-dugme"
         aria-expanded={acik}
         onClick={() => setAcik((a) => !a)}
       >

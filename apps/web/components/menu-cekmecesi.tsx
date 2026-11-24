@@ -84,7 +84,7 @@ export function MenuCekmecesi({ kategoriler }: { kategoriler: MenuKategori[] }) 
     const tus = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setAcik(false);
     };
-    const genis = window.matchMedia('(min-width: 721px)');
+    const genis = window.matchMedia('(min-width: 1024px)');
     const boyut = () => {
       if (genis.matches) setAcik(false);
     };
@@ -136,7 +136,7 @@ export function MenuCekmecesi({ kategoriler }: { kategoriler: MenuKategori[] }) 
         </svg>
       </button>
       {acik ? (
-        <div className="rr-yalniz-dar" style={{ position: 'fixed', inset: 0, zIndex: 60 }}>
+        <div className="rr-cekmece" style={{ position: 'fixed', inset: 0, zIndex: 60 }}>
           {/* Karartma: dokununca kapanır (klavyede Esc ve kapat düğmesi var) */}
           <div
             aria-hidden="true"

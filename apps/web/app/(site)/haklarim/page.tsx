@@ -388,30 +388,44 @@ export default function Haklarim() {
                         {oneCikarma ? (
                           <>
                             Öne çıkarma ·{' '}
-                            {o && o.talepler.length > 1 ? (
-                              <select
-                                aria-label="Öne çıkarılacak talep"
-                                value={hedef ?? ''}
-                                onChange={(e) => setHedef(Number(e.target.value))}
-                                style={{
-                                  border: '1px solid #D5DAE5',
-                                  borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
-                                  padding: '4px 6px',
-                                  fontSize: 13.5,
-                                  fontWeight: 700,
-                                  fontFamily: 'inherit',
-                                }}
-                              >
-                                {o.talepler.map((t) => (
-                                  <option key={t.no} value={t.no}>
-                                    {t.baslik}
-                                  </option>
-                                ))}
-                              </select>
-                            ) : (
-                              <span>{hedefBaslik ?? 'yayında talebin yok'}</span>
-                            )}{' '}
-                            {hedefBaslik ? 'talebi için' : ''}
+                            {/* Seçim ve "talebi için" birlikte satır değiştirir; telefonda ayrı satırlara bölünmez */}
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 6,
+                                flex: '1 1 auto',
+                                minWidth: 0,
+                                maxWidth: '100%',
+                              }}
+                            >
+                              {o && o.talepler.length > 1 ? (
+                                <select
+                                  aria-label="Öne çıkarılacak talep"
+                                  value={hedef ?? ''}
+                                  onChange={(e) => setHedef(Number(e.target.value))}
+                                  style={{
+                                    flex: '0 1 auto',
+                                    minWidth: 0,
+                                    border: '1px solid #D5DAE5',
+                                    borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
+                                    padding: '4px 6px',
+                                    fontSize: 13.5,
+                                    fontWeight: 700,
+                                    fontFamily: 'inherit',
+                                  }}
+                                >
+                                  {o.talepler.map((t) => (
+                                    <option key={t.no} value={t.no}>
+                                      {t.baslik}
+                                    </option>
+                                  ))}
+                                </select>
+                              ) : (
+                                <span>{hedefBaslik ?? 'yayında talebin yok'}</span>
+                              )}
+                              {hedefBaslik ? <span style={{ whiteSpace: 'nowrap' }}>talebi için</span> : null}
+                            </span>
                           </>
                         ) : (
                           liste[0]?.grupAd

@@ -4,8 +4,51 @@
  * yazıldığı için buradaki kurallar !important ile üstün gelir.
  */
 .rr-yalniz-dar,
-.rr-menu-dugme {
+.rr-menu-dugme,
+.rr-cekmece,
+.rr-acilir-dugme {
   display: none !important;
+}
+/*
+ * Tablet (1023 px ve altı): içerik sütunları kenar menünün yanına sığmadığı için menü içeriğin üstüne düşüp ekranın
+ * üçte birini kaplıyordu (sahip uyarısı 25 Kasım 2026). Kenar menüler (.rr-kenar) ☰ çekmecesine geçer, talep
+ * listesinin süzgeci açılır kutu olur. Telefona özgü diğer kurallar 720 px altında kalır.
+ */
+@media (max-width: 1023px) {
+  .rr-menu-dugme {
+    display: flex !important;
+  }
+  .rr-cekmece {
+    display: block !important;
+  }
+  .rr-kenar {
+    display: none !important;
+  }
+  .rr-filtre {
+    flex: 1 1 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  .rr-filtre .rr-dar-gizli {
+    padding: 4px 16px 16px;
+  }
+  .rr-filtre[data-acik="false"] .rr-dar-gizli {
+    display: none !important;
+  }
+  .rr-acilir-dugme {
+    width: 100%;
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    border: 0;
+    background: transparent;
+    padding: 14px 16px;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    color: inherit;
+    cursor: pointer;
+  }
 }
 @media (max-width: 720px) {
   /* Üst çubuğun solundaki ☰ (menü ve kategoriler çekmecesi, AnasayfaMobil.dc.html) */
@@ -100,32 +143,7 @@
     font-size: 28px !important;
   }
 
-  /* Talep listesi: süzgeç açılır kutuda, satırlar kart gibi */
-  .rr-filtre {
-    flex: 1 1 100% !important;
-    max-width: none !important;
-    padding: 0 !important;
-  }
-  .rr-filtre .rr-dar-gizli {
-    padding: 4px 16px 16px;
-  }
-  .rr-filtre[data-acik="false"] .rr-dar-gizli {
-    display: none !important;
-  }
-  .rr-acilir-dugme {
-    width: 100%;
-    display: flex !important;
-    align-items: center;
-    justify-content: space-between;
-    border: 0;
-    background: transparent;
-    padding: 14px 16px;
-    font: inherit;
-    font-size: 15px;
-    font-weight: 800;
-    color: inherit;
-    cursor: pointer;
-  }
+  /* Talep listesi: satırlar kart gibi (süzgecin açılır kutusu yukarıda, tablet kuralında) */
 
   .rr-talep-satir {
     padding: 14px 16px !important;
@@ -232,19 +250,16 @@
   }
 }
 @media (max-width: 720px) {
-  /* Galeri paneli menüsü: telefonda sayfanın üstünü kaplayan liste yerine yatay kaydırılan sekmeler */
+  /* Galeri paneli menüsü: telefonda sayfanın üstünü kaplayan liste yerine alt satıra geçen sekmeler (yatay kaydırılan
+     şeritte Toplu yükleme, Eşleşmeler, Ekip ve Paket ekran dışında kalıyordu; sahip uyarısı 25 Kasım 2026) */
   .rr-panel-menu {
     flex: 1 1 100% !important;
     max-width: none !important;
     padding: 6px !important;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .rr-panel-menu::-webkit-scrollbar {
-    display: none;
   }
   .rr-panel-menu > ul {
     flex-direction: row !important;
+    flex-wrap: wrap;
     gap: 4px !important;
   }
   .rr-panel-menu > ul > li > button {
@@ -266,5 +281,19 @@
   .rr-kapak-buyuk .rr-kapak-etiketler > span {
     font-size: 11.5px !important;
     padding: 3px 8px !important;
+  }
+}
+@media (max-width: 720px) {
+  /* Sihirbazın kategori kartları: telefonda iki sütun (tek sütunda 11 kart uzun bir kaydırma istiyordu) */
+  .rr-kategori-izgara {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+  .rr-kategori-izgara > button {
+    padding: 13px !important;
+    gap: 8px !important;
+  }
+  .rr-kategori-izgara > button[aria-pressed="true"] {
+    padding: 12px !important;
   }
 }

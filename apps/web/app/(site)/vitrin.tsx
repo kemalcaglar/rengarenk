@@ -40,6 +40,8 @@ export interface TalepYaniti {
  */
 export function VitrinBolumu({ vitrin }: { vitrin: TalepYaniti }) {
   if (!vitrin.sonuclar.length) return null;
+  // Son satırı tamamlamak için gereken boş hücre (kartlar + "Talebin burada görünsün" hücresi)
+  const eksik = (sutun: number) => (sutun - ((vitrin.sonuclar.length + 1) % sutun)) % sutun;
   return (
     <section aria-labelledby="vitrin">
       <div
@@ -165,12 +167,15 @@ export function VitrinBolumu({ vitrin }: { vitrin: TalepYaniti }) {
             {VITRIN_FIYAT} TL ›
           </span>
         </Link>
-        {/* Az talep varken satırın kalanı boş beyaz hücre; dar ekranda (3 sütun) fazlası gizlenir */}
-        {BOS.slice(0, (6 - ((vitrin.sonuclar.length + 1) % 6)) % 6).map((k, i) => (
+        {/* Az talep varken satırın kalanı boş beyaz hücre; dar ekranda (3 sütun) ve telefonda (2 sütun) fazlası gizlenir */}
+        {BOS.slice(0, eksik(6)).map((k, i) => (
           <span
             key={k}
             aria-hidden="true"
-            className={i < (3 - ((vitrin.sonuclar.length + 1) % 3)) % 3 ? undefined : 'rr-genis'}
+            className={
+              [i < eksik(3) ? '' : 'rr-uc-gizli', i < eksik(2) ? '' : 'rr-iki-gizli'].join(' ').trim() ||
+              undefined
+            }
             style={{ background: 'var(--rr-kart, #FFFFFF)' }}
           />
         ))}

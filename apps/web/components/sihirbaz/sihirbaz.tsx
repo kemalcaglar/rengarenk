@@ -682,6 +682,7 @@ export function Sihirbaz() {
                   </fieldset>
                 ) : null}
                 <div
+                  className="rr-kategori-izgara"
                   style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',

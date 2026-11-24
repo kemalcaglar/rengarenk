@@ -168,7 +168,9 @@ textarea {
   }
 }
 
-/* Ana sayfa vitrini: altı sütun, aralarda 1 piksel çizgi; dar ekranda üç sütun */
+/* Ana sayfa vitrini: altı sütun, aralarda 1 piksel çizgi; dar ekranda üç, telefonda iki sütun (üç sütunda kartlar
+   105 px'e düşüp kapak yazıları sığmıyordu, sahip uyarısı 25 Kasım 2026). Boş dolgu hücreleri sütun sayısına göre
+   gizlenir (vitrin.tsx). */
 .rr-vitrin {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -182,7 +184,17 @@ textarea {
   .rr-vitrin {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-  .rr-vitrin .rr-genis {
+}
+@media (min-width: 561px) and (max-width: 900px) {
+  .rr-vitrin .rr-uc-gizli {
+    display: none;
+  }
+}
+@media (max-width: 560px) {
+  .rr-vitrin {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rr-vitrin .rr-iki-gizli {
     display: none;
   }
 }

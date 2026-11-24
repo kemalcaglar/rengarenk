@@ -59,7 +59,7 @@ export default async function TalepSayfasi({ params }: { params: Promise<{ no: s
       {/* Telefonda kategoriler üst çubuktaki ☰ menüsünde; kenar çubuğu yalnızca geniş ekranda (ana sayfadaki gibi) */}
       <aside
         aria-label="Kategoriler"
-        className="rr-yalniz-genis"
+        className="rr-kenar"
         style={{
           flex: '1 1 220px',
           maxWidth: 250,
