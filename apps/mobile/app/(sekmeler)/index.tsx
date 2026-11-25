@@ -323,7 +323,8 @@ export default function Home() {
                   </View>
                   <T
                     numberOfLines={2}
-                    style={{ fontSize: 11.5, fontWeight: '700', lineHeight: 15, marginTop: 5, height: 30 }}
+                    // İki satır sabit yer tutar; satır aralığı yazı tipinin alt uzantılarına (g, y, ş) yetecek kadar
+                    style={{ fontSize: 11.5, fontWeight: '700', lineHeight: 16, marginTop: 5, height: 33 }}
                   >
                     {v.baslik}
                   </T>

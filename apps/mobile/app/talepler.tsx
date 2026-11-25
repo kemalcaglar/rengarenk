@@ -1,8 +1,9 @@
 import { butonOran, colors, ILLER, kartOran, radii, searchQueryKey } from '@rengarenk/shared';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, FlatList, Modal, Pressable, View } from 'react-native';
+import { Alert, FlatList, Image, Modal, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { AracKapak } from '../components/arac-kapak';
 import { Banner } from '../components/banner';
 import { Ikon } from '../components/ikon';
 import { Logo } from '../components/logo';
@@ -35,6 +36,10 @@ interface Sonuc {
   yayin: string;
   acil?: boolean;
   ustSira?: boolean;
+  /** Temsilî fotoğraf (Karar 24, 34); yoksa marka ve model kapağı */
+  foto?: string | null;
+  markaAd?: string | null;
+  seriAd?: string | null;
 }
 type Q = Record<string, string | undefined>;
 
@@ -316,13 +321,18 @@ export default function Talepler() {
                 height: 86,
                 borderRadius: butonOran(12),
                 backgroundColor: TINTS[index % TINTS.length],
-                alignItems: 'center',
-                justifyContent: 'center',
+                overflow: 'hidden',
               }}
             >
-              <View
-                style={{ width: 74, height: 27, borderRadius: butonOran(10), backgroundColor: '#D6DDEA' }}
-              />
+              {t.foto ? (
+                <Image
+                  source={{ uri: `${API}${t.foto}` }}
+                  style={{ width: '100%', height: '100%' }}
+                  resizeMode="cover"
+                />
+              ) : (
+                <AracKapak boyut="mini" marka={t.markaAd} seri={t.seriAd ?? t.baslik} />
+              )}
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
               <T style={{ fontSize: 14.5, fontWeight: '800', lineHeight: 19 }}>{t.baslik}</T>

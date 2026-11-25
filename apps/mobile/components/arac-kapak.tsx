@@ -128,7 +128,8 @@ export function AracKapak({
           numberOfLines={2}
           style={{
             fontSize: o.seri,
-            lineHeight: o.seri * 1.15,
+            // 1,15 iki satırda alt uzantıları (g, y) kesiyordu
+            lineHeight: Math.ceil(o.seri * 1.28),
             fontWeight: '800',
             color: colors.ink,
             marginTop: 1,
