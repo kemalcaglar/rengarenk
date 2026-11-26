@@ -1,249 +1,257 @@
-:root {
-  --blue: var(--rr-mavi, #5b8cff);
-  --pink: var(--rr-pembe, #ff6fb5);
-  --yellow: var(--rr-sari, #ffc84a);
-  --green: var(--rr-yesil, #3dd68c);
-  --ink: var(--rr-murekkep, #1e2333);
-  --muted: var(--rr-soluk, #5a6073);
-  --surface: var(--rr-kart, #ffffff);
-  --line: var(--rr-cizgi, #e3e6ef);
-  --bg: var(--rr-zemin, #f6f8fd);
-  --link: var(--rr-baglanti, #2450c8);
-}
-* {
-  box-sizing: border-box;
-}
-body {
-  margin: 0;
-  font-family: var(--rr-font, "Plus Jakarta Sans", system-ui, sans-serif);
-  color: var(--ink);
-  background: var(--bg);
-}
-a {
-  color: var(--link);
-  text-decoration: none;
-}
-/* Tasarımdaki bağlantı davranışı (bütün .dc.html dosyalarının ortak stili) */
-a:hover {
-  color: #1a3c99;
-  text-decoration: underline;
-}
-button,
-input,
-select,
-textarea {
-  font-family: inherit;
-}
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-.bar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
-}
-.wrap {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 800;
-  font-size: 20px;
-  letter-spacing: -0.4px;
-  color: var(--ink);
-}
-.brand i {
-  display: inline-block;
-  width: 8px;
-  height: 18px;
-  border-radius: 4px;
-  margin-right: 2px;
-}
-.card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--rr-kart-kose, 18px);
-  padding: 24px;
-}
-.btn {
-  border: 0;
-  border-radius: var(--rr-buton-kose, 14px);
-  padding: 14px 18px;
-  font: inherit;
-  font-weight: 800;
-  background: var(--blue);
-  color: var(--rr-maviYazi, #1e2333);
-  cursor: pointer;
-}
-.btn:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-.input {
-  width: 100%;
-  border: 1px solid #d5dae5;
-  border-radius: calc(var(--rr-buton-kose, 14px) * 12 / 14);
-  padding: 13px 14px;
-  font: inherit;
-  font-size: 16px;
-}
-.muted {
-  color: var(--muted);
-}
-/* Bakım duyurusu (tasarım: YonetimSistem › Bakım modu, "üst şeritte duyuru") */
-.duyuru {
-  background: #fff6df;
-  color: #7a5300;
-  border-bottom: 1px solid #f4dc9a;
-  padding: 10px 24px;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 700;
-}
-/* Onay kutusu: gizli gerçek checkbox klavyeyle seçilince tasarımın kutusu odak çerçevesi alır */
-.sr-only:focus-visible + .onay-kutu {
-  outline: 2px solid var(--rr-baglanti, #2450c8);
-  outline-offset: 2px;
-}
+/*
+ * Genel stiller bir katmanda (@layer genel): bileşenlerin CSS Modules sınıfları katmansız olduğu için, satır içi
+ * stilin eskiden yaptığı gibi, buradaki her kuralın önüne geçer (özgüllükten bağımsız). !important kurallar
+ * (telefon.css) yine kazanır. Sıra: globals.css, telefon.css aynı katmanda; ikisinin kendi aralarındaki sıra
+ * değişmedi.
+ */
+@layer genel {
+  :root {
+    --blue: var(--rr-mavi, #5b8cff);
+    --pink: var(--rr-pembe, #ff6fb5);
+    --yellow: var(--rr-sari, #ffc84a);
+    --green: var(--rr-yesil, #3dd68c);
+    --ink: var(--rr-murekkep, #1e2333);
+    --muted: var(--rr-soluk, #5a6073);
+    --surface: var(--rr-kart, #ffffff);
+    --line: var(--rr-cizgi, #e3e6ef);
+    --bg: var(--rr-zemin, #f6f8fd);
+    --link: var(--rr-baglanti, #2450c8);
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: var(--rr-font, "Plus Jakarta Sans", system-ui, sans-serif);
+    color: var(--ink);
+    background: var(--bg);
+  }
+  a {
+    color: var(--link);
+    text-decoration: none;
+  }
+  /* Tasarımdaki bağlantı davranışı (bütün .dc.html dosyalarının ortak stili) */
+  a:hover {
+    color: #1a3c99;
+    text-decoration: underline;
+  }
+  button,
+  input,
+  select,
+  textarea {
+    font-family: inherit;
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+  }
+  .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.4px;
+    color: var(--ink);
+  }
+  .brand i {
+    display: inline-block;
+    width: 8px;
+    height: 18px;
+    border-radius: 4px;
+    margin-right: 2px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--rr-kart-kose, 18px);
+    padding: 24px;
+  }
+  .btn {
+    border: 0;
+    border-radius: var(--rr-buton-kose, 14px);
+    padding: 14px 18px;
+    font: inherit;
+    font-weight: 800;
+    background: var(--blue);
+    color: var(--rr-maviYazi, #1e2333);
+    cursor: pointer;
+  }
+  .btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+  .input {
+    width: 100%;
+    border: 1px solid #d5dae5;
+    border-radius: calc(var(--rr-buton-kose, 14px) * 12 / 14);
+    padding: 13px 14px;
+    font: inherit;
+    font-size: 16px;
+  }
+  .muted {
+    color: var(--muted);
+  }
+  /* Bakım duyurusu (tasarım: YonetimSistem › Bakım modu, "üst şeritte duyuru") */
+  .duyuru {
+    background: #fff6df;
+    color: #7a5300;
+    border-bottom: 1px solid #f4dc9a;
+    padding: 10px 24px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  /* Onay kutusu: gizli gerçek checkbox klavyeyle seçilince tasarımın kutusu odak çerçevesi alır */
+  .sr-only:focus-visible + .onay-kutu {
+    outline: 2px solid var(--rr-baglanti, #2450c8);
+    outline-offset: 2px;
+  }
 
-/* İşaret kutusu (Liste.dc.html): 20 px, köşeleri 6 px; seçilince mavi zemin ve ✓ */
-.rr-isaret {
-  appearance: none;
-  flex: none;
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  border-radius: calc(var(--rr-buton-kose, 14px) * 6 / 14);
-  border: 1.5px solid #aeb5c4;
-  background: var(--surface);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-}
-.rr-isaret:checked {
-  border-color: var(--rr-mavi, #5b8cff);
-  background: var(--rr-mavi, #5b8cff);
-}
-.rr-isaret:checked::after {
-  content: "✓";
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--rr-maviYazi, #1e2333);
-  line-height: 1;
-}
-.rr-isaret:focus-visible {
-  outline: 2px solid var(--rr-baglanti, #2450c8);
-  outline-offset: 2px;
-}
+  /* İşaret kutusu (Liste.dc.html): 20 px, köşeleri 6 px; seçilince mavi zemin ve ✓ */
+  .rr-isaret {
+    appearance: none;
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    border-radius: calc(var(--rr-buton-kose, 14px) * 6 / 14);
+    border: 1.5px solid #aeb5c4;
+    background: var(--surface);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+  .rr-isaret:checked {
+    border-color: var(--rr-mavi, #5b8cff);
+    background: var(--rr-mavi, #5b8cff);
+  }
+  .rr-isaret:checked::after {
+    content: "✓";
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--rr-maviYazi, #1e2333);
+    line-height: 1;
+  }
+  .rr-isaret:focus-visible {
+    outline: 2px solid var(--rr-baglanti, #2450c8);
+    outline-offset: 2px;
+  }
 
-/* İki sütunlu kart ızgarası (Favoriler.dc.html); dar ekranda tek sütun */
-.rr-iki-sutun {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-@media (max-width: 720px) {
+  /* İki sütunlu kart ızgarası (Favoriler.dc.html); dar ekranda tek sütun */
   .rr-iki-sutun {
-    grid-template-columns: minmax(0, 1fr);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
-}
+  @media (max-width: 720px) {
+    .rr-iki-sutun {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
 
-/* Üç sütunlu kart ızgarası (Anasayfa.dc.html, kayıtlı aramalar); dar ekranda tek sütun */
-.rr-uc-sutun {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-@media (max-width: 900px) {
+  /* Üç sütunlu kart ızgarası (Anasayfa.dc.html, kayıtlı aramalar); dar ekranda tek sütun */
   .rr-uc-sutun {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-/* Ana sayfa vitrini: altı sütun, aralarda 1 piksel çizgi; dar ekranda üç, telefonda iki sütun (üç sütunda kartlar
-   105 px'e düşüp kapak yazıları sığmıyordu, sahip uyarısı 25 Kasım 2026). Boş dolgu hücreleri sütun sayısına göre
-   gizlenir (vitrin.tsx). */
-.rr-vitrin {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 1px;
-  background: #e3e6ef;
-  border: 1px solid #e3e6ef;
-  border-radius: var(--rr-buton-kose, 14px);
-  overflow: hidden;
-}
-@media (max-width: 900px) {
-  .rr-vitrin {
+    display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
   }
-}
-@media (min-width: 561px) and (max-width: 900px) {
-  .rr-vitrin .rr-uc-gizli {
-    display: none;
+  @media (max-width: 900px) {
+    .rr-uc-sutun {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
-}
-@media (max-width: 560px) {
-  .rr-vitrin {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .rr-vitrin .rr-iki-gizli {
-    display: none;
-  }
-}
 
-/* Başvuru adımları (5) ve işletme türü kartları (4); dar ekranda alt alta */
-.rr-bes-sutun {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-}
-.rr-dort-sutun {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-}
-@media (max-width: 900px) {
-  .rr-dort-sutun {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Ana sayfa vitrini: altı sütun, aralarda 1 piksel çizgi; dar ekranda üç, telefonda iki sütun (üç sütunda kartlar
+     105 px'e düşüp kapak yazıları sığmıyordu, sahip uyarısı 25 Kasım 2026). Boş dolgu hücreleri sütun sayısına göre
+     gizlenir (vitrin.tsx). */
+  .rr-vitrin {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 1px;
+    background: #e3e6ef;
+    border: 1px solid #e3e6ef;
+    border-radius: var(--rr-buton-kose, 14px);
+    overflow: hidden;
   }
+  @media (max-width: 900px) {
+    .rr-vitrin {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 561px) and (max-width: 900px) {
+    .rr-vitrin .rr-uc-gizli {
+      display: none;
+    }
+  }
+  @media (max-width: 560px) {
+    .rr-vitrin {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .rr-vitrin .rr-iki-gizli {
+      display: none;
+    }
+  }
+
+  /* Başvuru adımları (5) ve işletme türü kartları (4); dar ekranda alt alta */
   .rr-bes-sutun {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
-}
+  .rr-dort-sutun {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+  @media (max-width: 900px) {
+    .rr-dort-sutun {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .rr-bes-sutun {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
 
-/* Hesabım açılır menüsü */
-.hesap-oge:hover,
-.hesap-oge:focus-visible {
-  background: #eef3ff;
-  text-decoration: none;
-}
+  /* Hesabım açılır menüsü */
+  .hesap-oge:hover,
+  .hesap-oge:focus-visible {
+    background: #eef3ff;
+    text-decoration: none;
+  }
 
-/* Yatay kaydırılan sekme şeridi (motor ve paket seçimi): kaydırma çubuğu gizli */
-.rr-yatay-kay {
-  scrollbar-width: none;
-}
-.rr-yatay-kay::-webkit-scrollbar {
-  display: none;
-}
+  /* Yatay kaydırılan sekme şeridi (motor ve paket seçimi): kaydırma çubuğu gizli */
+  .rr-yatay-kay {
+    scrollbar-width: none;
+  }
+  .rr-yatay-kay::-webkit-scrollbar {
+    display: none;
+  }
 
-/* Sihirbaz seçim çipi (components/sihirbaz/alan.tsx): seçili olmayanın çerçeve ve zemini; üstüne gelince hafif mavi
-   zemin, seçilebilir olduğu belli olsun. Seçili çipin çerçevesi satır içi stilde. */
-.rr-cip[aria-pressed="false"] {
-  border: 1px solid #d5dae5;
-  background: var(--rr-kart, #ffffff);
-}
-.rr-cip[aria-pressed="false"]:hover {
-  background: #f3f6fc;
-  border-color: #b9c6e6;
-}
-.rr-cip:focus-visible {
-  outline: 2px solid var(--rr-mavi, #5b8cff);
-  outline-offset: 2px;
+  /* Sihirbaz seçim çipi (components/sihirbaz/alan.tsx): seçili olmayanın çerçeve ve zemini; üstüne gelince hafif mavi
+     zemin, seçilebilir olduğu belli olsun. Seçili çipin çerçevesi satır içi stilde. */
+  .rr-cip[aria-pressed="false"] {
+    border: 1px solid #d5dae5;
+    background: var(--rr-kart, #ffffff);
+  }
+  .rr-cip[aria-pressed="false"]:hover {
+    background: #f3f6fc;
+    border-color: #b9c6e6;
+  }
+  .rr-cip:focus-visible {
+    outline: 2px solid var(--rr-mavi, #5b8cff);
+    outline-offset: 2px;
+  }
 }
