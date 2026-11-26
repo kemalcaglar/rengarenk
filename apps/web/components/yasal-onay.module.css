@@ -1,0 +1,119 @@
+/* Bu dosya yasal-onay.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(30, 35, 51, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.kutu2 {
+  width: min(560px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  background: var(--rr-kart, #ffffff);
+  border-radius: var(--rr-kart-kose);
+  padding: 22px;
+  box-shadow: 0 20px 48px rgba(30, 35, 51, 0.25);
+}
+.baslik1 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 800;
+}
+.metin1 {
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: var(--rr-soluk, #5a6073);
+  line-height: 1.5;
+}
+.kutu3 {
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-buton-kose);
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.kutu4 {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.metin2 {
+  font-size: 15px;
+}
+.bag1 {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.metin3 {
+  margin: 4px 0 10px;
+  font-size: 13px;
+  color: #3a4052;
+}
+.etiket1 {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 14px;
+}
+.girdi1 {
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  flex: none;
+}
+.kutu5 {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.etiket2 {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 14px;
+}
+.metin4 {
+  color: #a3271f;
+  font-size: 13.5px;
+  margin: 6px 0;
+}
+.kutu6 {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.dugme1 {
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  background: var(--rr-kart, #ffffff);
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 11px 16px;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dugme2 {
+  border: 0;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 11px 18px;
+  font-size: 14.5px;
+  font-weight: 800;
+}
+.dugme3 {
+  background: var(--rr-mavi, #5b8cff);
+  color: var(--rr-maviYazi, #1e2333);
+  cursor: pointer;
+}
+.dugme4 {
+  background: #c9d3e6;
+  color: var(--rr-murekkep, #1e2333);
+  cursor: not-allowed;
+}

@@ -3,7 +3,7 @@
 import type { ClientFlags } from '@rengarenk/shared';
 import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
 import { binlik, istek } from '../../lib/istemci';
-import { etiket } from './alan';
+import stil from './deney.module.css';
 
 /**
  * Sihirbazın bütçe adımı deneyi (Karar 44; özellik anahtarı `butce_b`, YonetimRapor › deney "kaydırıcı mı, iki kutu
@@ -61,11 +61,11 @@ export function ButceKaydirici({
 }) {
   const v = Math.min(deger.max ?? deger.min ?? 0, UST);
   return (
-    <div style={{ maxWidth: 520 }}>
-      <label htmlFor={id} style={{ ...etiket, marginBottom: 6 }}>
+    <div className={stil.kutu1}>
+      <label htmlFor={id} className={stil.etiket1}>
         {ad}
       </label>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div className={stil.kutu2}>
         <input
           id={id}
           type="range"
@@ -77,9 +77,9 @@ export function ButceKaydirici({
             const n = Number(e.target.value);
             onChange(n > 0 ? { max: n } : undefined);
           }}
-          style={{ flex: 1, minWidth: 0, accentColor: 'var(--rr-mavi, #5B8CFF)' }}
+          className={stil.girdi1}
         />
-        <span style={{ flex: 'none', width: 130, textAlign: 'right', fontSize: 14, fontWeight: 800 }}>
+        <span className={stil.metin1}>
           {binlik(v)} TL{v >= UST ? '+' : ''}
         </span>
       </div>

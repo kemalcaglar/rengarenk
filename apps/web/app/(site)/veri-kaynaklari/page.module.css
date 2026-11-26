@@ -1,0 +1,65 @@
+/* Bu dosya page.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 28px 24px 64px;
+}
+.kutu2 {
+  max-width: 860px;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.metin1 {
+  margin: 8px 0 20px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #3a4052;
+}
+.metin2 {
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  padding: 20px;
+  margin: 0;
+}
+.kutu3 {
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  overflow: hidden;
+}
+.kutu4 {
+  padding: 16px 20px;
+}
+.kutu5 {
+  border-top: 1px solid #eef0f5;
+}
+.kutu6 {
+  border-top: 0;
+}
+.baslik2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+}
+.metin3 {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  color: var(--rr-soluk, #5a6073);
+}
+.kutu7 {
+  margin-top: 10px;
+}
+.metin4 {
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--rr-murekkep, #1e2333);
+}
+.kutu8 {
+  margin-top: 8px;
+}

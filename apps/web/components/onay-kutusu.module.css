@@ -1,0 +1,16 @@
+/* Bu dosya onay-kutusu.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.metin1 {
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  flex: none;
+  box-sizing: border-box;
+}
+.metin2 {
+  background: var(--rr-mavi, #5b8cff);
+}
+.metin3 {
+  background: var(--rr-kart, #ffffff);
+}

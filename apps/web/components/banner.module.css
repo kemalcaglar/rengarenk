@@ -1,0 +1,48 @@
+/* Bu dosya banner.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  padding: 9px 16px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--rr-murekkep, #1e2333);
+}
+.metin1 {
+  color: #3a4052;
+}
+.bag1 {
+  font-weight: 800;
+  color: var(--rr-baglanti, #2450c8);
+}
+.kutu2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  border-radius: calc(var(--rr-kart-kose) * 16 / 18);
+  padding: 14px 18px;
+}
+.metin2 {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+.metin3 {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+}
+.metin4 {
+  display: block;
+  font-size: 14px;
+  color: #3a4052;
+  margin-top: 3px;
+}
+.bag2 {
+  flex: none;
+  background: var(--rr-murekkep, #1e2333);
+  color: #ffffff;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+}

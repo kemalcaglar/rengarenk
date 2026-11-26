@@ -1,0 +1,55 @@
+/* Bu dosya tanitim.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(30, 35, 51, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.kutu2 {
+  width: 100%;
+  max-width: 460px;
+  background: var(--rr-kart, #ffffff);
+  border-radius: calc(var(--rr-kart-kose) * 20 / 18);
+  padding: 24px 24px 20px;
+  box-shadow: 0 18px 50px rgba(30, 35, 51, 0.25);
+}
+.metin1 {
+  display: inline-block;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--rr-maviYazi, #1e2333);
+  background: var(--rr-mavi, #5b8cff);
+  border-radius: var(--rr-etiket-kose);
+  padding: 4px 10px;
+}
+.baslik1 {
+  margin: 14px 0 8px;
+  font-size: 20px;
+  font-weight: 800;
+}
+.metin2 {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--rr-soluk, #5a6073);
+}
+.kutu3 {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+.dugme1 {
+  border: 0;
+  background: var(--rr-mavi, #5b8cff);
+  color: var(--rr-maviYazi, #1e2333);
+  border-radius: var(--rr-buton-kose);
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+}

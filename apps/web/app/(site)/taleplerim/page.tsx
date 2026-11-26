@@ -5,8 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { HesabimMenu } from '../../../components/hesabim-menu';
+import { cx } from '../../../lib/cx';
 import { useWebFiyat } from '../../../lib/fiyat';
 import { binlik, istek, useGiris } from '../../../lib/istemci';
+import stil from './page.module.css';
 
 interface Talep {
   id: string;
@@ -191,17 +193,6 @@ export default function Taleplerim() {
     cursor: 'pointer',
     fontFamily: 'inherit',
   });
-  const cizgili: CSSProperties = {
-    display: 'block',
-    textAlign: 'center',
-    border: '1px solid #D5DAE5',
-    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-    padding: '9px 12px',
-    fontSize: 14,
-    fontWeight: 700,
-    color: 'var(--rr-murekkep, #1E2333)',
-    textDecoration: 'none',
-  };
   const yalin = (renk: string): CSSProperties => ({
     border: 0,
     background: 'transparent',
@@ -214,36 +205,16 @@ export default function Taleplerim() {
   });
 
   return (
-    <div style={{ position: 'relative' }}>
-      <div
-        className="rr-sayfa"
-        style={{
-          maxWidth: 1360,
-          margin: '0 auto',
-          padding: '24px 24px 64px',
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'flex-start',
-          gap: 24,
-        }}
-      >
+    <div className={stil.kutu1}>
+      <div className={`rr-sayfa ${stil.kutu2}`}>
         <HesabimMenu aktif="/taleplerim" />
 
-        <main style={{ flex: '999 1 760px', minWidth: 0 }}>
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'flex-end',
-              justifyContent: 'space-between',
-              gap: 12,
-              marginBottom: 16,
-            }}
-          >
+        <main className={stil.kutu3}>
+          <div className={stil.kutu4}>
             <div>
-              <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, letterSpacing: -0.4 }}>Taleplerim</h1>
-              <p style={{ margin: '4px 0 0', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
-                Kalan talep hakkın: <strong style={{ color: 'var(--rr-murekkep, #1E2333)' }}>{hak}</strong>
+              <h1 className={stil.baslik1}>Taleplerim</h1>
+              <p className={stil.metin1}>
+                Kalan talep hakkın: <strong className={stil.metin2}>{hak}</strong>
                 {haklar && haklar.talep === 0
                   ? ` · ek talep ${fiyat('ek_talep', BIREYSEL_FIYATLAR.ekTalep.tl)} TL (ödeme altyapısı açılınca)`
                   : ''}
@@ -252,39 +223,14 @@ export default function Taleplerim() {
           </div>
 
           {hata ? (
-            <p
-              role="alert"
-              style={{
-                margin: '0 0 14px',
-                background: '#FDECEC',
-                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                padding: '12px 14px',
-                fontSize: 14,
-                fontWeight: 600,
-                color: '#A3271F',
-              }}
-            >
+            <p role="alert" className={stil.metin3}>
               {hata}
             </p>
           ) : null}
 
           {doldu ? (
-            <div
-              role="status"
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '10px 16px',
-                background: '#FFF6DF',
-                border: '1px solid #F4DC9A',
-                borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-                padding: '14px 18px',
-                marginBottom: 16,
-              }}
-            >
-              <span style={{ fontSize: 14.5 }}>
+            <div role="status" className={stil.kutu5}>
+              <span className={stil.metin4}>
                 <strong>{doldu.baslik} talebinin süresi doldu.</strong> Ücretsiz uzatma hakkın duruyor;{' '}
                 {doldu.category.slug === 'hava' ? 90 : 30} gün daha yayında kalabilir.
               </span>
@@ -301,20 +247,7 @@ export default function Taleplerim() {
             </div>
           ) : null}
 
-          <div
-            role="tablist"
-            aria-label="Talep durumu"
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 6,
-              background: 'var(--rr-kart, #FFFFFF)',
-              border: '1px solid var(--rr-cizgi, #E3E6EF)',
-              borderRadius: 'var(--rr-buton-kose)',
-              padding: 6,
-              marginBottom: 16,
-            }}
-          >
+          <div role="tablist" aria-label="Talep durumu" className={stil.kutu6}>
             {SEKMELER.map(([k, ad]) => {
               const on = sekme === k;
               return (
@@ -324,40 +257,16 @@ export default function Taleplerim() {
                   role="tab"
                   aria-selected={on}
                   onClick={() => setSekme(k)}
-                  style={{
-                    flex: '1 1 140px',
-                    border: 0,
-                    background: on ? '#EEF3FF' : 'transparent',
-                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                    padding: '11px 12px',
-                    fontSize: 14.5,
-                    fontWeight: on ? 800 : 600,
-                    color: on ? 'var(--rr-murekkep, #1E2333)' : '#3A4052',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
+                  className={cx(stil.dugme1, on ? stil.dugme2 : stil.dugme3)}
                 >
-                  {ad}{' '}
-                  <span style={{ color: on ? 'var(--rr-baglanti, #2450C8)' : 'var(--rr-soluk, #5A6073)' }}>
-                    {sayilar[k]}
-                  </span>
+                  {ad} <span className={cx(on ? stil.metin5 : stil.metin6)}>{sayilar[k]}</span>
                 </button>
               );
             })}
           </div>
 
           {liste !== null && gorunen.length === 0 ? (
-            <div
-              style={{
-                background: 'var(--rr-kart, #FFFFFF)',
-                border: '1px dashed #C9CFDB',
-                borderRadius: 'var(--rr-kart-kose)',
-                padding: '40px 20px',
-                textAlign: 'center',
-                fontSize: 15,
-                color: 'var(--rr-soluk, #5A6073)',
-              }}
-            >
+            <div className={stil.kutu7}>
               Bu bölümde talep yok.
               {liste.length === 0 ? (
                 <>
@@ -367,39 +276,23 @@ export default function Taleplerim() {
               ) : null}
             </div>
           ) : null}
-          {liste === null ? <p style={{ color: 'var(--rr-soluk, #5A6073)' }}>Yükleniyor…</p> : null}
+          {liste === null ? <p className={stil.metin6}>Yükleniyor…</p> : null}
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className={stil.kutu8}>
             {gorunen.map((t, i) => {
               const [durum, dBg, dFg] = ETIKET[t.status];
               const ink = DOTS[i % DOTS.length] as string;
               const ucretsiz = !t.freeExtensionUsed;
               return (
-                <article
-                  key={t.id}
-                  style={{
-                    background: 'var(--rr-kart, #FFFFFF)',
-                    border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                    borderRadius: 'var(--rr-kart-kose)',
-                    padding: 18,
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 16,
-                  }}
-                >
+                <article key={t.id} className={stil.kutu9}>
                   <div
                     aria-hidden="true"
+                    className={stil.kutu10}
                     style={{
-                      flex: '0 0 150px',
-                      height: 100,
-                      borderRadius: 'var(--rr-buton-kose)',
                       background:
                         t.status === 'COMPLETED' || t.status === 'CLOSED'
                           ? '#F3F5FA'
                           : TINTS[i % TINTS.length],
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
                     }}
                   >
                     <svg width="112" height="46" viewBox="0 0 112 46" fill="none" aria-hidden="true">
@@ -414,133 +307,63 @@ export default function Taleplerim() {
                       <circle cx="84" cy="38" r="3" fill="#FFFFFF" />
                     </svg>
                   </div>
-                  <div style={{ flex: '999 1 300px', minWidth: 0 }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 8px' }}>
-                      <span
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 800,
-                          padding: '3px 9px',
-                          borderRadius: 'var(--rr-etiket-kose)',
-                          background: dBg,
-                          color: dFg,
-                        }}
-                      >
+                  <div className={stil.kutu11}>
+                    <div className={stil.kutu12}>
+                      <span className={stil.metin7} style={{ background: dBg, color: dFg }}>
                         {durum}
                       </span>
-                      <span style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+                      <span className={stil.metin8}>
                         {t.category.name} · {t.status === 'DRAFT' ? 'Taslak' : `No ${t.no}`}
                       </span>
-                      {t.galeri ? (
-                        <span
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 800,
-                            padding: '3px 9px',
-                            borderRadius: 'var(--rr-etiket-kose)',
-                            background: '#FFF6DF',
-                            color: '#7A5300',
-                          }}
-                        >
-                          {t.galeri.ad} adına
-                        </span>
-                      ) : null}
+                      {t.galeri ? <span className={stil.metin9}>{t.galeri.ad} adına</span> : null}
                     </div>
-                    <h2 style={{ margin: '6px 0 2px', fontSize: 18, fontWeight: 800 }}>
+                    <h2 className={stil.baslik2}>
                       {t.status === 'DRAFT' ? (
                         t.baslik
                       ) : (
-                        <Link href={`/talep/${t.no}`} style={{ color: 'var(--rr-murekkep, #1E2333)' }}>
+                        <Link href={`/talep/${t.no}`} className={stil.metin2}>
                           {t.baslik}
                         </Link>
                       )}
                     </h2>
-                    <p style={{ margin: 0, fontSize: 14, color: '#3A4052' }}>
+                    <p className={stil.metin10}>
                       {t.status === 'DRAFT'
                         ? `Taslak · 6 adımın ${Math.max(0, t.step - 1)}’i tamam`
                         : ozet(t)}
                     </p>
-                    <p
-                      style={{
-                        margin: '6px 0 0',
-                        fontSize: 13.5,
-                        fontWeight: 600,
-                        color: t.status === 'PASSIVE' ? '#7A5300' : 'var(--rr-soluk, #5A6073)',
-                      }}
-                    >
+                    <p className={cx(stil.metin11, t.status === 'PASSIVE' ? stil.metin12 : stil.metin6)}>
                       {sure(t)}
                     </p>
                     {t.status !== 'DRAFT' && t.istatistik ? (
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexWrap: 'wrap',
-                          gap: '6px 18px',
-                          marginTop: 10,
-                          fontSize: 13.5,
-                          color: '#3A4052',
-                        }}
-                      >
+                      <div className={stil.kutu13}>
                         <span>
-                          <strong style={{ color: 'var(--rr-murekkep, #1E2333)' }}>
-                            {binlik(t.istatistik.goruntu)}
-                          </strong>{' '}
-                          görüntülenme
+                          <strong className={stil.metin2}>{binlik(t.istatistik.goruntu)}</strong> görüntülenme
                         </span>
                         <span>
-                          <strong style={{ color: 'var(--rr-murekkep, #1E2333)' }}>
-                            {binlik(t.istatistik.favori)}
-                          </strong>{' '}
-                          favori
+                          <strong className={stil.metin2}>{binlik(t.istatistik.favori)}</strong> favori
                         </span>
-                        <Link href="/mesajlarim" style={{ color: 'var(--rr-baglanti, #2450C8)' }}>
+                        <Link href="/mesajlarim" className={stil.metin5}>
                           <strong>{binlik(t.istatistik.mesaj)}</strong> mesaj
                         </Link>
                         <span>
-                          <strong style={{ color: 'var(--rr-murekkep, #1E2333)' }}>
-                            {binlik(t.istatistik.eslesen)}
-                          </strong>{' '}
-                          uyan portföy aracı
+                          <strong className={stil.metin2}>{binlik(t.istatistik.eslesen)}</strong> uyan portföy
+                          aracı
                         </span>
                       </div>
                     ) : null}
                     {t.duzeltme ? (
-                      <p
-                        role="status"
-                        style={{
-                          margin: '8px 0 0',
-                          padding: '8px 12px',
-                          borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                          background: '#FFF6DF',
-                          border: '1px solid #F4DC9A',
-                          fontSize: 13,
-                          fontWeight: 600,
-                          color: '#7A5300',
-                          lineHeight: 1.45,
-                        }}
-                      >
+                      <p role="status" className={stil.metin13}>
                         {t.duzeltme.alanlar.length
                           ? `Düzeltme gerekiyor: talebinde ${birlestir(t.duzeltme.alanlar)} var. Talebin yayında, bu bilgiler başkalarına gizli gösteriliyor. `
                           : ''}
                         {t.duzeltme.not ? `Destek ekibinin notu: ${t.duzeltme.not} ` : ''}
-                        <Link
-                          href={`/talep-olustur?id=${t.id}`}
-                          style={{ color: '#7A5300', fontWeight: 800 }}
-                        >
+                        <Link href={`/talep-olustur?id=${t.id}`} className={stil.bag1}>
                           Düzenle
                         </Link>
                       </p>
                     ) : null}
                   </div>
-                  <div
-                    style={{
-                      flex: '1 1 180px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 8,
-                      justifyContent: 'center',
-                    }}
-                  >
+                  <div className={stil.kutu14}>
                     {t.status === 'PUBLISHED' ? (
                       <>
                         <button
@@ -551,7 +374,7 @@ export default function Taleplerim() {
                         >
                           Aracı buldum
                         </button>
-                        <Link href={`/talep-olustur?id=${t.id}`} style={cizgili}>
+                        <Link href={`/talep-olustur?id=${t.id}`} className={stil.bag2}>
                           Düzenle
                         </Link>
                         {(['ust_sira', 'acil', 'vitrin'] as const)
@@ -602,7 +425,7 @@ export default function Taleplerim() {
                     {t.status === 'PASSIVE' ? (
                       <>
                         {moderasyon(t) ? (
-                          <Link href="/bildirimler" style={cizgili}>
+                          <Link href="/bildirimler" className={stil.bag2}>
                             Kararı gör
                           </Link>
                         ) : sureDoldu(t) ? (
@@ -636,7 +459,7 @@ export default function Taleplerim() {
                             Yeniden yayınla
                           </button>
                         )}
-                        <Link href={`/talep-olustur?id=${t.id}`} style={cizgili}>
+                        <Link href={`/talep-olustur?id=${t.id}`} className={stil.bag2}>
                           Düzenle
                         </Link>
                         <button
@@ -657,30 +480,11 @@ export default function Taleplerim() {
                     ) : null}
                     {t.status === 'DRAFT' ? (
                       <>
-                        <Link
-                          href={`/talep-olustur?id=${t.id}`}
-                          style={{
-                            ...cizgili,
-                            border: 0,
-                            background: 'var(--rr-mavi, #5B8CFF)',
-                            color: 'var(--rr-maviYazi, #1E2333)',
-                            fontWeight: 800,
-                          }}
-                        >
+                        <Link href={`/talep-olustur?id=${t.id}`} className={stil.bag3}>
                           Kaldığın yerden devam et
                         </Link>
                         {haklar && haklar.talep < 1 ? (
-                          <span
-                            style={{
-                              display: 'block',
-                              textAlign: 'center',
-                              fontSize: 13,
-                              fontWeight: 600,
-                              color: 'var(--rr-baglanti, #2450C8)',
-                            }}
-                          >
-                            Yayınlamak için talep hakkı gerekiyor
-                          </span>
+                          <span className={stil.metin14}>Yayınlamak için talep hakkı gerekiyor</span>
                         ) : null}
                         <button
                           type="button"
@@ -695,7 +499,7 @@ export default function Taleplerim() {
                       </>
                     ) : null}
                     {t.status === 'COMPLETED' || t.status === 'CLOSED' ? (
-                      <Link href="/talep-olustur" style={cizgili}>
+                      <Link href="/talep-olustur" className={stil.bag2}>
                         Benzerini oluştur
                       </Link>
                     ) : null}
@@ -708,42 +512,16 @@ export default function Taleplerim() {
       </div>
 
       {dlg ? (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(30,35,51,0.45)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 16,
-            zIndex: 10,
-          }}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="dlgb"
-            style={{
-              width: '100%',
-              maxWidth: 480,
-              background: 'var(--rr-kart, #FFFFFF)',
-              borderRadius: 'calc(var(--rr-kart-kose) * 20 / 18)',
-              padding: 24,
-            }}
-          >
-            <h2 id="dlgb" style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 800 }}>
+        <div className={stil.kutu15}>
+          <div role="dialog" aria-modal="true" aria-labelledby="dlgb" className={stil.kutu16}>
+            <h2 id="dlgb" className={stil.baslik3}>
               Tebrikler! Aracı nereden buldun?
             </h2>
-            <p style={{ margin: '0 0 16px', fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
+            <p className={stil.metin15}>
               {dlg.baslik} talebi kapanacak ve satıcılar artık mesaj gönderemeyecek. Mevcut sohbetlerin açık
               kalır.
             </p>
-            <div
-              role="radiogroup"
-              aria-label="Aracı nereden buldun"
-              style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
-            >
+            <div role="radiogroup" aria-label="Aracı nereden buldun" className={stil.kutu17}>
               {FOUND_VIA.map((o) => {
                 const on = secim === o.key;
                 return (
@@ -754,58 +532,22 @@ export default function Taleplerim() {
                     role="radio"
                     aria-checked={on}
                     onClick={() => setSecim(o.key)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      textAlign: 'left',
-                      border: on ? '1.5px solid var(--rr-mavi, #5B8CFF)' : '1px solid #D5DAE5',
-                      background: on ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
-                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                      padding: '12px 14px',
-                      fontSize: 14.5,
-                      fontWeight: 600,
-                      color: 'var(--rr-murekkep, #1E2333)',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
+                    className={cx(stil.dugme4, on ? stil.dugme5 : stil.dugme6)}
                   >
                     <span
-                      style={{
-                        flex: 'none',
-                        width: 18,
-                        height: 18,
-                        borderRadius: '50%',
-                        border: `2px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}`,
-                        boxShadow: 'inset 0 0 0 3px #FFFFFF',
-                        background: on ? 'var(--rr-mavi, #5B8CFF)' : '#FFFFFF',
-                        color: on ? 'var(--rr-maviYazi, #1E2333)' : undefined,
-                      }}
+                      className={cx(stil.metin16, on ? stil.metin17 : stil.metin18)}
+                      style={{ border: `2px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}` }}
                     />
                     {o.ad}
                   </button>
                 );
               })}
             </div>
-            <p style={{ margin: '12px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+            <p className={stil.metin19}>
               Bu bilgi yalnızca hizmeti iyileştirmek için kullanılır, satıcıya gösterilmez.
             </p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 18 }}>
-              <button
-                type="button"
-                onClick={() => setDlg(null)}
-                style={{
-                  border: '1px solid #D5DAE5',
-                  background: 'var(--rr-kart, #FFFFFF)',
-                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                  padding: '11px 16px',
-                  fontSize: 14.5,
-                  fontWeight: 700,
-                  color: 'var(--rr-murekkep, #1E2333)',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
-              >
+            <div className={stil.kutu18}>
+              <button type="button" onClick={() => setDlg(null)} className={stil.dugme7}>
                 Vazgeç
               </button>
               <button
@@ -829,22 +571,7 @@ export default function Taleplerim() {
       ) : null}
 
       {toast ? (
-        <div
-          role="status"
-          style={{
-            position: 'fixed',
-            left: '50%',
-            bottom: 28,
-            transform: 'translateX(-50%)',
-            background: 'var(--rr-murekkep, #1E2333)',
-            color: '#FFFFFF',
-            borderRadius: 'var(--rr-buton-kose)',
-            padding: '13px 18px',
-            fontSize: 14.5,
-            fontWeight: 600,
-            zIndex: 11,
-          }}
-        >
+        <div role="status" className={stil.kutu19}>
           {toast}
         </div>
       ) : null}

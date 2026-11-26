@@ -1,6 +1,7 @@
 'use client';
 
 import { PAINT_STATES } from '@rengarenk/shared';
+import stil from './arac-semasi.module.css';
 
 /** Üstten araç şeması: parçalar durum rengine boyanır (talep sayfası, portföy aracı sayfası) */
 export function AracSemasiGorunum({
@@ -23,7 +24,7 @@ export function AracSemasiGorunum({
       viewBox="0 0 260 520"
       role="img"
       aria-label={etiket}
-      style={{ flex: 'none' }}
+      className={stil.gorsel1}
     >
       <text x="130" y="11" textAnchor="middle" fontSize="11" fontWeight="700" fill="#5A6073">
         ÖN

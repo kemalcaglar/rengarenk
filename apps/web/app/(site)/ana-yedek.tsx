@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { API } from '../../lib/istemci';
-import { colors } from '../../lib/renk';
 import { SonTalepler } from './ana-bolumler';
+import stil from './ana-yedek.module.css';
 import { type TalepYaniti, VitrinBolumu } from './vitrin';
 
 /** Yeniden deneme aralıkları: 1, 2, 4, 8, 15 sn, sonra yarım dakikada bir */
@@ -51,20 +51,8 @@ function useTalepler(yol: string) {
 function Bekliyor({ baslik }: { baslik: string }) {
   return (
     <section aria-label={baslik} aria-busy="true">
-      <h2 style={{ margin: '0 0 10px', fontSize: 19, fontWeight: 800 }}>{baslik}</h2>
-      <p
-        style={{
-          margin: 0,
-          padding: '18px 16px',
-          background: colors.surface,
-          border: `1px solid ${colors.line}`,
-          borderRadius: 'var(--rr-kart-kose)',
-          fontSize: 14,
-          color: colors.muted,
-        }}
-      >
-        Talepler yükleniyor…
-      </p>
+      <h2 className={stil.baslik1}>{baslik}</h2>
+      <p className={stil.metin1}>Talepler yükleniyor…</p>
     </section>
   );
 }

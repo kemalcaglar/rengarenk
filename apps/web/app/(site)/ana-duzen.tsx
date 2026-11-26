@@ -1,56 +1,34 @@
 'use client';
 
-import { type HomeResponse, tints } from '@rengarenk/shared';
+import { type HomeResponse } from '@rengarenk/shared';
 import Link from 'next/link';
 import { Fragment, type ReactNode, useEffect, useState } from 'react';
 import { Banner } from '../../components/banner';
+import { cx } from '../../lib/cx';
 import { istek, useGiris } from '../../lib/istemci';
-import { colors } from '../../lib/renk';
-import { Baslik, kart, type SonKart, SonTalepler } from './ana-bolumler';
+import { Baslik, type SonKart, SonTalepler } from './ana-bolumler';
+import stil from './ana-duzen.module.css';
 import { talepleriAl } from './ana-yedek';
 import { KayitliAramalarim } from './kayitli-aramalarim';
 import { PortfoyEslesmeleri } from './portfoy-eslesmeleri';
-
-const dugme = {
-  fontSize: 14.5,
-  fontWeight: 700,
-  color: colors.ink,
-  border: `1px solid ${colors.line}`,
-  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-  padding: '11px 16px',
-  textDecoration: 'none',
-  background: 'var(--rr-kart, #FFFFFF)',
-} as const;
 
 type Galeri = NonNullable<HomeResponse['galeri']>;
 
 /** Galeri karşılaması (Anasayfa.dc.html): ad, paket ve bugün kalan ilk mesaj hakkı; portföy ve mesajlar */
 function GaleriKarsilama({ g }: { g: Galeri }) {
   return (
-    <section
-      aria-labelledby="merhaba"
-      style={{
-        ...kart,
-        borderRadius: 'calc(var(--rr-kart-kose) * 20 / 18)',
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 16,
-        padding: '20px 24px',
-      }}
-    >
+    <section aria-labelledby="merhaba" className={stil.kutu1}>
       <div>
-        <h1 id="merhaba" style={{ margin: 0, fontSize: 24, fontWeight: 800 }}>
+        <h1 id="merhaba" className={stil.baslik1}>
           Merhaba, {g.ad}
         </h1>
-        <p style={{ margin: '4px 0 0', fontSize: 14.5, color: colors.muted }}>
+        <p className={stil.metin1}>
           {g.paket} paket
           {g.gunluk ? (
             <>
               {' '}
               · Bugün kalan ilk mesaj hakkın{' '}
-              <strong style={{ color: colors.ink }}>
+              <strong className={stil.metin2}>
                 {g.gunluk.kalan} / {g.gunluk.toplam}
               </strong>
             </>
@@ -59,26 +37,13 @@ function GaleriKarsilama({ g }: { g: Galeri }) {
           )}
         </p>
       </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-        <Link href="/galeri-paneli?bolum=portfoy" style={dugme}>
+      <div className={stil.kutu2}>
+        <Link href="/galeri-paneli?bolum=portfoy" className={stil.bag1}>
           Portföyüm ({g.portfoy} araç)
         </Link>
-        <Link href="/mesajlarim" style={dugme}>
+        <Link href="/mesajlarim" className={stil.bag1}>
           Mesajlar
-          {g.okunmamis ? (
-            <span
-              style={{
-                background: colors.pink,
-                color: 'var(--rr-pembeYazi, #1E2333)',
-                borderRadius: 'var(--rr-etiket-kose)',
-                padding: '2px 8px',
-                marginLeft: 6,
-                fontSize: 12.5,
-              }}
-            >
-              {g.okunmamis}
-            </span>
-          ) : null}
+          {g.okunmamis ? <span className={stil.metin3}>{g.okunmamis}</span> : null}
         </Link>
       </div>
     </section>
@@ -89,52 +54,23 @@ function GaleriKarsilama({ g }: { g: Galeri }) {
 function HakKarti({ g }: { g: Galeri }) {
   const oran = g.gunluk?.toplam ? g.gunluk.kalan / g.gunluk.toplam : 0;
   return (
-    <section
-      aria-label="Kalan ilk mesaj hakkı"
-      style={{
-        ...kart,
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        gap: '10px 20px',
-        padding: '16px 20px',
-        background: tints.yellow,
-      }}
-    >
-      <span style={{ flex: '1 1 240px', minWidth: 0 }}>
-        <span style={{ display: 'block', fontSize: 15.5, fontWeight: 800 }}>
+    <section aria-label="Kalan ilk mesaj hakkı" className={stil.kutu3}>
+      <span className={stil.metin4}>
+        <span className={stil.metin5}>
           {g.gunluk
             ? `Bugün ${g.gunluk.kalan} ilk mesaj hakkın kaldı`
             : 'Paketin yok; ilk mesaj gönderemezsin'}
         </span>
-        <span style={{ display: 'block', fontSize: 13.5, color: '#5A3D00', marginTop: 3 }}>
+        <span className={stil.metin6}>
           {g.paket} paket{g.gunluk ? ` · günde ${g.gunluk.toplam}` : ''} · ek hak {g.ek}
         </span>
         {g.gunluk ? (
-          <span
-            aria-hidden="true"
-            style={{
-              display: 'block',
-              height: 8,
-              borderRadius: 'var(--rr-etiket-kose)',
-              background: 'var(--rr-kart, #FFFFFF)',
-              marginTop: 8,
-              overflow: 'hidden',
-            }}
-          >
-            <span
-              style={{
-                display: 'block',
-                width: `${Math.round(oran * 100)}%`,
-                height: '100%',
-                background: colors.yellow,
-                color: 'var(--rr-sariYazi, #1E2333)',
-              }}
-            />
+          <span aria-hidden="true" className={stil.metin7}>
+            <span className={stil.metin8} style={{ width: `${Math.round(oran * 100)}%` }} />
           </span>
         ) : null}
       </span>
-      <Link href="/galeri-paneli?bolum=paket" style={dugme}>
+      <Link href="/galeri-paneli?bolum=paket" className={stil.bag1}>
         Paket ve ek haklar
       </Link>
     </section>
@@ -148,55 +84,25 @@ function ArananModeller({ a }: { a: NonNullable<HomeResponse['aranan']> }) {
       <Baslik
         id="aranan"
         sag={
-          <Link href="/galeri-paneli?bolum=ekle" style={{ fontSize: 14, fontWeight: 700 }}>
+          <Link href="/galeri-paneli?bolum=ekle" className={stil.bag2}>
             Araç ekle
           </Link>
         }
       >
         {a.bolge.replace(/^./, (c) => c.toLocaleUpperCase('tr-TR'))} aranan modeller
       </Baslik>
-      <div style={{ ...kart, borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)', overflow: 'hidden' }}>
+      <div className={stil.kutu4}>
         {a.modeller.map((m) => (
-          <div
-            key={m.ad}
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: '6px 16px',
-              padding: '12px 18px',
-              borderBottom: '1px solid #EEF0F5',
-            }}
-          >
-            <span style={{ flex: '0 0 24px', fontWeight: 800, color: colors.muted }}>{m.sira}</span>
-            <span style={{ flex: '999 1 220px', minWidth: 0, fontSize: 15, fontWeight: 700 }}>{m.ad}</span>
-            <span style={{ flex: '1 1 120px', fontSize: 14, fontWeight: 800, color: colors.link }}>
-              {m.talep} talep
-            </span>
-            <span
-              style={{
-                flex: 'none',
-                fontSize: 12.5,
-                fontWeight: 800,
-                padding: '3px 9px',
-                borderRadius: 'var(--rr-etiket-kose)',
-                background: m.arac ? '#E7FAF0' : '#FFF6DF',
-                color: m.arac ? '#11683F' : '#7A5300',
-              }}
-            >
+          <div key={m.ad} className={stil.kutu5}>
+            <span className={stil.metin9}>{m.sira}</span>
+            <span className={stil.metin10}>{m.ad}</span>
+            <span className={stil.metin11}>{m.talep} talep</span>
+            <span className={cx(stil.metin12, m.arac ? stil.metin13 : stil.metin14)}>
               {m.arac ? `Portföyünde ${m.arac}` : 'Portföyünde yok'}
             </span>
           </div>
         ))}
-        <p
-          style={{
-            margin: 0,
-            padding: '12px 18px',
-            fontSize: 13.5,
-            background: 'var(--rr-zemin, #F6F8FD)',
-            lineHeight: 1.5,
-          }}
-        >
+        <p className={stil.metin15}>
           <strong>Ajan:</strong> {a.oneri}
         </p>
       </div>
@@ -210,7 +116,7 @@ function TaleplerimOzeti({ liste }: { liste: NonNullable<HomeResponse['talepleri
       <Baslik
         id="taleplerim"
         sag={
-          <Link href="/taleplerim" style={{ fontSize: 14, fontWeight: 700 }}>
+          <Link href="/taleplerim" className={stil.bag2}>
             Taleplerim
           </Link>
         }
@@ -220,28 +126,18 @@ function TaleplerimOzeti({ liste }: { liste: NonNullable<HomeResponse['talepleri
       {liste.length ? (
         <div className="rr-uc-sutun">
           {liste.map((t) => (
-            <Link
-              key={t.no}
-              href={`/talep/${t.no}`}
-              style={{
-                ...kart,
-                borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-                padding: 16,
-                color: colors.ink,
-                textDecoration: 'none',
-              }}
-            >
-              <span style={{ display: 'block', fontSize: 15, fontWeight: 800 }}>{t.baslik}</span>
-              <span style={{ display: 'block', fontSize: 13.5, color: colors.muted, marginTop: 6 }}>
+            <Link key={t.no} href={`/talep/${t.no}`} className={stil.bag3}>
+              <span className={stil.metin16}>{t.baslik}</span>
+              <span className={stil.metin17}>
                 {t.kalanGun} gün kaldı · {t.yazan} satıcı yazdı
               </span>
             </Link>
           ))}
         </div>
       ) : (
-        <p style={{ ...kart, margin: 0, padding: 16, fontSize: 14, color: colors.muted }}>
+        <p className={stil.metin18}>
           Yayında talebin yok.{' '}
-          <Link href="/talep-olustur" style={{ fontWeight: 800 }}>
+          <Link href="/talep-olustur" className={stil.bag4}>
             Talep oluştur
           </Link>
         </p>
@@ -257,49 +153,23 @@ function GelenMesajlar({ liste }: { liste: NonNullable<HomeResponse['mesajlar']>
       <Baslik
         id="mesajlar"
         sag={
-          <Link href="/mesajlarim" style={{ fontSize: 14, fontWeight: 700 }}>
+          <Link href="/mesajlarim" className={stil.bag2}>
             Mesajlarım
           </Link>
         }
       >
         Gelen ilk mesajlar
       </Baslik>
-      <div style={{ ...kart, borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)', overflow: 'hidden' }}>
+      <div className={stil.kutu4}>
         {liste.map((m) => (
-          <Link
-            key={m.id}
-            href={`/mesajlarim?sohbet=${m.id}`}
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: '6px 14px',
-              padding: '13px 18px',
-              borderBottom: '1px solid #EEF0F5',
-              color: colors.ink,
-              textDecoration: 'none',
-            }}
-          >
+          <Link key={m.id} href={`/mesajlarim?sohbet=${m.id}`} className={stil.bag5}>
             <span
               role="img"
               aria-label={m.okunmadi ? 'Okunmadı' : 'Okundu'}
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: '50%',
-                background: m.okunmadi ? colors.pink : '#D5DAE5',
-                color: m.okunmadi ? 'var(--rr-pembeYazi, #1E2333)' : undefined,
-                flex: 'none',
-              }}
+              className={cx(stil.metin19, m.okunmadi ? stil.metin20 : stil.metin21)}
             />
-            <span
-              style={{ flex: '999 1 200px', minWidth: 0, fontSize: 15, fontWeight: m.okunmadi ? 800 : 600 }}
-            >
-              {m.satici}
-            </span>
-            <span style={{ flex: '1 1 200px', minWidth: 0, fontSize: 13.5, color: colors.muted }}>
-              {m.talep}
-            </span>
+            <span className={cx(stil.metin22, m.okunmadi ? stil.bag4 : stil.metin23)}>{m.satici}</span>
+            <span className={stil.metin24}>{m.talep}</span>
           </Link>
         ))}
       </div>
@@ -376,19 +246,9 @@ export function AnaDuzen({ ilk, bolumler }: { ilk: HomeResponse; bolumler: Recor
   };
 
   return (
-    <main
-      style={{
-        maxWidth: 1360,
-        margin: '0 auto',
-        padding: '24px 24px 64px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'flex-start',
-        gap: 24,
-      }}
-    >
+    <main className={`rr-sayfa ${stil.kutu6}`}>
       {v.sira.includes('kat') ? bolumler.kat : null}
-      <div style={{ flex: '999 1 760px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 22 }}>
+      <div className={stil.kutu7}>
         <Banner yer="anasayfa_ust" />
         {v.sira
           .filter((k) => k !== 'kat')

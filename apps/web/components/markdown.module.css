@@ -1,0 +1,64 @@
+/* Bu dosya markdown.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  font-size: 15px;
+  line-height: 1.65;
+  color: #3a4052;
+}
+.baslik1 {
+  margin: 22px 0 6px;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--rr-murekkep, #1e2333);
+}
+.baslik2 {
+  margin: 26px 0 8px;
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--rr-murekkep, #1e2333);
+}
+.kutu2 {
+  overflow-x: auto;
+  margin: 12px 0;
+}
+.tablo1 {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 480px;
+}
+.tablo2 {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef0f5;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--rr-murekkep, #1e2333);
+  background: var(--rr-zemin, #f6f8fd);
+}
+.tablo3 {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef0f5;
+  text-align: left;
+  font-size: 14px;
+}
+.liste1 {
+  margin: 8px 0;
+  padding-left: 22px;
+}
+.oge1 {
+  margin: 4px 0;
+}
+.liste2 {
+  margin: 8px 0;
+  padding-left: 24px;
+}
+.metin1 {
+  margin: 12px 0;
+  padding: 12px 16px;
+  background: var(--rr-zemin, #f6f8fd);
+  border-radius: var(--rr-buton-kose);
+  color: var(--rr-murekkep, #1e2333);
+  font-weight: 600;
+}
+.metin2 {
+  margin: 8px 0;
+}

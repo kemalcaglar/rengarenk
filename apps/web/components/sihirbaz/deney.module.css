@@ -1,0 +1,27 @@
+/* Bu dosya deney.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  max-width: 520px;
+}
+.etiket1 {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.kutu2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.girdi1 {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--rr-mavi, #5b8cff);
+}
+.metin1 {
+  flex: none;
+  width: 130px;
+  text-align: right;
+  font-size: 14px;
+  font-weight: 800;
+}

@@ -18,8 +18,10 @@ import { GorselBuyut } from '../../../../components/gorsel-buyut';
 import { IlkMesaj } from '../../../../components/ilk-mesaj';
 import { Sikayet } from '../../../../components/sikayet';
 import { TeknikTablo } from '../../../../components/teknik-tablo';
+import { cx } from '../../../../lib/cx';
 import { API, istek, useGiris } from '../../../../lib/istemci';
 import { butceAraligi, deger, etiket, uzunTarih } from '../../../../lib/talep-bicim';
+import stil from './detay.module.css';
 
 type Values = Record<string, unknown>;
 
@@ -80,11 +82,6 @@ export interface TalepVeri {
 }
 
 const TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0'];
-const kart: CSSProperties = {
-  background: 'var(--rr-kart, #FFFFFF)',
-  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-  borderRadius: 'var(--rr-kart-kose)',
-};
 const BOYA_AD: Record<string, string> = {
   orijinal: 'Orijinal olmalı',
   lokal: 'Lokal boya kabul',
@@ -281,18 +278,9 @@ export function TalepDetay({
     fontFamily: 'inherit',
   });
   return (
-    <div style={{ flex: '999 1 760px', minWidth: 0 }}>
+    <div className={stil.kutu1}>
       <Banner yer="talep_detay" style={{ marginBottom: 14 }} />
-      <nav
-        aria-label="Konum"
-        style={{
-          fontSize: 13.5,
-          color: 'var(--rr-soluk, #5A6073)',
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 6,
-        }}
-      >
+      <nav aria-label="Konum" className={stil.kutu2}>
         <Link href="/talepler">Vasıta</Link>
         {ustKategori ? (
           <>
@@ -326,51 +314,16 @@ export function TalepDetay({
         ) : null}
       </nav>
 
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-          gap: 16,
-          margin: '16px 0 24px',
-        }}
-      >
-        <div style={{ flex: '999 1 560px', minWidth: 0 }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+      <div className={stil.kutu3}>
+        <div className={stil.kutu4}>
+          <div className={stil.kutu5}>
             {yayinda ? (
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  background: '#E7FAF0',
-                  color: '#11683F',
-                  fontSize: 13,
-                  fontWeight: 700,
-                  padding: '5px 12px',
-                  borderRadius: 'var(--rr-etiket-kose)',
-                }}
-              >
-                <span
-                  aria-hidden="true"
-                  style={{ width: 8, height: 8, borderRadius: '50%', background: '#2DB86F' }}
-                />
+              <span className={stil.metin1}>
+                <span aria-hidden="true" className={stil.metin2} />
                 Yayında · {gunKaldi} gün kaldı
               </span>
             ) : (
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  background: '#F3F5FA',
-                  color: '#3A4052',
-                  fontSize: 13,
-                  fontWeight: 700,
-                  padding: '5px 12px',
-                  borderRadius: 'var(--rr-etiket-kose)',
-                }}
-              >
+              <span className={stil.metin3}>
                 {t.status === 'PASSIVE'
                   ? 'Pasif · satıcılar şu an yazamaz'
                   : t.status === 'COMPLETED'
@@ -379,35 +332,20 @@ export function TalepDetay({
               </span>
             )}
           </div>
-          <h1 style={{ margin: 0, fontSize: 30, lineHeight: 1.25, fontWeight: 800, letterSpacing: -0.4 }}>
-            {t.baslik}
-          </h1>
-          <p style={{ margin: '10px 0 0', fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
+          <h1 className={stil.baslik1}>{t.baslik}</h1>
+          <p className={stil.metin4}>
             Talep no {t.no} · Yayın tarihi {uzunTarih(t.publishedAt)}
             {t.il ? ` · ${[t.il, t.ilce].filter(Boolean).join(', ')}` : ''}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className={stil.kutu6}>
           {sahip.isYou ? null : (
             <button
               type="button"
               onClick={favori}
               disabled={favBusy}
               aria-pressed={sahip.favori}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 7,
-                background: 'var(--rr-kart, #FFFFFF)',
-                border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                padding: '11px 14px',
-                fontSize: 14,
-                fontWeight: 600,
-                color: 'var(--rr-murekkep, #1E2333)',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
+              className={stil.dugme1}
             >
               <svg
                 width="18"
@@ -436,18 +374,7 @@ export function TalepDetay({
                 setPaylasildi(true);
               }
             }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 46,
-              height: 46,
-              background: 'var(--rr-kart, #FFFFFF)',
-              border: '1px solid var(--rr-cizgi, #E3E6EF)',
-              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-              color: 'var(--rr-murekkep, #1E2333)',
-              cursor: 'pointer',
-            }}
+            className={stil.dugme2}
           >
             <svg
               width="18"
@@ -468,119 +395,37 @@ export function TalepDetay({
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 24 }}>
-        <div style={{ flex: '999 1 560px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <section aria-labelledby="gorsel" style={{ ...kart, overflow: 'hidden' }}>
+      <div className={stil.kutu7}>
+        <div className={stil.kutu8}>
+          <section aria-labelledby="gorsel" className={stil.kutu9}>
             <h2 id="gorsel" className="sr-only">
               Araç görseli
             </h2>
             {/* Görsel alanı kartın üst kısmını kaplar; fotoğraf kırpılmadan sığar ve tıklanınca büyür (sahip isteği) */}
-            <div
-              style={{
-                position: 'relative',
-                background: '#EEF3FF',
-                aspectRatio: '16 / 9',
-                maxHeight: 460,
-                width: '100%',
-                overflow: 'hidden',
-              }}
-            >
-              <span
-                style={{
-                  position: 'absolute',
-                  zIndex: 2,
-                  top: 16,
-                  left: 16,
-                  background: 'var(--rr-kart, #FFFFFF)',
-                  color: '#3A4052',
-                  fontSize: 12.5,
-                  fontWeight: 700,
-                  padding: '6px 11px',
-                  borderRadius: 'var(--rr-etiket-kose)',
-                }}
-              >
+            <div className={stil.kutu10}>
+              <span className={stil.metin5}>
                 Temsili görsel
                 {foto?.nesil ? ` · ${foto.nesil === 'onceki' ? 'önceki' : 'sonraki'} nesil` : ''}
                 {foto?.genel ? ' · model geneli' : ''}
               </span>
-              {t.data.alternatifler.length > 1 ? (
-                <span
-                  style={{
-                    position: 'absolute',
-                    zIndex: 2,
-                    top: 16,
-                    right: 16,
-                    background: 'var(--rr-kart, #FFFFFF)',
-                    color: '#3A4052',
-                    fontSize: 12.5,
-                    fontWeight: 700,
-                    padding: '6px 11px',
-                    borderRadius: 'var(--rr-etiket-kose)',
-                  }}
-                >
-                  {altAd}
-                </span>
-              ) : null}
+              {t.data.alternatifler.length > 1 ? <span className={stil.metin6}>{altAd}</span> : null}
               {foto ? (
                 <button
                   type="button"
                   onClick={() => setBuyuk(true)}
                   aria-label="Fotoğrafı büyüt"
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    padding: 0,
-                    border: 0,
-                    background: 'transparent',
-                    cursor: 'zoom-in',
-                  }}
+                  className={stil.dugme3}
                 >
                   {/* Kenar boşlukları fotoğrafın bulanık kopyasıyla dolar: alan hiç boş görünmez */}
                   {/* biome-ignore lint/performance/noImgElement: katalog görseli API'den akar */}
-                  <img
-                    src={`${API}${foto.url}`}
-                    alt=""
-                    aria-hidden="true"
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      filter: 'blur(22px) saturate(1.1)',
-                      transform: 'scale(1.15)',
-                      opacity: 0.6,
-                    }}
-                  />
+                  <img src={`${API}${foto.url}`} alt="" aria-hidden="true" className={stil.gorsel1} />
                   {/* biome-ignore lint/performance/noImgElement: katalog görseli API'den akar */}
                   <img
                     src={`${API}${foto.url}`}
                     alt={`${[k.marka, k.seri].filter(Boolean).join(' ')} temsilî fotoğraf`}
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'contain',
-                    }}
+                    className={stil.gorsel2}
                   />
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      position: 'absolute',
-                      right: 14,
-                      bottom: 14,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      background: 'rgba(30,35,51,0.62)',
-                      color: '#FFFFFF',
-                      fontSize: 12.5,
-                      fontWeight: 700,
-                      padding: '6px 10px',
-                      borderRadius: 'var(--rr-etiket-kose)',
-                    }}
-                  >
+                  <span aria-hidden="true" className={stil.metin7}>
                     <svg
                       width="14"
                       height="14"
@@ -597,7 +442,7 @@ export function TalepDetay({
                   </span>
                 </button>
               ) : (
-                <span style={{ position: 'absolute', inset: 0 }}>
+                <span className={stil.metin8}>
                   <AracKapak
                     boyut="buyuk"
                     marka={k.marka}
@@ -624,18 +469,9 @@ export function TalepDetay({
                 kapat={() => setBuyuk(false)}
               />
             ) : null}
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '10px 20px',
-                padding: '14px 22px',
-              }}
-            >
+            <div className={stil.kutu11}>
               <div>
-                <div style={{ fontSize: 16, fontWeight: 800 }}>
+                <div className={stil.kutu12}>
                   {[k.marka, k.seri].filter(Boolean).join(' ') || t.category.name}
                   {g?.kasa.length
                     ? ` · ${g.kasa.map((x) => x.label).join(' ve ')}${
@@ -648,39 +484,18 @@ export function TalepDetay({
                       }`
                     : ''}
                 </div>
-                <div style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}>
+                <div className={stil.kutu13}>
                   Temsilî {foto ? 'fotoğraf' : 'görsel'}
                   {g?.kasa.length ? ', kasa ve makyaja göre seçildi' : ''}; satıcının aracı değildir.
                   {foto ? ` ${foto.caption.replace(' · temsilî görsel', '')}` : ''}
                 </div>
               </div>
               {renkler.length ? (
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    fontSize: 13,
-                    color: '#3A4052',
-                    flexWrap: 'wrap',
-                  }}
-                >
+                <div className={stil.kutu14}>
                   <span>İstenen renkler:</span>
                   {renkler.map((r) => (
-                    <span
-                      key={r?.value}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontWeight: 600 }}
-                    >
-                      <span
-                        aria-hidden="true"
-                        style={{
-                          width: 14,
-                          height: 14,
-                          borderRadius: '50%',
-                          background: r?.hex,
-                          border: '1px solid #AEB5C4',
-                        }}
-                      />
+                    <span key={r?.value} className={stil.metin9}>
+                      <span aria-hidden="true" className={stil.metin10} style={{ background: r?.hex }} />
                       {r?.label}
                     </span>
                   ))}
@@ -689,51 +504,29 @@ export function TalepDetay({
             </div>
           </section>
 
-          <section aria-labelledby="ana-arac" style={{ ...kart, padding: 22 }}>
-            <h2 id="ana-arac" style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 700 }}>
+          <section aria-labelledby="ana-arac" className={stil.kutu15}>
+            <h2 id="ana-arac" className={stil.baslik2}>
               Aranan araç
             </h2>
-            <p style={{ margin: '0 0 16px', fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
+            <p className={stil.metin11}>
               Ana araç sabit;{' '}
               {t.data.alternatifler.length > 1
                 ? `diğer kriterler ${t.data.alternatifler.length} alternatif halinde.`
                 : 'diğer kriterler aşağıda.'}
             </p>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-                gap: 10,
-              }}
-            >
+            <div className={stil.kutu16}>
               {anaArac.map((x, i) => (
-                <div
-                  key={x.label}
-                  style={{
-                    background: TINTS[i % TINTS.length],
-                    borderRadius: 'var(--rr-buton-kose)',
-                    padding: '12px 14px',
-                  }}
-                >
-                  <div style={{ fontSize: 12.5, fontWeight: 600, color: '#4A5064' }}>{x.label}</div>
-                  <div style={{ fontSize: 17, fontWeight: 800, marginTop: 2 }}>{x.value}</div>
+                <div key={x.label} className={stil.kutu17} style={{ background: TINTS[i % TINTS.length] }}>
+                  <div className={stil.kutu18}>{x.label}</div>
+                  <div className={stil.kutu19}>{x.value}</div>
                 </div>
               ))}
             </div>
           </section>
 
-          <section aria-label="Açıklama ve teknik özellikler" style={{ ...kart, padding: 22 }}>
+          <section aria-label="Açıklama ve teknik özellikler" className={stil.kutu15}>
             {/* Açıklama ve teknik özellikler yan yana sekme (sahip isteği, 17 Kasım 2026) */}
-            <div
-              role="tablist"
-              aria-label="Talep ayrıntısı"
-              style={{
-                display: 'flex',
-                gap: 6,
-                borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)',
-                marginBottom: 16,
-              }}
-            >
+            <div role="tablist" aria-label="Talep ayrıntısı" className={stil.kutu20}>
               {(
                 [
                   ['aciklama', 'Açıklama'],
@@ -748,17 +541,9 @@ export function TalepDetay({
                   aria-selected={sekme === k}
                   aria-controls={`panel-${k}`}
                   onClick={() => setSekme(k)}
+                  className={cx(stil.dugme4, sekme === k ? stil.dugme5 : stil.dugme6)}
                   style={{
                     border: 0,
-                    background: 'transparent',
-                    padding: '4px 4px 12px',
-                    marginRight: 18,
-                    marginBottom: -1,
-                    fontSize: 17,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    color: sekme === k ? 'var(--rr-murekkep, #1E2333)' : 'var(--rr-soluk, #5A6073)',
                     borderBottom: `3px solid ${sekme === k ? 'var(--rr-mavi, #5B8CFF)' : 'transparent'}`,
                   }}
                 >
@@ -791,21 +576,9 @@ export function TalepDetay({
                 />
               </div>
             )}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 18 }}>
+            <div className={stil.kutu21}>
               {genel.map((x, i) => (
-                <span
-                  key={x}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 7,
-                    background: '#F3F5FA',
-                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                    padding: '8px 12px',
-                    fontSize: 13.5,
-                    fontWeight: 600,
-                  }}
-                >
+                <span key={x} className={stil.metin12}>
                   {i === 0 ? (
                     <svg
                       width="16"
@@ -826,19 +599,11 @@ export function TalepDetay({
             </div>
           </section>
 
-          <section aria-labelledby="kriterler" style={{ ...kart, overflow: 'hidden' }}>
+          <section aria-labelledby="kriterler" className={stil.kutu9}>
             <h2 id="kriterler" className="sr-only">
               Kriterler
             </h2>
-            <div
-              role="tablist"
-              style={{
-                display: 'flex',
-                gap: 6,
-                padding: '14px 14px 0',
-                borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)',
-              }}
-            >
+            <div role="tablist" className={stil.kutu22}>
               {t.data.alternatifler.map((_, i) => (
                 <button
                   // biome-ignore lint/suspicious/noArrayIndexKey: alternatiflerin kimliği sırasıdır
@@ -853,65 +618,30 @@ export function TalepDetay({
                 </button>
               ))}
             </div>
-            <dl
-              style={{
-                margin: 0,
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-              }}
-            >
+            <dl className={stil.liste1}>
               {satirlar.map((r) => (
-                <div
-                  key={r.label}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    gap: 16,
-                    padding: '14px 22px',
-                    borderBottom: '1px solid #EEF0F5',
-                  }}
-                >
-                  <dt style={{ fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>{r.label}</dt>
-                  <dd style={{ margin: 0, fontSize: 14, fontWeight: 700, textAlign: 'right' }}>{r.value}</dd>
+                <div key={r.label} className={stil.kutu23}>
+                  <dt className={stil.metin13}>{r.label}</dt>
+                  <dd className={stil.metin14}>{r.value}</dd>
                 </div>
               ))}
             </dl>
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 12,
-                padding: '16px 22px',
-                background: '#EEF3FF',
-              }}
-            >
-              <span style={{ fontSize: 14, fontWeight: 600, color: '#3A4052' }}>Bütçe</span>
-              <span style={{ fontSize: 22, fontWeight: 800, color: 'var(--rr-baglanti, #2450C8)' }}>
-                {butceAraligi(butce?.min, butce?.max) || '—'}
-              </span>
+            <div className={stil.kutu24}>
+              <span className={stil.metin15}>Bütçe</span>
+              <span className={stil.metin16}>{butceAraligi(butce?.min, butce?.max) || '—'}</span>
             </div>
           </section>
 
           {boya || islem ? (
-            <section aria-labelledby="boya" style={{ ...kart, padding: 22 }}>
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 8,
-                }}
-              >
-                <h2 id="boya" style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>
+            <section aria-labelledby="boya" className={stil.kutu15}>
+              <div className={stil.kutu25}>
+                <h2 id="boya" className={stil.baslik3}>
                   Boya, değişen ve hasar kriterleri
                 </h2>
               </div>
               {boya ? (
                 <>
-                  <p style={{ margin: '6px 0 18px', fontSize: 14, color: '#3A4052' }}>
+                  <p className={stil.metin17}>
                     Toplamda en fazla {boya.limit} parçada işlem;{' '}
                     {Object.values(boya.parts).includes('degisen')
                       ? 'bazı parçalarda değişen kabul.'
@@ -921,33 +651,13 @@ export function TalepDetay({
                 </>
               ) : null}
               {islem ? (
-                <div
-                  style={{
-                    borderTop: boya ? '1px solid #EEF0F5' : 0,
-                    marginTop: boya ? 22 : 10,
-                    paddingTop: boya ? 18 : 0,
-                  }}
-                >
-                  <h3 style={{ margin: 0, fontSize: 15.5, fontWeight: 700 }}>Hasar geçmişi</h3>
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-                      gap: 10,
-                      marginTop: 12,
-                    }}
-                  >
+                <div className={cx(boya ? stil.kutu26 : stil.kutu27)}>
+                  <h3 className={stil.baslik4}>Hasar geçmişi</h3>
+                  <div className={stil.kutu28}>
                     {(islem.options ?? []).map((o) => {
                       const ok = kabul.includes(o.value);
                       return (
-                        <div
-                          key={o.value}
-                          style={{
-                            border: '1px solid #EEF0F5',
-                            borderRadius: 'var(--rr-buton-kose)',
-                            padding: 14,
-                          }}
-                        >
+                        <div key={o.value} className={stil.kutu29}>
                           <svg
                             width="22"
                             height="22"
@@ -962,19 +672,8 @@ export function TalepDetay({
                             <circle cx="12" cy="12" r="9" />
                             {ok ? <path d="M8 12l3 3 5-6" /> : <path d="M6.5 6.5l11 11" />}
                           </svg>
-                          <div style={{ fontSize: 14, fontWeight: 700, marginTop: 8 }}>{o.label}</div>
-                          <span
-                            style={{
-                              display: 'inline-block',
-                              marginTop: 8,
-                              background: ok ? '#E7FAF0' : '#FDECEC',
-                              color: ok ? '#11683F' : '#A3271F',
-                              fontSize: 12.5,
-                              fontWeight: 700,
-                              padding: '4px 10px',
-                              borderRadius: 'var(--rr-etiket-kose)',
-                            }}
-                          >
+                          <div className={stil.kutu30}>{o.label}</div>
+                          <span className={cx(stil.metin18, ok ? stil.metin19 : stil.metin20)}>
                             {ok ? 'Kabul ediyor' : 'Kabul etmiyor'}
                           </span>
                         </div>
@@ -982,23 +681,9 @@ export function TalepDetay({
                     })}
                   </div>
                   {f.some((x) => x.key === 'tramer') ? (
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 8,
-                        marginTop: 12,
-                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                        background: '#F3F5FA',
-                        padding: '12px 14px',
-                      }}
-                    >
-                      <span style={{ fontSize: 14, fontWeight: 600, color: '#3A4052' }}>
-                        Tramer (hasar kaydı tutarı)
-                      </span>
-                      <span style={{ fontSize: 15, fontWeight: 800 }}>
+                    <div className={stil.kutu31}>
+                      <span className={stil.metin15}>Tramer (hasar kaydı tutarı)</span>
+                      <span className={stil.metin21}>
                         {tramer !== undefined
                           ? `En fazla ${new Intl.NumberFormat('tr-TR').format(tramer)} TL`
                           : 'Belirtilmedi'}
@@ -1012,55 +697,25 @@ export function TalepDetay({
 
           {benzer.length ? (
             <section aria-labelledby="benzer">
-              <h2 id="benzer" style={{ margin: '8px 0 12px', fontSize: 18, fontWeight: 700 }}>
+              <h2 id="benzer" className={stil.baslik5}>
                 Benzer talepler
               </h2>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                  gap: 12,
-                }}
-              >
+              <div className={stil.kutu32}>
                 {benzer.map((b, i) => (
-                  <Link
-                    key={b.no}
-                    href={`/talep/${b.no}`}
-                    style={{
-                      display: 'block',
-                      ...kart,
-                      borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-                      padding: 16,
-                      color: 'var(--rr-murekkep, #1E2333)',
-                      textDecoration: 'none',
-                    }}
-                  >
+                  <Link key={b.no} href={`/talep/${b.no}`} className={stil.bag1}>
                     <span
                       aria-hidden="true"
+                      className={stil.metin22}
                       style={{
-                        display: 'block',
-                        width: 32,
-                        height: 6,
-                        borderRadius: 'calc(var(--rr-buton-kose) * 3 / 14)',
                         background: [
                           'var(--rr-pembe, #FF6FB5)',
                           'var(--rr-sari, #FFC84A)',
                           'var(--rr-yesil, #3DD68C)',
                         ][i % 3],
-                        marginBottom: 12,
                       }}
                     />
-                    <span style={{ display: 'block', fontSize: 15, fontWeight: 700, lineHeight: 1.35 }}>
-                      {b.baslik}
-                    </span>
-                    <span
-                      style={{
-                        display: 'block',
-                        fontSize: 13,
-                        color: 'var(--rr-soluk, #5A6073)',
-                        marginTop: 6,
-                      }}
-                    >
+                    <span className={stil.metin23}>{b.baslik}</span>
+                    <span className={stil.metin24}>
                       {[b.il, b.yilMin ? `${b.yilMin} ve sonrası` : null].filter(Boolean).join(' · ')}
                     </span>
                   </Link>
@@ -1070,54 +725,18 @@ export function TalepDetay({
           ) : null}
         </div>
 
-        <aside
-          aria-label="Talep sahibi"
-          style={{
-            flex: '1 1 320px',
-            minWidth: 0,
-            maxWidth: 400,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 16,
-          }}
-        >
-          <section style={{ ...kart, padding: 22 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <span
-                aria-hidden="true"
-                style={{
-                  width: 52,
-                  height: 52,
-                  borderRadius: '50%',
-                  background: '#EEF3FF',
-                  color: 'var(--rr-baglanti, #2450C8)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 800,
-                  fontSize: 18,
-                }}
-              >
+        <aside aria-label="Talep sahibi" className={stil.kutu33}>
+          <section className={stil.kutu15}>
+            <div className={stil.kutu34}>
+              <span aria-hidden="true" className={stil.metin25}>
                 {bas || '?'}
               </span>
               <div>
-                <div style={{ fontSize: 17, fontWeight: 800 }}>{sahip.name}</div>
-                <div style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}>
-                  {uyelik(sahip.memberSince)}
-                </div>
+                <div className={stil.kutu35}>{sahip.name}</div>
+                <div className={stil.kutu13}>{uyelik(sahip.memberSince)}</div>
               </div>
             </div>
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                marginTop: 14,
-                fontSize: 13,
-                fontWeight: 600,
-                color: '#11683F',
-              }}
-            >
+            <div className={stil.kutu36}>
               <svg
                 width="16"
                 height="16"
@@ -1135,23 +754,7 @@ export function TalepDetay({
               Telefon numarası doğrulandı
             </div>
             {sahip.isYou ? (
-              <Link
-                href="/taleplerim"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 9,
-                  marginTop: 18,
-                  border: '1px solid #D5DAE5',
-                  color: 'var(--rr-murekkep, #1E2333)',
-                  fontWeight: 800,
-                  fontSize: 16,
-                  padding: 15,
-                  borderRadius: 'var(--rr-buton-kose)',
-                  textDecoration: 'none',
-                }}
-              >
+              <Link href="/taleplerim" className={stil.bag2}>
                 Bu senin talebin · Taleplerim
               </Link>
             ) : (
@@ -1163,24 +766,10 @@ export function TalepDetay({
                   else if (mesaj?.yazildi) window.location.href = `/mesajlarim?sohbet=${mesaj.yazildi}`;
                   else setPencere(true);
                 }}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 9,
-                  marginTop: 18,
-                  background: 'var(--rr-mavi, #5B8CFF)',
-                  color: 'var(--rr-maviYazi, #1E2333)',
-                  fontWeight: 800,
-                  fontSize: 16,
-                  padding: 15,
-                  borderRadius: 'var(--rr-buton-kose)',
-                  border: 0,
-                  opacity: giris && (!yayinda || !mesaj) && !mesaj?.yazildi ? 0.55 : 1,
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
+                className={cx(
+                  stil.dugme7,
+                  giris && (!yayinda || !mesaj) && !mesaj?.yazildi ? stil.dugme8 : stil.dugme9,
+                )}
               >
                 <svg
                   width="20"
@@ -1198,28 +787,8 @@ export function TalepDetay({
               </button>
             )}
             {yayinda && (sahip.phone || sahip.phoneHidden) ? (
-              <div
-                style={{
-                  marginTop: 10,
-                  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                  borderRadius: 'var(--rr-buton-kose)',
-                  padding: '12px 14px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 10,
-                }}
-              >
-                <span
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 9,
-                    fontSize: 16,
-                    fontWeight: 700,
-                    whiteSpace: 'nowrap',
-                  }}
-                >
+              <div className={stil.kutu37}>
+                <span className={stil.metin26}>
                   <svg
                     width="18"
                     height="18"
@@ -1237,49 +806,18 @@ export function TalepDetay({
                     : `0 (5XX) XXX XX ${sahip.phone ? sahip.phone.slice(-2) : '••'}`}
                 </span>
                 {sahip.phone ? (
-                  <button
-                    type="button"
-                    onClick={() => setGoster(!goster)}
-                    style={{
-                      border: 0,
-                      background: 'transparent',
-                      color: 'var(--rr-baglanti, #2450C8)',
-                      fontWeight: 700,
-                      fontSize: 14,
-                      padding: '8px 4px',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
+                  <button type="button" onClick={() => setGoster(!goster)} className={stil.dugme10}>
                     {goster ? 'Gizle' : 'Numarayı göster'}
                   </button>
                 ) : (
-                  <Link
-                    href={`/giris?sonra=/talep/${t.no}`}
-                    style={{
-                      color: 'var(--rr-baglanti, #2450C8)',
-                      fontWeight: 700,
-                      fontSize: 14,
-                      padding: '8px 4px',
-                    }}
-                  >
+                  <Link href={`/giris?sonra=/talep/${t.no}`} className={stil.bag3}>
                     Görmek için giriş yap
                   </Link>
                 )}
               </div>
             ) : null}
             {yayinda && sahip.aramaSaati?.simdiGizli ? (
-              <p
-                style={{
-                  margin: '10px 0 0',
-                  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                  borderRadius: 'var(--rr-buton-kose)',
-                  padding: '12px 14px',
-                  fontSize: 13.5,
-                  color: '#3A4052',
-                  lineHeight: 1.5,
-                }}
-              >
+              <p className={stil.metin27}>
                 Telefon ve WhatsApp {saatYaz(sahip.aramaSaati.bas)}–
                 {sahip.aramaSaati.bit === 24 ? '24.00' : saatYaz(sahip.aramaSaati.bit)} arasında görünür.
                 Mesaj her zaman açık.
@@ -1290,21 +828,7 @@ export function TalepDetay({
                 href={`https://wa.me/${sahip.phone.replace(/\D/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 9,
-                  marginTop: 10,
-                  background: 'var(--rr-kart, #FFFFFF)',
-                  border: '1.5px solid #25A35A',
-                  color: '#11683F',
-                  fontWeight: 700,
-                  fontSize: 15,
-                  padding: 13,
-                  borderRadius: 'var(--rr-buton-kose)',
-                  textDecoration: 'none',
-                }}
+                className={stil.bag4}
               >
                 <svg
                   width="18"
@@ -1321,9 +845,7 @@ export function TalepDetay({
                 WhatsApp'tan yaz
               </a>
             ) : null}
-            <p
-              style={{ margin: '14px 0 0', fontSize: 13, lineHeight: 1.5, color: 'var(--rr-soluk, #5A6073)' }}
-            >
+            <p className={stil.metin28}>
               {yayinda
                 ? 'Bu talebe yalnızca bir ilk mesaj atabilirsiniz.'
                 : 'Bu talep şu an yayında değil; satıcılar mesaj atamaz.'}
@@ -1333,7 +855,7 @@ export function TalepDetay({
                   {mesaj.hesaplar.length === 1 && !mesaj.hesaplar[0]?.galeri
                     ? 'Bugün kalan ücretsiz mesaj hakkınız: '
                     : 'Bugün kalan mesaj hakkınız: '}
-                  <strong style={{ color: 'var(--rr-murekkep, #1E2333)' }}>
+                  <strong className={stil.dugme5}>
                     {mesaj.gunluk.kalan} / {mesaj.gunluk.toplam}
                   </strong>
                 </>
@@ -1353,34 +875,17 @@ export function TalepDetay({
             ) : null}
           </section>
 
-          <section
-            aria-labelledby="guvenlik"
-            style={{ background: '#FFF6DF', borderRadius: 'var(--rr-kart-kose)', padding: '18px 20px' }}
-          >
-            <h2 id="guvenlik" style={{ margin: '0 0 8px', fontSize: 15, fontWeight: 800, color: '#5C3F00' }}>
+          <section aria-labelledby="guvenlik" className={stil.kutu38}>
+            <h2 id="guvenlik" className={stil.baslik6}>
               Güvenliğiniz için
             </h2>
-            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13.5, lineHeight: 1.6, color: '#4A3500' }}>
+            <ul className={stil.liste2}>
               <li>Aracı görmeden kapora ödemeyin.</li>
               <li>Ödemeyi noterde Güvenli Ödeme Sistemi ile yapın.</li>
               <li>Platform dışı bağlantılara tıklamayın.</li>
             </ul>
           </section>
-          {t.schema.rules.legalNotice ? (
-            <p
-              style={{
-                margin: 0,
-                fontSize: 13,
-                lineHeight: 1.55,
-                color: '#3A4052',
-                background: '#F3F5FA',
-                borderRadius: 'var(--rr-buton-kose)',
-                padding: '12px 14px',
-              }}
-            >
-              {t.schema.rules.legalNotice}
-            </p>
-          ) : null}
+          {t.schema.rules.legalNotice ? <p className={stil.metin29}>{t.schema.rules.legalNotice}</p> : null}
           {sahip.isYou ? null : (
             <button
               type="button"
@@ -1388,19 +893,7 @@ export function TalepDetay({
                 if (!giris) window.location.href = `/giris?sonra=/talep/${t.no}`;
                 else setSikayet(true);
               }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                fontSize: 14,
-                fontWeight: 600,
-                color: 'var(--rr-soluk, #5A6073)',
-                padding: '6px 4px',
-                border: 0,
-                background: 'transparent',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
+              className={stil.dugme11}
             >
               <svg
                 width="16"
@@ -1427,54 +920,22 @@ export function TalepDetay({
 /** Boya şeması ve parça grupları (Main.dc.html) */
 function BoyaGorunumu({ boya }: { boya: { limit: number; parts: Record<string, string> } }) {
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 28 }}>
+    <div className={stil.kutu39}>
       <AracSemasiGorunum
         parts={boya.parts}
         etiket="Parça bazında boya ve değişen kriterleri, üstten araç şeması"
       />
-      <ul
-        style={{
-          flex: '1 1 260px',
-          minWidth: 0,
-          listStyle: 'none',
-          margin: 0,
-          padding: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
-        }}
-      >
+      <ul className={stil.liste3}>
         {PAINT_STATES.map((s) => {
           const parcalar = PAINT_PARTS.filter((p) => (boya.parts[p.key] ?? 'orijinal') === s.key).map(
             (p) => p.ad,
           );
           return (
-            <li key={s.key} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-              <span
-                aria-hidden="true"
-                style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: 'calc(var(--rr-buton-kose) * 6 / 14)',
-                  background: s.renk,
-                  border: '1px solid #AEB5C4',
-                  flex: 'none',
-                  marginTop: 1,
-                }}
-              />
+            <li key={s.key} className={stil.oge1}>
+              <span aria-hidden="true" className={stil.metin30} style={{ background: s.renk }} />
               <span>
-                <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>{BOYA_AD[s.key]}</span>
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 13.5,
-                    color: 'var(--rr-soluk, #5A6073)',
-                    marginTop: 2,
-                    lineHeight: 1.45,
-                  }}
-                >
-                  {parcalar.length ? parcalar.join(', ') : 'Hiçbir parça'}
-                </span>
+                <span className={stil.metin31}>{BOYA_AD[s.key]}</span>
+                <span className={stil.metin32}>{parcalar.length ? parcalar.join(', ') : 'Hiçbir parça'}</span>
               </span>
             </li>
           );

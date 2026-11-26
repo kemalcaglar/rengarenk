@@ -1,0 +1,21 @@
+/* Bu dosya site-footer.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  border-top: 1px solid var(--rr-cizgi, #e3e6ef);
+  background: var(--rr-kart, #ffffff);
+}
+.kutu2 {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13.5px;
+  color: var(--rr-soluk, #5a6073);
+}
+.metin1 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}

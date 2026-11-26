@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { GirisCerceve } from '../../../components/giris-cerceve';
+import stil from './page.module.css';
 import { SahteGoogle } from './sahte-google';
 
 /**
@@ -16,7 +17,7 @@ export default async function Gelistirme({
   if (!state || !redirect_uri) notFound();
   return (
     <GirisCerceve>
-      <main style={{ flex: 1, display: 'grid', placeItems: 'center', padding: 24 }}>
+      <main className={`rr-sayfa ${stil.kutu1}`}>
         <SahteGoogle state={state} redirectUri={redirect_uri} />
       </main>
     </GirisCerceve>

@@ -1,0 +1,88 @@
+/* Bu dosya araclar.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  background: var(--rr-kart, #ffffff);
+  border: 1px dashed #c9cfdb;
+  border-radius: var(--rr-kart-kose);
+  padding: 36px 20px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--rr-soluk, #5a6073);
+}
+.kutu2 {
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  padding: 16px;
+  display: flex;
+  gap: 14px;
+}
+.kutu3 {
+  opacity: 1;
+}
+.kutu4 {
+  opacity: 0.75;
+}
+.kutu5 {
+  flex: 0 0 112px;
+  height: 84px;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  background: #eef3ff;
+  overflow: hidden;
+}
+.gorsel1 {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.kutu6 {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.kutu7 {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.metin1 {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: var(--rr-etiket-kose);
+  align-self: flex-start;
+}
+.metin2 {
+  background: #e7faf0;
+  color: #11683f;
+}
+.metin3 {
+  background: #f3f5fa;
+  color: var(--rr-soluk, #5a6073);
+}
+.dugme1 {
+  flex: none;
+  border: 0;
+  background: transparent;
+  padding: 2px;
+  cursor: pointer;
+}
+.bag1 {
+  font-size: 16.5px;
+  font-weight: 800;
+  color: var(--rr-murekkep, #1e2333);
+}
+.metin4 {
+  font-size: 16.5px;
+  font-weight: 800;
+}
+.metin5 {
+  font-size: 13.5px;
+  color: #3a4052;
+}
+.metin6 {
+  font-size: 12.5px;
+  color: var(--rr-soluk, #5a6073);
+}

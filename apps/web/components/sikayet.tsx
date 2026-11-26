@@ -2,7 +2,9 @@
 
 import { REPORT_REASONS, type ReportTarget, reasonsFor } from '@rengarenk/shared';
 import { useEffect, useState } from 'react';
+import { cx } from '../lib/cx';
 import { istek } from '../lib/istemci';
+import stil from './sikayet.module.css';
 
 const BASLIK: Record<ReportTarget, string> = {
   mesaj: 'Bu mesajı şikayet et',
@@ -45,52 +47,17 @@ export function Sikayet({ hedef, id, kapat }: { hedef: ReportTarget; id: string;
   }
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(30,35,51,0.45)',
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 16,
-      }}
-    >
-      <section
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="sikayet-baslik"
-        style={{
-          width: '100%',
-          maxWidth: 440,
-          maxHeight: '90vh',
-          overflowY: 'auto',
-          background: 'var(--rr-kart, #FFFFFF)',
-          borderRadius: 'calc(var(--rr-kart-kose) * 24 / 18)',
-          padding: '20px 20px 24px',
-        }}
-      >
+    <div className={stil.kutu1}>
+      <section role="dialog" aria-modal="true" aria-labelledby="sikayet-baslik" className={stil.kutu2}>
         {no === null ? (
           <>
-            <h2 id="sikayet-baslik" style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
+            <h2 id="sikayet-baslik" className={stil.baslik1}>
               {BASLIK[hedef]}
             </h2>
-            <p
-              style={{
-                margin: '4px 0 14px',
-                fontSize: 13,
-                color: 'var(--rr-soluk, #5A6073)',
-                lineHeight: 1.5,
-              }}
-            >
+            <p className={stil.metin1}>
               Şikayetini moderatörlerimiz inceler. Şikayet ettiğin kişi kimin şikayet ettiğini görmez.
             </p>
-            <div
-              role="radiogroup"
-              aria-label="Neden"
-              style={{ display: 'flex', flexDirection: 'column', gap: 6 }}
-            >
+            <div role="radiogroup" aria-label="Neden" className={stil.kutu3}>
               {nedenler.map((k) => {
                 const on = neden === k;
                 return (
@@ -101,41 +68,22 @@ export function Sikayet({ hedef, id, kapat }: { hedef: ReportTarget; id: string;
                     role="radio"
                     aria-checked={on}
                     onClick={() => setNeden(k)}
+                    className={cx(stil.dugme1, on ? stil.dugme2 : stil.dugme3)}
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      textAlign: 'left',
                       border: `1.5px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-cizgi, #E3E6EF)'}`,
-                      background: on ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
-                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                      padding: '11px 12px',
-                      fontSize: 14,
-                      fontWeight: 700,
-                      color: 'var(--rr-murekkep, #1E2333)',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
                     }}
                   >
                     <span
                       aria-hidden="true"
-                      style={{
-                        flex: 'none',
-                        width: 18,
-                        height: 18,
-                        borderRadius: '50%',
-                        border: `2px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}`,
-                        boxShadow: on ? 'inset 0 0 0 3px #FFFFFF' : 'none',
-                        background: on ? 'var(--rr-mavi, #5B8CFF)' : '#FFFFFF',
-                        color: on ? 'var(--rr-maviYazi, #1E2333)' : undefined,
-                      }}
+                      className={cx(stil.metin2, on ? stil.metin3 : stil.metin4)}
+                      style={{ border: `2px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}` }}
                     />
                     {REPORT_REASONS[k].ad}
                   </button>
                 );
               })}
             </div>
-            <label style={{ display: 'block', marginTop: 12, fontSize: 13, fontWeight: 700 }}>
+            <label className={stil.etiket1}>
               Açıklama (isteğe bağlı)
               <textarea
                 value={aciklama}
@@ -143,62 +91,23 @@ export function Sikayet({ hedef, id, kapat }: { hedef: ReportTarget; id: string;
                 maxLength={500}
                 rows={3}
                 placeholder="Ne oldu? Kısaca yaz."
-                style={{
-                  display: 'block',
-                  width: '100%',
-                  boxSizing: 'border-box',
-                  marginTop: 6,
-                  border: '1px solid #D5DAE5',
-                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                  padding: '10px 12px',
-                  fontSize: 14,
-                  fontFamily: 'inherit',
-                  resize: 'vertical',
-                }}
+                className={stil.girdi1}
               />
             </label>
             {hata ? (
-              <p
-                role="alert"
-                style={{ margin: '10px 0 0', color: '#A3271F', fontSize: 13.5, fontWeight: 700 }}
-              >
+              <p role="alert" className={stil.metin5}>
                 {hata}
               </p>
             ) : null}
-            <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-              <button
-                type="button"
-                onClick={kapat}
-                style={{
-                  flex: 1,
-                  border: '1px solid #D5DAE5',
-                  background: 'var(--rr-kart, #FFFFFF)',
-                  borderRadius: 'var(--rr-buton-kose)',
-                  padding: '12px 14px',
-                  fontSize: 14.5,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
-              >
+            <div className={stil.kutu4}>
+              <button type="button" onClick={kapat} className={stil.dugme4}>
                 Vazgeç
               </button>
               <button
                 type="button"
                 onClick={gonder}
                 disabled={!neden || mesgul}
-                style={{
-                  flex: 1,
-                  border: 0,
-                  background: neden ? '#E5484D' : '#F3C9C7',
-                  borderRadius: 'var(--rr-buton-kose)',
-                  padding: '12px 14px',
-                  fontSize: 14.5,
-                  fontWeight: 800,
-                  color: '#FFFFFF',
-                  cursor: neden ? 'pointer' : 'default',
-                  fontFamily: 'inherit',
-                }}
+                className={cx(stil.dugme5, neden ? stil.dugme6 : stil.dugme7)}
               >
                 Şikayet et
               </button>
@@ -206,29 +115,13 @@ export function Sikayet({ hedef, id, kapat }: { hedef: ReportTarget; id: string;
           </>
         ) : (
           <>
-            <h2 id="sikayet-baslik" style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
+            <h2 id="sikayet-baslik" className={stil.baslik1}>
               Şikayetin alındı
             </h2>
-            <p style={{ margin: '8px 0 0', fontSize: 14, lineHeight: 1.55, color: '#3A4052' }}>
+            <p className={stil.metin6}>
               S-{no} numarasıyla inceleniyor. Sonuçlanınca sana bildirim göndereceğiz.
             </p>
-            <button
-              type="button"
-              onClick={kapat}
-              style={{
-                marginTop: 16,
-                width: '100%',
-                border: 0,
-                background: 'var(--rr-mavi, #5B8CFF)',
-                borderRadius: 'var(--rr-buton-kose)',
-                padding: '12px 14px',
-                fontSize: 14.5,
-                fontWeight: 800,
-                color: 'var(--rr-maviYazi, #1E2333)',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
+            <button type="button" onClick={kapat} className={stil.dugme8}>
               Tamam
             </button>
           </>

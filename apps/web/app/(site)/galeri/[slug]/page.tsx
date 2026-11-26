@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { cx } from '../../../../lib/cx';
 import { binlik } from '../../../../lib/talep-bicim';
+import stil from './page.module.css';
 import { TakipDugmesi } from './takip';
 
 const API = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
@@ -111,261 +113,92 @@ export default async function GaleriProfili({ params }: { params: Promise<{ slug
     [p.alan, p.yetkiNo ? 'yetki belgesi türü' : 'faaliyet alanı'],
   ];
   return (
-    <div style={{ maxWidth: 1360, margin: '0 auto', padding: '24px 24px 64px' }}>
-      <section
-        aria-labelledby="gad"
-        style={{
-          background: 'var(--rr-kart, #FFFFFF)',
-          border: '1px solid var(--rr-cizgi, #E3E6EF)',
-          borderRadius: 'calc(var(--rr-kart-kose) * 22 / 18)',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          aria-hidden="true"
-          style={{
-            height: 120,
-            background: 'linear-gradient(100deg, #EEF3FF 0%, #FFEEF6 38%, #FFF6DF 70%, #E7FAF0 100%)',
-          }}
-        />
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'flex-start',
-            gap: '16px 24px',
-            padding: '0 24px 22px',
-            marginTop: -44,
-          }}
-        >
-          <span
-            aria-hidden="true"
-            style={{
-              flex: 'none',
-              width: 96,
-              height: 96,
-              borderRadius: 'calc(var(--rr-kart-kose) * 24 / 18)',
-              background: '#FFF6DF',
-              border: '4px solid #FFFFFF',
-              color: '#7A5300',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 30,
-              fontWeight: 800,
-            }}
-          >
+    <div className={stil.kutu1}>
+      <section aria-labelledby="gad" className={stil.kutu2}>
+        <div aria-hidden="true" className={stil.kutu3} />
+        <div className={stil.kutu4}>
+          <span aria-hidden="true" className={stil.metin1}>
             {basHarf(p.ad)}
           </span>
-          <div className="rr-galeri-ad" style={{ flex: '999 1 360px', minWidth: 0, paddingTop: 58 }}>
-            <h1 id="gad" style={{ margin: 0, fontSize: 28, fontWeight: 800, letterSpacing: -0.4 }}>
+          <div className={`rr-galeri-ad ${stil.kutu5}`}>
+            <h1 id="gad" className={stil.baslik1}>
               {p.ad}
             </h1>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
-              <span
-                style={{
-                  fontSize: 12.5,
-                  fontWeight: 800,
-                  padding: '4px 10px',
-                  borderRadius: 'var(--rr-etiket-kose)',
-                  background: '#E7FAF0',
-                  color: '#11683F',
-                }}
-              >
-                ✓ Onaylı {p.tur.toLocaleLowerCase('tr-TR')}
-              </span>
-              {p.yetkiNo ? (
-                <span
-                  style={{
-                    fontSize: 12.5,
-                    fontWeight: 800,
-                    padding: '4px 10px',
-                    borderRadius: 'var(--rr-etiket-kose)',
-                    background: '#EEF3FF',
-                    color: 'var(--rr-baglanti, #2450C8)',
-                  }}
-                >
-                  Yetki belgesi doğrulandı
-                </span>
-              ) : null}
+            <div className={stil.kutu6}>
+              <span className={stil.metin2}>✓ Onaylı {p.tur.toLocaleLowerCase('tr-TR')}</span>
+              {p.yetkiNo ? <span className={stil.metin3}>Yetki belgesi doğrulandı</span> : null}
               {(p.rozetler ?? [])
                 .filter((r) => r.key !== 'onay')
                 .map((r) => (
                   <span
                     key={r.key}
                     title={r.aciklama}
-                    style={{
-                      fontSize: 12.5,
-                      fontWeight: 800,
-                      padding: '4px 10px',
-                      borderRadius: 'var(--rr-etiket-kose)',
-                      background: r.bg,
-                      color: r.renk,
-                    }}
+                    className={stil.metin4}
+                    style={{ background: r.bg, color: r.renk }}
                   >
                     {r.ad}
                   </span>
                 ))}
-              <span
-                style={{
-                  fontSize: 12.5,
-                  fontWeight: 700,
-                  padding: '4px 10px',
-                  borderRadius: 'var(--rr-etiket-kose)',
-                  background: '#F3F5FA',
-                  color: '#3A4052',
-                }}
-              >
+              <span className={stil.metin5}>
                 {uyelik}’{yilEki(new Date(p.uyelik).getFullYear())} beri Rengarenk’te
               </span>
             </div>
-            <p style={{ margin: '10px 0 0', fontSize: 14, color: '#3A4052' }}>
+            <p className={stil.metin6}>
               {[`${p.il}, ${p.ilce}`, p.adres, p.calismaSaatleri].filter(Boolean).join(' · ')}
             </p>
           </div>
-          <div
-            className="rr-galeri-dugme"
-            style={{
-              flex: '1 1 260px',
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 8,
-              justifyContent: 'flex-end',
-              paddingTop: 58,
-            }}
-          >
+          <div className={`rr-galeri-dugme ${stil.kutu7}`}>
             <TakipDugmesi slug={p.slug} />
           </div>
         </div>
-        <div className="rr-dort-sutun" style={{ gap: 0, borderTop: '1px solid #EEF0F5' }}>
+        <div className={`rr-dort-sutun ${stil.kutu8}`}>
           {istatistik.map(([d, k], i) => (
-            <div key={k} style={{ padding: '14px 24px', borderRight: i < 3 ? '1px solid #EEF0F5' : 0 }}>
-              <div style={{ fontSize: 22, fontWeight: 800 }}>{d}</div>
-              <div style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>{k}</div>
+            <div key={k} className={cx(stil.kutu9, i < 3 ? stil.kutu10 : stil.kutu11)}>
+              <div className={stil.kutu12}>{d}</div>
+              <div className={stil.kutu13}>{k}</div>
             </div>
           ))}
         </div>
       </section>
 
       {liste.length ? (
-        <div className="rr-uc-sutun" style={{ gap: 14, marginTop: 22 }}>
+        <div className={`rr-uc-sutun ${stil.kutu14}`}>
           {liste.map((a, i) => (
-            <Link
-              key={a.no}
-              href={`/arac/${a.no}`}
-              style={{
-                display: 'block',
-                background: 'var(--rr-kart, #FFFFFF)',
-                border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                borderRadius: 'var(--rr-kart-kose)',
-                overflow: 'hidden',
-                color: 'var(--rr-murekkep, #1E2333)',
-                textDecoration: 'none',
-              }}
-            >
+            <Link key={a.no} href={`/arac/${a.no}`} className={stil.bag1}>
               <div
+                className={stil.kutu15}
                 style={{
-                  position: 'relative',
-                  height: 170,
                   background: ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0', '#F3EFFF', '#FFF0EA'][i % 6],
                 }}
               >
                 {a.foto ? (
                   // biome-ignore lint/performance/noImgElement: galeri fotoğrafı API'den akar
-                  <img
-                    src={`${GENEL}${a.foto}`}
-                    alt=""
-                    loading="lazy"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                  />
+                  <img src={`${GENEL}${a.foto}`} alt="" loading="lazy" className={stil.gorsel1} />
                 ) : null}
-                <span
-                  style={{
-                    position: 'absolute',
-                    left: 12,
-                    top: 12,
-                    fontSize: 12,
-                    fontWeight: 800,
-                    padding: '4px 9px',
-                    borderRadius: 'var(--rr-etiket-kose)',
-                    background: 'var(--rr-kart, #FFFFFF)',
-                    color: '#11683F',
-                  }}
-                >
-                  EİDS doğrulandı
-                </span>
-                <span
-                  style={{
-                    position: 'absolute',
-                    right: 12,
-                    bottom: 10,
-                    fontSize: 12,
-                    fontWeight: 700,
-                    padding: '3px 8px',
-                    borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
-                    background: 'rgba(255,255,255,0.9)',
-                    color: '#3A4052',
-                  }}
-                >
-                  {a.fotoSayisi} fotoğraf
-                </span>
+                <span className={stil.metin7}>EİDS doğrulandı</span>
+                <span className={stil.metin8}>{a.fotoSayisi} fotoğraf</span>
               </div>
-              <div style={{ padding: '14px 16px 16px' }}>
-                <div style={{ fontSize: 16, fontWeight: 800 }}>{a.ad}</div>
-                <div style={{ fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 4 }}>
-                  {a.ozellik}
-                </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'baseline',
-                    marginTop: 10,
-                  }}
-                >
-                  <span style={{ fontSize: 19, fontWeight: 800 }}>{binlik(a.fiyat)} TL</span>
-                  <span style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>{gun(a.yayin)}</span>
+              <div className={stil.kutu16}>
+                <div className={stil.kutu17}>{a.ad}</div>
+                <div className={stil.kutu18}>{a.ozellik}</div>
+                <div className={stil.kutu19}>
+                  <span className={stil.metin9}>{binlik(a.fiyat)} TL</span>
+                  <span className={stil.metin10}>{gun(a.yayin)}</span>
                 </div>
               </div>
             </Link>
           ))}
         </div>
       ) : (
-        <div
-          style={{
-            margin: '22px 0 14px',
-            background: 'var(--rr-kart, #FFFFFF)',
-            border: '1px dashed #C9CFDB',
-            borderRadius: 'var(--rr-kart-kose)',
-            padding: '36px 20px',
-            textAlign: 'center',
-            fontSize: 15,
-            color: 'var(--rr-soluk, #5A6073)',
-          }}
-        >
-          Bu galerinin henüz yayında aracı yok.
-        </div>
+        <div className={stil.kutu20}>Bu galerinin henüz yayında aracı yok.</div>
       )}
 
-      <section
-        aria-labelledby="hk"
-        style={{
-          marginTop: 24,
-          background: 'var(--rr-kart, #FFFFFF)',
-          border: '1px solid var(--rr-cizgi, #E3E6EF)',
-          borderRadius: 'var(--rr-kart-kose)',
-          padding: 22,
-        }}
-      >
-        <h2 id="hk" style={{ margin: '0 0 10px', fontSize: 18, fontWeight: 800 }}>
+      <section aria-labelledby="hk" className={stil.kutu21}>
+        <h2 id="hk" className={stil.baslik2}>
           Hakkında
         </h2>
-        {p.hakkinda ? (
-          <p style={{ margin: 0, fontSize: 15, lineHeight: 1.65, color: '#2E3344', whiteSpace: 'pre-line' }}>
-            {p.hakkinda}
-          </p>
-        ) : null}
-        <p style={{ margin: p.hakkinda ? '14px 0 0' : 0, fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+        {p.hakkinda ? <p className={stil.metin11}>{p.hakkinda}</p> : null}
+        <p className={cx(stil.metin10, p.hakkinda ? stil.metin12 : stil.metin13)}>
           Ticari unvan: {p.isletmeAdi}
           {p.yetkiNo ? ` · Yetki belgesi no ${p.yetkiNo}` : ''} · Yetki belgesi ve vergi bilgileri Rengarenk
           tarafından doğrulanmıştır.

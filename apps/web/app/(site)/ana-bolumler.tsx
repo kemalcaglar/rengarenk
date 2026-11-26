@@ -1,8 +1,10 @@
 import { DOTS, HELP_TOPICS, tints } from '@rengarenk/shared';
 import Link from 'next/link';
 import type { CSSProperties, ReactNode } from 'react';
+import { cx } from '../../lib/cx';
 import { colors } from '../../lib/renk';
 import { butceAraligi, zaman } from '../../lib/talep-bicim';
+import stil from './ana-bolumler.module.css';
 
 /**
  * Ana sayfanın sunucuda da istemcide de çizilen bölümleri (Karar 46; YonetimIcerik.dc.html › anasayfa). Görünürlük ve
@@ -17,16 +19,8 @@ export const kart: CSSProperties = {
 
 export function Baslik({ id, children, sag }: { id: string; children: ReactNode; sag?: ReactNode }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'baseline',
-        justifyContent: 'space-between',
-        gap: 12,
-        marginBottom: 12,
-      }}
-    >
-      <h2 id={id} style={{ margin: 0, fontSize: 19, fontWeight: 800 }}>
+    <div className={stil.kutu1}>
+      <h2 id={id} className={stil.baslik1}>
         {children}
       </h2>
       {sag}
@@ -52,51 +46,25 @@ export function SonTalepler({ liste, baslik, tumu }: { liste: SonKart[]; baslik:
       <Baslik
         id="son"
         sag={
-          <Link href={tumu} style={{ fontSize: 14, fontWeight: 700 }}>
+          <Link href={tumu} className={stil.bag1}>
             Tüm talepler
           </Link>
         }
       >
         {baslik}
       </Baslik>
-      <div style={{ ...kart, borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)', overflow: 'hidden' }}>
+      <div className={stil.kutu2}>
         {liste.map((t, i) => (
           <Link
             key={t.no}
             href={`/talep/${t.no}`}
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: '8px 18px',
-              padding: '14px 18px',
-              borderBottom: i < liste.length - 1 ? '1px solid #EEF0F5' : 0,
-              color: colors.ink,
-              textDecoration: 'none',
-            }}
+            className={cx(stil.bag2, i < liste.length - 1 ? stil.bag3 : stil.bag4)}
           >
-            <span
-              aria-hidden="true"
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: '50%',
-                background: DOTS[i % DOTS.length],
-                flex: 'none',
-              }}
-            />
-            <span style={{ flex: '999 1 300px', minWidth: 0, fontSize: 15, fontWeight: 700 }}>
-              {t.baslik}
-            </span>
-            <span style={{ flex: '1 1 140px', fontSize: 13.5, color: colors.muted }}>
-              {[t.il, t.ilce].filter(Boolean).join(', ') || 'Tüm Türkiye'}
-            </span>
-            <span style={{ flex: '1 1 180px', fontSize: 14, fontWeight: 800, color: colors.link }}>
-              {butceAraligi(t.butceMin, t.butceMax)}
-            </span>
-            <span style={{ flex: '0 0 80px', fontSize: 13, color: colors.muted, textAlign: 'right' }}>
-              {zaman(t.yayin)}
-            </span>
+            <span aria-hidden="true" className={stil.metin1} style={{ background: DOTS[i % DOTS.length] }} />
+            <span className={stil.metin2}>{t.baslik}</span>
+            <span className={stil.metin3}>{[t.il, t.ilce].filter(Boolean).join(', ') || 'Tüm Türkiye'}</span>
+            <span className={stil.metin4}>{butceAraligi(t.butceMin, t.butceMax)}</span>
+            <span className={stil.metin5}>{zaman(t.yayin)}</span>
           </Link>
         ))}
       </div>
@@ -127,28 +95,16 @@ const ADIMLAR = [
 
 export function NasilCalisir() {
   return (
-    <section aria-labelledby="nasil" style={{ ...kart, padding: 22 }}>
-      <h2 id="nasil" style={{ margin: '0 0 14px', fontSize: 19, fontWeight: 800 }}>
+    <section aria-labelledby="nasil" className={stil.kutu3}>
+      <h2 id="nasil" className={stil.baslik2}>
         Nasıl çalışır?
       </h2>
-      <ol className="rr-uc-sutun" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+      <ol className={`rr-uc-sutun ${stil.liste1}`}>
         {ADIMLAR.map((a) => (
-          <li key={a.no} style={{ background: a.tint, borderRadius: 'var(--rr-buton-kose)', padding: 16 }}>
-            <span style={{ display: 'block', fontSize: 13, fontWeight: 800, color: colors.muted }}>
-              {a.no}
-            </span>
-            <span style={{ display: 'block', fontSize: 16, fontWeight: 800, marginTop: 4 }}>{a.baslik}</span>
-            <span
-              style={{
-                display: 'block',
-                fontSize: 14,
-                color: colors.inkSoft,
-                marginTop: 4,
-                lineHeight: 1.45,
-              }}
-            >
-              {a.metin}
-            </span>
+          <li key={a.no} className={stil.oge1} style={{ background: a.tint }}>
+            <span className={stil.metin6}>{a.no}</span>
+            <span className={stil.metin7}>{a.baslik}</span>
+            <span className={stil.metin8}>{a.metin}</span>
           </li>
         ))}
       </ol>
@@ -165,19 +121,9 @@ const ROZETLER = [
 
 export function GuvenRozetleri() {
   return (
-    <section aria-label="Güven" style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+    <section aria-label="Güven" className={stil.kutu4}>
       {ROZETLER.map((r) => (
-        <span
-          key={r}
-          style={{
-            background: '#E7FAF0',
-            color: '#11683F',
-            borderRadius: 'var(--rr-etiket-kose)',
-            padding: '8px 14px',
-            fontSize: 14,
-            fontWeight: 800,
-          }}
-        >
+        <span key={r} className={stil.metin9}>
           ✓ {r}
         </span>
       ))}
@@ -190,11 +136,11 @@ const SORULAR = HELP_TOPICS.slice(0, 6).map((t) => t.sorular[0] as readonly [str
 
 export function SikSorulanlar() {
   return (
-    <section aria-labelledby="sss" style={{ ...kart, padding: 22 }}>
+    <section aria-labelledby="sss" className={stil.kutu3}>
       <Baslik
         id="sss"
         sag={
-          <Link href="/yardim" style={{ fontSize: 14, fontWeight: 700 }}>
+          <Link href="/yardim" className={stil.bag1}>
             Yardım merkezi
           </Link>
         }
@@ -202,9 +148,9 @@ export function SikSorulanlar() {
         Sık sorulanlar
       </Baslik>
       {SORULAR.map(([soru, cevap]) => (
-        <details key={soru} style={{ borderTop: '1px solid #EEF0F5', padding: '12px 0' }}>
-          <summary style={{ cursor: 'pointer', fontSize: 15, fontWeight: 800 }}>{soru}</summary>
-          <p style={{ margin: '8px 0 0', fontSize: 14, color: colors.inkSoft, lineHeight: 1.55 }}>{cevap}</p>
+        <details key={soru} className={stil.kutu5}>
+          <summary className={stil.metin10}>{soru}</summary>
+          <p className={stil.metin11}>{cevap}</p>
         </details>
       ))}
     </section>
@@ -213,42 +159,14 @@ export function SikSorulanlar() {
 
 export function GaleriCagri() {
   return (
-    <section
-      aria-label="Galeriler için"
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '10px 16px',
-        background: '#F3EFFF',
-        border: '1px solid var(--rr-cizgi, #E3E6EF)',
-        borderLeft: '6px solid #9B7BFF',
-        borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-        padding: '16px 20px',
-      }}
-    >
-      <span style={{ flex: '1 1 300px', minWidth: 0 }}>
-        <span style={{ display: 'block', fontSize: 17, fontWeight: 800 }}>
-          Galeri misin? Alıcılar seni bekliyor
-        </span>
-        <span style={{ display: 'block', fontSize: 14, color: colors.inkSoft, marginTop: 3 }}>
+    <section aria-label="Galeriler için" className={stil.kutu6}>
+      <span className={stil.metin12}>
+        <span className={stil.metin13}>Galeri misin? Alıcılar seni bekliyor</span>
+        <span className={stil.metin14}>
           İlan vermeden, aradığı aracı yazan alıcılara ulaş. İlk 30 gün ücretsiz.
         </span>
       </span>
-      <Link
-        href="/kurumsal-basvuru"
-        style={{
-          flex: 'none',
-          background: colors.ink,
-          color: '#FFFFFF',
-          borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-          padding: '11px 18px',
-          fontSize: 14.5,
-          fontWeight: 800,
-          textDecoration: 'none',
-        }}
-      >
+      <Link href="/kurumsal-basvuru" className={stil.bag5}>
         Galeri başvurusu
       </Link>
     </section>

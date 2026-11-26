@@ -2,7 +2,9 @@
 
 import { type CategoryField, ILLER } from '@rengarenk/shared';
 import type { CSSProperties, ReactNode } from 'react';
+import { cx } from '../../lib/cx';
 import { binlik, sayiOku } from '../../lib/istemci';
+import stil from './alan.module.css';
 import { ButceKaydirici, useButceKolu } from './deney';
 
 /** Sihirbazdaki ortak ölçüler (Sihirbaz.dc.html) */
@@ -19,13 +21,6 @@ export const kutu: CSSProperties = {
   fontFamily: 'inherit',
 };
 export const secimKutusu: CSSProperties = { ...kutu, padding: '13px 12px' };
-const gizli: CSSProperties = {
-  position: 'absolute',
-  width: 1,
-  height: 1,
-  overflow: 'hidden',
-  clip: 'rect(0 0 0 0)',
-};
 
 /**
  * Seçim işareti: tek seçimde yuvarlak, çoklu seçimde kare; seçilince mavi dolar (sahip isteği, 25 Kasım 2026: seçilecek
@@ -36,18 +31,7 @@ export function SecimIsareti({ on, tur }: { on: boolean; tur: 'tek' | 'coklu' })
   return (
     <span
       aria-hidden="true"
-      style={{
-        flex: 'none',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 18,
-        height: 18,
-        boxSizing: 'border-box',
-        borderRadius: kare ? 'min(var(--rr-etiket-kose), 5px)' : '50%',
-        border: on ? 'none' : '1.5px solid #AEB5C4',
-        background: on ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-kart, #FFFFFF)',
-      }}
+      className={cx(stil.metin1, kare ? stil.metin2 : stil.metin3, on ? stil.metin4 : stil.metin5)}
     >
       {on && kare ? (
         <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
@@ -57,13 +41,11 @@ export function SecimIsareti({ on, tur }: { on: boolean; tur: 'tek' | 'coklu' })
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            style={{ stroke: 'var(--rr-maviYazi, #1E2333)' }}
+            className={stil.gorsel1}
           />
         </svg>
       ) : on ? (
-        <span
-          style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--rr-maviYazi, #1E2333)' }}
-        />
+        <span className={stil.metin6} />
       ) : null}
     </span>
   );
@@ -90,17 +72,7 @@ export function Cip({
 }) {
   const kare = Boolean(alt);
   const altSatir = alt ? (
-    <span
-      style={{
-        display: 'block',
-        fontSize: 12,
-        fontWeight: on ? 600 : 500,
-        color: on ? 'var(--rr-baglanti, #2450C8)' : 'var(--rr-soluk, #5A6073)',
-        marginTop: 1,
-      }}
-    >
-      {alt}
-    </span>
+    <span className={cx(stil.metin7, on ? stil.metin8 : stil.metin9)}>{alt}</span>
   ) : null;
   // İşaretli çipte sol boşluk işarete göre biraz daha dar
   const sol = (px: number) => (tur ? px - 4 : px);
@@ -137,12 +109,7 @@ export function Cip({
       }}
     >
       {tur ? <SecimIsareti on={on} tur={tur} /> : null}
-      {hex ? (
-        <span
-          aria-hidden="true"
-          style={{ width: 18, height: 18, borderRadius: '50%', background: hex, border: '1px solid #AEB5C4' }}
-        />
-      ) : null}
+      {hex ? <span aria-hidden="true" className={stil.metin10} style={{ background: hex }} /> : null}
       {tur && alt ? (
         <span>
           {children}
@@ -180,28 +147,10 @@ export function Anahtar({
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
-      style={{
-        flex: 'none',
-        width: 52,
-        height: 30,
-        border: 0,
-        borderRadius: 'var(--rr-etiket-kose)',
-        background: on ? renk : '#C9CFDB',
-        position: 'relative',
-        cursor: disabled ? 'default' : 'pointer',
-      }}
+      className={cx(stil.dugme1, disabled ? stil.dugme2 : stil.dugme3)}
+      style={{ background: on ? renk : '#C9CFDB' }}
     >
-      <span
-        style={{
-          position: 'absolute',
-          top: 3,
-          left: on ? 25 : 3,
-          width: 24,
-          height: 24,
-          borderRadius: '50%',
-          background: 'var(--rr-kart, #FFFFFF)',
-        }}
-      />
+      <span className={cx(stil.metin11, on ? stil.metin12 : stil.metin13)} />
     </button>
   );
 }
@@ -230,16 +179,11 @@ export function Alan({
   const ad = `${f.label}${f.unit && f.type !== 'number' ? ` (${f.unit})` : ''}`;
   const butceKolu = useButceKolu();
   const alt = hata ? (
-    <span
-      role="alert"
-      style={{ display: 'block', fontSize: 12.5, color: '#A3271F', fontWeight: 700, marginTop: 6 }}
-    >
+    <span role="alert" className={stil.metin14}>
       {hata}
     </span>
   ) : f.help ? (
-    <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 6 }}>
-      {f.help}
-    </span>
+    <span className={stil.metin15}>{f.help}</span>
   ) : null;
 
   if (f.type === 'multiselect' || (f.type === 'select' && (f.options?.length ?? 0) <= 10)) {
@@ -254,8 +198,8 @@ export function Alan({
     };
     return (
       <div>
-        <span style={etiket}>{ad}</span>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        <span className={stil.metin16}>{ad}</span>
+        <div className={stil.kutu1}>
           {(f.options ?? []).map((o) => (
             <Cip
               key={o.value}
@@ -288,14 +232,14 @@ export function Alan({
   if (f.type === 'select') {
     return (
       <div>
-        <label htmlFor={id} style={{ ...etiket, marginBottom: 6 }}>
+        <label htmlFor={id} className={stil.etiket1}>
           {ad}
         </label>
         <select
           id={id}
           value={(value as string | undefined) ?? ''}
           onChange={(e) => onChange(e.target.value || undefined)}
-          style={secimKutusu}
+          className={stil.girdi1}
         >
           <option value="">Seç</option>
           {(f.options ?? []).map((o) => (
@@ -312,8 +256,8 @@ export function Alan({
     const v = value as boolean | undefined;
     return (
       <div>
-        <span style={etiket}>{f.label}</span>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        <span className={stil.metin16}>{f.label}</span>
+        <div className={stil.kutu1}>
           <Cip tur="tek" on={v === true} onClick={() => onChange(v === true ? undefined : true)}>
             Evet
           </Cip>
@@ -351,8 +295,8 @@ export function Alan({
   if (f.type === 'range' && f.key === 'butce') {
     const v = (value as Aralik | undefined) ?? {};
     return (
-      <div style={{ maxWidth: 520 }}>
-        <label htmlFor={id} style={{ ...etiket, marginBottom: 6 }}>
+      <div className={stil.kutu2}>
+        <label htmlFor={id} className={stil.etiket1}>
           {ad}
         </label>
         <input
@@ -364,10 +308,10 @@ export function Alan({
             const n = sayiOku(e.target.value);
             onChange(n === undefined ? undefined : { max: n });
           }}
-          style={kutu}
+          className={stil.girdi2}
         />
         {alt ?? (
-          <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 6 }}>
+          <span className={stil.metin15}>
             Aracı en çok bu tutara almak istiyorsun; satıcılar bu bütçeye uyan araçlarla yazar.
           </span>
         )}
@@ -386,16 +330,9 @@ export function Alan({
     };
     return (
       <div>
-        <span style={{ ...etiket, marginBottom: 6 }}>{ad}</span>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            maxWidth: f.key === 'butce' ? 520 : undefined,
-          }}
-        >
-          <label htmlFor={`${id}-1`} style={gizli}>
+        <span className={stil.etiket1}>{ad}</span>
+        <div className={cx(stil.kutu3, f.key === 'butce' ? stil.kutu2 : undefined)}>
+          <label htmlFor={`${id}-1`} className={stil.etiket2}>
             En az {f.label.toLocaleLowerCase('tr-TR')}
           </label>
           <input
@@ -404,10 +341,10 @@ export function Alan({
             placeholder="En az"
             value={para ? binlik(v.min) : (v.min ?? '')}
             onChange={(e) => set('min', e.target.value)}
-            style={{ ...kutu, flex: 1, minWidth: 0, width: 'auto' }}
+            className={stil.girdi3}
           />
-          <span style={{ color: 'var(--rr-soluk, #5A6073)' }}>–</span>
-          <label htmlFor={`${id}-2`} style={gizli}>
+          <span className={stil.metin17}>–</span>
+          <label htmlFor={`${id}-2`} className={stil.etiket2}>
             En çok {f.label.toLocaleLowerCase('tr-TR')}
           </label>
           <input
@@ -416,7 +353,7 @@ export function Alan({
             placeholder="En çok"
             value={para ? binlik(v.max) : (v.max ?? '')}
             onChange={(e) => set('max', e.target.value)}
-            style={{ ...kutu, flex: 1, minWidth: 0, width: 'auto' }}
+            className={stil.girdi3}
           />
         </div>
         {alt}
@@ -427,7 +364,7 @@ export function Alan({
     const v = value as number | undefined;
     return (
       <div>
-        <label htmlFor={id} style={{ ...etiket, marginBottom: 6 }}>
+        <label htmlFor={id} className={stil.etiket1}>
           {f.key === 'km' ? 'En fazla kilometre' : f.label}
           {f.unit && f.key !== 'km' ? ` (${f.unit})` : ''}
         </label>
@@ -436,7 +373,7 @@ export function Alan({
           inputMode="numeric"
           value={(f.max ?? 0) >= 10_000 ? binlik(v) : (v ?? '')}
           onChange={(e) => onChange(sayiOku(e.target.value))}
-          style={kutu}
+          className={stil.girdi2}
         />
         {alt}
       </div>
@@ -445,7 +382,7 @@ export function Alan({
   if (f.type === 'text') {
     return (
       <div>
-        <label htmlFor={id} style={{ ...etiket, marginBottom: 6 }}>
+        <label htmlFor={id} className={stil.etiket1}>
           {f.label}
         </label>
         <textarea
@@ -454,10 +391,10 @@ export function Alan({
           maxLength={2000}
           value={(value as string | undefined) ?? ''}
           onChange={(e) => onChange(e.target.value || undefined)}
-          style={{ ...kutu, lineHeight: 1.55, resize: 'vertical' }}
+          className={stil.girdi4}
         />
         {f.key === 'aciklama' ? (
-          <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 4 }}>
+          <span className={stil.metin18}>
             Telefon numarası, IBAN veya bağlantı yazmayın; iletişim bilgileri aşağıdaki ayarlarla paylaşılır.
           </span>
         ) : (
@@ -481,9 +418,9 @@ export function Alan({
     };
     return (
       <div>
-        <span style={{ ...etiket, marginBottom: 6 }}>{f.label}</span>
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
-          <label htmlFor={`${id}-1`} style={gizli}>
+        <span className={stil.etiket1}>{f.label}</span>
+        <div className={stil.kutu4}>
+          <label htmlFor={`${id}-1`} className={stil.etiket2}>
             Alış
           </label>
           <input
@@ -491,10 +428,10 @@ export function Alan({
             type="datetime-local"
             value={yerel(v.from)}
             onChange={(e) => set('from', e.target.value)}
-            style={{ ...kutu, flex: 1, minWidth: 200, width: 'auto' }}
+            className={stil.girdi5}
           />
-          <span style={{ color: 'var(--rr-soluk, #5A6073)' }}>–</span>
-          <label htmlFor={`${id}-2`} style={gizli}>
+          <span className={stil.metin17}>–</span>
+          <label htmlFor={`${id}-2`} className={stil.etiket2}>
             İade
           </label>
           <input
@@ -502,7 +439,7 @@ export function Alan({
             type="datetime-local"
             value={yerel(v.to)}
             onChange={(e) => set('to', e.target.value)}
-            style={{ ...kutu, flex: 1, minWidth: 200, width: 'auto' }}
+            className={stil.girdi5}
           />
         </div>
         {alt}
@@ -528,18 +465,18 @@ export function Konum({
   const il = ILLER.find((i) => i.ad === v.il);
   const ikinci = f.key !== 'konum';
   return (
-    <div style={{ gridColumn: ikinci ? undefined : '1 / -1' }}>
-      {ikinci ? <span style={{ ...etiket, marginBottom: 6 }}>{f.label}</span> : null}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 16 }}>
+    <div className={cx(ikinci ? undefined : stil.kutu5)}>
+      {ikinci ? <span className={stil.etiket1}>{f.label}</span> : null}
+      <div className={stil.kutu6}>
         <div>
-          <label htmlFor={`${f.key}-il`} style={{ ...etiket, marginBottom: 6 }}>
+          <label htmlFor={`${f.key}-il`} className={stil.etiket1}>
             İl
           </label>
           <select
             id={`${f.key}-il`}
             value={v.il ?? ''}
             onChange={(e) => onChange(e.target.value ? { il: e.target.value } : undefined)}
-            style={secimKutusu}
+            className={stil.girdi1}
           >
             <option value="">Seç</option>
             {ILLER.map((i) => (
@@ -550,7 +487,7 @@ export function Konum({
           </select>
         </div>
         <div>
-          <label htmlFor={`${f.key}-ilce`} style={{ ...etiket, marginBottom: 6 }}>
+          <label htmlFor={`${f.key}-ilce`} className={stil.etiket1}>
             İlçe
           </label>
           <select
@@ -558,7 +495,7 @@ export function Konum({
             value={v.ilce ?? ''}
             disabled={!il}
             onChange={(e) => onChange({ il: v.il, ...(e.target.value ? { ilce: e.target.value } : {}) })}
-            style={secimKutusu}
+            className={stil.girdi1}
           >
             <option value="">{il ? 'Tüm ilçeler' : 'Önce il seç'}</option>
             {(il?.ilceler ?? []).map((x) => (
@@ -570,10 +507,7 @@ export function Konum({
         </div>
       </div>
       {hata ? (
-        <span
-          role="alert"
-          style={{ display: 'block', fontSize: 12.5, color: '#A3271F', fontWeight: 700, marginTop: 6 }}
-        >
+        <span role="alert" className={stil.metin14}>
           {hata}
         </span>
       ) : null}

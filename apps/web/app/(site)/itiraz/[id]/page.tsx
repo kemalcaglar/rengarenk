@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { istek, useGiris } from '../../../../lib/istemci';
+import stil from './page.module.css';
 
 interface Karar {
   id: string;
@@ -71,59 +72,39 @@ export default function Itiraz() {
   }
 
   return (
-    <main style={{ maxWidth: 640, margin: '40px auto', padding: '0 24px' }}>
-      <h1 style={{ margin: '0 0 6px', fontSize: 26, fontWeight: 800 }}>Moderasyon kararı</h1>
-      <p style={{ margin: '0 0 18px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
+    <main className={`rr-sayfa ${stil.kutu1}`}>
+      <h1 className={stil.baslik1}>Moderasyon kararı</h1>
+      <p className={stil.metin1}>
         Bir şikayet üzerine içeriğini inceledik. Karara katılmıyorsan 7 gün içinde itiraz edebilirsin.
       </p>
       {hata && !k ? (
-        <p role="alert" style={{ color: '#A3271F', fontWeight: 700 }}>
+        <p role="alert" className={stil.metin2}>
           {hata}
         </p>
       ) : null}
       {k ? (
         <>
-          <section
-            style={{
-              background: 'var(--rr-kart, #FFFFFF)',
-              border: '1px solid var(--rr-cizgi, #E3E6EF)',
-              borderRadius: 'var(--rr-kart-kose)',
-              padding: 20,
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
-              <h2 style={{ margin: 0, fontSize: 19, fontWeight: 800 }}>{k.kararAd}</h2>
-              {k.geriAlindi ? (
-                <span
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 800,
-                    padding: '4px 10px',
-                    borderRadius: 'var(--rr-etiket-kose)',
-                    background: '#E7FAF0',
-                    color: '#11683F',
-                  }}
-                >
-                  Geri alındı
-                </span>
-              ) : null}
+          <section className={stil.kutu2}>
+            <div className={stil.kutu3}>
+              <h2 className={stil.baslik2}>{k.kararAd}</h2>
+              {k.geriAlindi ? <span className={stil.metin3}>Geri alındı</span> : null}
             </div>
-            <p style={{ margin: '6px 0 0', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
+            <p className={stil.metin4}>
               {k.hedef} · {tarih(k.tarih, true)} · S-{k.no}
             </p>
-            <dl style={{ margin: '14px 0 0', display: 'grid', gap: 10, fontSize: 14.5, lineHeight: 1.55 }}>
+            <dl className={stil.liste1}>
               <div>
-                <dt style={{ fontWeight: 800 }}>Gerekçe</dt>
-                <dd style={{ margin: 0, color: '#3A4052' }}>{k.gerekce}</dd>
+                <dt className={stil.metin5}>Gerekçe</dt>
+                <dd className={stil.metin6}>{k.gerekce}</dd>
               </div>
               <div>
-                <dt style={{ fontWeight: 800 }}>Ne anlama geliyor</dt>
-                <dd style={{ margin: 0, color: '#3A4052' }}>{k.aciklama}</dd>
+                <dt className={stil.metin5}>Ne anlama geliyor</dt>
+                <dd className={stil.metin6}>{k.aciklama}</dd>
               </div>
               {k.aski && !k.geriAlindi ? (
                 <div>
-                  <dt style={{ fontWeight: 800 }}>Askı</dt>
-                  <dd style={{ margin: 0, color: '#A3271F', fontWeight: 700 }}>
+                  <dt className={stil.metin5}>Askı</dt>
+                  <dd className={stil.metin7}>
                     {k.aski.until
                       ? `${tarih(k.aski.until, true)} saatine kadar mesaj gönderemezsin.`
                       : 'Karar sonuçlanana kadar mesaj gönderemezsin.'}
@@ -133,28 +114,17 @@ export default function Itiraz() {
             </dl>
           </section>
 
-          <section
-            aria-labelledby="itiraz-baslik"
-            style={{
-              marginTop: 16,
-              background: 'var(--rr-kart, #FFFFFF)',
-              border: '1px solid var(--rr-cizgi, #E3E6EF)',
-              borderRadius: 'var(--rr-kart-kose)',
-              padding: 20,
-            }}
-          >
-            <h2 id="itiraz-baslik" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+          <section aria-labelledby="itiraz-baslik" className={stil.kutu4}>
+            <h2 id="itiraz-baslik" className={stil.baslik3}>
               İtiraz
             </h2>
             {k.itiraz ? (
               <>
-                <p style={{ margin: '8px 0 0', fontSize: 14, color: '#3A4052' }}>“{k.itiraz.metin}”</p>
+                <p className={stil.metin8}>“{k.itiraz.metin}”</p>
                 <p
                   role="status"
+                  className={stil.metin9}
                   style={{
-                    margin: '10px 0 0',
-                    fontSize: 14.5,
-                    fontWeight: 800,
                     color:
                       k.itiraz.durum === 'kabul'
                         ? '#11683F'
@@ -172,11 +142,11 @@ export default function Itiraz() {
               </>
             ) : k.itirazEdebilir ? (
               <>
-                <p style={{ margin: '6px 0 10px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
+                <p className={stil.metin10}>
                   {tarih(k.itirazSonu, true)} saatine kadar bir kez itiraz edebilirsin. Kararı veren dışında
                   bir moderatör inceler.
                 </p>
-                <label htmlFor="itiraz-metin" style={{ fontSize: 13.5, fontWeight: 700 }}>
+                <label htmlFor="itiraz-metin" className={stil.etiket1}>
                   Neden katılmıyorsun?
                 </label>
                 <textarea
@@ -185,55 +155,23 @@ export default function Itiraz() {
                   onChange={(e) => setMetin(e.target.value)}
                   rows={5}
                   maxLength={1000}
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    marginTop: 6,
-                    border: '1px solid #D5DAE5',
-                    borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                    padding: '10px 12px',
-                    fontSize: 14.5,
-                    fontFamily: 'inherit',
-                    resize: 'vertical',
-                  }}
+                  className={stil.girdi1}
                 />
                 {hata ? (
-                  <p
-                    role="alert"
-                    style={{ margin: '8px 0 0', color: '#A3271F', fontWeight: 700, fontSize: 13.5 }}
-                  >
+                  <p role="alert" className={stil.metin11}>
                     {hata}
                   </p>
                 ) : null}
-                <button
-                  type="button"
-                  onClick={gonder}
-                  disabled={mesgul}
-                  style={{
-                    marginTop: 12,
-                    border: 0,
-                    background: 'var(--rr-mavi, #5B8CFF)',
-                    borderRadius: 'var(--rr-buton-kose)',
-                    padding: '12px 20px',
-                    fontSize: 15,
-                    fontWeight: 800,
-                    color: 'var(--rr-maviYazi, #1E2333)',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
-                >
+                <button type="button" onClick={gonder} disabled={mesgul} className={stil.dugme1}>
                   İtiraz et
                 </button>
               </>
             ) : (
-              <p style={{ margin: '8px 0 0', fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
-                {k.geriAlindi ? 'Karar geri alındı.' : 'İtiraz süresi doldu.'}
-              </p>
+              <p className={stil.metin12}>{k.geriAlindi ? 'Karar geri alındı.' : 'İtiraz süresi doldu.'}</p>
             )}
           </section>
-          <p style={{ margin: '16px 0 0', fontSize: 13.5 }}>
-            <Link href="/kullanim-kosullari" style={{ fontWeight: 700 }}>
+          <p className={stil.metin13}>
+            <Link href="/kullanim-kosullari" className={stil.bag1}>
               Kullanım koşulları
             </Link>
           </p>

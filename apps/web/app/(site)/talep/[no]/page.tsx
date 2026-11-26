@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { cx } from '../../../../lib/cx';
 import { getCategories } from '../../../../lib/kategoriler';
 import { TalepDetay, type TalepVeri } from './detay';
+import stil from './page.module.css';
 
 const API = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
@@ -45,56 +47,11 @@ export default async function TalepSayfasi({ params }: { params: Promise<{ no: s
     (c) => c.slug === t.category.slug || c.children.some((x) => x.slug === t.category.slug),
   );
   return (
-    <main
-      style={{
-        maxWidth: 1360,
-        margin: '0 auto',
-        padding: '24px 24px 64px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'flex-start',
-        gap: 24,
-      }}
-    >
+    <main className={`rr-sayfa ${stil.kutu1}`}>
       {/* Telefonda kategoriler üst çubuktaki ☰ menüsünde; kenar çubuğu yalnızca geniş ekranda (ana sayfadaki gibi) */}
-      <aside
-        aria-label="Kategoriler"
-        className="rr-kenar"
-        style={{
-          flex: '1 1 220px',
-          maxWidth: 250,
-          minWidth: 0,
-          background: 'var(--rr-kart, #FFFFFF)',
-          border: '1px solid var(--rr-cizgi, #E3E6EF)',
-          borderRadius: 'var(--rr-kart-kose)',
-          padding: '18px 12px',
-        }}
-      >
-        <h2
-          style={{
-            margin: '0 8px 12px',
-            fontSize: 13,
-            fontWeight: 800,
-            letterSpacing: 0.6,
-            textTransform: 'uppercase',
-            color: 'var(--rr-soluk, #5A6073)',
-          }}
-        >
-          Kategoriler
-        </h2>
-        <Link
-          href="/talepler"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '10px 8px',
-            fontSize: 15.5,
-            fontWeight: 800,
-            color: 'var(--rr-murekkep, #1E2333)',
-            textDecoration: 'none',
-          }}
-        >
+      <aside aria-label="Kategoriler" className={`rr-kenar ${stil.kutu2}`}>
+        <h2 className={stil.baslik1}>Kategoriler</h2>
+        <Link href="/talepler" className={stil.bag1}>
           Vasıta
           <svg
             width="16"
@@ -110,7 +67,7 @@ export default async function TalepSayfasi({ params }: { params: Promise<{ no: s
             <path d="M6 9l6 6 6-6" />
           </svg>
         </Link>
-        <ul style={{ listStyle: 'none', margin: '0 0 8px', padding: 0 }}>
+        <ul className={stil.liste1}>
           {kategoriler
             .filter((c) => c.vertical === 'vasita')
             .map((c) => {
@@ -120,56 +77,20 @@ export default async function TalepSayfasi({ params }: { params: Promise<{ no: s
                   <Link
                     href={`/talepler?kategori=${c.slug}`}
                     aria-current={on ? 'page' : undefined}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      padding: '9px 10px',
-                      borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                      background: on ? '#EEF3FF' : 'transparent',
-                      fontSize: 14,
-                      fontWeight: on ? 700 : 500,
-                      color: on ? 'var(--rr-murekkep, #1E2333)' : '#3A4052',
-                      textDecoration: 'none',
-                    }}
+                    className={cx(stil.bag2, on ? stil.bag3 : stil.bag4)}
                   >
-                    <span
-                      aria-hidden="true"
-                      style={{ width: 9, height: 9, borderRadius: '50%', background: c.color, flex: 'none' }}
-                    />
+                    <span aria-hidden="true" className={stil.metin1} style={{ background: c.color }} />
                     {c.name}
                   </Link>
                 </li>
               );
             })}
         </ul>
-        <div style={{ borderTop: '1px solid #EEF0F5', paddingTop: 8 }}>
+        <div className={stil.kutu3}>
           {['Emlak', 'İkinci el alışveriş'].map((ad) => (
-            <span
-              key={ad}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '10px 8px',
-                fontSize: 15.5,
-                fontWeight: 700,
-                color: '#6B7183',
-              }}
-            >
+            <span key={ad} className={stil.metin2}>
               {ad}
-              <span
-                style={{
-                  fontSize: 11.5,
-                  fontWeight: 700,
-                  color: 'var(--rr-soluk, #5A6073)',
-                  background: '#F3F5FA',
-                  padding: '3px 8px',
-                  borderRadius: 'var(--rr-etiket-kose)',
-                }}
-              >
-                Yakında
-              </span>
+              <span className={stil.metin3}>Yakında</span>
             </span>
           ))}
         </div>

@@ -1,7 +1,9 @@
 'use client';
 
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../lib/cx';
 import { istek } from '../../lib/istemci';
+import stil from './guven.module.css';
 
 export interface GuvenVerisi {
   yildizSayisi: number;
@@ -23,12 +25,6 @@ export interface GuvenVerisi {
   }[];
   takipci: number;
 }
-
-const kart: CSSProperties = {
-  background: 'var(--rr-kart, #FFFFFF)',
-  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-  borderRadius: 'var(--rr-kart-kose)',
-};
 const sure = (dk: number | null) =>
   dk === null ? '—' : dk < 60 ? `${Math.max(1, Math.round(dk))} dk` : `${Math.round(dk / 60)} sa`;
 
@@ -40,78 +36,50 @@ const sure = (dk: number | null) =>
 export function Guven({ v, hesap }: { v: GuvenVerisi; hesap: string }) {
   const enCok = Math.max(1, ...v.dagilim);
   return (
-    <section style={{ ...kart, padding: 20, marginTop: 16 }} aria-labelledby="guven">
-      <h2 id="guven" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+    <section className={stil.kutu1} aria-labelledby="guven">
+      <h2 id="guven" className={stil.baslik1}>
         Yıldızların ve rozetlerin
       </h2>
-      <p style={{ margin: '4px 0 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
+      <p className={stil.metin1}>
         Rozetler alıcı yıldızları, yanıt süren ve şikâyet oranınla her gece güncellenir. Alıcılar tek tek puan
         görmez; yıldızı kimin verdiği sana da gösterilmez.
       </p>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 20 }}>
-        <div style={{ flex: '1 1 260px', minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-            <span style={{ fontSize: 34, fontWeight: 800 }}>
+      <div className={stil.kutu2}>
+        <div className={stil.kutu3}>
+          <div className={stil.kutu4}>
+            <span className={stil.metin2}>
               {v.yildizOrtalama === null ? '—' : String(v.yildizOrtalama).replace('.', ',')}
             </span>
-            <span style={{ fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
+            <span className={stil.metin3}>
               ★ · {v.yildizSayisi} yıldız · ortalama yanıt {sure(v.ortalamaYanitDakika)}
             </span>
           </div>
-          <div style={{ marginTop: 10, display: 'grid', gap: 6 }}>
+          <div className={stil.kutu5}>
             {[5, 4, 3, 2, 1].map((n) => {
               const adet = v.dagilim[n - 1] ?? 0;
               return (
-                <div
-                  key={n}
-                  title={`${n} yıldız: ${adet}`}
-                  style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}
-                >
-                  <span style={{ flex: '0 0 54px', color: '#3A4052' }}>{n} yıldız</span>
-                  <span
-                    style={{
-                      flex: 1,
-                      height: 8,
-                      borderRadius: 'calc(var(--rr-buton-kose) * 4 / 14)',
-                      background: '#EEF0F5',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <span
-                      style={{
-                        display: 'block',
-                        height: 8,
-                        borderRadius: 'calc(var(--rr-buton-kose) * 4 / 14)',
-                        background: 'var(--rr-sari, #FFC84A)',
-                        color: 'var(--rr-sariYazi, #1E2333)',
-                        width: `${(adet / enCok) * 100}%`,
-                      }}
-                    />
+                <div key={n} title={`${n} yıldız: ${adet}`} className={stil.kutu6}>
+                  <span className={stil.metin4}>{n} yıldız</span>
+                  <span className={stil.metin5}>
+                    <span className={stil.metin6} style={{ width: `${(adet / enCok) * 100}%` }} />
                   </span>
-                  <span style={{ flex: '0 0 28px', textAlign: 'right', fontWeight: 700 }}>{adet}</span>
+                  <span className={stil.metin7}>{adet}</span>
                 </div>
               );
             })}
           </div>
         </div>
-        <div style={{ flex: '1 1 300px', minWidth: 0, display: 'grid', gap: 10 }}>
+        <div className={stil.kutu7}>
           {v.rozetler.map((r) => (
-            <div key={r.rozet} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+            <div key={r.rozet} className={stil.kutu8}>
               <span
                 title={r.aciklama}
-                style={{
-                  flex: 'none',
-                  fontSize: 12.5,
-                  fontWeight: 800,
-                  padding: '4px 10px',
-                  borderRadius: 'var(--rr-etiket-kose)',
-                  background: r.var ? r.bg : '#F3F5FA',
-                  color: r.var ? r.renk : '#8A91A3',
-                }}
+                className={stil.metin8}
+                style={{ background: r.var ? r.bg : '#F3F5FA', color: r.var ? r.renk : '#8A91A3' }}
               >
                 {r.ad}
               </span>
-              <span style={{ fontSize: 13, color: r.var ? '#11683F' : '#3A4052', lineHeight: 1.5 }}>
+              <span className={cx(stil.metin9, r.var ? stil.metin10 : stil.metin11)}>
                 {r.var ? 'Rozetin var' : `Kalan: ${r.eksik.join(', ')}`}
               </span>
             </div>
@@ -141,16 +109,6 @@ const DURUM: Record<string, [string, string, string]> = {
   acik: ['İtirazın moderasyonda', '#FFF6DF', '#7A5300'],
   kabul: ['İtiraz kabul edildi · yıldız hesaba katılmıyor', '#E7FAF0', '#11683F'],
   red: ['İtiraz reddedildi · yıldız geçerli', '#F3F5FA', '#3A4052'],
-};
-const ikincil: CSSProperties = {
-  border: '1px solid #D5DAE5',
-  background: 'var(--rr-kart, #FFFFFF)',
-  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-  padding: '7px 12px',
-  fontSize: 13,
-  fontWeight: 700,
-  cursor: 'pointer',
-  fontFamily: 'inherit',
 };
 
 /**
@@ -196,42 +154,25 @@ function BirYildiz({ hesap }: { hesap: string }) {
   }
 
   return (
-    <div id="bir-yildiz" style={{ marginTop: 18, borderTop: '1px solid #EEF0F5', paddingTop: 14 }}>
-      <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800 }}>1 yıldızlı değerlendirmeler</h3>
-      <p style={{ margin: '4px 0 10px', fontSize: 13, color: 'var(--rr-soluk, #5A6073)', lineHeight: 1.5 }}>
+    <div id="bir-yildiz" className={stil.kutu9}>
+      <h3 className={stil.baslik2}>1 yıldızlı değerlendirmeler</h3>
+      <p className={stil.metin12}>
         Haksız bulduğun 1 yıldıza {d.gun} gün içinde bir kez itiraz edebilirsin. Moderasyon sohbeti inceler;
         kabul edilirse yıldız ortalamana katılmaz.
         {d.yetkili ? '' : ' İtirazı galerinin sahibi ya da yöneticisi yapar.'}
       </p>
-      <div style={{ display: 'grid', gap: 8 }}>
+      <div className={stil.kutu10}>
         {d.yildizlar.map((y) => {
           const durum = y.itiraz ? DURUM[y.itiraz.durum] : null;
           return (
-            <div
-              key={y.id}
-              style={{
-                border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                borderRadius: 'var(--rr-buton-kose)',
-                padding: '10px 14px',
-              }}
-            >
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 12px' }}>
-                <span style={{ flex: '1 1 200px', fontSize: 13.5 }}>
-                  <span style={{ color: '#E0A100', fontWeight: 800 }}>★</span>{' '}
-                  <span style={{ fontWeight: 700 }}>1 yıldız</span> · {tarih(y.tarih)}
+            <div key={y.id} className={stil.kutu11}>
+              <div className={stil.kutu12}>
+                <span className={stil.metin13}>
+                  <span className={stil.metin14}>★</span> <span className={stil.metin15}>1 yıldız</span> ·{' '}
+                  {tarih(y.tarih)}
                 </span>
                 {durum ? (
-                  <span
-                    style={{
-                      flex: 'none',
-                      fontSize: 12.5,
-                      fontWeight: 800,
-                      padding: '4px 10px',
-                      borderRadius: 'var(--rr-etiket-kose)',
-                      background: durum[1],
-                      color: durum[2],
-                    }}
-                  >
+                  <span className={stil.metin8} style={{ background: durum[1], color: durum[2] }}>
                     {durum[0]}
                   </span>
                 ) : y.itirazEdebilir ? (
@@ -243,23 +184,19 @@ function BirYildiz({ hesap }: { hesap: string }) {
                         setMetin('');
                         setHata('');
                       }}
-                      style={{ ...ikincil, flex: 'none' }}
+                      className={stil.dugme1}
                     >
                       İtiraz et
                     </button>
                   )
                 ) : new Date(y.itirazSonu) < new Date() ? (
-                  <span style={{ flex: 'none', fontSize: 12.5, color: '#8A91A3' }}>İtiraz süresi doldu</span>
+                  <span className={stil.metin16}>İtiraz süresi doldu</span>
                 ) : null}
               </div>
-              {y.itiraz?.sonuc ? (
-                <p style={{ margin: '6px 0 0', fontSize: 13, color: '#3A4052' }}>
-                  Moderasyon: {y.itiraz.sonuc}
-                </p>
-              ) : null}
+              {y.itiraz?.sonuc ? <p className={stil.metin17}>Moderasyon: {y.itiraz.sonuc}</p> : null}
               {acik === y.id ? (
-                <div style={{ marginTop: 10 }}>
-                  <label htmlFor={`itiraz-${y.id}`} style={{ fontSize: 13.5, fontWeight: 700 }}>
+                <div className={stil.kutu13}>
+                  <label htmlFor={`itiraz-${y.id}`} className={stil.etiket1}>
                     Neden haksız?
                   </label>
                   <textarea
@@ -269,56 +206,23 @@ function BirYildiz({ hesap }: { hesap: string }) {
                     rows={3}
                     maxLength={1000}
                     placeholder="Örn. alıcıyla hiç konuşmadık, yalnızca ilk mesajımızı okudu."
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      boxSizing: 'border-box',
-                      marginTop: 6,
-                      border: '1px solid #D5DAE5',
-                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                      padding: '10px 12px',
-                      fontSize: 14,
-                      fontFamily: 'inherit',
-                      resize: 'vertical',
-                    }}
+                    className={stil.girdi1}
                   />
                   {hata ? (
-                    <p
-                      role="alert"
-                      style={{ margin: '6px 0 0', color: '#A3271F', fontWeight: 700, fontSize: 13 }}
-                    >
+                    <p role="alert" className={stil.metin18}>
                       {hata}
                     </p>
                   ) : null}
-                  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                  <div className={stil.kutu14}>
                     <button
                       type="button"
                       onClick={() => gonder(y.id)}
                       disabled={mesgul}
-                      style={{
-                        border: 0,
-                        background: 'var(--rr-mavi, #5B8CFF)',
-                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                        padding: '9px 16px',
-                        fontSize: 13.5,
-                        fontWeight: 800,
-                        color: 'var(--rr-maviYazi, #1E2333)',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
+                      className={stil.dugme2}
                     >
                       İtirazı gönder
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => setAcik(null)}
-                      style={{
-                        ...ikincil,
-                        border: 0,
-                        background: 'transparent',
-                        color: 'var(--rr-soluk, #5A6073)',
-                      }}
-                    >
+                    <button type="button" onClick={() => setAcik(null)} className={stil.dugme3}>
                       Vazgeç
                     </button>
                   </div>

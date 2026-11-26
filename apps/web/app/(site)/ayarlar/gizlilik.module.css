@@ -1,0 +1,243 @@
+/* Bu dosya gizlilik.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  padding: 20px;
+}
+.baslik1 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 800;
+}
+.metin1 {
+  margin: 0 0 10px;
+  font-size: 13.5px;
+  color: var(--rr-soluk, #5a6073);
+}
+.kutu2 {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid #eef0f5;
+}
+.metin2 {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 700;
+}
+.metin3 {
+  display: block;
+  font-size: 12.5px;
+  color: var(--rr-soluk, #5a6073);
+  margin-top: 2px;
+}
+.dugme1 {
+  border: 1px solid #d5dae5;
+  background: var(--rr-kart, #ffffff);
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  padding: 8px 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--rr-murekkep, #1e2333);
+  cursor: pointer;
+  font-family: inherit;
+}
+.metin4 {
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid #eef0f5;
+  font-size: 14px;
+  color: var(--rr-soluk, #5a6073);
+}
+.kutu3 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-end;
+  margin-top: 10px;
+  width: 100%;
+}
+.etiket1 {
+  flex: 0 1 180px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.girdi1 {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 5px;
+  border: 1px solid #d5dae5;
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  padding: 11px;
+  font-size: 14.5px;
+  font-family: inherit;
+  background: var(--rr-kart, #ffffff);
+}
+.dugme2 {
+  border: 0;
+  background: var(--rr-mavi, #5b8cff);
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  padding: 11px 16px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--rr-maviYazi, #1e2333);
+  cursor: pointer;
+  font-family: inherit;
+}
+.dugme3 {
+  border: 0;
+  background: var(--rr-kart, #ffffff);
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  padding: 8px 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--rr-murekkep, #1e2333);
+  cursor: pointer;
+  font-family: inherit;
+}
+.baslik2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 800;
+}
+.metin5 {
+  flex: 1 1 300px;
+}
+.metin6 {
+  display: block;
+  font-size: 12.5px;
+  margin-top: 4px;
+  font-weight: 700;
+}
+.metin7 {
+  color: #11683f;
+}
+.metin8 {
+  color: #7a5300;
+}
+.kutu4 {
+  width: 100%;
+  margin-top: 6px;
+}
+.etiket2 {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+}
+.etiket3 {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 10px;
+}
+.girdi2 {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 5px;
+  border: 1px solid #d5dae5;
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  padding: 11px;
+  font-size: 14.5px;
+  font-family: inherit;
+  background: var(--rr-kart, #ffffff);
+  resize: vertical;
+}
+.dugme4 {
+  border: 0;
+  background: var(--rr-mavi, #5b8cff);
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  padding: 8px 12px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--rr-maviYazi, #1e2333);
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 10px;
+}
+.kutu5 {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid #eef0f5;
+}
+.metin9 {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+}
+.metin10 {
+  display: block;
+  font-size: 12.5px;
+  color: var(--rr-soluk, #5a6073);
+  margin-top: 2px;
+  white-space: pre-wrap;
+}
+.metin11 {
+  font-size: 12.5px;
+  font-weight: 800;
+}
+.metin12 {
+  flex: 1 1 300px;
+  min-width: 0;
+}
+.metin13 {
+  display: flex;
+  gap: 16px;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.kutu6 {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+.baslik3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+.metin14 {
+  display: block;
+  font-size: 13px;
+  color: var(--rr-soluk, #5a6073);
+  margin-top: 4px;
+}
+.kutu7 {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  max-width: 420px;
+}
+.etiket4 {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.metin15 {
+  font-size: 12.5px;
+  color: var(--rr-soluk, #5a6073);
+}
+.metin16 {
+  display: flex;
+  gap: 8px;
+}
+.dugme5 {
+  border: 0;
+  background: var(--rr-mavi, #5b8cff);
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  padding: 8px 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--rr-maviYazi, #1e2333);
+  cursor: pointer;
+  font-family: inherit;
+}

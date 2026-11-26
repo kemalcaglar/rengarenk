@@ -1,0 +1,87 @@
+/* Bu dosya cerez-bandi.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  max-width: 980px;
+  margin: 0 auto;
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  padding: 18px 20px;
+  box-shadow: 0 12px 32px rgba(30, 35, 51, 0.14);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 20px;
+  z-index: 20;
+}
+.kutu2 {
+  flex: 999 1 420px;
+  min-width: 0;
+}
+.kutu3 {
+  font-size: 15px;
+  font-weight: 800;
+}
+.metin1 {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #3a4052;
+}
+.kutu4 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 10px;
+  font-size: 13.5px;
+}
+.metin2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--rr-soluk, #5a6073);
+}
+.metin3 {
+  width: 18px;
+  height: 18px;
+  border-radius: calc(var(--rr-buton-kose) * 5 / 14);
+  background: #aeb5c4;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.kutu5 {
+  flex: 1 1 420px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  align-items: center;
+}
+.dugme1 {
+  border: 0;
+  background: transparent;
+  padding: 10px 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--rr-baglanti, #2450c8);
+  cursor: pointer;
+  font-family: inherit;
+}
+.dugme2 {
+  border: 1.5px solid var(--rr-murekkep, #1e2333);
+  background: var(--rr-kart, #ffffff);
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--rr-murekkep, #1e2333);
+  cursor: pointer;
+  font-family: inherit;
+}

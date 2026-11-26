@@ -1,0 +1,228 @@
+/* Bu dosya ana-duzen.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-kart-kose) * 20 / 18);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+}
+.metin1 {
+  margin: 4px 0 0;
+  font-size: 14.5px;
+  color: var(--rr-soluk, #5a6073);
+}
+.metin2 {
+  color: var(--rr-murekkep, #1e2333);
+}
+.kutu2 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.bag1 {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--rr-murekkep, #1e2333);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 11px 16px;
+  text-decoration: none;
+  background: var(--rr-kart, #ffffff);
+}
+.metin3 {
+  background: var(--rr-pembe, #ff6fb5);
+  color: var(--rr-pembeYazi, #1e2333);
+  border-radius: var(--rr-etiket-kose);
+  padding: 2px 8px;
+  margin-left: 6px;
+  font-size: 12.5px;
+}
+.kutu3 {
+  background: #fff6df;
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 20px;
+  padding: 16px 20px;
+}
+.metin4 {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+.metin5 {
+  display: block;
+  font-size: 15.5px;
+  font-weight: 800;
+}
+.metin6 {
+  display: block;
+  font-size: 13.5px;
+  color: #5a3d00;
+  margin-top: 3px;
+}
+.metin7 {
+  display: block;
+  height: 8px;
+  border-radius: var(--rr-etiket-kose);
+  background: var(--rr-kart, #ffffff);
+  margin-top: 8px;
+  overflow: hidden;
+}
+.metin8 {
+  display: block;
+  height: 100%;
+  background: var(--rr-sari, #ffc84a);
+  color: var(--rr-sariYazi, #1e2333);
+}
+.bag2 {
+  font-size: 14px;
+  font-weight: 700;
+}
+.kutu4 {
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-kart-kose) * 16 / 18);
+  overflow: hidden;
+}
+.kutu5 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #eef0f5;
+}
+.metin9 {
+  flex: 0 0 24px;
+  font-weight: 800;
+  color: var(--rr-soluk, #5a6073);
+}
+.metin10 {
+  flex: 999 1 220px;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+.metin11 {
+  flex: 1 1 120px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--rr-baglanti, #2450c8);
+}
+.metin12 {
+  flex: none;
+  font-size: 12.5px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: var(--rr-etiket-kose);
+}
+.metin13 {
+  background: #e7faf0;
+  color: #11683f;
+}
+.metin14 {
+  background: #fff6df;
+  color: #7a5300;
+}
+.metin15 {
+  margin: 0;
+  padding: 12px 18px;
+  font-size: 13.5px;
+  background: var(--rr-zemin, #f6f8fd);
+  line-height: 1.5;
+}
+.bag3 {
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-kart-kose) * 16 / 18);
+  padding: 16px;
+  color: var(--rr-murekkep, #1e2333);
+  text-decoration: none;
+}
+.metin16 {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+}
+.metin17 {
+  display: block;
+  font-size: 13.5px;
+  color: var(--rr-soluk, #5a6073);
+  margin-top: 6px;
+}
+.metin18 {
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  margin: 0;
+  padding: 16px;
+  font-size: 14px;
+  color: var(--rr-soluk, #5a6073);
+}
+.bag4 {
+  font-weight: 800;
+}
+.bag5 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  padding: 13px 18px;
+  border-bottom: 1px solid #eef0f5;
+  color: var(--rr-murekkep, #1e2333);
+  text-decoration: none;
+}
+.metin19 {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+}
+.metin20 {
+  background: var(--rr-pembe, #ff6fb5);
+  color: var(--rr-pembeYazi, #1e2333);
+}
+.metin21 {
+  background: #d5dae5;
+}
+.metin22 {
+  flex: 999 1 200px;
+  min-width: 0;
+  font-size: 15px;
+}
+.metin23 {
+  font-weight: 600;
+}
+.metin24 {
+  flex: 1 1 200px;
+  min-width: 0;
+  font-size: 13.5px;
+  color: var(--rr-soluk, #5a6073);
+}
+.kutu6 {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 24px 24px 64px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 24px;
+}
+.kutu7 {
+  flex: 999 1 760px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}

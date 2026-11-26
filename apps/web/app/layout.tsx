@@ -7,6 +7,7 @@ import { YasalOnay } from '../components/yasal-onay';
 import { getClientFlags, getDesign } from '../lib/bakim';
 import './globals.css';
 import './telefon.css';
+import stil from './layout.module.css';
 
 export const metadata: Metadata = {
   title: 'Rengarenk · Aradığın aracı söyle, satıcı seni bulsun',
@@ -38,9 +39,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           </div>
         ) : null}
         {durum?.bakim.tum ? (
-          <main style={{ padding: '64px 24px' }}>
-            <div className="card" style={{ maxWidth: 520, margin: '0 auto', textAlign: 'center' }}>
-              <h1 style={{ marginTop: 0 }}>Kısa bir bakımdayız</h1>
+          <main className={`rr-sayfa ${stil.kutu1}`}>
+            <div className={`card ${stil.kutu2}`}>
+              <h1 className={stil.baslik1}>Kısa bir bakımdayız</h1>
               <p className="muted">{durum.duyuru}</p>
             </div>
           </main>

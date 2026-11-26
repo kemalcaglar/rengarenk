@@ -1,0 +1,19 @@
+/* Bu dosya giris-cerceve.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  background: var(--rr-zemin, #f6f8fd);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.kutu2 {
+  background: var(--rr-kart, #ffffff);
+  border-bottom: 1px solid var(--rr-cizgi, #e3e6ef);
+}
+.kutu3 {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 16px 24px;
+}
+.metin1 {
+  display: inline-flex;
+}

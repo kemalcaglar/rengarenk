@@ -2,7 +2,9 @@
 
 import { ASSISTANT_TEXT_MAX } from '@rengarenk/shared';
 import { useState } from 'react';
+import { cx } from '../../lib/cx';
 import { istek } from '../../lib/istemci';
+import stil from './asistan.module.css';
 
 interface Sonuc {
   doldurulan: { alan: string; deger: string }[];
@@ -39,22 +41,11 @@ export function Asistan({ taslakId, doldu }: { taslakId: string; doldu: () => Pr
   }
 
   return (
-    <section
-      aria-labelledby="asistan-baslik"
-      style={{
-        border: '1.5px solid #C9B8FF',
-        background: '#FAF7FF',
-        borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-        padding: 16,
-        marginBottom: 18,
-      }}
-    >
-      <h2 id="asistan-baslik" style={{ margin: 0, fontSize: 15.5, fontWeight: 800, color: '#4B2FA6' }}>
+    <section aria-labelledby="asistan-baslik" className={stil.kutu1}>
+      <h2 id="asistan-baslik" className={stil.baslik1}>
         ✦ Aradığın aracı kendi cümlelerinle yaz
       </h2>
-      <p style={{ margin: '4px 0 10px', fontSize: 13, color: 'var(--rr-soluk, #5A6073)', lineHeight: 1.45 }}>
-        Asistan formu doldurur; adımları kontrol edip talebini sen yayınlarsın.
-      </p>
+      <p className={stil.metin1}>Asistan formu doldurur; adımları kontrol edip talebini sen yayınlarsın.</p>
       <label htmlFor="asistan-metin" className="sr-only">
         Aradığın araç
       </label>
@@ -65,60 +56,29 @@ export function Asistan({ taslakId, doldu }: { taslakId: string; doldu: () => Pr
         rows={3}
         maxLength={ASSISTANT_TEXT_MAX}
         placeholder="Ör. 2019 sonrası otomatik, dizel, aile arabası, 1,5 milyon bütçe, İstanbul"
-        style={{
-          width: '100%',
-          boxSizing: 'border-box',
-          border: '1px solid #D5DAE5',
-          borderRadius: 'var(--rr-buton-kose)',
-          padding: 12,
-          fontSize: 14.5,
-          lineHeight: 1.5,
-          fontFamily: 'inherit',
-          resize: 'vertical',
-          background: 'var(--rr-kart, #FFFFFF)',
-        }}
+        className={stil.girdi1}
       />
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: 8,
-          marginTop: 6,
-        }}
-      >
+      <div className={stil.kutu2}>
         <button
           type="button"
           onClick={doldur}
           disabled={busy || metin.trim().length < 5}
-          style={{
-            border: 0,
-            background: 'transparent',
-            padding: '6px 0',
-            fontSize: 13.5,
-            fontWeight: 800,
-            color: 'var(--rr-baglanti, #2450C8)',
-            cursor: busy ? 'default' : 'pointer',
-            opacity: metin.trim().length < 5 ? 0.55 : 1,
-            fontFamily: 'inherit',
-          }}
+          className={cx(stil.dugme1, busy ? stil.dugme2 : stil.dugme3)}
+          style={{ opacity: metin.trim().length < 5 ? 0.55 : 1 }}
         >
           {busy ? 'Dolduruluyor…' : '✦ Formu doldur'}
         </button>
-        <span style={{ fontSize: 12, color: 'var(--rr-soluk, #5A6073)' }}>
+        <span className={stil.metin2}>
           {metin.length} / {ASSISTANT_TEXT_MAX}
         </span>
       </div>
       {hata ? (
-        <p role="alert" style={{ margin: '8px 0 0', fontSize: 13, fontWeight: 600, color: '#A3271F' }}>
+        <p role="alert" className={stil.metin3}>
           {hata}
         </p>
       ) : null}
       {sonuc ? (
-        <div
-          role="status"
-          style={{ marginTop: 10, fontSize: 13, lineHeight: 1.5, color: 'var(--rr-murekkep, #1E2333)' }}
-        >
+        <div role="status" className={stil.kutu3}>
           {sonuc.doldurulan.length ? (
             <>
               <strong>Asistan doldurdu:</strong>{' '}
@@ -128,9 +88,7 @@ export function Asistan({ taslakId, doldu }: { taslakId: string; doldu: () => Pr
             'Metinden bir alan çıkaramadım; marka, model, yıl ya da bütçe yazmayı dene.'
           )}
           {sonuc.eksik.length ? (
-            <span style={{ display: 'block', marginTop: 4, color: '#7A5300', fontWeight: 600 }}>
-              Senin doldurman gerekenler: {sonuc.eksik.join(', ')}
-            </span>
+            <span className={stil.metin4}>Senin doldurman gerekenler: {sonuc.eksik.join(', ')}</span>
           ) : null}
         </div>
       ) : null}

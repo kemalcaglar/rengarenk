@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { cx } from '../../../../lib/cx';
+import stil from './page.module.css';
 
 /**
  * Ödeme kuruluşunun dönüş sayfası (PayTR merchant_ok_url / merchant_fail_url). Bu sayfaya ödeme bilgisi gelmez;
@@ -21,7 +23,7 @@ export default function OdemeSonucu() {
     }
   }, []);
   return (
-    <p style={{ margin: 24, fontSize: 15, color: hata ? '#A3271F' : '#11683F', fontWeight: 700 }}>
+    <p className={cx(stil.metin1, hata ? stil.metin2 : stil.metin3)}>
       {hata ? 'Ödeme tamamlanamadı. Sepete dönüp yeniden deneyebilirsin.' : 'Ödemen işleniyor…'}
     </p>
   );

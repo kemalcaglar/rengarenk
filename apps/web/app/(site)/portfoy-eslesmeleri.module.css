@@ -1,0 +1,57 @@
+/* Bu dosya portfoy-eslesmeleri.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+}
+.bag1 {
+  font-size: 14px;
+  font-weight: 700;
+}
+.bag2 {
+  display: block;
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-kart-kose) * 16 / 18);
+  padding: 16px;
+  color: var(--rr-murekkep, #1e2333);
+  text-decoration: none;
+}
+.metin1 {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #e7faf0;
+  color: #11683f;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--rr-etiket-kose);
+}
+.metin2 {
+  display: block;
+  font-size: 15.5px;
+  font-weight: 800;
+  line-height: 1.35;
+  margin-top: 10px;
+}
+.metin3 {
+  display: block;
+  font-size: 13px;
+  color: var(--rr-soluk, #5a6073);
+  margin-top: 6px;
+}
+.metin4 {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--rr-baglanti, #2450c8);
+  margin-top: 10px;
+}

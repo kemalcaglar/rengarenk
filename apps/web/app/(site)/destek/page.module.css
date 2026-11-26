@@ -1,0 +1,232 @@
+/* Bu dosya page.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 24px 24px 64px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 24px;
+}
+.kutu2 {
+  flex: 999 1 640px;
+  min-width: 0;
+}
+.kutu3 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+}
+.bag1 {
+  font-size: 14.5px;
+  font-weight: 700;
+}
+.metin1 {
+  color: #a3271f;
+  font-weight: 700;
+}
+.metin2 {
+  margin-top: 16px;
+  font-size: 15px;
+  color: var(--rr-soluk, #5a6073);
+}
+.bag2 {
+  font-weight: 700;
+}
+.kutu4 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+.kutu5 {
+  flex: 1 1 260px;
+  max-width: 320px;
+  min-width: 0;
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  padding: 8px;
+}
+.dugme1 {
+  width: 100%;
+  display: block;
+  text-align: left;
+  border: 0;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 10px 12px;
+  cursor: pointer;
+  color: var(--rr-murekkep, #1e2333);
+  font-family: inherit;
+}
+.dugme2 {
+  background: #f3efff;
+}
+.dugme3 {
+  background: transparent;
+}
+.metin3 {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.metin4 {
+  color: var(--rr-soluk, #5a6073);
+}
+.metin5 {
+  padding: 1px 8px;
+  border-radius: var(--rr-etiket-kose);
+}
+.metin6 {
+  display: block;
+  font-size: 14px;
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.metin7 {
+  font-weight: 800;
+}
+.metin8 {
+  font-weight: 600;
+}
+.kutu6 {
+  flex: 999 1 420px;
+  min-width: 0;
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  overflow: hidden;
+}
+.kutu7 {
+  padding: 16px 18px;
+  border-bottom: 1px solid #eef0f5;
+}
+.baslik2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+.kutu8 {
+  font-size: 13px;
+  color: #3a4052;
+  margin-top: 3px;
+}
+.kutu9 {
+  padding: 14px 18px;
+  background: var(--rr-zemin, #f6f8fd);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.kutu10 {
+  display: flex;
+}
+.kutu11 {
+  justify-content: flex-end;
+}
+.kutu12 {
+  justify-content: flex-start;
+}
+.kutu13 {
+  max-width: 80%;
+  border-radius: var(--rr-buton-kose);
+  padding: 9px 12px;
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.kutu14 {
+  background: var(--rr-mavi, #5b8cff);
+  color: var(--rr-maviYazi, #1e2333);
+  border: 0;
+}
+.kutu15 {
+  background: #ffffff;
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+}
+.metin9 {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #3a4052;
+}
+.kutu16 {
+  padding: 14px 18px;
+  border-top: 1px solid #eef0f5;
+}
+.kutu17 {
+  font-size: 14px;
+  font-weight: 800;
+}
+.kutu18 {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  border: 0;
+  padding: 0;
+}
+.dugme4 {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #d5dae5;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  background: var(--rr-kart, #ffffff);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+}
+.kutu19 {
+  padding: 12px 18px;
+  border-top: 1px solid #eef0f5;
+  font-size: 13.5px;
+  color: #11683f;
+  font-weight: 700;
+}
+.kutu20 {
+  display: flex;
+  gap: 8px;
+  padding: 12px 18px;
+  border-top: 1px solid #eef0f5;
+}
+.etiket1 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+.girdi1 {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid #d5dae5;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 11px 12px;
+  font-size: 14.5px;
+  font-family: inherit;
+}
+.dugme5 {
+  border: 0;
+  background: var(--rr-mavi, #5b8cff);
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 11px 18px;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--rr-maviYazi, #1e2333);
+  cursor: pointer;
+  font-family: inherit;
+}

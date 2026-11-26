@@ -1,7 +1,7 @@
 'use client';
 
 import type { RegisterStarted, TicariKanallar } from '@rengarenk/shared';
-import { TICARI_ILETI_KUTU, tints } from '@rengarenk/shared';
+import { TICARI_ILETI_KUTU } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type FormEvent, Fragment, useEffect, useState } from 'react';
@@ -11,19 +11,16 @@ import {
   GirisDuzeni,
   GoogleDugmesi,
   Hata,
-  h1,
-  label,
-  lead,
-  linkButton,
-  note,
   post,
   primary,
   sonraAdresi,
 } from '../../components/giris-ui';
 import { OnayKutusu } from '../../components/onay-kutusu';
+import { cx } from '../../lib/cx';
 import { type GoogleKayit, kayitOku } from '../../lib/google';
 import { olcumOlayi, temasGonder } from '../../lib/olcum';
 import { colors } from '../../lib/renk';
+import stil from './page.module.css';
 
 /** Üyelik onayları (tasarım: Giris.dc.html). Zorunlu ikisi işaretsiz başlar (sahip kararı, 8 Kasım 2026). */
 const ONAYLAR = [
@@ -175,45 +172,25 @@ export default function UyeOl() {
 
   return (
     <GirisDuzeni baslikId="form-baslik">
-      <div style={{ display: 'flex', gap: 6, marginBottom: 22 }} aria-hidden="true">
+      <div className={stil.kutu1} aria-hidden="true">
         {[1, 2, 3].map((n) => (
-          <span
-            key={n}
-            style={{
-              flex: 1,
-              height: 6,
-              borderRadius: 'calc(var(--rr-buton-kose) * 3 / 14)',
-              background: step >= n ? colors.blue : colors.line,
-            }}
-          />
+          <span key={n} className={cx(stil.metin1, step >= n ? stil.metin2 : stil.metin3)} />
         ))}
       </div>
 
       {step === 1 ? (
         <>
-          <h1 id="form-baslik" style={h1}>
+          <h1 id="form-baslik" className={stil.baslik1}>
             Üye ol
           </h1>
-          <p style={lead}>
+          <p className={stil.metin4}>
             Zaten üye misin?{' '}
-            <Link
-              href={`/giris${sonra ? `?sonra=${encodeURIComponent(sonra)}` : ''}`}
-              style={{ fontWeight: 700 }}
-            >
+            <Link href={`/giris${sonra ? `?sonra=${encodeURIComponent(sonra)}` : ''}`} className={stil.bag1}>
               Giriş yap
             </Link>
           </p>
           {google ? (
-            <p
-              style={{
-                margin: '0 0 18px',
-                fontSize: 14,
-                fontWeight: 600,
-                background: tints.blue,
-                borderRadius: 'var(--rr-buton-kose)',
-                padding: '12px 14px',
-              }}
-            >
+            <p className={stil.metin5}>
               Google hesabınla devam ediyorsun. Google'dan gelen bilgiler değiştirilemez. Son adım: telefon
               numaranı doğrula.
             </p>
@@ -224,9 +201,9 @@ export default function UyeOl() {
             </>
           )}
           <form onSubmit={adim1}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+            <div className={stil.kutu2}>
               <div>
-                <label htmlFor="ad" style={label}>
+                <label htmlFor="ad" className={stil.etiket1}>
                   Ad
                 </label>
                 <input
@@ -242,7 +219,7 @@ export default function UyeOl() {
                 />
               </div>
               <div>
-                <label htmlFor="soyad" style={label}>
+                <label htmlFor="soyad" className={stil.etiket1}>
                   Soyad
                 </label>
                 <input
@@ -258,7 +235,7 @@ export default function UyeOl() {
                 />
               </div>
             </div>
-            <label htmlFor="eposta" style={{ ...label, marginTop: 14 }}>
+            <label htmlFor="eposta" className={stil.etiket2}>
               E-posta
             </label>
             <input
@@ -274,7 +251,7 @@ export default function UyeOl() {
             />
             {google ? null : (
               <>
-                <label htmlFor="sifre" style={{ ...label, marginTop: 14 }}>
+                <label htmlFor="sifre" className={stil.etiket2}>
                   Şifre
                 </label>
                 <input
@@ -286,31 +263,18 @@ export default function UyeOl() {
                   required
                   minLength={8}
                   aria-describedby="sifre-not"
-                  style={field}
+                  className={stil.girdi1}
                 />
-                <p id="sifre-not" style={{ margin: '6px 0 0', fontSize: 12.5, color: colors.muted }}>
+                <p id="sifre-not" className={stil.metin6}>
                   En az 8 karakter; içinde harf ve rakam olsun.
                 </p>
               </>
             )}
-            <label htmlFor="tel" style={{ ...label, marginTop: 14 }}>
+            <label htmlFor="tel" className={stil.etiket2}>
               Cep telefonu
             </label>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <span
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  border: '1px solid #D5DAE5',
-                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                  padding: '0 14px',
-                  fontSize: 15,
-                  fontWeight: 700,
-                  background: '#F3F5FA',
-                }}
-              >
-                +90
-              </span>
+            <div className={stil.kutu3}>
+              <span className={stil.metin7}>+90</span>
               <input
                 id="tel"
                 type="tel"
@@ -321,22 +285,20 @@ export default function UyeOl() {
                 onChange={(e) => setPhone(e.target.value)}
                 required
                 aria-describedby="tel-not"
-                style={{ ...field, flex: 1, minWidth: 0, letterSpacing: 0.5 }}
+                className={stil.girdi2}
               />
             </div>
-            <p id="tel-not" style={{ margin: '6px 0 0', fontSize: 12.5, color: colors.muted }}>
+            <p id="tel-not" className={stil.metin6}>
               Numarana bir kez doğrulama kodu göndereceğiz (WhatsApp). Bir numarayla yalnızca bir hesap
               açılabilir.
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, margin: '20px 0 22px' }}>
+            <div className={stil.kutu4}>
               {ONAYLAR.map((o) => (
                 <Fragment key={o.key}>
                   {o.key === 'reklamOlcum' ? (
-                    <fieldset style={{ border: 0, margin: 0, padding: '6px 0' }}>
-                      <legend style={{ padding: 0, fontSize: 13.5, lineHeight: 1.5, color: colors.inkSoft }}>
-                        {TICARI_ILETI_KUTU.metin}
-                      </legend>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 18px', marginTop: 6 }}>
+                    <fieldset className={stil.kutu5}>
+                      <legend className={stil.baslik2}>{TICARI_ILETI_KUTU.metin}</legend>
+                      <div className={stil.kutu6}>
                         {TICARI_ILETI_KUTU.kanallar.map((k) => (
                           <OnayKutusu
                             key={k.anahtar}
@@ -375,10 +337,10 @@ export default function UyeOl() {
 
       {step === 2 && kod ? (
         <form onSubmit={adim2}>
-          <h1 id="form-baslik" style={h1}>
+          <h1 id="form-baslik" className={stil.baslik1}>
             Telefonunu doğrula
           </h1>
-          <p style={lead}>
+          <p className={stil.metin4}>
             +90 {showPhone(phone)} {kodMetni}{' '}
             <button
               type="button"
@@ -386,12 +348,12 @@ export default function UyeOl() {
                 setStep(1);
                 setError(null);
               }}
-              style={linkButton}
+              className={stil.dugme1}
             >
               Bilgileri değiştir
             </button>
           </p>
-          <label htmlFor="kod" style={label}>
+          <label htmlFor="kod" className={stil.etiket1}>
             Doğrulama kodu
           </label>
           <input
@@ -402,69 +364,33 @@ export default function UyeOl() {
             value={code}
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
             required
-            style={{
-              width: '100%',
-              boxSizing: 'border-box',
-              border: `1.5px solid ${colors.blue}`,
-              borderRadius: 'var(--rr-buton-kose)',
-              padding: 16,
-              fontSize: 26,
-              fontWeight: 800,
-              letterSpacing: 10,
-              textAlign: 'center',
-              fontFamily: 'inherit',
-            }}
+            className={stil.girdi3}
           />
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              margin: '12px 0 22px',
-              fontSize: 13.5,
-            }}
-          >
-            <span style={{ color: colors.muted }}>
+          <div className={stil.kutu7}>
+            <span className={stil.metin8}>
               {kalan > 0 ? `Kod ${sure} içinde geçerli` : 'Kodun süresi doldu'}
             </span>
-            <button
-              type="button"
-              onClick={tekrarGonder}
-              disabled={busy}
-              style={{ ...linkButton, color: colors.muted, fontSize: 13.5, padding: '6px 0' }}
-            >
+            <button type="button" onClick={tekrarGonder} disabled={busy} className={stil.dugme2}>
               Kodu tekrar gönder
             </button>
           </div>
           {kod.devCode && kod.kanal !== 'ekran' ? (
-            <p style={{ margin: '0 0 12px', fontSize: 12.5, color: colors.muted }}>
-              Geliştirme ortamı: kod gönderilmedi, {kod.devCode} kutuya yazıldı.
-            </p>
+            <p className={stil.metin9}>Geliştirme ortamı: kod gönderilmedi, {kod.devCode} kutuya yazıldı.</p>
           ) : null}
           <button type="submit" disabled={busy || code.length !== 6} style={primary(code.length === 6)}>
             {busy ? 'Doğrulanıyor…' : 'Doğrula ve üye ol'}
           </button>
           <Hata>{error}</Hata>
-          <p style={note}>Kodu kimseyle paylaşma; Rengarenk çalışanları kodunu asla sormaz.</p>
+          <p className={stil.metin10}>Kodu kimseyle paylaşma; Rengarenk çalışanları kodunu asla sormaz.</p>
         </form>
       ) : null}
 
       {step === 3 ? (
         <div>
-          <h1 id="form-baslik" style={h1}>
+          <h1 id="form-baslik" className={stil.baslik1}>
             Hoş geldin, {ad}!
           </h1>
-          <div
-            style={{
-              display: 'flex',
-              gap: 12,
-              alignItems: 'center',
-              background: tints.green,
-              borderRadius: 'var(--rr-buton-kose)',
-              padding: '14px 16px',
-              margin: '14px 0 12px',
-            }}
-          >
+          <div className={stil.kutu8}>
             <svg
               width="22"
               height="22"
@@ -478,12 +404,10 @@ export default function UyeOl() {
             >
               <path d="M5 12l5 5 9-10" />
             </svg>
-            <span style={{ fontSize: 14, color: '#11683F', fontWeight: 600 }}>
-              Telefon numaran doğrulandı. 1 ücretsiz talep hakkın hazır.
-            </span>
+            <span className={stil.metin11}>Telefon numaran doğrulandı. 1 ücretsiz talep hakkın hazır.</span>
           </div>
           {google ? null : (
-            <p style={{ ...lead, margin: '0 0 22px' }}>
+            <p className={stil.metin4}>
               {eposta} adresine bir doğrulama bağlantısı gönderdik; bildirimleri e-postayla almak için
               bağlantıya bas.
             </p>
@@ -491,11 +415,7 @@ export default function UyeOl() {
           <button type="button" onClick={() => router.push(sonra ?? '/talep-olustur')} style={primary(true)}>
             İlk talebimi oluştur
           </button>
-          <button
-            type="button"
-            onClick={() => router.push('/')}
-            style={{ ...linkButton, display: 'block', width: '100%', textAlign: 'center', marginTop: 12 }}
-          >
+          <button type="button" onClick={() => router.push('/')} className={stil.dugme3}>
             Önce taleplere göz at
           </button>
         </div>

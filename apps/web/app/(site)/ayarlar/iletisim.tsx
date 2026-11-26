@@ -1,8 +1,10 @@
 'use client';
 
 import { CALL_HOURS_DEFAULT, demandOwnerName, saatYaz } from '@rengarenk/shared';
-import { type CSSProperties, useState } from 'react';
+import { useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { istek } from '../../../lib/istemci';
+import stil from './iletisim.module.css';
 
 export interface IletisimTercihi {
   phoneVisible: boolean;
@@ -10,39 +12,6 @@ export interface IletisimTercihi {
   callFrom: number;
   callTo: number;
 }
-
-const kart: CSSProperties = {
-  background: 'var(--rr-kart, #FFFFFF)',
-  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-  borderRadius: 'var(--rr-kart-kose)',
-};
-const secim: CSSProperties = {
-  border: '1px solid #D5DAE5',
-  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-  padding: 10,
-  fontSize: 14.5,
-  background: 'var(--rr-kart, #FFFFFF)',
-  fontFamily: 'inherit',
-};
-const ikincil: CSSProperties = {
-  border: '1px solid #D5DAE5',
-  background: 'var(--rr-kart, #FFFFFF)',
-  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-  padding: '8px 12px',
-  fontSize: 13.5,
-  fontWeight: 700,
-  color: 'var(--rr-murekkep, #1E2333)',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
-const satirStil: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  gap: 12,
-  padding: '14px 0',
-  borderTop: '1px solid #EEF0F5',
-};
 
 export function Anahtar({ acik, ad, onClick }: { acik: boolean; ad: string; onClick: () => void }) {
   return (
@@ -52,29 +21,9 @@ export function Anahtar({ acik, ad, onClick }: { acik: boolean; ad: string; onCl
       aria-checked={acik}
       aria-label={ad}
       onClick={onClick}
-      style={{
-        flex: 'none',
-        width: 52,
-        height: 30,
-        border: 0,
-        borderRadius: 'var(--rr-etiket-kose)',
-        background: acik ? 'var(--rr-mavi, #5B8CFF)' : '#C9CFDB',
-        color: acik ? 'var(--rr-maviYazi, #1E2333)' : undefined,
-        position: 'relative',
-        cursor: 'pointer',
-      }}
+      className={cx(stil.dugme1, acik ? stil.dugme2 : stil.dugme3)}
     >
-      <span
-        style={{
-          position: 'absolute',
-          top: 3,
-          left: acik ? 25 : 3,
-          width: 24,
-          height: 24,
-          borderRadius: '50%',
-          background: 'var(--rr-kart, #FFFFFF)',
-        }}
-      />
+      <span className={cx(stil.metin1, acik ? stil.metin2 : stil.metin3)} />
     </button>
   );
 }
@@ -122,47 +71,28 @@ export function Iletisim({
   const baslar = Array.from({ length: 24 }, (_, i) => i);
   const biter = Array.from({ length: 24 }, (_, i) => i + 1);
   return (
-    <section style={{ ...kart, padding: 22 }} aria-labelledby="il">
-      <h2 id="il" style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>
+    <section className={stil.kutu1} aria-labelledby="il">
+      <h2 id="il" className={stil.baslik1}>
         İletişim tercihleri
       </h2>
-      <p style={{ margin: '0 0 12px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
-        Yeni talepler bu ayarlarla açılır. Her talepte ayrıca değiştirebilirsin.
-      </p>
+      <p className={stil.metin4}>Yeni talepler bu ayarlarla açılır. Her talepte ayrıca değiştirebilirsin.</p>
       {satirlar.map((s) => (
-        <div key={s.ad} style={satirStil}>
+        <div key={s.ad} className={stil.kutu2}>
           <span>
-            <span style={{ display: 'block', fontSize: 15, fontWeight: 700 }}>{s.ad}</span>
-            <span
-              style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}
-            >
-              {s.not}
-            </span>
+            <span className={stil.metin5}>{s.ad}</span>
+            <span className={stil.metin6}>{s.not}</span>
           </span>
           {s.tikla ? (
             <Anahtar acik={Boolean(s.acik)} ad={s.ad} onClick={s.tikla} />
           ) : (
-            <span style={{ flex: 'none', fontSize: 13, fontWeight: 700, color: 'var(--rr-soluk, #5A6073)' }}>
-              Her zaman açık
-            </span>
+            <span className={stil.metin7}>Her zaman açık</span>
           )}
         </div>
       ))}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          gap: 10,
-          padding: '14px 0 0',
-          borderTop: '1px solid #EEF0F5',
-        }}
-      >
-        <span style={{ flex: '999 1 220px' }}>
-          <span style={{ display: 'block', fontSize: 15, fontWeight: 700 }}>Aranabileceğim saatler</span>
-          <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}>
-            Bu saatlerin dışında numaran talep sayfasında gizlenir
-          </span>
+      <div className={stil.kutu3}>
+        <span className={stil.metin8}>
+          <span className={stil.metin5}>Aranabileceğim saatler</span>
+          <span className={stil.metin6}>Bu saatlerin dışında numaran talep sayfasında gizlenir</span>
         </span>
         <select
           aria-label="Başlangıç saati"
@@ -171,7 +101,7 @@ export function Iletisim({
             const bas = Number(e.target.value);
             degis({ callFrom: bas, callTo: Math.max(v.callTo, bas + 1) }, 'Aranabilir saatlerin kaydedildi.');
           }}
-          style={secim}
+          className={stil.girdi1}
         >
           {baslar.map((h) => (
             <option key={h} value={h}>
@@ -190,7 +120,7 @@ export function Iletisim({
               'Aranabilir saatlerin kaydedildi.',
             );
           }}
-          style={secim}
+          className={stil.girdi1}
         >
           {biter.map((h) => (
             <option key={h} value={h}>
@@ -200,7 +130,7 @@ export function Iletisim({
         </select>
       </div>
       {v.callFrom !== CALL_HOURS_DEFAULT.bas || v.callTo !== CALL_HOURS_DEFAULT.bit ? (
-        <p style={{ margin: '10px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+        <p className={stil.metin9}>
           Varsayılan aralık {saatYaz(CALL_HOURS_DEFAULT.bas)}–{saatYaz(CALL_HOURS_DEFAULT.bit)}.
         </p>
       ) : null}
@@ -227,10 +157,8 @@ export function GorunenAd({
   ];
   return (
     <>
-      <span style={{ display: 'block', fontSize: 13, fontWeight: 700, margin: '18px 0 8px' }}>
-        Talep sayfalarında adın nasıl görünsün?
-      </span>
-      <div role="radiogroup" aria-label="Görünen ad" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+      <span className={stil.metin10}>Talep sayfalarında adın nasıl görünsün?</span>
+      <div role="radiogroup" aria-label="Görünen ad" className={stil.kutu4}>
         {secenek.map(([m, not]) => {
           const on = secili === m;
           return (
@@ -241,24 +169,10 @@ export function GorunenAd({
               role="radio"
               aria-checked={on}
               onClick={() => sec(m)}
-              style={{
-                flex: '1 1 220px',
-                textAlign: 'left',
-                border: on ? '1.5px solid var(--rr-mavi, #5B8CFF)' : '1px solid #D5DAE5',
-                background: on ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
-                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                padding: '12px 14px',
-                cursor: 'pointer',
-                color: 'var(--rr-murekkep, #1E2333)',
-                fontFamily: 'inherit',
-              }}
+              className={cx(stil.dugme4, on ? stil.dugme5 : stil.dugme6)}
             >
-              <span style={{ display: 'block', fontSize: 15, fontWeight: 800 }}>{ornek(m)}</span>
-              <span
-                style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}
-              >
-                {not}
-              </span>
+              <span className={stil.metin11}>{ornek(m)}</span>
+              <span className={stil.metin6}>{not}</span>
             </button>
           );
         })}
@@ -294,14 +208,13 @@ export function NumaraDegistir({ bitti }: { bitti: (mesaj: string) => void }) {
 
   if (!acik) {
     return (
-      <button type="button" onClick={() => setAcik(true)} style={ikincil}>
+      <button type="button" onClick={() => setAcik(true)} className={stil.dugme7}>
         Numarayı değiştir
       </button>
     );
   }
-  const girdi: CSSProperties = { ...secim, width: 190, padding: 8 };
   return (
-    <div style={{ flex: '1 1 100%', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+    <div className={stil.kutu5}>
       {!ch ? (
         <form
           onSubmit={(e) => {
@@ -315,7 +228,7 @@ export function NumaraDegistir({ bitti }: { bitti: (mesaj: string) => void }) {
               setDevKod(r.devCode ?? null);
             });
           }}
-          style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}
+          className={stil.kutu6}
         >
           <label className="sr-only" htmlFor="yeni-tel">
             Yeni cep telefonu
@@ -328,9 +241,9 @@ export function NumaraDegistir({ bitti }: { bitti: (mesaj: string) => void }) {
             placeholder="05XX XXX XX XX"
             value={tel}
             onChange={(e) => setTel(e.target.value)}
-            style={girdi}
+            className={stil.girdi2}
           />
-          <button type="submit" disabled={mesgul} style={ikincil}>
+          <button type="submit" disabled={mesgul} className={stil.dugme7}>
             Yeni numaraya kod gönder
           </button>
         </form>
@@ -354,7 +267,7 @@ export function NumaraDegistir({ bitti }: { bitti: (mesaj: string) => void }) {
               );
             });
           }}
-          style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}
+          className={stil.kutu6}
         >
           <label className="sr-only" htmlFor="yeni-kod">
             WhatsApp kodu
@@ -368,21 +281,12 @@ export function NumaraDegistir({ bitti }: { bitti: (mesaj: string) => void }) {
             placeholder="6 haneli kod"
             value={kod}
             onChange={(e) => setKod(e.target.value.replace(/\D/g, ''))}
-            style={{ ...girdi, width: 140 }}
+            className={stil.girdi3}
           />
-          <button
-            type="submit"
-            disabled={mesgul}
-            style={{
-              ...ikincil,
-              background: 'var(--rr-mavi, #5B8CFF)',
-              color: 'var(--rr-maviYazi, #1E2333)',
-              border: 0,
-            }}
-          >
+          <button type="submit" disabled={mesgul} className={stil.dugme8}>
             Doğrula
           </button>
-          <span style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+          <span className={stil.metin12}>
             Yeni numarana kod gönderdik.{devKod ? ` Geliştirme kodu: ${devKod}` : ''}
           </span>
         </form>
@@ -394,12 +298,12 @@ export function NumaraDegistir({ bitti }: { bitti: (mesaj: string) => void }) {
           setCh(null);
           setHata(null);
         }}
-        style={{ ...ikincil, border: 0, background: 'transparent', color: 'var(--rr-soluk, #5A6073)' }}
+        className={stil.dugme9}
       >
         Vazgeç
       </button>
       {hata ? (
-        <span role="alert" style={{ flex: '1 1 100%', color: '#A3271F', fontWeight: 700, fontSize: 13 }}>
+        <span role="alert" className={stil.metin13}>
           {hata}
         </span>
       ) : null}

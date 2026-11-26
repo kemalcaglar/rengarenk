@@ -6,20 +6,15 @@ import { type FormEvent, useEffect, useState } from 'react';
 import {
   Ayrac,
   Bilgi,
-  field,
   GirisDuzeni,
   GoogleDugmesi,
   Hata,
-  h1,
-  label,
-  lead,
-  note,
   post,
   primary,
   sonraAdresi,
 } from '../../components/giris-ui';
 import { temasGonder } from '../../lib/olcum';
-import { colors } from '../../lib/renk';
+import stil from './page.module.css';
 
 /** Google dönüşünden gelen hata kodları */
 const GOOGLE_HATA: Record<string, string> = {
@@ -68,12 +63,12 @@ export default function Giris() {
   const uyeOl = `/uye-ol${sonra ? `?sonra=${encodeURIComponent(sonra)}` : ''}`;
   return (
     <GirisDuzeni baslikId="form-baslik">
-      <h1 id="form-baslik" style={h1}>
+      <h1 id="form-baslik" className={stil.baslik1}>
         Giriş yap
       </h1>
-      <p style={lead}>
+      <p className={stil.metin1}>
         Hesabın yok mu?{' '}
-        <Link href={uyeOl} style={{ fontWeight: 700 }}>
+        <Link href={uyeOl} className={stil.bag1}>
           Üye ol
         </Link>
       </p>
@@ -81,7 +76,7 @@ export default function Giris() {
       <GoogleDugmesi sonra={sonra} />
       <Ayrac />
       <form onSubmit={gir}>
-        <label htmlFor="eposta" style={label}>
+        <label htmlFor="eposta" className={stil.etiket1}>
           E-posta
         </label>
         <input
@@ -92,19 +87,17 @@ export default function Giris() {
           value={eposta}
           onChange={(e) => setEposta(e.target.value)}
           required
-          style={field}
+          className={stil.girdi1}
         />
-        <div
-          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 14 }}
-        >
-          <label htmlFor="sifre" style={label}>
+        <div className={stil.kutu1}>
+          <label htmlFor="sifre" className={stil.etiket1}>
             Şifre
           </label>
-          <Link href="/sifremi-unuttum" style={{ fontSize: 13.5, fontWeight: 700 }}>
+          <Link href="/sifremi-unuttum" className={stil.bag2}>
             Şifremi unuttum
           </Link>
         </div>
-        <div style={{ position: 'relative' }}>
+        <div className={stil.kutu2}>
           <input
             id="sifre"
             type={goster ? 'text' : 'password'}
@@ -112,26 +105,13 @@ export default function Giris() {
             value={sifre}
             onChange={(e) => setSifre(e.target.value)}
             required
-            style={{ ...field, paddingRight: 84 }}
+            className={stil.girdi2}
           />
           <button
             type="button"
             onClick={() => setGoster(!goster)}
             aria-pressed={goster}
-            style={{
-              position: 'absolute',
-              right: 8,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              border: 0,
-              background: 'transparent',
-              color: colors.link,
-              fontWeight: 700,
-              fontSize: 13.5,
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              padding: 6,
-            }}
+            className={stil.dugme1}
           >
             {goster ? 'Gizle' : 'Göster'}
           </button>
@@ -140,7 +120,7 @@ export default function Giris() {
           {busy ? 'Giriş yapılıyor…' : 'Giriş yap'}
         </button>
         <Hata>{error}</Hata>
-        <p style={note}>Google ile üye olduysan "Google ile devam et"i kullan.</p>
+        <p className={stil.metin2}>Google ile üye olduysan "Google ile devam et"i kullan.</p>
       </form>
     </GirisDuzeni>
   );

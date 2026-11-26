@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { istek } from '../../../lib/istemci';
+import stil from './page.module.css';
 
 /** E-postadaki doğrulama bağlantısı (Karar 48): kod tek kullanımlıktır, oturum istemez */
 export default function EpostaDogrula() {
@@ -21,28 +22,20 @@ export default function EpostaDogrula() {
       });
   }, []);
   return (
-    <main style={{ maxWidth: 560, margin: '48px auto', padding: '0 24px' }}>
-      <section
-        style={{
-          background: 'var(--rr-kart, #FFFFFF)',
-          border: '1px solid var(--rr-cizgi, #E3E6EF)',
-          borderRadius: 'var(--rr-kart-kose)',
-          padding: 24,
-        }}
-      >
-        <h1 style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 800 }}>E-posta doğrulama</h1>
+    <main className={`rr-sayfa ${stil.kutu1}`}>
+      <section className={stil.kutu2}>
+        <h1 className={stil.baslik1}>E-posta doğrulama</h1>
         <p
           role={durum === 'hata' ? 'alert' : 'status'}
+          className={stil.metin1}
           style={{
-            margin: 0,
-            fontSize: 15,
             color: durum === 'hata' ? '#A3271F' : durum === 'tamam' ? '#11683F' : 'var(--rr-soluk, #5A6073)',
           }}
         >
           {durum === 'bekliyor' ? 'Doğrulanıyor…' : mesaj}
         </p>
-        <p style={{ margin: '16px 0 0' }}>
-          <Link href="/ayarlar?bolum=bildirim" style={{ fontWeight: 700 }}>
+        <p className={stil.metin2}>
+          <Link href="/ayarlar?bolum=bildirim" className={stil.bag1}>
             Bildirim ayarlarına git
           </Link>
         </p>

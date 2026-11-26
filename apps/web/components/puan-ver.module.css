@@ -1,0 +1,189 @@
+/* Bu dosya puan-ver.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 35, 51, 0.45);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.kutu2 {
+  width: 100%;
+  max-width: 420px;
+  background: var(--rr-kart, #ffffff);
+  border-radius: calc(var(--rr-kart-kose) * 24 / 18);
+  padding: 20px 20px 24px;
+}
+.kutu3 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.metin1 {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #fff6df;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 800;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+.metin2 {
+  display: block;
+  font-size: 12.5px;
+  color: var(--rr-soluk, #5a6073);
+  margin-top: 2px;
+}
+.kutu4 {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 22px 0 6px;
+}
+.dugme1 {
+  width: 54px;
+  height: 54px;
+  border: 0;
+  border-radius: var(--rr-buton-kose);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dugme2 {
+  background: #fff6df;
+}
+.dugme3 {
+  background: var(--rr-zemin, #f6f8fd);
+}
+.gorsel1 {
+  fill: var(--rr-sari, #ffc84a);
+}
+.gorsel2 {
+  fill: #ffffff;
+}
+.metin3 {
+  margin: 0;
+  text-align: center;
+  font-size: 14.5px;
+  font-weight: 800;
+  min-height: 20px;
+}
+.kutu5 {
+  margin-top: 16px;
+  background: var(--rr-zemin, #f6f8fd);
+  border-radius: var(--rr-buton-kose);
+  padding: 12px 14px;
+  font-size: 12.5px;
+  color: #3a4052;
+  line-height: 1.5;
+}
+.metin4 {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #a3271f;
+}
+.kutu6 {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 8px;
+  margin-top: 16px;
+}
+.dugme4 {
+  border: 1px solid #d5dae5;
+  background: var(--rr-kart, #ffffff);
+  border-radius: var(--rr-buton-kose);
+  padding: 14px 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--rr-murekkep, #1e2333);
+  cursor: pointer;
+  font-family: inherit;
+}
+.dugme5 {
+  border: 0;
+  border-radius: var(--rr-buton-kose);
+  padding: 15px 8px;
+  font-size: 15.5px;
+  font-weight: 800;
+  font-family: inherit;
+}
+.dugme6 {
+  background: var(--rr-mavi, #5b8cff);
+  color: var(--rr-maviYazi, #1e2333);
+  cursor: pointer;
+}
+.dugme7 {
+  background: var(--rr-cizgi, #e3e6ef);
+  color: var(--rr-soluk, #5a6073);
+  cursor: default;
+}
+.metin5 {
+  display: block;
+  text-align: center;
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #8a91a3;
+}
+.kutu7 {
+  text-align: center;
+  padding: 10px 0 4px;
+}
+.metin6 {
+  display: inline-flex;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #e7faf0;
+  align-items: center;
+  justify-content: center;
+}
+.baslik2 {
+  margin: 12px 0 4px;
+  font-size: 18px;
+  font-weight: 800;
+}
+.metin7 {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--rr-soluk, #5a6073);
+}
+.kutu8 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 18px;
+}
+.dugme8 {
+  border: 1px solid #d5dae5;
+  background: var(--rr-kart, #ffffff);
+  border-radius: var(--rr-buton-kose);
+  padding: 14px 8px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--rr-murekkep, #1e2333);
+  cursor: pointer;
+  font-family: inherit;
+}
+.bag1 {
+  display: block;
+  text-align: center;
+  border-radius: var(--rr-buton-kose);
+  padding: 14px 8px;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--rr-yesilYazi, #1e2333);
+  background: var(--rr-yesil, #3dd68c);
+  text-decoration: none;
+}

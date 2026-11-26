@@ -1,0 +1,59 @@
+/* Bu dosya site-header.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  background: var(--rr-ust-bant, #ffffff);
+  border-bottom: 1px solid var(--rr-cizgi, #e3e6ef);
+}
+.kutu2 {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 16px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 24px;
+}
+.metin1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--rr-ust-yazi);
+}
+.metin2 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rr-ust-yazi);
+  white-space: nowrap;
+}
+.kutu3 {
+  flex: 999 1 320px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f3f5fa;
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 0 8px 0 14px;
+}
+.girdi1 {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font-size: 15px;
+  padding: 12px 0;
+  color: var(--rr-murekkep, #1e2333);
+  outline: none;
+  font-family: inherit;
+}
+.dugme1 {
+  border: 0;
+  border-radius: calc(var(--rr-buton-kose) * 9 / 14);
+  background: var(--rr-mavi, #5b8cff);
+  color: var(--rr-maviYazi, #1e2333);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 9px 16px;
+  cursor: pointer;
+  font-family: inherit;
+}

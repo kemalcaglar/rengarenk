@@ -4,10 +4,11 @@ import { DOTS } from '@rengarenk/shared';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { cx } from '../lib/cx';
 import { istek, useGiris } from '../lib/istemci';
-import { colors } from '../lib/renk';
 import { OGELER } from './hesabim-menu';
 import { Logo } from './logo';
+import stil from './menu-cekmecesi.module.css';
 
 /** Kategori kareleri: tasarımdaki TINTS sırası (AnasayfaMobil.dc.html; DOTS ile aynı sırada) */
 const TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0', '#F3EFFF', '#FFF0EA'];
@@ -30,27 +31,6 @@ interface Ben {
   lastName: string | null;
   displayName: string | null;
 }
-
-const baslik = {
-  fontSize: 12.5,
-  fontWeight: 800,
-  color: colors.muted,
-  textTransform: 'uppercase',
-  letterSpacing: 0.5,
-} as const;
-
-const kareDugme = {
-  width: 44,
-  height: 44,
-  border: 0,
-  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-  background: 'transparent',
-  color: 'var(--rr-ust-yazi, #1E2333)',
-  cursor: 'pointer',
-  alignItems: 'center',
-  justifyContent: 'center',
-  padding: 0,
-} as const;
 
 /**
  * Telefonda üst çubuğun solundaki ☰ düğmesi ve "Menü ve kategoriler" çekmecesi (tasarım: AnasayfaMobil.dc.html,
@@ -115,12 +95,11 @@ export function MenuCekmecesi({ kategoriler }: { kategoriler: MenuKategori[] }) 
       <button
         ref={dugme}
         type="button"
-        className="rr-menu-dugme"
+        className={`rr-menu-dugme ${stil.dugme1}`}
         onClick={() => setAcik(true)}
         aria-label="Menü ve kategoriler"
         aria-expanded={acik}
         aria-controls="rr-cekmece"
-        style={{ ...kareDugme, marginLeft: -10 }}
       >
         <svg
           width="22"
@@ -136,52 +115,18 @@ export function MenuCekmecesi({ kategoriler }: { kategoriler: MenuKategori[] }) 
         </svg>
       </button>
       {acik ? (
-        <div className="rr-cekmece" style={{ position: 'fixed', inset: 0, zIndex: 60 }}>
+        <div className={`rr-cekmece ${stil.kutu1}`}>
           {/* Karartma: dokununca kapanır (klavyede Esc ve kapat düğmesi var) */}
-          <div
-            aria-hidden="true"
-            onClick={kapat}
-            style={{ position: 'absolute', inset: 0, background: 'rgba(30,35,51,0.45)' }}
-          />
-          <nav
-            id="rr-cekmece"
-            aria-label="Menü ve kategoriler"
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: 'min(324px, 88vw)',
-              background: colors.surface,
-              color: colors.ink,
-              boxShadow: '8px 0 24px rgba(30,35,51,0.18)',
-              // Hesabım bağlantılarıyla uzayabilir: çekmecenin tamamı kayar
-              overflowY: 'auto',
-              overscrollBehavior: 'contain',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '10px 8px 10px 16px',
-                borderBottom: '1px solid #EEF0F5',
-                position: 'sticky',
-                top: 0,
-                zIndex: 1,
-                background: colors.surface,
-              }}
-            >
+          <div aria-hidden="true" onClick={kapat} className={stil.kutu2} />
+          <nav id="rr-cekmece" aria-label="Menü ve kategoriler" className={stil.kutu3}>
+            <div className={stil.kutu4}>
               <Logo />
               <button
                 ref={kapatDugme}
                 type="button"
                 onClick={kapat}
                 aria-label="Menüyü kapat"
-                style={{ ...kareDugme, display: 'flex', color: colors.ink }}
+                className={stil.dugme2}
               >
                 <svg
                   width="22"
@@ -199,45 +144,15 @@ export function MenuCekmecesi({ kategoriler }: { kategoriler: MenuKategori[] }) 
             </div>
 
             {giris ? (
-              <Link
-                href="/taleplerim"
-                onClick={kapat}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  margin: '12px 12px 4px',
-                  padding: '10px 12px',
-                  background: colors.background,
-                  borderRadius: 'var(--rr-buton-kose)',
-                  color: colors.ink,
-                  textDecoration: 'none',
-                }}
-              >
-                <span
-                  aria-hidden="true"
-                  style={{
-                    flex: 'none',
-                    width: 38,
-                    height: 38,
-                    borderRadius: '50%',
-                    background: '#FFEEF6',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 13,
-                    fontWeight: 800,
-                  }}
-                >
+              <Link href="/taleplerim" onClick={kapat} className={stil.bag1}>
+                <span aria-hidden="true" className={stil.metin1}>
                   {bas}
                 </span>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800 }}>{ad}</span>
-                  <span style={{ display: 'block', fontSize: 12, color: colors.muted }}>
-                    Hesabım ve taleplerim
-                  </span>
+                <span className={stil.metin2}>
+                  <span className={stil.metin3}>{ad}</span>
+                  <span className={stil.metin4}>Hesabım ve taleplerim</span>
                 </span>
-                <span aria-hidden="true" style={{ fontSize: 18, color: '#AEB5C4' }}>
+                <span aria-hidden="true" className={stil.metin5}>
                   ›
                 </span>
               </Link>
@@ -245,23 +160,14 @@ export function MenuCekmecesi({ kategoriler }: { kategoriler: MenuKategori[] }) 
 
             {giris ? (
               // Hesabım bağlantıları (geniş ekranda sayfanın kenarındaki Hesabım menüsü)
-              <nav aria-label="Hesabım" style={{ padding: '4px 0 6px', borderBottom: '1px solid #EEF0F5' }}>
+              <nav aria-label="Hesabım" className={stil.kutu5}>
                 {OGELER.filter((o) => o.href && o.href !== '/yardim').map((o) => (
                   <Link
                     key={o.ad}
                     href={o.href as string}
                     onClick={kapat}
                     aria-current={o.href === yol ? 'page' : undefined}
-                    style={{
-                      display: 'block',
-                      margin: '0 12px',
-                      padding: '9px 12px',
-                      borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                      background: o.href === yol ? '#EEF3FF' : 'transparent',
-                      fontSize: 14,
-                      fontWeight: o.href === yol ? 800 : 600,
-                      color: colors.ink,
-                    }}
+                    className={cx(stil.bag2, o.href === yol ? stil.bag3 : stil.bag4)}
                   >
                     {o.ad}
                   </Link>
@@ -271,83 +177,29 @@ export function MenuCekmecesi({ kategoriler }: { kategoriler: MenuKategori[] }) 
 
             {giris === false ? (
               // Üye ol ve Giriş yap ayrı (Karar 18)
-              <div style={{ display: 'flex', gap: 8, margin: '12px 12px 4px' }}>
-                <Link
-                  href="/uye-ol"
-                  onClick={kapat}
-                  style={{
-                    flex: 1,
-                    textAlign: 'center',
-                    padding: '11px 10px',
-                    borderRadius: 'var(--rr-buton-kose)',
-                    background: colors.blue,
-                    color: colors.onBlue,
-                    fontSize: 14.5,
-                    fontWeight: 800,
-                    textDecoration: 'none',
-                  }}
-                >
+              <div className={stil.kutu6}>
+                <Link href="/uye-ol" onClick={kapat} className={stil.bag5}>
                   Üye ol
                 </Link>
-                <Link
-                  href="/giris"
-                  onClick={kapat}
-                  style={{
-                    flex: 1,
-                    textAlign: 'center',
-                    padding: '11px 10px',
-                    borderRadius: 'var(--rr-buton-kose)',
-                    background: colors.background,
-                    border: `1px solid ${colors.line}`,
-                    color: colors.ink,
-                    fontSize: 14.5,
-                    fontWeight: 800,
-                    textDecoration: 'none',
-                  }}
-                >
+                <Link href="/giris" onClick={kapat} className={stil.bag6}>
                   Giriş yap
                 </Link>
               </div>
             ) : null}
 
-            <div style={{ flex: '1 0 auto', padding: '6px 0 0' }}>
+            <div className={stil.kutu7}>
               <button
                 type="button"
                 onClick={() => setVasita(!vasita)}
                 aria-expanded={vasita}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  border: 0,
-                  background: 'transparent',
-                  padding: '10px 16px 6px',
-                  cursor: 'pointer',
-                  color: colors.ink,
-                  fontFamily: 'inherit',
-                }}
+                className={stil.dugme3}
               >
-                <span style={baslik}>Vasıta kategorileri</span>
-                <span style={{ fontSize: 12.5, fontWeight: 700, color: colors.link }}>
-                  {vasita ? 'Gizle' : 'Göster'}
-                </span>
+                <span className={stil.metin6}>Vasıta kategorileri</span>
+                <span className={stil.metin7}>{vasita ? 'Gizle' : 'Göster'}</span>
               </button>
               {vasita ? (
                 <>
-                  <Link
-                    href="/talepler"
-                    onClick={kapat}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 12,
-                      padding: '11px 16px',
-                      color: colors.ink,
-                      fontSize: 14.5,
-                      fontWeight: 800,
-                    }}
-                  >
+                  <Link href="/talepler" onClick={kapat} className={stil.bag7}>
                     Tüm vasıta talepleri
                   </Link>
                   {kategoriler.map((c, i) => (
@@ -355,94 +207,48 @@ export function MenuCekmecesi({ kategoriler }: { kategoriler: MenuKategori[] }) 
                       key={c.slug}
                       href={`/talepler?kategori=${c.slug}`}
                       onClick={kapat}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 12,
-                        padding: '10px 16px',
-                        color: colors.ink,
-                      }}
+                      className={stil.bag8}
                     >
                       <span
                         aria-hidden="true"
+                        className={stil.metin8}
                         style={{
-                          flex: 'none',
-                          width: 30,
-                          height: 30,
-                          borderRadius: 'calc(var(--rr-buton-kose) * 9 / 14)',
-                          // Kare, noktanın renginin açık tonu
                           background:
                             TINTS[(DOTS as readonly string[]).indexOf(c.color)] ?? TINTS[i % TINTS.length],
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
                         }}
                       >
-                        <span style={{ width: 10, height: 10, borderRadius: '50%', background: c.color }} />
+                        <span className={stil.metin9} style={{ background: c.color }} />
                       </span>
-                      <span style={{ flex: 1, fontSize: 14.5, fontWeight: 600 }}>{c.name}</span>
+                      <span className={stil.metin10}>{c.name}</span>
                     </Link>
                   ))}
                 </>
               ) : null}
-              <p style={{ ...baslik, margin: '10px 16px 4px' }}>Diğer</p>
+              <p className={stil.metin11}>Diğer</p>
               {YAKINDA.map((y) => (
-                <div
-                  key={y}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '10px 16px',
-                    fontSize: 14.5,
-                    fontWeight: 600,
-                    color: colors.muted,
-                  }}
-                >
+                <div key={y} className={stil.kutu8}>
                   {y}
-                  <span
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 800,
-                      padding: '3px 8px',
-                      borderRadius: 'var(--rr-etiket-kose)',
-                      background: '#F3F5FA',
-                      color: colors.muted,
-                    }}
-                  >
-                    Yakında
-                  </span>
+                  <span className={stil.metin12}>Yakında</span>
                 </div>
               ))}
             </div>
 
-            <div style={{ borderTop: '1px solid #EEF0F5', padding: '8px 0 24px' }}>
+            <div className={stil.kutu9}>
               {BAGLANTILAR.map((b) => (
-                <Link
-                  key={b.href}
-                  href={b.href}
-                  onClick={kapat}
-                  style={{
-                    display: 'block',
-                    padding: '9px 16px',
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: colors.ink,
-                  }}
-                >
+                <Link key={b.href} href={b.href} onClick={kapat} className={stil.bag9}>
                   {b.ad}
                 </Link>
               ))}
-              <p style={{ margin: '6px 16px 0', fontSize: 11.5, color: colors.muted }}>
-                <Link href="/kullanim-kosullari" onClick={kapat} style={{ color: colors.muted }}>
+              <p className={stil.metin13}>
+                <Link href="/kullanim-kosullari" onClick={kapat} className={stil.bag10}>
                   Kullanım koşulları
                 </Link>
                 {' · '}
-                <Link href="/kvkk" onClick={kapat} style={{ color: colors.muted }}>
+                <Link href="/kvkk" onClick={kapat} className={stil.bag10}>
                   Aydınlatma metni
                 </Link>
                 {' · '}
-                <Link href="/cerez-aydinlatma" onClick={kapat} style={{ color: colors.muted }}>
+                <Link href="/cerez-aydinlatma" onClick={kapat} className={stil.bag10}>
                   Çerezler
                 </Link>
               </p>

@@ -1,37 +1,16 @@
 'use client';
 
 import { CLOSE_REASON_KEYS, CLOSE_REASONS, type CloseReason, tlYaz } from '@rengarenk/shared';
-import { type CSSProperties, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { erisim, istek } from '../../../lib/istemci';
+import stil from './hesap.module.css';
 
 interface Onizleme {
   engel: string | null;
   iade: { satirlar: { ad: string; tutarKurus: number }[]; toplamKurus: number };
   magaza: boolean;
 }
-
-const girdi: CSSProperties = {
-  display: 'block',
-  width: '100%',
-  boxSizing: 'border-box',
-  border: '1px solid #E5A6A1',
-  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-  padding: 11,
-  fontSize: 14.5,
-  background: 'var(--rr-kart, #FFFFFF)',
-  fontFamily: 'inherit',
-};
-const kapatDugme: CSSProperties = {
-  border: '1px solid #E5A6A1',
-  background: 'var(--rr-kart, #FFFFFF)',
-  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-  padding: '12px 18px',
-  fontSize: 14.5,
-  fontWeight: 800,
-  color: '#A3271F',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
 
 /**
  * Ayarlar › Hesap › Hesabı kapat (Ayarlar.dc.html; Karar 31, 39, 59). WhatsApp koduyla onaylanır. Kullanılmamış hakların
@@ -88,19 +67,11 @@ export function HesabiKapat({ bildir }: { bildir: (m: string | null, h?: string 
 
   const iade = o?.iade;
   return (
-    <section
-      style={{
-        background: 'var(--rr-kart, #FFFFFF)',
-        border: '1px solid var(--rr-cizgi, #E3E6EF)',
-        borderRadius: 'var(--rr-kart-kose)',
-        padding: 22,
-      }}
-      aria-labelledby="hk"
-    >
-      <h2 id="hk" style={{ margin: '0 0 10px', fontSize: 18, fontWeight: 800 }}>
+    <section className={stil.kutu1} aria-labelledby="hk">
+      <h2 id="hk" className={stil.baslik1}>
         Hesabı kapat
       </h2>
-      <ul style={{ margin: '0 0 16px', paddingLeft: 20, fontSize: 14.5, lineHeight: 1.6, color: '#3A4052' }}>
+      <ul className={stil.liste1}>
         <li>Yayındaki taleplerin kapanır, satıcılar artık sana yazamaz.</li>
         <li>Sohbetlerin karşı tarafta “Kapatılmış hesap” olarak görünür.</li>
         <li>
@@ -118,27 +89,20 @@ export function HesabiKapat({ bildir }: { bildir: (m: string | null, h?: string 
         <li>Fatura ve ödeme kayıtları yasal saklama süresi boyunca tutulur; diğer verilerin silinir.</li>
       </ul>
       {o?.engel ? (
-        <p role="alert" style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#A3271F' }}>
+        <p role="alert" className={stil.metin1}>
           {o.engel}
         </p>
       ) : null}
       {adim ? (
-        <div
-          style={{
-            background: '#FDECEC',
-            borderRadius: 'var(--rr-buton-kose)',
-            padding: 16,
-            marginBottom: 14,
-          }}
-        >
-          <label htmlFor="neden" style={{ display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6 }}>
+        <div className={stil.kutu2}>
+          <label htmlFor="neden" className={stil.etiket1}>
             Neden ayrılıyorsun? (isteğe bağlı)
           </label>
           <select
             id="neden"
             value={neden}
             onChange={(e) => setNeden(e.target.value as CloseReason)}
-            style={girdi}
+            className={stil.girdi1}
           >
             {CLOSE_REASON_KEYS.map((k) => (
               <option key={k} value={k}>
@@ -147,20 +111,18 @@ export function HesabiKapat({ bildir }: { bildir: (m: string | null, h?: string 
             ))}
           </select>
           {challengeId ? (
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginTop: 12 }}>
+            <label className={stil.etiket2}>
               WhatsApp kodu
               <input
                 value={kod}
                 onChange={(e) => setKod(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 inputMode="numeric"
                 autoComplete="one-time-code"
-                style={{ ...girdi, marginTop: 6 }}
+                className={stil.girdi2}
               />
             </label>
           ) : (
-            <p style={{ margin: '10px 0 0', fontSize: 13, color: '#A3271F' }}>
-              Onaylamak için telefonuna bir doğrulama kodu göndereceğiz.
-            </p>
+            <p className={stil.metin2}>Onaylamak için telefonuna bir doğrulama kodu göndereceğiz.</p>
           )}
         </div>
       ) : null}
@@ -168,7 +130,7 @@ export function HesabiKapat({ bildir }: { bildir: (m: string | null, h?: string 
         type="button"
         disabled={!o || !!o.engel || gonderiliyor || (!!challengeId && kod.length !== 6)}
         onClick={() => (!adim ? setAdim(true) : challengeId ? kapat() : kodGonder())}
-        style={{ ...kapatDugme, opacity: !o || o.engel ? 0.55 : 1 }}
+        className={cx(stil.dugme1, !o || o.engel ? stil.dugme2 : stil.dugme3)}
       >
         {!adim
           ? 'Hesabımı kapatmak istiyorum'

@@ -1,14 +1,10 @@
 'use client';
 
 import type { LandingBlock } from '@rengarenk/shared';
-import { type CSSProperties, useEffect } from 'react';
+import { useEffect } from 'react';
 import { API } from '../lib/istemci';
+import stil from './acilis.module.css';
 
-const kart: CSSProperties = {
-  background: 'var(--rr-kart, #FFFFFF)',
-  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-  borderRadius: 'calc(var(--rr-kart-kose) * 20 / 18)',
-};
 const RENK = [
   'var(--rr-mavi, #5B8CFF)',
   'var(--rr-pembe, #FF6FB5)',
@@ -54,16 +50,7 @@ function Dugme({
         if (!onizleme) olay(slug, 'tiklama');
         window.location.href = hedefAdres(hedef);
       }}
-      style={{
-        display: 'inline-block',
-        background: 'var(--rr-mavi, #5B8CFF)',
-        color: 'var(--rr-maviYazi, #1E2333)',
-        borderRadius: 'var(--rr-buton-kose)',
-        padding: '14px 22px',
-        fontSize: 16,
-        fontWeight: 800,
-        textDecoration: 'none',
-      }}
+      className={stil.bag1}
     >
       {yazi}
     </a>
@@ -89,18 +76,9 @@ export function AcilisSayfasi({
   }, [slug, onizleme]);
 
   return (
-    <main style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 16px 64px' }}>
+    <main className={`rr-sayfa ${stil.kutu1}`}>
       {onizleme ? (
-        <p
-          role="status"
-          style={{
-            background: '#FFF6DF',
-            color: '#7A5300',
-            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-            padding: '10px 14px',
-            fontWeight: 700,
-          }}
-        >
+        <p role="status" className={stil.metin1}>
           Önizleme: bu taslak henüz yayında değil. Bağlantı 1 saat geçerli.
         </p>
       ) : null}
@@ -116,123 +94,53 @@ function Blok({ b, slug, onizleme }: { b: LandingBlock; slug: string; onizleme: 
   switch (b.tur) {
     case 'baslik':
       return (
-        <section
-          style={{
-            ...kart,
-            padding: '40px 28px',
-            marginBottom: 18,
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          <div style={{ display: 'flex', gap: 6, marginBottom: 18 }} aria-hidden="true">
+        <section className={stil.kutu2}>
+          <div className={stil.kutu3} aria-hidden="true">
             {RENK.map((r) => (
-              <span
-                key={r}
-                style={{ width: 28, height: 8, borderRadius: 'var(--rr-etiket-kose)', background: r }}
-              />
+              <span key={r} className={stil.metin2} style={{ background: r }} />
             ))}
           </div>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: 'clamp(28px, 5vw, 44px)',
-              fontWeight: 800,
-              letterSpacing: -0.8,
-              lineHeight: 1.1,
-            }}
-          >
-            {b.baslik}
-          </h1>
-          {b.alt ? (
-            <p style={{ margin: '12px 0 22px', fontSize: 18, color: '#3A4052', maxWidth: 680 }}>{b.alt}</p>
-          ) : (
-            <div style={{ height: 22 }} />
-          )}
+          <h1 className={stil.baslik1}>{b.baslik}</h1>
+          {b.alt ? <p className={stil.metin3}>{b.alt}</p> : <div className={stil.kutu4} />}
           <Dugme slug={slug} yazi={b.dugme} hedef={b.hedef} onizleme={onizleme} />
         </section>
       );
     case 'rakamlar':
       return (
-        <section
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: 12,
-            marginBottom: 18,
-          }}
-        >
+        <section className={stil.kutu5}>
           {b.maddeler.map((m, i) => (
-            <div key={m.etiket} style={{ ...kart, padding: 20, background: NOKTA[i % 4] }}>
-              <div style={{ fontSize: 30, fontWeight: 800 }}>{m.deger}</div>
-              <div style={{ fontSize: 14, color: '#3A4052', marginTop: 4 }}>{m.etiket}</div>
+            <div key={m.etiket} className={stil.kutu6} style={{ background: NOKTA[i % 4] }}>
+              <div className={stil.kutu7}>{m.deger}</div>
+              <div className={stil.kutu8}>{m.etiket}</div>
             </div>
           ))}
         </section>
       );
     case 'avantajlar':
       return (
-        <section
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: 12,
-            marginBottom: 18,
-          }}
-        >
+        <section className={stil.kutu9}>
           {b.maddeler.map((m, i) => (
-            <div key={m.baslik} style={{ ...kart, padding: 20 }}>
-              <span
-                aria-hidden="true"
-                style={{
-                  display: 'block',
-                  width: 12,
-                  height: 12,
-                  borderRadius: '50%',
-                  background: RENK[i % 4],
-                  marginBottom: 10,
-                }}
-              />
-              <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>{m.baslik}</h2>
-              {m.metin ? (
-                <p style={{ margin: '6px 0 0', fontSize: 14.5, color: '#3A4052', lineHeight: 1.5 }}>
-                  {m.metin}
-                </p>
-              ) : null}
+            <div key={m.baslik} className={stil.kutu10}>
+              <span aria-hidden="true" className={stil.metin4} style={{ background: RENK[i % 4] }} />
+              <h2 className={stil.baslik2}>{m.baslik}</h2>
+              {m.metin ? <p className={stil.metin5}>{m.metin}</p> : null}
             </div>
           ))}
         </section>
       );
     case 'nasil':
       return (
-        <section style={{ ...kart, padding: 24, marginBottom: 18 }}>
-          <h2 style={{ margin: '0 0 14px', fontSize: 22, fontWeight: 800 }}>Nasıl çalışır?</h2>
-          <ol style={{ margin: 0, padding: 0, listStyle: 'none', display: 'grid', gap: 12 }}>
+        <section className={stil.kutu11}>
+          <h2 className={stil.baslik3}>Nasıl çalışır?</h2>
+          <ol className={stil.liste1}>
             {b.adimlar.map((a, i) => (
-              <li key={a.baslik} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                <span
-                  style={{
-                    flex: 'none',
-                    width: 30,
-                    height: 30,
-                    borderRadius: '50%',
-                    background: RENK[i % 4],
-                    color: 'var(--rr-murekkep, #1E2333)',
-                    fontWeight: 800,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
+              <li key={a.baslik} className={stil.oge1}>
+                <span className={stil.metin6} style={{ background: RENK[i % 4] }}>
                   {i + 1}
                 </span>
                 <span>
-                  <span style={{ display: 'block', fontSize: 16, fontWeight: 800 }}>{a.baslik}</span>
-                  {a.metin ? (
-                    <span style={{ display: 'block', fontSize: 14.5, color: '#3A4052', marginTop: 2 }}>
-                      {a.metin}
-                    </span>
-                  ) : null}
+                  <span className={stil.metin7}>{a.baslik}</span>
+                  {a.metin ? <span className={stil.metin8}>{a.metin}</span> : null}
                 </span>
               </li>
             ))}
@@ -241,59 +149,31 @@ function Blok({ b, slug, onizleme }: { b: LandingBlock; slug: string; onizleme: 
       );
     case 'form':
       return (
-        <section
-          style={{
-            ...kart,
-            padding: 24,
-            marginBottom: 18,
-            border: '1.5px solid var(--rr-mavi, #5B8CFF)',
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 16,
-          }}
-        >
-          <span style={{ flex: '1 1 320px' }}>
-            <span style={{ display: 'block', fontSize: 22, fontWeight: 800 }}>{b.baslik}</span>
-            {b.metin ? (
-              <span style={{ display: 'block', fontSize: 15, color: '#3A4052', marginTop: 4 }}>
-                {b.metin}
-              </span>
-            ) : null}
+        <section className={stil.kutu12}>
+          <span className={stil.metin9}>
+            <span className={stil.metin10}>{b.baslik}</span>
+            {b.metin ? <span className={stil.metin11}>{b.metin}</span> : null}
           </span>
           <Dugme slug={slug} yazi={b.dugme} hedef={b.hedef} onizleme={onizleme} />
         </section>
       );
     case 'sss':
       return (
-        <section style={{ ...kart, padding: 24, marginBottom: 18 }}>
-          <h2 style={{ margin: '0 0 10px', fontSize: 22, fontWeight: 800 }}>Sık sorulanlar</h2>
+        <section className={stil.kutu11}>
+          <h2 className={stil.baslik4}>Sık sorulanlar</h2>
           {b.sorular.map((s) => (
-            <details key={s.soru} style={{ borderTop: '1px solid #EEF0F5', padding: '12px 0' }}>
-              <summary style={{ cursor: 'pointer', fontSize: 15.5, fontWeight: 800 }}>{s.soru}</summary>
-              <p style={{ margin: '8px 0 0', fontSize: 14.5, color: '#3A4052', lineHeight: 1.55 }}>
-                {s.cevap}
-              </p>
+            <details key={s.soru} className={stil.kutu13}>
+              <summary className={stil.metin12}>{s.soru}</summary>
+              <p className={stil.metin13}>{s.cevap}</p>
             </details>
           ))}
         </section>
       );
     default:
       return (
-        <section style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 18 }}>
+        <section className={stil.kutu14}>
           {b.maddeler.map((m) => (
-            <span
-              key={m}
-              style={{
-                background: '#E7FAF0',
-                color: '#11683F',
-                borderRadius: 'var(--rr-etiket-kose)',
-                padding: '8px 14px',
-                fontSize: 14,
-                fontWeight: 800,
-              }}
-            >
+            <span key={m} className={stil.metin14}>
               ✓ {m}
             </span>
           ))}

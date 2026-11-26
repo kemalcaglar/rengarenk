@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { useCanli } from '../lib/canli';
+import { cx } from '../lib/cx';
 import { cikisYap, istek, useGiris } from '../lib/istemci';
-import { colors } from '../lib/renk';
 import { BildirimAcilir } from './bildirim-acilir';
 import { OGELER } from './hesabim-menu';
+import stil from './hesap-menusu.module.css';
 
 interface Ben {
   firstName: string | null;
@@ -54,50 +55,24 @@ export function HesapMenusu() {
     if (o.tip === 'bildirim' && typeof o.okunmamis === 'number') setOkunmamis(o.okunmamis);
   }, !!giris);
   return (
-    <nav className="rr-hesap" style={{ display: 'flex', alignItems: 'center', gap: 10 }} aria-label="Hesap">
+    <nav className={`rr-hesap ${stil.kutu1}`} aria-label="Hesap">
       {ad ? <BildirimAcilir okunmamis={okunmamis} /> : null}
       {giris && ad ? (
         <HesapAcilir ad={ad} bas={bas} />
       ) : giris === false ? (
         <>
-          <Link
-            href="/giris"
-            style={{ color: 'var(--rr-ust-yazi)', fontWeight: 600, fontSize: 15, padding: '10px 6px' }}
-          >
+          <Link href="/giris" className={stil.bag1}>
             Giriş yap
           </Link>
           {/* Üye ol ve Giriş yap ayrı (Karar 18); telefonda Üye ol ☰ menüsünde */}
-          <Link
-            href="/uye-ol"
-            className="rr-yalniz-genis"
-            style={{ color: 'var(--rr-ust-yazi)', fontWeight: 600, fontSize: 15, padding: '10px 6px' }}
-          >
+          <Link href="/uye-ol" className={`rr-yalniz-genis ${stil.bag1}`}>
             Üye ol
           </Link>
         </>
       ) : (
-        <span
-          aria-hidden="true"
-          style={{ width: 34, height: 34, borderRadius: '50%', background: '#EEF1F7', margin: '0 6px' }}
-        />
+        <span aria-hidden="true" className={stil.metin1} />
       )}
-      <Link
-        href="/talep-olustur"
-        aria-label="Talep oluştur"
-        className="rr-talep-dugme"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          background: colors.blue,
-          color: 'var(--rr-maviYazi, #1E2333)',
-          fontWeight: 700,
-          fontSize: 15,
-          padding: '11px 18px',
-          borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-          textDecoration: 'none',
-        }}
-      >
+      <Link href="/talep-olustur" aria-label="Talep oluştur" className={`rr-talep-dugme ${stil.bag2}`}>
         <svg
           width="18"
           height="18"
@@ -140,7 +115,7 @@ function HesapAcilir({ ad, bas }: { ad: string; bas: string }) {
     // biome-ignore lint/a11y/noStaticElementInteractions: üzerine gelme yalnızca kolaylık; düğme klavyeyle de açar
     <div
       ref={kutu}
-      style={{ position: 'relative' }}
+      className={stil.kutu2}
       onMouseEnter={() => setAcik(true)}
       onMouseLeave={() => setAcik(false)}
     >
@@ -149,35 +124,9 @@ function HesapAcilir({ ad, bas }: { ad: string; bas: string }) {
         aria-haspopup="menu"
         aria-expanded={acik}
         onClick={() => setAcik((x) => !x)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          color: 'var(--rr-ust-yazi)',
-          fontWeight: 600,
-          fontSize: 14.5,
-          padding: '8px 6px',
-          background: 'transparent',
-          border: 0,
-          cursor: 'pointer',
-          fontFamily: 'inherit',
-        }}
+        className={stil.dugme1}
       >
-        <span
-          aria-hidden="true"
-          style={{
-            width: 34,
-            height: 34,
-            borderRadius: '50%',
-            background: '#FFEEF6',
-            color: '#A3236A',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 800,
-            fontSize: 13,
-          }}
-        >
+        <span aria-hidden="true" className={stil.metin2}>
           {bas}
         </span>
         <span className="rr-hesap-ad">{ad}</span>
@@ -191,82 +140,36 @@ function HesapAcilir({ ad, bas }: { ad: string; bas: string }) {
           strokeLinecap="round"
           strokeLinejoin="round"
           aria-hidden="true"
-          style={{ transform: acik ? 'rotate(180deg)' : undefined, transition: 'transform .15s' }}
+          className={cx(stil.gorsel1, acik ? stil.gorsel2 : undefined)}
         >
           <path d="M6 9l6 6 6-6" />
         </svg>
       </button>
       {acik ? (
         // Üst boşluk düğmeyle menü arasında fareyi kaybetmemek için (paddingTop)
-        <div style={{ position: 'absolute', right: 0, top: '100%', paddingTop: 6, zIndex: 50 }}>
-          <div
-            role="menu"
-            aria-label="Hesabım"
-            style={{
-              minWidth: 230,
-              background: colors.surface,
-              border: `1px solid ${colors.line}`,
-              borderRadius: 'var(--rr-buton-kose)',
-              boxShadow: '0 12px 32px rgba(30,35,51,0.14)',
-              padding: 8,
-            }}
-          >
-            <span
-              style={{
-                display: 'block',
-                padding: '8px 10px 8px',
-                fontSize: 12,
-                fontWeight: 800,
-                letterSpacing: 0.6,
-                textTransform: 'uppercase',
-                color: colors.muted,
-              }}
-            >
-              Hesabım
-            </span>
+        <div className={stil.kutu3}>
+          <div role="menu" aria-label="Hesabım" className={stil.kutu4}>
+            <span className={stil.metin3}>Hesabım</span>
             {OGELER.filter((o) => o.href).map((o) => (
               <Link
                 key={o.ad}
                 href={o.href as string}
                 role="menuitem"
-                className="hesap-oge"
+                className={`hesap-oge ${stil.bag3}`}
                 onClick={() => setAcik(false)}
-                style={{
-                  display: 'block',
-                  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                  padding: '9px 10px',
-                  fontSize: 14.5,
-                  fontWeight: 600,
-                  color: colors.inkSoft,
-                  textDecoration: 'none',
-                }}
               >
                 {o.ad}
               </Link>
             ))}
-            <div style={{ borderTop: `1px solid ${colors.line}`, margin: '6px 4px' }} />
+            <div className={stil.kutu5} />
             <button
               type="button"
               role="menuitem"
-              className="hesap-oge"
+              className={`hesap-oge ${stil.dugme2}`}
               disabled={cikiyor}
               onClick={() => {
                 setCikiyor(true);
                 void cikisYap();
-              }}
-              style={{
-                display: 'block',
-                width: '100%',
-                textAlign: 'left',
-                borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                padding: '9px 10px',
-                fontSize: 14.5,
-                fontWeight: 700,
-                color: '#A3271F',
-                background: 'transparent',
-                border: 0,
-                cursor: 'pointer',
-                fontFamily: 'inherit',
               }}
             >
               {cikiyor ? 'Çıkılıyor…' : 'Çıkış yap'}

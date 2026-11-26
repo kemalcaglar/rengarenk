@@ -10,8 +10,10 @@ import {
 } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useState } from 'react';
+import { cx } from '../lib/cx';
 import { istek, useGiris } from '../lib/istemci';
 import { colors } from '../lib/renk';
+import stil from './teknik-tablo.module.css';
 
 /** Gökkuşağı açık zeminleri ve noktalar (tasarım: TINTS, DOTS; talep sayfasındaki "Aranan araç" kutularıyla aynı) */
 const TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0'];
@@ -43,15 +45,7 @@ export function TeknikTablo({
   const [secili, setSecili] = useState(0);
   if (!motorlar.length) {
     return (
-      <div
-        style={{
-          padding: '18px 16px',
-          borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-          background: colors.background,
-          fontSize: 14.5,
-          color: colors.muted,
-        }}
-      >
+      <div className={stil.kutu1}>
         Bu araç için katalogda teknik bilgi bulunamadı. Motor ya da kasa seçilince ayrıntı genişler.
       </div>
     );
@@ -62,12 +56,7 @@ export function TeknikTablo({
   return (
     <div>
       {motorlar.length > 1 ? (
-        <div
-          role="tablist"
-          aria-label="Motor seçenekleri"
-          className="rr-yatay-kay"
-          style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 2 }}
-        >
+        <div role="tablist" aria-label="Motor seçenekleri" className={`rr-yatay-kay ${stil.kutu2}`}>
           {motorlar.map((x, i) => (
             <button
               key={x.ad}
@@ -75,66 +64,25 @@ export function TeknikTablo({
               role="tab"
               aria-selected={i === secili}
               onClick={() => setSecili(i)}
-              style={{
-                flex: 'none',
-                whiteSpace: 'nowrap',
-                border: i === secili ? `1.5px solid ${colors.blue}` : `1px solid ${colors.line}`,
-                background: i === secili ? '#EEF3FF' : colors.surface,
-                borderRadius: 'var(--rr-etiket-kose)',
-                padding: i === secili ? '8px 14px' : '8.5px 14.5px',
-                fontSize: 13.5,
-                fontWeight: i === secili ? 800 : 600,
-                color: colors.ink,
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
+              className={cx(stil.dugme1, i === secili ? stil.dugme2 : stil.dugme3)}
             >
               {x.ad}
             </button>
           ))}
         </div>
       ) : (
-        <p style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>{m.ad}</p>
+        <p className={stil.metin1}>{m.ad}</p>
       )}
-      {not ? <p style={{ margin: '8px 0 0', fontSize: 13, color: colors.muted }}>{not}</p> : null}
+      {not ? <p className={stil.metin2}>{not}</p> : null}
 
       {one.length ? (
-        <ul
-          aria-label="Öne çıkan değerler"
-          style={{
-            listStyle: 'none',
-            padding: 0,
-            margin: '16px 0 0',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-            gap: 10,
-          }}
-        >
+        <ul aria-label="Öne çıkan değerler" className={stil.liste1}>
           {one.map((x, i) => (
-            <li
-              key={x.etiket}
-              style={{
-                background: TINTS[i % TINTS.length],
-                borderRadius: 'var(--rr-buton-kose)',
-                padding: '12px 14px',
-              }}
-            >
-              <div style={{ fontSize: 12.5, fontWeight: 600, color: '#4A5064' }}>{x.etiket}</div>
-              <div
-                style={{
-                  marginTop: 2,
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'baseline',
-                  columnGap: 4,
-                }}
-              >
-                <span style={{ fontSize: 21, fontWeight: 800, letterSpacing: -0.3, whiteSpace: 'nowrap' }}>
-                  {x.deger}
-                </span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: '#4A5064', whiteSpace: 'nowrap' }}>
-                  {x.birim}
-                </span>
+            <li key={x.etiket} className={stil.oge1} style={{ background: TINTS[i % TINTS.length] }}>
+              <div className={stil.kutu3}>{x.etiket}</div>
+              <div className={stil.kutu4}>
+                <span className={stil.metin3}>{x.deger}</span>
+                <span className={stil.metin4}>{x.birim}</span>
               </div>
             </li>
           ))}
@@ -142,61 +90,22 @@ export function TeknikTablo({
       ) : null}
 
       {/* Bölümler sütunlara akar (genişse iki sütun, kısa ve uzun bölümler boşluk bırakmadan) */}
-      <div style={{ columns: '270px 2', columnGap: 12, marginTop: 14 }}>
+      <div className={stil.kutu5}>
         {bolumler.map((b, i) => (
-          <section
-            key={b.baslik}
-            aria-label={b.baslik}
-            style={{
-              breakInside: 'avoid',
-              marginBottom: 12,
-              border: `1px solid ${colors.line}`,
-              borderRadius: 'calc(var(--rr-kart-kose) * 14 / 18)',
-              background: colors.surface,
-              overflow: 'hidden',
-            }}
-          >
-            <h3
-              style={{
-                margin: 0,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '11px 14px',
-                fontSize: 14.5,
-                fontWeight: 800,
-                background: colors.background,
-                borderBottom: `1px solid ${colors.line}`,
-              }}
-            >
+          <section key={b.baslik} aria-label={b.baslik} className={stil.kutu6}>
+            <h3 className={stil.baslik1}>
               <span
                 aria-hidden="true"
-                style={{
-                  width: 9,
-                  height: 9,
-                  borderRadius: '50%',
-                  background: NOKTA[i % NOKTA.length],
-                  flex: 'none',
-                }}
+                className={stil.metin5}
+                style={{ background: NOKTA[i % NOKTA.length] }}
               />
               {b.baslik}
             </h3>
-            <dl style={{ margin: 0, padding: '2px 14px' }}>
+            <dl className={stil.liste2}>
               {b.satirlar.map(([etiket, deger], j) => (
-                <div
-                  key={etiket}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'baseline',
-                    gap: 14,
-                    padding: '9px 0',
-                    borderTop: j ? '1px solid #EEF0F5' : 0,
-                    fontSize: 14,
-                  }}
-                >
-                  <dt style={{ color: colors.muted, flex: '0 1 auto' }}>{etiket}</dt>
-                  <dd style={{ margin: 0, fontWeight: 700, textAlign: 'right', minWidth: 0 }}>{deger}</dd>
+                <div key={etiket} className={cx(stil.kutu7, j ? stil.kutu8 : stil.kutu9)}>
+                  <dt className={stil.metin6}>{etiket}</dt>
+                  <dd className={stil.metin7}>{deger}</dd>
                 </div>
               ))}
             </dl>
@@ -206,20 +115,8 @@ export function TeknikTablo({
 
       {m.donanim?.length ? <Donanim key={m.ad} liste={m.donanim} /> : null}
 
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 10,
-          marginTop: 4,
-          padding: '10px 14px',
-          borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-          background: colors.background,
-        }}
-      >
-        <p style={{ margin: 0, fontSize: 12, color: colors.muted, flex: '1 1 320px', lineHeight: 1.5 }}>
+      <div className={stil.kutu10}>
+        <p className={stil.metin8}>
           {TEKNIK_KAYNAK}.
           {m.ozet.kaynaklar?.includes('manuel') || m.donanim?.length
             ? ' Bazı değerler ve donanım ekibimizce girildi.'
@@ -245,34 +142,24 @@ function YanlisBildir({ talepNo, motor, ad }: { talepNo: number; motor: string; 
   const [not, setNot] = useState('');
   const [durum, setDurum] = useState<'bos' | 'gonderiliyor' | 'tamam'>('bos');
   const [hata, setHata] = useState<string | null>(null);
-  const kucuk = {
-    background: 'transparent',
-    border: 0,
-    padding: 0,
-    fontSize: 12.5,
-    fontWeight: 700,
-    color: colors.link,
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-  } as const;
 
   if (durum === 'tamam')
     return (
-      <p role="status" style={{ margin: 0, fontSize: 12.5, fontWeight: 700, color: '#11683F' }}>
+      <p role="status" className={stil.metin9}>
         Teşekkürler, bildirimin ekibimize ulaştı.
       </p>
     );
   if (!acik)
     return (
-      <button type="button" style={kucuk} onClick={() => setAcik(true)}>
+      <button type="button" className={stil.dugme4} onClick={() => setAcik(true)}>
         Bir değer yanlış mı? Bildir
       </button>
     );
   if (giris === false)
     return (
-      <p style={{ margin: 0, fontSize: 12.5 }}>
+      <p className={stil.metin10}>
         Bildirmek için{' '}
-        <Link href={`/giris?sonra=/talep/${talepNo}`} style={{ fontWeight: 700 }}>
+        <Link href={`/giris?sonra=/talep/${talepNo}`} className={stil.bag1}>
           giriş yap
         </Link>
         .
@@ -296,31 +183,13 @@ function YanlisBildir({ talepNo, motor, ad }: { talepNo: number; motor: string; 
   }
 
   return (
-    <form
-      onSubmit={gonder}
-      aria-label={`${ad} teknik özellik bildirimi`}
-      style={{
-        flex: '1 1 100%',
-        display: 'grid',
-        gap: 8,
-        padding: 12,
-        border: `1px solid ${colors.line}`,
-        borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-        background: colors.background,
-      }}
-    >
-      <strong style={{ fontSize: 13.5 }}>{ad}: hangi değer yanlış?</strong>
+    <form onSubmit={gonder} aria-label={`${ad} teknik özellik bildirimi`} className={stil.kutu11}>
+      <strong className={stil.metin11}>{ad}: hangi değer yanlış?</strong>
       <select
         aria-label="Yanlış olan değer"
         value={alan}
         onChange={(e) => setAlan(e.target.value)}
-        style={{
-          fontSize: 13.5,
-          padding: 8,
-          borderRadius: 8,
-          border: `1px solid ${colors.line}`,
-          fontFamily: 'inherit',
-        }}
+        className={stil.girdi1}
       >
         <option value="">Genel / birden çok değer</option>
         {TEKNIK_ALANLARI.map((a) => (
@@ -338,39 +207,18 @@ function YanlisBildir({ talepNo, motor, ad }: { talepNo: number; motor: string; 
         placeholder="Ör. Güç 184 hp olmalı, ruhsatta öyle yazıyor"
         value={not}
         onChange={(e) => setNot(e.target.value)}
-        style={{
-          fontSize: 13.5,
-          padding: 8,
-          borderRadius: 8,
-          border: `1px solid ${colors.line}`,
-          fontFamily: 'inherit',
-          resize: 'vertical',
-        }}
+        className={stil.girdi2}
       />
       {hata ? (
-        <p role="alert" style={{ margin: 0, fontSize: 12.5, color: '#A3271F', fontWeight: 600 }}>
+        <p role="alert" className={stil.metin12}>
           {hata}
         </p>
       ) : null}
-      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-        <button
-          type="submit"
-          disabled={durum === 'gonderiliyor'}
-          style={{
-            background: colors.blue,
-            color: 'var(--rr-maviYazi, #1E2333)',
-            border: 0,
-            fontWeight: 700,
-            fontSize: 13.5,
-            padding: '8px 14px',
-            borderRadius: 'var(--rr-buton-kose)',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
-        >
+      <div className={stil.kutu12}>
+        <button type="submit" disabled={durum === 'gonderiliyor'} className={stil.dugme5}>
           {durum === 'gonderiliyor' ? 'Gönderiliyor…' : 'Gönder'}
         </button>
-        <button type="button" style={kucuk} onClick={() => setAcik(false)}>
+        <button type="button" className={stil.dugme4} onClick={() => setAcik(false)}>
           Vazgeç
         </button>
       </div>
@@ -391,21 +239,16 @@ function Donanim({ liste }: { liste: { paket: string | null; gruplar: DonanimGru
   const d = liste[Math.min(secili, liste.length - 1)] as (typeof liste)[number];
   const toplam = d.gruplar.reduce((n, g) => n + g.ogeler.length, 0);
   return (
-    <section aria-label="Donanım" style={{ marginTop: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
-        <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>Donanım</h3>
-        <span style={{ fontSize: 13, color: colors.muted }}>
+    <section aria-label="Donanım" className={stil.kutu13}>
+      <div className={stil.kutu14}>
+        <h3 className={stil.baslik2}>Donanım</h3>
+        <span className={stil.metin13}>
           {d.paket ? `${d.paket} paketi · ` : ''}
           {toplam} özellik
         </span>
       </div>
       {liste.length > 1 ? (
-        <div
-          role="tablist"
-          aria-label="Paketler"
-          className="rr-yatay-kay"
-          style={{ display: 'flex', gap: 8, overflowX: 'auto', marginTop: 10 }}
-        >
+        <div role="tablist" aria-label="Paketler" className={`rr-yatay-kay ${stil.kutu15}`}>
           {liste.map((x, i) => (
             <button
               key={x.paket ?? ''}
@@ -413,80 +256,28 @@ function Donanim({ liste }: { liste: { paket: string | null; gruplar: DonanimGru
               role="tab"
               aria-selected={i === secili}
               onClick={() => setSecili(i)}
-              style={{
-                flex: 'none',
-                whiteSpace: 'nowrap',
-                border: 0,
-                background: i === secili ? colors.ink : colors.background,
-                color: i === secili ? colors.surface : colors.ink,
-                borderRadius: 'var(--rr-etiket-kose)',
-                padding: '7px 13px',
-                fontSize: 13,
-                fontWeight: 700,
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
+              className={cx(stil.dugme6, i === secili ? stil.dugme7 : stil.dugme8)}
             >
               {x.paket ?? 'Bütün paketler'}
             </button>
           ))}
         </div>
       ) : null}
-      <div style={{ columns: '240px 3', columnGap: 12, marginTop: 12 }}>
+      <div className={stil.kutu16}>
         {d.gruplar.map((g, i) => {
           const anahtar = `${d.paket ?? ''}|${g.ad}`;
           const hepsi = acik[anahtar] || g.ogeler.length <= GRUP_ILK + 1;
           const ogeler = hepsi ? g.ogeler : g.ogeler.slice(0, GRUP_ILK);
           return (
-            <div
-              key={g.ad}
-              style={{
-                breakInside: 'avoid',
-                marginBottom: 12,
-                border: `1px solid ${colors.line}`,
-                borderRadius: 'calc(var(--rr-kart-kose) * 14 / 18)',
-                overflow: 'hidden',
-                background: colors.surface,
-              }}
-            >
-              <p
-                style={{
-                  margin: 0,
-                  padding: '10px 14px',
-                  background: TINTS[i % TINTS.length],
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  gap: 8,
-                  fontSize: 14,
-                  fontWeight: 800,
-                }}
-              >
+            <div key={g.ad} className={stil.kutu17}>
+              <p className={stil.metin14} style={{ background: TINTS[i % TINTS.length] }}>
                 {g.ad}
-                <span style={{ fontSize: 12.5, fontWeight: 700, color: '#4A5064' }}>{g.ogeler.length}</span>
+                <span className={stil.metin15}>{g.ogeler.length}</span>
               </p>
-              <ul style={{ margin: 0, padding: '6px 14px 10px', listStyle: 'none' }}>
+              <ul className={stil.liste3}>
                 {ogeler.map((o) => (
-                  <li
-                    key={o}
-                    style={{ display: 'flex', gap: 9, padding: '5px 0', fontSize: 13.5, lineHeight: 1.4 }}
-                  >
-                    <span
-                      aria-hidden="true"
-                      style={{
-                        flex: 'none',
-                        width: 18,
-                        height: 18,
-                        marginTop: 1,
-                        borderRadius: '50%',
-                        background: '#E7FAF0',
-                        color: '#11683F',
-                        fontSize: 11,
-                        fontWeight: 800,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
+                  <li key={o} className={stil.oge2}>
+                    <span aria-hidden="true" className={stil.metin16}>
                       ✓
                     </span>
                     {o}
@@ -497,17 +288,7 @@ function Donanim({ liste }: { liste: { paket: string | null; gruplar: DonanimGru
                 <button
                   type="button"
                   onClick={() => setAcik((a) => ({ ...a, [anahtar]: true }))}
-                  style={{
-                    margin: '0 14px 12px',
-                    padding: 0,
-                    border: 0,
-                    background: 'transparent',
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: colors.link,
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
+                  className={stil.dugme9}
                 >
                   +{g.ogeler.length - ogeler.length} özellik daha
                 </button>

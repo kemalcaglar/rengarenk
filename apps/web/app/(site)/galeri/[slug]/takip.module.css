@@ -1,0 +1,18 @@
+/* Bu dosya takip.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.dugme1 {
+  border: 0;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 11px 16px;
+  font-size: 14.5px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+}
+.dugme2 {
+  background: #e7faf0;
+  color: var(--rr-murekkep, #1e2333);
+}
+.dugme3 {
+  background: var(--rr-mavi, #5b8cff);
+  color: var(--rr-maviYazi, #1e2333);
+}

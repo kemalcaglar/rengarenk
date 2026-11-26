@@ -1,8 +1,10 @@
 'use client';
 
 import { MESSAGE_MAX } from '@rengarenk/shared';
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { cx } from '../lib/cx';
 import { istek } from '../lib/istemci';
+import stil from './ilk-mesaj.module.css';
 
 interface Durum {
   kendi: boolean;
@@ -18,16 +20,6 @@ interface PortfoyAraci {
   ad: string;
   durum: string;
 }
-
-const dugme: CSSProperties = {
-  border: 0,
-  borderRadius: 'var(--rr-buton-kose)',
-  padding: '13px 16px',
-  fontSize: 15,
-  fontWeight: 800,
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
 
 /**
  * İlk mesaj penceresi (GaleriMobil.dc.html › İlk mesaj; Karar 08.1, 11, 26). Satıcı talebe tek ilk mesaj atar; galeri
@@ -148,42 +140,15 @@ export function IlkMesaj({
   }
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(30,35,51,0.45)',
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 16,
-      }}
-    >
-      <section
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="ilk-baslik"
-        style={{
-          width: '100%',
-          maxWidth: 520,
-          maxHeight: '92vh',
-          overflowY: 'auto',
-          background: 'var(--rr-kart, #FFFFFF)',
-          borderRadius: 'calc(var(--rr-kart-kose) * 22 / 18)',
-          padding: '22px 22px 20px',
-          color: 'var(--rr-murekkep, #1E2333)',
-        }}
-      >
-        <h2 id="ilk-baslik" style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>
+    <div className={stil.kutu1}>
+      <section role="dialog" aria-modal="true" aria-labelledby="ilk-baslik" className={stil.kutu2}>
+        <h2 id="ilk-baslik" className={stil.baslik1}>
           İlk mesaj
         </h2>
-        <p style={{ margin: '4px 0 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
-          {[talepBaslik, sahip].filter(Boolean).join(' · ')}
-        </p>
+        <p className={stil.metin1}>{[talepBaslik, sahip].filter(Boolean).join(' · ')}</p>
 
         {d && d.hesaplar.length > 1 ? (
-          <label style={{ display: 'block', fontSize: 13.5, fontWeight: 700, marginBottom: 12 }}>
+          <label className={stil.etiket1}>
             Kimin adına yazıyorsun
             <select
               value={secili?.id ?? ''}
@@ -191,17 +156,7 @@ export function IlkMesaj({
                 setHesap(e.target.value);
                 setAracId('');
               }}
-              style={{
-                display: 'block',
-                width: '100%',
-                marginTop: 6,
-                border: '1px solid #D5DAE5',
-                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                padding: 11,
-                fontSize: 15,
-                background: 'var(--rr-kart, #FFFFFF)',
-                fontFamily: 'inherit',
-              }}
+              className={stil.girdi1}
             >
               {d.hesaplar.map((h) => (
                 <option key={h.id} value={h.id}>
@@ -213,23 +168,9 @@ export function IlkMesaj({
         ) : null}
 
         {secili?.galeri ? (
-          <label style={{ display: 'block', fontSize: 13.5, fontWeight: 700, marginBottom: 12 }}>
+          <label className={stil.etiket1}>
             Araç kartı (isteğe bağlı)
-            <select
-              value={aracId}
-              onChange={(e) => setAracId(e.target.value)}
-              style={{
-                display: 'block',
-                width: '100%',
-                marginTop: 6,
-                border: '1px solid #D5DAE5',
-                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                padding: 11,
-                fontSize: 15,
-                background: 'var(--rr-kart, #FFFFFF)',
-                fontFamily: 'inherit',
-              }}
-            >
+            <select value={aracId} onChange={(e) => setAracId(e.target.value)} className={stil.girdi1}>
               <option value="">Kart ekleme</option>
               {araclar.map((a) => (
                 <option key={a.id} value={a.id}>
@@ -238,45 +179,20 @@ export function IlkMesaj({
               ))}
             </select>
             {aracId ? (
-              <span
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  marginTop: 8,
-                  background: '#FFF6DF',
-                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                  padding: '10px 12px',
-                  fontWeight: 600,
-                }}
-              >
-                <span
-                  aria-hidden="true"
-                  style={{
-                    width: 46,
-                    height: 30,
-                    borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
-                    background: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)',
-                    flex: 'none',
-                  }}
-                />
-                <span style={{ minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 14, fontWeight: 800 }}>
+              <span className={stil.metin2}>
+                <span aria-hidden="true" className={stil.metin3} />
+                <span className={stil.metin4}>
+                  <span className={stil.metin5}>
                     {araclar.find((a) => a.id === aracId)?.ad ?? ilkArac?.ad}
                   </span>
-                  <span style={{ display: 'block', fontSize: 12, color: '#7A5300' }}>
-                    Araç kartı mesaja eklenir · EİDS doğrulandı
-                  </span>
+                  <span className={stil.metin6}>Araç kartı mesaja eklenir · EİDS doğrulandı</span>
                 </span>
               </span>
             ) : null}
           </label>
         ) : null}
 
-        <label
-          htmlFor="ilk-metin"
-          style={{ display: 'block', fontSize: 13.5, fontWeight: 700, marginBottom: 6 }}
-        >
+        <label htmlFor="ilk-metin" className={stil.etiket2}>
           Mesajın
         </label>
         <textarea
@@ -289,19 +205,9 @@ export function IlkMesaj({
             setMetin(e.target.value);
           }}
           placeholder="Merhaba, aradığınız kriterlere uyan aracım var…"
-          style={{
-            width: '100%',
-            boxSizing: 'border-box',
-            border: '1px solid #D5DAE5',
-            borderRadius: 'var(--rr-buton-kose)',
-            padding: 12,
-            fontSize: 15,
-            lineHeight: 1.5,
-            resize: 'vertical',
-            fontFamily: 'inherit',
-          }}
+          className={stil.girdi2}
         />
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 4 }}>
+        <div className={stil.kutu3}>
           <button
             type="button"
             disabled={yaziyor}
@@ -310,44 +216,21 @@ export function IlkMesaj({
               setSira(n);
               taslakGetir(n, true);
             }}
-            style={{
-              border: 0,
-              background: 'transparent',
-              padding: '6px 0',
-              fontSize: 13,
-              fontWeight: 700,
-              color: 'var(--rr-baglanti, #2450C8)',
-              cursor: yaziyor ? 'default' : 'pointer',
-              fontFamily: 'inherit',
-            }}
+            className={cx(stil.dugme1, yaziyor ? stil.dugme2 : stil.dugme3)}
           >
             {yaziyor ? 'Yazılıyor…' : '✦ Taslağı yeniden yaz'}
           </button>
-          <span style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', padding: '6px 0' }}>
+          <span className={stil.metin7}>
             {metin.length} / {MESSAGE_MAX}
           </span>
         </div>
-        <p style={{ margin: '6px 0 0', fontSize: 12.5, lineHeight: 1.5, color: 'var(--rr-soluk, #5A6073)' }}>
+        <p className={stil.metin8}>
           Yalnızca metin. Telefon, IBAN, bağlantı yazma ve kapora isteme. Alıcı cevap verene kadar ikinci
           mesaj atılamaz.
         </p>
-        {secili?.galeri && yasalUyari ? (
-          <p
-            style={{
-              margin: '10px 0 0',
-              fontSize: 12.5,
-              lineHeight: 1.5,
-              color: '#3A4052',
-              background: '#F3F5FA',
-              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-              padding: '10px 12px',
-            }}
-          >
-            {yasalUyari}
-          </p>
-        ) : null}
+        {secili?.galeri && yasalUyari ? <p className={stil.metin9}>{yasalUyari}</p> : null}
         {d?.gunluk ? (
-          <p style={{ margin: '10px 0 0', fontSize: 13, color: '#3A4052' }}>
+          <p className={stil.metin10}>
             {gunlukAd}:{' '}
             <strong>
               {d.gunluk.kalan} / {d.gunluk.toplam}
@@ -357,46 +240,20 @@ export function IlkMesaj({
           </p>
         ) : null}
         {d?.engel || hata ? (
-          <p
-            role="alert"
-            style={{
-              margin: '10px 0 0',
-              background: '#FFF0EE',
-              border: '1px solid #F5C6C0',
-              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-              padding: '10px 12px',
-              fontSize: 13.5,
-              color: '#A3271F',
-            }}
-          >
+          <p role="alert" className={stil.metin11}>
             {hata ?? d?.engel}
           </p>
         ) : null}
-        <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-          <button
-            type="button"
-            onClick={kapat}
-            style={{
-              ...dugme,
-              flex: '0 0 auto',
-              background: '#F3F5FA',
-              color: 'var(--rr-murekkep, #1E2333)',
-              fontWeight: 700,
-            }}
-          >
+        <div className={stil.kutu4}>
+          <button type="button" onClick={kapat} className={stil.dugme4}>
             Vazgeç
           </button>
           <button
             type="button"
             disabled={mesgul || !metin.trim() || !d || !!d.engel || !hakVar}
             onClick={gonder}
-            style={{
-              ...dugme,
-              flex: 1,
-              background: 'var(--rr-mavi, #5B8CFF)',
-              color: 'var(--rr-maviYazi, #1E2333)',
-              opacity: mesgul || !metin.trim() || !d || d.engel || !hakVar ? 0.55 : 1,
-            }}
+            className={stil.dugme5}
+            style={{ opacity: mesgul || !metin.trim() || !d || d.engel || !hakVar ? 0.55 : 1 }}
           >
             {mesgul ? 'Gönderiliyor…' : 'Gönder · 1 hak kullanılır'}
           </button>

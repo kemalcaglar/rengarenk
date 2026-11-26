@@ -1,0 +1,214 @@
+/* Bu dosya acilis.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.bag1 {
+  display: inline-block;
+  background: var(--rr-mavi, #5b8cff);
+  color: var(--rr-maviYazi, #1e2333);
+  border-radius: var(--rr-buton-kose);
+  padding: 14px 22px;
+  font-size: 16px;
+  font-weight: 800;
+  text-decoration: none;
+}
+.kutu1 {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 16px 64px;
+}
+.metin1 {
+  background: #fff6df;
+  color: #7a5300;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 10px 14px;
+  font-weight: 700;
+}
+.kutu2 {
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-kart-kose) * 20 / 18);
+  padding: 40px 28px;
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.kutu3 {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+.metin2 {
+  width: 28px;
+  height: 8px;
+  border-radius: var(--rr-etiket-kose);
+}
+.baslik1 {
+  margin: 0;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  line-height: 1.1;
+}
+.metin3 {
+  margin: 12px 0 22px;
+  font-size: 18px;
+  color: #3a4052;
+  max-width: 680px;
+}
+.kutu4 {
+  height: 22px;
+}
+.kutu5 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.kutu6 {
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-kart-kose) * 20 / 18);
+  padding: 20px;
+}
+.kutu7 {
+  font-size: 30px;
+  font-weight: 800;
+}
+.kutu8 {
+  font-size: 14px;
+  color: #3a4052;
+  margin-top: 4px;
+}
+.kutu9 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.kutu10 {
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-kart-kose) * 20 / 18);
+  padding: 20px;
+}
+.metin4 {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+.baslik2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+}
+.metin5 {
+  margin: 6px 0 0;
+  font-size: 14.5px;
+  color: #3a4052;
+  line-height: 1.5;
+}
+.kutu11 {
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-kart-kose) * 20 / 18);
+  padding: 24px;
+  margin-bottom: 18px;
+}
+.baslik3 {
+  margin: 0 0 14px;
+  font-size: 22px;
+  font-weight: 800;
+}
+.liste1 {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+.oge1 {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.metin6 {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: var(--rr-murekkep, #1e2333);
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.metin7 {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+}
+.metin8 {
+  display: block;
+  font-size: 14.5px;
+  color: #3a4052;
+  margin-top: 2px;
+}
+.kutu12 {
+  background: var(--rr-kart, #ffffff);
+  border: 1.5px solid var(--rr-mavi, #5b8cff);
+  border-radius: calc(var(--rr-kart-kose) * 20 / 18);
+  padding: 24px;
+  margin-bottom: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.metin9 {
+  flex: 1 1 320px;
+}
+.metin10 {
+  display: block;
+  font-size: 22px;
+  font-weight: 800;
+}
+.metin11 {
+  display: block;
+  font-size: 15px;
+  color: #3a4052;
+  margin-top: 4px;
+}
+.baslik4 {
+  margin: 0 0 10px;
+  font-size: 22px;
+  font-weight: 800;
+}
+.kutu13 {
+  border-top: 1px solid #eef0f5;
+  padding: 12px 0;
+}
+.metin12 {
+  cursor: pointer;
+  font-size: 15.5px;
+  font-weight: 800;
+}
+.metin13 {
+  margin: 8px 0 0;
+  font-size: 14.5px;
+  color: #3a4052;
+  line-height: 1.55;
+}
+.kutu14 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.metin14 {
+  background: #e7faf0;
+  color: #11683f;
+  border-radius: var(--rr-etiket-kose);
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 800;
+}

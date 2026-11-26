@@ -2,49 +2,13 @@
 
 import { KVKK_KIND_KEYS, KVKK_KINDS, type KvkkKind } from '@rengarenk/shared';
 import Link from 'next/link';
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { CerezTercihleri } from '../../../components/cerez-tercihleri';
+import { cx } from '../../../lib/cx';
 import { API, erisim, istek } from '../../../lib/istemci';
+import stil from './gizlilik.module.css';
 import { Anahtar } from './iletisim';
 
-const kart: CSSProperties = {
-  background: 'var(--rr-kart, #FFFFFF)',
-  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-  borderRadius: 'var(--rr-kart-kose)',
-  padding: 20,
-};
-const satir: CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  gap: 8,
-  padding: '12px 0',
-  borderTop: '1px solid #EEF0F5',
-};
-const ikincil: CSSProperties = {
-  border: '1px solid #D5DAE5',
-  background: 'var(--rr-kart, #FFFFFF)',
-  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-  padding: '8px 12px',
-  fontSize: 13.5,
-  fontWeight: 700,
-  color: 'var(--rr-murekkep, #1E2333)',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
-const girdi: CSSProperties = {
-  display: 'block',
-  width: '100%',
-  boxSizing: 'border-box',
-  marginTop: 5,
-  border: '1px solid #D5DAE5',
-  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-  padding: 11,
-  fontSize: 14.5,
-  fontFamily: 'inherit',
-  background: 'var(--rr-kart, #FFFFFF)',
-};
 const tarih = (iso: string) =>
   new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', timeZone: 'Europe/Istanbul' }).format(
     new Date(iso),
@@ -78,26 +42,20 @@ export function Engellediklerin({ bildir }: { bildir: (m: string | null, h?: str
       .catch(() => setListe([]));
   }, []);
   return (
-    <section style={kart} aria-labelledby="en">
-      <h2 id="en" style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800 }}>
+    <section className={stil.kutu1} aria-labelledby="en">
+      <h2 id="en" className={stil.baslik1}>
         Engellediklerin
       </h2>
-      <p style={{ margin: '0 0 10px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
-        Engellediğin kişiler sana mesaj gönderemez ve taleplerini göremez.
-      </p>
+      <p className={stil.metin1}>Engellediğin kişiler sana mesaj gönderemez ve taleplerini göremez.</p>
       {liste?.map((e) => (
-        <div key={e.hesap} style={satir}>
+        <div key={e.hesap} className={stil.kutu2}>
           <span>
-            <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>{e.ad}</span>
-            <span
-              style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}
-            >
-              {e.not}
-            </span>
+            <span className={stil.metin2}>{e.ad}</span>
+            <span className={stil.metin3}>{e.not}</span>
           </span>
           <button
             type="button"
-            style={ikincil}
+            className={stil.dugme1}
             onClick={async () => {
               try {
                 setListe(await istek<Engel[]>(`/me/blocks/${e.hesap}`, { method: 'DELETE' }));
@@ -111,19 +69,7 @@ export function Engellediklerin({ bildir }: { bildir: (m: string | null, h?: str
           </button>
         </div>
       ))}
-      {liste && !liste.length ? (
-        <p
-          style={{
-            margin: 0,
-            paddingTop: 10,
-            borderTop: '1px solid #EEF0F5',
-            fontSize: 14,
-            color: 'var(--rr-soluk, #5A6073)',
-          }}
-        >
-          Engellediğin kimse yok.
-        </p>
-      ) : null}
+      {liste && !liste.length ? <p className={stil.metin4}>Engellediğin kimse yok.</p> : null}
     </section>
   );
 }
@@ -230,69 +176,45 @@ export function KisiselVerilerim({ bildir }: { bildir: (m: string | null, h?: st
 
   const son = kopyalar[0];
   const kodAlani = (
-    <div
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 8,
-        alignItems: 'flex-end',
-        marginTop: 10,
-        width: '100%',
-      }}
-    >
-      <label style={{ flex: '0 1 180px', fontSize: 13, fontWeight: 700 }}>
+    <div className={stil.kutu3}>
+      <label className={stil.etiket1}>
         WhatsApp kodu
         <input
           value={kod}
           onChange={(e) => setKod(e.target.value.replace(/\D/g, '').slice(0, 6))}
           inputMode="numeric"
           autoComplete="one-time-code"
-          style={girdi}
+          className={stil.girdi1}
         />
       </label>
       <button
         type="button"
         onClick={onayla}
         disabled={kod.length !== 6 || (adim === 'kvkk' && metin.trim().length < 10)}
-        style={{
-          ...ikincil,
-          background: 'var(--rr-mavi, #5B8CFF)',
-          color: 'var(--rr-maviYazi, #1E2333)',
-          border: 0,
-          padding: '11px 16px',
-          fontWeight: 800,
-        }}
+        className={stil.dugme2}
       >
         Onayla
       </button>
-      <button type="button" onClick={() => setAdim(null)} style={{ ...ikincil, border: 0 }}>
+      <button type="button" onClick={() => setAdim(null)} className={stil.dugme3}>
         Vazgeç
       </button>
     </div>
   );
 
   return (
-    <section style={kart} aria-labelledby="kv">
-      <h2 id="kv" style={{ margin: '0 0 10px', fontSize: 18, fontWeight: 800 }}>
+    <section className={stil.kutu1} aria-labelledby="kv">
+      <h2 id="kv" className={stil.baslik2}>
         Kişisel verilerim
       </h2>
-      <div style={satir}>
-        <span style={{ flex: '1 1 300px' }}>
-          <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>Verilerimi indir</span>
-          <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}>
+      <div className={stil.kutu2}>
+        <span className={stil.metin5}>
+          <span className={stil.metin2}>Verilerimi indir</span>
+          <span className={stil.metin3}>
             Profil, talepler, mesajlar, ödemeler ve rızaların. Doğrulama kodundan sonra 24 saat içinde
             hazırlanır; bağlantı 7 gün geçerli.
           </span>
           {son ? (
-            <span
-              style={{
-                display: 'block',
-                fontSize: 12.5,
-                marginTop: 4,
-                fontWeight: 700,
-                color: son.durum === 'hazir' ? '#11683F' : '#7A5300',
-              }}
-            >
+            <span className={cx(stil.metin6, son.durum === 'hazir' ? stil.metin7 : stil.metin8)}>
               {son.durum === 'hazir'
                 ? `Hazır · ${son.gecerlilik ? tarih(son.gecerlilik) : ''} tarihine kadar indirilebilir`
                 : son.durum === 'hazirlaniyor'
@@ -304,33 +226,37 @@ export function KisiselVerilerim({ bildir }: { bildir: (m: string | null, h?: st
           ) : null}
         </span>
         {son?.durum === 'hazir' ? (
-          <button type="button" style={ikincil} onClick={() => indir(son.id)}>
+          <button type="button" className={stil.dugme1} onClick={() => indir(son.id)}>
             İndir
           </button>
         ) : son?.durum === 'hazirlaniyor' ? null : (
-          <button type="button" style={ikincil} onClick={() => kodIste('indir')}>
+          <button type="button" className={stil.dugme1} onClick={() => kodIste('indir')}>
             Hazırla
           </button>
         )}
         {adim === 'indir' ? kodAlani : null}
       </div>
-      <div style={satir}>
-        <span style={{ flex: '1 1 300px' }}>
-          <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>KVKK başvurusu</span>
-          <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}>
+      <div className={stil.kutu2}>
+        <span className={stil.metin5}>
+          <span className={stil.metin2}>KVKK başvurusu</span>
+          <span className={stil.metin3}>
             Bilgi alma, düzeltme, silme ya da itiraz. En geç 30 gün içinde yanıtlanır (KVKK m.13).
           </span>
         </span>
         {adim !== 'kvkk' ? (
-          <button type="button" style={ikincil} onClick={() => setAdim('kvkk')}>
+          <button type="button" className={stil.dugme1} onClick={() => setAdim('kvkk')}>
             Başvur
           </button>
         ) : null}
         {adim === 'kvkk' ? (
-          <div style={{ width: '100%', marginTop: 6 }}>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 700 }}>
+          <div className={stil.kutu4}>
+            <label className={stil.etiket2}>
               Başvuru türü
-              <select value={tur} onChange={(e) => setTur(e.target.value as KvkkKind)} style={girdi}>
+              <select
+                value={tur}
+                onChange={(e) => setTur(e.target.value as KvkkKind)}
+                className={stil.girdi1}
+              >
                 {KVKK_KIND_KEYS.map((k) => (
                   <option key={k} value={k}>
                     {KVKK_KINDS[k]}
@@ -338,14 +264,14 @@ export function KisiselVerilerim({ bildir }: { bildir: (m: string | null, h?: st
                 ))}
               </select>
             </label>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 700, marginTop: 10 }}>
+            <label className={stil.etiket3}>
               Talebin
               <textarea
                 rows={4}
                 value={metin}
                 onChange={(e) => setMetin(e.target.value)}
                 maxLength={3000}
-                style={{ ...girdi, resize: 'vertical' }}
+                className={stil.girdi2}
               />
             </label>
             {challengeId ? (
@@ -355,14 +281,7 @@ export function KisiselVerilerim({ bildir }: { bildir: (m: string | null, h?: st
                 type="button"
                 onClick={() => kodIste('kvkk')}
                 disabled={metin.trim().length < 10}
-                style={{
-                  ...ikincil,
-                  marginTop: 10,
-                  background: 'var(--rr-mavi, #5B8CFF)',
-                  color: 'var(--rr-maviYazi, #1E2333)',
-                  border: 0,
-                  fontWeight: 800,
-                }}
+                className={stil.dugme4}
               >
                 Doğrulama kodu gönder
               </button>
@@ -371,37 +290,25 @@ export function KisiselVerilerim({ bildir }: { bildir: (m: string | null, h?: st
         ) : null}
       </div>
       {basvurular.map((b) => (
-        <div key={b.numara} style={{ ...satir, alignItems: 'flex-start' }}>
-          <span style={{ flex: '1 1 300px' }}>
-            <span style={{ display: 'block', fontSize: 14, fontWeight: 700 }}>
+        <div key={b.numara} className={stil.kutu5}>
+          <span className={stil.metin5}>
+            <span className={stil.metin9}>
               {b.numara} · {b.tur}
             </span>
-            <span
-              style={{
-                display: 'block',
-                fontSize: 12.5,
-                color: 'var(--rr-soluk, #5A6073)',
-                marginTop: 2,
-                whiteSpace: 'pre-wrap',
-              }}
-            >
+            <span className={stil.metin10}>
               {b.durum === 'acik' ? `Yanıt en geç ${tarih(b.sonTarih)}` : b.yanit}
             </span>
           </span>
-          <span
-            style={{ fontSize: 12.5, fontWeight: 800, color: b.durum === 'acik' ? '#7A5300' : '#11683F' }}
-          >
+          <span className={cx(stil.metin11, b.durum === 'acik' ? stil.metin8 : stil.metin7)}>
             {b.durum === 'acik' ? 'İnceleniyor' : 'Yanıtlandı'}
           </span>
         </div>
       ))}
       {reklam === null ? null : (
-        <div style={satir}>
-          <span style={{ flex: '1 1 300px', minWidth: 0 }}>
-            <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>Reklam ölçümü</span>
-            <span
-              style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}
-            >
+        <div className={stil.kutu2}>
+          <span className={stil.metin12}>
+            <span className={stil.metin2}>Reklam ölçümü</span>
+            <span className={stil.metin3}>
               Talep ve ödeme gibi adımların, reklamlarımızı ölçmek için Meta ve Google'a özet bilgiyle
               bildirilmesi. Mesajların ve talep açıklaman hiçbir zaman gönderilmez.
             </span>
@@ -409,16 +316,12 @@ export function KisiselVerilerim({ bildir }: { bildir: (m: string | null, h?: st
           <Anahtar acik={reklam} ad="Reklam ölçümü" onClick={reklamDegistir} />
         </div>
       )}
-      <div style={satir}>
+      <div className={stil.kutu2}>
         <span>
-          <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>
-            Aydınlatma metni ve çerez tercihleri
-          </span>
-          <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}>
-            Hangi verileri neden işlediğimiz ve haklarınız
-          </span>
+          <span className={stil.metin2}>Aydınlatma metni ve çerez tercihleri</span>
+          <span className={stil.metin3}>Hangi verileri neden işlediğimiz ve haklarınız</span>
         </span>
-        <span style={{ display: 'flex', gap: 16, fontSize: 13.5, fontWeight: 700 }}>
+        <span className={stil.metin13}>
           <CerezTercihleri />
           <Link href="/kvkk">Görüntüle</Link>
         </span>
@@ -470,13 +373,13 @@ export function SifreBolumu({
   }
 
   return (
-    <section style={kart} aria-labelledby="sifre-baslik">
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 8 }}>
+    <section className={stil.kutu1} aria-labelledby="sifre-baslik">
+      <div className={stil.kutu6}>
         <span>
-          <h2 id="sifre-baslik" style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
+          <h2 id="sifre-baslik" className={stil.baslik3}>
             Şifre
           </h2>
-          <span style={{ display: 'block', fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 4 }}>
+          <span className={stil.metin14}>
             {var_
               ? 'E-posta ve şifrenle giriş yapabilirsin.'
               : google
@@ -485,7 +388,7 @@ export function SifreBolumu({
           </span>
         </span>
         {acik ? null : (
-          <button type="button" style={ikincil} onClick={() => setAcik(true)}>
+          <button type="button" className={stil.dugme1} onClick={() => setAcik(true)}>
             {var_ ? 'Şifreyi değiştir' : 'Şifre belirle'}
           </button>
         )}
@@ -496,10 +399,10 @@ export function SifreBolumu({
             e.preventDefault();
             void kaydet();
           }}
-          style={{ display: 'grid', gap: 10, marginTop: 14, maxWidth: 420 }}
+          className={stil.kutu7}
         >
           {var_ ? (
-            <label style={{ fontSize: 13.5, fontWeight: 700 }}>
+            <label className={stil.etiket4}>
               Mevcut şifre
               <input
                 type="password"
@@ -507,11 +410,11 @@ export function SifreBolumu({
                 value={mevcut}
                 onChange={(e) => setMevcut(e.target.value)}
                 required
-                style={girdi}
+                className={stil.girdi1}
               />
             </label>
           ) : null}
-          <label style={{ fontSize: 13.5, fontWeight: 700 }}>
+          <label className={stil.etiket4}>
             Yeni şifre
             <input
               type="password"
@@ -520,26 +423,17 @@ export function SifreBolumu({
               onChange={(e) => setYeni(e.target.value)}
               required
               minLength={8}
-              style={girdi}
+              className={stil.girdi1}
             />
           </label>
-          <span style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+          <span className={stil.metin15}>
             En az 8 karakter; içinde harf ve rakam olsun. Bu cihaz dışındaki oturumların kapanır.
           </span>
-          <span style={{ display: 'flex', gap: 8 }}>
-            <button
-              type="submit"
-              disabled={busy}
-              style={{
-                ...ikincil,
-                background: 'var(--rr-mavi, #5B8CFF)',
-                color: 'var(--rr-maviYazi, #1E2333)',
-                border: 0,
-              }}
-            >
+          <span className={stil.metin16}>
+            <button type="submit" disabled={busy} className={stil.dugme5}>
               {busy ? 'Kaydediliyor…' : 'Kaydet'}
             </button>
-            <button type="button" style={ikincil} onClick={() => setAcik(false)}>
+            <button type="button" className={stil.dugme1} onClick={() => setAcik(false)}>
               Vazgeç
             </button>
           </span>

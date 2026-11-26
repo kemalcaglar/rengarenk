@@ -1,5 +1,7 @@
 import { ACIKLAMA_BOYUTLARI, ACIKLAMA_RENKLERI, aciklamaParcala } from '@rengarenk/shared';
 import type { CSSProperties } from 'react';
+import { cx } from '../lib/cx';
+import stil from './aciklama.module.css';
 
 /**
  * Biçimli talep açıklaması (sahip isteği, 17 Kasım 2026; etiketler `packages/shared/src/aciklama.ts`). Metin React
@@ -44,12 +46,14 @@ export function AciklamaGoster({
         <span
           // biome-ignore lint/suspicious/noArrayIndexKey: parçalar metnin sırasıdır
           key={i}
+          className={cx(
+            p.kalin || p.boyut === 'baslik' ? stil.metin1 : undefined,
+            p.italik ? stil.metin2 : undefined,
+            p.boyut ? stil.metin3 : undefined,
+          )}
           style={{
-            fontWeight: p.kalin || p.boyut === 'baslik' ? 700 : undefined,
-            fontStyle: p.italik ? 'italic' : undefined,
             color: p.renk ? ACIKLAMA_RENKLERI[p.renk].hex : undefined,
             fontSize: p.boyut ? `${ACIKLAMA_BOYUTLARI[p.boyut].oran}em` : undefined,
-            lineHeight: p.boyut ? 1.45 : undefined,
           }}
         >
           {p.metin}

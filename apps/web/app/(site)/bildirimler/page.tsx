@@ -4,7 +4,9 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { HesabimMenu } from '../../../components/hesabim-menu';
 import { useCanli } from '../../../lib/canli';
+import { cx } from '../../../lib/cx';
 import { istek, useGiris } from '../../../lib/istemci';
+import stil from './page.module.css';
 
 export interface Bildirim {
   id: string;
@@ -84,22 +86,11 @@ export default function Bildirimler() {
   ] as const;
 
   return (
-    <div
-      className="rr-sayfa"
-      style={{
-        maxWidth: 1360,
-        margin: '0 auto',
-        padding: '24px 24px 64px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'flex-start',
-        gap: 24,
-      }}
-    >
+    <div className={`rr-sayfa ${stil.kutu1}`}>
       <HesabimMenu aktif="/bildirimler" />
-      <main style={{ flex: '999 1 640px', minWidth: 0, maxWidth: 820 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-          <h1 style={{ margin: 0, fontSize: 28, fontWeight: 800, letterSpacing: -0.4 }}>Bildirimler</h1>
+      <main className={stil.kutu2}>
+        <div className={stil.kutu3}>
+          <h1 className={stil.baslik1}>Bildirimler</h1>
           <button
             type="button"
             onClick={async () => {
@@ -109,140 +100,51 @@ export default function Bildirimler() {
               window.dispatchEvent(new Event('rr-bildirim'));
               yukle().catch(() => undefined);
             }}
-            style={{
-              border: 0,
-              background: 'transparent',
-              padding: '10px 6px',
-              fontSize: 13.5,
-              fontWeight: 700,
-              color: 'var(--rr-baglanti, #2450C8)',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
+            className={stil.dugme1}
           >
             Tümünü okundu say
           </button>
         </div>
-        <div style={{ display: 'flex', gap: 6, padding: '12px 0 4px' }}>
+        <div className={stil.kutu4}>
           {FILTRELER.map(([k, ad]) => (
             <button
               key={k}
               type="button"
               aria-pressed={filtre === k}
               onClick={() => setFiltre(k)}
-              style={{
-                border: filtre === k ? 0 : '1px solid #D5DAE5',
-                background: filtre === k ? 'var(--rr-murekkep, #1E2333)' : '#FFFFFF',
-                borderRadius: 'var(--rr-etiket-kose)',
-                padding: filtre === k ? '9px 14px' : '8px 13px',
-                fontSize: 13.5,
-                fontWeight: filtre === k ? 800 : 700,
-                color: filtre === k ? '#FFFFFF' : 'var(--rr-murekkep, #1E2333)',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
+              className={cx(stil.dugme2, filtre === k ? stil.dugme3 : stil.dugme4)}
             >
               {ad}
             </button>
           ))}
         </div>
-        {liste && !liste.length ? (
-          <p style={{ marginTop: 16, color: 'var(--rr-soluk, #5A6073)' }}>Henüz bildirimin yok.</p>
-        ) : null}
+        {liste && !liste.length ? <p className={stil.metin1}>Henüz bildirimin yok.</p> : null}
         {gruplar.map(([ad, kosul]) => {
           const ogeler = (liste ?? []).filter((b) => kosul(new Date(b.zaman).getTime()));
           if (!ogeler.length) return null;
           return (
             <section key={ad}>
-              <h2
-                style={{
-                  margin: '14px 4px 8px',
-                  fontSize: 13,
-                  fontWeight: 800,
-                  color: 'var(--rr-soluk, #5A6073)',
-                  textTransform: 'uppercase',
-                  letterSpacing: 0.5,
-                }}
-              >
-                {ad}
-              </h2>
-              <div
-                style={{
-                  background: 'var(--rr-kart, #FFFFFF)',
-                  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                  borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-                  overflow: 'hidden',
-                }}
-              >
+              <h2 className={stil.baslik2}>{ad}</h2>
+              <div className={stil.kutu5}>
                 {ogeler.map((b) => (
                   <button
                     key={b.id}
                     type="button"
                     onClick={() => ac(b)}
-                    style={{
-                      display: 'flex',
-                      width: '100%',
-                      textAlign: 'left',
-                      gap: 12,
-                      padding: '13px 14px',
-                      border: 0,
-                      borderBottom: '1px solid #EEF0F5',
-                      background: b.okundu ? 'var(--rr-kart, #FFFFFF)' : '#F8FAFF',
-                      color: 'var(--rr-murekkep, #1E2333)',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
+                    className={cx(stil.dugme5, b.okundu ? stil.dugme6 : stil.dugme7)}
                   >
-                    <span
-                      aria-hidden="true"
-                      style={{
-                        flex: 'none',
-                        width: 38,
-                        height: 38,
-                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                        background: b.tint,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 16,
-                      }}
-                    >
+                    <span aria-hidden="true" className={stil.metin2} style={{ background: b.tint }}>
                       {b.ikon}
                     </span>
-                    <span style={{ flex: 1, minWidth: 0 }}>
-                      <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                        <span style={{ fontSize: 14, fontWeight: b.okundu ? 700 : 800 }}>{b.baslik}</span>
-                        <span style={{ flex: 'none', fontSize: 11.5, color: 'var(--rr-soluk, #5A6073)' }}>
-                          {once(b.zaman)}
+                    <span className={stil.metin3}>
+                      <span className={stil.metin4}>
+                        <span className={cx(stil.metin5, b.okundu ? stil.metin6 : stil.metin7)}>
+                          {b.baslik}
                         </span>
+                        <span className={stil.metin8}>{once(b.zaman)}</span>
                       </span>
-                      <span
-                        style={{
-                          display: 'block',
-                          fontSize: 12.5,
-                          color: '#3A4052',
-                          marginTop: 3,
-                          lineHeight: 1.45,
-                        }}
-                      >
-                        {b.metin}
-                      </span>
-                      {b.ticari ? (
-                        <span
-                          style={{
-                            display: 'inline-block',
-                            marginTop: 5,
-                            fontSize: 11,
-                            fontWeight: 800,
-                            padding: '2px 7px',
-                            borderRadius: 'var(--rr-etiket-kose)',
-                            background: '#F3F5FA',
-                            color: 'var(--rr-soluk, #5A6073)',
-                          }}
-                        >
-                          Kampanya · onay verdiğin için
-                        </span>
-                      ) : null}
+                      <span className={stil.metin9}>{b.metin}</span>
+                      {b.ticari ? <span className={stil.metin10}>Kampanya · onay verdiğin için</span> : null}
                     </span>
                   </button>
                 ))}

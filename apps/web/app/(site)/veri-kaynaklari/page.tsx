@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Markdown } from '../../../components/markdown';
-import { colors } from '../../../lib/renk';
+import { cx } from '../../../lib/cx';
+import stil from './page.module.css';
 
 export const metadata: Metadata = {
   title: 'Rengarenk · Veri kaynakları',
@@ -31,12 +32,6 @@ async function sources(): Promise<Source[] | null> {
   }
 }
 
-const card = {
-  background: colors.surface,
-  border: `1px solid ${colors.line}`,
-  borderRadius: 'var(--rr-kart-kose)',
-} as const;
-
 /**
  * Veri kaynakları (Teknik tasarım §5): katalogdaki her kaynağın adı, lisansı ve atfı. Açık lisanslar (CC BY,
  * ODbL) atfı koşul sayar; kaynağın istediği atıf metni olduğu gibi gösterilir. Tasarımda bu sayfa yok; çerçeve
@@ -45,26 +40,24 @@ const card = {
 export default async function VeriKaynaklari() {
   const list = await sources();
   return (
-    <main style={{ maxWidth: 1160, margin: '0 auto', padding: '28px 24px 64px' }}>
-      <div style={{ maxWidth: 860 }}>
-        <h1 style={{ margin: 0, fontSize: 32, fontWeight: 800, letterSpacing: -0.5 }}>Veri kaynakları</h1>
-        <p style={{ margin: '8px 0 20px', fontSize: 15, lineHeight: 1.55, color: colors.inkSoft }}>
+    <main className={`rr-sayfa ${stil.kutu1}`}>
+      <div className={stil.kutu2}>
+        <h1 className={stil.baslik1}>Veri kaynakları</h1>
+        <p className={stil.metin1}>
           Araç kataloğundaki marka, model, kasa ve yıl bilgileri aşağıdaki kaynaklardan derlenir. Kasko
           değerleri hiçbir yerde saklanmaz ve gösterilmez.
         </p>
         {list === null ? (
-          <p style={{ ...card, padding: 20, margin: 0 }}>
-            Kaynak listesi şu an alınamadı; birazdan yeniden dene.
-          </p>
+          <p className={stil.metin2}>Kaynak listesi şu an alınamadı; birazdan yeniden dene.</p>
         ) : (
-          <div style={{ ...card, overflow: 'hidden' }}>
+          <div className={stil.kutu3}>
             {list.map((s, i) => (
               <section
                 key={s.key}
                 aria-labelledby={`k-${s.key}`}
-                style={{ padding: '16px 20px', borderTop: i ? '1px solid #EEF0F5' : 0 }}
+                className={cx(stil.kutu4, i ? stil.kutu5 : stil.kutu6)}
               >
-                <h2 id={`k-${s.key}`} style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+                <h2 id={`k-${s.key}`} className={stil.baslik2}>
                   {s.url ? (
                     <a href={s.url} rel="noreferrer">
                       {s.attribution ?? s.name}
@@ -73,15 +66,13 @@ export default async function VeriKaynaklari() {
                     (s.attribution ?? s.name)
                   )}
                 </h2>
-                <p style={{ margin: '4px 0 0', fontSize: 13.5, color: colors.muted }}>
+                <p className={stil.metin3}>
                   {s.name} · Lisans: {s.license}
                 </p>
                 {s.notice ? (
-                  <details style={{ marginTop: 10 }}>
-                    <summary style={{ cursor: 'pointer', fontSize: 15, fontWeight: 700, color: colors.ink }}>
-                      Kaynağın atıf metni
-                    </summary>
-                    <div style={{ marginTop: 8 }}>
+                  <details className={stil.kutu7}>
+                    <summary className={stil.metin4}>Kaynağın atıf metni</summary>
+                    <div className={stil.kutu8}>
                       <Markdown text={s.notice.replace(/<!--[\s\S]*?-->/g, '').replace(/^# .*$/m, '')} />
                     </div>
                   </details>

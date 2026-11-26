@@ -7,7 +7,9 @@ import { type CSSProperties, type FormEvent, useCallback, useEffect, useRef, use
 import { PuanVer } from '../../../components/puan-ver';
 import { Sikayet } from '../../../components/sikayet';
 import { useCanli } from '../../../lib/canli';
+import { cx } from '../../../lib/cx';
 import { API, binlik, istek, useGiris } from '../../../lib/istemci';
+import stil from './page.module.css';
 
 interface Satir {
   id: string;
@@ -84,19 +86,6 @@ function gunAdi(iso: string) {
   }).format(new Date(iso));
 }
 const listeZamani = (iso: string) => (gunAdi(iso) === 'Bugün' ? saat(iso) : gunAdi(iso));
-
-const kenarDugme: CSSProperties = {
-  border: '1px solid #D5DAE5',
-  background: 'var(--rr-kart, #FFFFFF)',
-  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-  padding: '9px 13px',
-  fontSize: 13.5,
-  fontWeight: 700,
-  color: 'var(--rr-murekkep, #1E2333)',
-  cursor: 'pointer',
-  textDecoration: 'none',
-  fontFamily: 'inherit',
-};
 
 const FILTRE = [
   ['tumu', 'Tümü'],
@@ -224,36 +213,12 @@ export default function Mesajlarim() {
 
   let sonGun = '';
   return (
-    <div className="rr-sayfa" style={{ maxWidth: 1360, margin: '0 auto', padding: 24 }}>
-      <div
-        className="rr-mesaj"
-        data-gorunum={mobilSohbet ? 'sohbet' : 'liste'}
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'stretch',
-          background: 'var(--rr-kart, #FFFFFF)',
-          border: '1px solid var(--rr-cizgi, #E3E6EF)',
-          borderRadius: 'calc(var(--rr-kart-kose) * 20 / 18)',
-          overflow: 'hidden',
-          minHeight: 760,
-        }}
-      >
-        <section
-          aria-label="Sohbetler"
-          className="rr-mesaj-liste"
-          style={{
-            flex: '1 1 340px',
-            maxWidth: 400,
-            minWidth: 0,
-            borderRight: '1px solid var(--rr-cizgi, #E3E6EF)',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <div style={{ padding: '18px 18px 12px' }}>
-            <h1 style={{ margin: '0 0 12px', fontSize: 22, fontWeight: 800 }}>Mesajlarım</h1>
-            <div role="tablist" style={{ display: 'flex', gap: 6 }}>
+    <div className={`rr-sayfa ${stil.kutu1}`}>
+      <div className={`rr-mesaj ${stil.kutu2}`} data-gorunum={mobilSohbet ? 'sohbet' : 'liste'}>
+        <section aria-label="Sohbetler" className={`rr-mesaj-liste ${stil.kutu3}`}>
+          <div className={stil.kutu4}>
+            <h1 className={stil.baslik1}>Mesajlarım</h1>
+            <div role="tablist" className={stil.kutu5}>
               {FILTRE.map(([k, ad]) => {
                 const on = filtre === k;
                 return (
@@ -263,17 +228,7 @@ export default function Mesajlarim() {
                     role="tab"
                     aria-selected={on}
                     onClick={() => setFiltre(k)}
-                    style={{
-                      border: 0,
-                      background: on ? '#EEF3FF' : 'transparent',
-                      borderRadius: 'var(--rr-etiket-kose)',
-                      padding: '8px 13px',
-                      fontSize: 13.5,
-                      fontWeight: on ? 800 : 600,
-                      color: on ? 'var(--rr-murekkep, #1E2333)' : 'var(--rr-soluk, #5A6073)',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
+                    className={cx(stil.dugme1, on ? stil.dugme2 : stil.dugme3)}
                   >
                     {ad}
                   </button>
@@ -282,74 +237,27 @@ export default function Mesajlarim() {
             </div>
           </div>
           {liste && !gorunen.length ? (
-            <p
-              style={{
-                margin: 0,
-                padding: '14px 18px',
-                fontSize: 14,
-                color: 'var(--rr-soluk, #5A6073)',
-                borderTop: '1px solid #EEF0F5',
-              }}
-            >
+            <p className={stil.metin1}>
               {liste.length
                 ? 'Bu süzgeçte sohbet yok.'
                 : 'Henüz mesajın yok. Satıcılar talebine yazınca ya da sen bir talebe yazınca burada görünür.'}
             </p>
           ) : null}
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+          <ul className={stil.liste1}>
             {destek ? (
               <li>
-                <Link
-                  href={`/destek?no=${destek.no}`}
-                  style={{
-                    display: 'flex',
-                    gap: 12,
-                    borderTop: '1px solid #EEF0F5',
-                    background: 'var(--rr-kart, #FFFFFF)',
-                    padding: '14px 18px',
-                    color: 'var(--rr-murekkep, #1E2333)',
-                    textDecoration: 'none',
-                  }}
-                >
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      flex: 'none',
-                      width: 44,
-                      height: 44,
-                      borderRadius: '50%',
-                      background: '#E7FAF0',
-                      color: '#11683F',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 800,
-                      fontSize: 14,
-                    }}
-                  >
+                <Link href={`/destek?no=${destek.no}`} className={stil.bag1}>
+                  <span aria-hidden="true" className={stil.metin2}>
                     RD
                   </span>
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                      <span style={{ fontSize: 15, fontWeight: destek.okunmamis ? 800 : 700 }}>
+                  <span className={stil.metin3}>
+                    <span className={stil.metin4}>
+                      <span className={cx(stil.metin5, destek.okunmamis ? stil.metin6 : stil.metin7)}>
                         Rengarenk Destek
                       </span>
-                      <span style={{ fontSize: 12, color: 'var(--rr-soluk, #5A6073)' }}>
-                        {destek.durumAd}
-                      </span>
+                      <span className={stil.metin8}>{destek.durumAd}</span>
                     </span>
-                    <span
-                      style={{
-                        display: 'block',
-                        fontSize: 13.5,
-                        color: '#3A4052',
-                        marginTop: 3,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        fontWeight: destek.okunmamis ? 700 : 400,
-                      }}
-                    >
+                    <span className={cx(stil.metin9, destek.okunmamis ? stil.metin7 : stil.metin10)}>
                       {destek.okunmamis ? 'Yeni yanıt · ' : ''}
                       {destek.ozet}
                     </span>
@@ -368,76 +276,19 @@ export default function Mesajlarim() {
                       setMobilSohbet(true);
                     }}
                     aria-current={on ? 'true' : undefined}
-                    style={{
-                      width: '100%',
-                      textAlign: 'left',
-                      border: 0,
-                      borderTop: '1px solid #EEF0F5',
-                      background: on ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
-                      padding: '14px 18px',
-                      display: 'flex',
-                      gap: 12,
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
+                    className={cx(stil.dugme4, on ? stil.dugme5 : stil.dugme6)}
                   >
-                    <span
-                      aria-hidden="true"
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: '50%',
-                        background: avatar(x),
-                        color: 'var(--rr-murekkep, #1E2333)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 800,
-                        fontSize: 14,
-                        flex: 'none',
-                      }}
-                    >
+                    <span aria-hidden="true" className={stil.metin11} style={{ background: avatar(x) }}>
                       {x.bas}
                     </span>
-                    <span style={{ flex: 1, minWidth: 0 }}>
-                      <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                        <span
-                          style={{ fontSize: 14.5, fontWeight: 800, color: 'var(--rr-murekkep, #1E2333)' }}
-                        >
-                          {x.ad}
-                        </span>
-                        <span style={{ fontSize: 12, color: 'var(--rr-soluk, #5A6073)', flex: 'none' }}>
-                          {listeZamani(x.zaman)}
-                        </span>
+                    <span className={stil.metin3}>
+                      <span className={stil.metin4}>
+                        <span className={stil.metin12}>{x.ad}</span>
+                        <span className={stil.metin13}>{listeZamani(x.zaman)}</span>
                       </span>
-                      <span
-                        style={{
-                          display: 'block',
-                          fontSize: 12.5,
-                          color: 'var(--rr-baglanti, #2450C8)',
-                          fontWeight: 600,
-                          marginTop: 2,
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        }}
-                      >
-                        {x.talep?.baslik ?? x.arac?.ad ?? ''}
-                      </span>
-                      <span
-                        style={{
-                          display: 'block',
-                          fontSize: 13.5,
-                          color: '#3A4052',
-                          marginTop: 3,
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                        }}
-                      >
-                        {x.son}
-                      </span>
-                      <span style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 6 }}>
+                      <span className={stil.metin14}>{x.talep?.baslik ?? x.arac?.ad ?? ''}</span>
+                      <span className={stil.metin15}>{x.son}</span>
+                      <span className={stil.metin16}>
                         {x.bekliyor ? (
                           <span style={rozet('#FFF6DF', '#7A5300')}>
                             {x.taraf === 'alici' ? 'Yanıt bekliyor' : 'Alıcının yanıtı bekleniyor'}
@@ -466,72 +317,35 @@ export default function Mesajlarim() {
           </ul>
         </section>
 
-        <section
-          aria-label="Sohbet"
-          className="rr-mesaj-sohbet"
-          style={{ flex: '999 1 560px', minWidth: 0, display: 'flex', flexDirection: 'column' }}
-        >
+        <section aria-label="Sohbet" className={`rr-mesaj-sohbet ${stil.kutu6}`}>
           <button
             type="button"
-            className="rr-yalniz-dar"
+            className={`rr-yalniz-dar ${stil.dugme7}`}
             onClick={() => setMobilSohbet(false)}
-            style={{
-              border: 0,
-              borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)',
-              background: 'transparent',
-              padding: '12px 16px',
-              textAlign: 'left',
-              fontSize: 14.5,
-              fontWeight: 700,
-              color: 'var(--rr-baglanti, #2450C8)',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
           >
             ← Sohbetler
           </button>
           {!s ? (
-            <p style={{ margin: 'auto', color: 'var(--rr-soluk, #5A6073)', fontSize: 14 }}>
-              {liste && !liste.length ? 'Sohbet seçilmedi.' : 'Yükleniyor…'}
-            </p>
+            <p className={stil.metin17}>{liste && !liste.length ? 'Sohbet seçilmedi.' : 'Yükleniyor…'}</p>
           ) : (
             <>
-              <div
-                style={{
-                  padding: '16px 22px',
-                  borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)',
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 12,
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+              <div className={stil.kutu7}>
+                <div className={stil.kutu8}>
                   <span
                     aria-hidden="true"
-                    style={{
-                      width: 46,
-                      height: 46,
-                      borderRadius: '50%',
-                      background: avatar({ galeri: !!s.karsi.galeri, ad: s.karsi.ad }),
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 800,
-                      flex: 'none',
-                    }}
+                    className={stil.metin18}
+                    style={{ background: avatar({ galeri: !!s.karsi.galeri, ad: s.karsi.ad }) }}
                   >
                     {s.karsi.bas}
                   </span>
-                  <div style={{ minWidth: 0 }}>
-                    <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>{s.karsi.ad}</h2>
-                    <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
+                  <div className={stil.kutu9}>
+                    <h2 className={stil.baslik2}>{s.karsi.ad}</h2>
+                    <p className={stil.metin19}>
                       {s.karsi.alt}
                       {s.karsi.telefon ? ` · Telefon: ${s.karsi.telefon}` : ''}
                     </p>
                     {s.karsi.rozetler.some((r) => r.key !== 'onay') ? (
-                      <span style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 5 }}>
+                      <span className={stil.metin20}>
                         {s.karsi.rozetler
                           .filter((r) => r.key !== 'onay')
                           .map((r) => (
@@ -543,29 +357,16 @@ export default function Mesajlarim() {
                     ) : null}
                   </div>
                 </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                <div className={stil.kutu10}>
                   {s.puan.uygun ? (
-                    <button
-                      type="button"
-                      onClick={() => setPuanAcik(true)}
-                      style={{
-                        ...kenarDugme,
-                        background: 'var(--rr-murekkep, #1E2333)',
-                        color: '#FFFFFF',
-                        border: '1px solid var(--rr-murekkep, #1E2333)',
-                      }}
-                    >
+                    <button type="button" onClick={() => setPuanAcik(true)} className={stil.dugme8}>
                       ★ Puan ver
                     </button>
                   ) : s.puan.verilen ? (
-                    <span
-                      style={{ ...kenarDugme, cursor: 'default', color: '#7A5300', background: '#FFF6DF' }}
-                    >
-                      {'★'.repeat(s.puan.verilen)} verdin
-                    </span>
+                    <span className={stil.metin21}>{'★'.repeat(s.puan.verilen)} verdin</span>
                   ) : null}
                   {s.karsi.galeri && s.taraf === 'alici' ? (
-                    <Link href={`/galeri/${s.karsi.galeri.slug}`} style={kenarDugme}>
+                    <Link href={`/galeri/${s.karsi.galeri.slug}`} className={stil.bag2}>
                       Galeri profili
                     </Link>
                   ) : null}
@@ -580,7 +381,7 @@ export default function Mesajlarim() {
                           );
                         }
                       }}
-                      style={kenarDugme}
+                      className={stil.bag2}
                     >
                       Numaramı paylaş
                     </button>
@@ -596,7 +397,7 @@ export default function Mesajlarim() {
                           }),
                         )
                       }
-                      style={kenarDugme}
+                      className={stil.bag2}
                     >
                       {s.engelli ? 'Engeli kaldır' : 'Engelle'}
                     </button>
@@ -612,12 +413,7 @@ export default function Mesajlarim() {
                         disabled={!son}
                         title={son ? undefined : 'Şikayet edilecek mesaj yok'}
                         onClick={() => son && setSikayet(son.id)}
-                        style={{
-                          ...kenarDugme,
-                          color: '#A3271F',
-                          opacity: son ? 1 : 0.55,
-                          cursor: son ? 'pointer' : 'default',
-                        }}
+                        className={cx(stil.dugme9, son ? stil.dugme10 : stil.dugme11)}
                       >
                         Şikayet et
                       </button>
@@ -627,88 +423,27 @@ export default function Mesajlarim() {
               </div>
 
               {s.talep || s.arac ? (
-                <Link
-                  href={s.talep ? `/talep/${s.talep.no}` : `/arac/${s.arac?.no}`}
-                  style={{
-                    margin: '14px 22px 0',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    background: 'var(--rr-zemin, #F6F8FD)',
-                    border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                    borderRadius: 'var(--rr-buton-kose)',
-                    padding: '10px 14px',
-                    color: 'var(--rr-murekkep, #1E2333)',
-                    textDecoration: 'none',
-                  }}
-                >
-                  <span
-                    style={{
-                      width: 64,
-                      height: 40,
-                      borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
-                      background: '#EEF3FF',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flex: 'none',
-                    }}
-                  >
-                    <span
-                      aria-hidden="true"
-                      style={{
-                        width: 54,
-                        maxWidth: '100%',
-                        aspectRatio: '54 / 20',
-                        borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                        background: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)',
-                      }}
-                    />
+                <Link href={s.talep ? `/talep/${s.talep.no}` : `/arac/${s.arac?.no}`} className={stil.bag3}>
+                  <span className={stil.metin22}>
+                    <span aria-hidden="true" className={stil.metin23} />
                   </span>
-                  <span style={{ minWidth: 0 }}>
-                    <span style={{ display: 'block', fontSize: 12, color: 'var(--rr-soluk, #5A6073)' }}>
+                  <span className={stil.kutu9}>
+                    <span className={stil.metin24}>
                       {s.talep ? (s.taraf === 'alici' ? 'Talebin' : 'Talep') : 'Portföy aracı'}
                     </span>
-                    <span
-                      style={{
-                        display: 'block',
-                        fontSize: 14,
-                        fontWeight: 700,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
-                    >
-                      {s.talep?.baslik ?? s.arac?.ad}
-                    </span>
+                    <span className={stil.metin25}>{s.talep?.baslik ?? s.arac?.ad}</span>
                   </span>
                 </Link>
               ) : null}
 
-              <div
-                style={{ flex: 1, padding: '18px 22px', display: 'flex', flexDirection: 'column', gap: 12 }}
-              >
+              <div className={stil.kutu11}>
                 {s.mesajlar.map((m) => {
                   const g = gunAdi(m.zaman);
                   const ayrac = g !== sonGun;
                   sonGun = g;
                   return (
-                    <div key={m.id} style={{ display: 'contents' }}>
-                      {ayrac ? (
-                        <span
-                          style={{
-                            alignSelf: 'center',
-                            fontSize: 12,
-                            fontWeight: 700,
-                            color: 'var(--rr-soluk, #5A6073)',
-                            background: '#F3F5FA',
-                            padding: '4px 12px',
-                            borderRadius: 'var(--rr-etiket-kose)',
-                          }}
-                        >
-                          {g}
-                        </span>
-                      ) : null}
+                    <div key={m.id} className={stil.kutu12}>
+                      {ayrac ? <span className={stil.metin26}>{g}</span> : null}
                       <MesajGorunumu m={m} sikayet={() => setSikayet(m.id)} />
                     </div>
                   );
@@ -718,34 +453,13 @@ export default function Mesajlarim() {
               </div>
 
               {s.ilkMesajBekliyor && !yanitla ? (
-                <div
-                  style={{
-                    margin: '0 22px 18px',
-                    background: '#FFF6DF',
-                    borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-                    padding: '16px 18px',
-                  }}
-                >
-                  <p style={{ margin: 0, fontSize: 14, lineHeight: 1.55, color: '#4A3500' }}>
+                <div className={stil.kutu13}>
+                  <p className={stil.metin27}>
                     <strong>Bu satıcı sana ilk mesajını gönderdi.</strong> Yanıtlarsan sohbet açılır.
                     Yanıtlamazsan bu satıcı aynı talebine tekrar yazamaz.
                   </p>
-                  <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-                    <button
-                      type="button"
-                      onClick={() => setYanitla(true)}
-                      style={{
-                        border: 0,
-                        background: 'var(--rr-mavi, #5B8CFF)',
-                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                        padding: '11px 18px',
-                        fontSize: 14.5,
-                        fontWeight: 800,
-                        color: 'var(--rr-maviYazi, #1E2333)',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
-                    >
+                  <div className={stil.kutu14}>
+                    <button type="button" onClick={() => setYanitla(true)} className={stil.dugme12}>
                       Yanıtla
                     </button>
                     <button
@@ -754,17 +468,7 @@ export default function Mesajlarim() {
                       onClick={() =>
                         islem(() => istek<Sohbet>(`/conversations/${s.id}/decline`, { method: 'POST' }))
                       }
-                      style={{
-                        border: '1px solid #D9C48A',
-                        background: 'var(--rr-kart, #FFFFFF)',
-                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                        padding: '11px 16px',
-                        fontSize: 14,
-                        fontWeight: 700,
-                        color: '#4A3500',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
+                      className={stil.dugme13}
                     >
                       İlgilenmiyorum
                     </button>
@@ -773,15 +477,7 @@ export default function Mesajlarim() {
               ) : null}
 
               {!s.yazabilir ? (
-                <p
-                  style={{
-                    margin: 0,
-                    borderTop: '1px solid var(--rr-cizgi, #E3E6EF)',
-                    padding: '14px 22px 18px',
-                    fontSize: 13.5,
-                    color: 'var(--rr-soluk, #5A6073)',
-                  }}
-                >
+                <p className={stil.metin28}>
                   {s.kapali
                     ? 'Bu hesap kapatıldı; sohbet yalnızca okunabilir.'
                     : s.durum === 'DECLINED'
@@ -792,7 +488,7 @@ export default function Mesajlarim() {
                 </p>
               ) : null}
               {hata ? (
-                <p role="alert" style={{ margin: '0 22px 10px', fontSize: 13.5, color: '#A3271F' }}>
+                <p role="alert" className={stil.metin29}>
                   {hata}
                 </p>
               ) : null}
@@ -814,26 +510,11 @@ export default function Mesajlarim() {
               ) : null}
 
               {besteci ? (
-                <form
-                  onSubmit={gonder}
-                  style={{ borderTop: '1px solid var(--rr-cizgi, #E3E6EF)', padding: '14px 22px 18px' }}
-                >
+                <form onSubmit={gonder} className={stil.kutu15}>
                   {s.kartEkleyebilir && araclar.length ? (
-                    <label
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, marginBottom: 8 }}
-                    >
+                    <label className={stil.etiket1}>
                       Araç kartı
-                      <select
-                        value={kart}
-                        onChange={(e) => setKart(e.target.value)}
-                        style={{
-                          border: '1px solid #D5DAE5',
-                          borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                          padding: '6px 8px',
-                          fontSize: 13,
-                          fontFamily: 'inherit',
-                        }}
-                      >
+                      <select value={kart} onChange={(e) => setKart(e.target.value)} className={stil.girdi1}>
                         <option value="">Ekleme</option>
                         {araclar.map((a) => (
                           <option key={a.id} value={a.id}>
@@ -843,17 +524,8 @@ export default function Mesajlarim() {
                       </select>
                     </label>
                   ) : null}
-                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10 }}>
-                    <label
-                      htmlFor="yaz"
-                      style={{
-                        position: 'absolute',
-                        width: 1,
-                        height: 1,
-                        overflow: 'hidden',
-                        clip: 'rect(0 0 0 0)',
-                      }}
-                    >
+                  <div className={stil.kutu16}>
+                    <label htmlFor="yaz" className={stil.etiket2}>
                       Mesaj yaz
                     </label>
                     <textarea
@@ -869,39 +541,18 @@ export default function Mesajlarim() {
                           gonder(e as unknown as FormEvent);
                         }
                       }}
-                      style={{
-                        flex: 1,
-                        minWidth: 0,
-                        border: '1px solid #D5DAE5',
-                        borderRadius: 'var(--rr-buton-kose)',
-                        padding: '12px 14px',
-                        fontSize: 15,
-                        resize: 'none',
-                        fontFamily: 'inherit',
-                      }}
+                      className={stil.girdi2}
                     />
                     <button
                       type="submit"
                       disabled={mesgul || !metin.trim()}
-                      style={{
-                        border: 0,
-                        background: 'var(--rr-mavi, #5B8CFF)',
-                        borderRadius: 'var(--rr-buton-kose)',
-                        padding: '14px 20px',
-                        fontSize: 15,
-                        fontWeight: 800,
-                        color: 'var(--rr-maviYazi, #1E2333)',
-                        cursor: 'pointer',
-                        opacity: mesgul || !metin.trim() ? 0.6 : 1,
-                        fontFamily: 'inherit',
-                      }}
+                      className={stil.dugme14}
+                      style={{ opacity: mesgul || !metin.trim() ? 0.6 : 1 }}
                     >
                       Gönder
                     </button>
                   </div>
-                  <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
-                    {DEPOSIT_NOTE}
-                  </p>
+                  <p className={stil.metin30}>{DEPOSIT_NOTE}</p>
                 </form>
               ) : null}
             </>
@@ -925,88 +576,32 @@ function rozet(bg: string, renk: string): CSSProperties {
 
 function MesajGorunumu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
   if (m.tip === 'sistem') {
-    return (
-      <div
-        style={{
-          alignSelf: 'center',
-          maxWidth: '80%',
-          textAlign: 'center',
-          fontSize: 13,
-          color: '#3A4052',
-          background: '#EEF3FF',
-          borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-          padding: '10px 14px',
-        }}
-      >
-        {m.metin}
-      </div>
-    );
+    return <div className={stil.kutu17}>{m.metin}</div>;
   }
   if (m.tip === 'kart' && m.kart) {
     const k = m.kart;
     return (
-      <div
-        style={{
-          alignSelf: m.yon === 'giden' ? 'flex-end' : 'flex-start',
-          width: 340,
-          maxWidth: '72%',
-          border: '1px solid var(--rr-cizgi, #E3E6EF)',
-          borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-          overflow: 'hidden',
-          background: 'var(--rr-kart, #FFFFFF)',
-        }}
-      >
-        <div
-          style={{
-            background: '#FFF6DF',
-            padding: k.foto ? 0 : 14,
-            display: 'flex',
-            justifyContent: 'center',
-            height: k.foto ? 150 : undefined,
-          }}
-        >
+      <div className={cx(stil.kutu18, m.yon === 'giden' ? stil.kutu19 : stil.kutu20)}>
+        <div className={cx(stil.kutu21, k.foto ? stil.kutu22 : stil.kutu23)}>
           {k.foto ? (
             // biome-ignore lint/performance/noImgElement: galeri fotoğrafı API'den akar
-            <img
-              src={`${API}${k.foto}`}
-              alt=""
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
+            <img src={`${API}${k.foto}`} alt="" className={stil.gorsel1} />
           ) : (
-            <span
-              aria-hidden="true"
-              style={{
-                width: 200,
-                maxWidth: '100%',
-                aspectRatio: '200 / 73',
-                borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                background: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)',
-              }}
-            />
+            <span aria-hidden="true" className={stil.metin31} />
           )}
         </div>
-        <div style={{ padding: '12px 14px' }}>
+        <div className={stil.kutu24}>
           {k.satista ? (
             <span style={rozet('#E7FAF0', '#11683F')}>EİDS doğrulandı</span>
           ) : (
             <span style={rozet('#F3F5FA', 'var(--rr-soluk, #5A6073)')}>Bu araç artık satışta değil</span>
           )}
-          <div style={{ fontSize: 15, fontWeight: 800, marginTop: 8 }}>{k.ad}</div>
-          <div style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 3 }}>{k.ozet}</div>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 10,
-              marginTop: 10,
-            }}
-          >
-            <span style={{ fontSize: 16, fontWeight: 800, color: 'var(--rr-baglanti, #2450C8)' }}>
-              {binlik(k.fiyat)} TL
-            </span>
+          <div className={stil.kutu25}>{k.ad}</div>
+          <div className={stil.kutu26}>{k.ozet}</div>
+          <div className={stil.kutu27}>
+            <span className={stil.metin32}>{binlik(k.fiyat)} TL</span>
             {k.satista ? (
-              <Link href={`/arac/${k.no}`} style={{ fontSize: 13.5, fontWeight: 700 }}>
+              <Link href={`/arac/${k.no}`} className={stil.bag4}>
                 Portföyde gör
               </Link>
             ) : null}
@@ -1018,68 +613,22 @@ function MesajGorunumu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
   const giden = m.yon === 'giden';
   if (m.gizli) {
     return (
-      <div
-        style={{
-          alignSelf: giden ? 'flex-end' : 'flex-start',
-          maxWidth: '72%',
-          border: '1px dashed #AEB5C4',
-          borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-          padding: '10px 14px',
-          fontSize: 13.5,
-          fontStyle: 'italic',
-          color: 'var(--rr-soluk, #5A6073)',
-        }}
-      >
+      <div className={cx(stil.kutu28, giden ? stil.kutu19 : stil.kutu20)}>
         Bu mesaj güvenlik kuralları nedeniyle moderasyon tarafından gizlendi.
       </div>
     );
   }
   return (
     <>
-      <div
-        style={{
-          alignSelf: giden ? 'flex-end' : 'flex-start',
-          maxWidth: '72%',
-          textAlign: giden ? 'right' : 'left',
-        }}
-      >
-        <div
-          style={{
-            background: giden ? 'var(--rr-mavi, #5B8CFF)' : '#F3F5FA',
-            color: giden ? 'var(--rr-maviYazi, #1E2333)' : undefined,
-            borderRadius: giden
-              ? 'calc(var(--rr-kart-kose) * 16 / 18) calc(var(--rr-kart-kose) * 16 / 18) calc(var(--rr-kart-kose) * 4 / 18) calc(var(--rr-kart-kose) * 16 / 18)'
-              : 'calc(var(--rr-kart-kose) * 16 / 18) calc(var(--rr-kart-kose) * 16 / 18) calc(var(--rr-kart-kose) * 16 / 18) calc(var(--rr-kart-kose) * 4 / 18)',
-            padding: '12px 14px',
-            fontSize: 14.5,
-            lineHeight: 1.55,
-            textAlign: 'left',
-            whiteSpace: 'pre-wrap',
-            overflowWrap: 'anywhere',
-          }}
-        >
-          {m.metin}
-        </div>
-        <span style={{ display: 'block', fontSize: 11.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 4 }}>
+      <div className={cx(stil.kutu29, giden ? stil.kutu30 : stil.kutu31)}>
+        <div className={cx(stil.kutu32, giden ? stil.kutu33 : stil.kutu34)}>{m.metin}</div>
+        <span className={stil.metin33}>
           {saat(m.zaman)}
           {m.gonderen ? ` · ${m.gonderen}` : ''}
           {!giden && m.tip === 'metin' ? (
             <>
               {' · '}
-              <button
-                type="button"
-                onClick={sikayet}
-                style={{
-                  border: 0,
-                  background: 'transparent',
-                  padding: 0,
-                  fontSize: 11.5,
-                  fontWeight: 700,
-                  color: '#A3271F',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
-              >
+              <button type="button" onClick={sikayet} className={stil.dugme15}>
                 Şikayet et
               </button>
             </>
@@ -1087,17 +636,7 @@ function MesajGorunumu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
         </span>
       </div>
       {m.uyari ? (
-        <div
-          role="alert"
-          style={{
-            display: 'flex',
-            gap: 12,
-            alignItems: 'flex-start',
-            background: '#FDECEC',
-            borderRadius: 'var(--rr-buton-kose)',
-            padding: '12px 14px',
-          }}
-        >
+        <div role="alert" className={stil.kutu35}>
           <svg
             width="20"
             height="20"
@@ -1108,28 +647,14 @@ function MesajGorunumu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden="true"
-            style={{ flex: 'none' }}
+            className={stil.gorsel2}
           >
             <path d="M12 3l9 16H3z" />
             <path d="M12 10v4M12 17h.01" />
           </svg>
-          <div style={{ fontSize: 13.5, lineHeight: 1.5, color: '#6E1A15' }}>
+          <div className={stil.kutu36}>
             <strong>{m.uyari.baslik}</strong> {m.uyari.metin}{' '}
-            <button
-              type="button"
-              onClick={sikayet}
-              style={{
-                border: 0,
-                background: 'transparent',
-                padding: 0,
-                fontSize: 13.5,
-                fontWeight: 800,
-                color: '#A3271F',
-                textDecoration: 'underline',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
+            <button type="button" onClick={sikayet} className={stil.dugme16}>
               Şikayet et
             </button>
           </div>

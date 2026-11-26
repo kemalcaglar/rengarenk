@@ -15,9 +15,11 @@ import {
 } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { cx } from '../../lib/cx';
 import { ApiHatasi, dosyaYukle, istek, useGiris } from '../../lib/istemci';
 import { olcumOlayi } from '../../lib/olcum';
+import stil from './basvuru.module.css';
 
 type Durum = 'DRAFT' | 'SUBMITTED' | 'IN_REVIEW' | 'DOCS_REQUESTED' | 'APPROVED' | 'REJECTED' | 'REVOKED';
 interface Basvuru {
@@ -37,19 +39,6 @@ interface Dogrulama {
   unvan?: string;
   il?: string;
 }
-
-const girdi: CSSProperties = {
-  width: '100%',
-  boxSizing: 'border-box',
-  border: '1px solid #D5DAE5',
-  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-  padding: 12,
-  fontSize: 15,
-  fontFamily: 'inherit',
-  color: 'var(--rr-murekkep, #1E2333)',
-  background: 'var(--rr-kart, #FFFFFF)',
-};
-const etiket: CSSProperties = { display: 'block', fontSize: 13.5, fontWeight: 700, marginBottom: 6 };
 
 const ALAN2: { id: keyof GalleryApplicationDraft; label: string; ipucu?: string; mod?: 'numeric' }[] = [
   { id: 'unvan', label: 'Ticari unvan' },
@@ -267,88 +256,34 @@ export function KurumsalBasvuru() {
   const durumGorunumu = b && !duzenlenebilir;
 
   return (
-    <div
-      style={{
-        background: 'var(--rr-zemin, #F6F8FD)',
-        minHeight: '100vh',
-        color: 'var(--rr-murekkep, #1E2333)',
-      }}
-    >
-      <header
-        style={{ background: 'var(--rr-kart, #FFFFFF)', borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)' }}
-      >
-        <div
-          style={{
-            maxWidth: 1360,
-            margin: '0 auto',
-            padding: '16px 24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
-          }}
-        >
-          <Link
-            href="/"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              color: 'var(--rr-murekkep, #1E2333)',
-              textDecoration: 'none',
-            }}
-            aria-label="Rengarenk ana sayfa"
-          >
-            <span style={{ display: 'flex', gap: 3 }} aria-hidden="true">
+    <div className={stil.kutu1}>
+      <header className={stil.kutu2}>
+        <div className={stil.kutu3}>
+          <Link href="/" className={stil.bag1} aria-label="Rengarenk ana sayfa">
+            <span className={stil.metin1} aria-hidden="true">
               {[
                 'var(--rr-mavi, #5B8CFF)',
                 'var(--rr-pembe, #FF6FB5)',
                 'var(--rr-sari, #FFC84A)',
                 'var(--rr-yesil, #3DD68C)',
               ].map((c) => (
-                <span
-                  key={c}
-                  style={{
-                    width: 10,
-                    height: 22,
-                    borderRadius: 'calc(var(--rr-buton-kose) * 5 / 14)',
-                    background: c,
-                  }}
-                />
+                <span key={c} className={stil.metin2} style={{ background: c }} />
               ))}
             </span>
-            <span style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>rengarenk</span>
-            <span
-              style={{
-                fontSize: 12.5,
-                fontWeight: 800,
-                background: '#FFF6DF',
-                color: '#7A5300',
-                padding: '4px 10px',
-                borderRadius: 'var(--rr-etiket-kose)',
-                marginLeft: 4,
-              }}
-            >
-              Kurumsal
-            </span>
+            <span className={stil.metin3}>rengarenk</span>
+            <span className={stil.metin4}>Kurumsal</span>
           </Link>
-          {kaydedildi && duzenlenebilir ? (
-            <span style={{ fontSize: 13.5, color: '#11683F', fontWeight: 600 }}>Taslak kaydedildi</span>
-          ) : null}
+          {kaydedildi && duzenlenebilir ? <span className={stil.metin5}>Taslak kaydedildi</span> : null}
         </div>
       </header>
 
-      <main style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px 64px' }}>
-        <h1 style={{ margin: '0 0 4px', fontSize: 28, fontWeight: 800 }}>Kurumsal hesap başvurusu</h1>
-        <p style={{ margin: '0 0 22px', fontSize: 15, color: 'var(--rr-soluk, #5A6073)' }}>
+      <main className={`rr-sayfa ${stil.kutu4}`}>
+        <h1 className={stil.baslik1}>Kurumsal hesap başvurusu</h1>
+        <p className={stil.metin6}>
           Başvurun onaylanınca {GALLERY_TRIAL.gun} günlük ücretsiz deneme başlar; kart bilgisi istenmez.
         </p>
 
-        <ol
-          aria-label="Adımlar"
-          className="rr-bes-sutun"
-          style={{ listStyle: 'none', margin: '0 0 22px', padding: 0, gap: 8 }}
-        >
+        <ol aria-label="Adımlar" className={`rr-bes-sutun ${stil.liste1}`}>
           {APPLICATION_STEPS.map((l, i) => {
             const n = i + 1;
             const gecerli = durumGorunumu ? n === 5 : n === adim;
@@ -360,33 +295,15 @@ export function KurumsalBasvuru() {
                   onClick={() => git(n)}
                   aria-current={gecerli ? 'step' : undefined}
                   disabled={Boolean(durumGorunumu)}
-                  style={{
-                    width: '100%',
-                    border: 0,
-                    background: 'transparent',
-                    padding: 0,
-                    textAlign: 'left',
-                    cursor: durumGorunumu ? 'default' : 'pointer',
-                    fontFamily: 'inherit',
-                  }}
+                  className={cx(stil.dugme1, durumGorunumu ? stil.dugme2 : stil.dugme3)}
                 >
+                  <span className={cx(stil.metin7, on ? stil.metin8 : stil.metin9)} />
                   <span
-                    style={{
-                      display: 'block',
-                      height: 6,
-                      borderRadius: 'calc(var(--rr-buton-kose) * 3 / 14)',
-                      background: on ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-cizgi, #E3E6EF)',
-                      color: on ? 'var(--rr-maviYazi, #1E2333)' : undefined,
-                    }}
-                  />
-                  <span
-                    style={{
-                      display: 'block',
-                      marginTop: 8,
-                      fontSize: 13.5,
-                      fontWeight: gecerli ? 800 : 600,
-                      color: on ? 'var(--rr-murekkep, #1E2333)' : 'var(--rr-soluk, #5A6073)',
-                    }}
+                    className={cx(
+                      stil.metin10,
+                      gecerli ? stil.metin11 : stil.metin12,
+                      on ? stil.metin13 : stil.metin14,
+                    )}
                   >
                     {n}. {l}
                   </span>
@@ -396,57 +313,24 @@ export function KurumsalBasvuru() {
           })}
         </ol>
 
-        <div
-          style={{
-            background: 'var(--rr-kart, #FFFFFF)',
-            border: '1px solid var(--rr-cizgi, #E3E6EF)',
-            borderRadius: 'calc(var(--rr-kart-kose) * 22 / 18)',
-            padding: 28,
-          }}
-        >
+        <div className={stil.kutu5}>
           {hata ? (
-            <p
-              role="alert"
-              style={{
-                margin: '0 0 16px',
-                background: '#FFF0EE',
-                border: '1px solid #F5C6C0',
-                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                padding: '10px 14px',
-                fontSize: 14,
-                color: '#A3271F',
-              }}
-            >
+            <p role="alert" className={stil.metin15}>
               {hata}
             </p>
           ) : null}
           {b?.durum === 'DOCS_REQUESTED' && b.not ? (
-            <p
-              role="status"
-              style={{
-                margin: '0 0 16px',
-                background: '#FFF6DF',
-                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                padding: '10px 14px',
-                fontSize: 14,
-                color: '#7A5300',
-                fontWeight: 600,
-              }}
-            >
+            <p role="status" className={stil.metin16}>
               Ekibimiz ek belge istedi: {b.not} Belgeyi yükleyip başvurunu yeniden gönder.
             </p>
           ) : null}
 
-          {b === undefined ? (
-            <p style={{ margin: 0, color: 'var(--rr-soluk, #5A6073)' }}>Yükleniyor…</p>
-          ) : null}
+          {b === undefined ? <p className={stil.metin17}>Yükleniyor…</p> : null}
 
           {b !== undefined && !durumGorunumu && adim === 1 ? (
             <>
-              <h2 style={{ margin: '0 0 6px', fontSize: 21, fontWeight: 800 }}>İşletme türün nedir?</h2>
-              <p style={{ margin: '0 0 18px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
-                İstenen belgeler işletme türüne göre değişir.
-              </p>
+              <h2 className={stil.baslik2}>İşletme türün nedir?</h2>
+              <p className={stil.metin18}>İstenen belgeler işletme türüne göre değişir.</p>
               <div className="rr-dort-sutun">
                 {BUSINESS_KINDS.map((k: BusinessKindKey) => {
                   const t = BUSINESS_KIND_DEFS[k];
@@ -460,50 +344,15 @@ export function KurumsalBasvuru() {
                         set('tur', k);
                         setDogru(null);
                       }}
-                      style={{
-                        textAlign: 'left',
-                        border: on
-                          ? '2px solid var(--rr-mavi, #5B8CFF)'
-                          : '1px solid var(--rr-cizgi, #E3E6EF)',
-                        background: on ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
-                        borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-                        padding: on ? 16 : 17,
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
+                      className={cx(stil.dugme4, on ? stil.dugme5 : stil.dugme6)}
                     >
                       <span
                         aria-hidden="true"
-                        style={{
-                          display: 'block',
-                          width: 34,
-                          height: 34,
-                          borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                          background: on ? t.dot : t.tint,
-                        }}
+                        className={stil.metin19}
+                        style={{ background: on ? t.dot : t.tint }}
                       />
-                      <span
-                        style={{
-                          display: 'block',
-                          fontSize: 15.5,
-                          fontWeight: on ? 800 : 700,
-                          color: 'var(--rr-murekkep, #1E2333)',
-                          marginTop: 12,
-                        }}
-                      >
-                        {t.ad}
-                      </span>
-                      <span
-                        style={{
-                          display: 'block',
-                          fontSize: 13,
-                          color: on ? '#3A4052' : 'var(--rr-soluk, #5A6073)',
-                          marginTop: 4,
-                          lineHeight: 1.45,
-                        }}
-                      >
-                        {t.alt}
-                      </span>
+                      <span className={cx(stil.metin20, on ? stil.metin11 : stil.metin21)}>{t.ad}</span>
+                      <span className={cx(stil.metin22, on ? stil.metin23 : stil.metin14)}>{t.alt}</span>
                     </button>
                   );
                 })}
@@ -513,11 +362,11 @@ export function KurumsalBasvuru() {
 
           {!durumGorunumu && adim === 2 ? (
             <>
-              <h2 style={{ margin: '0 0 18px', fontSize: 21, fontWeight: 800 }}>İşletme bilgileri</h2>
-              <div className="rr-iki-sutun" style={{ gap: 14 }}>
+              <h2 className={stil.baslik3}>İşletme bilgileri</h2>
+              <div className={`rr-iki-sutun ${stil.kutu6}`}>
                 {ALAN2.map((a) => (
                   <div key={a.id}>
-                    <label htmlFor={a.id} style={etiket}>
+                    <label htmlFor={a.id} className={stil.etiket1}>
                       {a.label}
                     </label>
                     <input
@@ -525,12 +374,12 @@ export function KurumsalBasvuru() {
                       inputMode={a.mod}
                       value={(veri[a.id] as string | undefined) ?? ''}
                       onChange={(e) => set(a.id, e.target.value)}
-                      style={girdi}
+                      className={stil.girdi1}
                     />
                   </div>
                 ))}
                 <div>
-                  <label htmlFor="il" style={etiket}>
+                  <label htmlFor="il" className={stil.etiket1}>
                     İl
                   </label>
                   <select
@@ -540,7 +389,7 @@ export function KurumsalBasvuru() {
                       set('il', e.target.value);
                       set('ilce', '');
                     }}
-                    style={girdi}
+                    className={stil.girdi1}
                   >
                     <option value="">İl seç</option>
                     {ILLER.map((x) => (
@@ -551,7 +400,7 @@ export function KurumsalBasvuru() {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="ilce" style={etiket}>
+                  <label htmlFor="ilce" className={stil.etiket1}>
                     İlçe
                   </label>
                   <select
@@ -559,7 +408,7 @@ export function KurumsalBasvuru() {
                     value={veri.ilce ?? ''}
                     onChange={(e) => set('ilce', e.target.value)}
                     disabled={!il}
-                    style={girdi}
+                    className={stil.girdi1}
                   >
                     <option value="">İlçe seç</option>
                     {(il?.ilceler ?? []).map((x) => (
@@ -569,8 +418,8 @@ export function KurumsalBasvuru() {
                     ))}
                   </select>
                 </div>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label htmlFor="adres" style={etiket}>
+                <div className={stil.kutu7}>
+                  <label htmlFor="adres" className={stil.etiket1}>
                     İşletme adresi
                   </label>
                   <input
@@ -578,7 +427,7 @@ export function KurumsalBasvuru() {
                     value={veri.adres ?? ''}
                     onChange={(e) => set('adres', e.target.value)}
                     placeholder="Mahalle, cadde, numara"
-                    style={girdi}
+                    className={stil.girdi1}
                   />
                 </div>
               </div>
@@ -587,26 +436,14 @@ export function KurumsalBasvuru() {
 
           {!durumGorunumu && adim === 3 && tur ? (
             <>
-              <h2 style={{ margin: '0 0 6px', fontSize: 21, fontWeight: 800 }}>Yetki ve belgeler</h2>
-              <p style={{ margin: '0 0 18px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
-                {tur.belgeNotu}
-              </p>
+              <h2 className={stil.baslik2}>Yetki ve belgeler</h2>
+              <p className={stil.metin18}>{tur.belgeNotu}</p>
               {tur.yetkiVar ? (
-                <div
-                  style={{
-                    border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                    borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-                    padding: 18,
-                    marginBottom: 14,
-                  }}
-                >
-                  <label
-                    htmlFor="yetki"
-                    style={{ display: 'block', fontSize: 14, fontWeight: 800, marginBottom: 6 }}
-                  >
+                <div className={stil.kutu8}>
+                  <label htmlFor="yetki" className={stil.etiket2}>
                     {tur.yetkiAd}
                   </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                  <div className={stil.kutu9}>
                     <input
                       id="yetki"
                       value={veri.yetkiNo ?? ''}
@@ -614,23 +451,13 @@ export function KurumsalBasvuru() {
                         set('yetkiNo', e.target.value);
                         setDogru(null);
                       }}
-                      style={{ ...girdi, flex: '1 1 240px', width: 'auto', minWidth: 0 }}
+                      className={stil.girdi2}
                     />
                     <button
                       type="button"
                       onClick={dogrula}
                       disabled={busy === 'dogrula' || !veri.yetkiNo?.trim()}
-                      style={{
-                        border: 0,
-                        background: 'var(--rr-mavi, #5B8CFF)',
-                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                        padding: '12px 18px',
-                        fontSize: 14.5,
-                        fontWeight: 800,
-                        color: 'var(--rr-maviYazi, #1E2333)',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
+                      className={stil.dugme7}
                     >
                       {busy === 'dogrula' ? 'Doğrulanıyor…' : 'Bakanlık sisteminden doğrula'}
                     </button>
@@ -638,27 +465,20 @@ export function KurumsalBasvuru() {
                   {dogru ? (
                     <div
                       role="status"
+                      className={stil.kutu10}
                       style={{
-                        display: 'flex',
-                        gap: 10,
-                        alignItems: 'center',
-                        marginTop: 12,
                         background:
                           dogru.sonuc === 'gecti'
                             ? '#E7FAF0'
                             : dogru.sonuc === 'kaldi'
                               ? '#FDECEC'
                               : '#FFF6DF',
-                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                        padding: '11px 14px',
-                        fontSize: 14,
                         color:
                           dogru.sonuc === 'gecti'
                             ? '#11683F'
                             : dogru.sonuc === 'kaldi'
                               ? '#A3271F'
                               : '#7A5300',
-                        fontWeight: 600,
                       }}
                     >
                       {dogru.sonuc === 'gecti' ? (
@@ -710,52 +530,18 @@ export function KurumsalBasvuru() {
                         dosyaRef.current?.click();
                       }}
                       disabled={busy === d.key}
-                      style={{
-                        textAlign: 'left',
-                        border: y ? '2px solid var(--rr-yesil, #3DD68C)' : '2px dashed #AEB5C4',
-                        background: y ? '#E7FAF0' : 'var(--rr-zemin, #F6F8FD)',
-                        borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-                        padding: 18,
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
+                      className={cx(stil.dugme8, y ? stil.dugme9 : stil.dugme10)}
                     >
-                      <span
-                        style={{
-                          display: 'block',
-                          fontSize: 14.5,
-                          fontWeight: 800,
-                          color: 'var(--rr-murekkep, #1E2333)',
-                        }}
-                      >
-                        {d.ad}
-                      </span>
-                      <span
-                        style={{
-                          display: 'block',
-                          fontSize: 12.5,
-                          color: 'var(--rr-soluk, #5A6073)',
-                          marginTop: 4,
-                        }}
-                      >
-                        {y ? y.ad : d.not}
-                      </span>
-                      <span
-                        style={{
-                          display: 'inline-block',
-                          marginTop: 10,
-                          fontSize: 13,
-                          fontWeight: 700,
-                          color: y ? '#11683F' : 'var(--rr-baglanti, #2450C8)',
-                        }}
-                      >
+                      <span className={stil.metin24}>{d.ad}</span>
+                      <span className={stil.metin25}>{y ? y.ad : d.not}</span>
+                      <span className={cx(stil.metin26, y ? stil.metin27 : stil.metin28)}>
                         {busy === d.key ? 'Yükleniyor…' : y ? '✓ Yüklendi · değiştir' : 'Dosya yükle'}
                       </span>
                     </button>
                   );
                 })}
               </div>
-              <p style={{ margin: '10px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+              <p className={stil.metin29}>
                 PDF ya da fotoğraf, en çok 10 MB. Belgeler yalnızca inceleme ekibimizce görülür.
               </p>
             </>
@@ -763,14 +549,14 @@ export function KurumsalBasvuru() {
 
           {!durumGorunumu && adim === 4 ? (
             <>
-              <h2 style={{ margin: '0 0 6px', fontSize: 21, fontWeight: 800 }}>Hesabın sahibi</h2>
-              <p style={{ margin: '0 0 18px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
+              <h2 className={stil.baslik2}>Hesabın sahibi</h2>
+              <p className={stil.metin18}>
                 Bu kişi hesabın sahibi olur; paketleri, ödemeleri ve ekibi yönetir. Diğer çalışanları onaydan
                 sonra davet edebilirsin.
               </p>
-              <div className="rr-iki-sutun" style={{ gap: 14 }}>
+              <div className={`rr-iki-sutun ${stil.kutu6}`}>
                 <div>
-                  <label htmlFor="sad" style={etiket}>
+                  <label htmlFor="sad" className={stil.etiket1}>
                     Ad soyad
                   </label>
                   <input
@@ -781,52 +567,31 @@ export function KurumsalBasvuru() {
                       setKaydedildi(false);
                     }}
                     autoComplete="name"
-                    style={girdi}
+                    className={stil.girdi1}
                   />
                 </div>
                 <div>
-                  <label htmlFor="sgorev" style={etiket}>
+                  <label htmlFor="sgorev" className={stil.etiket1}>
                     Görevi
                   </label>
                   <input
                     id="sgorev"
                     value={veri.sahip?.gorev ?? ''}
                     onChange={(e) => setVeri((x) => ({ ...x, sahip: { ...x.sahip, gorev: e.target.value } }))}
-                    style={girdi}
+                    className={stil.girdi1}
                   />
                 </div>
                 <div>
-                  <label htmlFor="stel" style={etiket}>
+                  <label htmlFor="stel" className={stil.etiket1}>
                     Cep telefonu
                   </label>
-                  <input
-                    id="stel"
-                    value={telefon}
-                    readOnly
-                    style={{ ...girdi, background: 'var(--rr-zemin, #F6F8FD)' }}
-                  />
+                  <input id="stel" value={telefon} readOnly className={stil.girdi3} />
                 </div>
-                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                  <span
-                    style={{
-                      display: 'flex',
-                      gap: 8,
-                      alignItems: 'center',
-                      width: '100%',
-                      boxSizing: 'border-box',
-                      background: '#E7FAF0',
-                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                      padding: '12px 14px',
-                      fontSize: 14,
-                      color: '#11683F',
-                      fontWeight: 600,
-                    }}
-                  >
-                    WhatsApp koduyla doğrulandı
-                  </span>
+                <div className={stil.kutu11}>
+                  <span className={stil.metin30}>WhatsApp koduyla doğrulandı</span>
                 </div>
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <label htmlFor="seposta" style={etiket}>
+                <div className={stil.kutu7}>
+                  <label htmlFor="seposta" className={stil.etiket1}>
                     Fatura e-postası
                   </label>
                   <input
@@ -837,21 +602,13 @@ export function KurumsalBasvuru() {
                     onChange={(e) =>
                       setVeri((x) => ({ ...x, sahip: { ...x.sahip, eposta: e.target.value } }))
                     }
-                    style={girdi}
+                    className={stil.girdi1}
                   />
                 </div>
               </div>
               {/* BasvuruMobil.dc.html'deki onaylar; web tasarımında yok, sözleşme onayı zorunlu olduğu için eklendi */}
-              <div style={{ display: 'grid', gap: 10, marginTop: 18 }}>
-                <label
-                  style={{
-                    display: 'flex',
-                    gap: 10,
-                    alignItems: 'flex-start',
-                    fontSize: 14,
-                    lineHeight: 1.5,
-                  }}
-                >
+              <div className={stil.kutu12}>
+                <label className={stil.etiket3}>
                   <input
                     type="checkbox"
                     className="rr-isaret"
@@ -870,22 +627,11 @@ export function KurumsalBasvuru() {
                   </span>
                 </label>
                 {/* Ticari ileti onayı kanal kanal (yasal metin taslağı bölüm 4; Karar 49) */}
-                <fieldset style={{ border: 0, margin: 0, padding: 0 }}>
-                  <legend style={{ padding: 0, fontSize: 14, lineHeight: 1.5 }}>
-                    {TICARI_ILETI_KUTU.metin}
-                  </legend>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 20px', marginTop: 8 }}>
+                <fieldset className={stil.kutu13}>
+                  <legend className={stil.baslik4}>{TICARI_ILETI_KUTU.metin}</legend>
+                  <div className={stil.kutu14}>
                     {TICARI_ILETI_KUTU.kanallar.map((k) => (
-                      <label
-                        key={k.anahtar}
-                        style={{
-                          display: 'flex',
-                          gap: 8,
-                          alignItems: 'center',
-                          fontSize: 14,
-                          lineHeight: 1.5,
-                        }}
-                      >
+                      <label key={k.anahtar} className={stil.etiket4}>
                         <input
                           type="checkbox"
                           className="rr-isaret"
@@ -903,32 +649,20 @@ export function KurumsalBasvuru() {
 
           {!durumGorunumu && adim === 5 && tur ? (
             <>
-              <h2 style={{ margin: '0 0 6px', fontSize: 21, fontWeight: 800 }}>Kontrol et ve gönder</h2>
-              <p style={{ margin: '0 0 18px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
+              <h2 className={stil.baslik2}>Kontrol et ve gönder</h2>
+              <p className={stil.metin18}>
                 Başvurunu yönetici ekibimiz inceler; sonucu e-postayla ve bildirimle iletiriz.
               </p>
-              <dl
-                className="rr-iki-sutun"
-                style={{
-                  margin: 0,
-                  gap: 0,
-                  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                  borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-                  overflow: 'hidden',
-                }}
-              >
+              <dl className={`rr-iki-sutun ${stil.liste2}`}>
                 {[
                   ['İşletme türü', tur.ad],
                   ['Unvan', veri.unvan],
                   ['Belgeler', `${b?.belgeler.length ?? 0} belge${tur.yetkiVar ? ' + yetki belgesi' : ''}`],
                   ['Hesap sahibi', adSoyad],
                 ].map(([k, v], i) => (
-                  <div
-                    key={k}
-                    style={{ padding: '13px 16px', borderBottom: i < 2 ? '1px solid #EEF0F5' : 0 }}
-                  >
-                    <dt style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>{k}</dt>
-                    <dd style={{ margin: '2px 0 0', fontSize: 14.5, fontWeight: 700 }}>{v}</dd>
+                  <div key={k} className={cx(stil.kutu15, i < 2 ? stil.kutu16 : stil.kutu17)}>
+                    <dt className={stil.metin31}>{k}</dt>
+                    <dd className={stil.metin32}>{v}</dd>
                   </div>
                 ))}
               </dl>
@@ -938,16 +672,7 @@ export function KurumsalBasvuru() {
           {durumGorunumu ? <DurumGorunumu b={b} yeniBasvuru={yeniBasvuru} busy={busy === 'yeni'} /> : null}
 
           {b !== undefined && !durumGorunumu ? (
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                gap: 12,
-                marginTop: 26,
-                paddingTop: 20,
-                borderTop: '1px solid #EEF0F5',
-              }}
-            >
+            <div className={stil.kutu18}>
               {adim > 1 ? (
                 <button
                   type="button"
@@ -955,39 +680,14 @@ export function KurumsalBasvuru() {
                     setHata(null);
                     setAdim(adim - 1);
                   }}
-                  style={{
-                    border: '1px solid #D5DAE5',
-                    background: 'var(--rr-kart, #FFFFFF)',
-                    borderRadius: 'var(--rr-buton-kose)',
-                    padding: '13px 22px',
-                    fontSize: 15,
-                    fontWeight: 700,
-                    color: 'var(--rr-murekkep, #1E2333)',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
+                  className={stil.dugme11}
                 >
                   Geri
                 </button>
               ) : (
                 <span />
               )}
-              <button
-                type="button"
-                onClick={ileri}
-                disabled={busy === 'ileri'}
-                style={{
-                  border: 0,
-                  background: 'var(--rr-mavi, #5B8CFF)',
-                  borderRadius: 'var(--rr-buton-kose)',
-                  padding: '14px 26px',
-                  fontSize: 15.5,
-                  fontWeight: 800,
-                  color: 'var(--rr-maviYazi, #1E2333)',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
-              >
+              <button type="button" onClick={ileri} disabled={busy === 'ileri'} className={stil.dugme12}>
                 {adim === 5
                   ? b?.durum === 'DOCS_REQUESTED'
                     ? 'Yeniden gönder'
@@ -1043,28 +743,26 @@ function DurumGorunumu({ b, yeniBasvuru, busy }: { b: Basvuru; yeniBasvuru: () =
   const simdiki = adimlar.findIndex((a) => !a.bitti);
   return (
     <>
-      <h2 style={{ margin: '0 0 6px', fontSize: 21, fontWeight: 800 }}>
+      <h2 className={stil.baslik2}>
         {onay ? 'Başvurun onaylandı' : ret ? 'Başvurun onaylanmadı' : 'Başvurun alındı'}
       </h2>
-      <p style={{ margin: '0 0 20px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
+      <p className={stil.metin33}>
         {onay
           ? `${GALLERY_TRIAL.gun} günlük ücretsiz denemen başladı.`
           : ret
             ? 'Gerekçeyi aşağıda görebilirsin; eksikleri tamamlayıp yeniden başvurabilirsin.'
             : 'Durumu bu sayfadan takip edebilirsin.'}
       </p>
-      <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column' }}>
+      <ol className={stil.liste3}>
         {adimlar.map((a, i) => {
           const sira = i === simdiki;
           const kirmizi = ret && i === 3;
           return (
-            <li key={a.ad} style={{ display: 'flex', gap: 14, paddingBottom: 18 }}>
+            <li key={a.ad} className={stil.oge1}>
               <span
                 aria-hidden="true"
+                className={stil.metin34}
                 style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: '50%',
                   background: kirmizi
                     ? '#E5484D'
                     : a.bitti
@@ -1073,13 +771,6 @@ function DurumGorunumu({ b, yeniBasvuru, busy }: { b: Basvuru; yeniBasvuru: () =
                         ? 'var(--rr-kart, #FFFFFF)'
                         : '#F3F5FA',
                   border: `2px solid ${kirmizi ? '#E5484D' : a.bitti || sira ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-cizgi, #E3E6EF)'}`,
-                  boxSizing: 'border-box',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 13,
-                  fontWeight: 800,
-                  flex: 'none',
                   color: kirmizi
                     ? '#FFFFFF'
                     : a.bitti
@@ -1090,58 +781,20 @@ function DurumGorunumu({ b, yeniBasvuru, busy }: { b: Basvuru; yeniBasvuru: () =
                 {kirmizi ? '✕' : a.bitti ? '✓' : i + 1}
               </span>
               <span>
-                <span style={{ display: 'block', fontSize: 15, fontWeight: 800 }}>{a.ad}</span>
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 13.5,
-                    color: kirmizi ? '#A3271F' : 'var(--rr-soluk, #5A6073)',
-                    marginTop: 2,
-                  }}
-                >
-                  {a.not}
-                </span>
+                <span className={stil.metin35}>{a.ad}</span>
+                <span className={cx(stil.metin36, kirmizi ? stil.metin37 : stil.metin14)}>{a.not}</span>
               </span>
             </li>
           );
         })}
       </ol>
       {onay && b.galeri ? (
-        <Link
-          href="/galeri-paneli"
-          style={{
-            display: 'inline-block',
-            marginTop: 4,
-            background: 'var(--rr-mavi, #5B8CFF)',
-            borderRadius: 'var(--rr-buton-kose)',
-            padding: '14px 26px',
-            fontSize: 15.5,
-            fontWeight: 800,
-            color: 'var(--rr-maviYazi, #1E2333)',
-            textDecoration: 'none',
-          }}
-        >
+        <Link href="/galeri-paneli" className={stil.bag2}>
           Galeri paneline git
         </Link>
       ) : null}
       {ret ? (
-        <button
-          type="button"
-          onClick={yeniBasvuru}
-          disabled={busy}
-          style={{
-            marginTop: 4,
-            border: 0,
-            background: 'var(--rr-mavi, #5B8CFF)',
-            borderRadius: 'var(--rr-buton-kose)',
-            padding: '14px 26px',
-            fontSize: 15.5,
-            fontWeight: 800,
-            color: 'var(--rr-maviYazi, #1E2333)',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
-        >
+        <button type="button" onClick={yeniBasvuru} disabled={busy} className={stil.dugme13}>
           Yeniden başvur
         </button>
       ) : null}

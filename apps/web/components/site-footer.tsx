@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { colors } from '../lib/renk';
 import { CerezTercihleri } from './cerez-tercihleri';
+import stil from './site-footer.module.css';
 
 /**
  * Alt bilgi (tasarım: Anasayfa.dc.html). "Veri kaynakları" ve VehiclesDB atfı tasarımda yok; açık veri
@@ -9,22 +9,10 @@ import { CerezTercihleri } from './cerez-tercihleri';
  */
 export function SiteFooter() {
   return (
-    <footer style={{ borderTop: `1px solid ${colors.line}`, background: colors.surface }}>
-      <div
-        style={{
-          maxWidth: 1360,
-          margin: '0 auto',
-          padding: 24,
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'space-between',
-          gap: 12,
-          fontSize: 13.5,
-          color: colors.muted,
-        }}
-      >
+    <footer className={stil.kutu1}>
+      <div className={stil.kutu2}>
         <span>rengarenk · Aradığın aracı söyle, satıcı seni bulsun.</span>
-        <span style={{ display: 'flex', flexWrap: 'wrap', gap: 18 }}>
+        <span className={stil.metin1}>
           <Link href="/yardim">Yardım ve destek</Link>
           <Link href="/kullanim-kosullari">Kullanım koşulları</Link>
           <Link href="/kvkk">KVKK</Link>

@@ -1,0 +1,10 @@
+/* Bu dosya layout.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  background: var(--rr-zemin, #f6f8fd);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.kutu2 {
+  flex: 1;
+}

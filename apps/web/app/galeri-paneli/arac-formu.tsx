@@ -13,10 +13,12 @@ import {
   portfolioVehicleSchema,
   type RuleResult,
 } from '@rengarenk/shared';
-import { type CSSProperties, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { type BoyaDegeri, BoyaSemasi } from '../../components/sihirbaz/boya';
 import { useKatalog } from '../../components/sihirbaz/katalog';
+import { cx } from '../../lib/cx';
 import { API, dosyaYukle, istek } from '../../lib/istemci';
+import stil from './arac-formu.module.css';
 
 export interface AracDetay {
   id: string;
@@ -33,24 +35,6 @@ export interface AracDetay {
   kurallar: RuleResult[];
 }
 
-const girdi: CSSProperties = {
-  width: '100%',
-  boxSizing: 'border-box',
-  border: '1px solid #D5DAE5',
-  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-  padding: '11px 12px',
-  fontSize: 14.5,
-  fontFamily: 'inherit',
-  background: 'var(--rr-kart, #FFFFFF)',
-  color: 'var(--rr-murekkep, #1E2333)',
-};
-const etiket: CSSProperties = { display: 'block', fontSize: 13, fontWeight: 700, marginBottom: 6 };
-const bolum: CSSProperties = {
-  background: 'var(--rr-kart, #FFFFFF)',
-  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-  borderRadius: 'var(--rr-kart-kose)',
-  padding: 20,
-};
 const BOS_HASAR: Damage = {
   parcalar: {},
   tramer: 0,
@@ -63,7 +47,7 @@ const BOS_HASAR: Damage = {
 function Alan({ id, ad, children }: { id: string; ad: string; children: React.ReactNode }) {
   return (
     <div>
-      <label htmlFor={id} style={etiket}>
+      <label htmlFor={id} className={stil.etiket1}>
         {ad}
       </label>
       {children}
@@ -171,10 +155,8 @@ export function AracFormu({
 
   return (
     <>
-      <h1 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 800 }}>
-        {id ? (d?.ad ?? 'Araç') : 'Araç ekle'}
-      </h1>
-      <p style={{ margin: '0 0 18px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
+      <h1 className={stil.baslik1}>{id ? (d?.ad ?? 'Araç') : 'Araç ekle'}</h1>
+      <p className={stil.metin1}>
         {d && d.durum !== 'DRAFT'
           ? `${d.durumAd}${d.not ? ` · ${d.not}` : ''} · Portföy no ${d.no}`
           : d?.eidsGerekli === false || katalogsuz || kok === 'kiralik'
@@ -182,24 +164,13 @@ export function AracFormu({
             : 'Araç, kaydedildikten sonra EİDS doğrulamasına gönderilir; doğrulanınca alıcılara görünür ve eşleşmeye girer.'}
       </p>
       {hata ? (
-        <p
-          role="alert"
-          style={{
-            margin: '0 0 14px',
-            background: '#FFF0EE',
-            border: '1px solid #F5C6C0',
-            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-            padding: '10px 14px',
-            fontSize: 14,
-            color: '#A3271F',
-          }}
-        >
+        <p role="alert" className={stil.metin2}>
           {hata}
         </p>
       ) : null}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <section style={bolum} aria-labelledby="e1">
-          <h2 id="e1" style={{ margin: '0 0 14px', fontSize: 17, fontWeight: 800 }}>
+      <div className={stil.kutu1}>
+        <section className={stil.kutu2} aria-labelledby="e1">
+          <h2 id="e1" className={stil.baslik2}>
             Katalog bilgileri
           </h2>
           <div className="rr-dort-sutun">
@@ -218,7 +189,7 @@ export function AracFormu({
                     paket: undefined,
                   }))
                 }
-                style={girdi}
+                className={stil.girdi1}
               >
                 {kategoriler.map((c) => (
                   <option key={c.slug} value={c.slug}>
@@ -234,7 +205,7 @@ export function AracFormu({
                     id="k-marka"
                     value={v.markaAd ?? ''}
                     onChange={(e) => set('markaAd', e.target.value)}
-                    style={girdi}
+                    className={stil.girdi1}
                   />
                 </Alan>
                 <Alan id="k-model" ad="Model">
@@ -242,7 +213,7 @@ export function AracFormu({
                     id="k-model"
                     value={v.modelAd ?? ''}
                     onChange={(e) => set('modelAd', e.target.value)}
-                    style={girdi}
+                    className={stil.girdi1}
                   />
                 </Alan>
               </>
@@ -262,7 +233,7 @@ export function AracFormu({
                         paket: undefined,
                       }))
                     }
-                    style={girdi}
+                    className={stil.girdi1}
                   >
                     <option value="">{k.hazir ? 'Marka seç' : 'Yükleniyor…'}</option>
                     {(k.makes ?? []).map((m) => (
@@ -286,7 +257,7 @@ export function AracFormu({
                         paket: undefined,
                       }))
                     }
-                    style={girdi}
+                    className={stil.girdi1}
                   >
                     <option value="">Seri seç</option>
                     {(k.series ?? []).map((m) => (
@@ -305,7 +276,7 @@ export function AracFormu({
                   value={v.model ?? ''}
                   disabled={!k.models?.length}
                   onChange={(e) => set('model', e.target.value || undefined)}
-                  style={girdi}
+                  className={stil.girdi1}
                 >
                   <option value="">Model seç</option>
                   {(k.models ?? []).map((m) => (
@@ -322,7 +293,7 @@ export function AracFormu({
                 inputMode="numeric"
                 value={v.yil ? String(v.yil) : ''}
                 onChange={(e) => set('yil', Number(e.target.value.replace(/\D/g, '')) || 0)}
-                style={girdi}
+                className={stil.girdi1}
               />
             </Alan>
             {katalogsuz ? null : (
@@ -333,7 +304,7 @@ export function AracFormu({
                     value={v.kasa ?? ''}
                     disabled={!k.kusaklar.length}
                     onChange={(e) => set('kasa', e.target.value || undefined)}
-                    style={girdi}
+                    className={stil.girdi1}
                   >
                     <option value="">Kasa seç</option>
                     {k.kusaklar
@@ -351,7 +322,7 @@ export function AracFormu({
                     value={v.paket ?? ''}
                     disabled={!k.paketler.length}
                     onChange={(e) => set('paket', e.target.value || undefined)}
-                    style={girdi}
+                    className={stil.girdi1}
                   >
                     <option value="">Paket seç</option>
                     {k.paketler.map((p) => (
@@ -368,7 +339,7 @@ export function AracFormu({
                 id="k-yakit"
                 value={v.yakit ?? ''}
                 onChange={(e) => set('yakit', e.target.value || undefined)}
-                style={girdi}
+                className={stil.girdi1}
               >
                 <option value="">Seç</option>
                 {FUELS.map((f) => (
@@ -380,22 +351,15 @@ export function AracFormu({
             </Alan>
           </div>
           {katalogsuz ? null : (
-            <p
-              style={{
-                margin: '10px 0 0',
-                fontSize: 13,
-                color: 'var(--rr-baglanti, #2450C8)',
-                fontWeight: 600,
-              }}
-            >
+            <p className={stil.metin3}>
               Model yılından kasa ve makyaj otomatik bulunur; paket listesi bu kasa için katalogdan gelir.
               Temsilî fotoğraf, açık lisanslı kaynaktan (Wikimedia Commons) atfıyla otomatik eklenir.
             </p>
           )}
         </section>
 
-        <section style={bolum} aria-labelledby="e2">
-          <h2 id="e2" style={{ margin: '0 0 14px', fontSize: 17, fontWeight: 800 }}>
+        <section className={stil.kutu2} aria-labelledby="e2">
+          <h2 id="e2" className={stil.baslik2}>
             Araç ve yasal bilgiler
           </h2>
           <div className="rr-dort-sutun">
@@ -405,7 +369,7 @@ export function AracFormu({
                 inputMode="numeric"
                 value={v.km ? new Intl.NumberFormat('tr-TR').format(Number(v.km)) : ''}
                 onChange={(e) => set('km', Number(e.target.value.replace(/\D/g, '')) || 0)}
-                style={girdi}
+                className={stil.girdi1}
               />
             </Alan>
             <Alan id="y-renk" ad="Renk">
@@ -413,7 +377,7 @@ export function AracFormu({
                 id="y-renk"
                 value={v.renk ?? ''}
                 onChange={(e) => set('renk', e.target.value || undefined)}
-                style={girdi}
+                className={stil.girdi1}
               >
                 <option value="">Seç</option>
                 {COLORS.map((c) => (
@@ -429,7 +393,7 @@ export function AracFormu({
                 inputMode="numeric"
                 value={v.fiyat ? new Intl.NumberFormat('tr-TR').format(Number(v.fiyat)) : ''}
                 onChange={(e) => set('fiyat', Number(e.target.value.replace(/\D/g, '')) || 0)}
-                style={girdi}
+                className={stil.girdi1}
               />
             </Alan>
             <Alan id="y-vites" ad="Vites">
@@ -437,7 +401,7 @@ export function AracFormu({
                 id="y-vites"
                 value={v.vites ?? ''}
                 onChange={(e) => set('vites', e.target.value || undefined)}
-                style={girdi}
+                className={stil.girdi1}
               >
                 <option value="">Seç</option>
                 {GEARBOXES.map((g) => (
@@ -453,7 +417,7 @@ export function AracFormu({
                 placeholder="34 ABC 123"
                 value={v.plaka ?? ''}
                 onChange={(e) => set('plaka', e.target.value.toLocaleUpperCase('tr-TR'))}
-                style={girdi}
+                className={stil.girdi1}
               />
             </Alan>
             <Alan id="y-sasi" ad="Şasi no (son 6 hane)">
@@ -462,7 +426,7 @@ export function AracFormu({
                 maxLength={6}
                 value={v.sasiSon6 ?? ''}
                 onChange={(e) => set('sasiSon6', e.target.value.toUpperCase() || undefined)}
-                style={girdi}
+                className={stil.girdi1}
               />
             </Alan>
             <Alan id="y-tescil" ad="İlk tescil tarihi">
@@ -471,7 +435,7 @@ export function AracFormu({
                 type="date"
                 value={v.ilkTescil ?? ''}
                 onChange={(e) => set('ilkTescil', e.target.value || undefined)}
-                style={girdi}
+                className={stil.girdi1}
               />
             </Alan>
             <Alan id="y-rehin" ad="Rehin / haciz şerhi">
@@ -479,7 +443,7 @@ export function AracFormu({
                 id="y-rehin"
                 value={v.rehin ? 'var' : 'yok'}
                 onChange={(e) => set('rehin', e.target.value === 'var')}
-                style={girdi}
+                className={stil.girdi1}
               >
                 <option value="yok">Yok</option>
                 <option value="var">Var</option>
@@ -491,7 +455,7 @@ export function AracFormu({
                 placeholder="Yok"
                 value={v.garanti ?? ''}
                 onChange={(e) => set('garanti', e.target.value || undefined)}
-                style={girdi}
+                className={stil.girdi1}
               />
             </Alan>
             <Alan id="y-takas" ad="Takas">
@@ -499,7 +463,7 @@ export function AracFormu({
                 id="y-takas"
                 value={v.takas ? 'evet' : 'hayir'}
                 onChange={(e) => set('takas', e.target.value === 'evet')}
-                style={girdi}
+                className={stil.girdi1}
               >
                 <option value="evet">Kabul ediyor</option>
                 <option value="hayir">Kabul etmiyor</option>
@@ -511,7 +475,7 @@ export function AracFormu({
                 inputMode="numeric"
                 value={v.ureticiFiyati ? new Intl.NumberFormat('tr-TR').format(Number(v.ureticiFiyati)) : ''}
                 onChange={(e) => set('ureticiFiyati', Number(e.target.value.replace(/\D/g, '')) || undefined)}
-                style={girdi}
+                className={stil.girdi1}
               />
             </Alan>
             <Alan id="y-stok" ad="Stok no (isteğe bağlı)">
@@ -519,11 +483,11 @@ export function AracFormu({
                 id="y-stok"
                 value={v.disNo ?? ''}
                 onChange={(e) => set('disNo', e.target.value || undefined)}
-                style={girdi}
+                className={stil.girdi1}
               />
             </Alan>
           </div>
-          <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 14, fontSize: 14 }}>
+          <label className={stil.etiket2}>
             <input
               type="checkbox"
               className="rr-isaret"
@@ -532,20 +496,14 @@ export function AracFormu({
             />
             <span>Satış fiyatı, aracın sıfır üretici tavsiye fiyatını aşmıyor.</span>
           </label>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
+          <div className={stil.kutu3}>
             {kurallar.map((r) => (
               <span
                 key={r.key}
+                className={stil.metin4}
                 style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
                   background: r.ok ? '#E7FAF0' : r.engel ? '#FDECEC' : '#FFF6DF',
                   color: r.ok ? '#11683F' : r.engel ? '#A3271F' : '#7A5300',
-                  fontSize: 13,
-                  fontWeight: 700,
-                  padding: '6px 12px',
-                  borderRadius: 'var(--rr-etiket-kose)',
                 }}
               >
                 {r.metin}
@@ -554,11 +512,11 @@ export function AracFormu({
           </div>
         </section>
 
-        <section style={bolum} aria-labelledby="e3">
-          <h2 id="e3" style={{ margin: '0 0 6px', fontSize: 17, fontWeight: 800 }}>
+        <section className={stil.kutu2} aria-labelledby="e3">
+          <h2 id="e3" className={stil.baslik3}>
             Boya, değişen ve hasar
           </h2>
-          <p style={{ margin: '0 0 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
+          <p className={stil.metin5}>
             Parça durumu, talep sayfasındaki şemanın aynısıyla parça parça girilir; alıcı kriterleriyle
             eşleştirme bu bilgiye göre yapılır.
           </p>
@@ -567,7 +525,7 @@ export function AracFormu({
             value={boya}
             onChange={(b) => set('hasar', { ...v.hasar, parcalar: b.parts as Damage['parcalar'] })}
           />
-          <div className="rr-dort-sutun" style={{ marginTop: 14 }}>
+          <div className={`rr-dort-sutun ${stil.kutu4}`}>
             <Alan id="h-tramer" ad="Tramer (TL)">
               <input
                 id="h-tramer"
@@ -576,7 +534,7 @@ export function AracFormu({
                 onChange={(e) =>
                   set('hasar', { ...v.hasar, tramer: Number(e.target.value.replace(/\D/g, '')) || 0 })
                 }
-                style={girdi}
+                className={stil.girdi1}
               />
             </Alan>
             {(
@@ -592,7 +550,7 @@ export function AracFormu({
                   id={`h-${key}`}
                   value={v.hasar[key] ? 'evet' : 'hayir'}
                   onChange={(e) => set('hasar', { ...v.hasar, [key]: e.target.value === 'evet' })}
-                  style={girdi}
+                  className={stil.girdi1}
                 >
                   <option value="hayir">{key === 'airbagAcildi' ? 'Açılmamış' : 'Yok'}</option>
                   <option value="evet">{key === 'airbagAcildi' ? 'Açılmış' : 'Var'}</option>
@@ -602,8 +560,8 @@ export function AracFormu({
           </div>
         </section>
 
-        <section style={bolum} aria-labelledby="e4">
-          <h2 id="e4" style={{ margin: '0 0 14px', fontSize: 17, fontWeight: 800 }}>
+        <section className={stil.kutu2} aria-labelledby="e4">
+          <h2 id="e4" className={stil.baslik2}>
             Fotoğraflar ve ekspertiz
           </h2>
           <input
@@ -638,73 +596,32 @@ export function AracFormu({
               type="button"
               disabled={busy === 'foto'}
               onClick={() => fotoRef.current?.click()}
-              style={{
-                border: '2px dashed #AEB5C4',
-                background: 'var(--rr-zemin, #F6F8FD)',
-                borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-                padding: 26,
-                cursor: 'pointer',
-                fontSize: 14.5,
-                fontWeight: 700,
-                color: 'var(--rr-murekkep, #1E2333)',
-                fontFamily: 'inherit',
-              }}
+              className={stil.dugme1}
             >
               {busy === 'foto' ? 'Yükleniyor…' : 'Fotoğraf yükle'}
-              <span
-                style={{
-                  display: 'block',
-                  fontSize: 12.5,
-                  fontWeight: 500,
-                  color: 'var(--rr-soluk, #5A6073)',
-                  marginTop: 4,
-                }}
-              >
+              <span className={stil.metin6}>
                 En az {PHOTO_MIN}, en fazla {PHOTO_MAX} fotoğraf · JPG veya PNG · şu an{' '}
                 {d?.fotolar.length ?? 0}
               </span>
             </button>
-            <div
-              style={{
-                border: '2px dashed #AEB5C4',
-                background: 'var(--rr-zemin, #F6F8FD)',
-                borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-                padding: 18,
-                textAlign: 'center',
-              }}
-            >
-              <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>
+            <div className={stil.kutu5}>
+              <span className={stil.metin7}>
                 {d?.ekspertiz ? `Ekspertiz: ${d.ekspertiz.ad}` : 'Ekspertiz raporu yükle'}
               </span>
-              <span
-                style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 4 }}
-              >
-                PDF · Son 10 gün içinde alınmış olmalı
-              </span>
-              <span
-                style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 10, flexWrap: 'wrap' }}
-              >
+              <span className={stil.metin8}>PDF · Son 10 gün içinde alınmış olmalı</span>
+              <span className={stil.metin9}>
                 <input
                   aria-label="Rapor tarihi"
                   type="date"
                   value={raporTarihi}
                   onChange={(e) => setRaporTarihi(e.target.value)}
-                  style={{ ...girdi, width: 'auto', padding: '8px 10px' }}
+                  className={stil.girdi2}
                 />
                 <button
                   type="button"
                   disabled={!raporTarihi || busy === 'rapor'}
                   onClick={() => raporRef.current?.click()}
-                  style={{
-                    border: '1px solid #D5DAE5',
-                    background: 'var(--rr-kart, #FFFFFF)',
-                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                    padding: '8px 12px',
-                    fontSize: 13.5,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
+                  className={stil.dugme2}
                 >
                   PDF seç
                 </button>
@@ -712,16 +629,7 @@ export function AracFormu({
             </div>
           </div>
           {/* GaleriMobil.dc.html'deki izin; web tasarımında yok, aynı biçimle eklendi */}
-          <label
-            style={{
-              display: 'flex',
-              gap: 10,
-              alignItems: 'flex-start',
-              marginTop: 12,
-              fontSize: 13.5,
-              color: '#3A4052',
-            }}
-          >
+          <label className={stil.etiket3}>
             <input
               type="checkbox"
               className="rr-isaret"
@@ -734,28 +642,18 @@ export function AracFormu({
             </span>
           </label>
           {d?.fotolar.length ? (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
+            <div className={stil.kutu3}>
               {d.fotolar.map((f, i) => (
-                <div key={f.id} style={{ position: 'relative', width: 120 }}>
+                <div key={f.id} className={stil.kutu6}>
                   {/* biome-ignore lint/performance/noImgElement: galeri fotoğrafı API'den akar */}
                   <img
                     src={`${API}${f.url}`}
                     alt={`Fotoğraf ${i + 1}`}
-                    style={{
-                      width: 120,
-                      height: 90,
-                      objectFit: 'cover',
-                      borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                      display: 'block',
-                      border:
-                        i === 0 ? '2px solid var(--rr-mavi, #5B8CFF)' : '1px solid var(--rr-cizgi, #E3E6EF)',
-                    }}
+                    className={cx(stil.gorsel1, i === 0 ? stil.gorsel2 : stil.gorsel3)}
                   />
-                  <span
-                    style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, fontSize: 12 }}
-                  >
+                  <span className={stil.metin10}>
                     {i === 0 ? (
-                      <span style={{ fontWeight: 800, color: 'var(--rr-baglanti, #2450C8)' }}>Kapak</span>
+                      <span className={stil.metin11}>Kapak</span>
                     ) : (
                       <button
                         type="button"
@@ -771,15 +669,7 @@ export function AracFormu({
                             ),
                           )
                         }
-                        style={{
-                          border: 0,
-                          background: 'transparent',
-                          padding: 0,
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: 'var(--rr-baglanti, #2450C8)',
-                          cursor: 'pointer',
-                        }}
+                        className={stil.dugme3}
                       >
                         Kapak yap
                       </button>
@@ -793,15 +683,7 @@ export function AracFormu({
                           ),
                         )
                       }
-                      style={{
-                        border: 0,
-                        background: 'transparent',
-                        padding: 0,
-                        fontSize: 12,
-                        fontWeight: 700,
-                        color: '#A3271F',
-                        cursor: 'pointer',
-                      }}
+                      className={stil.dugme4}
                     >
                       Sil
                     </button>
@@ -812,22 +694,8 @@ export function AracFormu({
           ) : null}
         </section>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 10 }}>
-          <button
-            type="button"
-            onClick={() => bitti('')}
-            style={{
-              border: '1px solid #D5DAE5',
-              background: 'var(--rr-kart, #FFFFFF)',
-              borderRadius: 'var(--rr-buton-kose)',
-              padding: '13px 20px',
-              fontSize: 15,
-              fontWeight: 700,
-              color: 'var(--rr-murekkep, #1E2333)',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
-          >
+        <div className={stil.kutu7}>
+          <button type="button" onClick={() => bitti('')} className={stil.dugme5}>
             Vazgeç
           </button>
           <button
@@ -839,17 +707,7 @@ export function AracFormu({
                 if (x) bitti(yasal ? 'Araç güncellendi.' : 'Taslak kaydedildi.');
               })
             }
-            style={{
-              border: '1px solid #D5DAE5',
-              background: 'var(--rr-kart, #FFFFFF)',
-              borderRadius: 'var(--rr-buton-kose)',
-              padding: '13px 20px',
-              fontSize: 15,
-              fontWeight: 700,
-              color: 'var(--rr-murekkep, #1E2333)',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
+            className={stil.dugme5}
           >
             {yasal ? 'Kaydet' : 'Taslak kaydet'}
           </button>
@@ -869,17 +727,7 @@ export function AracFormu({
                   );
                 })
               }
-              style={{
-                border: 0,
-                background: 'var(--rr-mavi, #5B8CFF)',
-                borderRadius: 'var(--rr-buton-kose)',
-                padding: '14px 24px',
-                fontSize: 15,
-                fontWeight: 800,
-                color: 'var(--rr-maviYazi, #1E2333)',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
+              className={stil.dugme6}
             >
               {d?.eidsGerekli === false || katalogsuz || kok === 'kiralik'
                 ? 'Kaydet ve yayınla'

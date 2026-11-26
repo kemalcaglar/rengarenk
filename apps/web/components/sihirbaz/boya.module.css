@@ -1,0 +1,129 @@
+/* Bu dosya boya.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.dugme1 {
+  border: 1px solid #d5dae5;
+  background: var(--rr-kart, #ffffff);
+  border-radius: var(--rr-etiket-kose);
+  padding: 8px 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--rr-murekkep, #1e2333);
+  cursor: pointer;
+  font-family: inherit;
+}
+.kutu2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 28px;
+}
+.kutu3 {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.kutu4 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 14px;
+  font-size: 12.5px;
+  color: #3a4052;
+}
+.metin1 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.metin2 {
+  width: 12px;
+  height: 12px;
+  border-radius: calc(var(--rr-buton-kose) * 3 / 14);
+  border: 1px solid #aeb5c4;
+}
+.kutu5 {
+  flex: 1 1 380px;
+  min-width: 0;
+}
+.kutu6 {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #eef0f5;
+  border-radius: var(--rr-buton-kose);
+  overflow: hidden;
+}
+.kutu7 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  border-bottom: 1px solid #eef0f5;
+}
+.metin3 {
+  font-size: 14px;
+  font-weight: 600;
+}
+.kutu8 {
+  display: flex;
+  gap: 4px;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.dugme2 {
+  border-radius: calc(var(--rr-buton-kose) * 8 / 14);
+  font-size: 12.5px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.dugme3 {
+  border: 1.5px solid #4a5064;
+  padding: 6px 9px;
+  font-weight: 800;
+  color: var(--rr-murekkep, #1e2333);
+}
+.dugme4 {
+  border: 1px solid #d5dae5;
+  padding: 6.5px 9.5px;
+  font-weight: 600;
+  color: var(--rr-soluk, #5a6073);
+}
+.kutu9 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  background: #f3f5fa;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 12px 14px;
+}
+.metin4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dugme5 {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #d5dae5;
+  background: var(--rr-kart, #ffffff);
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.metin5 {
+  min-width: 24px;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 800;
+}

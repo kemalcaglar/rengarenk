@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import { cx } from '../../../lib/cx';
 import { API } from '../../../lib/istemci';
 import { binlik } from '../../../lib/talep-bicim';
+import stil from './araclar.module.css';
 
 export interface FavoriArac {
   no: number;
@@ -28,73 +30,30 @@ export function FavoriAraclar({
 }) {
   if (liste && liste.length === 0)
     return (
-      <div
-        style={{
-          background: 'var(--rr-kart, #FFFFFF)',
-          border: '1px dashed #C9CFDB',
-          borderRadius: 'var(--rr-kart-kose)',
-          padding: '36px 20px',
-          textAlign: 'center',
-          fontSize: 15,
-          color: 'var(--rr-soluk, #5A6073)',
-        }}
-      >
+      <div className={stil.kutu1}>
         Favori aracın yok. Galeri araç sayfalarındaki “Favorilere ekle” ile ekleyebilirsin.
       </div>
     );
   return (
     <div className="rr-iki-sutun">
       {(liste ?? []).map((a) => (
-        <article
-          key={a.no}
-          style={{
-            background: 'var(--rr-kart, #FFFFFF)',
-            border: '1px solid var(--rr-cizgi, #E3E6EF)',
-            borderRadius: 'var(--rr-kart-kose)',
-            padding: 16,
-            display: 'flex',
-            gap: 14,
-            opacity: a.satista ? 1 : 0.75,
-          }}
-        >
-          <div
-            style={{
-              flex: '0 0 112px',
-              height: 84,
-              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-              background: '#EEF3FF',
-              overflow: 'hidden',
-            }}
-          >
+        <article key={a.no} className={cx(stil.kutu2, a.satista ? stil.kutu3 : stil.kutu4)}>
+          <div className={stil.kutu5}>
             {a.foto ? (
               // biome-ignore lint/performance/noImgElement: API'deki portföy fotoğrafı
-              <img
-                src={`${API}${a.foto}`}
-                alt=""
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-              />
+              <img src={`${API}${a.foto}`} alt="" className={stil.gorsel1} />
             ) : null}
           </div>
-          <div style={{ minWidth: 0, flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}>
-              <span
-                style={{
-                  fontSize: 12,
-                  fontWeight: 800,
-                  padding: '3px 9px',
-                  borderRadius: 'var(--rr-etiket-kose)',
-                  background: a.satista ? '#E7FAF0' : '#F3F5FA',
-                  color: a.satista ? '#11683F' : 'var(--rr-soluk, #5A6073)',
-                  alignSelf: 'flex-start',
-                }}
-              >
+          <div className={stil.kutu6}>
+            <div className={stil.kutu7}>
+              <span className={cx(stil.metin1, a.satista ? stil.metin2 : stil.metin3)}>
                 {a.satista ? 'Satışta' : 'Satışta değil'}
               </span>
               <button
                 type="button"
                 onClick={() => kaldir(a)}
                 aria-label="Favorilerden çıkar"
-                style={{ flex: 'none', border: 0, background: 'transparent', padding: 2, cursor: 'pointer' }}
+                className={stil.dugme1}
               >
                 <svg
                   width="22"
@@ -111,17 +70,14 @@ export function FavoriAraclar({
               </button>
             </div>
             {a.satista ? (
-              <Link
-                href={`/arac/${a.no}`}
-                style={{ fontSize: 16.5, fontWeight: 800, color: 'var(--rr-murekkep, #1E2333)' }}
-              >
+              <Link href={`/arac/${a.no}`} className={stil.bag1}>
                 {a.ad}
               </Link>
             ) : (
-              <span style={{ fontSize: 16.5, fontWeight: 800 }}>{a.ad}</span>
+              <span className={stil.metin4}>{a.ad}</span>
             )}
-            <span style={{ fontSize: 13.5, color: '#3A4052' }}>{a.ozellik}</span>
-            <span style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+            <span className={stil.metin5}>{a.ozellik}</span>
+            <span className={stil.metin6}>
               {[a.fiyat !== null ? `${binlik(a.fiyat)} TL` : null, a.galeri?.ad].filter(Boolean).join(' · ')}
             </span>
           </div>

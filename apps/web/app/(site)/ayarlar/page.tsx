@@ -2,12 +2,14 @@
 
 import { ILLER } from '@rengarenk/shared';
 import { useRouter } from 'next/navigation';
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { HesabimMenu } from '../../../components/hesabim-menu';
+import { cx } from '../../../lib/cx';
 import { istek, useGiris } from '../../../lib/istemci';
 import { Engellediklerin, KisiselVerilerim, SifreBolumu } from './gizlilik';
 import { HesabiKapat } from './hesap';
 import { GorunenAd, Iletisim, type IletisimTercihi, NumaraDegistir } from './iletisim';
+import stil from './page.module.css';
 
 interface Kanal {
   kanal: 'uygulama' | 'eposta' | 'whatsapp';
@@ -47,44 +49,6 @@ const BOLUMLER: [Bolum, string][] = [
   ['gizlilik', 'Gizlilik ve güvenlik'],
   ['hesap', 'Hesap'],
 ];
-
-const kart: CSSProperties = {
-  background: 'var(--rr-kart, #FFFFFF)',
-  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-  borderRadius: 'var(--rr-kart-kose)',
-};
-const girdi: CSSProperties = {
-  display: 'block',
-  width: '100%',
-  boxSizing: 'border-box',
-  marginTop: 5,
-  border: '1px solid #D5DAE5',
-  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-  padding: 11,
-  fontSize: 14.5,
-  fontFamily: 'inherit',
-};
-const ikincil: CSSProperties = {
-  border: '1px solid #D5DAE5',
-  background: 'var(--rr-kart, #FFFFFF)',
-  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-  padding: '8px 12px',
-  fontSize: 13.5,
-  fontWeight: 700,
-  color: 'var(--rr-murekkep, #1E2333)',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
-const satir: CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  gap: 8,
-  border: '1px solid #EEF0F5',
-  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-  padding: '12px 14px',
-};
 const PLATFORM: Record<string, string> = {
   WEB: 'Tarayıcı',
   IOS: 'iPhone · Rengarenk uygulaması',
@@ -168,35 +132,11 @@ export default function Ayarlar() {
   const maske = ben ? `+90 5XX XXX XX ${ben.phone.slice(-2)}` : '';
 
   return (
-    <div
-      className="rr-sayfa"
-      style={{
-        maxWidth: 1360,
-        margin: '0 auto',
-        padding: '24px 24px 64px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'flex-start',
-        gap: 24,
-      }}
-    >
+    <div className={`rr-sayfa ${stil.kutu1}`}>
       <HesabimMenu aktif="/ayarlar" />
-      <main style={{ flex: '999 1 760px', minWidth: 0 }}>
-        <h1 style={{ margin: '0 0 16px', fontSize: 28, fontWeight: 800, letterSpacing: -0.4 }}>Ayarlar</h1>
-        <div
-          role="tablist"
-          aria-label="Ayar bölümleri"
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 6,
-            background: 'var(--rr-kart, #FFFFFF)',
-            border: '1px solid var(--rr-cizgi, #E3E6EF)',
-            borderRadius: 'var(--rr-buton-kose)',
-            padding: 6,
-            marginBottom: 16,
-          }}
-        >
+      <main className={stil.kutu2}>
+        <h1 className={stil.baslik1}>Ayarlar</h1>
+        <div role="tablist" aria-label="Ayar bölümleri" className={stil.kutu3}>
           {BOLUMLER.map(([k, a]) => (
             <button
               key={k}
@@ -204,55 +144,26 @@ export default function Ayarlar() {
               role="tab"
               aria-selected={bolum === k}
               onClick={() => setBolum(k)}
-              style={{
-                flex: '1 1 130px',
-                border: 0,
-                background: bolum === k ? '#EEF3FF' : 'transparent',
-                borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                padding: '11px 10px',
-                fontSize: 14.5,
-                fontWeight: bolum === k ? 800 : 600,
-                color: bolum === k ? 'var(--rr-murekkep, #1E2333)' : '#3A4052',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
+              className={cx(stil.dugme1, bolum === k ? stil.dugme2 : stil.dugme3)}
             >
               {a}
             </button>
           ))}
         </div>
         {bilgi ? (
-          <p
-            role="status"
-            style={{
-              background: '#E7FAF0',
-              color: '#11683F',
-              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-              padding: '10px 14px',
-              fontWeight: 700,
-            }}
-          >
+          <p role="status" className={stil.metin1}>
             {bilgi}
           </p>
         ) : null}
         {hata ? (
-          <p
-            role="alert"
-            style={{
-              background: '#FDECEC',
-              color: '#A3271F',
-              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-              padding: '10px 14px',
-              fontWeight: 700,
-            }}
-          >
+          <p role="alert" className={stil.metin2}>
             {hata}
           </p>
         ) : null}
 
         {bolum === 'profil' && ben ? (
-          <section style={{ ...kart, padding: 22 }} aria-labelledby="pr">
-            <h2 id="pr" style={{ margin: '0 0 14px', fontSize: 18, fontWeight: 800 }}>
+          <section className={stil.kutu4} aria-labelledby="pr">
+            <h2 id="pr" className={stil.baslik2}>
               Profil bilgileri
             </h2>
             <form
@@ -272,16 +183,16 @@ export default function Ayarlar() {
                 }, 'Profilin kaydedildi.');
               }}
             >
-              <div className="rr-iki-sutun" style={{ gap: 14 }}>
-                <label style={{ fontSize: 13, fontWeight: 700 }}>
+              <div className={`rr-iki-sutun ${stil.kutu5}`}>
+                <label className={stil.etiket1}>
                   Ad
-                  <input value={ad} onChange={(e) => setAd(e.target.value)} style={girdi} />
+                  <input value={ad} onChange={(e) => setAd(e.target.value)} className={stil.girdi1} />
                 </label>
-                <label style={{ fontSize: 13, fontWeight: 700 }}>
+                <label className={stil.etiket1}>
                   Soyad
-                  <input value={soyad} onChange={(e) => setSoyad(e.target.value)} style={girdi} />
+                  <input value={soyad} onChange={(e) => setSoyad(e.target.value)} className={stil.girdi1} />
                 </label>
-                <label style={{ fontSize: 13, fontWeight: 700 }}>
+                <label className={stil.etiket1}>
                   İl
                   <select
                     value={il}
@@ -289,7 +200,7 @@ export default function Ayarlar() {
                       setIl(e.target.value);
                       setIlce('');
                     }}
-                    style={{ ...girdi, background: 'var(--rr-kart, #FFFFFF)' }}
+                    className={stil.girdi2}
                   >
                     <option value="">Seç</option>
                     {ILLER.map((i) => (
@@ -299,13 +210,13 @@ export default function Ayarlar() {
                     ))}
                   </select>
                 </label>
-                <label style={{ fontSize: 13, fontWeight: 700 }}>
+                <label className={stil.etiket1}>
                   İlçe
                   <select
                     value={ilce}
                     disabled={!il}
                     onChange={(e) => setIlce(e.target.value)}
-                    style={{ ...girdi, background: 'var(--rr-kart, #FFFFFF)' }}
+                    className={stil.girdi2}
                   >
                     <option value="">{il ? 'Seç' : 'Önce il seç'}</option>
                     {(ILLER.find((i) => i.ad === il)?.ilceler ?? []).map((x) => (
@@ -316,7 +227,7 @@ export default function Ayarlar() {
                   </select>
                 </label>
               </div>
-              <button type="submit" style={{ ...ikincil, marginTop: 12 }}>
+              <button type="submit" className={stil.dugme4}>
                 Kaydet
               </button>
             </form>
@@ -336,24 +247,12 @@ export default function Ayarlar() {
                 )
               }
             />
-            <h3 style={{ margin: '22px 0 10px', fontSize: 15, fontWeight: 800 }}>Giriş bilgileri</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <div style={satir}>
+            <h3 className={stil.baslik3}>Giriş bilgileri</h3>
+            <div className={stil.kutu6}>
+              <div className={stil.kutu7}>
                 <span>
-                  <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>
-                    Cep telefonu · {maske}
-                  </span>
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 12.5,
-                      color: '#11683F',
-                      fontWeight: 700,
-                      marginTop: 2,
-                    }}
-                  >
-                    WhatsApp ile doğrulandı
-                  </span>
+                  <span className={stil.metin3}>Cep telefonu · {maske}</span>
+                  <span className={stil.metin4}>WhatsApp ile doğrulandı</span>
                 </span>
                 <NumaraDegistir
                   bitti={(m) => {
@@ -362,20 +261,10 @@ export default function Ayarlar() {
                   }}
                 />
               </div>
-              <div style={satir}>
+              <div className={stil.kutu7}>
                 <span>
-                  <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>
-                    E-posta · {t?.eposta?.adres ?? 'eklenmedi'}
-                  </span>
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 12.5,
-                      fontWeight: 700,
-                      marginTop: 2,
-                      color: t?.eposta?.dogrulandi ? '#11683F' : '#7A5300',
-                    }}
-                  >
+                  <span className={stil.metin3}>E-posta · {t?.eposta?.adres ?? 'eklenmedi'}</span>
+                  <span className={cx(stil.metin5, t?.eposta?.dogrulandi ? stil.metin6 : stil.metin7)}>
                     {t?.eposta?.dogrulandi
                       ? 'Doğrulandı'
                       : 'Doğrulanmadı · faturalar ve günlük özetler için gerekli'}
@@ -390,7 +279,7 @@ export default function Ayarlar() {
                       setT(await istek<Tercihler>('/me/notification-preferences'));
                     }, 'Doğrulama bağlantısı gönderildi. E-postandaki düğmeye bas.');
                   }}
-                  style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}
+                  className={stil.kutu8}
                 >
                   <label className="sr-only" htmlFor="eposta">
                     E-posta adresi
@@ -402,9 +291,9 @@ export default function Ayarlar() {
                     placeholder={t?.eposta ? 'Yeni adres' : 'ornek@eposta.com'}
                     value={yeniEposta}
                     onChange={(e) => setYeniEposta(e.target.value)}
-                    style={{ ...girdi, marginTop: 0, width: 220, padding: 8 }}
+                    className={stil.girdi3}
                   />
-                  <button type="submit" style={ikincil}>
+                  <button type="submit" className={stil.dugme5}>
                     Doğrulama bağlantısı gönder
                   </button>
                 </form>
@@ -434,69 +323,35 @@ export default function Ayarlar() {
         ) : null}
 
         {bolum === 'bildirim' && t ? (
-          <section style={{ ...kart, overflow: 'hidden' }} aria-labelledby="bl">
-            <h2 id="bl" style={{ margin: 0, padding: '18px 20px 6px', fontSize: 18, fontWeight: 800 }}>
+          <section className={stil.kutu9} aria-labelledby="bl">
+            <h2 id="bl" className={stil.baslik4}>
               Bildirimler
             </h2>
-            <p
-              style={{ margin: 0, padding: '0 20px 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}
-            >
+            <p className={stil.metin8}>
               Güvenlik ve ödeme bildirimleri kapatılamaz.
               {t.eposta?.dogrulandi ? '' : ' E-posta bildirimleri için Profil bölümünden e-postanı doğrula.'}
             </p>
-            <div
-              style={{
-                display: 'flex',
-                gap: 10,
-                padding: '10px 20px',
-                background: '#F3F5FA',
-                fontSize: 12.5,
-                fontWeight: 700,
-                color: 'var(--rr-soluk, #5A6073)',
-              }}
-            >
-              <span style={{ flex: 1 }}>Bildirim</span>
+            <div className={stil.kutu10}>
+              <span className={stil.metin9}>Bildirim</span>
               {['Uygulama', 'E-posta', 'WhatsApp'].map((k) => (
-                <span key={k} style={{ width: 72, textAlign: 'center' }}>
+                <span key={k} className={stil.metin10}>
                   {k}
                 </span>
               ))}
             </div>
             {t.konular.map((r) => (
-              <div
-                key={r.konu}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '12px 20px',
-                  borderTop: '1px solid #EEF0F5',
-                }}
-              >
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>{r.ad}</span>
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 12.5,
-                      color: 'var(--rr-soluk, #5A6073)',
-                      marginTop: 2,
-                    }}
-                  >
-                    {r.not}
-                  </span>
+              <div key={r.konu} className={stil.kutu11}>
+                <span className={stil.metin11}>
+                  <span className={stil.metin3}>{r.ad}</span>
+                  <span className={stil.metin12}>{r.not}</span>
                 </span>
                 {r.kanallar.map((k) =>
                   k.kapali ? (
-                    <span
-                      key={k.kanal}
-                      title="Bu bildirim bu kanaldan gönderilmez"
-                      style={{ width: 72, textAlign: 'center', color: 'var(--rr-soluk, #5A6073)' }}
-                    >
+                    <span key={k.kanal} title="Bu bildirim bu kanaldan gönderilmez" className={stil.metin13}>
                       —
                     </span>
                   ) : (
-                    <span key={k.kanal} style={{ width: 72, display: 'flex', justifyContent: 'center' }}>
+                    <span key={k.kanal} className={stil.metin14}>
                       {/* biome-ignore lint/a11y/useSemanticElements: tasarımdaki gibi role=checkbox düğmesi (Ayarlar.dc.html) */}
                       <button
                         type="button"
@@ -505,19 +360,12 @@ export default function Ayarlar() {
                         aria-disabled={k.kilitli}
                         aria-label={`${r.ad} · ${k.kanal === 'uygulama' ? 'Uygulama' : k.kanal === 'eposta' ? 'E-posta' : 'WhatsApp'}`}
                         onClick={() => degistir(r.konu, k)}
-                        style={{
-                          width: 24,
-                          height: 24,
-                          borderRadius: 'calc(var(--rr-buton-kose) * 7 / 14)',
-                          border: `2px solid ${k.acik ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}`,
-                          background: k.acik ? 'var(--rr-mavi, #5B8CFF)' : '#FFFFFF',
-                          color: '#FFFFFF',
-                          fontSize: 14,
-                          fontWeight: 800,
-                          cursor: k.kilitli ? 'not-allowed' : 'pointer',
-                          padding: 0,
-                          opacity: k.kilitli ? 0.5 : 1,
-                        }}
+                        className={cx(
+                          stil.dugme6,
+                          k.acik ? stil.dugme7 : stil.dugme8,
+                          k.kilitli ? stil.dugme9 : stil.dugme10,
+                        )}
+                        style={{ border: `2px solid ${k.acik ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}` }}
                       >
                         {k.acik ? '✓' : ''}
                       </button>
@@ -526,15 +374,7 @@ export default function Ayarlar() {
                 )}
               </div>
             ))}
-            <p
-              style={{
-                margin: 0,
-                padding: '12px 20px 18px',
-                fontSize: 12.5,
-                color: 'var(--rr-soluk, #5A6073)',
-                borderTop: '1px solid #EEF0F5',
-              }}
-            >
+            <p className={stil.metin15}>
               Kampanya e-postaları ticari elektronik ileti onayınla gönderilir ve İYS’ye kaydedilir; kampanya
               WhatsApp’tan gönderilmez. Onayını istediğin zaman geri alabilirsin.
             </p>
@@ -542,7 +382,7 @@ export default function Ayarlar() {
         ) : null}
 
         {bolum === 'gizlilik' ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className={stil.kutu12}>
             {ben ? (
               <SifreBolumu
                 sifreVar={!!ben.girisYollari?.sifre}
@@ -553,46 +393,26 @@ export default function Ayarlar() {
                 }}
               />
             ) : null}
-            <section style={{ ...kart, padding: 20 }} aria-labelledby="ot">
-              <h2 id="ot" style={{ margin: '0 0 10px', fontSize: 18, fontWeight: 800 }}>
+            <section className={stil.kutu13} aria-labelledby="ot">
+              <h2 id="ot" className={stil.baslik5}>
                 Açık oturumlar
               </h2>
               {oturumlar.map((o) => (
-                <div
-                  key={o.id}
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: 8,
-                    padding: '12px 0',
-                    borderTop: '1px solid #EEF0F5',
-                  }}
-                >
+                <div key={o.id} className={stil.kutu14}>
                   <span>
-                    <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>
-                      {PLATFORM[o.device?.platform ?? 'WEB'] ?? 'Tarayıcı'}
-                    </span>
-                    <span
-                      style={{
-                        display: 'block',
-                        fontSize: 12.5,
-                        color: 'var(--rr-soluk, #5A6073)',
-                        marginTop: 2,
-                      }}
-                    >
+                    <span className={stil.metin3}>{PLATFORM[o.device?.platform ?? 'WEB'] ?? 'Tarayıcı'}</span>
+                    <span className={stil.metin12}>
                       {o.current
                         ? 'şu an etkin'
                         : `son etkinlik ${tarih(o.device?.lastSeenAt ?? o.createdAt)}`}
                     </span>
                   </span>
                   {o.current ? (
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#11683F' }}>Bu cihaz</span>
+                    <span className={stil.metin16}>Bu cihaz</span>
                   ) : (
                     <button
                       type="button"
-                      style={ikincil}
+                      className={stil.dugme5}
                       onClick={() =>
                         calistir(async () => {
                           await istek(`/me/sessions/${o.id}`, { method: 'DELETE' });

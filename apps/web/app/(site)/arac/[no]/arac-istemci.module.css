@@ -1,0 +1,220 @@
+/* Bu dosya arac-istemci.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  overflow: hidden;
+}
+.kutu2 {
+  position: relative;
+  height: 400px;
+  background: #eef3ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gorsel1 {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.dugme1 {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(255, 255, 255, 0.95);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--rr-murekkep, #1e2333);
+  cursor: pointer;
+  left: 14px;
+}
+.dugme2 {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(255, 255, 255, 0.95);
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--rr-murekkep, #1e2333);
+  cursor: pointer;
+  right: 14px;
+}
+.metin1 {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: calc(var(--rr-buton-kose) * 8 / 14);
+  background: rgba(255, 255, 255, 0.95);
+}
+.metin2 {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: calc(var(--rr-buton-kose) * 8 / 14);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--rr-soluk, #5a6073);
+}
+.kutu3 {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  overflow-x: auto;
+}
+.dugme3 {
+  flex: none;
+  width: 92px;
+  height: 62px;
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  background: #f3f5fa;
+}
+.dugme4 {
+  border: 2px solid var(--rr-mavi, #5b8cff);
+}
+.dugme5 {
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+}
+.gorsel2 {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.kutu4 {
+  display: grid;
+  gap: 8px;
+}
+.etiket1 {
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.girdi1 {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d5dae5;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 10px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  resize: vertical;
+  font-family: inherit;
+}
+.metin3 {
+  font-size: 12px;
+  color: var(--rr-soluk, #5a6073);
+}
+.metin4 {
+  font-size: 13px;
+  color: #a3271f;
+}
+.dugme6 {
+  display: block;
+  text-align: center;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+  border: 0;
+  background: var(--rr-mavi, #5b8cff);
+  color: var(--rr-maviYazi, #1e2333);
+}
+.bag1 {
+  display: block;
+  text-align: center;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+  border: 1px solid #d5dae5;
+  background: var(--rr-kart, #ffffff);
+  color: var(--rr-murekkep, #1e2333);
+}
+.bag2 {
+  display: block;
+  text-align: center;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+  border: 1px solid var(--rr-yesil, #3dd68c);
+  color: #11683f;
+}
+.dugme7 {
+  width: 100%;
+  margin-top: 10px;
+  border: 0;
+  background: transparent;
+  padding: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+.dugme8 {
+  color: #a3236a;
+}
+.dugme9 {
+  color: var(--rr-baglanti, #2450c8);
+}
+.metin5 {
+  display: block;
+  font-size: 12.5px;
+  color: #a3271f;
+  text-align: center;
+}
+.kutu5 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #ffeef6;
+  border: 1px solid #ffc2df;
+  border-radius: calc(var(--rr-kart-kose) * 16 / 18);
+  padding: 12px 18px;
+  margin-bottom: 16px;
+}
+.metin6 {
+  font-size: 14.5px;
+}
+.bag3 {
+  font-size: 14px;
+  font-weight: 800;
+}
+.dugme10 {
+  align-self: flex-start;
+  border: 0;
+  background: transparent;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #a3271f;
+  padding: 0 4px;
+  cursor: pointer;
+  font-family: inherit;
+}

@@ -1,0 +1,35 @@
+/* Bu dosya not-found.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 28px 24px 64px;
+}
+.kutu2 {
+  max-width: 640px;
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-kart-kose) * 22 / 18);
+  padding: 32px;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.metin1 {
+  margin: 10px 0 22px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #3a4052;
+}
+.bag1 {
+  display: inline-flex;
+  background: var(--rr-mavi, #5b8cff);
+  color: var(--rr-maviYazi, #1e2333);
+  font-weight: 800;
+  font-size: 15px;
+  padding: 13px 20px;
+  border-radius: var(--rr-buton-kose);
+  text-decoration: none;
+}

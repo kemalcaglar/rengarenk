@@ -1,8 +1,8 @@
 'use client';
 
 import { type FormEvent, useState } from 'react';
-import { field, h1, label, primary } from '../../../components/giris-ui';
-import { colors } from '../../../lib/renk';
+import { primary } from '../../../components/giris-ui';
+import stil from './sahte-google.module.css';
 
 const toBase64Url = (s: string) =>
   btoa(String.fromCharCode(...new TextEncoder().encode(s)))
@@ -44,25 +44,13 @@ export function SahteGoogle({ state, redirectUri }: { state: string; redirectUri
   }
 
   return (
-    <form
-      onSubmit={submit}
-      style={{
-        maxWidth: 420,
-        width: '100%',
-        display: 'grid',
-        gap: 12,
-        background: colors.surface,
-        border: `1px solid ${colors.line}`,
-        borderRadius: 'var(--rr-kart-kose)',
-        padding: 28,
-      }}
-    >
-      <p style={{ margin: 0, fontSize: 13, color: colors.muted }}>
+    <form onSubmit={submit} className={stil.kutu1}>
+      <p className={stil.metin1}>
         Geliştirme ortamı: Google girişi taklit ediliyor. Canlıda gerçek Google hesabı kullanılır.
       </p>
-      <h1 style={{ ...h1, fontSize: 22 }}>Google hesabı seç</h1>
+      <h1 className={stil.baslik1}>Google hesabı seç</h1>
       <div>
-        <label htmlFor="g-eposta" style={label}>
+        <label htmlFor="g-eposta" className={stil.etiket1}>
           Gmail adresi
         </label>
         <input
@@ -72,24 +60,29 @@ export function SahteGoogle({ state, redirectUri }: { state: string; redirectUri
           placeholder="ad@gmail.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          style={field}
+          className={stil.girdi1}
         />
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+      <div className={stil.kutu2}>
         <div>
-          <label htmlFor="g-ad" style={label}>
+          <label htmlFor="g-ad" className={stil.etiket1}>
             Ad
           </label>
-          <input id="g-ad" value={ad} onChange={(e) => setAd(e.target.value)} style={field} />
+          <input id="g-ad" value={ad} onChange={(e) => setAd(e.target.value)} className={stil.girdi1} />
         </div>
         <div>
-          <label htmlFor="g-soyad" style={label}>
+          <label htmlFor="g-soyad" className={stil.etiket1}>
             Soyad
           </label>
-          <input id="g-soyad" value={soyad} onChange={(e) => setSoyad(e.target.value)} style={field} />
+          <input
+            id="g-soyad"
+            value={soyad}
+            onChange={(e) => setSoyad(e.target.value)}
+            className={stil.girdi1}
+          />
         </div>
       </div>
-      {error ? <p style={{ margin: 0, color: '#A3271F', fontWeight: 700 }}>{error}</p> : null}
+      {error ? <p className={stil.metin2}>{error}</p> : null}
       <button type="submit" style={primary(true)}>
         Devam et
       </button>

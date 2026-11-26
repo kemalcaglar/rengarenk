@@ -2,9 +2,11 @@
 
 import { GALLERY_TRIAL, RENEWAL_CONSENT, SUBSCRIPTION_CONSENT, tlYaz, withVat } from '@rengarenk/shared';
 import Link from 'next/link';
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../lib/cx';
 import { API, erisim, istek } from '../../lib/istemci';
 import { olcumOlayi } from '../../lib/olcum';
+import stil from './paket.module.css';
 
 type Degisim = 'yeni' | 'yukseltme' | 'sonraki_donem' | 'ayni';
 interface PaketSecenek {
@@ -74,45 +76,6 @@ type Secim =
     }
   | { tur: 'yenile'; ad: string; tutarKurus: number; not: string }
   | { tur: 'ek'; urun: string; ad: string; tutarKurus: number; not: string };
-
-const kart: CSSProperties = {
-  background: 'var(--rr-kart, #FFFFFF)',
-  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-  borderRadius: 'var(--rr-kart-kose)',
-  padding: 22,
-};
-const birincil: CSSProperties = {
-  border: 0,
-  background: 'var(--rr-mavi, #5B8CFF)',
-  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-  padding: '12px 18px',
-  fontSize: 14.5,
-  fontWeight: 800,
-  color: 'var(--rr-maviYazi, #1E2333)',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
-const ikincil: CSSProperties = {
-  border: '1px solid #D5DAE5',
-  background: 'var(--rr-kart, #FFFFFF)',
-  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-  padding: '12px 16px',
-  fontSize: 14.5,
-  fontWeight: 700,
-  color: 'var(--rr-murekkep, #1E2333)',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
-const baglanti: CSSProperties = {
-  border: 0,
-  background: 'none',
-  padding: 0,
-  fontSize: 14,
-  fontWeight: 700,
-  color: 'var(--rr-baglanti, #2450C8)',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
 
 const tarih = (iso: string | null) =>
   iso
@@ -314,8 +277,8 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
   if (!v) {
     return (
       <>
-        <h1 style={{ margin: '0 0 18px', fontSize: 26, fontWeight: 800 }}>Paket ve faturalar</h1>
-        {hata ? <p role="alert">{hata}</p> : <p style={{ color: 'var(--rr-soluk, #5A6073)' }}>Yükleniyor…</p>}
+        <h1 className={stil.baslik1}>Paket ve faturalar</h1>
+        {hata ? <p role="alert">{hata}</p> : <p className={stil.metin1}>Yükleniyor…</p>}
       </>
     );
   }
@@ -380,56 +343,19 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
 
   return (
     <>
-      <h1 style={{ margin: '0 0 18px', fontSize: 26, fontWeight: 800 }}>Paket ve faturalar</h1>
+      <h1 className={stil.baslik1}>Paket ve faturalar</h1>
       {bilgi ? (
-        <p
-          role="status"
-          style={{
-            margin: '0 0 14px',
-            background: '#E7FAF0',
-            color: '#11683F',
-            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-            padding: '10px 14px',
-            fontWeight: 700,
-            fontSize: 14,
-          }}
-        >
+        <p role="status" className={stil.metin2}>
           {bilgi}
         </p>
       ) : null}
       {hata ? (
-        <p
-          role="alert"
-          style={{
-            margin: '0 0 14px',
-            background: '#FDECEC',
-            color: '#A3271F',
-            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-            padding: '10px 14px',
-            fontWeight: 700,
-            fontSize: 14,
-          }}
-        >
+        <p role="alert" className={stil.metin3}>
           {hata}
         </p>
       ) : null}
       {a?.durum === 'PAST_DUE' ? (
-        <div
-          role="alert"
-          style={{
-            margin: '0 0 14px',
-            background: '#FDECEC',
-            color: '#A3271F',
-            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-            padding: '12px 14px',
-            fontSize: 14,
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 10,
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
+        <div role="alert" className={stil.kutu1}>
           <span>
             <strong>Yenileme ödemesi alınamadı.</strong>{' '}
             {a.sonrakiDeneme
@@ -439,7 +365,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
           {sahip && acik ? (
             <button
               type="button"
-              style={{ ...birincil, background: '#FF8A5B' }}
+              className={stil.dugme1}
               onClick={() =>
                 sec({
                   tur: 'yenile',
@@ -455,61 +381,37 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
         </div>
       ) : null}
       {v.paket.saltOkunur ? (
-        <p
-          role="alert"
-          style={{
-            margin: '0 0 14px',
-            background: '#FFF6DF',
-            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-            padding: '10px 14px',
-            fontSize: 14,
-            color: '#7A5300',
-            fontWeight: 600,
-          }}
-        >
+        <p role="alert" className={stil.metin4}>
           {v.paket.key === 'deneme' ? 'Deneme süren bitti.' : 'Paketin sona erdi.'} Paket seçene kadar
           yalnızca portföyünü görüntüleyebilirsin.
         </p>
       ) : null}
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
-        <section
-          aria-labelledby="pk"
-          style={{ ...kart, flex: '2 1 380px', minWidth: 0, border: '2px solid var(--rr-mavi, #5B8CFF)' }}
-        >
-          <span style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--rr-baglanti, #2450C8)' }}>
-            Mevcut paket
-          </span>
+      <div className={stil.kutu2}>
+        <section aria-labelledby="pk" className={stil.kutu3}>
+          <span className={stil.metin5}>Mevcut paket</span>
           {a && mevcut ? (
             <>
-              <h2 id="pk" style={{ margin: '4px 0 2px', fontSize: 24, fontWeight: 800 }}>
+              <h2 id="pk" className={stil.baslik2}>
                 {a.planAd}
               </h2>
-              <p style={{ margin: 0, fontSize: 15, fontWeight: 700 }}>
+              <p className={stil.metin6}>
                 {tl(a.netKurus)} TL / {a.donem === 'aylik' ? 'ay' : 'yıl'}{' '}
-                <span style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)', fontWeight: 500 }}>
+                <span className={stil.metin7}>
                   KDV hariç ·{' '}
                   {a.iptal
                     ? `${tarih(a.bitis)} tarihinde bitecek`
                     : `Yenileme ${tarih(a.bitis)} · PayTR ile otomatik`}
                 </span>
               </p>
-              <ul
-                style={{
-                  margin: '14px 0 0',
-                  paddingLeft: 18,
-                  fontSize: 14,
-                  lineHeight: 1.7,
-                  color: '#3A4052',
-                }}
-              >
+              <ul className={stil.liste1}>
                 {ozellikler(mevcut)
                   .slice(0, 3)
                   .map((x) => (
                     <li key={x}>{x}</li>
                   ))}
               </ul>
-              <p style={{ margin: '12px 0 0', fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
+              <p className={stil.metin8}>
                 Bu ay kalan: {v.haklar.talep} talep hakkı · {v.haklar.ustSira} öne çıkarma ·{' '}
                 {v.haklar.ekMesaj} ek ilk mesaj{a.kart ? ` · Kart: ${a.kart}` : ''}
                 {a.sonraki ? (
@@ -523,16 +425,16 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                 ) : null}
               </p>
               {sahip ? (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 16 }}>
+                <div className={stil.kutu4}>
                   {ust && acik && a.durum === 'ACTIVE' ? (
-                    <button type="button" style={birincil} onClick={() => paketSecim(ust, a.donem)}>
+                    <button type="button" className={stil.dugme2} onClick={() => paketSecim(ust, a.donem)}>
                       {ust.ad} pakete geç
                     </button>
                   ) : null}
                   {a.donem === 'aylik' && a.sonraki?.donem !== 'yillik' ? (
                     <button
                       type="button"
-                      style={ikincil}
+                      className={stil.dugme3}
                       disabled={mesgul}
                       onClick={() =>
                         sonrakiDonem(
@@ -548,7 +450,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                   {a.sonraki ? (
                     <button
                       type="button"
-                      style={ikincil}
+                      className={stil.dugme3}
                       disabled={mesgul}
                       onClick={() => sonrakiDonem(a.plan, a.donem, 'Sonraki dönem değişikliği geri alındı.')}
                     >
@@ -558,21 +460,17 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                 </div>
               ) : null}
               {sahip ? (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 14 }}>
-                  <button type="button" style={baglanti} onClick={() => setPaketlerAcik((x) => !x)}>
+                <div className={stil.kutu5}>
+                  <button type="button" className={stil.dugme4} onClick={() => setPaketlerAcik((x) => !x)}>
                     {paketler ? 'Paketleri gizle' : 'Paketleri karşılaştır'}
                   </button>
-                  <button
-                    type="button"
-                    style={{ ...baglanti, color: '#A3271F' }}
-                    onClick={() => iptal(!a.iptal)}
-                  >
+                  <button type="button" className={stil.dugme5} onClick={() => iptal(!a.iptal)}>
                     {a.iptal ? 'İptali geri al' : 'Aboneliği iptal et'}
                   </button>
                 </div>
               ) : null}
               {a.iptal ? (
-                <p style={{ margin: '10px 0 0', fontSize: 13, color: '#7A5300' }}>
+                <p className={stil.metin9}>
                   İptal ettin: paketin {tarih(a.bitis)} tarihine kadar açık kalır, sonra yenilenmez. Kalan
                   süre için iade yapılmaz.
                 </p>
@@ -580,19 +478,11 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
             </>
           ) : (
             <>
-              <h2 id="pk" style={{ margin: '4px 0 2px', fontSize: 24, fontWeight: 800 }}>
+              <h2 id="pk" className={stil.baslik2}>
                 {v.paket.key === 'deneme' ? 'Ücretsiz deneme' : 'Paket yok'}
               </h2>
               {v.paket.key === 'deneme' && !v.paket.saltOkunur ? (
-                <ul
-                  style={{
-                    margin: '8px 0 10px',
-                    paddingLeft: 18,
-                    fontSize: 14,
-                    lineHeight: 1.7,
-                    color: '#3A4052',
-                  }}
-                >
+                <ul className={stil.liste2}>
                   <li>
                     Profesyonel paketin özellikleri: {GALLERY_TRIAL.portfoy} araçlık portföy, günde{' '}
                     {GALLERY_TRIAL.gunlukMesaj} ilk mesaj, {GALLERY_TRIAL.talep} talep hakkı
@@ -601,7 +491,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                   <li>Öne çıkarma ve API denemede yok</li>
                 </ul>
               ) : null}
-              <p style={{ margin: 0, fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
+              <p className={stil.metin10}>
                 {v.paket.key === 'deneme'
                   ? `Deneme ${tarih(v.paket.denemeBitis)} tarihinde biter; kart istenmez, kendiliğinden ücretli pakete geçmez. Paket seçince deneme biter ve paket hemen başlar.`
                   : v.abonelik?.bitisNedeni === 'odeme_alinamadi'
@@ -612,101 +502,58 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
           )}
         </section>
 
-        <section aria-labelledby="ek" style={{ ...kart, flex: '1 1 260px', minWidth: 0 }}>
-          <h2 id="ek" style={{ margin: '0 0 10px', fontSize: 17, fontWeight: 800 }}>
+        <section aria-labelledby="ek" className={stil.kutu6}>
+          <h2 id="ek" className={stil.baslik3}>
             Ek paket al
           </h2>
-          <p style={{ margin: '0 0 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
-            Limit dolduğunda ay sonunu beklemeden ek hak alabilirsin.
-          </p>
+          <p className={stil.metin11}>Limit dolduğunda ay sonunu beklemeden ek hak alabilirsin.</p>
           {v.ekPaketler.map((e) => (
-            <div
-              key={e.key}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: 8,
-                padding: '10px 0',
-                borderTop: '1px solid #EEF0F5',
-                fontSize: 14,
-              }}
-            >
+            <div key={e.key} className={stil.kutu7}>
               <span>{EK_AD[e.key] ?? e.ad}</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span className={stil.metin12}>
                 <strong>
-                  {tl(e.netKurus)} TL{' '}
-                  <span style={{ fontSize: 12, color: 'var(--rr-soluk, #5A6073)', fontWeight: 600 }}>
-                    + KDV
-                  </span>
+                  {tl(e.netKurus)} TL <span className={stil.metin13}>+ KDV</span>
                 </strong>
                 {sahip && acik && !v.paket.saltOkunur ? (
-                  <button type="button" style={baglanti} onClick={() => ekSecim(e)}>
+                  <button type="button" className={stil.dugme4} onClick={() => ekSecim(e)}>
                     Al
                   </button>
                 ) : null}
               </span>
             </div>
           ))}
-          <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+          <p className={stil.metin14}>
             Üst sıra hak olarak eklenir; Taleplerim'den galerinin talebine uygulanır.
           </p>
         </section>
       </div>
 
       {sahip && (!a || paketler) ? (
-        <section aria-labelledby="pl" style={{ ...kart, marginTop: 16 }}>
-          <h2 id="pl" style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 800 }}>
+        <section aria-labelledby="pl" className={stil.kutu8}>
+          <h2 id="pl" className={stil.baslik4}>
             {a ? 'Paketler' : 'Paket seç'}
           </h2>
-          <p style={{ margin: '0 0 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
+          <p className={stil.metin11}>
             Fiyatlar KDV hariç; yıllık ödemede 2 ay ücretsiz. Üst pakete hemen geçilir (kalan sürenin farkı);
             alt pakete sonraki dönemde.
           </p>
-          {!acik ? (
-            <p style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#7A5300' }}>
-              {v.odeme.not ?? 'Ödemeler şu an kapalı'}
-            </p>
-          ) : null}
+          {!acik ? <p className={stil.metin15}>{v.odeme.not ?? 'Ödemeler şu an kapalı'}</p> : null}
           <div className="rr-uc-sutun">
             {v.paketler.map((p) => (
-              <div
-                key={p.key}
-                style={{
-                  border:
-                    p.degisim === 'ayni'
-                      ? '2px solid var(--rr-mavi, #5B8CFF)'
-                      : '1px solid var(--rr-cizgi, #E3E6EF)',
-                  borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-                  padding: 16,
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <strong style={{ fontSize: 17 }}>{p.ad}</strong>
-                <span style={{ fontSize: 15, fontWeight: 800, marginTop: 4 }}>
+              <div key={p.key} className={cx(stil.kutu9, p.degisim === 'ayni' ? stil.kutu10 : stil.kutu11)}>
+                <strong className={stil.metin16}>{p.ad}</strong>
+                <span className={stil.metin17}>
                   {tl(p.aylikKurus)} TL / ay
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 12.5,
-                      color: 'var(--rr-soluk, #5A6073)',
-                      fontWeight: 600,
-                    }}
-                  >
-                    yıllık {tl(p.yillikKurus)} TL
-                  </span>
+                  <span className={stil.metin18}>yıllık {tl(p.yillikKurus)} TL</span>
                 </span>
-                <ul
-                  style={{ margin: '10px 0 12px', paddingLeft: 18, fontSize: 13, lineHeight: 1.6, flex: 1 }}
-                >
+                <ul className={stil.liste3}>
                   {ozellikler(p).map((x) => (
                     <li key={x}>{x}</li>
                   ))}
                 </ul>
                 {p.degisim !== 'ayni' &&
                 (v.kullanim.calisan > p.calisan || (p.portfoy !== null && v.kullanim.arac > p.portfoy)) ? (
-                  <p style={{ margin: '0 0 10px', fontSize: 12.5, color: '#7A5300', fontWeight: 600 }}>
+                  <p className={stil.metin19}>
                     {v.kullanim.calisan > p.calisan
                       ? `Ekibinde ${v.kullanim.calisan} kullanıcı var; bu pakette en çok ${p.calisan}. `
                       : ''}
@@ -717,14 +564,12 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                   </p>
                 ) : null}
                 {p.degisim === 'ayni' ? (
-                  <span style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--rr-baglanti, #2450C8)' }}>
-                    Mevcut paketin
-                  </span>
+                  <span className={stil.metin20}>Mevcut paketin</span>
                 ) : p.degisim === 'yeni' ? (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  <div className={stil.kutu12}>
                     <button
                       type="button"
-                      style={{ ...birincil, padding: '10px 12px', fontSize: 13.5 }}
+                      className={stil.dugme6}
                       disabled={!acik}
                       onClick={() => paketSecim(p, 'aylik')}
                     >
@@ -732,7 +577,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                     </button>
                     <button
                       type="button"
-                      style={{ ...ikincil, padding: '10px 12px', fontSize: 13.5 }}
+                      className={stil.dugme7}
                       disabled={!acik}
                       onClick={() => paketSecim(p, 'yillik')}
                     >
@@ -742,7 +587,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                 ) : p.degisim === 'yukseltme' ? (
                   <button
                     type="button"
-                    style={{ ...birincil, padding: '10px 12px', fontSize: 13.5 }}
+                    className={stil.dugme6}
                     disabled={!acik || a?.durum !== 'ACTIVE'}
                     onClick={() => paketSecim(p, a?.donem ?? 'aylik')}
                   >
@@ -751,7 +596,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                 ) : a ? (
                   <button
                     type="button"
-                    style={{ ...ikincil, padding: '10px 12px', fontSize: 13.5 }}
+                    className={stil.dugme7}
                     disabled={mesgul || a.sonraki?.plan === p.key}
                     onClick={() =>
                       sonrakiDonem(
@@ -771,54 +616,19 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
       ) : null}
 
       {secim && sahip ? (
-        <section
-          id="odeme"
-          aria-labelledby="od"
-          style={{ ...kart, marginTop: 16, border: '2px solid var(--rr-sari, #FFC84A)' }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
-            <h2 id="od" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+        <section id="odeme" aria-labelledby="od" className={stil.kutu13}>
+          <div className={stil.kutu14}>
+            <h2 id="od" className={stil.baslik5}>
               Ödeme
             </h2>
-            <span
-              style={{
-                fontSize: 12.5,
-                fontWeight: 800,
-                color: '#11683F',
-                background: '#E7FAF0',
-                padding: '4px 10px',
-                borderRadius: 'var(--rr-etiket-kose)',
-              }}
-            >
-              PayTR güvenli ödeme · 3D Secure
-            </span>
+            <span className={stil.metin21}>PayTR güvenli ödeme · 3D Secure</span>
           </div>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: 10,
-              padding: '14px 0',
-              borderBottom: '1px solid #EEF0F5',
-              fontSize: 15,
-            }}
-          >
-            <span style={{ fontWeight: 700 }}>{secim.ad}</span>
+          <div className={stil.kutu15}>
+            <span className={stil.metin22}>{secim.ad}</span>
             <strong>{tlYaz(secim.tutarKurus)}</strong>
           </div>
           {kupon ? (
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                gap: 10,
-                padding: '10px 0',
-                borderBottom: '1px solid #EEF0F5',
-                fontSize: 14.5,
-                fontWeight: 700,
-                color: '#11683F',
-              }}
-            >
+            <div className={stil.kutu16}>
               <span>
                 Kupon {kupon.kod}
                 {secim.tur === 'paket' ? ' · yalnızca ilk ödeme' : ''}
@@ -828,98 +638,57 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
               </span>
             </div>
           ) : secim.tur !== 'yenile' && !siparis ? (
-            <div style={{ padding: '10px 0', borderBottom: '1px solid #EEF0F5' }}>
-              <div style={{ display: 'flex', gap: 8, maxWidth: 420 }}>
+            <div className={stil.kutu17}>
+              <div className={stil.kutu18}>
                 <input
                   value={kuponKod}
                   maxLength={16}
                   placeholder="Kupon kodu"
                   aria-label="Kupon kodu"
                   onChange={(e) => setKuponKod(e.target.value.toLocaleUpperCase('tr-TR'))}
-                  style={{
-                    flex: 1,
-                    minWidth: 0,
-                    border: '1px solid #D5DAE5',
-                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                    padding: '9px 10px',
-                    fontSize: 14,
-                    fontFamily: 'inherit',
-                  }}
+                  className={stil.girdi1}
                 />
                 <button
                   type="button"
                   disabled={kuponKod.trim().length < 4}
                   onClick={kuponUygula}
-                  style={{
-                    flex: 'none',
-                    border: '1px solid #D5DAE5',
-                    background: 'var(--rr-kart, #FFFFFF)',
-                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                    padding: '9px 14px',
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: 'var(--rr-murekkep, #1E2333)',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    opacity: kuponKod.trim().length < 4 ? 0.5 : 1,
-                  }}
+                  className={stil.dugme8}
+                  style={{ opacity: kuponKod.trim().length < 4 ? 0.5 : 1 }}
                 >
                   Uygula
                 </button>
               </div>
               {kuponHata ? (
-                <p
-                  role="alert"
-                  style={{ margin: '6px 0 0', fontSize: 12.5, color: '#A3271F', fontWeight: 700 }}
-                >
+                <p role="alert" className={stil.metin23}>
                   {kuponHata}
                 </p>
               ) : null}
             </div>
           ) : null}
-          <p style={{ margin: '10px 0 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
+          <p className={stil.metin24}>
             {secim.not} Tutar KDV dahildir. Fatura galerinin ticari unvanı ve vergi numarasıyla kesilir.
           </p>
           {siparis ? (
-            <iframe
-              title="PayTR kart bilgileri"
-              src={siparis.odemeAdresi}
-              style={{
-                width: '100%',
-                height: 560,
-                border: '1px solid #D5DAE5',
-                borderRadius: 'var(--rr-buton-kose)',
-              }}
-            />
+            <iframe title="PayTR kart bilgileri" src={siparis.odemeAdresi} className={stil.gorsel1} />
           ) : (
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 ode();
               }}
-              style={{ display: 'grid', gap: 12 }}
+              className={stil.kutu19}
             >
-              <label style={{ fontSize: 13.5, fontWeight: 700 }}>
+              <label className={stil.etiket1}>
                 Faturanın gönderileceği e-posta
                 <input
                   type="email"
                   required
                   value={eposta}
                   onChange={(e) => setEposta(e.target.value)}
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    marginTop: 6,
-                    border: '1px solid #D5DAE5',
-                    borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                    padding: 12,
-                    fontSize: 15,
-                    fontFamily: 'inherit',
-                  }}
+                  className={stil.girdi2}
                 />
               </label>
-              <label style={{ display: 'flex', gap: 10, fontSize: 14, alignItems: 'flex-start' }}>
+              <label className={stil.etiket2}>
                 <input
                   type="checkbox"
                   checked={onay.sozlesme}
@@ -927,7 +696,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                     const c = e.target.checked;
                     setOnay((o) => ({ ...o, sozlesme: c }));
                   }}
-                  style={{ marginTop: 3 }}
+                  className={stil.girdi3}
                 />
                 <span>
                   {secim.tur === 'ek' ? (
@@ -952,7 +721,7 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                 </span>
               </label>
               {secim.tur !== 'ek' ? (
-                <label style={{ display: 'flex', gap: 10, fontSize: 14, alignItems: 'flex-start' }}>
+                <label className={stil.etiket2}>
                   <input
                     type="checkbox"
                     checked={onay.yenileme}
@@ -960,20 +729,20 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
                       const c = e.target.checked;
                       setOnay((o) => ({ ...o, yenileme: c }));
                     }}
-                    style={{ marginTop: 3 }}
+                    className={stil.girdi3}
                   />
                   <span>{RENEWAL_CONSENT}</span>
                 </label>
               ) : null}
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div className={stil.kutu20}>
                 <button
                   type="submit"
-                  style={{ ...birincil, opacity: mesgul ? 0.6 : 1 }}
+                  className={cx(stil.dugme2, mesgul ? stil.dugme9 : stil.dugme10)}
                   disabled={mesgul || !eposta || !onay.sozlesme || (secim.tur !== 'ek' && !onay.yenileme)}
                 >
                   Siparişi onayla ve öde
                 </button>
-                <button type="button" style={ikincil} onClick={() => setSecim(null)}>
+                <button type="button" className={stil.dugme3} onClick={() => setSecim(null)}>
                   Vazgeç
                 </button>
               </div>
@@ -982,66 +751,30 @@ export function Paket({ accountId, onDegisti }: { accountId: string; onDegisti: 
         </section>
       ) : null}
 
-      <section
-        aria-labelledby="ft"
-        style={{
-          marginTop: 16,
-          background: 'var(--rr-kart, #FFFFFF)',
-          border: '1px solid var(--rr-cizgi, #E3E6EF)',
-          borderRadius: 'var(--rr-kart-kose)',
-          overflow: 'hidden',
-        }}
-      >
-        <h2
-          id="ft"
-          style={{
-            margin: 0,
-            padding: '16px 18px',
-            fontSize: 17,
-            fontWeight: 800,
-            borderBottom: '1px solid #EEF0F5',
-          }}
-        >
+      <section aria-labelledby="ft" className={stil.kutu21}>
+        <h2 id="ft" className={stil.baslik6}>
           Faturalar
         </h2>
         {v.faturalar.length ? (
           v.faturalar.map((f) => (
-            <div
-              key={f.id}
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: 10,
-                padding: '12px 18px',
-                borderBottom: '1px solid #EEF0F5',
-                fontSize: 14,
-              }}
-            >
-              <span style={{ fontWeight: 700, flex: '1 1 260px' }}>{f.ad}</span>
-              <span style={{ color: 'var(--rr-soluk, #5A6073)' }}>{tarih(f.tarih)}</span>
-              <span style={{ fontWeight: 800 }}>
+            <div key={f.id} className={stil.kutu22}>
+              <span className={stil.metin25}>{f.ad}</span>
+              <span className={stil.metin1}>{tarih(f.tarih)}</span>
+              <span className={stil.metin26}>
                 {tlYaz(f.tutarKurus)}
-                {f.iadeKurus ? (
-                  <span style={{ marginLeft: 6, fontSize: 12.5, color: '#11683F' }}>
-                    İade: {tlYaz(f.iadeKurus)}
-                  </span>
-                ) : null}
+                {f.iadeKurus ? <span className={stil.metin27}>İade: {tlYaz(f.iadeKurus)}</span> : null}
               </span>
               {f.fatura ? (
-                <button type="button" style={baglanti} onClick={() => faturaIndir(f.id)}>
+                <button type="button" className={stil.dugme4} onClick={() => faturaIndir(f.id)}>
                   E-arşiv faturayı indir
                 </button>
               ) : (
-                <span style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>Fatura hazırlanıyor</span>
+                <span className={stil.metin28}>Fatura hazırlanıyor</span>
               )}
             </div>
           ))
         ) : (
-          <p style={{ margin: 0, padding: '14px 18px', fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
-            Henüz faturan yok.
-          </p>
+          <p className={stil.metin29}>Henüz faturan yok.</p>
         )}
       </section>
     </>

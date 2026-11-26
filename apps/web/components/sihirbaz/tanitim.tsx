@@ -3,7 +3,7 @@
 import { SIHIRBAZ_TANITIM, type SihirbazAdimi, tanitimAnahtari } from '@rengarenk/shared';
 import { useEffect, useRef, useState } from 'react';
 import { istek } from '../../lib/istemci';
-import { colors } from '../../lib/renk';
+import stil from './tanitim.module.css';
 
 /**
  * Sihirbaz adımlarının tanıtımı (sahip isteği, 17 Kasım 2026): üye bir adıma ilk kez geldiğinde o adımı anlatan pencere
@@ -44,66 +44,23 @@ export function SihirbazTanitimi({
     istek('/me/tanitim', { method: 'POST', body: { anahtar } }).catch(() => undefined);
   };
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 60,
-        background: 'rgba(30, 35, 51, 0.45)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 16,
-      }}
-    >
+    <div className={stil.kutu1}>
       <div
         role="dialog"
         aria-modal="true"
         onKeyDown={(e) => e.key === 'Escape' && kapat()}
         aria-labelledby="tanitim-baslik"
-        style={{
-          width: '100%',
-          maxWidth: 460,
-          background: colors.surface,
-          borderRadius: 'calc(var(--rr-kart-kose) * 20 / 18)',
-          padding: '24px 24px 20px',
-          boxShadow: '0 18px 50px rgba(30, 35, 51, 0.25)',
-        }}
+        className={stil.kutu2}
       >
-        <span
-          style={{
-            display: 'inline-block',
-            fontSize: 12.5,
-            fontWeight: 800,
-            color: colors.onBlue,
-            background: colors.blue,
-            borderRadius: 'var(--rr-etiket-kose)',
-            padding: '4px 10px',
-          }}
-        >
+        <span className={stil.metin1}>
           Adım {sira} / {toplam}
         </span>
-        <h2 id="tanitim-baslik" style={{ margin: '14px 0 8px', fontSize: 20, fontWeight: 800 }}>
+        <h2 id="tanitim-baslik" className={stil.baslik1}>
           {t.baslik}
         </h2>
-        <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: colors.muted }}>{t.metin}</p>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
-          <button
-            ref={dugme}
-            type="button"
-            onClick={kapat}
-            style={{
-              border: 0,
-              background: colors.blue,
-              color: colors.onBlue,
-              borderRadius: 'var(--rr-buton-kose)',
-              padding: '12px 24px',
-              fontSize: 15,
-              fontWeight: 800,
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
-          >
+        <p className={stil.metin2}>{t.metin}</p>
+        <div className={stil.kutu3}>
+          <button ref={dugme} type="button" onClick={kapat} className={stil.dugme1}>
             Anladım
           </button>
         </div>

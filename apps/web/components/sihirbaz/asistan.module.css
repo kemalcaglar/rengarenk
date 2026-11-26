@@ -1,0 +1,76 @@
+/* Bu dosya asistan.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  border: 1.5px solid #c9b8ff;
+  background: #faf7ff;
+  border-radius: calc(var(--rr-kart-kose) * 16 / 18);
+  padding: 16px;
+  margin-bottom: 18px;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 15.5px;
+  font-weight: 800;
+  color: #4b2fa6;
+}
+.metin1 {
+  margin: 4px 0 10px;
+  font-size: 13px;
+  color: var(--rr-soluk, #5a6073);
+  line-height: 1.45;
+}
+.girdi1 {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d5dae5;
+  border-radius: var(--rr-buton-kose);
+  padding: 12px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  font-family: inherit;
+  resize: vertical;
+  background: var(--rr-kart, #ffffff);
+}
+.kutu2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.dugme1 {
+  border: 0;
+  background: transparent;
+  padding: 6px 0;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--rr-baglanti, #2450c8);
+  font-family: inherit;
+}
+.dugme2 {
+  cursor: default;
+}
+.dugme3 {
+  cursor: pointer;
+}
+.metin2 {
+  font-size: 12px;
+  color: var(--rr-soluk, #5a6073);
+}
+.metin3 {
+  margin: 8px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #a3271f;
+}
+.kutu3 {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--rr-murekkep, #1e2333);
+}
+.metin4 {
+  display: block;
+  margin-top: 4px;
+  color: #7a5300;
+  font-weight: 600;
+}

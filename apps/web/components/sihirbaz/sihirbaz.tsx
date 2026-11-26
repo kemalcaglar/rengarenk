@@ -27,17 +27,18 @@ import {
   useRef,
   useState,
 } from 'react';
+import { cx } from '../../lib/cx';
 import { useWebFiyat } from '../../lib/fiyat';
 import { ApiHatasi, binlik, istek, useGiris } from '../../lib/istemci';
 import { olcumOlayi } from '../../lib/olcum';
-import { colors } from '../../lib/renk';
 import { Logo } from '../logo';
 import { AciklamaEditoru } from './aciklama-editoru';
-import { Alan, Anahtar, Cip, etiket, Konum, kutu, secimKutusu } from './alan';
+import { Alan, Anahtar, Cip, Konum } from './alan';
 import { Asistan } from './asistan';
 import { type BoyaDegeri, BoyaSemasi, boyaOzeti } from './boya';
 import { ButceKoluSaglayici, butceOlayi, useDeneyKolu } from './deney';
 import { type KatalogDegeri, katalogKategorisi, useKatalog } from './katalog';
+import stil from './sihirbaz.module.css';
 import { SihirbazTanitimi } from './tanitim';
 
 const TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0', '#F3EFFF', '#FFF0EA'];
@@ -109,12 +110,6 @@ interface Haklar {
   /** Galeri adına talepte galerinin adı (paketin talep hakkı) */
   galeri: string | null;
 }
-
-const kart: CSSProperties = {
-  background: 'var(--rr-kart, #FFFFFF)',
-  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-  borderRadius: 'calc(var(--rr-kart-kose) * 20 / 18)',
-};
 
 /**
  * Talep oluşturma sihirbazı (tasarım: Sihirbaz.dc.html; Karar 04, 05, 21, 32). Alanlar kategorinin yayındaki
@@ -399,7 +394,7 @@ export function Sihirbaz() {
   }
 
   if (giris !== true) {
-    return <p style={{ padding: 40, textAlign: 'center', color: 'var(--rr-soluk, #5A6073)' }}>Yükleniyor…</p>;
+    return <p className={stil.metin1}>Yükleniyor…</p>;
   }
 
   const kat = kategoriler?.find(
@@ -415,43 +410,21 @@ export function Sihirbaz() {
         toplam={gorunen.length}
         acik={adim === 'kategori' || Boolean(taslak)}
       />
-      <div style={{ background: 'var(--rr-zemin, #F6F8FD)', minHeight: '100vh' }}>
-        <header
-          style={{
-            background: 'var(--rr-kart, #FFFFFF)',
-            borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)',
-          }}
-        >
-          <div
-            className="rr-sihirbaz-ust"
-            style={{
-              maxWidth: 1360,
-              margin: '0 auto',
-              padding: '14px 24px',
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 12,
-            }}
-          >
+      <div className={stil.kutu1}>
+        <header className={stil.kutu2}>
+          <div className={`rr-sihirbaz-ust ${stil.kutu3}`}>
             <Logo />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div className={stil.kutu4}>
               {kayit ? (
                 <span
-                  className="rr-sihirbaz-kayit"
+                  className={`rr-sihirbaz-kayit ${stil.metin2}`}
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    fontSize: 13.5,
                     color:
                       kayit === 'hata'
                         ? '#A3271F'
                         : kayit === 'kaydediliyor'
                           ? 'var(--rr-soluk, #5A6073)'
                           : '#11683F',
-                    fontWeight: 600,
                   }}
                 >
                   {kayit === 'kaydedildi' ? (
@@ -476,42 +449,18 @@ export function Sihirbaz() {
                       : 'Kaydedilemedi'}
                 </span>
               ) : null}
-              <Link
-                href="/taleplerim"
-                style={{
-                  fontSize: 14.5,
-                  fontWeight: 700,
-                  color: 'var(--rr-murekkep, #1E2333)',
-                  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                  padding: '10px 16px',
-                  textDecoration: 'none',
-                }}
-              >
+              <Link href="/taleplerim" className={stil.bag1}>
                 {duzenle ? 'Vazgeç' : 'Kaydet ve çık'}
               </Link>
             </div>
           </div>
         </header>
 
-        <div
-          style={{
-            background: 'var(--rr-kart, #FFFFFF)',
-            borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)',
-          }}
-        >
+        <div className={stil.kutu2}>
           <ol
             aria-label="Adımlar"
-            className="rr-adimlar"
-            style={{
-              maxWidth: 1360,
-              margin: '0 auto',
-              padding: '14px 24px',
-              listStyle: 'none',
-              display: 'grid',
-              gridTemplateColumns: `repeat(${gorunen.length}, minmax(0, 1fr))`,
-              gap: 8,
-            }}
+            className={`rr-adimlar ${stil.liste1}`}
+            style={{ gridTemplateColumns: `repeat(${gorunen.length}, minmax(0, 1fr))` }}
           >
             {gorunen.map((a, i) => {
               const done = i < sira;
@@ -522,39 +471,13 @@ export function Sihirbaz() {
                     type="button"
                     onClick={() => git(a.key)}
                     aria-current={cur ? 'step' : undefined}
-                    style={{
-                      width: '100%',
-                      border: 0,
-                      background: 'transparent',
-                      padding: '6px 0',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 8,
-                      fontFamily: 'inherit',
-                    }}
+                    className={stil.dugme1}
                   >
-                    <span
-                      style={{
-                        display: 'block',
-                        height: 6,
-                        borderRadius: 'calc(var(--rr-buton-kose) * 3 / 14)',
-                        background: done || cur ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-cizgi, #E3E6EF)',
-                        color: done || cur ? 'var(--rr-maviYazi, #1E2333)' : undefined,
-                      }}
-                    />
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span className={cx(stil.metin3, done || cur ? stil.metin4 : stil.metin5)} />
+                    <span className={stil.metin6}>
                       <span
+                        className={stil.metin7}
                         style={{
-                          width: 26,
-                          height: 26,
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: 13,
-                          fontWeight: 800,
                           background: done
                             ? 'var(--rr-mavi, #5B8CFF)'
                             : cur
@@ -566,19 +489,17 @@ export function Sihirbaz() {
                               ? 'var(--rr-baglanti, #2450C8)'
                               : 'var(--rr-soluk, #5A6073)',
                           border: `2px solid ${done || cur ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-cizgi, #E3E6EF)'}`,
-                          boxSizing: 'border-box',
-                          flex: 'none',
                         }}
                       >
                         {done ? '✓' : i + 1}
                       </span>
                       <span
-                        className="rr-adim-ad"
-                        style={{
-                          fontSize: 13.5,
-                          fontWeight: cur ? 800 : 600,
-                          color: cur || done ? 'var(--rr-murekkep, #1E2333)' : 'var(--rr-soluk, #5A6073)',
-                        }}
+                        className={cx(
+                          'rr-adim-ad',
+                          stil.metin8,
+                          cur ? stil.metin9 : stil.metin10,
+                          cur || done ? stil.metin11 : stil.metin12,
+                        )}
                       >
                         {a.ad}
                       </span>
@@ -590,50 +511,23 @@ export function Sihirbaz() {
           </ol>
         </div>
 
-        <main
-          style={{
-            maxWidth: 1360,
-            margin: '0 auto',
-            padding: '28px 24px 64px',
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'flex-start',
-            gap: 24,
-          }}
-        >
-          <div
-            className="rr-sihirbaz-kart"
-            style={{ ...kart, flex: '999 1 640px', minWidth: 0, padding: 28 }}
-          >
-            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: 'var(--rr-baglanti, #2450C8)' }}>
+        <main className={`rr-sayfa ${stil.kutu5}`}>
+          <div className={`rr-sihirbaz-kart ${stil.kutu6}`}>
+            <p className={stil.metin13}>
               Adım {sira + 1} / {gorunen.length}
             </p>
-            <h1 style={{ margin: '4px 0 6px', fontSize: 26, fontWeight: 800, letterSpacing: -0.3 }}>
-              {tanim.baslik}
-            </h1>
-            <p style={{ margin: '0 0 24px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
+            <h1 className={stil.baslik1}>{tanim.baslik}</h1>
+            <p className={stil.metin14}>
               {adim === 'onizleme'
                 ? `Her şey doğruysa talebini yayınla; ${taslak?.schema?.rules.listingDays ?? 30} gün boyunca satıcılar seni bulsun.`
                 : tanim.alt}
             </p>
 
             {uyari ? (
-              <div
-                role="alert"
-                style={{
-                  marginBottom: 18,
-                  background: '#FDECEC',
-                  border: '1px solid #F5C2BE',
-                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                  padding: '12px 14px',
-                  fontSize: 14,
-                  color: '#A3271F',
-                  fontWeight: 600,
-                }}
-              >
+              <div role="alert" className={stil.kutu7}>
                 {uyari}
                 {hatalar.length > 1 ? (
-                  <ul style={{ margin: '6px 0 0', paddingLeft: 18, fontWeight: 500 }}>
+                  <ul className={stil.liste2}>
                     {hatalar.slice(0, 6).map((h) => (
                       <li key={h.path}>{h.message}</li>
                     ))}
@@ -645,9 +539,9 @@ export function Sihirbaz() {
             {adim === 'kategori' ? (
               <>
                 {galeriler.length && (!taslak || taslak.hesap) ? (
-                  <fieldset style={{ border: 0, padding: 0, margin: '0 0 18px' }}>
-                    <legend style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>Kimin adına?</legend>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  <fieldset className={stil.kutu8}>
+                    <legend className={stil.baslik2}>Kimin adına?</legend>
+                    <div className={stil.kutu9}>
                       {[{ accountId: null as string | null, ad: 'Kendi adıma' }, ...galeriler].map((g) => {
                         const on = (taslak ? (taslak.hesap?.id ?? null) : hesap) === g.accountId;
                         return (
@@ -657,38 +551,25 @@ export function Sihirbaz() {
                             aria-pressed={on}
                             disabled={!!taslak}
                             onClick={() => setHesap(g.accountId)}
-                            style={{
-                              border: on ? '2px solid var(--rr-mavi, #5B8CFF)' : '1px solid #D5DAE5',
-                              background: on ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
-                              borderRadius: 'var(--rr-etiket-kose)',
-                              padding: on ? '8px 14px' : '9px 15px',
-                              fontSize: 14,
-                              fontWeight: 700,
-                              color: 'var(--rr-murekkep, #1E2333)',
-                              cursor: taslak ? 'default' : 'pointer',
-                              fontFamily: 'inherit',
-                            }}
+                            className={cx(
+                              stil.dugme2,
+                              on ? stil.dugme3 : stil.dugme4,
+                              taslak ? stil.dugme5 : stil.dugme6,
+                            )}
                           >
                             {g.accountId ? `${g.ad} adına` : g.ad}
                           </button>
                         );
                       })}
                     </div>
-                    <p style={{ margin: '8px 0 0', fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
+                    <p className={stil.metin15}>
                       {taslak
                         ? 'Taslak açıldıktan sonra hesap değişmez.'
                         : 'Galeri adına talepte paketin talep hakkı kullanılır ve alıcı olarak galerinin adı görünür.'}
                     </p>
                   </fieldset>
                 ) : null}
-                <div
-                  className="rr-kategori-izgara"
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-                    gap: 12,
-                  }}
-                >
+                <div className={`rr-kategori-izgara ${stil.kutu10}`}>
                   {(kategoriler ?? []).map((c) => {
                     const sel = taslak?.category.slug === c.slug || katUst === c.slug || ust === c.slug;
                     const ti = Math.max(0, (DOTS as readonly string[]).indexOf(c.color));
@@ -699,58 +580,16 @@ export function Sihirbaz() {
                         aria-pressed={sel}
                         disabled={busy}
                         onClick={() => (c.children.length ? setUst(c.slug) : kategoriSec(c.slug))}
-                        style={{
-                          textAlign: 'left',
-                          border: sel
-                            ? '2px solid var(--rr-mavi, #5B8CFF)'
-                            : '1px solid var(--rr-cizgi, #E3E6EF)',
-                          background: sel ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
-                          borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-                          padding: sel ? 16 : 17,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: 10,
-                          fontFamily: 'inherit',
-                        }}
+                        className={cx(stil.dugme7, sel ? stil.dugme8 : stil.dugme9)}
                       >
                         {sel ? (
-                          <span
-                            aria-hidden="true"
-                            style={{
-                              width: 34,
-                              height: 34,
-                              borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                              background: c.color,
-                            }}
-                          />
+                          <span aria-hidden="true" className={stil.metin16} style={{ background: c.color }} />
                         ) : (
-                          <span
-                            aria-hidden="true"
-                            style={{
-                              width: 34,
-                              height: 34,
-                              borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                              background: TINTS[ti],
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            <span
-                              style={{ width: 12, height: 12, borderRadius: '50%', background: c.color }}
-                            />
+                          <span aria-hidden="true" className={stil.metin17} style={{ background: TINTS[ti] }}>
+                            <span className={stil.metin18} style={{ background: c.color }} />
                           </span>
                         )}
-                        <span
-                          style={{
-                            fontSize: 15,
-                            fontWeight: sel ? 800 : 700,
-                            color: 'var(--rr-murekkep, #1E2333)',
-                          }}
-                        >
-                          {c.name}
-                        </span>
+                        <span className={cx(stil.metin19, sel ? stil.metin9 : stil.metin20)}>{c.name}</span>
                       </button>
                     );
                   })}
@@ -759,9 +598,9 @@ export function Sihirbaz() {
                   const u = kategoriler?.find((c) => c.slug === (ust ?? katUst));
                   if (!u?.children.length) return null;
                   return (
-                    <div style={{ marginTop: 22 }}>
-                      <span style={etiket}>{u.name} · alt kategori</span>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    <div className={stil.kutu11}>
+                      <span className={stil.metin21}>{u.name} · alt kategori</span>
+                      <div className={stil.kutu9}>
                         {u.children.map((x) => (
                           <Cip
                             key={x.slug}
@@ -805,37 +644,19 @@ export function Sihirbaz() {
 
             {adim === 'kriterler' && taslak ? (
               <>
-                <div
-                  role="tablist"
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 6,
-                    borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)',
-                    marginBottom: 22,
-                  }}
-                >
+                <div role="tablist" className={stil.kutu12}>
                   {veri.alternatifler.map((_, i) => (
                     // biome-ignore lint/suspicious/noArrayIndexKey: alternatiflerin kimliği sırasıdır (Alternatif 1, 2 …)
-                    <span key={i} style={{ display: 'flex', alignItems: 'center' }}>
+                    <span key={i} className={stil.metin22}>
                       <button
                         type="button"
                         role="tab"
                         aria-selected={alt === i}
                         onClick={() => setAlt(i)}
+                        className={cx(stil.dugme10, alt === i ? stil.dugme11 : stil.dugme12)}
                         style={{
                           border: 0,
-                          borderRadius:
-                            'calc(var(--rr-buton-kose) * 12 / 14) calc(var(--rr-buton-kose) * 12 / 14) 0 0',
-                          padding: '11px 18px',
-                          fontSize: 14.5,
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          marginBottom: -1,
-                          background: alt === i ? '#EEF3FF' : 'transparent',
-                          color: alt === i ? 'var(--rr-murekkep, #1E2333)' : 'var(--rr-soluk, #5A6073)',
                           borderBottom: `3px solid ${alt === i ? 'var(--rr-mavi, #5B8CFF)' : 'transparent'}`,
-                          fontFamily: 'inherit',
                         }}
                       >
                         Alternatif {i + 1}
@@ -851,14 +672,7 @@ export function Sihirbaz() {
                             }));
                             setAlt(i - 1);
                           }}
-                          style={{
-                            border: 0,
-                            background: 'transparent',
-                            color: 'var(--rr-soluk, #5A6073)',
-                            fontSize: 16,
-                            cursor: 'pointer',
-                            padding: '0 6px',
-                          }}
+                          className={stil.dugme13}
                         >
                           ×
                         </button>
@@ -866,20 +680,7 @@ export function Sihirbaz() {
                     </span>
                   ))}
                   {veri.alternatifler.length < MAX_ALTERNATIVES ? (
-                    <button
-                      type="button"
-                      onClick={() => alternatifEkle(false)}
-                      style={{
-                        border: 0,
-                        background: 'transparent',
-                        color: 'var(--rr-baglanti, #2450C8)',
-                        fontWeight: 700,
-                        fontSize: 14.5,
-                        padding: '11px 12px',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
-                    >
+                    <button type="button" onClick={() => alternatifEkle(false)} className={stil.dugme14}>
                       + Alternatif ekle
                     </button>
                   ) : null}
@@ -901,7 +702,7 @@ export function Sihirbaz() {
             ) : null}
 
             {adim === 'boya_hasar' && taslak ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+              <div className={stil.kutu13}>
                 {adimAlanlari('boya_hasar')
                   .filter(gorunur)
                   .map((f) =>
@@ -923,14 +724,14 @@ export function Sihirbaz() {
 
             {adim === 'konum_iletisim' && taslak ? (
               <>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 16 }}>
+                <div className={stil.kutu14}>
                   {alanlar
                     .filter((f) => f.key === 'konum')
                     .map((f) => (
                       <Konum key={f.key} f={f} value={deger(f)} onChange={yaz(f)} hata={hataOf(f)} />
                     ))}
-                  <div style={{ gridColumn: 'span 2' }}>
-                    <label htmlFor="baslik" style={{ ...etiket, marginBottom: 6 }}>
+                  <div className={stil.kutu15}>
+                    <label htmlFor="baslik" className={stil.etiket1}>
                       Talep başlığı
                     </label>
                     <input
@@ -942,13 +743,13 @@ export function Sihirbaz() {
                         kirli.current = true;
                         setBaslik(e.target.value);
                       }}
-                      style={kutu}
+                      className={stil.girdi1}
                     />
                   </div>
                   {alanlar
                     .filter((f) => f.step === 'konum_iletisim' && f.key !== 'konum' && gorunur(f))
                     .map((f) => (
-                      <div key={f.key} style={{ gridColumn: f.type === 'text' ? 'span 2' : undefined }}>
+                      <div key={f.key} className={cx(f.type === 'text' ? stil.kutu15 : undefined)}>
                         {f.key === 'aciklama' ? (
                           <AciklamaEditoru
                             f={f}
@@ -962,27 +763,12 @@ export function Sihirbaz() {
                       </div>
                     ))}
                 </div>
-                <h2 style={{ margin: '26px 0 12px', fontSize: 18, fontWeight: 700 }}>
-                  Satıcılar sana nasıl ulaşsın?
-                </h2>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <h2 className={stil.baslik3}>Satıcılar sana nasıl ulaşsın?</h2>
+                <div className={stil.kutu16}>
                   <Satir
                     baslik="Uygulama içi mesaj"
                     alt="Her talepte açık; satıcılar tek ilk mesaj atabilir."
-                    sag={
-                      <span
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 700,
-                          color: '#11683F',
-                          background: '#E7FAF0',
-                          padding: '5px 10px',
-                          borderRadius: 'var(--rr-etiket-kose)',
-                        }}
-                      >
-                        Her zaman açık
-                      </span>
-                    }
+                    sag={<span className={stil.metin23}>Her zaman açık</span>}
                   />
                   <Satir
                     baslik="Telefon numaramı göster"
@@ -1052,32 +838,12 @@ export function Sihirbaz() {
               />
             ) : null}
 
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 12,
-                marginTop: 30,
-                paddingTop: 20,
-                borderTop: '1px solid #EEF0F5',
-              }}
-            >
+            <div className={stil.kutu17}>
               {sira > 0 ? (
                 <button
                   type="button"
                   onClick={() => git(gorunen[sira - 1]?.key ?? 'kategori')}
-                  style={{
-                    border: '1px solid #D5DAE5',
-                    background: 'var(--rr-kart, #FFFFFF)',
-                    borderRadius: 'var(--rr-buton-kose)',
-                    padding: '13px 22px',
-                    fontSize: 15,
-                    fontWeight: 700,
-                    color: 'var(--rr-murekkep, #1E2333)',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
+                  className={stil.dugme15}
                 >
                   Geri
                 </button>
@@ -1089,18 +855,10 @@ export function Sihirbaz() {
                   type="button"
                   disabled={busy || (!duzenle && (!haklar || haklar.talep < 1))}
                   onClick={yayinla}
-                  style={{
-                    border: 0,
-                    background: 'var(--rr-mavi, #5B8CFF)',
-                    borderRadius: 'var(--rr-buton-kose)',
-                    padding: '14px 28px',
-                    fontSize: 15.5,
-                    fontWeight: 800,
-                    color: 'var(--rr-maviYazi, #1E2333)',
-                    cursor: 'pointer',
-                    opacity: busy || (!duzenle && (!haklar || haklar.talep < 1)) ? 0.55 : 1,
-                    fontFamily: 'inherit',
-                  }}
+                  className={cx(
+                    stil.dugme16,
+                    busy || (!duzenle && (!haklar || haklar.talep < 1)) ? stil.dugme17 : stil.dugme18,
+                  )}
                 >
                   {busy
                     ? duzenle
@@ -1117,18 +875,7 @@ export function Sihirbaz() {
                   type="button"
                   disabled={!taslak || busy}
                   onClick={() => git(gorunen[sira + 1]?.key ?? 'onizleme')}
-                  style={{
-                    border: 0,
-                    background: 'var(--rr-mavi, #5B8CFF)',
-                    borderRadius: 'var(--rr-buton-kose)',
-                    padding: '14px 28px',
-                    fontSize: 15.5,
-                    fontWeight: 800,
-                    color: 'var(--rr-maviYazi, #1E2333)',
-                    cursor: taslak ? 'pointer' : 'default',
-                    opacity: taslak ? 1 : 0.55,
-                    fontFamily: 'inherit',
-                  }}
+                  className={cx(stil.dugme19, taslak ? stil.dugme20 : stil.dugme21)}
                 >
                   Devam et
                 </button>
@@ -1145,22 +892,10 @@ export function Sihirbaz() {
 
 function Satir({ baslik, alt, sag }: { baslik: string; alt: string; sag: ReactNode }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 12,
-        border: '1px solid #EEF0F5',
-        borderRadius: 'var(--rr-buton-kose)',
-        padding: '14px 16px',
-      }}
-    >
+    <div className={stil.kutu18}>
       <span>
-        <span style={{ display: 'block', fontSize: 15, fontWeight: 700 }}>{baslik}</span>
-        <span style={{ display: 'block', fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}>
-          {alt}
-        </span>
+        <span className={stil.metin24}>{baslik}</span>
+        <span className={stil.metin25}>{alt}</span>
       </span>
       {sag}
     </div>
@@ -1190,28 +925,25 @@ function AnaArac({ alanlar, veri, kategori, deger, yaz, gorunur, hataOf }: AdimP
       {alanlar
         .filter((f) => f.type !== 'catalog' && gorunur(f))
         .map((f) => (
-          <div key={f.key} style={{ marginBottom: 18 }}>
+          <div key={f.key} className={stil.kutu19}>
             <Alan f={f} value={deger(f)} onChange={yaz(f)} hata={hataOf(f)} />
           </div>
         ))}
       {katalog ? (
         <>
           <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: `repeat(${seriYok ? 2 : 3}, minmax(0, 1fr))`,
-              gap: 16,
-            }}
+            className={stil.kutu20}
+            style={{ gridTemplateColumns: `repeat(${seriYok ? 2 : 3}, minmax(0, 1fr))` }}
           >
             <div>
-              <label htmlFor="marka" style={{ ...etiket, marginBottom: 6 }}>
+              <label htmlFor="marka" className={stil.etiket1}>
                 Marka
               </label>
               <select
                 id="marka"
                 value={v?.make ?? ''}
                 onChange={(e) => set(e.target.value ? { make: e.target.value } : undefined)}
-                style={secimKutusu}
+                className={stil.girdi2}
               >
                 <option value="">{k.hazir ? 'Seç' : 'Yükleniyor…'}</option>
                 {(k.makes ?? []).map((m) => (
@@ -1223,7 +955,7 @@ function AnaArac({ alanlar, veri, kategori, deger, yaz, gorunur, hataOf }: AdimP
             </div>
             {seriYok ? null : (
               <div>
-                <label htmlFor="seri" style={{ ...etiket, marginBottom: 6 }}>
+                <label htmlFor="seri" className={stil.etiket1}>
                   Seri
                 </label>
                 <select
@@ -1233,7 +965,7 @@ function AnaArac({ alanlar, veri, kategori, deger, yaz, gorunur, hataOf }: AdimP
                   onChange={(e) =>
                     v && set({ make: v.make, ...(e.target.value ? { series: e.target.value } : {}) })
                   }
-                  style={secimKutusu}
+                  className={stil.girdi2}
                 >
                   <option value="">{v?.make ? 'Tüm seriler' : 'Önce marka seç'}</option>
                   {(k.series ?? []).map((s) => (
@@ -1245,7 +977,7 @@ function AnaArac({ alanlar, veri, kategori, deger, yaz, gorunur, hataOf }: AdimP
               </div>
             )}
             <div>
-              <label htmlFor="model" style={{ ...etiket, marginBottom: 6 }}>
+              <label htmlFor="model" className={stil.etiket1}>
                 Model
               </label>
               <select
@@ -1253,7 +985,7 @@ function AnaArac({ alanlar, veri, kategori, deger, yaz, gorunur, hataOf }: AdimP
                 value={v?.model ?? ''}
                 disabled={seriYok ? !v?.make : !v?.series}
                 onChange={(e) => v && set({ ...v, model: e.target.value || undefined })}
-                style={secimKutusu}
+                className={stil.girdi2}
               >
                 <option value="">
                   {(seriYok ? v?.make : v?.series)
@@ -1271,47 +1003,28 @@ function AnaArac({ alanlar, veri, kategori, deger, yaz, gorunur, hataOf }: AdimP
             </div>
           </div>
           {k.teknik && teknikSatirlari(k.teknik).length ? (
-            <div
-              style={{
-                marginTop: 14,
-                background: colors.surface,
-                border: `1px solid ${colors.line}`,
-                borderRadius: 'calc(var(--rr-kart-kose) * 14 / 18)',
-                padding: '12px 16px',
-              }}
-            >
-              <p style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 700 }}>Teknik özellikler</p>
-              <dl
-                style={{
-                  margin: 0,
-                  display: 'grid',
-                  gridTemplateColumns: 'auto 1fr',
-                  gap: '4px 14px',
-                  fontSize: 13,
-                }}
-              >
+            <div className={stil.kutu21}>
+              <p className={stil.metin26}>Teknik özellikler</p>
+              <dl className={stil.liste3}>
                 {teknikSatirlari(k.teknik).map(([etiket, deger]) => (
                   <Fragment key={etiket}>
-                    <dt style={{ color: colors.muted }}>{etiket}</dt>
-                    <dd style={{ margin: 0, fontWeight: 600 }}>{deger}</dd>
+                    <dt className={stil.metin12}>{etiket}</dt>
+                    <dd className={stil.metin27}>{deger}</dd>
                   </Fragment>
                 ))}
               </dl>
-              <p style={{ margin: '8px 0 0', fontSize: 11.5, color: colors.muted }}>{TEKNIK_KAYNAK}</p>
+              <p className={stil.metin28}>{TEKNIK_KAYNAK}</p>
             </div>
           ) : null}
           {hataOf(katalog) ? (
-            <span
-              role="alert"
-              style={{ display: 'block', fontSize: 12.5, color: '#A3271F', fontWeight: 700, marginTop: 6 }}
-            >
+            <span role="alert" className={stil.metin29}>
               {hataOf(katalog)}
             </span>
           ) : null}
           {populer.length ? (
             <>
-              <p style={{ margin: '18px 0 10px', fontSize: 13.5, fontWeight: 700 }}>Popüler markalar</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <p className={stil.metin30}>Popüler markalar</p>
+              <div className={stil.kutu9}>
                 {populer.map((m) => (
                   <Cip key={m.key} on={v?.make === m.key} onClick={() => set({ make: m.key })}>
                     {m.name}
@@ -1321,17 +1034,7 @@ function AnaArac({ alanlar, veri, kategori, deger, yaz, gorunur, hataOf }: AdimP
             </>
           ) : null}
           {k.detail && k.kusaklar.length ? (
-            <div
-              style={{
-                marginTop: 22,
-                background: '#EEF3FF',
-                borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-                padding: '16px 18px',
-                display: 'flex',
-                gap: 14,
-                alignItems: 'flex-start',
-              }}
-            >
+            <div className={stil.kutu22}>
               <svg
                 width="22"
                 height="22"
@@ -1341,18 +1044,18 @@ function AnaArac({ alanlar, veri, kategori, deger, yaz, gorunur, hataOf }: AdimP
                 strokeWidth="2"
                 strokeLinecap="round"
                 aria-hidden="true"
-                style={{ flex: 'none' }}
+                className={stil.gorsel1}
               >
                 <circle cx="12" cy="12" r="9" />
                 <path d="M12 11v5M12 8h.01" />
               </svg>
               <div>
-                <div style={{ fontSize: 14.5, fontWeight: 700 }}>
+                <div className={stil.kutu23}>
                   {[k.adlar.make, k.adlar.series, k.adlar.model].filter(Boolean).join(' ')} için katalogda{' '}
                   {k.kusaklar.length} kasa
                   {k.paketler.length ? ` ve ${k.paketler.length} donanım paketi` : ''} var
                 </div>
-                <div style={{ fontSize: 14, color: '#3A4052', marginTop: 4, lineHeight: 1.55 }}>
+                <div className={stil.kutu24}>
                   {k.kusaklar
                     .slice(-6)
                     .map((x) => `${x.label} (${x.alt})`)
@@ -1362,7 +1065,7 @@ function AnaArac({ alanlar, veri, kategori, deger, yaz, gorunur, hataOf }: AdimP
               </div>
             </div>
           ) : null}
-          <p style={{ margin: '16px 0 0', fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
+          <p className={stil.metin31}>
             Katalog kendiliğinden güncellenir; Türkiye'de satılmış ve satılan marka, model ve paketler
             listededir.
           </p>
@@ -1516,21 +1219,15 @@ function Kriterler({
 
   const gosterilen = k.kusaklar.filter((x) => eskiler || x.yeni || x === seciliKusak);
   const gizli = k.kusaklar.length - gosterilen.length;
-  const not: CSSProperties = {
-    display: 'block',
-    fontSize: 12.5,
-    color: 'var(--rr-soluk, #5A6073)',
-    marginTop: 6,
-  };
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '18px 20px' }}>
+    <div className={stil.kutu25}>
       {sorular.slice(0, acik).map((f) => {
         if (f.key === 'kasa' && f.source === 'katalog') {
           return (
-            <div key={f.key} style={{ gridColumn: '1 / -1' }}>
-              <span style={etiket}>{f.label}</span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <div key={f.key} className={stil.kutu26}>
+              <span className={stil.metin21}>{f.label}</span>
+              <div className={stil.kutu9}>
                 {gosterilen.map((x) => (
                   <Cip
                     key={x.value}
@@ -1543,19 +1240,7 @@ function Kriterler({
                   </Cip>
                 ))}
                 {gizli > 0 ? (
-                  <button
-                    type="button"
-                    onClick={() => setEskiler(true)}
-                    style={{
-                      border: 0,
-                      background: 'transparent',
-                      color: 'var(--rr-baglanti, #2450C8)',
-                      fontWeight: 700,
-                      fontSize: 14,
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
+                  <button type="button" onClick={() => setEskiler(true)} className={stil.dugme22}>
                     Daha eski kasalar ({gizli})
                   </button>
                 ) : null}
@@ -1566,15 +1251,7 @@ function Kriterler({
                 ) : null}
               </div>
               {seciliKusak ? (
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 13.5,
-                    color: 'var(--rr-baglanti, #2450C8)',
-                    fontWeight: 700,
-                    marginTop: 10,
-                  }}
-                >
+                <span className={stil.metin32}>
                   Model yılı:{' '}
                   {seciliKusak.min === seciliKusak.max
                     ? seciliKusak.min
@@ -1582,23 +1259,10 @@ function Kriterler({
                   (seçtiğin kasadan)
                 </span>
               ) : null}
-              <span style={not}>
+              <span className={stil.metin33}>
                 Tek kasa seçilir. Başka bir kasa da istiyorsan{' '}
                 {alternatifEkle ? (
-                  <button
-                    type="button"
-                    onClick={alternatifEkle}
-                    style={{
-                      border: 0,
-                      padding: 0,
-                      background: 'transparent',
-                      color: 'var(--rr-baglanti, #2450C8)',
-                      fontWeight: 700,
-                      fontSize: 12.5,
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
+                  <button type="button" onClick={alternatifEkle} className={stil.dugme23}>
                     alternatif ekle
                   </button>
                 ) : (
@@ -1612,9 +1276,9 @@ function Kriterler({
         if (f.key === 'paket' && f.source === 'katalog') {
           const secili = (a[f.key] as string[] | undefined) ?? [];
           return (
-            <div key={f.key} style={{ gridColumn: '1 / -1' }}>
-              <span style={etiket}>{f.label}</span>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            <div key={f.key} className={stil.kutu26}>
+              <span className={stil.metin21}>{f.label}</span>
+              <div className={stil.kutu9}>
                 {paketler.map((p) => (
                   <Cip
                     key={p.key}
@@ -1654,7 +1318,7 @@ function Kriterler({
           f.type === 'boolean';
         const daraldi = yillar && (f.options?.length ?? 0) > daraltilmis.options.length;
         return (
-          <div key={f.key} style={{ gridColumn: genis ? '1 / -1' : undefined }}>
+          <div key={f.key} className={cx(genis ? stil.kutu26 : undefined)}>
             <Alan
               f={daraltilmis}
               value={deger(f)}
@@ -1663,25 +1327,18 @@ function Kriterler({
               farkEtmez={f.required ? undefined : () => gec(f.key)}
               gecildi={gecilenler.has(f.key)}
             />
-            {daraldi ? <span style={not}>Seçtiğin kasada satılanlar gösteriliyor.</span> : null}
+            {daraldi ? <span className={stil.metin33}>Seçtiğin kasada satılanlar gösteriliyor.</span> : null}
             {!f.required &&
             (f.type === 'number' || f.type === 'range' || f.type === 'select') &&
             deger(f) === undefined ? (
               <button
                 type="button"
                 onClick={() => gec(f.key)}
+                className={stil.dugme24}
                 style={{
-                  marginTop: 8,
-                  border: 0,
-                  padding: 0,
-                  background: 'transparent',
                   color: gecilenler.has(f.key)
                     ? 'var(--rr-murekkep, #1E2333)'
                     : 'var(--rr-baglanti, #2450C8)',
-                  fontWeight: 700,
-                  fontSize: 13,
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
                 }}
               >
                 {gecilenler.has(f.key) ? '✓ Fark etmez' : 'Fark etmez'}
@@ -1691,7 +1348,7 @@ function Kriterler({
         );
       })}
       {acik < sorular.length ? (
-        <p style={{ gridColumn: '1 / -1', margin: 0, fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
+        <p className={stil.metin34}>
           Bu soruyu yanıtlayınca sıradaki açılır ({acik} / {sorular.length}).
         </p>
       ) : null}
@@ -1727,28 +1384,14 @@ function HasarGecmisi({
   };
   return (
     <div>
-      <h2 style={{ margin: '10px 0 12px', fontSize: 18, fontWeight: 700 }}>Hasar geçmişi</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+      <h2 className={stil.baslik4}>Hasar geçmişi</h2>
+      <div className={stil.kutu27}>
         {(f.options ?? []).map((o) => {
           const on = kabul.includes(o.value);
           return (
-            <div
-              key={o.value}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 10,
-                border: '1px solid #EEF0F5',
-                borderRadius: 'var(--rr-buton-kose)',
-                padding: '12px 14px',
-              }}
-            >
-              <span style={{ fontSize: 14.5, fontWeight: 700 }}>{o.label}</span>
-              <fieldset
-                style={{ display: 'flex', gap: 4, border: 0, margin: 0, padding: 0 }}
-                aria-label={o.label}
-              >
+            <div key={o.value} className={stil.kutu28}>
+              <span className={stil.kutu23}>{o.label}</span>
+              <fieldset className={stil.kutu29} aria-label={o.label}>
                 <button
                   type="button"
                   aria-pressed={on}
@@ -1830,45 +1473,16 @@ function Onizleme({
   const islem = taslak.schema?.fields.find((f) => f.key === 'islemKabul');
   const rules = taslak.schema?.rules;
   const satir = (dt: string, dd: string) => (
-    <div style={{ padding: '12px 18px', borderTop: '1px solid #EEF0F5' }}>
-      <dt style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>{dt}</dt>
-      <dd style={{ margin: '2px 0 0', fontSize: 14.5, fontWeight: 700 }}>{dd}</dd>
+    <div className={stil.kutu30}>
+      <dt className={stil.metin35}>{dt}</dt>
+      <dd className={stil.metin36}>{dd}</dd>
     </div>
   );
   return (
     <>
-      <div
-        style={{
-          border: '1px solid var(--rr-cizgi, #E3E6EF)',
-          borderRadius: 'var(--rr-kart-kose)',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            background: '#EEF3FF',
-            padding: 18,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 18,
-            flexWrap: 'wrap',
-          }}
-        >
-          <span
-            role="img"
-            aria-label="Temsilî görsel"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flex: 'none',
-              width: 180,
-              maxWidth: '100%',
-              aspectRatio: '180 / 66',
-              borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-              background: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)',
-            }}
-          >
+      <div className={stil.kutu31}>
+        <div className={stil.kutu32}>
+          <span role="img" aria-label="Temsilî görsel" className={stil.metin37}>
             <svg
               width="25"
               height="25"
@@ -1884,10 +1498,8 @@ function Onizleme({
             </svg>
           </span>
           <div>
-            <div style={{ fontSize: 17, fontWeight: 800, lineHeight: 1.35 }}>
-              {baslik.trim() || taslak.category.name}
-            </div>
-            <div style={{ fontSize: 13.5, color: '#3A4052', marginTop: 4 }}>
+            <div className={stil.kutu33}>{baslik.trim() || taslak.category.name}</div>
+            <div className={stil.kutu34}>
               {[
                 `${veri.alternatifler.length} alternatif`,
                 [konum?.il, konum?.ilce].filter(Boolean).join(', '),
@@ -1898,7 +1510,7 @@ function Onizleme({
             </div>
           </div>
         </div>
-        <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+        <dl className={stil.liste4}>
           {satir(
             'Yayın süresi',
             rules?.listingNote
@@ -1919,43 +1531,16 @@ function Onizleme({
             : null}
         </dl>
       </div>
-      {rules?.legalNotice ? (
-        <p
-          style={{
-            margin: '14px 0 0',
-            fontSize: 13.5,
-            lineHeight: 1.55,
-            color: '#7A5300',
-            background: '#FFF6DF',
-            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-            padding: '12px 14px',
-          }}
-        >
-          {rules.legalNotice}
-        </p>
-      ) : null}
+      {rules?.legalNotice ? <p className={stil.metin38}>{rules.legalNotice}</p> : null}
       {duzenle ? null : haklar?.galeri ? (
-        <p
-          style={{
-            margin: '24px 0 0',
-            fontSize: 14,
-            color: '#3A4052',
-            background: '#EEF3FF',
-            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-            padding: '12px 14px',
-          }}
-        >
+        <p className={stil.metin39}>
           Talep {haklar.galeri} adına yayınlanır; alıcı olarak galerinin adı görünür. Paketindeki öne çıkarma
           hakkını yayından sonra Taleplerim'den kullanabilirsin.
         </p>
       ) : (
         <>
-          <h2 style={{ margin: '24px 0 12px', fontSize: 18, fontWeight: 700 }}>
-            Talebini öne çıkar (isteğe bağlı)
-          </h2>
-          <div
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}
-          >
+          <h2 className={stil.baslik5}>Talebini öne çıkar (isteğe bağlı)</h2>
+          <div className={stil.kutu35}>
             {ONE_CIKARMA.map((b) => {
               const on = oneCikar.includes(b.key);
               return (
@@ -1964,52 +1549,16 @@ function Onizleme({
                   type="button"
                   aria-pressed={on}
                   onClick={() => setOneCikar(on ? oneCikar.filter((k) => k !== b.key) : [...oneCikar, b.key])}
-                  style={{
-                    textAlign: 'left',
-                    border: on ? '2px solid var(--rr-mavi, #5B8CFF)' : '1px solid var(--rr-cizgi, #E3E6EF)',
-                    background: on ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
-                    borderRadius: 'var(--rr-buton-kose)',
-                    padding: on ? 14 : 15,
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
+                  className={cx(stil.dugme25, on ? stil.dugme26 : stil.dugme27)}
                 >
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 15,
-                      fontWeight: 700,
-                      color: 'var(--rr-murekkep, #1E2333)',
-                    }}
-                  >
-                    {b.ad}
-                  </span>
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 13,
-                      color: 'var(--rr-soluk, #5A6073)',
-                      marginTop: 3,
-                    }}
-                  >
-                    {b.aciklama}
-                  </span>
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 15,
-                      fontWeight: 800,
-                      color: 'var(--rr-murekkep, #1E2333)',
-                      marginTop: 8,
-                    }}
-                  >
-                    {fiyat(`${b.key}_7`, b.tl)} TL
-                  </span>
+                  <span className={stil.metin40}>{b.ad}</span>
+                  <span className={stil.metin41}>{b.aciklama}</span>
+                  <span className={stil.metin42}>{fiyat(`${b.key}_7`, b.tl)} TL</span>
                 </button>
               );
             })}
           </div>
-          <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+          <p className={stil.metin43}>
             {oneCikar.length
               ? 'Talebin yayınlanınca seçtiklerin ödeme sayfasında sepetine eklenir; ödeyince hemen başlar.'
               : 'İstersen talebin yayındayken Haklarım ve ödemeler sayfasından da öne çıkarabilirsin.'}
@@ -2018,17 +1567,7 @@ function Onizleme({
       )}
       {haklar ? (
         haklar.talep > 0 ? (
-          <div
-            style={{
-              marginTop: 18,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              background: '#E7FAF0',
-              borderRadius: 'var(--rr-buton-kose)',
-              padding: '14px 16px',
-            }}
-          >
+          <div className={stil.kutu36}>
             <svg
               width="22"
               height="22"
@@ -2039,11 +1578,11 @@ function Onizleme({
               strokeLinecap="round"
               strokeLinejoin="round"
               aria-hidden="true"
-              style={{ flex: 'none' }}
+              className={stil.gorsel1}
             >
               <path d="M5 12l5 5 9-10" />
             </svg>
-            <span style={{ fontSize: 14.5, color: '#11683F', fontWeight: 600 }}>
+            <span className={stil.metin44}>
               {haklar.galeri
                 ? `${haklar.galeri} galerisinin ${haklar.talep} talep hakkı var; bu talep paketin bir hakkını kullanır.`
                 : haklar.ucretsizTalep
@@ -2052,38 +1591,18 @@ function Onizleme({
             </span>
           </div>
         ) : haklar.galeri ? (
-          <div
-            style={{
-              marginTop: 18,
-              background: '#FFF6DF',
-              borderRadius: 'var(--rr-buton-kose)',
-              padding: '14px 16px',
-              fontSize: 14.5,
-              color: '#7A5300',
-              fontWeight: 600,
-            }}
-          >
+          <div className={stil.kutu37}>
             {haklar.galeri} galerisinin bu ayki talep hakkı bitti.{' '}
-            <a href="/galeri-paneli?bolum=paket" style={{ fontWeight: 800 }}>
+            <a href="/galeri-paneli?bolum=paket" className={stil.metin9}>
               Galeri paneli › Paket ve faturalar
             </a>
             'dan ek talep alabilirsin; talebin taslak olarak saklanıyor.
           </div>
         ) : (
-          <div
-            style={{
-              marginTop: 18,
-              background: '#FFF6DF',
-              borderRadius: 'var(--rr-buton-kose)',
-              padding: '14px 16px',
-              fontSize: 14.5,
-              color: '#7A5300',
-              fontWeight: 600,
-            }}
-          >
+          <div className={stil.kutu37}>
             Ücretsiz talep hakkını kullandın. Ek talep {fiyat('ek_talep', BIREYSEL_FIYATLAR.ekTalep.tl)} TL,
             3'lü paket {fiyat('talep_paketi', BIREYSEL_FIYATLAR.talepPaketi.tl)} TL.{' '}
-            <a href="/haklarim?sepet=ek_talep" style={{ fontWeight: 800 }}>
+            <a href="/haklarim?sepet=ek_talep" className={stil.metin9}>
               Ek talep hakkı al
             </a>
             ; talebin taslak olarak saklanıyor, hakkı alınca buradan yayınlayabilirsin.
@@ -2149,33 +1668,20 @@ function Ozet({
     { label: 'İletişim', value: iletisimOzeti(iletisim, true) },
   ];
   return (
-    <aside
-      aria-label="Talep özeti"
-      style={{ ...kart, flex: '1 1 300px', minWidth: 0, maxWidth: 380, padding: 22 }}
-    >
-      <h2 style={{ margin: '0 0 14px', fontSize: 16, fontWeight: 800 }}>Talebin özeti</h2>
-      <dl style={{ margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <aside aria-label="Talep özeti" className={stil.kutu38}>
+      <h2 className={stil.baslik6}>Talebin özeti</h2>
+      <dl className={stil.liste5}>
         {satirlar.map((s, i) => (
-          <div key={s.label} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-            <span
-              aria-hidden="true"
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: '50%',
-                background: DOTS[i % DOTS.length],
-                marginTop: 5,
-                flex: 'none',
-              }}
-            />
+          <div key={s.label} className={stil.kutu39}>
+            <span aria-hidden="true" className={stil.metin45} style={{ background: DOTS[i % DOTS.length] }} />
             <div>
-              <dt style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>{s.label}</dt>
-              <dd style={{ margin: '1px 0 0', fontSize: 14, fontWeight: 700 }}>{s.value}</dd>
+              <dt className={stil.metin46}>{s.label}</dt>
+              <dd className={stil.metin47}>{s.value}</dd>
             </div>
           </div>
         ))}
       </dl>
-      <p style={{ margin: '18px 0 0', fontSize: 12.5, lineHeight: 1.5, color: 'var(--rr-soluk, #5A6073)' }}>
+      <p className={stil.metin48}>
         Yarım kalan talebin taslak olarak saklanır; istediğin zaman kaldığın adımdan devam edebilirsin.
       </p>
     </aside>

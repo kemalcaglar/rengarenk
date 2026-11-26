@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { cx } from '../lib/cx';
+import stil from './hesabim-menu.module.css';
 
 /** Hesabım menüsü (Taleplerim.dc.html, Favoriler.dc.html). Henüz yapılmamış ekranlar soluk ve tıklanmaz. */
 export const OGELER: { ad: string; href?: string }[] = [
@@ -18,63 +20,21 @@ export function HesabimMenu({ aktif }: { aktif: string }) {
     <nav
       aria-label="Hesabım"
       // Telefonda bu bağlantılar üst çubuktaki ☰ çekmecesinde (sayfada ikinci bir menü olmasın)
-      className="rr-yalniz-genis"
-      style={{
-        flex: '1 1 220px',
-        maxWidth: 250,
-        minWidth: 0,
-        background: 'var(--rr-kart, #FFFFFF)',
-        border: '1px solid var(--rr-cizgi, #E3E6EF)',
-        borderRadius: 'var(--rr-kart-kose)',
-        padding: 12,
-      }}
+      className={`rr-yalniz-genis ${stil.kutu1}`}
     >
-      <span
-        className="rr-serit-baslik"
-        style={{
-          display: 'block',
-          padding: '8px 10px 10px',
-          fontSize: 13,
-          fontWeight: 800,
-          letterSpacing: 0.6,
-          textTransform: 'uppercase',
-          color: 'var(--rr-soluk, #5A6073)',
-        }}
-      >
-        Hesabım
-      </span>
+      <span className={`rr-serit-baslik ${stil.metin1}`}>Hesabım</span>
       {OGELER.map((o) =>
         o.href ? (
           <Link
             key={o.ad}
             href={o.href}
             aria-current={o.href === aktif ? 'page' : undefined}
-            style={{
-              display: 'block',
-              background: o.href === aktif ? '#EEF3FF' : 'transparent',
-              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-              padding: '11px 12px',
-              fontSize: 14.5,
-              fontWeight: o.href === aktif ? 800 : 600,
-              color: o.href === aktif ? 'var(--rr-murekkep, #1E2333)' : '#3A4052',
-              textDecoration: 'none',
-            }}
+            className={cx(stil.bag1, o.href === aktif ? stil.bag2 : stil.bag3)}
           >
             {o.ad}
           </Link>
         ) : (
-          <span
-            key={o.ad}
-            className="rr-serit-oge"
-            style={{
-              display: 'block',
-              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-              padding: '11px 12px',
-              fontSize: 14.5,
-              fontWeight: 600,
-              color: '#8A91A3',
-            }}
-          >
+          <span key={o.ad} className={`rr-serit-oge ${stil.metin2}`}>
             {o.ad}
           </span>
         ),

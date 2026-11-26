@@ -4,6 +4,7 @@ import type { BannerPlace } from '@rengarenk/shared';
 import Link from 'next/link';
 import { type CSSProperties, useEffect, useState } from 'react';
 import { API, istek } from '../lib/istemci';
+import stil from './banner.module.css';
 
 interface Banner {
   id: string;
@@ -87,25 +88,15 @@ export function Banner({
           <section
             key={b.id}
             aria-label="Duyuru"
-            style={{
-              background: b.zemin,
-              borderBottom: `3px solid ${b.renk}`,
-              padding: '9px 16px',
-              textAlign: 'center',
-              fontSize: 14,
-              color: 'var(--rr-murekkep, #1E2333)',
-            }}
+            className={stil.kutu1}
+            style={{ background: b.zemin, borderBottom: `3px solid ${b.renk}` }}
           >
             <strong>{b.baslik}</strong>
-            {b.metin ? <span style={{ color: '#3A4052' }}> · {b.metin}</span> : null}
+            {b.metin ? <span className={stil.metin1}> · {b.metin}</span> : null}
             {b.dugme && b.url ? (
               <>
                 {' '}
-                <Link
-                  href={b.url}
-                  onClick={() => olay(b.id, 'tiklama', b.kol)}
-                  style={{ fontWeight: 800, color: 'var(--rr-baglanti, #2450C8)' }}
-                >
+                <Link href={b.url} onClick={() => olay(b.id, 'tiklama', b.kol)} className={stil.bag1}>
                   {b.dugme}
                 </Link>
               </>
@@ -121,42 +112,19 @@ export function Banner({
         <section
           key={b.id}
           aria-label={yer === 'duyuru' ? 'Duyuru' : 'Banner'}
+          className={stil.kutu2}
           style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '10px 16px',
             background: b.zemin,
             border: '1px solid var(--rr-cizgi, #E3E6EF)',
             borderLeft: `6px solid ${b.renk}`,
-            borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-            padding: '14px 18px',
           }}
         >
-          <span style={{ flex: '1 1 280px', minWidth: 0 }}>
-            <span style={{ display: 'block', fontSize: 16, fontWeight: 800 }}>{b.baslik}</span>
-            {b.metin ? (
-              <span style={{ display: 'block', fontSize: 14, color: '#3A4052', marginTop: 3 }}>
-                {b.metin}
-              </span>
-            ) : null}
+          <span className={stil.metin2}>
+            <span className={stil.metin3}>{b.baslik}</span>
+            {b.metin ? <span className={stil.metin4}>{b.metin}</span> : null}
           </span>
           {b.dugme && b.url ? (
-            <Link
-              href={b.url}
-              onClick={() => olay(b.id, 'tiklama', b.kol)}
-              style={{
-                flex: 'none',
-                background: 'var(--rr-murekkep, #1E2333)',
-                color: '#FFFFFF',
-                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                padding: '10px 16px',
-                fontSize: 14,
-                fontWeight: 800,
-                textDecoration: 'none',
-              }}
-            >
+            <Link href={b.url} onClick={() => olay(b.id, 'tiklama', b.kol)} className={stil.bag2}>
               {b.dugme}
             </Link>
           ) : null}

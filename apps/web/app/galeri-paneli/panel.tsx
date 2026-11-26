@@ -11,13 +11,15 @@ import {
 } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Banner } from '../../components/banner';
+import { cx } from '../../lib/cx';
 import { API, istek, useGiris } from '../../lib/istemci';
 import { AracFormu } from './arac-formu';
 import { Eslesmeler, type EslesmeVerisi } from './eslesmeler';
 import { Guven, type GuvenVerisi } from './guven';
 import { Paket } from './paket';
+import stil from './panel.module.css';
 import { Portfoy, type PortfoyListesi, TopluYukleme } from './portfoy';
 
 interface Panel {
@@ -90,44 +92,6 @@ const basHarf = (ad: string) =>
     .slice(0, 2)
     .map((p) => p[0]?.toLocaleUpperCase('tr-TR'))
     .join('');
-
-const kart: CSSProperties = {
-  background: 'var(--rr-kart, #FFFFFF)',
-  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-  borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-};
-const birincil: CSSProperties = {
-  border: 0,
-  background: 'var(--rr-mavi, #5B8CFF)',
-  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-  padding: '12px 18px',
-  fontSize: 14.5,
-  fontWeight: 800,
-  color: 'var(--rr-maviYazi, #1E2333)',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
-const ikincil: CSSProperties = {
-  border: '1px solid #D5DAE5',
-  background: 'var(--rr-kart, #FFFFFF)',
-  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-  padding: '11px 16px',
-  fontSize: 14,
-  fontWeight: 700,
-  color: 'var(--rr-murekkep, #1E2333)',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
-const girdi: CSSProperties = {
-  width: '100%',
-  boxSizing: 'border-box',
-  border: '1px solid #D5DAE5',
-  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-  padding: 12,
-  fontSize: 15,
-  fontFamily: 'inherit',
-  background: 'var(--rr-kart, #FFFFFF)',
-};
 
 /**
  * Galeri paneli (tasarım: GaleriPanel.dc.html; Karar 12.5, 20). Özet, ekip, paket. Tasarıma ek: Özet'te galeri
@@ -242,89 +206,26 @@ export function GaleriPaneli() {
   const benimAd = [me?.firstName, me?.lastName].filter(Boolean).join(' ') || 'Sen';
 
   return (
-    <div
-      style={{
-        background: 'var(--rr-zemin, #F6F8FD)',
-        minHeight: '100vh',
-        color: 'var(--rr-murekkep, #1E2333)',
-      }}
-    >
-      <header
-        style={{ background: 'var(--rr-kart, #FFFFFF)', borderBottom: '1px solid var(--rr-cizgi, #E3E6EF)' }}
-      >
-        <div
-          style={{
-            maxWidth: 1360,
-            margin: '0 auto',
-            padding: '14px 24px',
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
-          }}
-        >
-          <Link
-            href="/"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              color: 'var(--rr-murekkep, #1E2333)',
-              textDecoration: 'none',
-            }}
-            aria-label="Rengarenk ana sayfa"
-          >
-            <span style={{ display: 'flex', gap: 3 }} aria-hidden="true">
+    <div className={stil.kutu1}>
+      <header className={stil.kutu2}>
+        <div className={stil.kutu3}>
+          <Link href="/" className={stil.bag1} aria-label="Rengarenk ana sayfa">
+            <span className={stil.metin1} aria-hidden="true">
               {[
                 'var(--rr-mavi, #5B8CFF)',
                 'var(--rr-pembe, #FF6FB5)',
                 'var(--rr-sari, #FFC84A)',
                 'var(--rr-yesil, #3DD68C)',
               ].map((c) => (
-                <span
-                  key={c}
-                  style={{
-                    width: 10,
-                    height: 22,
-                    borderRadius: 'calc(var(--rr-buton-kose) * 5 / 14)',
-                    background: c,
-                  }}
-                />
+                <span key={c} className={stil.metin2} style={{ background: c }} />
               ))}
             </span>
-            <span style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.5 }}>rengarenk</span>
-            <span
-              style={{
-                fontSize: 12.5,
-                fontWeight: 800,
-                background: '#FFF6DF',
-                color: '#7A5300',
-                padding: '4px 10px',
-                borderRadius: 'var(--rr-etiket-kose)',
-                marginLeft: 4,
-              }}
-            >
-              Galeri paneli
-            </span>
+            <span className={stil.metin3}>rengarenk</span>
+            <span className={stil.metin4}>Galeri paneli</span>
           </Link>
           {p ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span
-                aria-hidden="true"
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  background: '#FFF6DF',
-                  color: '#7A5300',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 800,
-                  fontSize: 13,
-                }}
-              >
+            <div className={stil.kutu4}>
+              <span aria-hidden="true" className={stil.metin5}>
                 {basHarf(benimAd)}
               </span>
               <span>
@@ -333,13 +234,7 @@ export function GaleriPaneli() {
                     aria-label="Galeri"
                     value={secili ?? ''}
                     onChange={(e) => setSecili(e.target.value)}
-                    style={{
-                      border: 0,
-                      fontSize: 14.5,
-                      fontWeight: 700,
-                      fontFamily: 'inherit',
-                      background: 'transparent',
-                    }}
+                    className={stil.girdi1}
                   >
                     {galeriler.map((g) => (
                       <option key={g.accountId} value={g.accountId}>
@@ -348,9 +243,9 @@ export function GaleriPaneli() {
                     ))}
                   </select>
                 ) : (
-                  <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>{p.galeri.ad}</span>
+                  <span className={stil.metin6}>{p.galeri.ad}</span>
                 )}
-                <span style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+                <span className={stil.metin7}>
                   {benimAd} · {MEMBER_ROLE_NAMES[p.rol]}
                 </span>
               </span>
@@ -359,40 +254,9 @@ export function GaleriPaneli() {
         </div>
       </header>
 
-      <div
-        style={{
-          maxWidth: 1360,
-          margin: '0 auto',
-          padding: 24,
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'flex-start',
-          gap: 24,
-        }}
-      >
-        <nav
-          aria-label="Galeri paneli"
-          className="rr-panel-menu"
-          style={{
-            flex: '1 1 220px',
-            maxWidth: 250,
-            minWidth: 0,
-            background: 'var(--rr-kart, #FFFFFF)',
-            border: '1px solid var(--rr-cizgi, #E3E6EF)',
-            borderRadius: 'var(--rr-kart-kose)',
-            padding: 12,
-          }}
-        >
-          <ul
-            style={{
-              listStyle: 'none',
-              margin: 0,
-              padding: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-            }}
-          >
+      <div className={stil.kutu5}>
+        <nav aria-label="Galeri paneli" className={`rr-panel-menu ${stil.kutu6}`}>
+          <ul className={stil.liste1}>
             {MENU.map((m, i) => {
               const on = gorunum === m.key;
               const rozet =
@@ -410,39 +274,22 @@ export function GaleriPaneli() {
                     aria-current={on ? 'page' : undefined}
                     disabled={m.sonra}
                     onClick={() => setGorunum(m.key)}
-                    style={{
-                      width: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: 10,
-                      border: 0,
-                      background: on ? '#EEF3FF' : 'transparent',
-                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                      padding: 12,
-                      fontSize: 14.5,
-                      fontWeight: on ? 800 : 600,
-                      color: m.sonra ? '#8A91A3' : on ? 'var(--rr-murekkep, #1E2333)' : '#3A4052',
-                      cursor: m.sonra ? 'default' : 'pointer',
-                      textAlign: 'left',
-                      fontFamily: 'inherit',
-                    }}
+                    className={cx(
+                      stil.dugme1,
+                      on ? stil.dugme2 : stil.dugme3,
+                      m.sonra ? stil.dugme4 : stil.dugme5,
+                    )}
+                    style={{ color: m.sonra ? '#8A91A3' : on ? 'var(--rr-murekkep, #1E2333)' : '#3A4052' }}
                   >
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span className={stil.kutu4}>
                       <span
                         aria-hidden="true"
-                        style={{
-                          width: 9,
-                          height: 9,
-                          borderRadius: '50%',
-                          background: DOTS[i % DOTS.length],
-                        }}
+                        className={stil.metin8}
+                        style={{ background: DOTS[i % DOTS.length] }}
                       />
                       {m.ad}
                     </span>
-                    <span style={{ fontSize: 12, fontWeight: 800, color: 'var(--rr-soluk, #5A6073)' }}>
-                      {rozet}
-                    </span>
+                    <span className={stil.metin9}>{rozet}</span>
                   </button>
                 </li>
               );
@@ -450,53 +297,20 @@ export function GaleriPaneli() {
           </ul>
         </nav>
 
-        <main style={{ flex: '999 1 760px', minWidth: 0 }}>
+        <main className={stil.kutu7}>
           <Banner yer="galeri_paneli" style={{ marginBottom: 14 }} />
           {hata ? (
-            <p
-              role="alert"
-              style={{
-                margin: '0 0 14px',
-                background: '#FFF0EE',
-                border: '1px solid #F5C6C0',
-                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                padding: '10px 14px',
-                fontSize: 14,
-                color: '#A3271F',
-              }}
-            >
+            <p role="alert" className={stil.metin10}>
               {hata}
             </p>
           ) : null}
           {bilgi ? (
-            <p
-              role="status"
-              style={{
-                margin: '0 0 14px',
-                background: '#E7FAF0',
-                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                padding: '10px 14px',
-                fontSize: 14,
-                color: '#11683F',
-                fontWeight: 600,
-              }}
-            >
+            <p role="status" className={stil.metin11}>
               {bilgi}
             </p>
           ) : null}
           {p?.durum === 'SUSPENDED' ? (
-            <p
-              role="alert"
-              style={{
-                margin: '0 0 14px',
-                background: '#FDECEC',
-                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                padding: '10px 14px',
-                fontSize: 14,
-                color: '#A3271F',
-                fontWeight: 600,
-              }}
-            >
+            <p role="alert" className={stil.metin12}>
               Galeri hesabın askıya alındı. Ayrıntı için destek ekibimize yaz.
             </p>
           ) : null}
@@ -515,7 +329,7 @@ export function GaleriPaneli() {
               }}
             />
           ) : null}
-          {!p && !davetler ? <p style={{ color: 'var(--rr-soluk, #5A6073)' }}>Yükleniyor…</p> : null}
+          {!p && !davetler ? <p className={stil.metin13}>Yükleniyor…</p> : null}
           {p && gorunum === 'ozet' ? (
             <Ozet
               p={p}
@@ -559,9 +373,7 @@ export function GaleriPaneli() {
             portfoy?.toplu ? (
               <TopluYukleme accountId={p.accountId} api={portfoy.api} bitti={portfoyBitti} />
             ) : (
-              <p style={{ color: 'var(--rr-soluk, #5A6073)' }}>
-                Toplu yükleme Profesyonel ve Kurumsal paketlerdedir.
-              </p>
+              <p className={stil.metin13}>Toplu yükleme Profesyonel ve Kurumsal paketlerdedir.</p>
             )
           ) : null}
           {p && gorunum === 'ekip' ? <Ekip p={p} islem={islem} /> : null}
@@ -641,8 +453,8 @@ function Ozet({
   const duzenleyebilir = p.rol !== 'SALES';
   return (
     <>
-      <h1 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 800 }}>Özet</h1>
-      <p style={{ margin: '0 0 20px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
+      <h1 className={stil.baslik1}>Özet</h1>
+      <p className={stil.metin14}>
         {deneme
           ? `Ücretsiz deneme · ${p.paket.denemeKalanGun} gün kaldı (bitiş ${tarih(p.paket.denemeBitis)})`
           : plan
@@ -650,81 +462,46 @@ function Ozet({
             : 'Paket yok'}
       </p>
       {p.paket.saltOkunur ? (
-        <p
-          role="alert"
-          style={{
-            margin: '0 0 16px',
-            background: '#FFF6DF',
-            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-            padding: '10px 14px',
-            fontSize: 14,
-            color: '#7A5300',
-            fontWeight: 600,
-          }}
-        >
+        <p role="alert" className={stil.metin15}>
           {deneme ? 'Deneme süren bitti.' : 'Paketin sona erdi.'} Paket seçene kadar yalnızca portföyünü
           görüntüleyebilirsin.{' '}
-          <button
-            type="button"
-            onClick={() => git('paket')}
-            style={{
-              border: 0,
-              background: 'none',
-              padding: 0,
-              font: 'inherit',
-              fontWeight: 800,
-              color: 'var(--rr-baglanti, #2450C8)',
-              cursor: 'pointer',
-            }}
-          >
+          <button type="button" onClick={() => git('paket')} className={stil.dugme6}>
             Paket seç
           </button>
         </p>
       ) : null}
       <div className="rr-dort-sutun">
         {kotalar.map((k, i) => (
-          <div key={k.label} style={{ ...kart, padding: 16 }}>
-            <div style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)', fontWeight: 600 }}>{k.label}</div>
-            <div style={{ fontSize: 24, fontWeight: 800, marginTop: 4 }}>
-              {k.value}{' '}
-              <span style={{ fontSize: 14, color: 'var(--rr-soluk, #5A6073)', fontWeight: 600 }}>
-                / {k.max}
-              </span>
+          <div key={k.label} className={stil.kutu8}>
+            <div className={stil.kutu9}>{k.label}</div>
+            <div className={stil.kutu10}>
+              {k.value} <span className={stil.metin16}>/ {k.max}</span>
             </div>
-            <div
-              style={{
-                height: 8,
-                borderRadius: 'calc(var(--rr-buton-kose) * 4 / 14)',
-                background: '#EEF0F5',
-                marginTop: 10,
-                overflow: 'hidden',
-              }}
-            >
+            <div className={stil.kutu11}>
               <div
+                className={stil.kutu12}
                 style={{
-                  height: 8,
-                  borderRadius: 'calc(var(--rr-buton-kose) * 4 / 14)',
                   background: DOTS[i],
                   width: `${k.max === 'sınırsız' || !Number.parseInt(k.max, 10) ? 0 : Math.min(100, (k.value / Number.parseInt(k.max, 10)) * 100)}%`,
                 }}
               />
             </div>
-            <div style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 8 }}>{k.not}</div>
+            <div className={stil.kutu13}>{k.not}</div>
           </div>
         ))}
       </div>
       {p.rol !== 'SALES' && !p.paket.saltOkunur ? (
-        <p style={{ margin: '12px 0 0', fontSize: 14 }}>
-          <Link href={`/talep-olustur?hesap=${p.accountId}`} style={{ fontWeight: 800 }}>
+        <p className={stil.metin17}>
+          <Link href={`/talep-olustur?hesap=${p.accountId}`} className={stil.bag2}>
             Galerin adına talep aç
           </Link>{' '}
-          <span style={{ color: 'var(--rr-soluk, #5A6073)' }}>
+          <span className={stil.metin13}>
             · aradığın aracı satıcılar bulsun; paketin talep hakkı kullanılır, alıcı olarak galerinin adı
             görünür
           </span>
         </p>
       ) : null}
-      <div className="rr-uc-sutun" style={{ marginTop: 16 }}>
+      <div className={`rr-uc-sutun ${stil.kutu14}`}>
         {[
           [String(yeniEslesme), '#11683F', 'Yeni eşleşme', 'Portföyündeki araçlara uyan talepler', 'eslesme'],
           [
@@ -738,13 +515,11 @@ function Ozet({
         ].map(([n, renk, ad, alt, hedef]) => {
           const ic = (
             <>
-              <span style={{ display: 'block', fontSize: 30, fontWeight: 800, color: renk }}>{n}</span>
-              <span style={{ display: 'block', fontSize: 15, fontWeight: 700, marginTop: 2 }}>{ad}</span>
-              <span
-                style={{ display: 'block', fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 4 }}
-              >
-                {alt}
+              <span className={stil.metin18} style={{ color: renk }}>
+                {n}
               </span>
+              <span className={stil.metin19}>{ad}</span>
+              <span className={stil.metin20}>{alt}</span>
             </>
           );
           return hedef ? (
@@ -754,12 +529,12 @@ function Ozet({
               onClick={() =>
                 hedef === 'mesaj' ? window.location.assign('/mesajlarim') : git(hedef as Gorunum)
               }
-              style={{ ...kart, padding: 18, textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit' }}
+              className={stil.dugme7}
             >
               {ic}
             </button>
           ) : (
-            <div key={ad} style={{ ...kart, padding: 18 }}>
+            <div key={ad} className={stil.kutu15}>
               {ic}
             </div>
           );
@@ -768,27 +543,16 @@ function Ozet({
 
       {guven ? <Guven v={guven} hesap={p.accountId} /> : null}
 
-      <section
-        style={{ ...kart, borderRadius: 'var(--rr-kart-kose)', padding: 20, marginTop: 16 }}
-        aria-labelledby="profil"
-      >
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'baseline',
-            justifyContent: 'space-between',
-            gap: 8,
-          }}
-        >
-          <h2 id="profil" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+      <section className={stil.kutu16} aria-labelledby="profil">
+        <div className={stil.kutu17}>
+          <h2 id="profil" className={stil.baslik2}>
             Galeri profilin
           </h2>
-          <Link href={`/galeri/${p.galeri.slug}`} style={{ fontSize: 14, fontWeight: 700 }}>
+          <Link href={`/galeri/${p.galeri.slug}`} className={stil.bag3}>
             Profili gör
           </Link>
         </div>
-        <p style={{ margin: '6px 0 14px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
+        <p className={stil.metin21}>
           {p.galeri.isletmeAdi}
           {p.galeri.yetkiNo ? ` · Yetki belgesi no ${p.galeri.yetkiNo}` : ''} · {p.galeri.il}, {p.galeri.ilce}
           {guven ? ` · ${guven.takipci} takipçi` : ''}
@@ -806,13 +570,10 @@ function Ozet({
                 'Profil güncellendi.',
               );
             }}
-            style={{ display: 'grid', gap: 12 }}
+            className={stil.kutu18}
           >
             <div>
-              <label
-                htmlFor="hakkinda"
-                style={{ display: 'block', fontSize: 13.5, fontWeight: 700, marginBottom: 6 }}
-              >
+              <label htmlFor="hakkinda" className={stil.etiket1}>
                 Tanıtım
               </label>
               <textarea
@@ -822,14 +583,11 @@ function Ozet({
                 value={hakkinda}
                 onChange={(e) => setHakkinda(e.target.value)}
                 placeholder="Galerini birkaç cümleyle anlat"
-                style={{ ...girdi, resize: 'vertical' }}
+                className={stil.girdi2}
               />
             </div>
             <div>
-              <label
-                htmlFor="saatler"
-                style={{ display: 'block', fontSize: 13.5, fontWeight: 700, marginBottom: 6 }}
-              >
+              <label htmlFor="saatler" className={stil.etiket1}>
                 Çalışma saatleri
               </label>
               <input
@@ -838,18 +596,18 @@ function Ozet({
                 value={saatler}
                 onChange={(e) => setSaatler(e.target.value)}
                 placeholder="Hafta içi 09.00–19.00, cumartesi 10.00–17.00"
-                style={girdi}
+                className={stil.girdi3}
               />
             </div>
             <div>
-              <button type="submit" style={birincil}>
+              <button type="submit" className={stil.dugme8}>
                 Kaydet
               </button>
             </div>
           </form>
         ) : null}
       </section>
-      <button type="button" onClick={() => git('ekip')} style={{ ...ikincil, marginTop: 16 }}>
+      <button type="button" onClick={() => git('ekip')} className={stil.dugme9}>
         Ekibi yönet
       </button>
     </>
@@ -864,19 +622,10 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
   const doluKoltuk = p.ekip.length + p.davetler.length;
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
+      <div className={stil.kutu19}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Ekip</h1>
-          <p style={{ margin: '3px 0 0', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
+          <h1 className={stil.baslik3}>Ekip</h1>
+          <p className={stil.metin22}>
             {p.ekip.length} / {p.paket.calisan} kullanıcı · Mesaj ve talep hakları ekip genelinde ortaktır
           </p>
         </div>
@@ -885,7 +634,7 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
             type="button"
             disabled={doluKoltuk >= p.paket.calisan}
             onClick={() => setDavet({ telefon: '', rol: 'SALES' })}
-            style={birincil}
+            className={stil.dugme8}
           >
             + Çalışan davet et
           </button>
@@ -911,15 +660,12 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
               return x;
             }, 'Davet gönderildi. Çalışan bu numarayla giriş yapınca daveti kabul eder.');
           }}
-          style={{ ...kart, borderRadius: 'var(--rr-kart-kose)', padding: 18, marginBottom: 16 }}
+          className={stil.kutu20}
         >
-          <h2 style={{ margin: '0 0 12px', fontSize: 17, fontWeight: 800 }}>Çalışan davet et</h2>
-          <div className="rr-iki-sutun" style={{ gap: 12 }}>
+          <h2 className={stil.baslik4}>Çalışan davet et</h2>
+          <div className={`rr-iki-sutun ${stil.kutu21}`}>
             <div>
-              <label
-                htmlFor="dtel"
-                style={{ display: 'block', fontSize: 13.5, fontWeight: 700, marginBottom: 6 }}
-              >
+              <label htmlFor="dtel" className={stil.etiket1}>
                 Cep telefonu
               </label>
               <input
@@ -929,95 +675,61 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
                 placeholder="05XX XXX XX XX"
                 value={davet.telefon}
                 onChange={(e) => setDavet({ ...davet, telefon: e.target.value })}
-                style={girdi}
+                className={stil.girdi3}
               />
             </div>
             <div>
-              <label
-                htmlFor="drol"
-                style={{ display: 'block', fontSize: 13.5, fontWeight: 700, marginBottom: 6 }}
-              >
+              <label htmlFor="drol" className={stil.etiket1}>
                 Rol
               </label>
               <select
                 id="drol"
                 value={davet.rol}
                 onChange={(e) => setDavet({ ...davet, rol: e.target.value as 'MANAGER' | 'SALES' })}
-                style={girdi}
+                className={stil.girdi3}
               >
                 {p.rol === 'OWNER' ? <option value="MANAGER">{MEMBER_ROLE_NAMES.MANAGER}</option> : null}
                 <option value="SALES">{MEMBER_ROLE_NAMES.SALES}</option>
               </select>
             </div>
           </div>
-          <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
-            {MEMBER_ROLE_NOTES[davet.rol]}
-          </p>
+          <p className={stil.metin23}>{MEMBER_ROLE_NOTES[davet.rol]}</p>
           {hata ? (
-            <p role="alert" style={{ margin: '8px 0 0', fontSize: 13.5, color: '#A3271F' }}>
+            <p role="alert" className={stil.metin24}>
               {hata}
             </p>
           ) : null}
-          <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-            <button type="submit" style={birincil}>
+          <div className={stil.kutu22}>
+            <button type="submit" className={stil.dugme8}>
               Davet gönder
             </button>
-            <button type="button" onClick={() => setDavet(null)} style={ikincil}>
+            <button type="button" onClick={() => setDavet(null)} className={stil.dugme10}>
               Vazgeç
             </button>
           </div>
         </form>
       ) : null}
 
-      <div style={{ ...kart, borderRadius: 'var(--rr-kart-kose)', overflow: 'hidden' }}>
+      <div className={stil.kutu23}>
         {p.ekip.map((u, i) => (
-          <div key={u.userId} style={{ borderBottom: '1px solid #EEF0F5' }}>
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                gap: '10px 18px',
-                padding: '14px 18px',
-              }}
-            >
+          <div key={u.userId} className={stil.kutu24}>
+            <div className={stil.kutu25}>
               <span
                 aria-hidden="true"
-                style={{
-                  width: 40,
-                  height: 40,
-                  borderRadius: '50%',
-                  background: TINTS[(i + 2) % TINTS.length],
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 800,
-                  fontSize: 13,
-                  flex: 'none',
-                }}
+                className={stil.metin25}
+                style={{ background: TINTS[(i + 2) % TINTS.length] }}
               >
                 {basHarf(u.ad)}
               </span>
-              <span style={{ flex: '999 1 200px', minWidth: 0 }}>
-                <span style={{ display: 'block', fontSize: 15, fontWeight: 800 }}>
+              <span className={stil.metin26}>
+                <span className={stil.metin27}>
                   {u.ad}
-                  {u.sen ? (
-                    <span style={{ fontWeight: 600, color: 'var(--rr-soluk, #5A6073)' }}> · sen</span>
-                  ) : null}
+                  {u.sen ? <span className={stil.metin28}> · sen</span> : null}
                 </span>
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 12.5,
-                    color: 'var(--rr-soluk, #5A6073)',
-                    marginTop: 2,
-                  }}
-                >
-                  Telefon doğrulandı · {u.telefon}
-                </span>
+                <span className={stil.metin29}>Telefon doğrulandı · {u.telefon}</span>
               </span>
-              <span style={{ flex: '1 1 150px', fontSize: 14, fontWeight: 700 }}>{u.rolAd}</span>
-              <span style={{ flex: '1 1 180px', fontSize: 13.5, color: '#3A4052' }}>
+              <span className={stil.metin30}>{u.rolAd}</span>
+              <span className={stil.metin31}>
                 {u.gunlukSinir ? `Günde en fazla ${u.gunlukSinir} ilk mesaj` : 'Sınır yok'}
               </span>
               {(u.rol !== 'OWNER' && (p.rol === 'OWNER' || (p.rol === 'MANAGER' && u.rol === 'SALES'))) ||
@@ -1026,26 +738,16 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
                   type="button"
                   onClick={() => setDuzen(duzen === u.userId ? null : u.userId)}
                   aria-expanded={duzen === u.userId}
-                  style={{
-                    flex: 'none',
-                    border: 0,
-                    background: 'transparent',
-                    padding: 0,
-                    fontSize: 13.5,
-                    fontWeight: 700,
-                    color: 'var(--rr-baglanti, #2450C8)',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
+                  className={stil.dugme11}
                 >
                   Düzenle
                 </button>
               ) : (
-                <span style={{ flex: 'none', width: 52 }} />
+                <span className={stil.metin32} />
               )}
             </div>
             {duzen === u.userId ? (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '0 18px 14px 76px' }}>
+              <div className={stil.kutu26}>
                 {p.rol === 'OWNER' ? (
                   <form
                     onSubmit={(e) => {
@@ -1063,9 +765,9 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
                           : `${u.ad} için mesaj sınırı kaldırıldı.`,
                       );
                     }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                    className={stil.kutu27}
                   >
-                    <label htmlFor={`sinir-${u.userId}`} style={{ fontSize: 13.5, fontWeight: 700 }}>
+                    <label htmlFor={`sinir-${u.userId}`} className={stil.etiket2}>
                       Günlük ilk mesaj sınırı
                     </label>
                     <input
@@ -1074,9 +776,9 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
                       inputMode="numeric"
                       defaultValue={u.gunlukSinir ?? ''}
                       placeholder="Sınır yok"
-                      style={{ ...girdi, width: 110, padding: '9px 10px', fontSize: 14 }}
+                      className={stil.girdi4}
                     />
-                    <button type="submit" style={ikincil}>
+                    <button type="submit" className={stil.dugme10}>
                       Kaydet
                     </button>
                   </form>
@@ -1098,7 +800,7 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
                               `${u.ad} artık ${MEMBER_ROLE_NAMES[r].toLocaleLowerCase('tr-TR')}.`,
                             )
                           }
-                          style={ikincil}
+                          className={stil.dugme10}
                         >
                           {MEMBER_ROLE_NAMES[r]} yap
                         </button>
@@ -1115,7 +817,7 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
                         return null;
                       }, `${u.ad} ekipten çıkarıldı.`)
                     }
-                    style={{ ...ikincil, color: '#A3271F' }}
+                    className={stil.dugme12}
                   >
                     Ekipten çıkar
                   </button>
@@ -1125,37 +827,14 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
           </div>
         ))}
         {p.davetler.map((d) => (
-          <div
-            key={d.id}
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: '10px 18px',
-              padding: '14px 18px',
-              borderBottom: '1px solid #EEF0F5',
-              background: '#FBFCFE',
-            }}
-          >
-            <span
-              aria-hidden="true"
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: '50%',
-                border: '2px dashed #C9CFDB',
-                boxSizing: 'border-box',
-                flex: 'none',
-              }}
-            />
-            <span style={{ flex: '999 1 200px', minWidth: 0 }}>
-              <span style={{ display: 'block', fontSize: 15, fontWeight: 800 }}>{d.telefon}</span>
-              <span style={{ display: 'block', fontSize: 12.5, color: '#7A5300', marginTop: 2 }}>
-                Davet bekliyor · {tarih(d.bitis)} tarihine kadar geçerli
-              </span>
+          <div key={d.id} className={stil.kutu28}>
+            <span aria-hidden="true" className={stil.metin33} />
+            <span className={stil.metin26}>
+              <span className={stil.metin27}>{d.telefon}</span>
+              <span className={stil.metin34}>Davet bekliyor · {tarih(d.bitis)} tarihine kadar geçerli</span>
             </span>
-            <span style={{ flex: '1 1 150px', fontSize: 14, fontWeight: 700 }}>{d.rolAd}</span>
-            <span style={{ flex: '1 1 180px' }} />
+            <span className={stil.metin30}>{d.rolAd}</span>
+            <span className={stil.metin35} />
             <button
               type="button"
               onClick={() =>
@@ -1164,17 +843,7 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
                   'Davet iptal edildi.',
                 )
               }
-              style={{
-                flex: 'none',
-                border: 0,
-                background: 'transparent',
-                padding: 0,
-                fontSize: 13.5,
-                fontWeight: 700,
-                color: '#A3271F',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
+              className={stil.dugme13}
             >
               İptal et
             </button>
@@ -1182,7 +851,7 @@ function Ekip({ p, islem }: { p: Panel; islem: Islem }) {
         ))}
       </div>
       {doluKoltuk >= p.paket.calisan && davetEder ? (
-        <p style={{ margin: '10px 2px 0', fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
+        <p className={stil.metin36}>
           Paketindeki kullanıcı sınırına ulaştın. Daha büyük bir pakete geçince yeni çalışan ekleyebilirsin.
         </p>
       ) : null}
@@ -1199,40 +868,28 @@ function Davetler({
 }) {
   return (
     <>
-      <h1 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 800 }}>Galeri davetlerin</h1>
-      <p style={{ margin: '0 0 16px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
+      <h1 className={stil.baslik1}>Galeri davetlerin</h1>
+      <p className={stil.metin37}>
         Kabul edince galerinin paneline erişirsin; mesajlarda galeri adıyla birlikte kendi adın görünür.
       </p>
-      <div style={{ ...kart, borderRadius: 'var(--rr-kart-kose)', overflow: 'hidden' }}>
+      <div className={stil.kutu23}>
         {davetler.length === 0 ? (
-          <p style={{ margin: 0, padding: 18, fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
+          <p className={stil.metin38}>
             Bekleyen davetin kalmadı. <Link href="/kurumsal-basvuru">Kendi galerin için başvur</Link>
           </p>
         ) : null}
         {davetler.map((d) => (
-          <div
-            key={d.id}
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: '10px 18px',
-              padding: '14px 18px',
-              borderBottom: '1px solid #EEF0F5',
-            }}
-          >
-            <span style={{ flex: '999 1 240px', minWidth: 0 }}>
-              <span style={{ display: 'block', fontSize: 15, fontWeight: 800 }}>{d.galeri}</span>
-              <span
-                style={{ display: 'block', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', marginTop: 2 }}
-              >
+          <div key={d.id} className={stil.kutu29}>
+            <span className={stil.metin39}>
+              <span className={stil.metin27}>{d.galeri}</span>
+              <span className={stil.metin29}>
                 {d.rolAd} olarak davet edildin · {tarih(d.bitis)} tarihine kadar geçerli
               </span>
             </span>
-            <button type="button" onClick={() => yanitla(d.id, false)} style={ikincil}>
+            <button type="button" onClick={() => yanitla(d.id, false)} className={stil.dugme10}>
               Reddet
             </button>
-            <button type="button" onClick={() => yanitla(d.id, true)} style={birincil}>
+            <button type="button" onClick={() => yanitla(d.id, true)} className={stil.dugme8}>
               Kabul et
             </button>
           </div>

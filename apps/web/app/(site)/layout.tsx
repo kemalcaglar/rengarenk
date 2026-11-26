@@ -2,20 +2,14 @@ import type { ReactNode } from 'react';
 import { CerezBandi } from '../../components/cerez-bandi';
 import { SiteFooter } from '../../components/site-footer';
 import { SiteHeader } from '../../components/site-header';
+import stil from './layout.module.css';
 
 /** Sitenin ortak çerçevesi (tasarım: Anasayfa.dc.html): üst çubuk, içerik, alt bilgi, çerez bandı. */
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
-    <div
-      style={{
-        background: 'var(--rr-zemin, #F6F8FD)',
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
+    <div className={stil.kutu1}>
       <SiteHeader />
-      <div style={{ flex: 1 }}>{children}</div>
+      <div className={stil.kutu2}>{children}</div>
       <SiteFooter />
       <CerezBandi />
     </div>

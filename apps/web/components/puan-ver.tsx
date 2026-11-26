@@ -3,7 +3,9 @@
 import { RATING_LABELS } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { cx } from '../lib/cx';
 import { istek } from '../lib/istemci';
+import stil from './puan-ver.module.css';
 
 /**
  * Yıldız ver (Karar 55; tasarım: MesajlarMobil.dc.html › puan penceresi). Yalnızca yıldız verilir, yorum yazılmaz;
@@ -50,71 +52,22 @@ export function PuanVer({
   }
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(30,35,51,0.45)',
-        zIndex: 50,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 16,
-      }}
-    >
-      <section
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="puan-baslik"
-        style={{
-          width: '100%',
-          maxWidth: 420,
-          background: 'var(--rr-kart, #FFFFFF)',
-          borderRadius: 'calc(var(--rr-kart-kose) * 24 / 18)',
-          padding: '20px 20px 24px',
-        }}
-      >
+    <div className={stil.kutu1}>
+      <section role="dialog" aria-modal="true" aria-labelledby="puan-baslik" className={stil.kutu2}>
         {!tamam ? (
           <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span
-                aria-hidden="true"
-                style={{
-                  flex: 'none',
-                  width: 48,
-                  height: 48,
-                  borderRadius: '50%',
-                  background: '#FFF6DF',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 15,
-                  fontWeight: 800,
-                }}
-              >
+            <div className={stil.kutu3}>
+              <span aria-hidden="true" className={stil.metin1}>
                 {bas}
               </span>
               <span>
-                <h2 id="puan-baslik" style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
+                <h2 id="puan-baslik" className={stil.baslik1}>
                   {ad} nasıldı?
                 </h2>
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 12.5,
-                    color: 'var(--rr-soluk, #5A6073)',
-                    marginTop: 2,
-                  }}
-                >
-                  {alt}
-                </span>
+                <span className={stil.metin2}>{alt}</span>
               </span>
             </div>
-            <div
-              role="radiogroup"
-              aria-label="Puan, 5 üzerinden"
-              style={{ display: 'flex', justifyContent: 'center', gap: 8, margin: '22px 0 6px' }}
-            >
+            <div role="radiogroup" aria-label="Puan, 5 üzerinden" className={stil.kutu4}>
               {[1, 2, 3, 4, 5].map((n) => {
                 const on = n <= yildiz;
                 return (
@@ -126,22 +79,12 @@ export function PuanVer({
                     aria-checked={n === yildiz}
                     aria-label={`${n} yıldız, ${RATING_LABELS[n]}`}
                     onClick={() => setYildiz(n)}
-                    style={{
-                      width: 54,
-                      height: 54,
-                      border: 0,
-                      borderRadius: 'var(--rr-buton-kose)',
-                      background: on ? '#FFF6DF' : 'var(--rr-zemin, #F6F8FD)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
+                    className={cx(stil.dugme1, on ? stil.dugme2 : stil.dugme3)}
                   >
                     <svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true">
                       <path
                         d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"
-                        style={{ fill: on ? 'var(--rr-sari, #FFC84A)' : '#FFFFFF' }}
+                        className={cx(on ? stil.gorsel1 : stil.gorsel2)}
                         stroke={on ? '#B07A00' : '#AEB5C4'}
                         strokeWidth="1.6"
                         strokeLinejoin="round"
@@ -151,93 +94,36 @@ export function PuanVer({
                 );
               })}
             </div>
-            <p style={{ margin: 0, textAlign: 'center', fontSize: 14.5, fontWeight: 800, minHeight: 20 }}>
-              {RATING_LABELS[yildiz]}
-            </p>
-            <div
-              style={{
-                marginTop: 16,
-                background: 'var(--rr-zemin, #F6F8FD)',
-                borderRadius: 'var(--rr-buton-kose)',
-                padding: '12px 14px',
-                fontSize: 12.5,
-                color: '#3A4052',
-                lineHeight: 1.5,
-              }}
-            >
+            <p className={stil.metin3}>{RATING_LABELS[yildiz]}</p>
+            <div className={stil.kutu5}>
               Yalnızca yıldız verilir, yorum yazılmaz. Puanın satıcıya isimsiz gider; profilinde tek tek puan
               değil, <strong>Güvenilir satıcı</strong> ve <strong>Hızlı yanıt</strong> gibi rozetler görünür.
             </div>
             {hata ? (
-              <p role="alert" style={{ margin: '10px 0 0', fontSize: 13, color: '#A3271F' }}>
+              <p role="alert" className={stil.metin4}>
                 {hata}
               </p>
             ) : null}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 8, marginTop: 16 }}>
-              <button
-                type="button"
-                onClick={kapat}
-                style={{
-                  border: '1px solid #D5DAE5',
-                  background: 'var(--rr-kart, #FFFFFF)',
-                  borderRadius: 'var(--rr-buton-kose)',
-                  padding: '14px 8px',
-                  fontSize: 15,
-                  fontWeight: 700,
-                  color: 'var(--rr-murekkep, #1E2333)',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
-              >
+            <div className={stil.kutu6}>
+              <button type="button" onClick={kapat} className={stil.dugme4}>
                 Sonra
               </button>
               <button
                 type="button"
                 aria-disabled={!yildiz || mesgul}
                 onClick={gonder}
-                style={{
-                  border: 0,
-                  background: yildiz ? 'var(--rr-mavi, #5B8CFF)' : 'var(--rr-cizgi, #E3E6EF)',
-                  borderRadius: 'var(--rr-buton-kose)',
-                  padding: '15px 8px',
-                  fontSize: 15.5,
-                  fontWeight: 800,
-                  color: yildiz ? 'var(--rr-maviYazi, #1E2333)' : 'var(--rr-soluk, #5A6073)',
-                  cursor: yildiz ? 'pointer' : 'default',
-                  fontFamily: 'inherit',
-                }}
+                className={cx(stil.dugme5, yildiz ? stil.dugme6 : stil.dugme7)}
               >
                 Puanı gönder
               </button>
             </div>
-            <span
-              title="Şikâyet moderasyonla birlikte açılacak"
-              style={{
-                display: 'block',
-                textAlign: 'center',
-                marginTop: 12,
-                fontSize: 13,
-                fontWeight: 700,
-                color: '#8A91A3',
-              }}
-            >
+            <span title="Şikâyet moderasyonla birlikte açılacak" className={stil.metin5}>
               Bir sorun mu yaşadın? Şikayet et
             </span>
           </>
         ) : (
-          <div style={{ textAlign: 'center', padding: '10px 0 4px' }}>
-            <span
-              aria-hidden="true"
-              style={{
-                display: 'inline-flex',
-                width: 56,
-                height: 56,
-                borderRadius: '50%',
-                background: '#E7FAF0',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
+          <div className={stil.kutu7}>
+            <span aria-hidden="true" className={stil.metin6}>
               <svg
                 aria-hidden="true"
                 width="28"
@@ -252,42 +138,15 @@ export function PuanVer({
                 <path d="M5 12l5 5 9-10" />
               </svg>
             </span>
-            <h2 style={{ margin: '12px 0 4px', fontSize: 18, fontWeight: 800 }}>Teşekkürler</h2>
-            <p style={{ margin: 0, fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
+            <h2 className={stil.baslik2}>Teşekkürler</h2>
+            <p className={stil.metin7}>
               Puanın kaydedildi. Aracı bulduysan talebini kapatabilirsin; satıcılar sana yazmayı bırakır.
             </p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 18 }}>
-              <button
-                type="button"
-                onClick={kapat}
-                style={{
-                  border: '1px solid #D5DAE5',
-                  background: 'var(--rr-kart, #FFFFFF)',
-                  borderRadius: 'var(--rr-buton-kose)',
-                  padding: '14px 8px',
-                  fontSize: 14.5,
-                  fontWeight: 700,
-                  color: 'var(--rr-murekkep, #1E2333)',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
-              >
+            <div className={stil.kutu8}>
+              <button type="button" onClick={kapat} className={stil.dugme8}>
                 Kapat
               </button>
-              <Link
-                href="/taleplerim"
-                style={{
-                  display: 'block',
-                  textAlign: 'center',
-                  borderRadius: 'var(--rr-buton-kose)',
-                  padding: '14px 8px',
-                  fontSize: 14.5,
-                  fontWeight: 800,
-                  color: 'var(--rr-yesilYazi, #1E2333)',
-                  background: 'var(--rr-yesil, #3DD68C)',
-                  textDecoration: 'none',
-                }}
-              >
+              <Link href="/taleplerim" className={stil.bag1}>
                 Aracı buldum
               </Link>
             </div>

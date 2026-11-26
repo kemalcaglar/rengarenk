@@ -1,0 +1,47 @@
+/* Bu dosya yasal-metin.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 28px 24px 64px;
+}
+.kutu2 {
+  max-width: 860px;
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  padding: 28px 32px;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.metin1 {
+  margin: 8px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13.5px;
+}
+.metin2 {
+  color: var(--rr-soluk, #5a6073);
+}
+.metin3 {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: var(--rr-etiket-kose);
+  background: #fff6df;
+  color: #7a5300;
+}
+.kutu3 {
+  margin-top: 12px;
+}
+.metin4 {
+  max-width: 860px;
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  padding: 24px;
+}

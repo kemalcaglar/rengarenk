@@ -1,8 +1,10 @@
 'use client';
 
 import { BULK_COLUMNS } from '@rengarenk/shared';
-import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { cx } from '../../lib/cx';
 import { API, ApiHatasi, binlik, erisim, istek, yenile } from '../../lib/istemci';
+import stil from './portfoy.module.css';
 
 export interface PortfoyListesi {
   sinir: number | null;
@@ -32,25 +34,6 @@ const EIDS: Record<string, [string, string, string]> = {
   APPROVED: ['Doğrulandı', '#E7FAF0', '#11683F'],
   PENDING: ['Bekliyor', '#FFF6DF', '#7A5300'],
   REJECTED: ['Reddedildi', '#FDECEC', '#A3271F'],
-};
-const ikincil: CSSProperties = {
-  border: '1px solid #D5DAE5',
-  background: 'var(--rr-kart, #FFFFFF)',
-  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-  padding: '11px 16px',
-  fontSize: 14.5,
-  fontWeight: 700,
-  color: 'var(--rr-murekkep, #1E2333)',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
-const birincil: CSSProperties = {
-  ...ikincil,
-  border: 0,
-  background: 'var(--rr-mavi, #5B8CFF)',
-  color: 'var(--rr-maviYazi, #1E2333)',
-  fontWeight: 800,
-  padding: '12px 18px',
 };
 
 /** Portföy listesi (GaleriPanel.dc.html › Portföy) */
@@ -89,205 +72,84 @@ export function Portfoy({
 
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
+      <div className={stil.kutu1}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Portföy</h1>
-          <p style={{ margin: '3px 0 0', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
+          <h1 className={stil.baslik1}>Portföy</h1>
+          <p className={stil.metin1}>
             {l ? `${l.aktif} / ${l.sinir ?? 'sınırsız'} araç` : '…'} · Alıcılara yalnızca EİDS doğrulanmış
             araçlar görünür
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className={stil.kutu2}>
           {l?.toplu ? (
-            <button type="button" onClick={toplu} style={ikincil}>
+            <button type="button" onClick={toplu} className={stil.dugme1}>
               Toplu yükle
             </button>
           ) : null}
-          <button type="button" onClick={ekle} style={birincil}>
+          <button type="button" onClick={ekle} className={stil.dugme2}>
             + Araç ekle
           </button>
         </div>
       </div>
       {hata ? (
-        <p
-          role="alert"
-          style={{
-            margin: '0 0 14px',
-            background: '#FFF0EE',
-            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-            padding: '10px 14px',
-            fontSize: 14,
-            color: '#A3271F',
-          }}
-        >
+        <p role="alert" className={stil.metin2}>
           {hata}
         </p>
       ) : null}
-      <div
-        style={{
-          background: 'var(--rr-kart, #FFFFFF)',
-          border: '1px solid var(--rr-cizgi, #E3E6EF)',
-          borderRadius: 'var(--rr-kart-kose)',
-          overflow: 'hidden',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            gap: 14,
-            padding: '12px 18px',
-            background: '#F3F5FA',
-            fontSize: 12.5,
-            fontWeight: 700,
-            color: 'var(--rr-soluk, #5A6073)',
-            textTransform: 'uppercase',
-            letterSpacing: 0.4,
-          }}
-        >
-          <span style={{ flex: '999 1 260px' }}>Araç</span>
-          <span style={{ flex: '1 1 110px' }}>Fiyat</span>
-          <span style={{ flex: '1 1 130px' }}>EİDS</span>
-          <span style={{ flex: '1 1 90px' }}>Eşleşme</span>
-          <span style={{ flex: '1 1 90px' }}>Durum</span>
-          <span style={{ flex: '0 0 70px' }} />
+      <div className={stil.kutu3}>
+        <div className={stil.kutu4}>
+          <span className={stil.metin3}>Araç</span>
+          <span className={stil.metin4}>Fiyat</span>
+          <span className={stil.metin5}>EİDS</span>
+          <span className={stil.metin6}>Eşleşme</span>
+          <span className={stil.metin6}>Durum</span>
+          <span className={stil.metin7} />
         </div>
         {l && l.araclar.length === 0 ? (
-          <p
-            style={{
-              margin: 0,
-              padding: '28px 18px',
-              borderTop: '1px solid #EEF0F5',
-              textAlign: 'center',
-              color: 'var(--rr-soluk, #5A6073)',
-            }}
-          >
-            Portföyünde henüz araç yok. “+ Araç ekle” ile başla.
-          </p>
+          <p className={stil.metin8}>Portföyünde henüz araç yok. “+ Araç ekle” ile başla.</p>
         ) : null}
         {(l?.araclar ?? []).map((p, i) => {
           const e = p.eids ? EIDS[p.eids] : null;
           return (
-            <div
-              key={p.id}
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                gap: '10px 14px',
-                padding: '12px 18px',
-                borderTop: '1px solid #EEF0F5',
-                opacity: p.durum === 'SOLD' ? 0.6 : 1,
-              }}
-            >
-              <span
-                style={{ flex: '999 1 260px', minWidth: 0, display: 'flex', alignItems: 'center', gap: 12 }}
-              >
-                <span
-                  style={{
-                    width: 72,
-                    height: 48,
-                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                    background: TINTS[i % TINTS.length],
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flex: 'none',
-                    overflow: 'hidden',
-                  }}
-                >
+            <div key={p.id} className={cx(stil.kutu5, p.durum === 'SOLD' ? stil.kutu6 : stil.kutu7)}>
+              <span className={stil.metin9}>
+                <span className={stil.metin10} style={{ background: TINTS[i % TINTS.length] }}>
                   {p.foto ? (
                     // biome-ignore lint/performance/noImgElement: galeri fotoğrafı API'den akar
-                    <img
-                      src={`${API}${p.foto}`}
-                      alt=""
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
+                    <img src={`${API}${p.foto}`} alt="" className={stil.gorsel1} />
                   ) : (
-                    <span
-                      aria-hidden="true"
-                      style={{
-                        width: 60,
-                        maxWidth: '100%',
-                        aspectRatio: '60 / 22',
-                        borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                        background: 'linear-gradient(135deg, #C9D3E6, #EEF1F7)',
-                      }}
-                    />
+                    <span aria-hidden="true" className={stil.metin11} />
                   )}
                 </span>
-                <span style={{ minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800 }}>{p.ad}</span>
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 12.5,
-                      color: 'var(--rr-soluk, #5A6073)',
-                      marginTop: 2,
-                    }}
-                  >
+                <span className={stil.metin12}>
+                  <span className={stil.metin13}>{p.ad}</span>
+                  <span className={stil.metin14}>
                     {p.detay}
                     {p.durum === 'DRAFT' ? ` · ${p.fotoSayisi} fotoğraf` : ''}
                   </span>
                 </span>
               </span>
-              <span style={{ flex: '1 1 110px', fontSize: 14.5, fontWeight: 800 }}>{binlik(p.fiyat)} TL</span>
-              <span style={{ flex: '1 1 130px' }}>
+              <span className={stil.metin15}>{binlik(p.fiyat)} TL</span>
+              <span className={stil.metin5}>
                 {e ? (
                   <span
                     title={p.not ?? ''}
-                    style={{
-                      fontSize: 12.5,
-                      fontWeight: 700,
-                      padding: '4px 10px',
-                      borderRadius: 'var(--rr-etiket-kose)',
-                      background: e[1],
-                      color: e[2],
-                    }}
+                    className={stil.metin16}
+                    style={{ background: e[1], color: e[2] }}
                   >
                     {e[0]}
                   </span>
                 ) : (
-                  <span style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>—</span>
+                  <span className={stil.metin17}>—</span>
                 )}
               </span>
-              <span style={{ flex: '1 1 90px', fontSize: 14, fontWeight: 700 }}>
+              <span className={stil.metin18}>
                 {typeof p.eslesme === 'number' ? `${p.eslesme} talep` : '—'}
               </span>
-              <span style={{ flex: '1 1 90px', fontSize: 13.5, color: '#3A4052' }}>{p.durumAd}</span>
-              <span
-                style={{
-                  flex: '0 0 70px',
-                  textAlign: 'right',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-end',
-                  gap: 4,
-                }}
-              >
+              <span className={stil.metin19}>{p.durumAd}</span>
+              <span className={stil.metin20}>
                 {p.duzenlenebilir && p.durum !== 'SOLD' ? (
-                  <button
-                    type="button"
-                    onClick={() => duzenle(p.id)}
-                    style={{
-                      border: 0,
-                      background: 'transparent',
-                      padding: 0,
-                      fontSize: 13.5,
-                      fontWeight: 700,
-                      color: 'var(--rr-baglanti, #2450C8)',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
+                  <button type="button" onClick={() => duzenle(p.id)} className={stil.dugme3}>
                     Düzenle
                   </button>
                 ) : null}
@@ -296,16 +158,7 @@ export function Portfoy({
                     <button
                       type="button"
                       onClick={() => islem(p.id, 'passivate', 'Araç pasife alındı.')}
-                      style={{
-                        border: 0,
-                        background: 'transparent',
-                        padding: 0,
-                        fontSize: 12.5,
-                        fontWeight: 700,
-                        color: 'var(--rr-soluk, #5A6073)',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
+                      className={stil.dugme4}
                     >
                       Pasife al
                     </button>
@@ -315,16 +168,7 @@ export function Portfoy({
                         window.confirm('Araç satıldı olarak işaretlensin mi? Alıcılardan hemen kalkar.') &&
                         islem(p.id, 'sold', 'Araç satıldı; alıcılardan kaldırıldı.')
                       }
-                      style={{
-                        border: 0,
-                        background: 'transparent',
-                        padding: 0,
-                        fontSize: 12.5,
-                        fontWeight: 700,
-                        color: '#A3271F',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
+                      className={stil.dugme5}
                     >
                       Satıldı
                     </button>
@@ -334,16 +178,7 @@ export function Portfoy({
                   <button
                     type="button"
                     onClick={() => islem(p.id, 'activate', 'Araç yeniden yayında.')}
-                    style={{
-                      border: 0,
-                      background: 'transparent',
-                      padding: 0,
-                      fontSize: 12.5,
-                      fontWeight: 700,
-                      color: '#11683F',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
+                    className={stil.dugme6}
                   >
                     Yayına al
                   </button>
@@ -437,19 +272,10 @@ export function TopluYukleme({
   }
 
   const adim = (n: number, ad: string, durum: 'tamam' | 'simdi' | 'sonra', alt: React.ReactNode) => (
-    <li
-      style={{
-        background: durum === 'simdi' ? '#EEF3FF' : 'var(--rr-kart, #FFFFFF)',
-        border:
-          durum === 'simdi' ? '2px solid var(--rr-mavi, #5B8CFF)' : '1px solid var(--rr-cizgi, #E3E6EF)',
-        borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-        padding: durum === 'simdi' ? 15 : 16,
-      }}
-    >
+    <li className={cx(stil.oge1, durum === 'simdi' ? stil.oge2 : stil.oge3)}>
       <span
+        className={stil.metin21}
         style={{
-          fontSize: 12.5,
-          fontWeight: 800,
           color:
             durum === 'tamam'
               ? '#11683F'
@@ -460,17 +286,15 @@ export function TopluYukleme({
       >
         {n} · {durum === 'tamam' ? 'Tamamlandı' : durum === 'simdi' ? 'Şimdi' : 'Sırada'}
       </span>
-      <span style={{ display: 'block', fontSize: 15, fontWeight: 800, marginTop: 4 }}>{ad}</span>
-      <span style={{ display: 'block', fontSize: 13.5, color: '#3A4052', marginTop: 6 }}>{alt}</span>
+      <span className={stil.metin22}>{ad}</span>
+      <span className={stil.metin23}>{alt}</span>
     </li>
   );
 
   return (
     <>
-      <h1 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 800 }}>Toplu yükleme</h1>
-      <p style={{ margin: '0 0 18px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
-        Excel veya CSV dosyanla stokunu tek seferde aktar.
-      </p>
+      <h1 className={stil.baslik2}>Toplu yükleme</h1>
+      <p className={stil.metin24}>Excel veya CSV dosyanla stokunu tek seferde aktar.</p>
       <input
         ref={ref}
         type="file"
@@ -482,25 +306,12 @@ export function TopluYukleme({
           if (f) sec(f);
         }}
       />
-      <ol className="rr-uc-sutun" style={{ listStyle: 'none', margin: '0 0 16px', padding: 0 }}>
+      <ol className={`rr-uc-sutun ${stil.liste1}`}>
         {adim(
           1,
           'Şablonu indir',
           'tamam',
-          <button
-            type="button"
-            onClick={sablon}
-            style={{
-              border: 0,
-              background: 'transparent',
-              padding: 0,
-              fontSize: 13.5,
-              fontWeight: 700,
-              color: 'var(--rr-baglanti, #2450C8)',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
-          >
+          <button type="button" onClick={sablon} className={stil.dugme3}>
             rengarenk_portfoy_sablonu.xlsx
           </button>,
         )}
@@ -511,17 +322,7 @@ export function TopluYukleme({
           <button
             type="button"
             onClick={() => ref.current?.click()}
-            style={{
-              border: 0,
-              background: 'transparent',
-              padding: 0,
-              fontSize: 13.5,
-              fontWeight: 700,
-              color: dosya ? '#3A4052' : 'var(--rr-baglanti, #2450C8)',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              textAlign: 'left',
-            }}
+            className={cx(stil.dugme7, dosya ? stil.dugme8 : stil.dugme9)}
           >
             {busy
               ? 'İnceleniyor…'
@@ -540,33 +341,13 @@ export function TopluYukleme({
         )}
       </ol>
       {hata ? (
-        <p
-          role="alert"
-          style={{
-            margin: '0 0 14px',
-            background: '#FFF0EE',
-            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-            padding: '10px 14px',
-            fontSize: 14,
-            color: '#A3271F',
-          }}
-        >
+        <p role="alert" className={stil.metin2}>
           {hata}
         </p>
       ) : null}
       {on?.asistan && (on.asistan.baglanan || on.asistan.aciklama) ? (
-        <details
-          style={{
-            margin: '0 0 14px',
-            border: '1.5px solid #C9B8FF',
-            background: '#FAF7FF',
-            borderRadius: 'var(--rr-buton-kose)',
-            padding: '10px 14px',
-            fontSize: 13.5,
-            color: 'var(--rr-murekkep, #1E2333)',
-          }}
-        >
-          <summary style={{ cursor: 'pointer', fontWeight: 800, color: '#4B2FA6' }}>
+        <details className={stil.kutu8}>
+          <summary className={stil.metin25}>
             ✦ Asistan{' '}
             {[
               on.asistan.baglanan ? `${on.asistan.baglanan} satırdaki araç adını kataloğa bağladı` : null,
@@ -576,7 +357,7 @@ export function TopluYukleme({
               .join(', ')}
             . Aktarmadan önce kontrol et.
           </summary>
-          <ul style={{ margin: '8px 0 0', paddingLeft: 18, lineHeight: 1.55, color: '#3A4052' }}>
+          <ul className={stil.liste2}>
             {on.bilgiler.map((b) => (
               <li key={b.satir}>
                 Satır {b.satir}: {b.not}
@@ -586,28 +367,11 @@ export function TopluYukleme({
         </details>
       ) : null}
       {on ? (
-        <div
-          style={{
-            background: 'var(--rr-kart, #FFFFFF)',
-            border: '1px solid var(--rr-cizgi, #E3E6EF)',
-            borderRadius: 'var(--rr-kart-kose)',
-            overflow: 'hidden',
-          }}
-        >
+        <div className={stil.kutu3}>
           {on.hatalar.length ? (
             <>
-              <div
-                style={{
-                  padding: '14px 18px',
-                  borderBottom: '1px solid #EEF0F5',
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  justifyContent: 'space-between',
-                  gap: 10,
-                  alignItems: 'center',
-                }}
-              >
-                <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>Düzeltme gereken satırlar</h2>
+              <div className={stil.kutu9}>
+                <h2 className={stil.baslik3}>Düzeltme gereken satırlar</h2>
                 <button
                   type="button"
                   onClick={() =>
@@ -616,67 +380,23 @@ export function TopluYukleme({
                       setHata(e.message),
                     )
                   }
-                  style={{
-                    border: 0,
-                    background: 'transparent',
-                    padding: 0,
-                    fontSize: 13.5,
-                    fontWeight: 700,
-                    color: 'var(--rr-baglanti, #2450C8)',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
+                  className={stil.dugme3}
                 >
                   Hata raporunu indir
                 </button>
               </div>
               {on.hatalar.map((h) => (
-                <div
-                  key={h.satir}
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'center',
-                    gap: '8px 16px',
-                    padding: '12px 18px',
-                    borderBottom: '1px solid #EEF0F5',
-                  }}
-                >
-                  <span
-                    style={{
-                      flex: '0 0 72px',
-                      fontSize: 13.5,
-                      fontWeight: 800,
-                      color: 'var(--rr-soluk, #5A6073)',
-                    }}
-                  >
-                    Satır {h.satir}
-                  </span>
-                  <span style={{ flex: '1 1 200px', fontSize: 14, fontWeight: 700 }}>{h.arac}</span>
-                  <span style={{ flex: '2 1 260px', fontSize: 13.5, color: '#A3271F', fontWeight: 600 }}>
-                    {h.hata}
-                  </span>
-                  <span
-                    style={{ flex: 'none', fontSize: 13, fontWeight: 700, color: 'var(--rr-soluk, #5A6073)' }}
-                  >
-                    {h.aksiyon} (dosyada)
-                  </span>
+                <div key={h.satir} className={stil.kutu10}>
+                  <span className={stil.metin26}>Satır {h.satir}</span>
+                  <span className={stil.metin27}>{h.arac}</span>
+                  <span className={stil.metin28}>{h.hata}</span>
+                  <span className={stil.metin29}>{h.aksiyon} (dosyada)</span>
                 </div>
               ))}
             </>
           ) : null}
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              gap: 12,
-              padding: '16px 18px',
-              background: 'var(--rr-zemin, #F6F8FD)',
-            }}
-          >
-            <span style={{ fontSize: 14, color: '#3A4052' }}>
+          <div className={stil.kutu11}>
+            <span className={stil.metin30}>
               {on.hatalar.length ? 'Hatalı satırlar düzeltilmeden de hazır olanlar aktarılabilir. ' : ''}
               {on.guncelleme ? `${on.guncelleme} araç stok numarasıyla güncellenecek. ` : ''}
               {on.kapasite !== null && on.yeni > on.kapasite
@@ -704,14 +424,14 @@ export function TopluYukleme({
                   setBusy(false);
                 }
               }}
-              style={birincil}
+              className={stil.dugme2}
             >
               {on.hazir} aracı içe aktar
             </button>
           </div>
         </div>
       ) : (
-        <p style={{ margin: 0, fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
+        <p className={stil.metin31}>
           Sütunlar: {BULK_COLUMNS.map(([b]) => b).join(', ')}. Marka, seri, model ve paket katalogdaki adlarla
           yazılır.
         </p>
@@ -737,48 +457,27 @@ function ApiAnahtarlari({ accountId, acik }: { accountId: string; acik: boolean 
   }, [acik, base]);
   useEffect(yukle, [yukle]);
   return (
-    <section
-      style={{
-        marginTop: 22,
-        background: 'var(--rr-kart, #FFFFFF)',
-        border: '1px solid var(--rr-cizgi, #E3E6EF)',
-        borderRadius: 'var(--rr-kart-kose)',
-        padding: 20,
-      }}
-      aria-labelledby="api"
-    >
-      <h2 id="api" style={{ margin: '0 0 6px', fontSize: 17, fontWeight: 800 }}>
+    <section className={stil.kutu12} aria-labelledby="api">
+      <h2 id="api" className={stil.baslik4}>
         API entegrasyonu
       </h2>
       {!acik ? (
-        <p style={{ margin: 0, fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
-          Stok sisteminden otomatik aktarım Kurumsal pakettedir.
-        </p>
+        <p className={stil.metin32}>Stok sisteminden otomatik aktarım Kurumsal pakettedir.</p>
       ) : (
         <>
-          <p style={{ margin: '0 0 12px', fontSize: 13.5, color: 'var(--rr-soluk, #5A6073)' }}>
+          <p className={stil.metin33}>
             Stok sistemin <code>PUT {API}/entegrasyon/v1/araclar/&lt;stok no&gt;</code> ile araç ekler ve
             günceller;
             <code> POST …/satildi</code> satılan aracı kaldırır. Anahtar yalnızca oluşturulurken bir kez
             gösterilir.
           </p>
           {yeni ? (
-            <p
-              style={{
-                margin: '0 0 12px',
-                background: '#E7FAF0',
-                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                padding: '10px 14px',
-                fontSize: 13.5,
-                color: '#11683F',
-                wordBreak: 'break-all',
-              }}
-            >
+            <p className={stil.metin34}>
               Yeni anahtar: <strong>{yeni}</strong>
             </p>
           ) : null}
           {hata ? (
-            <p role="alert" style={{ margin: '0 0 12px', color: '#A3271F', fontSize: 13.5 }}>
+            <p role="alert" className={stil.metin35}>
               {hata}
             </p>
           ) : null}
@@ -794,43 +493,24 @@ function ApiAnahtarlari({ accountId, acik }: { accountId: string; acik: boolean 
                 setHata((err as Error).message);
               }
             }}
-            style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}
+            className={stil.kutu13}
           >
             <input
               aria-label="Anahtar adı"
               placeholder="Ör. Stok sistemi"
               value={ad}
               onChange={(e) => setAd(e.target.value)}
-              style={{
-                flex: '1 1 220px',
-                border: '1px solid #D5DAE5',
-                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                padding: '10px 12px',
-                fontSize: 14.5,
-                fontFamily: 'inherit',
-              }}
+              className={stil.girdi1}
             />
-            <button type="submit" disabled={ad.trim().length < 2} style={birincil}>
+            <button type="submit" disabled={ad.trim().length < 2} className={stil.dugme2}>
               Anahtar oluştur
             </button>
           </form>
           {l.map((k) => (
-            <div
-              key={k.id}
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                gap: '6px 16px',
-                padding: '10px 0',
-                borderTop: '1px solid #EEF0F5',
-                fontSize: 14,
-                opacity: k.iptal ? 0.55 : 1,
-              }}
-            >
-              <span style={{ flex: '1 1 180px', fontWeight: 700 }}>{k.ad}</span>
-              <code style={{ flex: '0 0 auto' }}>{k.onek}…</code>
-              <span style={{ flex: '1 1 160px', color: 'var(--rr-soluk, #5A6073)', fontSize: 13 }}>
+            <div key={k.id} className={cx(stil.kutu14, k.iptal ? stil.kutu15 : stil.kutu7)}>
+              <span className={stil.metin36}>{k.ad}</span>
+              <code className={stil.metin37}>{k.onek}…</code>
+              <span className={stil.metin38}>
                 {k.iptal
                   ? 'İptal edildi'
                   : k.sonKullanim
@@ -845,16 +525,7 @@ function ApiAnahtarlari({ accountId, acik }: { accountId: string; acik: boolean 
                       .then(yukle)
                       .catch((e: Error) => setHata(e.message))
                   }
-                  style={{
-                    border: 0,
-                    background: 'transparent',
-                    padding: 0,
-                    fontSize: 13.5,
-                    fontWeight: 700,
-                    color: '#A3271F',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
+                  className={stil.dugme10}
                 >
                   İptal et
                 </button>

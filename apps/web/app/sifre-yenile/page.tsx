@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type FormEvent, useEffect, useState } from 'react';
-import { field, GirisDuzeni, Hata, h1, label, lead, post, primary } from '../../components/giris-ui';
-import { colors } from '../../lib/renk';
+import { GirisDuzeni, Hata, post, primary } from '../../components/giris-ui';
+import stil from './page.module.css';
 
 /**
  * Yeni şifre (Karar 18): e-postadaki tek kullanımlık bağlantıdan gelinir. Şifre değişince bütün cihazlardaki oturumlar
@@ -38,15 +38,15 @@ export default function SifreYenile() {
 
   return (
     <GirisDuzeni baslikId="form-baslik">
-      <h1 id="form-baslik" style={h1}>
+      <h1 id="form-baslik" className={stil.baslik1}>
         Yeni şifre belirle
       </h1>
-      <p style={lead}>
+      <p className={stil.metin1}>
         Şifren değişince bütün cihazlarda oturumun kapanır; yeni şifrenle yeniden giriş yaparsın.
       </p>
       {kod === null ? null : kod ? (
         <form onSubmit={kaydet}>
-          <label htmlFor="sifre" style={label}>
+          <label htmlFor="sifre" className={stil.etiket1}>
             Yeni şifre
           </label>
           <input
@@ -57,12 +57,10 @@ export default function SifreYenile() {
             onChange={(e) => setSifre(e.target.value)}
             required
             minLength={8}
-            style={field}
+            className={stil.girdi1}
           />
-          <p style={{ margin: '6px 0 0', fontSize: 12.5, color: colors.muted }}>
-            En az 8 karakter; içinde harf ve rakam olsun.
-          </p>
-          <label htmlFor="tekrar" style={{ ...label, marginTop: 14 }}>
+          <p className={stil.metin2}>En az 8 karakter; içinde harf ve rakam olsun.</p>
+          <label htmlFor="tekrar" className={stil.etiket2}>
             Yeni şifre (tekrar)
           </label>
           <input
@@ -72,7 +70,7 @@ export default function SifreYenile() {
             value={tekrar}
             onChange={(e) => setTekrar(e.target.value)}
             required
-            style={field}
+            className={stil.girdi1}
           />
           <button type="submit" disabled={busy} style={{ ...primary(true), marginTop: 20 }}>
             {busy ? 'Kaydediliyor…' : 'Şifremi değiştir'}

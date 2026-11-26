@@ -1,0 +1,136 @@
+/* Bu dosya giris-ui.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.metin1 {
+  margin: 12px 0 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #a3271f;
+}
+.metin2 {
+  margin: 0 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #11683f;
+  background: #e7faf0;
+  border-radius: var(--rr-buton-kose);
+  padding: 12px 14px;
+}
+.kutu1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+  color: var(--rr-soluk, #5a6073);
+}
+.metin3 {
+  flex: 1;
+  height: 1px;
+  background: var(--rr-cizgi, #e3e6ef);
+}
+.metin4 {
+  font-size: 13px;
+  font-weight: 700;
+}
+.bag1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d5dae5;
+  border-radius: var(--rr-buton-kose);
+  padding: 13px;
+  background: #ffffff;
+  color: #1f1f1f;
+  font-size: 15.5px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.gorsel1 {
+  fill: #ea4335;
+}
+.gorsel2 {
+  fill: #4285f4;
+}
+.gorsel3 {
+  fill: #fbbc05;
+}
+.gorsel4 {
+  fill: #34a853;
+}
+.kutu2 {
+  flex: 1;
+  max-width: 1100px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 40px 24px;
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-items: stretch;
+  gap: 24px;
+}
+.kutu3 {
+  min-width: 0;
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-kart-kose) * 24 / 18);
+  padding: 32px;
+  flex: 1 1 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.kutu4 {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.kutu5 {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  border-radius: calc(var(--rr-kart-kose) * 16 / 18);
+  padding: 14px 16px;
+}
+.metin5 {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex: none;
+}
+.metin6 {
+  font-size: 15px;
+  font-weight: 600;
+}
+.kutu6 {
+  margin-top: auto;
+  border-top: 1px solid #eef0f5;
+  padding-top: 16px;
+}
+.metin7 {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+}
+.bag2 {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 14.5px;
+  font-weight: 700;
+}
+.kutu7 {
+  min-width: 0;
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-kart-kose) * 24 / 18);
+  padding: 32px;
+  flex: 1 1 420px;
+}

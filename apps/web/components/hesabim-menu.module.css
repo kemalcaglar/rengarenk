@@ -1,0 +1,44 @@
+/* Bu dosya hesabim-menu.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  flex: 1 1 220px;
+  max-width: 250px;
+  min-width: 0;
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  padding: 12px;
+}
+.metin1 {
+  display: block;
+  padding: 8px 10px 10px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--rr-soluk, #5a6073);
+}
+.bag1 {
+  display: block;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 11px 12px;
+  font-size: 14.5px;
+  text-decoration: none;
+}
+.bag2 {
+  background: #eef3ff;
+  font-weight: 800;
+  color: var(--rr-murekkep, #1e2333);
+}
+.bag3 {
+  background: transparent;
+  font-weight: 600;
+  color: #3a4052;
+}
+.metin2 {
+  display: block;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 11px 12px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #8a91a3;
+}

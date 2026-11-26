@@ -1,0 +1,336 @@
+/* Bu dosya teknik-tablo.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  padding: 18px 16px;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  background: var(--rr-zemin, #f6f8fd);
+  font-size: 14.5px;
+  color: var(--rr-soluk, #5a6073);
+}
+.kutu2 {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.dugme1 {
+  flex: none;
+  white-space: nowrap;
+  border-radius: var(--rr-etiket-kose);
+  font-size: 13.5px;
+  color: var(--rr-murekkep, #1e2333);
+  cursor: pointer;
+  font-family: inherit;
+}
+.dugme2 {
+  border: 1.5px solid var(--rr-mavi, #5b8cff);
+  background: #eef3ff;
+  padding: 8px 14px;
+  font-weight: 800;
+}
+.dugme3 {
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  background: var(--rr-kart, #ffffff);
+  padding: 8.5px 14.5px;
+  font-weight: 600;
+}
+.metin1 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+.metin2 {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--rr-soluk, #5a6073);
+}
+.liste1 {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+.oge1 {
+  border-radius: var(--rr-buton-kose);
+  padding: 12px 14px;
+}
+.kutu3 {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #4a5064;
+}
+.kutu4 {
+  margin-top: 2px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 4px;
+}
+.metin3 {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  white-space: nowrap;
+}
+.metin4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4a5064;
+  white-space: nowrap;
+}
+.kutu5 {
+  columns: 270px 2;
+  column-gap: 12px;
+  margin-top: 14px;
+}
+.kutu6 {
+  break-inside: avoid;
+  margin-bottom: 12px;
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-kart-kose) * 14 / 18);
+  background: var(--rr-kart, #ffffff);
+  overflow: hidden;
+}
+.baslik1 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 14px;
+  font-size: 14.5px;
+  font-weight: 800;
+  background: var(--rr-zemin, #f6f8fd);
+  border-bottom: 1px solid var(--rr-cizgi, #e3e6ef);
+}
+.metin5 {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+.liste2 {
+  margin: 0;
+  padding: 2px 14px;
+}
+.kutu7 {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 14px;
+  padding: 9px 0;
+  font-size: 14px;
+}
+.kutu8 {
+  border-top: 1px solid #eef0f5;
+}
+.kutu9 {
+  border-top: 0;
+}
+.metin6 {
+  color: var(--rr-soluk, #5a6073);
+  flex: 0 1 auto;
+}
+.metin7 {
+  margin: 0;
+  font-weight: 700;
+  text-align: right;
+  min-width: 0;
+}
+.kutu10 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 10px 14px;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  background: var(--rr-zemin, #f6f8fd);
+}
+.metin8 {
+  margin: 0;
+  font-size: 12px;
+  color: var(--rr-soluk, #5a6073);
+  flex: 1 1 320px;
+  line-height: 1.5;
+}
+.metin9 {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #11683f;
+}
+.dugme4 {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--rr-baglanti, #2450c8);
+  cursor: pointer;
+  font-family: inherit;
+}
+.metin10 {
+  margin: 0;
+  font-size: 12.5px;
+}
+.bag1 {
+  font-weight: 700;
+}
+.kutu11 {
+  flex: 1 1 100%;
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  background: var(--rr-zemin, #f6f8fd);
+}
+.metin11 {
+  font-size: 13.5px;
+}
+.girdi1 {
+  font-size: 13.5px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  font-family: inherit;
+}
+.girdi2 {
+  font-size: 13.5px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  font-family: inherit;
+  resize: vertical;
+}
+.metin12 {
+  margin: 0;
+  font-size: 12.5px;
+  color: #a3271f;
+  font-weight: 600;
+}
+.kutu12 {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.dugme5 {
+  background: var(--rr-mavi, #5b8cff);
+  color: var(--rr-maviYazi, #1e2333);
+  border: 0;
+  font-weight: 700;
+  font-size: 13.5px;
+  padding: 8px 14px;
+  border-radius: var(--rr-buton-kose);
+  cursor: pointer;
+  font-family: inherit;
+}
+.kutu13 {
+  margin-top: 12px;
+}
+.kutu14 {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.baslik2 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+}
+.metin13 {
+  font-size: 13px;
+  color: var(--rr-soluk, #5a6073);
+}
+.kutu15 {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin-top: 10px;
+}
+.dugme6 {
+  flex: none;
+  white-space: nowrap;
+  border: 0;
+  border-radius: var(--rr-etiket-kose);
+  padding: 7px 13px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+.dugme7 {
+  background: var(--rr-murekkep, #1e2333);
+  color: var(--rr-kart, #ffffff);
+}
+.dugme8 {
+  background: var(--rr-zemin, #f6f8fd);
+  color: var(--rr-murekkep, #1e2333);
+}
+.kutu16 {
+  columns: 240px 3;
+  column-gap: 12px;
+  margin-top: 12px;
+}
+.kutu17 {
+  break-inside: avoid;
+  margin-bottom: 12px;
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: calc(var(--rr-kart-kose) * 14 / 18);
+  overflow: hidden;
+  background: var(--rr-kart, #ffffff);
+}
+.metin14 {
+  margin: 0;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+}
+.metin15 {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #4a5064;
+}
+.liste3 {
+  margin: 0;
+  padding: 6px 14px 10px;
+  list-style: none;
+}
+.oge2 {
+  display: flex;
+  gap: 9px;
+  padding: 5px 0;
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+.metin16 {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: #e7faf0;
+  color: #11683f;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dugme9 {
+  margin: 0 14px 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rr-baglanti, #2450c8);
+  cursor: pointer;
+  font-family: inherit;
+}

@@ -1,5 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
+import { cx } from '../lib/cx';
 import { colors } from '../lib/renk';
+import stil from './onay-kutusu.module.css';
 
 /**
  * Tasarımdaki onay kutusu (Giris.dc.html, Anasayfa.dc.html çerez paneli): gerçek bir checkbox, üstünde tasarımın
@@ -46,22 +48,14 @@ export function OnayKutusu({
       />
       <span
         aria-hidden="true"
-        className="onay-kutu"
+        className={cx('onay-kutu', stil.metin1, checked ? stil.metin2 : stil.metin3)}
         style={{
           width: size,
           height: size,
-          marginTop: 1,
           borderRadius: `calc(var(--rr-buton-kose) * ${radius} / 14)`,
           border: `${border}px solid ${checked ? colors.blue : '#AEB5C4'}`,
-          background: checked ? colors.blue : 'var(--rr-kart, #FFFFFF)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
           fontSize: size - 7,
-          fontWeight: 800,
           color: mark,
-          flex: 'none',
-          boxSizing: 'border-box',
         }}
       >
         {checked ? '✓' : ''}

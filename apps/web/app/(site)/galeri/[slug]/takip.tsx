@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { cx } from '../../../../lib/cx';
 import { istek, useGiris } from '../../../../lib/istemci';
+import stil from './takip.module.css';
 
 /**
  * Galeriyi takip et (Karar 28; GaleriProfil.dc.html): takip edilen galerinin portföyüne eklenen ve yayındaki
@@ -42,17 +44,7 @@ export function TakipDugmesi({ slug }: { slug: string }) {
           setMesgul(false);
         }
       }}
-      style={{
-        border: 0,
-        background: takip ? '#E7FAF0' : 'var(--rr-mavi, #5B8CFF)',
-        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-        padding: '11px 16px',
-        fontSize: 14.5,
-        fontWeight: 800,
-        color: takip ? 'var(--rr-murekkep, #1E2333)' : 'var(--rr-maviYazi, #1E2333)',
-        cursor: 'pointer',
-        fontFamily: 'inherit',
-      }}
+      className={cx(stil.dugme1, takip ? stil.dugme2 : stil.dugme3)}
     >
       {takip ? '✓ Takip ediliyor' : 'Galeriyi takip et'}
     </button>

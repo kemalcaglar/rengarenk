@@ -1,0 +1,15 @@
+/* Bu dosya ana-yedek.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.baslik1 {
+  margin: 0 0 10px;
+  font-size: 19px;
+  font-weight: 800;
+}
+.metin1 {
+  margin: 0;
+  padding: 18px 16px;
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  font-size: 14px;
+  color: var(--rr-soluk, #5a6073);
+}

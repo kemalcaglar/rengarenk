@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { istek, useGiris } from '../../lib/istemci';
 import { butceAraligi, zaman } from '../../lib/talep-bicim';
+import stil from './portfoy-eslesmeleri.module.css';
 
 interface Kart {
   no: number;
@@ -35,71 +36,23 @@ export function PortfoyEslesmeleri() {
 
   return (
     <section aria-labelledby="eslesmeler">
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 12,
-        }}
-      >
-        <h2 id="eslesmeler" style={{ margin: 0, fontSize: 19, fontWeight: 800 }}>
+      <div className={stil.kutu1}>
+        <h2 id="eslesmeler" className={stil.baslik1}>
           Portföyünüze uyan talepler
         </h2>
-        <Link href="/galeri-paneli?bolum=eslesme" style={{ fontSize: 14, fontWeight: 700 }}>
+        <Link href="/galeri-paneli?bolum=eslesme" className={stil.bag1}>
           Tümünü gör
         </Link>
       </div>
       <div className="rr-uc-sutun">
         {liste.map((e) => (
-          <Link
-            key={e.no}
-            href={`/talep/${e.no}`}
-            style={{
-              display: 'block',
-              background: 'var(--rr-kart, #FFFFFF)',
-              border: '1px solid var(--rr-cizgi, #E3E6EF)',
-              borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-              padding: 16,
-              color: 'var(--rr-murekkep, #1E2333)',
-              textDecoration: 'none',
-            }}
-          >
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                background: '#E7FAF0',
-                color: '#11683F',
-                fontSize: 12,
-                fontWeight: 700,
-                padding: '4px 10px',
-                borderRadius: 'var(--rr-etiket-kose)',
-              }}
-            >
-              Portföyünüzdeki {e.arac} uyuyor
-            </span>
-            <span
-              style={{ display: 'block', fontSize: 15.5, fontWeight: 800, lineHeight: 1.35, marginTop: 10 }}
-            >
-              {e.baslik}
-            </span>
-            <span style={{ display: 'block', fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 6 }}>
+          <Link key={e.no} href={`/talep/${e.no}`} className={stil.bag2}>
+            <span className={stil.metin1}>Portföyünüzdeki {e.arac} uyuyor</span>
+            <span className={stil.metin2}>{e.baslik}</span>
+            <span className={stil.metin3}>
               {[[e.il, e.ilce].filter(Boolean).join(', '), zaman(e.yayin)].filter(Boolean).join(' · ')}
             </span>
-            <span
-              style={{
-                display: 'block',
-                fontSize: 15,
-                fontWeight: 800,
-                color: 'var(--rr-baglanti, #2450C8)',
-                marginTop: 10,
-              }}
-            >
-              {butceAraligi(e.butceMin, e.butceMax)}
-            </span>
+            <span className={stil.metin4}>{butceAraligi(e.butceMin, e.butceMax)}</span>
           </Link>
         ))}
       </div>

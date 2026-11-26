@@ -5,8 +5,10 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
 import { HesabimMenu } from '../../../components/hesabim-menu';
+import { cx } from '../../../lib/cx';
 import { API, erisim, istek, useGiris } from '../../../lib/istemci';
 import { olcumOlayi } from '../../../lib/olcum';
+import stil from './page.module.css';
 
 interface Urun {
   key: string;
@@ -43,18 +45,6 @@ const kart: CSSProperties = {
   background: 'var(--rr-kart, #FFFFFF)',
   border: '1px solid var(--rr-cizgi, #E3E6EF)',
   borderRadius: 'var(--rr-kart-kose)',
-};
-const girdi: CSSProperties = {
-  display: 'block',
-  width: '100%',
-  boxSizing: 'border-box',
-  marginTop: 5,
-  border: '1px solid #D5DAE5',
-  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-  padding: 11,
-  fontSize: 14.5,
-  fontFamily: 'inherit',
-  background: 'var(--rr-kart, #FFFFFF)',
 };
 const RENK = [
   'var(--rr-mavi, #5B8CFF)',
@@ -242,43 +232,19 @@ export default function Haklarim() {
   ];
 
   return (
-    <div
-      className="rr-sayfa"
-      style={{
-        maxWidth: 1360,
-        margin: '0 auto',
-        padding: '24px 24px 64px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'flex-start',
-        gap: 24,
-      }}
-    >
+    <div className={`rr-sayfa ${stil.kutu1}`}>
       <HesabimMenu aktif="/haklarim" />
-      <main style={{ flex: '999 1 760px', minWidth: 0 }}>
+      <main className={stil.kutu2}>
         {hata ? (
-          <p
-            role="alert"
-            style={{
-              margin: '0 0 14px',
-              background: '#FFF0EE',
-              border: '1px solid #F5C6C0',
-              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-              padding: '10px 14px',
-              fontSize: 14,
-              color: '#A3271F',
-            }}
-          >
+          <p role="alert" className={stil.metin1}>
             {hata}
           </p>
         ) : null}
 
         {adim === 'magaza' ? (
           <>
-            <h1 style={{ margin: '0 0 16px', fontSize: 28, fontWeight: 800, letterSpacing: -0.4 }}>
-              Haklarım ve ödemeler
-            </h1>
-            <div className="rr-dort-sutun" style={{ gap: 12 }}>
+            <h1 className={stil.baslik1}>Haklarım ve ödemeler</h1>
+            <div className={`rr-dort-sutun ${stil.kutu3}`}>
               {kartlar.map((h, i) => (
                 <div
                   key={h.ad}
@@ -289,55 +255,19 @@ export default function Haklarim() {
                     borderTop: `4px solid ${RENK[i]}`,
                   }}
                 >
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--rr-soluk, #5A6073)' }}>
-                    {h.ad}
-                  </div>
-                  <div style={{ fontSize: 26, fontWeight: 800, marginTop: 4 }}>{h.deger}</div>
-                  <div
-                    style={{
-                      fontSize: 12.5,
-                      color: 'var(--rr-soluk, #5A6073)',
-                      marginTop: 4,
-                      lineHeight: 1.4,
-                    }}
-                  >
-                    {h.not}
-                  </div>
+                  <div className={stil.kutu4}>{h.ad}</div>
+                  <div className={stil.kutu5}>{h.deger}</div>
+                  <div className={stil.kutu6}>{h.not}</div>
                 </div>
               ))}
             </div>
             {o?.aktifOneCikarma.length ? (
-              <div
-                style={{
-                  ...kart,
-                  borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  gap: '8px 14px',
-                  padding: '14px 18px',
-                  marginTop: 12,
-                }}
-              >
-                <span style={{ fontSize: 14, fontWeight: 800 }}>Aktif öne çıkarma</span>
+              <div className={stil.kutu7}>
+                <span className={stil.metin2}>Aktif öne çıkarma</span>
                 {o.aktifOneCikarma.map((a) => (
-                  <span
-                    key={`${a.tur}-${a.talep.no}`}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 800,
-                        padding: '3px 9px',
-                        borderRadius: 'var(--rr-etiket-kose)',
-                        background: '#FFEEF6',
-                        color: '#A3236A',
-                      }}
-                    >
-                      {a.ad}
-                    </span>
-                    <span style={{ fontSize: 14, color: '#3A4052' }}>
+                  <span key={`${a.tur}-${a.talep.no}`} className={stil.metin3}>
+                    <span className={stil.metin4}>{a.ad}</span>
+                    <span className={stil.metin5}>
                       {a.talep.baslik} · {kalanGun(a.bitis)} gün kaldı
                     </span>
                   </span>
@@ -345,25 +275,14 @@ export default function Haklarim() {
               </div>
             ) : null}
             {o && !o.odeme.acik ? (
-              <p
-                style={{
-                  margin: '12px 0 0',
-                  background: '#FFF6DF',
-                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                  padding: '10px 14px',
-                  fontSize: 14,
-                  color: '#5A3D00',
-                }}
-              >
+              <p className={stil.metin6}>
                 {o.odeme.not ?? 'Ödemeler şu an kapalı.'} Hakların kullanılmaya devam eder.
               </p>
             ) : null}
 
-            <div
-              style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 16, marginTop: 22 }}
-            >
-              <section style={{ flex: '999 1 460px', minWidth: 0 }} aria-labelledby="mg">
-                <h2 id="mg" style={{ margin: '0 0 10px', fontSize: 19, fontWeight: 800 }}>
+            <div className={stil.kutu8}>
+              <section className={stil.kutu9} aria-labelledby="mg">
+                <h2 id="mg" className={stil.baslik2}>
                   Hak ve öne çıkarma satın al
                 </h2>
                 {(['talep', 'mesaj', 'one_cikarma'] as const).map((g) => {
@@ -371,49 +290,19 @@ export default function Haklarim() {
                   if (!liste.length) return null;
                   const oneCikarma = g === 'one_cikarma';
                   return (
-                    <div key={g} style={{ ...kart, overflow: 'hidden', marginBottom: 12 }}>
-                      <h3
-                        style={{
-                          margin: 0,
-                          padding: '13px 16px',
-                          fontSize: 14.5,
-                          fontWeight: 800,
-                          background: '#F3F5FA',
-                          display: 'flex',
-                          flexWrap: 'wrap',
-                          alignItems: 'center',
-                          gap: 8,
-                        }}
-                      >
+                    <div key={g} className={stil.kutu10}>
+                      <h3 className={stil.baslik3}>
                         {oneCikarma ? (
                           <>
                             Öne çıkarma ·{' '}
                             {/* Seçim ve "talebi için" birlikte satır değiştirir; telefonda ayrı satırlara bölünmez */}
-                            <span
-                              style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: 6,
-                                flex: '1 1 auto',
-                                minWidth: 0,
-                                maxWidth: '100%',
-                              }}
-                            >
+                            <span className={stil.metin7}>
                               {o && o.talepler.length > 1 ? (
                                 <select
                                   aria-label="Öne çıkarılacak talep"
                                   value={hedef ?? ''}
                                   onChange={(e) => setHedef(Number(e.target.value))}
-                                  style={{
-                                    flex: '0 1 auto',
-                                    minWidth: 0,
-                                    border: '1px solid #D5DAE5',
-                                    borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
-                                    padding: '4px 6px',
-                                    fontSize: 13.5,
-                                    fontWeight: 700,
-                                    fontFamily: 'inherit',
-                                  }}
+                                  className={stil.girdi1}
                                 >
                                   {o.talepler.map((t) => (
                                     <option key={t.no} value={t.no}>
@@ -424,7 +313,7 @@ export default function Haklarim() {
                               ) : (
                                 <span>{hedefBaslik ?? 'yayında talebin yok'}</span>
                               )}
-                              {hedefBaslik ? <span style={{ whiteSpace: 'nowrap' }}>talebi için</span> : null}
+                              {hedefBaslik ? <span className={stil.metin8}>talebi için</span> : null}
                             </span>
                           </>
                         ) : (
@@ -435,35 +324,12 @@ export default function Haklarim() {
                         const on = sepet.includes(u.key);
                         const pasif = !o?.odeme.acik || (oneCikarma && !hedef);
                         return (
-                          <div
-                            key={u.key}
-                            style={{
-                              display: 'flex',
-                              flexWrap: 'wrap',
-                              alignItems: 'center',
-                              gap: '8px 14px',
-                              padding: '12px 16px',
-                              borderTop: '1px solid #EEF0F5',
-                            }}
-                          >
-                            <span style={{ flex: '999 1 220px', minWidth: 0 }}>
-                              <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>
-                                {u.ad}
-                              </span>
-                              <span
-                                style={{
-                                  display: 'block',
-                                  fontSize: 12.5,
-                                  color: 'var(--rr-soluk, #5A6073)',
-                                  marginTop: 2,
-                                }}
-                              >
-                                {u.not}
-                              </span>
+                          <div key={u.key} className={stil.kutu11}>
+                            <span className={stil.metin9}>
+                              <span className={stil.metin10}>{u.ad}</span>
+                              <span className={stil.metin11}>{u.not}</span>
                             </span>
-                            <span style={{ flex: 'none', fontSize: 15, fontWeight: 800 }}>
-                              {tlYaz(u.kurus)}
-                            </span>
+                            <span className={stil.metin12}>{tlYaz(u.kurus)}</span>
                             <button
                               type="button"
                               aria-pressed={on}
@@ -471,20 +337,11 @@ export default function Haklarim() {
                               onClick={() =>
                                 setSepet((s) => (on ? s.filter((k) => k !== u.key) : [...s, u.key]))
                               }
-                              style={{
-                                flex: 'none',
-                                width: 104,
-                                border: on ? 0 : '1px solid var(--rr-mavi, #5B8CFF)',
-                                background: on ? '#E7FAF0' : 'var(--rr-kart, #FFFFFF)',
-                                borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                                padding: on ? '9px 0' : '8px 0',
-                                fontSize: 13.5,
-                                fontWeight: 800,
-                                color: on ? '#11683F' : 'var(--rr-baglanti, #2450C8)',
-                                cursor: pasif && !on ? 'default' : 'pointer',
-                                opacity: pasif && !on ? 0.5 : 1,
-                                fontFamily: 'inherit',
-                              }}
+                              className={cx(
+                                stil.dugme1,
+                                on ? stil.dugme2 : stil.dugme3,
+                                pasif && !on ? stil.dugme4 : stil.dugme5,
+                              )}
                             >
                               {on ? '✓ Sepette' : 'Sepete ekle'}
                             </button>
@@ -496,76 +353,32 @@ export default function Haklarim() {
                 })}
               </section>
 
-              <aside
-                aria-labelledby="sp"
-                style={{
-                  ...kart,
-                  flex: '1 1 280px',
-                  maxWidth: 340,
-                  minWidth: 0,
-                  padding: 18,
-                  position: 'sticky',
-                  top: 16,
-                }}
-              >
-                <h2 id="sp" style={{ margin: '0 0 12px', fontSize: 17, fontWeight: 800 }}>
+              <aside aria-labelledby="sp" className={stil.kutu12}>
+                <h2 id="sp" className={stil.baslik4}>
                   Sepet
                 </h2>
                 {!secili.length ? (
-                  <p style={{ margin: 0, fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
-                    Sepetin boş. Listeden bir hak veya öne çıkarma seç.
-                  </p>
+                  <p className={stil.metin13}>Sepetin boş. Listeden bir hak veya öne çıkarma seç.</p>
                 ) : (
                   <>
                     {secili.map((u) => (
-                      <div
-                        key={u.key}
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          gap: 10,
-                          padding: '8px 0',
-                          borderBottom: '1px solid #EEF0F5',
-                          fontSize: 14,
-                        }}
-                      >
+                      <div key={u.key} className={stil.kutu13}>
                         <span>{u.ad}</span>
-                        <strong style={{ flex: 'none' }}>{tlYaz(u.kurus)}</strong>
+                        <strong className={stil.metin14}>{tlYaz(u.kurus)}</strong>
                       </div>
                     ))}
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginTop: 12,
-                        fontSize: 16,
-                        fontWeight: 800,
-                      }}
-                    >
+                    <div className={stil.kutu14}>
                       <span>Toplam</span>
                       <span>{tlYaz(toplam)}</span>
                     </div>
-                    <p style={{ margin: '4px 0 14px', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
-                      KDV dahil · e-arşiv fatura e-postana gönderilir
-                    </p>
+                    <p className={stil.metin15}>KDV dahil · e-arşiv fatura e-postana gönderilir</p>
                     <button
                       type="button"
                       onClick={() => {
                         setHata(null);
                         setAdim('odeme');
                       }}
-                      style={{
-                        width: '100%',
-                        border: 0,
-                        background: 'var(--rr-mavi, #5B8CFF)',
-                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                        padding: 13,
-                        fontSize: 15,
-                        fontWeight: 800,
-                        color: 'var(--rr-maviYazi, #1E2333)',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
+                      className={stil.dugme6}
                     >
                       Ödemeye geç
                     </button>
@@ -574,74 +387,25 @@ export default function Haklarim() {
               </aside>
             </div>
 
-            <section style={{ ...kart, marginTop: 22, overflow: 'hidden' }} aria-labelledby="fg">
-              <h2
-                id="fg"
-                style={{
-                  margin: 0,
-                  padding: '16px 18px',
-                  fontSize: 17,
-                  fontWeight: 800,
-                  borderBottom: '1px solid #EEF0F5',
-                }}
-              >
+            <section className={stil.kutu15} aria-labelledby="fg">
+              <h2 id="fg" className={stil.baslik5}>
                 Ödeme geçmişi
               </h2>
-              {o && !o.gecmis.length ? (
-                <p
-                  style={{ margin: 0, padding: '12px 18px', fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}
-                >
-                  Henüz ödemen yok.
-                </p>
-              ) : null}
+              {o && !o.gecmis.length ? <p className={stil.metin16}>Henüz ödemen yok.</p> : null}
               {(o?.gecmis ?? []).map((g) => (
-                <div
-                  key={g.id}
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'center',
-                    gap: '6px 16px',
-                    padding: '12px 18px',
-                    borderBottom: '1px solid #EEF0F5',
-                    fontSize: 14,
-                  }}
-                >
-                  <span style={{ flex: '1 1 120px', color: 'var(--rr-soluk, #5A6073)' }}>
-                    {tarih(g.tarih)}
-                  </span>
-                  <span style={{ flex: '999 1 240px', fontWeight: 700 }}>{g.kalem}</span>
-                  <span style={{ flex: '1 1 90px', fontWeight: 800 }}>
+                <div key={g.id} className={stil.kutu16}>
+                  <span className={stil.metin17}>{tarih(g.tarih)}</span>
+                  <span className={stil.metin18}>{g.kalem}</span>
+                  <span className={stil.metin19}>
                     {tlYaz(g.tutarKurus)}
-                    {g.iadeKurus ? (
-                      <span style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#11683F' }}>
-                        İade: {tlYaz(g.iadeKurus)}
-                      </span>
-                    ) : null}
+                    {g.iadeKurus ? <span className={stil.metin20}>İade: {tlYaz(g.iadeKurus)}</span> : null}
                   </span>
                   {g.fatura ? (
-                    <button
-                      type="button"
-                      onClick={() => faturaIndir(g.id)}
-                      style={{
-                        flex: '1 1 110px',
-                        textAlign: 'left',
-                        border: 0,
-                        background: 'transparent',
-                        padding: 0,
-                        fontSize: 14,
-                        fontWeight: 700,
-                        color: 'var(--rr-baglanti, #2450C8)',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
-                    >
+                    <button type="button" onClick={() => faturaIndir(g.id)} className={stil.dugme7}>
                       Faturayı indir
                     </button>
                   ) : (
-                    <span style={{ flex: '1 1 110px', color: 'var(--rr-soluk, #5A6073)' }}>
-                      Fatura hazırlanıyor
-                    </span>
+                    <span className={stil.metin21}>Fatura hazırlanıyor</span>
                   )}
                 </div>
               ))}
@@ -657,61 +421,42 @@ export default function Haklarim() {
                 setSiparis(null);
                 setAdim('magaza');
               }}
-              style={{
-                border: 0,
-                background: 'transparent',
-                padding: 0,
-                fontSize: 14,
-                fontWeight: 700,
-                color: 'var(--rr-baglanti, #2450C8)',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
+              className={stil.dugme8}
             >
               ← Sepete dön
             </button>
-            <h1 style={{ margin: '8px 0 16px', fontSize: 28, fontWeight: 800, letterSpacing: -0.4 }}>
-              Ödeme
-            </h1>
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 16 }}>
-              <div
-                style={{
-                  flex: '999 1 460px',
-                  minWidth: 0,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 16,
-                }}
-              >
-                <section style={{ ...kart, padding: 20 }} aria-labelledby="fb">
-                  <h2 id="fb" style={{ margin: '0 0 12px', fontSize: 17, fontWeight: 800 }}>
+            <h1 className={stil.baslik6}>Ödeme</h1>
+            <div className={stil.kutu17}>
+              <div className={stil.kutu18}>
+                <section className={stil.kutu19} aria-labelledby="fb">
+                  <h2 id="fb" className={stil.baslik4}>
                     Fatura bilgileri
                   </h2>
-                  <fieldset disabled={!!siparis} style={{ border: 0, margin: 0, padding: 0 }}>
-                    <div className="rr-iki-sutun" style={{ gap: 12 }}>
-                      <label style={{ fontSize: 13, fontWeight: 700 }}>
+                  <fieldset disabled={!!siparis} className={stil.kutu20}>
+                    <div className={`rr-iki-sutun ${stil.kutu3}`}>
+                      <label className={stil.etiket1}>
                         Ad soyad
                         <input
                           value={fatura.ad}
                           onChange={(e) => setFatura({ ...fatura, ad: e.target.value })}
-                          style={girdi}
+                          className={stil.girdi2}
                         />
                       </label>
-                      <label style={{ fontSize: 13, fontWeight: 700 }}>
+                      <label className={stil.etiket1}>
                         Fatura e-postası
                         <input
                           type="email"
                           value={fatura.eposta}
                           onChange={(e) => setFatura({ ...fatura, eposta: e.target.value })}
-                          style={girdi}
+                          className={stil.girdi2}
                         />
                       </label>
-                      <label style={{ fontSize: 13, fontWeight: 700 }}>
+                      <label className={stil.etiket1}>
                         İl
                         <select
                           value={fatura.il}
                           onChange={(e) => setFatura({ ...fatura, il: e.target.value, ilce: '' })}
-                          style={girdi}
+                          className={stil.girdi2}
                         >
                           <option value="">Seç</option>
                           {ILLER.map((i) => (
@@ -721,12 +466,12 @@ export default function Haklarim() {
                           ))}
                         </select>
                       </label>
-                      <label style={{ fontSize: 13, fontWeight: 700 }}>
+                      <label className={stil.etiket1}>
                         İlçe
                         <select
                           value={fatura.ilce}
                           onChange={(e) => setFatura({ ...fatura, ilce: e.target.value })}
-                          style={girdi}
+                          className={stil.girdi2}
                         >
                           <option value="">Seç</option>
                           {(ILLER.find((i) => i.ad === fatura.il)?.ilceler ?? []).map((x) => (
@@ -738,16 +483,16 @@ export default function Haklarim() {
                       </label>
                     </div>
                     {kurumsal ? (
-                      <div className="rr-uc-sutun" style={{ gap: 12, marginTop: 12 }}>
-                        <label style={{ fontSize: 13, fontWeight: 700 }}>
+                      <div className={`rr-uc-sutun ${stil.kutu21}`}>
+                        <label className={stil.etiket1}>
                           Ticari unvan
                           <input
                             value={kurumsal.unvan}
                             onChange={(e) => setKurumsal({ ...kurumsal, unvan: e.target.value })}
-                            style={girdi}
+                            className={stil.girdi2}
                           />
                         </label>
-                        <label style={{ fontSize: 13, fontWeight: 700 }}>
+                        <label className={stil.etiket1}>
                           Vergi no
                           <input
                             inputMode="numeric"
@@ -755,15 +500,15 @@ export default function Haklarim() {
                             onChange={(e) =>
                               setKurumsal({ ...kurumsal, vergiNo: e.target.value.replace(/\D/g, '') })
                             }
-                            style={girdi}
+                            className={stil.girdi2}
                           />
                         </label>
-                        <label style={{ fontSize: 13, fontWeight: 700 }}>
+                        <label className={stil.etiket1}>
                           Vergi dairesi
                           <input
                             value={kurumsal.vergiDairesi}
                             onChange={(e) => setKurumsal({ ...kurumsal, vergiDairesi: e.target.value })}
-                            style={girdi}
+                            className={stil.girdi2}
                           />
                         </label>
                       </div>
@@ -773,109 +518,47 @@ export default function Haklarim() {
                       onClick={() =>
                         setKurumsal(kurumsal ? null : { unvan: '', vergiNo: '', vergiDairesi: '' })
                       }
-                      style={{
-                        marginTop: 12,
-                        border: 0,
-                        background: 'transparent',
-                        padding: 0,
-                        fontSize: 13.5,
-                        fontWeight: 700,
-                        color: 'var(--rr-baglanti, #2450C8)',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
+                      className={stil.dugme9}
                     >
                       {kurumsal ? 'Bireysel fatura istiyorum' : 'Kurumsal fatura istiyorum (vergi no ile)'}
                     </button>
                   </fieldset>
                 </section>
 
-                <section style={{ ...kart, padding: 20 }} aria-labelledby="kb">
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      gap: 10,
-                      marginBottom: 12,
-                    }}
-                  >
-                    <h2 id="kb" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+                <section className={stil.kutu19} aria-labelledby="kb">
+                  <div className={stil.kutu22}>
+                    <h2 id="kb" className={stil.baslik7}>
                       Kart bilgileri
                     </h2>
-                    <span
-                      style={{
-                        fontSize: 12.5,
-                        fontWeight: 800,
-                        color: '#11683F',
-                        background: '#E7FAF0',
-                        padding: '4px 10px',
-                        borderRadius: 'var(--rr-etiket-kose)',
-                      }}
-                    >
-                      PayTR güvenli ödeme · 3D Secure
-                    </span>
+                    <span className={stil.metin22}>PayTR güvenli ödeme · 3D Secure</span>
                   </div>
                   {siparis?.odemeAdresi ? (
                     <iframe
                       title="PayTR ödeme çerçevesi"
                       src={siparis.odemeAdresi}
-                      style={{
-                        width: '100%',
-                        height: 560,
-                        border: '1px solid #D5DAE5',
-                        borderRadius: 'var(--rr-buton-kose)',
-                      }}
+                      className={stil.gorsel1}
                     />
                   ) : (
-                    <div
-                      style={{
-                        border: '1px dashed #AEB5C4',
-                        borderRadius: 'var(--rr-buton-kose)',
-                        padding: 16,
-                        background: '#FBFCFE',
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 700,
-                          color: 'var(--rr-soluk, #5A6073)',
-                          marginBottom: 10,
-                        }}
-                      >
+                    <div className={stil.kutu23}>
+                      <div className={stil.kutu24}>
                         Bu alan PayTR’nin ödeme çerçevesidir; siparişi onaylayınca açılır
                       </div>
-                      <div className="rr-iki-sutun" style={{ gap: 10 }}>
+                      <div className={`rr-iki-sutun ${stil.kutu25}`}>
                         {['Kart üzerindeki isim', 'Kart numarası', 'AA / YY', 'CVC'].map((x, i) => (
-                          <span
-                            key={x}
-                            style={{
-                              gridColumn: i < 2 ? '1 / -1' : undefined,
-                              border: '1px solid #D5DAE5',
-                              borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                              padding: 11,
-                              fontSize: 14.5,
-                              color: '#6B7183',
-                              background: 'var(--rr-kart, #FFFFFF)',
-                            }}
-                          >
+                          <span key={x} className={cx(stil.metin23, i < 2 ? stil.metin24 : undefined)}>
                             {x}
                           </span>
                         ))}
                       </div>
                     </div>
                   )}
-                  <p style={{ margin: '10px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+                  <p className={stil.metin25}>
                     Kart bilgilerin Rengarenk sunucularına gelmez ve saklanmaz. Tek çekim; bu tutarlarda
                     taksit yok.
                   </p>
                 </section>
 
-                <section
-                  aria-label="Sözleşmeler"
-                  style={{ ...kart, padding: 20, display: 'flex', flexDirection: 'column', gap: 10 }}
-                >
+                <section aria-label="Sözleşmeler" className={stil.kutu26}>
                   {[
                     { key: 'sozlesme' as const, yazi: CONTRACT_CONSENT },
                     ...(hemen ? [{ key: 'cayma' as const, yazi: WAIVER_CONSENT }] : []),
@@ -890,37 +573,11 @@ export default function Haklarim() {
                         aria-checked={on}
                         disabled={!!siparis}
                         onClick={() => setOnay((x) => ({ ...x, [c.key]: !x[c.key] }))}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: 10,
-                          textAlign: 'left',
-                          border: 0,
-                          background: 'transparent',
-                          padding: 0,
-                          fontSize: 14,
-                          lineHeight: 1.45,
-                          color: 'var(--rr-murekkep, #1E2333)',
-                          cursor: 'pointer',
-                          fontFamily: 'inherit',
-                        }}
+                        className={stil.dugme10}
                       >
                         <span
-                          style={{
-                            flex: 'none',
-                            width: 20,
-                            height: 20,
-                            borderRadius: 'calc(var(--rr-buton-kose) * 6 / 14)',
-                            border: `2px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}`,
-                            background: on ? 'var(--rr-mavi, #5B8CFF)' : '#FFFFFF',
-                            color: '#FFFFFF',
-                            fontSize: 13,
-                            fontWeight: 800,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginTop: 1,
-                          }}
+                          className={cx(stil.metin26, on ? stil.metin27 : stil.metin28)}
+                          style={{ border: `2px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : '#AEB5C4'}` }}
                         >
                           {on ? '✓' : ''}
                         </span>
@@ -928,7 +585,7 @@ export default function Haklarim() {
                       </button>
                     );
                   })}
-                  <span style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+                  <span className={stil.metin29}>
                     <Link href="/on-bilgilendirme" target="_blank">
                       Ön Bilgilendirme Formu
                     </Link>{' '}
@@ -940,62 +597,25 @@ export default function Haklarim() {
                 </section>
               </div>
 
-              <aside
-                aria-labelledby="oz"
-                style={{ ...kart, flex: '1 1 280px', maxWidth: 340, minWidth: 0, padding: 18 }}
-              >
-                <h2 id="oz" style={{ margin: '0 0 12px', fontSize: 17, fontWeight: 800 }}>
+              <aside aria-labelledby="oz" className={stil.kutu27}>
+                <h2 id="oz" className={stil.baslik4}>
                   Sipariş özeti
                 </h2>
                 {secili.map((u) => (
-                  <div
-                    key={u.key}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      gap: 10,
-                      padding: '8px 0',
-                      borderBottom: '1px solid #EEF0F5',
-                      fontSize: 14,
-                    }}
-                  >
+                  <div key={u.key} className={stil.kutu13}>
                     <span>
                       {u.ad}
                       {u.oneCikarma && hedefBaslik ? ` · ${hedefBaslik}` : ''}
                     </span>
-                    <strong style={{ flex: 'none' }}>{tlYaz(u.kurus)}</strong>
+                    <strong className={stil.metin14}>{tlYaz(u.kurus)}</strong>
                   </div>
                 ))}
                 {kupon ? (
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      gap: 10,
-                      padding: '8px 0',
-                      borderBottom: '1px solid #EEF0F5',
-                      fontSize: 14,
-                      color: '#11683F',
-                      fontWeight: 700,
-                    }}
-                  >
+                  <div className={stil.kutu28}>
                     <span>
                       Kupon {kupon.kod}
                       {siparis ? null : (
-                        <button
-                          type="button"
-                          onClick={() => setKupon(null)}
-                          style={{
-                            marginLeft: 8,
-                            border: 0,
-                            background: 'transparent',
-                            padding: 0,
-                            color: 'var(--rr-soluk, #5A6073)',
-                            fontSize: 12.5,
-                            cursor: 'pointer',
-                            fontFamily: 'inherit',
-                          }}
-                        >
+                        <button type="button" onClick={() => setKupon(null)} className={stil.dugme11}>
                           Kaldır
                         </button>
                       )}
@@ -1003,9 +623,9 @@ export default function Haklarim() {
                     <span>−{tlYaz(kupon.indirimKurus)}</span>
                   </div>
                 ) : siparis ? null : (
-                  <div style={{ marginTop: 10 }}>
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <label style={{ flex: 1, minWidth: 0 }}>
+                  <div className={stil.kutu29}>
+                    <div className={stil.kutu30}>
+                      <label className={stil.etiket2}>
                         <span className="sr-only">Kupon kodu</span>
                         <input
                           value={kuponKod}
@@ -1013,130 +633,53 @@ export default function Haklarim() {
                           placeholder="Kupon kodu"
                           aria-label="Kupon kodu"
                           onChange={(e) => setKuponKod(e.target.value.toLocaleUpperCase('tr-TR'))}
-                          style={{
-                            width: '100%',
-                            boxSizing: 'border-box',
-                            border: '1px solid #D5DAE5',
-                            borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                            padding: '9px 10px',
-                            fontSize: 14,
-                            fontFamily: 'inherit',
-                          }}
+                          className={stil.girdi3}
                         />
                       </label>
                       <button
                         type="button"
                         disabled={kuponKod.trim().length < 4}
                         onClick={kuponUygula}
-                        style={{
-                          flex: 'none',
-                          border: '1px solid #D5DAE5',
-                          background: 'var(--rr-kart, #FFFFFF)',
-                          borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                          padding: '9px 14px',
-                          fontSize: 14,
-                          fontWeight: 700,
-                          color: 'var(--rr-murekkep, #1E2333)',
-                          cursor: 'pointer',
-                          fontFamily: 'inherit',
-                          opacity: kuponKod.trim().length < 4 ? 0.5 : 1,
-                        }}
+                        className={stil.dugme12}
+                        style={{ opacity: kuponKod.trim().length < 4 ? 0.5 : 1 }}
                       >
                         Uygula
                       </button>
                     </div>
                     {kuponHata ? (
-                      <p
-                        role="alert"
-                        style={{ margin: '6px 0 0', fontSize: 12.5, color: '#A3271F', fontWeight: 700 }}
-                      >
+                      <p role="alert" className={stil.metin30}>
                         {kuponHata}
                       </p>
                     ) : null}
                   </div>
                 )}
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginTop: 10,
-                    fontSize: 13.5,
-                    color: 'var(--rr-soluk, #5A6073)',
-                  }}
-                >
+                <div className={stil.kutu31}>
                   <span>KDV (%20, dahil)</span>
                   <span>{tlYaz(vatOfGross(odenecek))}</span>
                 </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginTop: 6,
-                    fontSize: 17,
-                    fontWeight: 800,
-                  }}
-                >
+                <div className={stil.kutu32}>
                   <span>Toplam</span>
                   <span>{tlYaz(odenecek)}</span>
                 </div>
-                <p style={{ margin: '12px 0 0', fontSize: 12.5, lineHeight: 1.5, color: '#3A4052' }}>
+                <p className={stil.metin31}>
                   {hemen
                     ? 'Ek talep ve mesaj hakları kullanılmadıysa 14 gün içinde iade edilebilir. Öne çıkarma ve uzatma satın alındığı anda başlar.'
                     : 'Ek talep ve mesaj hakları kullanılmadıysa 14 gün içinde iade edilebilir; hakların süresi dolmaz.'}
                 </p>
                 {siparis ? (
-                  <p
-                    style={{
-                      margin: '14px 0 0',
-                      fontSize: 13.5,
-                      fontWeight: 700,
-                      color: 'var(--rr-baglanti, #2450C8)',
-                    }}
-                  >
+                  <p className={stil.metin32}>
                     Kart bilgilerini ödeme çerçevesine gir. Ödeme onaylanınca bu sayfa kendiliğinden ilerler.
                   </p>
                 ) : odeHazir ? (
-                  <button
-                    type="button"
-                    disabled={mesgul}
-                    onClick={ode}
-                    style={{
-                      width: '100%',
-                      marginTop: 14,
-                      border: 0,
-                      background: 'var(--rr-yesil, #3DD68C)',
-                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                      padding: 13,
-                      fontSize: 15,
-                      fontWeight: 800,
-                      color: 'var(--rr-yesilYazi, #1E2333)',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
+                  <button type="button" disabled={mesgul} onClick={ode} className={stil.dugme13}>
                     {mesgul ? 'Hazırlanıyor…' : `Siparişi onayla ve öde · ${tlYaz(odenecek)}`}
                   </button>
                 ) : (
                   <>
-                    <button
-                      type="button"
-                      disabled
-                      style={{
-                        width: '100%',
-                        marginTop: 14,
-                        border: 0,
-                        background: 'var(--rr-cizgi, #E3E6EF)',
-                        borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                        padding: 13,
-                        fontSize: 15,
-                        fontWeight: 800,
-                        color: '#6B7183',
-                        fontFamily: 'inherit',
-                      }}
-                    >
+                    <button type="button" disabled className={stil.dugme14}>
                       Siparişi onayla ve öde · {tlYaz(odenecek)}
                     </button>
-                    <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+                    <p className={stil.metin33}>
                       {!fatura.ad || !fatura.eposta || !fatura.il || !fatura.ilce
                         ? 'Fatura bilgilerini doldur.'
                         : hemen
@@ -1151,29 +694,8 @@ export default function Haklarim() {
         ) : null}
 
         {adim === 'tamam' ? (
-          <section
-            aria-labelledby="ok"
-            style={{
-              ...kart,
-              borderRadius: 'calc(var(--rr-kart-kose) * 22 / 18)',
-              maxWidth: 560,
-              margin: '40px auto',
-              padding: 32,
-              textAlign: 'center',
-            }}
-          >
-            <span
-              aria-hidden="true"
-              style={{
-                display: 'inline-flex',
-                width: 64,
-                height: 64,
-                borderRadius: '50%',
-                background: '#E7FAF0',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
+          <section aria-labelledby="ok" className={stil.kutu33}>
+            <span aria-hidden="true" className={stil.metin34}>
               <svg
                 aria-hidden="true"
                 width="30"
@@ -1188,26 +710,15 @@ export default function Haklarim() {
                 <path d="M5 12l5 5 9-10" />
               </svg>
             </span>
-            <h1 id="ok" style={{ margin: '14px 0 6px', fontSize: 24, fontWeight: 800 }}>
+            <h1 id="ok" className={stil.baslik8}>
               Ödeme alındı
             </h1>
-            <p style={{ margin: 0, fontSize: 15, color: '#3A4052' }}>
+            <p className={stil.metin35}>
               {tlYaz(siparis?.toplamKurus ?? toplam)} tutarındaki ödemen tamamlandı. Haklar hesabına
               tanımlandı, faturan hazırlanınca ödeme geçmişinden indirebilirsin.
             </p>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginTop: 22 }}>
-              <Link
-                href="/taleplerim"
-                style={{
-                  background: 'var(--rr-mavi, #5B8CFF)',
-                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                  padding: '12px 18px',
-                  fontSize: 14.5,
-                  fontWeight: 800,
-                  color: 'var(--rr-maviYazi, #1E2333)',
-                  textDecoration: 'none',
-                }}
-              >
+            <div className={stil.kutu34}>
+              <Link href="/taleplerim" className={stil.bag1}>
                 Taleplerime git
               </Link>
               <button
@@ -1219,17 +730,7 @@ export default function Haklarim() {
                   setAdim('magaza');
                   window.history.replaceState(null, '', '/haklarim');
                 }}
-                style={{
-                  border: '1px solid #D5DAE5',
-                  background: 'var(--rr-kart, #FFFFFF)',
-                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                  padding: '12px 18px',
-                  fontSize: 14.5,
-                  fontWeight: 700,
-                  color: 'var(--rr-murekkep, #1E2333)',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
+                className={stil.dugme15}
               >
                 Haklarıma dön
               </button>

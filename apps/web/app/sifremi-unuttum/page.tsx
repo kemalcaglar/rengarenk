@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { type FormEvent, useState } from 'react';
-import { Bilgi, field, GirisDuzeni, Hata, h1, label, lead, post, primary } from '../../components/giris-ui';
+import { Bilgi, GirisDuzeni, Hata, post, primary } from '../../components/giris-ui';
+import stil from './page.module.css';
 
 /**
  * Şifremi unuttum (Karar 18): adres kayıtlıysa e-postaya 1 saat geçerli, tek kullanımlık bağlantı gider. Yanıt her
@@ -26,10 +27,12 @@ export default function SifremiUnuttum() {
 
   return (
     <GirisDuzeni baslikId="form-baslik">
-      <h1 id="form-baslik" style={h1}>
+      <h1 id="form-baslik" className={stil.baslik1}>
         Şifremi unuttum
       </h1>
-      <p style={lead}>Üye olduğun e-posta adresini yaz; şifreni sıfırlaman için bir bağlantı gönderelim.</p>
+      <p className={stil.metin1}>
+        Üye olduğun e-posta adresini yaz; şifreni sıfırlaman için bir bağlantı gönderelim.
+      </p>
       {gonderildi ? (
         <Bilgi>
           Bu adres kayıtlıysa şifre sıfırlama bağlantısını gönderdik. Gelen kutunu (ve istenmeyen klasörünü)
@@ -37,7 +40,7 @@ export default function SifremiUnuttum() {
         </Bilgi>
       ) : (
         <form onSubmit={gonder}>
-          <label htmlFor="eposta" style={label}>
+          <label htmlFor="eposta" className={stil.etiket1}>
             E-posta
           </label>
           <input
@@ -48,7 +51,7 @@ export default function SifremiUnuttum() {
             value={eposta}
             onChange={(e) => setEposta(e.target.value)}
             required
-            style={field}
+            className={stil.girdi1}
           />
           <button type="submit" disabled={busy} style={{ ...primary(true), marginTop: 20 }}>
             {busy ? 'Gönderiliyor…' : 'Bağlantı gönder'}
@@ -56,8 +59,8 @@ export default function SifremiUnuttum() {
           <Hata>{error}</Hata>
         </form>
       )}
-      <p style={{ margin: '18px 0 0', fontSize: 14.5 }}>
-        <Link href="/giris" style={{ fontWeight: 700 }}>
+      <p className={stil.metin2}>
+        <Link href="/giris" className={stil.bag1}>
           Giriş sayfasına dön
         </Link>
       </p>

@@ -12,10 +12,10 @@ import {
   aciklamaSar,
   type CategoryField,
 } from '@rengarenk/shared';
-import { type CSSProperties, useRef } from 'react';
-import { colors } from '../../lib/renk';
+import { useRef } from 'react';
+import { cx } from '../../lib/cx';
 import { AciklamaGoster } from '../aciklama';
-import { etiket, kutu } from './alan';
+import stil from './aciklama-editoru.module.css';
 
 /**
  * 5. adım: biçimli açıklama (sahip isteği, 17 Kasım 2026). Araç çubuğu seçili yazıyı etiketle sarar (kalın, italik,
@@ -48,35 +48,18 @@ export function AciklamaEditoru({
     });
   };
 
-  const dugme: CSSProperties = {
-    border: `1px solid ${colors.line}`,
-    background: colors.surface,
-    borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
-    minWidth: 34,
-    height: 34,
-    padding: '0 9px',
-    fontSize: 14,
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-    color: colors.ink,
-  };
-
   return (
     <div>
-      <label htmlFor="alan-aciklama" style={{ ...etiket, marginBottom: 6 }}>
+      <label htmlFor="alan-aciklama" className={stil.etiket1}>
         {f.label}
       </label>
-      <div
-        role="toolbar"
-        aria-label="Açıklama biçimi"
-        style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginBottom: 8 }}
-      >
+      <div role="toolbar" aria-label="Açıklama biçimi" className={stil.kutu1}>
         <button
           type="button"
           title="Kalın"
           aria-label="Kalın"
           onClick={() => sar('k')}
-          style={{ ...dugme, fontWeight: 800 }}
+          className={stil.dugme1}
         >
           K
         </button>
@@ -85,11 +68,11 @@ export function AciklamaEditoru({
           title="İtalik"
           aria-label="İtalik"
           onClick={() => sar('i')}
-          style={{ ...dugme, fontStyle: 'italic', fontWeight: 700 }}
+          className={stil.dugme2}
         >
           İ
         </button>
-        <span aria-hidden="true" style={{ width: 1, height: 24, background: colors.line, margin: '0 4px' }} />
+        <span aria-hidden="true" className={stil.metin1} />
         {(Object.keys(ACIKLAMA_RENKLERI) as AciklamaRengi[]).map((r) => (
           <button
             key={r}
@@ -97,22 +80,24 @@ export function AciklamaEditoru({
             title={`${ACIKLAMA_RENKLERI[r].ad} yazı`}
             aria-label={`${ACIKLAMA_RENKLERI[r].ad} yazı`}
             onClick={() => sar('renk', r)}
-            style={{ ...dugme, minWidth: 30, width: 30, padding: 0, display: 'grid', placeItems: 'center' }}
+            className={stil.dugme3}
           >
             <span
               aria-hidden="true"
-              style={{ width: 16, height: 16, borderRadius: '50%', background: ACIKLAMA_RENKLERI[r].hex }}
+              className={stil.metin2}
+              style={{ background: ACIKLAMA_RENKLERI[r].hex }}
             />
           </button>
         ))}
-        <span aria-hidden="true" style={{ width: 1, height: 24, background: colors.line, margin: '0 4px' }} />
+        <span aria-hidden="true" className={stil.metin1} />
         {(Object.keys(ACIKLAMA_BOYUTLARI) as AciklamaBoyutu[]).map((b) => (
           <button
             key={b}
             type="button"
             title={`${ACIKLAMA_BOYUTLARI[b].ad} yazı`}
             onClick={() => sar('boyut', b)}
-            style={{ ...dugme, fontSize: 13 * ACIKLAMA_BOYUTLARI[b].oran, fontWeight: 700 }}
+            className={stil.dugme4}
+            style={{ fontSize: 13 * ACIKLAMA_BOYUTLARI[b].oran }}
           >
             {ACIKLAMA_BOYUTLARI[b].ad}
           </button>
@@ -125,48 +110,25 @@ export function AciklamaEditoru({
         maxLength={ACIKLAMA_HAM_SINIR}
         value={metin}
         onChange={(e) => onChange(e.target.value || undefined)}
-        style={{ ...kutu, lineHeight: 1.55, resize: 'vertical', fontFamily: 'inherit' }}
+        className={stil.girdi1}
       />
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          gap: 12,
-          fontSize: 12.5,
-          color: colors.muted,
-          marginTop: 4,
-        }}
-      >
+      <div className={stil.kutu2}>
         <span>
           Yazıyı seçip düğmeye bas. Telefon numarası, IBAN veya bağlantı yazmayın; iletişim bilgileri
           aşağıdaki ayarlarla paylaşılır.
         </span>
-        <span style={{ flex: 'none', color: uzunluk > ACIKLAMA_SINIR ? '#A3271F' : colors.muted }}>
+        <span className={cx(stil.metin3, uzunluk > ACIKLAMA_SINIR ? stil.metin4 : stil.metin5)}>
           {uzunluk} / {ACIKLAMA_SINIR}
         </span>
       </div>
       {hata ? (
-        <span
-          role="alert"
-          style={{ display: 'block', fontSize: 12.5, color: '#A3271F', fontWeight: 700, marginTop: 6 }}
-        >
+        <span role="alert" className={stil.metin6}>
           {hata}
         </span>
       ) : null}
       {metin.trim() ? (
-        <div
-          style={{
-            marginTop: 12,
-            border: `1px dashed ${colors.line}`,
-            borderRadius: 'calc(var(--rr-kart-kose) * 14 / 18)',
-            padding: '12px 14px',
-          }}
-        >
-          <span
-            style={{ display: 'block', fontSize: 12, fontWeight: 700, color: colors.muted, marginBottom: 6 }}
-          >
-            Talep sayfasında böyle görünecek
-          </span>
+        <div className={stil.kutu3}>
+          <span className={stil.metin7}>Talep sayfasında böyle görünecek</span>
           <AciklamaGoster metin={metin} sabit />
         </div>
       ) : null}

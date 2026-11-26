@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { HesabimMenu } from '../../../components/hesabim-menu';
+import { cx } from '../../../lib/cx';
 import { istek, useGiris } from '../../../lib/istemci';
 import { aramaAdresi, binlik, butceAraligi, uzunTarih, yilAraligi, zaman } from '../../../lib/talep-bicim';
 import { type FavoriArac, FavoriAraclar } from './araclar';
+import stil from './page.module.css';
 
 /** Favoriler ve kayıtlı aramalar (Karar 06.4, 30) · Favoriler.dc.html */
 
@@ -150,42 +152,16 @@ export default function Favoriler() {
   ];
 
   return (
-    <div
-      className="rr-sayfa"
-      style={{
-        maxWidth: 1360,
-        margin: '0 auto',
-        padding: '24px 24px 64px',
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'flex-start',
-        gap: 24,
-      }}
-    >
+    <div className={`rr-sayfa ${stil.kutu1}`}>
       <HesabimMenu aktif="/favoriler" />
 
-      <main style={{ flex: '999 1 760px', minWidth: 0 }}>
-        <h1 style={{ margin: '0 0 4px', fontSize: 28, fontWeight: 800, letterSpacing: -0.4 }}>
-          Favoriler ve kayıtlı aramalar
-        </h1>
-        <p style={{ margin: '0 0 16px', fontSize: 14.5, color: 'var(--rr-soluk, #5A6073)' }}>
+      <main className={stil.kutu2}>
+        <h1 className={stil.baslik1}>Favoriler ve kayıtlı aramalar</h1>
+        <p className={stil.metin1}>
           Satmak istediğin araca uyan talepleri takip et; yeni talep gelince haber verelim.
         </p>
 
-        <div
-          role="tablist"
-          aria-label="Görünüm"
-          style={{
-            display: 'flex',
-            gap: 6,
-            background: 'var(--rr-kart, #FFFFFF)',
-            border: '1px solid var(--rr-cizgi, #E3E6EF)',
-            borderRadius: 'var(--rr-buton-kose)',
-            padding: 6,
-            marginBottom: 16,
-            maxWidth: 520,
-          }}
-        >
+        <div role="tablist" aria-label="Görünüm" className={stil.kutu3}>
           {sekmeler.map(([k, ad, n]) => {
             const on = sekme === k;
             return (
@@ -195,41 +171,16 @@ export default function Favoriler() {
                 role="tab"
                 aria-selected={on}
                 onClick={() => setSekme(k)}
-                style={{
-                  flex: 1,
-                  border: 0,
-                  background: on ? '#EEF3FF' : 'transparent',
-                  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                  padding: '11px 12px',
-                  fontSize: 14.5,
-                  fontWeight: on ? 800 : 600,
-                  color: on ? 'var(--rr-murekkep, #1E2333)' : '#3A4052',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
+                className={cx(stil.dugme1, on ? stil.dugme2 : stil.dugme3)}
               >
-                {ad}{' '}
-                <span style={{ color: on ? 'var(--rr-baglanti, #2450C8)' : 'var(--rr-soluk, #5A6073)' }}>
-                  {n ?? ''}
-                </span>
+                {ad} <span className={cx(on ? stil.metin2 : stil.metin3)}>{n ?? ''}</span>
               </button>
             );
           })}
         </div>
 
         {hata ? (
-          <p
-            role="alert"
-            style={{
-              margin: '0 0 14px',
-              background: '#FFF0EE',
-              border: '1px solid #F5C6C0',
-              borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-              padding: '10px 14px',
-              fontSize: 14,
-              color: '#A3271F',
-            }}
-          >
+          <p role="alert" className={stil.metin4}>
             {hata}
           </p>
         ) : null}
@@ -240,50 +191,16 @@ export default function Favoriler() {
               {(favoriler ?? []).map((f) => {
                 const [etiket, bg, fg] = DURUM[f.durum];
                 return (
-                  <article
-                    key={f.no}
-                    style={{
-                      background: 'var(--rr-kart, #FFFFFF)',
-                      border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                      borderRadius: 'var(--rr-kart-kose)',
-                      padding: 16,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 8,
-                      opacity: f.yazilabilir ? 1 : 0.75,
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-start',
-                        gap: 10,
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 800,
-                          padding: '3px 9px',
-                          borderRadius: 'var(--rr-etiket-kose)',
-                          background: bg,
-                          color: fg,
-                        }}
-                      >
+                  <article key={f.no} className={cx(stil.kutu4, f.yazilabilir ? stil.kutu5 : stil.kutu6)}>
+                    <div className={stil.kutu7}>
+                      <span className={stil.metin5} style={{ background: bg, color: fg }}>
                         {etiket}
                       </span>
                       <button
                         type="button"
                         onClick={() => kaldir(f)}
                         aria-label="Favorilerden çıkar"
-                        style={{
-                          flex: 'none',
-                          border: 0,
-                          background: 'transparent',
-                          padding: 2,
-                          cursor: 'pointer',
-                        }}
+                        className={stil.dugme4}
                       >
                         <svg
                           width="22"
@@ -299,39 +216,22 @@ export default function Favoriler() {
                         </svg>
                       </button>
                     </div>
-                    <Link
-                      href={`/talep/${f.no}`}
-                      style={{ fontSize: 16.5, fontWeight: 800, color: 'var(--rr-murekkep, #1E2333)' }}
-                    >
+                    <Link href={`/talep/${f.no}`} className={stil.bag1}>
                       {f.baslik}
                     </Link>
-                    <p style={{ margin: 0, fontSize: 13.5, color: '#3A4052' }}>
-                      {ozet(f) || f.category.name}
-                    </p>
-                    <p style={{ margin: 0, fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+                    <p className={stil.metin6}>{ozet(f) || f.category.name}</p>
+                    <p className={stil.metin7}>
                       {[f.sahip, [f.il, f.ilce].filter(Boolean).join(', '), zaman(f.yayin)]
                         .filter(Boolean)
                         .join(' · ')}
                     </p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4 }}>
+                    <div className={stil.kutu8}>
                       {f.yazilabilir ? (
-                        <Link
-                          href={`/talep/${f.no}`}
-                          style={{
-                            background: 'var(--rr-mavi, #5B8CFF)',
-                            borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                            padding: '9px 14px',
-                            fontSize: 13.5,
-                            fontWeight: 800,
-                            color: 'var(--rr-maviYazi, #1E2333)',
-                          }}
-                        >
+                        <Link href={`/talep/${f.no}`} className={stil.bag2}>
                           Mesaj gönder
                         </Link>
                       ) : (
-                        <span style={{ fontSize: 13, color: 'var(--rr-soluk, #5A6073)', padding: '8px 0' }}>
-                          {KAPALI_NOT[f.durum]}
-                        </span>
+                        <span className={stil.metin8}>{KAPALI_NOT[f.durum]}</span>
                       )}
                     </div>
                   </article>
@@ -339,17 +239,7 @@ export default function Favoriler() {
               })}
             </div>
             {favoriler && favoriler.length === 0 ? (
-              <div
-                style={{
-                  background: 'var(--rr-kart, #FFFFFF)',
-                  border: '1px dashed #C9CFDB',
-                  borderRadius: 'var(--rr-kart-kose)',
-                  padding: '36px 20px',
-                  textAlign: 'center',
-                  fontSize: 15,
-                  color: 'var(--rr-soluk, #5A6073)',
-                }}
-              >
+              <div className={stil.kutu9}>
                 Favori talebin kalmadı. Talep sayfalarındaki kalp simgesiyle ekleyebilirsin.
               </div>
             ) : null}
@@ -357,164 +247,65 @@ export default function Favoriler() {
         ) : sekme === 'arac' ? (
           <FavoriAraclar liste={araclar} kaldir={aracKaldir} />
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className={stil.kutu10}>
             {aramalar && aramalar.length === 0 ? (
-              <div
-                style={{
-                  background: 'var(--rr-kart, #FFFFFF)',
-                  border: '1px dashed #C9CFDB',
-                  borderRadius: 'var(--rr-kart-kose)',
-                  padding: '36px 20px',
-                  textAlign: 'center',
-                  fontSize: 15,
-                  color: 'var(--rr-soluk, #5A6073)',
-                }}
-              >
+              <div className={stil.kutu9}>
                 Kayıtlı araman yok. <Link href="/talepler">Talep listesinde</Link> filtreleri seçip “Aramayı
                 kaydet”e bas.
               </div>
             ) : null}
             {(aramalar ?? []).map((a) => (
-              <article
-                key={a.id}
-                style={{
-                  background: 'var(--rr-kart, #FFFFFF)',
-                  border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                  borderRadius: 'var(--rr-kart-kose)',
-                  padding: 18,
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '14px 20px',
-                  alignItems: 'center',
-                }}
-              >
-                <div style={{ flex: '999 1 360px', minWidth: 0 }}>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+              <article key={a.id} className={stil.kutu11}>
+                <div className={stil.kutu12}>
+                  <div className={stil.kutu13}>
                     {duzen?.id === a.id ? (
                       <form
                         onSubmit={(e) => {
                           e.preventDefault();
                           adKaydet();
                         }}
-                        style={{ display: 'flex', flexWrap: 'wrap', gap: 8, flex: 1, minWidth: 0 }}
+                        className={stil.kutu14}
                       >
                         <input
                           aria-label="Arama adı"
                           value={duzen.ad}
                           maxLength={80}
                           onChange={(e) => setDuzen({ id: a.id, ad: e.target.value })}
-                          style={{
-                            flex: '1 1 220px',
-                            minWidth: 0,
-                            border: '1px solid #D5DAE5',
-                            borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                            padding: '8px 10px',
-                            fontSize: 15,
-                            fontWeight: 700,
-                            color: 'var(--rr-murekkep, #1E2333)',
-                          }}
+                          className={stil.girdi1}
                         />
-                        <button
-                          type="submit"
-                          disabled={!duzen.ad.trim()}
-                          style={{
-                            border: 0,
-                            borderRadius: 'calc(var(--rr-buton-kose) * 9 / 14)',
-                            background: 'var(--rr-mavi, #5B8CFF)',
-                            color: 'var(--rr-maviYazi, #1E2333)',
-                            fontWeight: 700,
-                            fontSize: 14,
-                            padding: '9px 16px',
-                            cursor: 'pointer',
-                          }}
-                        >
+                        <button type="submit" disabled={!duzen.ad.trim()} className={stil.dugme5}>
                           Kaydet
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => setDuzen(null)}
-                          style={{
-                            border: 0,
-                            background: 'transparent',
-                            fontSize: 13.5,
-                            fontWeight: 700,
-                            color: 'var(--rr-soluk, #5A6073)',
-                            cursor: 'pointer',
-                          }}
-                        >
+                        <button type="button" onClick={() => setDuzen(null)} className={stil.dugme6}>
                           Vazgeç
                         </button>
                       </form>
                     ) : (
-                      <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>{a.ad}</h2>
+                      <h2 className={stil.baslik2}>{a.ad}</h2>
                     )}
                     {a.yeni ? (
-                      <button
-                        type="button"
-                        onClick={() => gor(a)}
-                        style={{
-                          border: 0,
-                          cursor: 'pointer',
-                          fontFamily: 'inherit',
-                          fontSize: 12.5,
-                          fontWeight: 800,
-                          padding: '3px 10px',
-                          borderRadius: 'var(--rr-etiket-kose)',
-                          background: '#FFEEF6',
-                          color: '#A3236A',
-                        }}
-                      >
+                      <button type="button" onClick={() => gor(a)} className={stil.dugme7}>
                         {a.yeni} yeni talep
                       </button>
                     ) : null}
                   </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                  <div className={stil.kutu15}>
                     {a.kriterler.map((c) => (
-                      <span
-                        key={c}
-                        style={{
-                          background: '#F3F5FA',
-                          borderRadius: 'var(--rr-etiket-kose)',
-                          padding: '5px 11px',
-                          fontSize: 12.5,
-                          fontWeight: 600,
-                          color: '#3A4052',
-                        }}
-                      >
+                      <span key={c} className={stil.metin9}>
                         {c}
                       </span>
                     ))}
                   </div>
-                  <p style={{ margin: '8px 0 0', fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)' }}>
+                  <p className={stil.metin10}>
                     {a.toplam === null
                       ? 'Arama şu an yanıt vermiyor'
                       : `Şu an ${a.toplam} aktif talep uyuyor`}{' '}
                     · Kaydedildi {uzunTarih(a.olusturuldu)}
                   </p>
                 </div>
-                <div style={{ flex: '1 1 260px', minWidth: 0 }}>
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 12.5,
-                      fontWeight: 700,
-                      color: 'var(--rr-soluk, #5A6073)',
-                      marginBottom: 6,
-                    }}
-                  >
-                    Bildirim
-                  </span>
-                  <div
-                    role="radiogroup"
-                    aria-label={`${a.ad} bildirimi`}
-                    style={{
-                      display: 'flex',
-                      gap: 4,
-                      background: '#F3F5FA',
-                      borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                      padding: 4,
-                    }}
-                  >
+                <div className={stil.kutu16}>
+                  <span className={stil.metin11}>Bildirim</span>
+                  <div role="radiogroup" aria-label={`${a.ad} bildirimi`} className={stil.kutu17}>
                     {SAVED_SEARCH_NOTIFY.map((b) => {
                       const on = a.bildirim === b.key;
                       return (
@@ -525,73 +316,39 @@ export default function Favoriler() {
                           role="radio"
                           aria-checked={on}
                           onClick={() => (on ? undefined : bildirim(a, b.key))}
-                          style={{
-                            flex: 1,
-                            border: 0,
-                            background: on ? 'var(--rr-kart, #FFFFFF)' : 'transparent',
-                            borderRadius: 'calc(var(--rr-buton-kose) * 9 / 14)',
-                            padding: '8px 6px',
-                            fontSize: 13,
-                            fontWeight: on ? 800 : 600,
-                            color: 'var(--rr-murekkep, #1E2333)',
-                            cursor: 'pointer',
-                            fontFamily: 'inherit',
-                            whiteSpace: 'nowrap',
-                          }}
+                          className={cx(stil.dugme8, on ? stil.dugme9 : stil.dugme10)}
                         >
                           {b.ad}
                         </button>
                       );
                     })}
                   </div>
-                  <div style={{ display: 'flex', gap: 14, marginTop: 10, fontSize: 13.5 }}>
+                  <div className={stil.kutu18}>
                     <a
                       href={aramaAdresi(a.sorgu)}
                       onClick={(e) => {
                         e.preventDefault();
                         gor(a);
                       }}
-                      style={{ fontWeight: 700 }}
+                      className={stil.bag3}
                     >
                       Talepleri gör
                     </a>
                     <button
                       type="button"
                       onClick={() => setDuzen({ id: a.id, ad: a.ad })}
-                      style={{
-                        border: 0,
-                        background: 'transparent',
-                        padding: 0,
-                        fontSize: 13.5,
-                        fontWeight: 700,
-                        color: 'var(--rr-baglanti, #2450C8)',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
+                      className={stil.dugme11}
                     >
                       Düzenle
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => sil(a)}
-                      style={{
-                        border: 0,
-                        background: 'transparent',
-                        padding: 0,
-                        fontSize: 13.5,
-                        fontWeight: 700,
-                        color: '#A3271F',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
-                    >
+                    <button type="button" onClick={() => sil(a)} className={stil.dugme12}>
                       Sil
                     </button>
                   </div>
                 </div>
               </article>
             ))}
-            <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--rr-soluk, #5A6073)' }}>
+            <p className={stil.metin12}>
               En fazla {MAX_SAVED_SEARCHES} kayıtlı arama tutabilirsin. Anlık bildirim telefonuna, günlük özet
               e-postana gelir.
             </p>

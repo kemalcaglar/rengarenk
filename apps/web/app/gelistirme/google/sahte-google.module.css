@@ -1,0 +1,46 @@
+/* Bu dosya sahte-google.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  max-width: 420px;
+  width: 100%;
+  display: grid;
+  gap: 12px;
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  padding: 28px;
+}
+.metin1 {
+  margin: 0;
+  font-size: 13px;
+  color: var(--rr-soluk, #5a6073);
+}
+.baslik1 {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 800;
+}
+.etiket1 {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.girdi1 {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d5dae5;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 13px;
+  font-size: 15px;
+  font-family: inherit;
+}
+.kutu2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.metin2 {
+  margin: 0;
+  color: #a3271f;
+  font-weight: 700;
+}

@@ -1,6 +1,8 @@
 'use client';
 
 import { PAINT_PARTS, PAINT_STATES } from '@rengarenk/shared';
+import { cx } from '../../lib/cx';
+import stil from './boya.module.css';
 
 export type BoyaDegeri = { limit: number; parts: Partial<Record<string, string>> };
 type Durum = (typeof PAINT_STATES)[number]['key'];
@@ -25,48 +27,25 @@ export function BoyaSemasi({
   const bd = (k: string) => renk(v.parts[k]);
   const hepsi = (k: Durum) =>
     onChange({ ...v, parts: Object.fromEntries(PAINT_PARTS.map((p) => [p.key, k])) });
-  const ikincil = {
-    border: '1px solid #D5DAE5',
-    background: 'var(--rr-kart, #FFFFFF)',
-    borderRadius: 'var(--rr-etiket-kose)',
-    padding: '8px 14px',
-    fontSize: 13.5,
-    fontWeight: 700,
-    color: 'var(--rr-murekkep, #1E2333)',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-  } as const;
-  const sayac = {
-    width: 36,
-    height: 36,
-    border: '1px solid #D5DAE5',
-    background: 'var(--rr-kart, #FFFFFF)',
-    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-    fontSize: 18,
-    fontWeight: 700,
-    cursor: 'pointer',
-  } as const;
   return (
     <>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 18 }}>
-        <button type="button" onClick={() => hepsi('orijinal')} style={ikincil}>
+      <div className={stil.kutu1}>
+        <button type="button" onClick={() => hepsi('orijinal')} className={stil.dugme1}>
           {beyan ? 'Tümü orijinal' : 'Tümü orijinal olsun'}
         </button>
         {beyan ? null : (
           <>
-            <button type="button" onClick={() => hepsi('lokal')} style={ikincil}>
+            <button type="button" onClick={() => hepsi('lokal')} className={stil.dugme1}>
               Tümünde lokal boya kabul
             </button>
-            <button type="button" onClick={() => hepsi('boya')} style={ikincil}>
+            <button type="button" onClick={() => hepsi('boya')} className={stil.dugme1}>
               Tümünde boya kabul
             </button>
           </>
         )}
       </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 28 }}>
-        <div
-          style={{ flex: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}
-        >
+      <div className={stil.kutu2}>
+        <div className={stil.kutu3}>
           <svg
             width="220"
             height="440"
@@ -177,60 +156,21 @@ export function BoyaSemasi({
               ARKA
             </text>
           </svg>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-              gap: '6px 14px',
-              fontSize: 12.5,
-              color: '#3A4052',
-            }}
-          >
+          <div className={stil.kutu4}>
             {PAINT_STATES.map((s) => (
-              <span key={s.key} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span
-                  aria-hidden="true"
-                  style={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: 'calc(var(--rr-buton-kose) * 3 / 14)',
-                    background: s.renk,
-                    border: '1px solid #AEB5C4',
-                  }}
-                />
+              <span key={s.key} className={stil.metin1}>
+                <span aria-hidden="true" className={stil.metin2} style={{ background: s.renk }} />
                 {s.ad}
               </span>
             ))}
           </div>
         </div>
-        <div style={{ flex: '1 1 380px', minWidth: 0 }}>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              border: '1px solid #EEF0F5',
-              borderRadius: 'var(--rr-buton-kose)',
-              overflow: 'hidden',
-            }}
-          >
+        <div className={stil.kutu5}>
+          <div className={stil.kutu6}>
             {PAINT_PARTS.map((p) => (
-              <div
-                key={p.key}
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 8,
-                  padding: '9px 12px',
-                  borderBottom: '1px solid #EEF0F5',
-                }}
-              >
-                <span style={{ fontSize: 14, fontWeight: 600 }}>{p.ad}</span>
-                <fieldset
-                  style={{ display: 'flex', gap: 4, border: 0, margin: 0, padding: 0 }}
-                  aria-label={p.ad}
-                >
+              <div key={p.key} className={stil.kutu7}>
+                <span className={stil.metin3}>{p.ad}</span>
+                <fieldset className={stil.kutu8} aria-label={p.ad}>
                   {PAINT_STATES.map((s) => {
                     const on = (v.parts[p.key] ?? 'orijinal') === s.key;
                     return (
@@ -239,17 +179,8 @@ export function BoyaSemasi({
                         type="button"
                         aria-pressed={on}
                         onClick={() => onChange({ ...v, parts: { ...v.parts, [p.key]: s.key } })}
-                        style={{
-                          border: on ? '1.5px solid #4A5064' : '1px solid #D5DAE5',
-                          background: on ? s.renk : 'var(--rr-kart, #FFFFFF)',
-                          borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
-                          padding: on ? '6px 9px' : '6.5px 9.5px',
-                          fontSize: 12.5,
-                          fontWeight: on ? 800 : 600,
-                          color: on ? 'var(--rr-murekkep, #1E2333)' : 'var(--rr-soluk, #5A6073)',
-                          cursor: 'pointer',
-                          fontFamily: 'inherit',
-                        }}
+                        className={cx(stil.dugme2, on ? stil.dugme3 : stil.dugme4)}
+                        style={{ background: on ? s.renk : 'var(--rr-kart, #FFFFFF)' }}
                       >
                         {s.ad}
                       </button>
@@ -260,38 +191,23 @@ export function BoyaSemasi({
             ))}
           </div>
           {beyan ? null : (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 12,
-                marginTop: 14,
-                background: '#F3F5FA',
-                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                padding: '12px 14px',
-              }}
-            >
-              <span style={{ fontSize: 14, fontWeight: 600 }}>
-                Toplamda en fazla kaç parça işlem görmüş olabilir?
-              </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div className={stil.kutu9}>
+              <span className={stil.metin3}>Toplamda en fazla kaç parça işlem görmüş olabilir?</span>
+              <span className={stil.metin4}>
                 <button
                   type="button"
                   aria-label="Azalt"
                   onClick={() => onChange({ ...v, limit: Math.max(0, v.limit - 1) })}
-                  style={sayac}
+                  className={stil.dugme5}
                 >
                   −
                 </button>
-                <span style={{ minWidth: 24, textAlign: 'center', fontSize: 17, fontWeight: 800 }}>
-                  {v.limit}
-                </span>
+                <span className={stil.metin5}>{v.limit}</span>
                 <button
                   type="button"
                   aria-label="Artır"
                   onClick={() => onChange({ ...v, limit: Math.min(PAINT_PARTS.length, v.limit + 1) })}
-                  style={sayac}
+                  className={stil.dugme5}
                 >
                   +
                 </button>

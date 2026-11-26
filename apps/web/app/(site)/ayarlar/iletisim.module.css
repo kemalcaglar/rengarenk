@@ -1,0 +1,203 @@
+/* Bu dosya iletisim.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.dugme1 {
+  flex: none;
+  width: 52px;
+  height: 30px;
+  border: 0;
+  border-radius: var(--rr-etiket-kose);
+  position: relative;
+  cursor: pointer;
+}
+.dugme2 {
+  background: var(--rr-mavi, #5b8cff);
+  color: var(--rr-maviYazi, #1e2333);
+}
+.dugme3 {
+  background: #c9cfdb;
+}
+.metin1 {
+  position: absolute;
+  top: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--rr-kart, #ffffff);
+}
+.metin2 {
+  left: 25px;
+}
+.metin3 {
+  left: 3px;
+}
+.kutu1 {
+  background: var(--rr-kart, #ffffff);
+  border: 1px solid var(--rr-cizgi, #e3e6ef);
+  border-radius: var(--rr-kart-kose);
+  padding: 22px;
+}
+.baslik1 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 800;
+}
+.metin4 {
+  margin: 0 0 12px;
+  font-size: 13.5px;
+  color: var(--rr-soluk, #5a6073);
+}
+.kutu2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid #eef0f5;
+}
+.metin5 {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+}
+.metin6 {
+  display: block;
+  font-size: 12.5px;
+  color: var(--rr-soluk, #5a6073);
+  margin-top: 2px;
+}
+.metin7 {
+  flex: none;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rr-soluk, #5a6073);
+}
+.kutu3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0 0;
+  border-top: 1px solid #eef0f5;
+}
+.metin8 {
+  flex: 999 1 220px;
+}
+.girdi1 {
+  border: 1px solid #d5dae5;
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  padding: 10px;
+  font-size: 14.5px;
+  background: var(--rr-kart, #ffffff);
+  font-family: inherit;
+}
+.metin9 {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: var(--rr-soluk, #5a6073);
+}
+.metin10 {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin: 18px 0 8px;
+}
+.kutu4 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.dugme4 {
+  flex: 1 1 220px;
+  text-align: left;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 12px 14px;
+  cursor: pointer;
+  color: var(--rr-murekkep, #1e2333);
+  font-family: inherit;
+}
+.dugme5 {
+  border: 1.5px solid var(--rr-mavi, #5b8cff);
+  background: #eef3ff;
+}
+.dugme6 {
+  border: 1px solid #d5dae5;
+  background: var(--rr-kart, #ffffff);
+}
+.metin11 {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+}
+.dugme7 {
+  border: 1px solid #d5dae5;
+  background: var(--rr-kart, #ffffff);
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  padding: 8px 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--rr-murekkep, #1e2333);
+  cursor: pointer;
+  font-family: inherit;
+}
+.kutu5 {
+  flex: 1 1 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.kutu6 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.girdi2 {
+  border: 1px solid #d5dae5;
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  padding: 8px;
+  font-size: 14.5px;
+  background: var(--rr-kart, #ffffff);
+  font-family: inherit;
+  width: 190px;
+}
+.girdi3 {
+  border: 1px solid #d5dae5;
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  padding: 8px;
+  font-size: 14.5px;
+  background: var(--rr-kart, #ffffff);
+  font-family: inherit;
+  width: 140px;
+}
+.dugme8 {
+  border: 0;
+  background: var(--rr-mavi, #5b8cff);
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  padding: 8px 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--rr-maviYazi, #1e2333);
+  cursor: pointer;
+  font-family: inherit;
+}
+.metin12 {
+  font-size: 12.5px;
+  color: var(--rr-soluk, #5a6073);
+}
+.dugme9 {
+  border: 0;
+  background: transparent;
+  border-radius: calc(var(--rr-buton-kose) * 10 / 14);
+  padding: 8px 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--rr-soluk, #5a6073);
+  cursor: pointer;
+  font-family: inherit;
+}
+.metin13 {
+  flex: 1 1 100%;
+  color: #a3271f;
+  font-weight: 700;
+  font-size: 13px;
+}

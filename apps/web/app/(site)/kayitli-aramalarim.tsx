@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { istek, useGiris } from '../../lib/istemci';
 import { aramaAdresi } from '../../lib/talep-bicim';
+import stil from './kayitli-aramalarim.module.css';
 
 interface Arama {
   id: string;
@@ -44,19 +45,11 @@ export function KayitliAramalarim() {
 
   return (
     <section aria-labelledby="kayitli">
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'baseline',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 12,
-        }}
-      >
-        <h2 id="kayitli" style={{ margin: 0, fontSize: 19, fontWeight: 800 }}>
+      <div className={stil.kutu1}>
+        <h2 id="kayitli" className={stil.baslik1}>
           Kayıtlı aramalarınız
         </h2>
-        <Link href="/favoriler?sekme=aramalar" style={{ fontSize: 14, fontWeight: 700 }}>
+        <Link href="/favoriler?sekme=aramalar" className={stil.bag1}>
           Aramaları yönet
         </Link>
       </div>
@@ -69,37 +62,13 @@ export function KayitliAramalarim() {
               e.preventDefault();
               gor(a);
             }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 12,
-              background: 'var(--rr-kart, #FFFFFF)',
-              border: '1px solid var(--rr-cizgi, #E3E6EF)',
-              borderRadius: 'calc(var(--rr-kart-kose) * 16 / 18)',
-              padding: 16,
-              color: 'var(--rr-murekkep, #1E2333)',
-              textDecoration: 'none',
-            }}
+            className={stil.bag2}
           >
-            <span style={{ minWidth: 0 }}>
-              <span style={{ display: 'block', fontSize: 15, fontWeight: 700 }}>{a.ad}</span>
-              <span
-                style={{ display: 'block', fontSize: 13, color: 'var(--rr-soluk, #5A6073)', marginTop: 3 }}
-              >
-                {a.kriterler.slice(0, 3).join(' · ')}
-              </span>
+            <span className={stil.metin1}>
+              <span className={stil.metin2}>{a.ad}</span>
+              <span className={stil.metin3}>{a.kriterler.slice(0, 3).join(' · ')}</span>
             </span>
-            <span
-              style={{
-                flex: 'none',
-                background: RENK[i % RENK.length],
-                fontSize: 12.5,
-                fontWeight: 800,
-                padding: '6px 10px',
-                borderRadius: 'var(--rr-etiket-kose)',
-              }}
-            >
+            <span className={stil.metin4} style={{ background: RENK[i % RENK.length] }}>
               {a.yeni ?? 0} yeni
             </span>
           </a>
