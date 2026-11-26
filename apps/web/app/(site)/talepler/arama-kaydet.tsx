@@ -4,6 +4,7 @@ import { searchQueryKey } from '@rengarenk/shared';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ApiHatasi, istek, useGiris } from '../../../lib/istemci';
+import css from './talepler.module.css';
 
 const COKLU = new Set(['seri', 'makyaj', 'paket']);
 const DISARIDA = new Set(['sayfa', 'sira', 'boyut']);
@@ -63,20 +64,7 @@ export function AramaKaydet({ ad }: { ad: string }) {
           onClick={bas}
           disabled={busy}
           title="Kayıtlı aramalardan çıkar"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 7,
-            border: '1.5px solid #25A35A',
-            background: '#E7FAF0',
-            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-            padding: '10px 14px',
-            fontSize: 14,
-            fontWeight: 700,
-            color: '#11683F',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
+          className={css.kaydedildi}
         >
           <svg
             width="16"
@@ -94,25 +82,7 @@ export function AramaKaydet({ ad }: { ad: string }) {
           Arama kaydedildi
         </button>
       ) : (
-        <button
-          type="button"
-          onClick={bas}
-          disabled={busy || giris === null}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 7,
-            border: '1px solid #D5DAE5',
-            background: 'var(--rr-kart, #FFFFFF)',
-            borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-            padding: '10.5px 14.5px',
-            fontSize: 14,
-            fontWeight: 700,
-            color: 'var(--rr-murekkep, #1E2333)',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
-        >
+        <button type="button" onClick={bas} disabled={busy || giris === null} className={css.kaydet}>
           <svg
             width="16"
             height="16"
@@ -129,7 +99,7 @@ export function AramaKaydet({ ad }: { ad: string }) {
         </button>
       )}
       {hata ? (
-        <span role="alert" style={{ flexBasis: '100%', fontSize: 13, color: '#A3271F', textAlign: 'right' }}>
+        <span role="alert" className={css.kaydetHata}>
           {hata}
         </span>
       ) : null}

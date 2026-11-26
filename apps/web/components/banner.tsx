@@ -48,7 +48,15 @@ const sayilan = new Set<string>();
  * Konsoldan yayınlanan banner ve duyurular (Karar 46): yer, kitle (ziyaretçi, üye, galeri ve il), platform ve tarihe
  * göre API seçer. Gösterim ve tıklama günlük toplam olarak sayılır; kişisel veri gönderilmez.
  */
-export function Banner({ yer, style }: { yer: BannerPlace; style?: CSSProperties }) {
+export function Banner({
+  yer,
+  style,
+  className,
+}: {
+  yer: BannerPlace;
+  style?: CSSProperties;
+  className?: string;
+}) {
   const [liste, setListe] = useState<Banner[]>([]);
 
   useEffect(() => {
@@ -108,7 +116,7 @@ export function Banner({ yer, style }: { yer: BannerPlace; style?: CSSProperties
     );
 
   return (
-    <div style={{ display: 'grid', gap: 10, ...style }}>
+    <div className={className} style={{ display: 'grid', gap: 10, ...style }}>
       {liste.map((b) => (
         <section
           key={b.id}

@@ -1,6 +1,7 @@
 'use client';
 
 import { type CSSProperties, type ReactNode, useState } from 'react';
+import css from './dar-acilir.module.css';
 
 /**
  * Masaüstünde her zaman açık yan panel; telefon ve tablette (1023 px ve altı) başlığına dokununca açılan kutu (ListeMobil.dc.html
@@ -16,7 +17,7 @@ export function DarAcilir({
   etiket: string;
   ariaLabel: string;
   className: string;
-  style: CSSProperties;
+  style?: CSSProperties;
   children: ReactNode;
 }) {
   const [acik, setAcik] = useState(false);
@@ -29,7 +30,7 @@ export function DarAcilir({
         onClick={() => setAcik((a) => !a)}
       >
         {etiket}
-        <span aria-hidden="true" style={{ fontSize: 20, lineHeight: 1 }}>
+        <span aria-hidden="true" className={css.isaret}>
           {acik ? '−' : '+'}
         </span>
       </button>

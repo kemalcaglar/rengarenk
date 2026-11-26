@@ -10,7 +10,7 @@ const SECENEK = [
 ] as const;
 
 /** Sıralama (Liste.dc.html): seçilince liste yenilenir, diğer filtreler korunur. */
-export function SiralamaSecimi({ deger }: { deger: string }) {
+export function SiralamaSecimi({ deger, className }: { deger: string; className?: string }) {
   const router = useRouter();
   const path = usePathname();
   const params = useSearchParams();
@@ -28,15 +28,7 @@ export function SiralamaSecimi({ deger }: { deger: string }) {
           p.delete('sayfa');
           router.push(`${path}?${p.toString()}`);
         }}
-        style={{
-          border: '1px solid #D5DAE5',
-          borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-          padding: '11px 12px',
-          fontSize: 14,
-          background: 'var(--rr-kart, #FFFFFF)',
-          color: 'var(--rr-murekkep, #1E2333)',
-          fontFamily: 'inherit',
-        }}
+        className={className}
       >
         {SECENEK.map(([k, ad]) => (
           <option key={k} value={k}>

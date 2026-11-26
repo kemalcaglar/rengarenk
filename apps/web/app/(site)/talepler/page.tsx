@@ -1,7 +1,7 @@
 import { ILLER, type PublicCategory } from '@rengarenk/shared';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Suspense } from 'react';
 import { AracKapak } from '../../../components/arac-kapak';
 import { Banner } from '../../../components/banner';
@@ -11,9 +11,11 @@ import { binlik, butceAraligi, yilAraligi, zaman } from '../../../lib/talep-bici
 import { AramaBildir } from './arama-bildir';
 import { AramaKaydet } from './arama-kaydet';
 import { SiralamaSecimi } from './siralama';
+import css from './talepler.module.css';
 
 const API = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
-const TINTS = ['#EEF3FF', '#FFEEF6', '#FFF6DF', '#E7FAF0', '#F3EFFF', '#FFF0EA'];
+/** Fotoğrafı olmayan satırların sırayla değişen zemini (talepler.module.css › .ton0–5) */
+const TONLAR = [css.ton0, css.ton1, css.ton2, css.ton3, css.ton4, css.ton5];
 /** Görseller tarayıcıdan istenir: genel API adresi */
 const GORSEL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
@@ -77,17 +79,6 @@ async function ara(q: Q): Promise<Yanit | null> {
   }
 }
 
-const kutuStil: CSSProperties = {
-  flex: 1,
-  minWidth: 0,
-  border: '1px solid #D5DAE5',
-  borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-  padding: 10,
-  fontSize: 14,
-  fontFamily: 'inherit',
-};
-const baslikStil: CSSProperties = { margin: '0 0 8px', fontSize: 15, fontWeight: 800 };
-
 /** İşaret kutusu (Liste.dc.html): JavaScript olmadan da form gönderilir */
 function Isaret({
   name,
@@ -101,22 +92,15 @@ function Isaret({
   children: ReactNode;
 }) {
   return (
-    <label
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        padding: '7px 2px',
-        fontSize: 14,
-        color: 'var(--rr-murekkep, #1E2333)',
-        cursor: 'pointer',
-      }}
-    >
+    <label className={css.isaret}>
       <input type="checkbox" name={name} value={value} defaultChecked={on} className="rr-isaret" />
       {children}
     </label>
   );
 }
+
+/** Birden çok sınıfı birleştirir; boş olanlar atlanır */
+const sinif = (...a: (string | false | null | undefined)[]) => a.filter(Boolean).join(' ');
 
 /**
  * Talep listesi ve arama (tasarım: Liste.dc.html; Karar 06.1, 06.3): solda filtreler, sağda sonuç tablosu.
@@ -158,19 +142,9 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
   const sayfa = y?.sayfa ?? 1;
 
   return (
-    <main style={{ maxWidth: 1360, margin: '0 auto', padding: '20px 24px 64px' }}>
-      <Banner yer="talep_listesi" style={{ marginBottom: 14 }} />
-      <nav
-        aria-label="Konum"
-        style={{
-          fontSize: 13.5,
-          color: 'var(--rr-soluk, #5A6073)',
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 6,
-          marginBottom: 16,
-        }}
-      >
+    <main className={sinif(css.sayfa, 'rr-sayfa')}>
+      <Banner yer="talep_listesi" className={css.banner} />
+      <nav aria-label="Konum" className={css.konum}>
         <Link href="/talepler">Vasıta</Link>
         {kat ? (
           <>
@@ -199,42 +173,18 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
           </>
         ) : null}
       </nav>
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: 24 }}>
-        <DarAcilir
-          etiket="Filtreler"
-          ariaLabel="Filtreler"
-          className="rr-filtre"
-          style={{
-            flex: '1 1 260px',
-            maxWidth: 290,
-            minWidth: 0,
-            background: 'var(--rr-kart, #FFFFFF)',
-            border: '1px solid var(--rr-cizgi, #E3E6EF)',
-            borderRadius: 'var(--rr-kart-kose)',
-            padding: 18,
-          }}
-        >
+      <div className={css.duzen}>
+        <DarAcilir etiket="Filtreler" ariaLabel="Filtreler" className={sinif('rr-filtre', css.filtre)}>
           <form action="/talepler" method="get" id="filtre">
             {kategori ? <input type="hidden" name="kategori" value={kategori} /> : null}
             {marka ? <input type="hidden" name="marka" value={marka} /> : null}
             {metin ? <input type="hidden" name="q" value={metin} /> : null}
             {tek(q.sira) ? <input type="hidden" name="sira" value={tek(q.sira)} /> : null}
-            <h2
-              style={{
-                margin: '0 0 4px',
-                fontSize: 13,
-                fontWeight: 800,
-                letterSpacing: 0.6,
-                textTransform: 'uppercase',
-                color: 'var(--rr-soluk, #5A6073)',
-              }}
-            >
-              Kategori
-            </h2>
-            <ul style={{ listStyle: 'none', margin: '0 0 16px', padding: 0, fontSize: 14 }}>
-              <li style={{ padding: '6px 0', fontWeight: kat ? 400 : 800 }}>
+            <h2 className={css.ustBaslik}>Kategori</h2>
+            <ul className={css.liste}>
+              <li className={sinif(css.oge, kat ? css.ince : css.kalin)}>
                 {kat ? (
-                  <Link href="/talepler" style={{ color: '#3A4052' }}>
+                  <Link href="/talepler" className={css.altBaglanti}>
                     Vasıta
                   </Link>
                 ) : (
@@ -245,48 +195,48 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                 ? [kat, ...(altKat ? [altKat] : [])].map((c, i) => (
                     <li
                       key={c.slug}
-                      style={{
-                        padding: `6px 0 6px ${12 * (i + 1)}px`,
-                        fontWeight: !marka && c.slug === kategori ? 800 : 400,
-                      }}
+                      className={sinif(
+                        i ? css.girinti2 : css.girinti1,
+                        !marka && c.slug === kategori ? css.kalin : css.ince,
+                      )}
                     >
-                      <Link href={`/talepler?kategori=${c.slug}`} style={{ color: '#3A4052' }}>
+                      <Link href={`/talepler?kategori=${c.slug}`} className={css.altBaglanti}>
                         {c.name}
                       </Link>
                     </li>
                   ))
                 : kategoriler.map((c) => (
-                    <li key={c.slug} style={{ padding: '6px 0 6px 12px' }}>
-                      <Link href={`/talepler?kategori=${c.slug}`} style={{ color: '#3A4052' }}>
+                    <li key={c.slug} className={css.girinti1}>
+                      <Link href={`/talepler?kategori=${c.slug}`} className={css.altBaglanti}>
                         {c.name}
                       </Link>
                     </li>
                   ))}
               {kat && !altKat && kat.children.length
                 ? kat.children.map((c) => (
-                    <li key={c.slug} style={{ padding: '6px 0 6px 24px' }}>
-                      <Link href={`/talepler?kategori=${c.slug}`} style={{ color: '#3A4052' }}>
+                    <li key={c.slug} className={css.girinti2}>
+                      <Link href={`/talepler?kategori=${c.slug}`} className={css.altBaglanti}>
                         {c.name}
                       </Link>
                     </li>
                   ))
                 : null}
               {markaAd ? (
-                <li style={{ padding: `6px 0 6px ${altKat ? 36 : 24}px`, fontWeight: 800 }}>{markaAd}</li>
+                <li className={sinif(altKat ? css.girinti3 : css.girinti2, css.kalin)}>{markaAd}</li>
               ) : null}
             </ul>
 
             {!marka && (y?.filtreler.marka.length ?? 0) > 0 ? (
               <>
-                <h2 style={baslikStil}>Marka</h2>
-                <ul style={{ listStyle: 'none', margin: '0 0 16px', padding: 0, fontSize: 14 }}>
+                <h2 className={css.baslik}>Marka</h2>
+                <ul className={css.liste}>
                   {y?.filtreler.marka.map((m) => (
-                    <li key={m.key} style={{ padding: '6px 0' }}>
+                    <li key={m.key} className={css.oge}>
                       <Link
                         href={`/talepler?${parametreler(q, { marka: m.key, seri: undefined, paket: undefined, sayfa: undefined }).toString()}`}
-                        style={{ color: '#3A4052' }}
+                        className={css.altBaglanti}
                       >
-                        {m.ad} <span style={{ color: 'var(--rr-soluk, #5A6073)' }}>({m.n})</span>
+                        {m.ad} <span className={css.soluk}>({m.n})</span>
                       </Link>
                     </li>
                   ))}
@@ -296,19 +246,19 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
 
             {marka && (y?.filtreler.seri.length ?? 0) > 0 ? (
               <>
-                <h2 style={baslikStil}>Seri</h2>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16 }}>
+                <h2 className={css.baslik}>Seri</h2>
+                <div className={css.isaretler}>
                   {y?.filtreler.seri.map((s) => (
                     <Isaret key={s.key} name="seri" value={s.key} on={seriler.includes(s.key)}>
-                      {s.ad} <span style={{ color: 'var(--rr-soluk, #5A6073)' }}>({s.n})</span>
+                      {s.ad} <span className={css.soluk}>({s.n})</span>
                     </Isaret>
                   ))}
                 </div>
               </>
             ) : null}
 
-            <h2 style={baslikStil}>Kasa ve makyaj</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16 }}>
+            <h2 className={css.baslik}>Kasa ve makyaj</h2>
+            <div className={css.isaretler}>
               {(['makyajsiz', 'makyajli'] as const).map((k) => (
                 <Isaret key={k} name="makyaj" value={k} on={makyaj.includes(k)}>
                   {k === 'makyajsiz' ? 'Makyajsız' : 'Makyajlı'}
@@ -318,8 +268,8 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
 
             {(y?.filtreler.paket.length ?? 0) > 0 ? (
               <>
-                <h2 style={baslikStil}>Donanım paketi</h2>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16 }}>
+                <h2 className={css.baslik}>Donanım paketi</h2>
+                <div className={css.isaretler}>
                   {y?.filtreler.paket.slice(0, 12).map((p) => (
                     <Isaret key={p.ad} name="paket" value={p.ad} on={paket.includes(p.ad)}>
                       {p.ad}
@@ -329,8 +279,8 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
               </>
             ) : null}
 
-            <h2 style={baslikStil}>Model yılı</h2>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+            <h2 className={css.baslik}>Model yılı</h2>
+            <div className={css.aralik}>
               <label htmlFor="y1" className="sr-only">
                 En az model yılı
               </label>
@@ -340,7 +290,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                 inputMode="numeric"
                 placeholder="En az"
                 defaultValue={tek(q.yilMin)}
-                style={kutuStil}
+                className={css.kutu}
               />
               <label htmlFor="y2" className="sr-only">
                 En çok model yılı
@@ -351,12 +301,12 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                 inputMode="numeric"
                 placeholder="En çok"
                 defaultValue={tek(q.yilMax)}
-                style={kutuStil}
+                className={css.kutu}
               />
             </div>
 
-            <h2 style={baslikStil}>Bütçe (TL)</h2>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+            <h2 className={css.baslik}>Bütçe (TL)</h2>
+            <div className={css.aralik}>
               <label htmlFor="bt1" className="sr-only">
                 En az bütçe
               </label>
@@ -366,7 +316,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                 inputMode="numeric"
                 placeholder="En az"
                 defaultValue={tek(q.butceMin)}
-                style={kutuStil}
+                className={css.kutu}
               />
               <label htmlFor="bt2" className="sr-only">
                 En çok bütçe
@@ -377,33 +327,14 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
                 inputMode="numeric"
                 placeholder="En çok"
                 defaultValue={tek(q.butceMax)}
-                style={kutuStil}
+                className={css.kutu}
               />
             </div>
 
-            <label
-              htmlFor="il"
-              style={{ display: 'block', margin: '0 0 8px', fontSize: 15, fontWeight: 800 }}
-            >
+            <label htmlFor="il" className={css.ilEtiket}>
               İl
             </label>
-            <select
-              id="il"
-              name="il"
-              defaultValue={tek(q.il) ?? ''}
-              style={{
-                width: '100%',
-                boxSizing: 'border-box',
-                border: '1px solid #D5DAE5',
-                borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                padding: '11px 10px',
-                fontSize: 14,
-                background: 'var(--rr-kart, #FFFFFF)',
-                color: 'var(--rr-murekkep, #1E2333)',
-                marginBottom: 16,
-                fontFamily: 'inherit',
-              }}
-            >
+            <select id="il" name="il" defaultValue={tek(q.il) ?? ''} className={css.secim}>
               <option value="">Tüm iller</option>
               {ILLER.map((i) => (
                 <option key={i.plaka} value={i.ad}>
@@ -412,282 +343,108 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
               ))}
             </select>
 
-            <h2 style={baslikStil}>Diğer</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 18 }}>
+            <h2 className={css.baslik}>Diğer</h2>
+            <div className={css.isaretlerSon}>
               <Isaret name="telefon" value="1" on={Boolean(tek(q.telefon))}>
                 Telefonla ulaşılabilir
               </Isaret>
             </div>
-            <button
-              type="submit"
-              style={{
-                width: '100%',
-                border: 0,
-                background: 'var(--rr-mavi, #5B8CFF)',
-                borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                padding: 13,
-                fontSize: 15,
-                fontWeight: 800,
-                color: 'var(--rr-maviYazi, #1E2333)',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
+            <button type="submit" className={css.filtrele}>
               Filtrele
             </button>
           </form>
         </DarAcilir>
 
-        <div style={{ flex: '999 1 720px', minWidth: 0 }}>
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 12,
-              marginBottom: 14,
-            }}
-          >
+        <div className={css.sonuclar}>
+          <div className={css.ust}>
             <div>
-              <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800 }}>{baslik}</h1>
-              <p style={{ margin: '3px 0 0', fontSize: 14, color: 'var(--rr-soluk, #5A6073)' }}>
+              <h1 className={css.h1}>{baslik}</h1>
+              <p className={css.sayi}>
                 {y ? `${binlik(y.toplam)} talep` : 'Talepler şu an yüklenemedi; biraz sonra yeniden dene.'}
               </p>
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}>
+            <div className={css.araclar}>
               <Suspense>
                 <AramaKaydet ad={baslik} />
                 <AramaBildir sorgu={q} />
-                <SiralamaSecimi deger={tek(q.sira) ?? 'onerilen'} />
+                <SiralamaSecimi deger={tek(q.sira) ?? 'onerilen'} className={css.siralama} />
               </Suspense>
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
+          <div className={css.etiketler}>
             {(aktif.length ? aktif : [baslik]).map((a) => (
-              <span
-                key={a}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  background: '#EEF3FF',
-                  borderRadius: 'var(--rr-etiket-kose)',
-                  padding: '6px 12px',
-                  fontSize: 13,
-                  fontWeight: 700,
-                }}
-              >
+              <span key={a} className={css.etiket}>
                 {a}
               </span>
             ))}
           </div>
 
-          <div
-            style={{
-              background: 'var(--rr-kart, #FFFFFF)',
-              border: '1px solid var(--rr-cizgi, #E3E6EF)',
-              borderRadius: 'var(--rr-kart-kose)',
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              className="rr-yalniz-genis"
-              style={{
-                display: 'flex',
-                gap: 16,
-                padding: '12px 18px',
-                background: '#F3F5FA',
-                fontSize: 12.5,
-                fontWeight: 700,
-                color: 'var(--rr-soluk, #5A6073)',
-                textTransform: 'uppercase',
-                letterSpacing: 0.4,
-              }}
-            >
-              <span style={{ flex: '0 0 96px' }} />
-              <span style={{ flex: '999 1 240px' }}>Talep</span>
-              <span style={{ flex: '1 1 100px' }}>Model yılı</span>
-              <span style={{ flex: '1 1 100px' }}>En fazla km</span>
-              <span style={{ flex: '1 1 170px' }}>Bütçe</span>
-              <span style={{ flex: '1 1 120px' }}>Konum</span>
+          <div className={css.tablo}>
+            <div className={sinif('rr-yalniz-genis', css.tabloBaslik)}>
+              <span className={css.sGorsel} />
+              <span className={css.sTalep}>Talep</span>
+              <span className={css.sYil}>Model yılı</span>
+              <span className={css.sYil}>En fazla km</span>
+              <span className={css.sButce}>Bütçe</span>
+              <span className={css.sKonum}>Konum</span>
             </div>
             {y && y.sonuclar.length === 0 ? (
-              <p
-                style={{
-                  margin: 0,
-                  padding: '36px 18px',
-                  borderTop: '1px solid #EEF0F5',
-                  textAlign: 'center',
-                  fontSize: 15,
-                  color: 'var(--rr-soluk, #5A6073)',
-                }}
-              >
-                Bu filtrelere uyan yayında talep yok.
-              </p>
+              <p className={css.bos}>Bu filtrelere uyan yayında talep yok.</p>
             ) : null}
             {(y?.sonuclar ?? []).map((t, i) => (
-              <div
-                key={t.no}
-                className="rr-talep-satir"
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  gap: '10px 16px',
-                  padding: '14px 18px',
-                  borderTop: '1px solid #EEF0F5',
-                  background: t.ustSira ? '#FFF9FC' : 'var(--rr-kart, #FFFFFF)',
-                }}
-              >
+              <div key={t.no} className={sinif('rr-talep-satir', css.satir, t.ustSira && css.satirUst)}>
                 <Link
                   href={`/talep/${t.no}`}
                   aria-label={t.baslik}
-                  style={{
-                    flex: '0 0 96px',
-                    height: 64,
-                    borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                    background: TINTS[i % TINTS.length],
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden',
-                  }}
+                  className={sinif(css.gorsel, TONLAR[i % TONLAR.length])}
                 >
                   {t.foto ? (
                     // biome-ignore lint/performance/noImgElement: katalog görseli API'den akar; Next görüntü iyileştirmesi gerekmez
-                    <img
-                      src={`${GORSEL}${t.foto}`}
-                      alt=""
-                      loading="lazy"
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                    />
+                    <img src={`${GORSEL}${t.foto}`} alt="" loading="lazy" className={css.foto} />
                   ) : (
                     <AracKapak boyut="mini" marka={t.markaAd} seri={t.seriAd ?? t.kategori.name} />
                   )}
                 </Link>
-                <div style={{ flex: '999 1 240px', minWidth: 0 }}>
-                  <Link
-                    href={`/talep/${t.no}`}
-                    style={{
-                      display: 'block',
-                      fontSize: 15,
-                      fontWeight: 800,
-                      color: 'var(--rr-murekkep, #1E2333)',
-                      lineHeight: 1.35,
-                    }}
-                  >
+                <div className={css.govde}>
+                  <Link href={`/talep/${t.no}`} className={css.talepBaslik}>
                     {t.baslik}
                   </Link>
-                  <span style={{ display: 'block', fontSize: 13, color: '#3A4052', marginTop: 3 }}>
-                    {t.arac || t.kategori.name}
-                  </span>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
-                    {t.acil ? (
-                      <span
-                        style={{
-                          background: '#FFF6DF',
-                          color: '#7A5300',
-                          fontSize: 12,
-                          fontWeight: 700,
-                          padding: '3px 9px',
-                          borderRadius: 'var(--rr-etiket-kose)',
-                        }}
-                      >
-                        Acil arıyorum
-                      </span>
-                    ) : null}
-                    {t.ustSira ? (
-                      <span
-                        style={{
-                          background: '#FFEEF6',
-                          color: '#9B1C5B',
-                          fontSize: 12,
-                          fontWeight: 700,
-                          padding: '3px 9px',
-                          borderRadius: 'var(--rr-etiket-kose)',
-                        }}
-                      >
-                        Öne çıkan
-                      </span>
-                    ) : null}
-                    <span style={{ fontSize: 12.5, color: 'var(--rr-soluk, #5A6073)', padding: '3px 0' }}>
-                      {zaman(t.yayin)}
-                    </span>
+                  <span className={css.arac}>{t.arac || t.kategori.name}</span>
+                  <div className={css.rozetler}>
+                    {t.acil ? <span className={css.rozetAcil}>Acil arıyorum</span> : null}
+                    {t.ustSira ? <span className={css.rozetUst}>Öne çıkan</span> : null}
+                    <span className={css.zaman}>{zaman(t.yayin)}</span>
                   </div>
                 </div>
-                <span className="rr-ts-bilgi" style={{ flex: '1 1 100px', fontSize: 14, fontWeight: 600 }}>
+                <span className={sinif('rr-ts-bilgi', css.bilgi)}>
                   {yilAraligi(t.yilMin, t.yilMax) || '—'}
                 </span>
-                <span
-                  className="rr-ts-bilgi"
-                  data-bos={t.kmMax ? undefined : ''}
-                  style={{ flex: '1 1 100px', fontSize: 14, fontWeight: 600 }}
-                >
+                <span className={sinif('rr-ts-bilgi', css.bilgi)} data-bos={t.kmMax ? undefined : ''}>
                   {t.kmMax ? `${binlik(t.kmMax)} km` : '—'}
                 </span>
-                <span
-                  className="rr-ts-butce"
-                  style={{
-                    whiteSpace: 'nowrap',
-                    flex: '1 1 170px',
-                    fontSize: 14.5,
-                    fontWeight: 800,
-                    color: 'var(--rr-baglanti, #2450C8)',
-                  }}
-                >
+                <span className={sinif('rr-ts-butce', css.butce)}>
                   {butceAraligi(t.butceMin, t.butceMax)}
                 </span>
-                <span style={{ flex: '1 1 120px', fontSize: 13.5, color: '#3A4052' }}>
-                  {[t.il, t.ilce].filter(Boolean).join(', ')}
-                </span>
+                <span className={css.yer}>{[t.il, t.ilce].filter(Boolean).join(', ')}</span>
               </div>
             ))}
           </div>
           {sayfalar > 1 ? (
-            <nav
-              aria-label="Sayfalar"
-              style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 18 }}
-            >
+            <nav aria-label="Sayfalar" className={css.sayfalar}>
               {Array.from(
                 { length: Math.min(sayfalar, 7) },
                 (_, i) => i + Math.max(1, Math.min(sayfa - 3, sayfalar - 6)),
               ).map((n) =>
                 n === sayfa ? (
-                  <span
-                    key={n}
-                    aria-current="page"
-                    style={{
-                      minWidth: 40,
-                      height: 40,
-                      borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                      background: 'var(--rr-mavi, #5B8CFF)',
-                      color: 'var(--rr-maviYazi, #1E2333)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 800,
-                    }}
-                  >
+                  <span key={n} aria-current="page" className={css.sayfaNo}>
                     {n}
                   </span>
                 ) : (
                   <Link
                     key={n}
                     href={`/talepler?${parametreler(q, { sayfa: String(n) }).toString()}`}
-                    style={{
-                      minWidth: 40,
-                      height: 40,
-                      borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                      background: 'var(--rr-kart, #FFFFFF)',
-                      border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 700,
-                      color: 'var(--rr-murekkep, #1E2333)',
-                    }}
+                    className={css.sayfaBag}
                   >
                     {n}
                   </Link>
@@ -696,18 +453,7 @@ export default async function Talepler({ searchParams }: { searchParams: Promise
               {sayfa < sayfalar ? (
                 <Link
                   href={`/talepler?${parametreler(q, { sayfa: String(sayfa + 1) }).toString()}`}
-                  style={{
-                    padding: '0 14px',
-                    height: 40,
-                    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-                    background: 'var(--rr-kart, #FFFFFF)',
-                    border: '1px solid var(--rr-cizgi, #E3E6EF)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontWeight: 700,
-                    color: 'var(--rr-murekkep, #1E2333)',
-                  }}
+                  className={css.sonraki}
                 >
                   Sonraki
                 </Link>
