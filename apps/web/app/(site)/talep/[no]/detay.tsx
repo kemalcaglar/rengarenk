@@ -9,7 +9,7 @@ import {
   type TeknikOzet,
 } from '@rengarenk/shared';
 import Link from 'next/link';
-import { type CSSProperties, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AciklamaGoster } from '../../../../components/aciklama';
 import { AracKapak } from '../../../../components/arac-kapak';
 import { AracSemasiGorunum } from '../../../../components/arac-semasi';
@@ -263,23 +263,9 @@ export function TalepDetay({
     .slice(0, 2)
     .map((p) => p.charAt(0).toLocaleUpperCase('tr-TR'))
     .join('');
-
-  const secmeli = (on: boolean): CSSProperties => ({
-    border: 0,
-    borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14) calc(var(--rr-buton-kose) * 12 / 14) 0 0',
-    padding: '12px 20px',
-    fontSize: 15,
-    fontWeight: 700,
-    cursor: 'pointer',
-    marginBottom: -1,
-    background: on ? '#EEF3FF' : 'transparent',
-    color: on ? 'var(--rr-murekkep, #1E2333)' : 'var(--rr-soluk, #5A6073)',
-    borderBottom: `3px solid ${on ? 'var(--rr-mavi, #5B8CFF)' : 'transparent'}`,
-    fontFamily: 'inherit',
-  });
   return (
     <div className={stil.kutu1}>
-      <Banner yer="talep_detay" style={{ marginBottom: 14 }} />
+      <Banner yer="talep_detay" className={stil.banner} />
       <nav aria-label="Konum" className={stil.kutu2}>
         <Link href="/talepler">Vasıta</Link>
         {ustKategori ? (
@@ -612,7 +598,7 @@ export function TalepDetay({
                   role="tab"
                   aria-selected={alt === i}
                   onClick={() => setAlt(i)}
-                  style={secmeli(alt === i)}
+                  className={cx(alt === i ? stil.dugme12 : stil.dugme13)}
                 >
                   Alternatif {i + 1}
                 </button>

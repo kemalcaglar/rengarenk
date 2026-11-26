@@ -3,7 +3,7 @@
 import { BIREYSEL_FIYATLAR, DOTS, FOUND_VIA, type FoundViaKey, PROMOTION_NAMES } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { HesabimMenu } from '../../../components/hesabim-menu';
 import { cx } from '../../../lib/cx';
 import { useWebFiyat } from '../../../lib/fiyat';
@@ -182,28 +182,6 @@ export default function Taleplerim() {
   const doldu = (liste ?? []).find((t) => sureDoldu(t) && !t.freeExtensionUsed);
   const hak = haklar ? `${haklar.talep}${haklar.ucretsizTalep ? ' (ücretsiz)' : ''}` : '…';
 
-  const btn = (renk: string): CSSProperties => ({
-    border: 0,
-    background: renk,
-    borderRadius: 'calc(var(--rr-buton-kose) * 10 / 14)',
-    padding: '10px 12px',
-    fontSize: 14,
-    fontWeight: 800,
-    color: 'var(--rr-murekkep, #1E2333)',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-  });
-  const yalin = (renk: string): CSSProperties => ({
-    border: 0,
-    background: 'transparent',
-    padding: 6,
-    fontSize: 13.5,
-    fontWeight: 700,
-    color: renk,
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-  });
-
   return (
     <div className={stil.kutu1}>
       <div className={`rr-sayfa ${stil.kutu2}`}>
@@ -240,7 +218,7 @@ export default function Taleplerim() {
                 onClick={() =>
                   islem(doldu, 'extend', `${doldu.baslik} talebi uzatıldı.`, undefined, 'yayinda')
                 }
-                style={{ ...btn('var(--rr-sari, #FFC84A)'), padding: '9px 14px' }}
+                className={stil.dugme8}
               >
                 Ücretsiz uzat
               </button>
@@ -370,7 +348,7 @@ export default function Taleplerim() {
                           type="button"
                           disabled={busy === t.id}
                           onClick={() => setDlg(t)}
-                          style={btn('var(--rr-yesil, #3DD68C)')}
+                          className={stil.dugme9}
                         >
                           Aracı buldum
                         </button>
@@ -387,7 +365,7 @@ export default function Taleplerim() {
                               onClick={() =>
                                 islem(t, 'promote', `${PROMOTION_NAMES[k]} 7 gün uygulandı.`, { tur: k })
                               }
-                              style={yalin('var(--rr-baglanti, #2450C8)')}
+                              className={stil.dugme10}
                             >
                               {PROMOTION_NAMES[k]} · hakkını kullan ({t.oneCikarmaHakki[k]})
                             </button>
@@ -397,7 +375,7 @@ export default function Taleplerim() {
                             type="button"
                             disabled={busy === t.id || (!ucretsiz && (haklar?.uzatma ?? 0) < 1)}
                             onClick={() => islem(t, 'extend', 'Talep uzatıldı.')}
-                            style={yalin('var(--rr-baglanti, #2450C8)')}
+                            className={stil.dugme10}
                           >
                             {ucretsiz
                               ? 'Ücretsiz uzat'
@@ -416,7 +394,7 @@ export default function Taleplerim() {
                               'pasif',
                             )
                           }
-                          style={yalin('var(--rr-soluk, #5A6073)')}
+                          className={stil.dugme11}
                         >
                           Pasife al
                         </button>
@@ -438,10 +416,10 @@ export default function Taleplerim() {
                                 : undefined
                             }
                             onClick={() => islem(t, 'extend', 'Talep yeniden yayında.', undefined, 'yayinda')}
-                            style={{
-                              ...btn('var(--rr-mavi, #5B8CFF)'),
-                              opacity: !ucretsiz && (haklar?.uzatma ?? 0) < 1 ? 0.55 : 1,
-                            }}
+                            className={cx(
+                              stil.dugme12,
+                              !ucretsiz && (haklar?.uzatma ?? 0) < 1 ? stil.dugme13 : stil.dugme14,
+                            )}
                           >
                             {ucretsiz
                               ? 'Ücretsiz uzat · 30 gün'
@@ -454,7 +432,7 @@ export default function Taleplerim() {
                             onClick={() =>
                               islem(t, 'activate', 'Talep yeniden yayında.', undefined, 'yayinda')
                             }
-                            style={btn('var(--rr-mavi, #5B8CFF)')}
+                            className={stil.dugme12}
                           >
                             Yeniden yayınla
                           </button>
@@ -472,7 +450,7 @@ export default function Taleplerim() {
                               islem(t, 'close', 'Talep kapatıldı.', undefined, 'bitti');
                             }
                           }}
-                          style={yalin('#A3271F')}
+                          className={stil.dugme15}
                         >
                           Talebi kapat
                         </button>
@@ -492,7 +470,7 @@ export default function Taleplerim() {
                           onClick={() => {
                             if (window.confirm('Taslak silinsin mi?')) islem(t, 'close', 'Taslak silindi.');
                           }}
-                          style={yalin('var(--rr-soluk, #5A6073)')}
+                          className={stil.dugme11}
                         >
                           Taslağı sil
                         </button>
@@ -556,12 +534,7 @@ export default function Taleplerim() {
                 onClick={() =>
                   islem(dlg, 'complete', 'Talep kapatıldı. Hayırlı olsun!', { foundVia: secim }, 'bitti')
                 }
-                style={{
-                  ...btn('var(--rr-yesil, #3DD68C)'),
-                  borderRadius: 'calc(var(--rr-buton-kose) * 12 / 14)',
-                  padding: '11px 18px',
-                  fontSize: 14.5,
-                }}
+                className={stil.dugme16}
               >
                 Talebi kapat
               </button>

@@ -85,3 +85,11 @@
   cursor: pointer;
   font-family: inherit;
 }
+/* Onay kutusunun tabanındaki display/align/gap'i değiştirir: çift seçici, CSS yükleme sırasından bağımsız kazanır */
+.kutuEtiket.kutuEtiket {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  color: var(--rr-murekkep, #1e2333);
+}

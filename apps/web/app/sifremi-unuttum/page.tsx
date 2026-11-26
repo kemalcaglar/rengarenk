@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { type FormEvent, useState } from 'react';
-import { Bilgi, GirisDuzeni, Hata, post, primary } from '../../components/giris-ui';
+import { Bilgi, GirisDuzeni, Hata, post } from '../../components/giris-ui';
 import stil from './page.module.css';
 
 /**
@@ -53,7 +53,7 @@ export default function SifremiUnuttum() {
             required
             className={stil.girdi1}
           />
-          <button type="submit" disabled={busy} style={{ ...primary(true), marginTop: 20 }}>
+          <button type="submit" disabled={busy} className={stil.dugme1}>
             {busy ? 'Gönderiliyor…' : 'Bağlantı gönder'}
           </button>
           <Hata>{error}</Hata>

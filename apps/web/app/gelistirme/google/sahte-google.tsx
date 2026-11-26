@@ -1,7 +1,6 @@
 'use client';
 
 import { type FormEvent, useState } from 'react';
-import { primary } from '../../../components/giris-ui';
 import stil from './sahte-google.module.css';
 
 const toBase64Url = (s: string) =>
@@ -83,7 +82,7 @@ export function SahteGoogle({ state, redirectUri }: { state: string; redirectUri
         </div>
       </div>
       {error ? <p className={stil.metin2}>{error}</p> : null}
-      <button type="submit" style={primary(true)}>
+      <button type="submit" className={stil.dugme1}>
         Devam et
       </button>
     </form>

@@ -638,3 +638,43 @@
   cursor: pointer;
   font-family: inherit;
 }
+.metin34 {
+  background: #fff6df;
+  color: #7a5300;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--rr-etiket-kose);
+}
+.metin35 {
+  background: #fdecec;
+  color: #a3271f;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--rr-etiket-kose);
+}
+.metin36 {
+  background: #e7faf0;
+  color: #11683f;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--rr-etiket-kose);
+}
+.metin37 {
+  background: var(--rr-pembe, #ff6fb5);
+  color: var(--rr-murekkep, #1e2333);
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: var(--rr-etiket-kose);
+}
+.metin38 {
+  background: #f3f5fa;
+  color: var(--rr-soluk, #5a6073);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--rr-etiket-kose);
+}

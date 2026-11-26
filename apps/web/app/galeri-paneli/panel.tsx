@@ -298,7 +298,7 @@ export function GaleriPaneli() {
         </nav>
 
         <main className={stil.kutu7}>
-          <Banner yer="galeri_paneli" style={{ marginBottom: 14 }} />
+          <Banner yer="galeri_paneli" className={stil.banner} />
           {hata ? (
             <p role="alert" className={stil.metin10}>
               {hata}

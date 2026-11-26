@@ -197,3 +197,60 @@
   text-align: center;
   margin-top: 12px;
 }
+.girdi4 {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d5dae5;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 13px;
+  font-size: 15px;
+  font-family: inherit;
+  background: var(--rr-zemin, #f6f8fd);
+  color: var(--rr-soluk, #5a6073);
+  cursor: not-allowed;
+}
+.girdi5 {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d5dae5;
+  border-radius: calc(var(--rr-buton-kose) * 12 / 14);
+  padding: 13px;
+  font-size: 15px;
+  font-family: inherit;
+}
+.dugme4 {
+  width: 100%;
+  border: 0;
+  background: var(--rr-mavi, #5b8cff);
+  border-radius: var(--rr-buton-kose);
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--rr-maviYazi, #1e2333);
+  cursor: pointer;
+  font-family: inherit;
+}
+.dugme5 {
+  width: 100%;
+  border: 0;
+  background: #c9cfdb;
+  border-radius: var(--rr-buton-kose);
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--rr-murekkep, #1e2333);
+  cursor: default;
+  font-family: inherit;
+}
+.kanalOnay {
+  padding: 4px 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #3a4052;
+}
+.onay {
+  padding: 6px 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #3a4052;
+}

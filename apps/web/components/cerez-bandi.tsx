@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { type CerezTercihi, cerezTercihi, tercihDegisti } from '../lib/olcum';
-import { colors } from '../lib/renk';
 import stil from './cerez-bandi.module.css';
 import { OnayKutusu } from './onay-kutusu';
 
@@ -32,7 +31,7 @@ function Kutu({ on, label, onClick }: { on: boolean; label: string; onClick: () 
       radius={5}
       border={2}
       mark="#FFFFFF"
-      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, color: colors.ink }}
+      className={stil.kutuEtiket}
     >
       {label}
     </OnayKutusu>

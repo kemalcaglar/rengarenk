@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type FormEvent, useEffect, useState } from 'react';
-import { GirisDuzeni, Hata, post, primary } from '../../components/giris-ui';
+import { GirisDuzeni, Hata, post } from '../../components/giris-ui';
 import stil from './page.module.css';
 
 /**
@@ -72,7 +72,7 @@ export default function SifreYenile() {
             required
             className={stil.girdi1}
           />
-          <button type="submit" disabled={busy} style={{ ...primary(true), marginTop: 20 }}>
+          <button type="submit" disabled={busy} className={stil.dugme1}>
             {busy ? 'Kaydediliyor…' : 'Şifremi değiştir'}
           </button>
           <Hata>{error}</Hata>

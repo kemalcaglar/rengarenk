@@ -290,24 +290,15 @@ export default function Mesajlarim() {
                       <span className={stil.metin15}>{x.son}</span>
                       <span className={stil.metin16}>
                         {x.bekliyor ? (
-                          <span style={rozet('#FFF6DF', '#7A5300')}>
+                          <span className={stil.metin34}>
                             {x.taraf === 'alici' ? 'Yanıt bekliyor' : 'Alıcının yanıtı bekleniyor'}
                           </span>
                         ) : null}
-                        {x.uyari ? <span style={rozet('#FDECEC', '#A3271F')}>Güvenlik uyarısı</span> : null}
+                        {x.uyari ? <span className={stil.metin35}>Güvenlik uyarısı</span> : null}
                         {x.numara && x.taraf === 'satici' ? (
-                          <span style={rozet('#E7FAF0', '#11683F')}>Numara paylaşıldı</span>
+                          <span className={stil.metin36}>Numara paylaşıldı</span>
                         ) : null}
-                        {x.okunmamis ? (
-                          <span
-                            style={{
-                              ...rozet('var(--rr-pembe, #FF6FB5)', 'var(--rr-murekkep, #1E2333)'),
-                              fontWeight: 800,
-                            }}
-                          >
-                            Yeni
-                          </span>
-                        ) : null}
+                        {x.okunmamis ? <span className={stil.metin37}>Yeni</span> : null}
                       </span>
                     </span>
                   </button>
@@ -592,9 +583,9 @@ function MesajGorunumu({ m, sikayet }: { m: Mesaj; sikayet: () => void }) {
         </div>
         <div className={stil.kutu24}>
           {k.satista ? (
-            <span style={rozet('#E7FAF0', '#11683F')}>EİDS doğrulandı</span>
+            <span className={stil.metin36}>EİDS doğrulandı</span>
           ) : (
-            <span style={rozet('#F3F5FA', 'var(--rr-soluk, #5A6073)')}>Bu araç artık satışta değil</span>
+            <span className={stil.metin38}>Bu araç artık satışta değil</span>
           )}
           <div className={stil.kutu25}>{k.ad}</div>
           <div className={stil.kutu26}>{k.ozet}</div>

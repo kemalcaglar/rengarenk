@@ -5,21 +5,11 @@ import { TICARI_ILETI_KUTU } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type FormEvent, Fragment, useEffect, useState } from 'react';
-import {
-  Ayrac,
-  field,
-  GirisDuzeni,
-  GoogleDugmesi,
-  Hata,
-  post,
-  primary,
-  sonraAdresi,
-} from '../../components/giris-ui';
+import { Ayrac, GirisDuzeni, GoogleDugmesi, Hata, post, sonraAdresi } from '../../components/giris-ui';
 import { OnayKutusu } from '../../components/onay-kutusu';
 import { cx } from '../../lib/cx';
 import { type GoogleKayit, kayitOku } from '../../lib/google';
 import { olcumOlayi, temasGonder } from '../../lib/olcum';
-import { colors } from '../../lib/renk';
 import stil from './page.module.css';
 
 /** Üyelik onayları (tasarım: Giris.dc.html). Zorunlu ikisi işaretsiz başlar (sahip kararı, 8 Kasım 2026). */
@@ -91,12 +81,6 @@ export default function UyeOl() {
   const zorunlu = onay.kullanimKosullari && onay.kvkkAydinlatma;
   // Google'ın verdiği bilgi değiştirilemez (API de jetondaki değeri yazar); vermediği alan formdan doldurulur
   const kilit = { ad: !!google?.ad, soyad: !!google?.soyad, eposta: !!google?.eposta };
-  const kilitli = {
-    ...field,
-    background: colors.background,
-    color: colors.muted,
-    cursor: 'not-allowed',
-  } as const;
   const kalan = Math.max(0, Math.round((expiresAt - now) / 1000));
   const sure = `${String(Math.floor(kalan / 60)).padStart(2, '0')}:${String(kalan % 60).padStart(2, '0')}`;
 
@@ -215,7 +199,7 @@ export default function UyeOl() {
                   required
                   minLength={2}
                   maxLength={40}
-                  style={kilit.ad ? kilitli : field}
+                  className={cx(kilit.ad ? stil.girdi4 : stil.girdi5)}
                 />
               </div>
               <div>
@@ -231,7 +215,7 @@ export default function UyeOl() {
                   required
                   minLength={2}
                   maxLength={40}
-                  style={kilit.soyad ? kilitli : field}
+                  className={cx(kilit.soyad ? stil.girdi4 : stil.girdi5)}
                 />
               </div>
             </div>
@@ -247,7 +231,7 @@ export default function UyeOl() {
               onChange={(e) => setEposta(e.target.value)}
               readOnly={kilit.eposta}
               required
-              style={kilit.eposta ? kilitli : field}
+              className={cx(kilit.eposta ? stil.girdi4 : stil.girdi5)}
             />
             {google ? null : (
               <>
@@ -304,12 +288,7 @@ export default function UyeOl() {
                             key={k.anahtar}
                             checked={ticari[k.anahtar]}
                             onChange={(v) => setTicari({ ...ticari, [k.anahtar]: v })}
-                            style={{
-                              padding: '4px 0',
-                              fontSize: 13.5,
-                              lineHeight: 1.5,
-                              color: colors.inkSoft,
-                            }}
+                            className={stil.kanalOnay}
                           >
                             {k.ad}
                           </OnayKutusu>
@@ -320,14 +299,19 @@ export default function UyeOl() {
                   <OnayKutusu
                     checked={onay[o.key]}
                     onChange={(v) => setOnay({ ...onay, [o.key]: v })}
-                    style={{ padding: '6px 0', fontSize: 13.5, lineHeight: 1.5, color: colors.inkSoft }}
+                    className={stil.onay}
                   >
                     {o.text}
                   </OnayKutusu>
                 </Fragment>
               ))}
             </div>
-            <button type="submit" disabled={busy} aria-disabled={!zorunlu} style={primary(zorunlu)}>
+            <button
+              type="submit"
+              disabled={busy}
+              aria-disabled={!zorunlu}
+              className={cx(zorunlu ? stil.dugme4 : stil.dugme5)}
+            >
               {busy ? 'Gönderiliyor…' : 'Devam et'}
             </button>
             <Hata>{error}</Hata>
@@ -377,7 +361,11 @@ export default function UyeOl() {
           {kod.devCode && kod.kanal !== 'ekran' ? (
             <p className={stil.metin9}>Geliştirme ortamı: kod gönderilmedi, {kod.devCode} kutuya yazıldı.</p>
           ) : null}
-          <button type="submit" disabled={busy || code.length !== 6} style={primary(code.length === 6)}>
+          <button
+            type="submit"
+            disabled={busy || code.length !== 6}
+            className={cx(code.length === 6 ? stil.dugme4 : stil.dugme5)}
+          >
             {busy ? 'Doğrulanıyor…' : 'Doğrula ve üye ol'}
           </button>
           <Hata>{error}</Hata>
@@ -412,7 +400,11 @@ export default function UyeOl() {
               bağlantıya bas.
             </p>
           )}
-          <button type="button" onClick={() => router.push(sonra ?? '/talep-olustur')} style={primary(true)}>
+          <button
+            type="button"
+            onClick={() => router.push(sonra ?? '/talep-olustur')}
+            className={stil.dugme4}
+          >
             İlk talebimi oluştur
           </button>
           <button type="button" onClick={() => router.push('/')} className={stil.dugme3}>

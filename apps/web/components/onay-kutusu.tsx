@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { cx } from '../lib/cx';
 import { colors } from '../lib/renk';
 import stil from './onay-kutusu.module.css';
@@ -15,7 +15,7 @@ export function OnayKutusu({
   radius = 6,
   border = 1.5,
   mark = colors.onBlue,
-  style,
+  className,
   required,
 }: {
   checked: boolean;
@@ -25,20 +25,12 @@ export function OnayKutusu({
   radius?: number;
   border?: number;
   mark?: string;
-  style?: CSSProperties;
+  /** Çağıranın sınıfı tabandaki display/align/gap'i değiştirecekse seçicisi çift yazılır (.x.x): sıra bağımsız kazanır */
+  className?: string;
   required?: boolean;
 }) {
   return (
-    <label
-      style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: 10,
-        cursor: 'pointer',
-        position: 'relative',
-        ...style,
-      }}
-    >
+    <label className={cx(stil.etiket, className)}>
       <input
         type="checkbox"
         className="sr-only"

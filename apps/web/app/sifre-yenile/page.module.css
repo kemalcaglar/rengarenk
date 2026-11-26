@@ -36,3 +36,16 @@
   margin-bottom: 6px;
   margin-top: 14px;
 }
+.dugme1 {
+  width: 100%;
+  border: 0;
+  background: var(--rr-mavi, #5b8cff);
+  border-radius: var(--rr-buton-kose);
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--rr-maviYazi, #1e2333);
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 20px;
+}

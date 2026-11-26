@@ -14,3 +14,10 @@
 .metin3 {
   background: var(--rr-kart, #ffffff);
 }
+.etiket {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  position: relative;
+}

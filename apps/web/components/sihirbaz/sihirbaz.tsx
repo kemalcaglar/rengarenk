@@ -18,15 +18,7 @@ import {
 } from '@rengarenk/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  type CSSProperties,
-  Fragment,
-  type ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { Fragment, type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { cx } from '../../lib/cx';
 import { useWebFiyat } from '../../lib/fiyat';
 import { ApiHatasi, binlik, istek, useGiris } from '../../lib/istemci';
@@ -1367,17 +1359,6 @@ function HasarGecmisi({
   onChange: (v: unknown) => void;
 }) {
   const kabul = value ?? [];
-  const btn = (on: boolean, iyi: boolean): CSSProperties => ({
-    border: on ? `1.5px solid ${iyi ? '#25A35A' : '#A3271F'}` : '1px solid #D5DAE5',
-    background: on ? (iyi ? '#E7FAF0' : '#FDECEC') : 'var(--rr-kart, #FFFFFF)',
-    borderRadius: 'calc(var(--rr-buton-kose) * 8 / 14)',
-    padding: on ? '6px 10px' : '6.5px 10.5px',
-    fontSize: 12.5,
-    fontWeight: on ? 800 : 600,
-    color: on ? (iyi ? '#11683F' : '#A3271F') : 'var(--rr-soluk, #5A6073)',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-  });
   const set = (k: string, on: boolean) => {
     const next = on ? [...new Set([...kabul, k])] : kabul.filter((x) => x !== k);
     onChange(next.length ? next : undefined);
@@ -1396,7 +1377,7 @@ function HasarGecmisi({
                   type="button"
                   aria-pressed={on}
                   onClick={() => set(o.value, true)}
-                  style={btn(on, true)}
+                  className={cx(on ? stil.dugme28 : stil.dugme29)}
                 >
                   Kabul
                 </button>
@@ -1404,7 +1385,7 @@ function HasarGecmisi({
                   type="button"
                   aria-pressed={!on}
                   onClick={() => set(o.value, false)}
-                  style={btn(!on, false)}
+                  className={cx(!on ? stil.dugme30 : stil.dugme29)}
                 >
                   Kabul etmiyorum
                 </button>
