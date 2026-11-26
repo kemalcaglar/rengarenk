@@ -39,6 +39,7 @@ import { PrivacyModule } from './privacy/privacy.module.js';
 import { RateLimitModule } from './ratelimit/ratelimit.module.js';
 import { RedisModule } from './redis/redis.module.js';
 import { RefundsModule } from './refunds/refunds.module.js';
+import { CspReportController } from './security/csp-report.js';
 import { SmsModule } from './sms/sms.module.js';
 import { StaffModule } from './staff/staff.module.js';
 import { StaffAlertsModule } from './staff-alerts/staff-alerts.module.js';
@@ -93,7 +94,7 @@ import { TrustModule } from './trust/trust.module.js';
     AdsCoreModule,
     AdsModule,
   ],
-  controllers: [HealthController, MetricsController],
+  controllers: [HealthController, MetricsController, CspReportController],
   providers: [{ provide: APP_INTERCEPTOR, useClass: HttpMetricsInterceptor }],
 })
 export class AppModule {}

@@ -7,6 +7,7 @@ import { registerXlsxBody } from '../src/catalog/xlsx-body.js';
 import { registerUploadBodies } from '../src/common/upload-body.js';
 import { type Db, PRISMA } from '../src/database/prisma.js';
 import { IysKayitService } from '../src/notifications/iys.js';
+import { registerCspReportBody } from '../src/security/csp-report.js';
 import type { MemorySmsSender } from '../src/sms/console.sender.js';
 import { SMS_SENDER } from '../src/sms/sms.js';
 import { STORAGE, type Storage } from '../src/storage/storage.service.js';
@@ -38,6 +39,7 @@ export async function createTestApp() {
   const app = mod.createNestApplication<NestFastifyApplication>(new FastifyAdapter(), { logger: ['error'] });
   registerXlsxBody(app);
   registerUploadBodies(app);
+  registerCspReportBody(app);
   await app.init();
   await app.getHttpAdapter().getInstance().ready();
   return { app, sms: app.get<MemorySmsSender>(SMS_SENDER), db: app.get<Db>(PRISMA) };

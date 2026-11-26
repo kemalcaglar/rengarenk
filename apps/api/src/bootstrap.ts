@@ -11,6 +11,7 @@ import { loadEnv } from './config/env.js';
 import { istekKaydet } from './observability/request-stats.js';
 import { initSentry, ReportingExceptionFilter } from './observability/sentry.js';
 import { REDIS } from './redis/redis.module.js';
+import { registerCspReportBody } from './security/csp-report.js';
 
 export async function createApp(): Promise<NestFastifyApplication> {
   const env = loadEnv();
@@ -25,6 +26,7 @@ export async function createApp(): Promise<NestFastifyApplication> {
   app.useLogger(app.get(Logger));
   registerXlsxBody(app);
   registerUploadBodies(app);
+  registerCspReportBody(app);
   // Sistem sağlığı (Karar 56): her yanıt bitince dakikalık özet (sayı, 5xx, süre dilimi); yoklama istekleri sayılmaz
   const redis = app.get(REDIS);
   app
