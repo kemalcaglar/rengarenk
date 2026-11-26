@@ -4,6 +4,7 @@ import { AUDIT_ACTIONS } from '@rengarenk/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { gunSaat, yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 interface Entry {
   id: string;
@@ -79,9 +80,7 @@ export default function IslemKaydi() {
   return (
     <>
       <h1 className="k-h1">İşlem kaydı</h1>
-      <p className="k-sub" style={{ marginBottom: 16 }}>
-        Kayıtlar silinemez ve 2 yıl saklanır.
-      </p>
+      <p className={`k-sub ${stil.metin1}`}>Kayıtlar silinemez ve 2 yıl saklanır.</p>
       <form
         className="k-chips"
         onSubmit={(e) => {
@@ -109,15 +108,7 @@ export default function IslemKaydi() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Kişi, kullanıcı veya işlem ara"
-          style={{
-            flex: '1 1 240px',
-            minWidth: 0,
-            border: '1px solid #D5DAE5',
-            borderRadius: 999,
-            padding: '8px 14px',
-            fontFamily: 'inherit',
-            fontSize: 13.5,
-          }}
+          className={stil.girdi1}
         />
       </form>
       {error ? (
@@ -132,41 +123,14 @@ export default function IslemKaydi() {
           <div className="k-empty">Kayıt yok.</div>
         ) : (
           items.map((k) => (
-            <div
-              key={k.id}
-              title={`${k.entityType} · ${k.entityId}`}
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '6px 16px',
-                padding: '12px 18px',
-                borderBottom: '1px solid #EEF0F5',
-                fontSize: 13.5,
-              }}
-            >
-              <span style={{ flex: '0 0 96px', color: '#5A6073', fontWeight: 600 }}>
-                {gunSaat(k.createdAt)}
+            <div key={k.id} title={`${k.entityType} · ${k.entityId}`} className={stil.kutu1}>
+              <span className={stil.metin2}>{gunSaat(k.createdAt)}</span>
+              <span className={stil.metin3}>{k.actorId === me.id ? 'Sen' : k.actorName}</span>
+              <span className={stil.metin4}>
+                <span className={stil.metin5}>{AUDIT_ACTIONS[k.action] ?? k.action}</span>
+                <span className={stil.metin6}>{degisim(k)}</span>
               </span>
-              <span style={{ flex: '0 0 150px', fontWeight: 800 }}>
-                {k.actorId === me.id ? 'Sen' : k.actorName}
-              </span>
-              <span style={{ flex: '999 1 300px', minWidth: 0 }}>
-                <span style={{ display: 'block', fontWeight: 700 }}>
-                  {AUDIT_ACTIONS[k.action] ?? k.action}
-                </span>
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 12.5,
-                    color: '#3A4052',
-                    marginTop: 2,
-                    overflowWrap: 'anywhere',
-                  }}
-                >
-                  {degisim(k)}
-                </span>
-              </span>
-              <span style={{ flex: '0 0 150px', fontSize: 12.5, color: '#5A6073' }}>
+              <span className={stil.metin7}>
                 {k.actorType === 'SYSTEM' || k.actorType === 'AGENT' || !k.ip ? 'Sistem' : k.ip}
               </span>
             </div>
@@ -174,7 +138,7 @@ export default function IslemKaydi() {
         )}
       </div>
       {next ? (
-        <button className="k-btn-line" type="button" style={{ marginTop: 12 }} onClick={() => load(next)}>
+        <button className={`k-btn-line ${stil.dugme1}`} type="button" onClick={() => load(next)}>
           Daha eski kayıtlar
         </button>
       ) : null}

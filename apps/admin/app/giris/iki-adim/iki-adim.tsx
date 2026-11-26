@@ -1,6 +1,7 @@
 'use client';
 
 import { type FormEvent, useEffect, useState } from 'react';
+import stil from './iki-adim.module.css';
 
 async function post<T>(path: string, body?: object): Promise<T> {
   const r = await fetch(path, {
@@ -53,24 +54,13 @@ export function IkiAdim({ setup }: { setup: boolean }) {
 
   if (recovery) {
     return (
-      <div style={{ display: 'grid', gap: 14 }}>
-        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>Kurtarma kodlarını sakla</h1>
-        <p className="muted" style={{ margin: 0, fontSize: 14 }}>
+      <div className={stil.kutu1}>
+        <h1 className={stil.baslik1}>Kurtarma kodlarını sakla</h1>
+        <p className={`muted ${stil.metin1}`}>
           Telefonuna erişemezsen bu kodlardan biriyle girebilirsin. Her kod bir kez kullanılır ve bir daha
           gösterilmez. Parola yöneticine kaydet ya da yazdırıp güvenli bir yerde tut.
         </p>
-        <ol
-          style={{
-            margin: 0,
-            padding: '14px 14px 14px 40px',
-            background: '#F3F5FA',
-            borderRadius: 12,
-            columns: 2,
-            fontFamily: 'ui-monospace, Consolas, monospace',
-            fontSize: 15,
-            lineHeight: 1.9,
-          }}
-        >
+        <ol className={stil.liste1}>
           {recovery.map((c) => (
             <li key={c}>{c}</li>
           ))}
@@ -83,12 +73,10 @@ export function IkiAdim({ setup }: { setup: boolean }) {
   }
 
   return (
-    <form onSubmit={submit} style={{ display: 'grid', gap: 14 }}>
+    <form onSubmit={submit} className={stil.kutu1}>
       <div>
-        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>
-          {setup ? 'Doğrulama uygulamasını kur' : 'İki adımlı doğrulama'}
-        </h1>
-        <p className="muted" style={{ margin: '6px 0 0', fontSize: 14 }}>
+        <h1 className={stil.baslik1}>{setup ? 'Doğrulama uygulamasını kur' : 'İki adımlı doğrulama'}</h1>
+        <p className={`muted ${stil.metin2}`}>
           {setup
             ? 'Google Authenticator, Microsoft Authenticator ya da parola yöneticinle karekodu okut, ardından uygulamadaki 6 haneli kodu yaz. Kurulum bitmeden konsol açılmaz.'
             : useRecovery
@@ -99,32 +87,18 @@ export function IkiAdim({ setup }: { setup: boolean }) {
 
       {setup ? (
         qr ? (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center' }}>
+          <div className={stil.kutu2}>
             <div
-              style={{ width: 176, height: 176, border: '1px solid #E3E6EF', borderRadius: 12, padding: 8 }}
+              className={stil.kutu3}
               aria-label="Doğrulama uygulaması karekodu"
               role="img"
               // Karekod SVG'si API'de üretilir; içinde yalnızca kare yollar vardır.
               // biome-ignore lint/security/noDangerouslySetInnerHtml: API'nin ürettiği karekod
               dangerouslySetInnerHTML={{ __html: qr.qrSvg }}
             />
-            <div style={{ flex: '1 1 180px', minWidth: 0, fontSize: 13 }}>
-              <div className="muted" style={{ fontWeight: 700 }}>
-                Karekodu okutamıyorsan anahtarı elle gir:
-              </div>
-              <code
-                style={{
-                  display: 'block',
-                  marginTop: 6,
-                  wordBreak: 'break-all',
-                  background: '#F3F5FA',
-                  borderRadius: 8,
-                  padding: '8px 10px',
-                  fontSize: 13.5,
-                }}
-              >
-                {qr.secret.match(/.{1,4}/g)?.join(' ')}
-              </code>
+            <div className={stil.kutu4}>
+              <div className={`muted ${stil.kutu5}`}>Karekodu okutamıyorsan anahtarı elle gir:</div>
+              <code className={stil.metin3}>{qr.secret.match(/.{1,4}/g)?.join(' ')}</code>
             </div>
           </div>
         ) : error ? null : (
@@ -142,12 +116,12 @@ export function IkiAdim({ setup }: { setup: boolean }) {
           value={code}
           onChange={(e) => setCode(e.target.value)}
           placeholder={useRecovery ? 'abcd-efgh' : '123 456'}
-          style={{ fontSize: 20, letterSpacing: 3 }}
+          className={stil.girdi1}
         />
       </label>
 
       {error ? (
-        <p className="k-error" role="alert" style={{ margin: 0 }}>
+        <p className={`k-error ${stil.metin4}`} role="alert">
           {error}
         </p>
       ) : null}
@@ -162,7 +136,7 @@ export function IkiAdim({ setup }: { setup: boolean }) {
             : 'Telefonuma erişemiyorum, kurtarma kodu kullan'}
         </button>
       ) : null}
-      <a href="/giris" style={{ fontSize: 13.5, textAlign: 'center' }}>
+      <a href="/giris" className={stil.bag1}>
         Girişe baştan başla
       </a>
     </form>

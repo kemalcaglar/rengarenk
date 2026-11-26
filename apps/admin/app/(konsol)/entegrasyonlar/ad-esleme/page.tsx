@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../../lib/cx';
 import { tarih, yonetim } from '../../../../lib/istemci';
+import stil from './page.module.css';
 
 interface SeriesRef {
   id: string;
@@ -95,13 +97,10 @@ export default function AdEsleme() {
 
   return (
     <>
-      <Link
-        href="/entegrasyonlar"
-        style={{ display: 'inline-block', marginBottom: 8, fontSize: 13.5, fontWeight: 700 }}
-      >
+      <Link href="/entegrasyonlar" className={stil.bag1}>
         ‹ Entegrasyonlar
       </Link>
-      <div style={{ marginBottom: 16 }}>
+      <div className={stil.kutu1}>
         <h1 className="k-h1">Ad eşleme</h1>
         <p className="k-sub">
           Aynı seri kaynaklarda farklı yazılabiliyor: TSB “Touraeg”, vehicle-makes-models “Focus CC” yazıyor.
@@ -120,8 +119,8 @@ export default function AdEsleme() {
         </p>
       ) : null}
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginBottom: 14 }}>
-        <fieldset className="k-chips" style={{ margin: 0 }}>
+      <div className={stil.kutu2}>
+        <fieldset className={`k-chips ${stil.kutu3}`}>
           <legend className="sr-only">Durum</legend>
           {TABS.map((t) => (
             <button
@@ -140,14 +139,7 @@ export default function AdEsleme() {
           placeholder="Marka ya da seri ara"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          style={{
-            flex: '1 1 200px',
-            border: '1px solid #D5DAE5',
-            borderRadius: 999,
-            padding: '8px 14px',
-            fontFamily: 'inherit',
-            fontSize: 13.5,
-          }}
+          className={stil.girdi1}
         />
         {tab === 'onerildi' ? (
           <button
@@ -179,33 +171,24 @@ export default function AdEsleme() {
           </div>
         ) : (
           shown.map((r) => (
-            <div
-              key={r.id}
-              className="k-row"
-              style={{
-                borderTop: 0,
-                borderBottom: '1px solid #EEF0F5',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-              }}
-            >
-              <span style={{ flex: '999 1 320px', minWidth: 0 }}>
-                <span style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 8 }}>
+            <div key={r.id} className={`k-row ${stil.kutu4}`}>
+              <span className={stil.metin1}>
+                <span className={stil.metin2}>
                   <strong>{seriesLabel(r.from, r.fromKey, r.fromName)}</strong>
-                  <span aria-hidden="true" style={{ color: '#5A6073' }}>
+                  <span aria-hidden="true" className={stil.metin3}>
                     →
                   </span>
                   <span className="sr-only">eşlensin:</span>
                   <strong>{seriesLabel(r.to, r.toKey)}</strong>
                 </span>
-                <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 3 }}>
+                <span className={stil.metin4}>
                   {SOURCE[r.source] ?? r.source} · {r.variants} tip ·{' '}
                   {REASON[r.reason ?? ''] ?? r.reason ?? ''}
                   {r.decidedAt ? ` · karar ${tarih(r.decidedAt)}` : ''}
                 </span>
               </span>
               {r.status === 'onerildi' ? (
-                <span style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <span className={stil.metin5}>
                   <button
                     type="button"
                     className="k-btn-line"
@@ -237,14 +220,7 @@ export default function AdEsleme() {
                   </button>
                 </span>
               ) : (
-                <span
-                  className="k-pill"
-                  style={
-                    r.status === 'onaylandi'
-                      ? { background: '#E7FAF0', color: '#11683F' }
-                      : { background: '#F3F5FA', color: '#5A6073' }
-                  }
-                >
+                <span className={cx('k-pill', r.status === 'onaylandi' ? stil.metin6 : stil.metin7)}>
                   {r.status === 'onaylandi' ? 'Birleştirildi' : 'Ayrı seri'}
                 </span>
               )}

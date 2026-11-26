@@ -6,9 +6,11 @@ import {
   type LandingBlock,
   type LandingBlockType,
 } from '@rengarenk/shared';
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 interface Satir {
   id: string;
@@ -38,39 +40,6 @@ const DURUM: Record<Satir['durum'], [string, string, string]> = {
   yayinda: ['Yayında', '#E7FAF0', '#11683F'],
   taslak: ['Taslak', '#FFF6DF', '#7A5300'],
   kapali: ['Kapalı', '#F3F5FA', '#5A6073'],
-};
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 };
-const girdi: CSSProperties = {
-  display: 'block',
-  width: '100%',
-  boxSizing: 'border-box',
-  marginTop: 3,
-  border: '1px solid #D5DAE5',
-  borderRadius: 8,
-  padding: '7px 9px',
-  fontSize: 13.5,
-  fontFamily: 'inherit',
-  background: '#FFFFFF',
-};
-const ikincil: CSSProperties = {
-  border: '1px solid #D5DAE5',
-  background: '#FFFFFF',
-  borderRadius: 10,
-  padding: '8px 12px',
-  fontSize: 13.5,
-  fontWeight: 700,
-  color: '#1E2333',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
-const minik: CSSProperties = {
-  border: 0,
-  background: 'transparent',
-  padding: '2px 4px',
-  fontSize: 13,
-  color: '#5A6073',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
 };
 const YENI: Taslak = {
   id: null,
@@ -205,31 +174,27 @@ export default function AcilisSayfalari() {
       <>
         {liste.map((m, k) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: düzenlenen satırların sırası
-          <div key={k} style={{ display: 'flex', gap: 6, alignItems: 'flex-end', marginBottom: 6 }}>
+          <div key={k} className={stil.kutu1}>
             {alanlar.map(([a, ad]) => (
-              <label key={a} style={{ flex: 1, fontSize: 12, fontWeight: 700, color: '#3A4052' }}>
+              <label key={a} className={stil.etiket1}>
                 {ad}
                 <input
                   value={m[a]}
                   onChange={(e) => set(liste.map((x, j) => (j === k ? { ...x, [a]: e.target.value } : x)))}
-                  style={girdi}
+                  className={stil.girdi1}
                 />
               </label>
             ))}
             <button
               type="button"
               onClick={() => set(liste.filter((_, j) => j !== k))}
-              style={{ ...minik, color: '#A3271F' }}
+              className={stil.dugme1}
             >
               Sil
             </button>
           </div>
         ))}
-        <button
-          type="button"
-          onClick={() => set([...liste, yeni])}
-          style={{ ...minik, color: '#2450C8', fontWeight: 700 }}
-        >
+        <button type="button" onClick={() => set([...liste, yeni])} className={stil.dugme2}>
           + Satır ekle
         </button>
       </>
@@ -238,16 +203,16 @@ export default function AcilisSayfalari() {
       case 'baslik':
       case 'form':
         return (
-          <div style={{ display: 'grid', gap: 6 }}>
-            <label style={{ fontSize: 12, fontWeight: 700 }}>
+          <div className={stil.kutu2}>
+            <label className={stil.etiket2}>
               Başlık
               <input
                 value={b.baslik}
                 onChange={(e) => blokYaz(i, { ...b, baslik: e.target.value })}
-                style={girdi}
+                className={stil.girdi1}
               />
             </label>
-            <label style={{ fontSize: 12, fontWeight: 700 }}>
+            <label className={stil.etiket2}>
               {b.tur === 'baslik' ? 'Alt başlık' : 'Metin'}
               <input
                 value={b.tur === 'baslik' ? b.alt : b.metin}
@@ -257,24 +222,24 @@ export default function AcilisSayfalari() {
                     b.tur === 'baslik' ? { ...b, alt: e.target.value } : { ...b, metin: e.target.value },
                   )
                 }
-                style={girdi}
+                className={stil.girdi1}
               />
             </label>
-            <span style={{ display: 'flex', gap: 6 }}>
-              <label style={{ flex: 1, fontSize: 12, fontWeight: 700 }}>
+            <span className={stil.metin1}>
+              <label className={stil.etiket3}>
                 Düğme
                 <input
                   value={b.dugme}
                   onChange={(e) => blokYaz(i, { ...b, dugme: e.target.value })}
-                  style={girdi}
+                  className={stil.girdi1}
                 />
               </label>
-              <label style={{ flex: 1, fontSize: 12, fontWeight: 700 }}>
+              <label className={stil.etiket3}>
                 Düğmenin hedefi
                 <select
                   value={b.hedef}
                   onChange={(e) => blokYaz(i, { ...b, hedef: e.target.value as 'talep' | 'galeri' })}
-                  style={girdi}
+                  className={stil.girdi1}
                 >
                   <option value="talep">Talep oluşturma</option>
                   <option value="galeri">Galeri başvurusu</option>
@@ -342,19 +307,10 @@ export default function AcilisSayfalari() {
 
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
+      <div className={stil.kutu3}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Açılış sayfaları</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+          <h1 className={stil.baslik1}>Açılış sayfaları</h1>
+          <p className={stil.metin2}>
             Reklamlar için hazır bloklardan sayfa kur. UTM ve ölçüm olayları kendiliğinden eklenir.
           </p>
         </div>
@@ -366,46 +322,21 @@ export default function AcilisSayfalari() {
             setDegisti(true);
             setAcik(null);
           }}
-          style={{
-            border: 0,
-            background: '#5B8CFF',
-            borderRadius: 12,
-            padding: '12px 18px',
-            fontSize: 14.5,
-            fontWeight: 800,
-            color: '#1E2333',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
+          className={stil.dugme3}
         >
           Yeni sayfa
         </button>
       </div>
       {bilgi ? (
-        <div
-          role="status"
-          style={{
-            background: '#F3EFFF',
-            color: '#4B2FA6',
-            borderRadius: 12,
-            padding: '10px 14px',
-            fontWeight: 700,
-            marginBottom: 12,
-          }}
-        >
+        <div role="status" className={stil.kutu4}>
           {bilgi}
         </div>
       ) : null}
-      {hata ? <p style={{ color: '#A3271F', fontWeight: 700 }}>{hata}</p> : null}
+      {hata ? <p className={stil.metin3}>{hata}</p> : null}
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-start' }}>
-        <section
-          aria-label="Sayfalar"
-          style={{ ...kart, flex: '1 1 280px', maxWidth: 340, minWidth: 0, padding: 8 }}
-        >
-          {liste.length ? null : (
-            <p style={{ margin: 0, padding: 12, fontSize: 13.5, color: '#5A6073' }}>Henüz sayfa yok.</p>
-          )}
+      <div className={stil.kutu5}>
+        <section aria-label="Sayfalar" className={stil.kutu6}>
+          {liste.length ? null : <p className={stil.metin4}>Henüz sayfa yok.</p>}
           {liste.map((s) => {
             const on = secili?.id === s.id;
             const [ad, bg, fg] = DURUM[s.durum];
@@ -415,38 +346,16 @@ export default function AcilisSayfalari() {
                 type="button"
                 aria-current={on}
                 onClick={() => ac(s.id)}
-                style={{
-                  width: '100%',
-                  display: 'block',
-                  textAlign: 'left',
-                  border: 0,
-                  background: on ? '#F3EFFF' : 'transparent',
-                  borderRadius: 12,
-                  padding: 12,
-                  cursor: 'pointer',
-                  color: '#1E2333',
-                  fontFamily: 'inherit',
-                }}
+                className={cx(stil.dugme4, on ? stil.dugme5 : stil.dugme6)}
               >
-                <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                  <span style={{ fontSize: 14, fontWeight: 800 }}>{s.ad}</span>
-                  <span
-                    style={{
-                      fontSize: 11.5,
-                      fontWeight: 800,
-                      padding: '2px 8px',
-                      borderRadius: 999,
-                      background: bg,
-                      color: fg,
-                    }}
-                  >
+                <span className={stil.metin5}>
+                  <span className={stil.metin6}>{s.ad}</span>
+                  <span className={stil.metin7} style={{ background: bg, color: fg }}>
                     {ad}
                   </span>
                 </span>
-                <span style={{ display: 'block', fontSize: 12.5, color: '#2450C8', marginTop: 3 }}>
-                  rengarenksite.com{s.adres}
-                </span>
-                <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 3 }}>
+                <span className={stil.metin8}>rengarenksite.com{s.adres}</span>
+                <span className={stil.metin9}>
                   {s.sonuc}
                   {s.taslakDegisti ? ' · yayınlanmamış değişiklik var' : ''}
                 </span>
@@ -456,50 +365,25 @@ export default function AcilisSayfalari() {
         </section>
 
         {t ? (
-          <section
-            aria-labelledby="sayfa"
-            style={{ ...kart, flex: '999 1 520px', minWidth: 0, overflow: 'hidden' }}
-          >
-            <div
-              style={{
-                padding: '16px 18px',
-                borderBottom: '1px solid #EEF0F5',
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 10,
-              }}
-            >
+          <section aria-labelledby="sayfa" className={stil.kutu7}>
+            <div className={stil.kutu8}>
               <input
                 aria-label="Sayfa adı"
                 value={t.ad}
                 onChange={(e) => yaz({ ad: e.target.value })}
-                style={{
-                  border: 0,
-                  fontSize: 17,
-                  fontWeight: 800,
-                  fontFamily: 'inherit',
-                  minWidth: 0,
-                  flex: '1 1 200px',
-                }}
+                className={stil.girdi2}
               />
               <h2 id="sayfa" className="sr-only">
                 {t.ad}
               </h2>
-              <span style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <span className={stil.metin10}>
                 {degisti ? (
-                  <button type="button" onClick={kaydet} style={ikincil}>
+                  <button type="button" onClick={kaydet} className={stil.dugme7}>
                     Taslağı kaydet
                   </button>
                 ) : null}
                 {secili && !degisti ? (
-                  <a
-                    href={secili.onizleme}
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{ ...ikincil, textDecoration: 'none' }}
-                  >
+                  <a href={secili.onizleme} target="_blank" rel="noreferrer" className={stil.bag1}>
                     Web ve mobilde önizle
                   </a>
                 ) : null}
@@ -507,95 +391,43 @@ export default function AcilisSayfalari() {
                   <button
                     type="button"
                     onClick={() => islem('unpublish', 'Sayfa yayından kaldırıldı.')}
-                    style={ikincil}
+                    className={stil.dugme7}
                   >
                     Yayından kaldır
                   </button>
                 ) : null}
                 {yayinlar ? (
-                  <button
-                    type="button"
-                    onClick={yayinla}
-                    style={{
-                      border: 0,
-                      background: '#3DD68C',
-                      borderRadius: 10,
-                      padding: '9px 14px',
-                      fontSize: 13.5,
-                      fontWeight: 800,
-                      color: '#1E2333',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
+                  <button type="button" onClick={yayinla} className={stil.dugme8}>
                     Yayınla
                   </button>
                 ) : null}
               </span>
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, padding: '16px 18px' }}>
-              <div style={{ flex: '1 1 260px', minWidth: 0 }}>
-                <h3 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 800, color: '#5A6073' }}>
-                  Bloklar
-                </h3>
+            <div className={stil.kutu9}>
+              <div className={stil.kutu10}>
+                <h3 className={stil.baslik2}>Bloklar</h3>
                 {t.bloklar.map((b, i) => (
                   <div
                     // biome-ignore lint/suspicious/noArrayIndexKey: blokların sırası düzenleniyor
                     key={i}
-                    style={{
-                      border: '1px solid #E3E6EF',
-                      borderRadius: 10,
-                      padding: '8px 10px',
-                      marginBottom: 6,
-                    }}
+                    className={stil.kutu11}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span
-                        style={{
-                          flex: 'none',
-                          width: 8,
-                          height: 22,
-                          borderRadius: 3,
-                          background: LANDING_BLOCKS[b.tur].renk,
-                        }}
-                      />
+                    <div className={stil.kutu12}>
+                      <span className={stil.metin11} style={{ background: LANDING_BLOCKS[b.tur].renk }} />
                       <button
                         type="button"
                         onClick={() => setAcik(acik === i ? null : i)}
-                        style={{
-                          flex: 1,
-                          minWidth: 0,
-                          border: 0,
-                          background: 'transparent',
-                          padding: 0,
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                          fontFamily: 'inherit',
-                          color: '#1E2333',
-                        }}
+                        className={stil.dugme9}
                       >
-                        <span style={{ display: 'block', fontSize: 13.5, fontWeight: 800 }}>
-                          {LANDING_BLOCKS[b.tur].ad}
-                        </span>
-                        <span
-                          style={{
-                            display: 'block',
-                            fontSize: 12,
-                            color: '#5A6073',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                          }}
-                        >
-                          {ozet(b)}
-                        </span>
+                        <span className={stil.metin12}>{LANDING_BLOCKS[b.tur].ad}</span>
+                        <span className={stil.metin13}>{ozet(b)}</span>
                       </button>
-                      <span style={{ flex: 'none' }}>
+                      <span className={stil.metin14}>
                         <button
                           type="button"
                           aria-label="Yukarı taşı"
                           onClick={() => tasi(i, -1)}
-                          style={minik}
+                          className={stil.dugme10}
                         >
                           ↑
                         </button>
@@ -603,7 +435,7 @@ export default function AcilisSayfalari() {
                           type="button"
                           aria-label="Aşağı taşı"
                           onClick={() => tasi(i, 1)}
-                          style={minik}
+                          className={stil.dugme10}
                         >
                           ↓
                         </button>
@@ -614,16 +446,16 @@ export default function AcilisSayfalari() {
                             yaz({ bloklar: t.bloklar.filter((_, j) => j !== i) });
                             setAcik(null);
                           }}
-                          style={{ ...minik, color: '#A3271F' }}
+                          className={stil.dugme1}
                         >
                           ×
                         </button>
                       </span>
                     </div>
-                    {acik === i ? <div style={{ marginTop: 8 }}>{editor(b, i)}</div> : null}
+                    {acik === i ? <div className={stil.kutu13}>{editor(b, i)}</div> : null}
                   </div>
                 ))}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                <div className={stil.kutu14}>
                   {(Object.keys(LANDING_BLOCKS) as LandingBlockType[]).map((k) => (
                     <button
                       key={k}
@@ -632,48 +464,30 @@ export default function AcilisSayfalari() {
                         yaz({ bloklar: [...t.bloklar, LANDING_BLOCK_DEFAULTS[k]] });
                         setAcik(t.bloklar.length);
                       }}
-                      style={{
-                        border: '1px dashed #AEB5C4',
-                        background: '#FFFFFF',
-                        borderRadius: 999,
-                        padding: '6px 11px',
-                        fontSize: 12.5,
-                        fontWeight: 700,
-                        color: '#1E2333',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
+                      className={stil.dugme11}
                     >
                       + {LANDING_BLOCKS[k].ad}
                     </button>
                   ))}
                 </div>
               </div>
-              <div style={{ flex: '1 1 240px', minWidth: 0 }}>
-                <h3 style={{ margin: '0 0 8px', fontSize: 13, fontWeight: 800, color: '#5A6073' }}>
-                  Ayarlar ve ölçüm
-                </h3>
+              <div className={stil.kutu15}>
+                <h3 className={stil.baslik2}>Ayarlar ve ölçüm</h3>
                 {ayarlar.map((a) => (
-                  <div key={a.ad} style={{ marginBottom: 10 }}>
-                    <label style={{ fontSize: 12, fontWeight: 700, color: '#3A4052' }}>
+                  <div key={a.ad} className={stil.kutu16}>
+                    <label className={stil.etiket4}>
                       {a.ad}
                       <input
                         value={a.deger}
                         onChange={(e) => yaz({ [a.alan]: e.target.value } as Partial<Taslak>)}
-                        style={{
-                          ...girdi,
-                          borderRadius: 10,
-                          padding: '8px 10px',
-                          fontSize: 12.5,
-                          fontWeight: 600,
-                        }}
+                        className={stil.girdi3}
                       />
                     </label>
                   </div>
                 ))}
-                <div style={{ marginBottom: 10 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#3A4052' }}>UTM</div>
-                  <div style={{ display: 'flex', gap: 6 }}>
+                <div className={stil.kutu16}>
+                  <div className={stil.etiket4}>UTM</div>
+                  <div className={stil.metin1}>
                     {(['source', 'medium', 'campaign'] as const).map((k) => (
                       <input
                         key={k}
@@ -681,77 +495,31 @@ export default function AcilisSayfalari() {
                         placeholder={k}
                         value={t.utm[k]}
                         onChange={(e) => yaz({ utm: { ...t.utm, [k]: e.target.value } })}
-                        style={{
-                          ...girdi,
-                          borderRadius: 10,
-                          padding: '8px 10px',
-                          fontSize: 12.5,
-                          fontWeight: 600,
-                        }}
+                        className={stil.girdi3}
                       />
                     ))}
                   </div>
                 </div>
                 {secili ? (
                   <>
-                    <div style={{ marginBottom: 10 }}>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: '#3A4052' }}>
-                        Reklam bağlantısı (otomatik)
-                      </div>
-                      <div
-                        style={{
-                          marginTop: 3,
-                          border: '1px solid #D5DAE5',
-                          borderRadius: 10,
-                          padding: '8px 10px',
-                          fontSize: 12.5,
-                          fontWeight: 600,
-                          background: '#F6F8FD',
-                          wordBreak: 'break-all',
-                        }}
-                      >
-                        {secili.reklamBaglantisi}
-                      </div>
+                    <div className={stil.kutu16}>
+                      <div className={stil.etiket4}>Reklam bağlantısı (otomatik)</div>
+                      <div className={stil.kutu17}>{secili.reklamBaglantisi}</div>
                     </div>
-                    <div style={{ marginBottom: 10 }}>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: '#3A4052' }}>
-                        Ölçüm olayları (otomatik)
-                      </div>
-                      <div
-                        style={{
-                          marginTop: 3,
-                          border: '1px solid #D5DAE5',
-                          borderRadius: 10,
-                          padding: '8px 10px',
-                          fontSize: 12.5,
-                          fontWeight: 600,
-                          background: '#F6F8FD',
-                        }}
-                      >
-                        {secili.olaylar.join(' · ')}
-                      </div>
+                    <div className={stil.kutu16}>
+                      <div className={stil.etiket4}>Ölçüm olayları (otomatik)</div>
+                      <div className={stil.kutu18}>{secili.olaylar.join(' · ')}</div>
                     </div>
                   </>
                 ) : null}
-                <p style={{ margin: 0, fontSize: 12, color: '#5A6073' }}>
+                <p className={stil.metin15}>
                   Ölçüm olayları yalnızca reklam ölçümüne izin veren ziyaretçiler için gönderilir (Karar 35).
                 </p>
                 {secili?.surumler.length ? (
                   <>
-                    <h3 style={{ margin: '14px 0 6px', fontSize: 13, fontWeight: 800, color: '#5A6073' }}>
-                      Sürümler
-                    </h3>
+                    <h3 className={stil.baslik3}>Sürümler</h3>
                     {secili.surumler.map((v) => (
-                      <div
-                        key={v.surum}
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          gap: 8,
-                          fontSize: 12.5,
-                          padding: '4px 0',
-                        }}
-                      >
+                      <div key={v.surum} className={stil.kutu19}>
                         <span>
                           s.{v.surum} · {new Date(v.zaman).toLocaleDateString('tr-TR')} · {v.kim}
                         </span>
@@ -759,12 +527,12 @@ export default function AcilisSayfalari() {
                           <button
                             type="button"
                             onClick={() => islem(`rollback/${v.surum}`, `s.${v.surum} yeniden yayınlandı.`)}
-                            style={{ ...minik, color: '#2450C8', fontWeight: 700 }}
+                            className={stil.dugme2}
                           >
                             Bu sürüme dön
                           </button>
                         ) : v.surum === secili.surum ? (
-                          <span style={{ color: '#11683F', fontWeight: 700 }}>yayındaki</span>
+                          <span className={stil.metin16}>yayındaki</span>
                         ) : null}
                       </div>
                     ))}

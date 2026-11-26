@@ -6,9 +6,11 @@ import {
   MODERATION_DECISIONS,
   type ModerationDecision,
 } from '@rengarenk/shared';
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 interface Satir {
   id: string;
@@ -93,7 +95,6 @@ const OC: Record<string, [string, string]> = {
   yuksek: ['#FFF6DF', '#7A5300'],
   normal: ['#EEF3FF', '#2450C8'],
 };
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 };
 
 function sure(s: Satir, simdi: number): [string, string] {
   if (s.durum === 'kapali') return [s.karar ? `Karar: ${s.karar}` : 'Karara bağlandı', '#11683F'];
@@ -242,35 +243,19 @@ export default function Moderasyon() {
   const satirlar = q ? [...q.acik, ...q.kapali] : [];
   return (
     <>
-      <div style={{ marginBottom: 14 }}>
-        <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Moderasyon</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
-          Kritik 1 saat · yüksek 4 saat · normal 24 saat içinde karara bağlanır.
-        </p>
+      <div className={stil.kutu1}>
+        <h1 className={stil.baslik1}>Moderasyon</h1>
+        <p className={stil.metin1}>Kritik 1 saat · yüksek 4 saat · normal 24 saat içinde karara bağlanır.</p>
       </div>
-      {hata ? <p style={{ color: '#A3271F', fontWeight: 700 }}>{hata}</p> : null}
+      {hata ? <p className={stil.metin2}>{hata}</p> : null}
       {bilgi ? (
-        <p
-          role="status"
-          style={{
-            background: '#E7FAF0',
-            color: '#11683F',
-            borderRadius: 12,
-            padding: '10px 14px',
-            fontWeight: 700,
-          }}
-        >
+        <p role="status" className={stil.metin3}>
           {bilgi}
         </p>
       ) : null}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-start' }}>
-        <section
-          aria-label="Şikâyet kuyruğu"
-          style={{ ...kart, flex: '1 1 300px', maxWidth: 360, minWidth: 0, padding: 8 }}
-        >
-          {q && !satirlar.length ? (
-            <p style={{ margin: 0, padding: 12, fontSize: 13.5, color: '#5A6073' }}>Şikâyet yok.</p>
-          ) : null}
+      <div className={stil.kutu2}>
+        <section aria-label="Şikâyet kuyruğu" className={stil.kutu3}>
+          {q && !satirlar.length ? <p className={stil.metin4}>Şikâyet yok.</p> : null}
           {satirlar.map((s) => {
             const on = s.id === sec;
             const [st, sr] = sure(s, simdi);
@@ -284,74 +269,46 @@ export default function Moderasyon() {
                   setBilgi(null);
                 }}
                 aria-current={on}
-                style={{
-                  width: '100%',
-                  display: 'block',
-                  textAlign: 'left',
-                  border: 0,
-                  background: on ? '#F3EFFF' : 'transparent',
-                  borderRadius: 12,
-                  padding: '10px 12px',
-                  cursor: 'pointer',
-                  color: '#1E2333',
-                  opacity: s.durum === 'kapali' ? 0.6 : 1,
-                  fontFamily: 'inherit',
-                }}
+                className={cx(
+                  stil.dugme1,
+                  on ? stil.dugme2 : stil.dugme3,
+                  s.durum === 'kapali' ? stil.dugme4 : stil.dugme5,
+                )}
               >
-                <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                  <span
-                    style={{
-                      fontSize: 11.5,
-                      fontWeight: 800,
-                      padding: '2px 8px',
-                      borderRadius: 999,
-                      background: ob,
-                      color: of,
-                    }}
-                  >
+                <span className={stil.metin5}>
+                  <span className={stil.metin6} style={{ background: ob, color: of }}>
                     {s.oncelikAd}
                   </span>
-                  <span style={{ fontSize: 11.5, fontWeight: 800, color: sr }}>{st}</span>
+                  <span className={stil.metin7} style={{ color: sr }}>
+                    {st}
+                  </span>
                 </span>
-                <span style={{ display: 'block', fontSize: 14, fontWeight: 800, marginTop: 6 }}>
-                  {s.neden}
-                </span>
-                <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 2 }}>
-                  {s.taraf}
-                </span>
+                <span className={stil.metin8}>{s.neden}</span>
+                <span className={stil.metin9}>{s.taraf}</span>
               </button>
             );
           })}
         </section>
 
-        <section
-          aria-labelledby="sk"
-          style={{ ...kart, flex: '999 1 480px', minWidth: 0, overflow: 'hidden' }}
-        >
+        <section aria-labelledby="sk" className={stil.kutu4}>
           {d ? (
             <>
-              <div style={{ padding: '16px 18px', borderBottom: '1px solid #EEF0F5' }}>
-                <h2 id="sk" style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
-                  {d.neden}{' '}
-                  <span style={{ fontSize: 13, color: '#5A6073', fontWeight: 600 }}>· S-{d.no}</span>
+              <div className={stil.kutu5}>
+                <h2 id="sk" className={stil.baslik2}>
+                  {d.neden} <span className={stil.metin10}>· S-{d.no}</span>
                 </h2>
-                <div style={{ fontSize: 13, color: '#3A4052', marginTop: 3 }}>{d.ozet}</div>
+                <div className={stil.kutu6}>{d.ozet}</div>
                 {d.aciklama ? (
-                  <div style={{ fontSize: 13, color: '#3A4052', marginTop: 6 }}>
+                  <div className={stil.kutu7}>
                     <strong>Şikâyet eden yazdı:</strong> “{d.aciklama}”
                   </div>
                 ) : null}
               </div>
-              <div style={{ padding: '14px 18px', background: '#F6F8FD', borderBottom: '1px solid #EEF0F5' }}>
-                <div style={{ fontSize: 12.5, fontWeight: 800, color: '#5A6073', marginBottom: 8 }}>
+              <div className={stil.kutu8}>
+                <div className={stil.kutu9}>
                   Kanıt · {d.hedefTur === 'mesaj' ? 'sohbet kesiti' : d.kanit.baslik} (maskeli)
                   {d.kanit.link ? (
-                    <a
-                      href={d.kanit.link}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ marginLeft: 8, color: '#2450C8' }}
-                    >
+                    <a href={d.kanit.link} target="_blank" rel="noreferrer" className={stil.bag1}>
                       Sitede aç
                     </a>
                   ) : null}
@@ -360,25 +317,13 @@ export default function Moderasyon() {
                   <div
                     // biome-ignore lint/suspicious/noArrayIndexKey: kesit sırası sabit
                     key={i}
-                    style={{
-                      display: 'flex',
-                      justifyContent: sm.yon === 'sag' ? 'flex-end' : 'flex-start',
-                      marginBottom: 6,
-                    }}
+                    className={cx(stil.kutu10, sm.yon === 'sag' ? stil.kutu11 : stil.kutu12)}
                   >
                     <div
-                      style={{
-                        maxWidth: '78%',
-                        background: sm.hedef ? '#FFF6DF' : '#FFFFFF',
-                        border: `1px solid ${sm.hedef ? '#F2C46D' : '#E3E6EF'}`,
-                        borderRadius: 14,
-                        padding: '8px 12px',
-                        fontSize: 13,
-                        lineHeight: 1.5,
-                        overflowWrap: 'anywhere',
-                      }}
+                      className={cx(stil.kutu13, sm.hedef ? stil.kutu14 : stil.kutu15)}
+                      style={{ border: `1px solid ${sm.hedef ? '#F2C46D' : '#E3E6EF'}` }}
                     >
-                      <span style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: '#5A6073' }}>
+                      <span className={stil.metin11}>
                         {sm.kim}
                         {sm.gizli ? ' · gizlendi' : ''}
                         {sm.hedef ? ' · şikâyet edilen' : ''}
@@ -388,38 +333,25 @@ export default function Moderasyon() {
                   </div>
                 ))}
               </div>
-              <div
-                style={{
-                  padding: '12px 18px',
-                  borderBottom: '1px solid #EEF0F5',
-                  fontSize: 13.5,
-                  lineHeight: 1.5,
-                }}
-              >
+              <div className={stil.kutu16}>
                 <strong>Ajan önerisi:</strong> {d.oneri.metin}
-                {d.ajan ? (
-                  <span style={{ display: 'block', marginTop: 4, color: '#7A5300' }}>Ajan: {d.ajan}.</span>
-                ) : null}
+                {d.ajan ? <span className={stil.metin12}>Ajan: {d.ajan}.</span> : null}
                 {d.aski && d.durum === 'acik' ? (
-                  <span style={{ display: 'block', marginTop: 4, color: '#A3271F', fontWeight: 700 }}>
+                  <span className={stil.metin13}>
                     Hesap şu an{' '}
                     {d.aski.until ? `${saat(d.aski.until)} saatine kadar askıda.` : 'onay beklerken askıda.'}
                   </span>
                 ) : null}
                 {d.gecmis ? (
-                  <span style={{ display: 'block', marginTop: 4, color: '#3A4052' }}>
+                  <span className={stil.metin14}>
                     Son 30 günde bu kişi hakkında {d.gecmis} karar daha var.
                   </span>
                 ) : null}
               </div>
               {d.durum === 'acik' ? (
-                <div style={{ padding: '14px 18px' }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Karar</div>
-                  <div
-                    role="radiogroup"
-                    aria-label="Karar"
-                    style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}
-                  >
+                <div className={stil.kutu17}>
+                  <div className={stil.kutu18}>Karar</div>
+                  <div role="radiogroup" aria-label="Karar" className={stil.kutu19}>
                     {MODERATION_DECISIONS.map((k) => {
                       const on = karar === k;
                       const izin = yetki(k);
@@ -433,171 +365,80 @@ export default function Moderasyon() {
                           disabled={!izin}
                           onClick={() => setKarar(k)}
                           title={izin ? undefined : 'Bu karar için yetkin yok'}
-                          style={{
-                            border: `1.5px solid ${on ? '#5B8CFF' : '#D5DAE5'}`,
-                            background: on ? '#EEF3FF' : '#FFFFFF',
-                            borderRadius: 999,
-                            padding: '7px 13px',
-                            fontSize: 13,
-                            fontWeight: 700,
-                            color: izin ? '#1E2333' : '#AEB5C4',
-                            cursor: izin ? 'pointer' : 'default',
-                            fontFamily: 'inherit',
-                          }}
+                          className={cx(
+                            stil.dugme6,
+                            on ? stil.dugme7 : stil.kutu15,
+                            izin ? stil.dugme8 : stil.dugme9,
+                          )}
+                          style={{ border: `1.5px solid ${on ? '#5B8CFF' : '#D5DAE5'}` }}
                         >
                           {k === 'gizle' ? d.gizleAd : DECISION_NAMES[k]}
                         </button>
                       );
                     })}
                   </div>
-                  <p style={{ margin: '10px 0 0', fontSize: 12.5, color: '#5A6073' }}>
-                    {DECISION_NOTES[karar]}
-                  </p>
-                  <label style={{ display: 'block', marginTop: 10, fontSize: 12.5, fontWeight: 700 }}>
+                  <p className={stil.metin15}>{DECISION_NOTES[karar]}</p>
+                  <label className={stil.etiket1}>
                     Gerekçe (kullanıcıya gider)
                     <input
                       value={not}
                       onChange={(e) => setNot(e.target.value)}
                       maxLength={500}
                       placeholder="Ör. Mesajında kapora istendi."
-                      style={{
-                        display: 'block',
-                        width: '100%',
-                        boxSizing: 'border-box',
-                        marginTop: 4,
-                        border: '1px solid #D5DAE5',
-                        borderRadius: 10,
-                        padding: '9px 10px',
-                        fontSize: 13.5,
-                        fontFamily: 'inherit',
-                      }}
+                      className={stil.girdi1}
                     />
                   </label>
-                  <button
-                    type="button"
-                    onClick={uygula}
-                    disabled={!yetki(karar)}
-                    style={{
-                      marginTop: 12,
-                      border: 0,
-                      background: '#5B8CFF',
-                      borderRadius: 12,
-                      padding: '11px 18px',
-                      fontSize: 14,
-                      fontWeight: 800,
-                      color: '#1E2333',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
+                  <button type="button" onClick={uygula} disabled={!yetki(karar)} className={stil.dugme10}>
                     Kararı uygula ve iki tarafa bildir
                   </button>
                 </div>
               ) : d.karar ? (
-                <div style={{ padding: '14px 18px', fontSize: 14, fontWeight: 800, color: '#11683F' }}>
+                <div className={stil.kutu20}>
                   {d.karar.ad} · {d.karar.kim} · {saat(d.karar.zaman)}
                   {d.karar.onay
                     ? ` · onay: ${d.karar.onay === 'PENDING' ? 'bekliyor' : d.karar.onay.toLocaleLowerCase('tr-TR')}`
                     : ''}
                   {d.karar.geriAlindi ? ' · itirazla geri alındı' : ''}
-                  {d.karar.not ? (
-                    <span style={{ display: 'block', marginTop: 4, fontWeight: 600, color: '#3A4052' }}>
-                      Gerekçe: {d.karar.not}
-                    </span>
-                  ) : null}
+                  {d.karar.not ? <span className={stil.metin16}>Gerekçe: {d.karar.not}</span> : null}
                 </div>
               ) : null}
             </>
           ) : (
-            <p style={{ margin: 0, padding: 18, fontSize: 13.5, color: '#5A6073' }}>
-              {q ? 'Bir şikâyet seç.' : 'Yükleniyor…'}
-            </p>
+            <p className={stil.metin17}>{q ? 'Bir şikâyet seç.' : 'Yükleniyor…'}</p>
           )}
         </section>
       </div>
 
-      <section style={{ ...kart, marginTop: 16, overflow: 'hidden' }} aria-labelledby="itiraz">
-        <h2
-          id="itiraz"
-          style={{
-            margin: 0,
-            padding: '16px 18px',
-            fontSize: 17,
-            fontWeight: 800,
-            borderBottom: '1px solid #EEF0F5',
-          }}
-        >
+      <section className={stil.kutu21} aria-labelledby="itiraz">
+        <h2 id="itiraz" className={stil.baslik3}>
           İtirazlar
         </h2>
-        {!itirazlar.length && !yildizlar.length ? (
-          <p style={{ margin: 0, padding: '12px 18px', fontSize: 13.5, color: '#5A6073' }}>İtiraz yok.</p>
-        ) : null}
+        {!itirazlar.length && !yildizlar.length ? <p className={stil.metin18}>İtiraz yok.</p> : null}
         {itirazlar.map((it) => (
-          <div
-            key={it.id}
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: '6px 16px',
-              padding: '12px 18px',
-              borderBottom: '1px solid #EEF0F5',
-              fontSize: 13.5,
-            }}
-          >
-            <span style={{ flex: '999 1 300px', minWidth: 0 }}>
-              <span style={{ display: 'block', fontWeight: 800 }}>
+          <div key={it.id} className={stil.kutu22}>
+            <span className={stil.metin19}>
+              <span className={stil.metin20}>
                 {it.ad} · S-{it.no}
               </span>
-              <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+              <span className={stil.metin21}>
                 “{it.metin}” · ilk karar: {it.ilkKarar}
               </span>
             </span>
             {it.durum === 'acik' ? (
               it.ilkKararId === me.id ? (
-                <span style={{ flex: 'none', color: '#5A6073', fontSize: 12.5 }}>
-                  İlk kararı sen verdin; başka bir moderatör inceler
-                </span>
+                <span className={stil.metin22}>İlk kararı sen verdin; başka bir moderatör inceler</span>
               ) : (
-                <span style={{ flex: 'none', display: 'flex', gap: 6 }}>
-                  <button
-                    type="button"
-                    onClick={() => itirazKarar(it, true)}
-                    style={{
-                      border: '1px solid #D5DAE5',
-                      background: '#FFFFFF',
-                      borderRadius: 10,
-                      padding: '8px 12px',
-                      fontSize: 13,
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
+                <span className={stil.metin23}>
+                  <button type="button" onClick={() => itirazKarar(it, true)} className={stil.dugme11}>
                     Kabul et, kararı geri al
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => itirazKarar(it, false)}
-                    style={{
-                      border: 0,
-                      background: 'transparent',
-                      padding: '8px 6px',
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: '#5A6073',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
+                  <button type="button" onClick={() => itirazKarar(it, false)} className={stil.dugme12}>
                     Reddet
                   </button>
                 </span>
               )
             ) : (
-              <span
-                style={{ flex: 'none', color: it.durum === 'kabul' ? '#11683F' : '#3A4052', fontWeight: 700 }}
-              >
+              <span className={cx(stil.metin24, it.durum === 'kabul' ? stil.metin25 : stil.metin26)}>
                 {it.durum === 'kabul' ? 'Kabul edildi' : 'Reddedildi'} · {it.inceleyen}
               </span>
             )}
@@ -606,31 +447,18 @@ export default function Moderasyon() {
         {yildizlar.map((it) => {
           const kalan = Math.ceil((new Date(it.sonGun).getTime() - simdi) / 86_400_000);
           return (
-            <div
-              key={it.id}
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                gap: '6px 16px',
-                padding: '12px 18px',
-                borderBottom: '1px solid #EEF0F5',
-                fontSize: 13.5,
-              }}
-            >
-              <span style={{ flex: '999 1 300px', minWidth: 0 }}>
-                <span style={{ display: 'block', fontWeight: 800 }}>{it.ad}</span>
-                <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+            <div key={it.id} className={stil.kutu22}>
+              <span className={stil.metin19}>
+                <span className={stil.metin20}>{it.ad}</span>
+                <span className={stil.metin21}>
                   {it.kanit} · galeri: “{it.metin}”
                 </span>
                 {it.mesajlar.length ? (
-                  <details style={{ marginTop: 4, fontSize: 12.5 }}>
-                    <summary style={{ cursor: 'pointer', color: '#2F5FD0', fontWeight: 700 }}>
-                      Sohbetin son mesajları (maskeli)
-                    </summary>
-                    <div style={{ display: 'grid', gap: 4, marginTop: 6 }}>
+                  <details className={stil.kutu23}>
+                    <summary className={stil.metin27}>Sohbetin son mesajları (maskeli)</summary>
+                    <div className={stil.kutu24}>
                       {it.mesajlar.map((m) => (
-                        <span key={`${m.zaman}${m.taraf}`} style={{ color: '#3A4052' }}>
+                        <span key={`${m.zaman}${m.taraf}`} className={stil.metin26}>
                           <b>{m.taraf}</b> · {saat(m.zaman)}: {m.metin}
                         </span>
                       ))}
@@ -639,51 +467,19 @@ export default function Moderasyon() {
                 ) : null}
               </span>
               {it.durum === 'acik' ? (
-                <span style={{ flex: 'none', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ color: kalan <= 0 ? '#A3271F' : '#3A4052', marginRight: 6 }}>
+                <span className={stil.metin28}>
+                  <span className={cx(stil.metin29, kalan <= 0 ? stil.metin30 : stil.metin26)}>
                     {kalan <= 0 ? 'Süre aştı' : `Kalan ${kalan} gün`}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => yildizKarar(it, true)}
-                    style={{
-                      border: '1px solid #D5DAE5',
-                      background: '#FFFFFF',
-                      borderRadius: 10,
-                      padding: '8px 12px',
-                      fontSize: 13,
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
+                  <button type="button" onClick={() => yildizKarar(it, true)} className={stil.dugme11}>
                     Kabul et, yıldızı sayma
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => yildizKarar(it, false)}
-                    style={{
-                      border: 0,
-                      background: 'transparent',
-                      padding: '8px 6px',
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: '#5A6073',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
+                  <button type="button" onClick={() => yildizKarar(it, false)} className={stil.dugme12}>
                     Reddet
                   </button>
                 </span>
               ) : (
-                <span
-                  style={{
-                    flex: 'none',
-                    color: it.durum === 'kabul' ? '#11683F' : '#3A4052',
-                    fontWeight: 700,
-                  }}
-                >
+                <span className={cx(stil.metin24, it.durum === 'kabul' ? stil.metin25 : stil.metin26)}>
                   {it.durum === 'kabul' ? 'Kabul edildi' : 'Reddedildi'} · {it.inceleyen}
                 </span>
               )}
@@ -693,27 +489,15 @@ export default function Moderasyon() {
       </section>
 
       {f ? (
-        <section style={{ ...kart, marginTop: 16, padding: 20 }} aria-labelledby="filtre">
-          <h2 id="filtre" style={{ margin: '0 0 14px', fontSize: 17, fontWeight: 800 }}>
+        <section className={stil.kutu25} aria-labelledby="filtre">
+          <h2 id="filtre" className={stil.baslik4}>
             Otomatik içerik filtreleri
           </h2>
           {f.filtreler.map((x) => (
-            <div
-              key={x.key}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: 12,
-                padding: '12px 0',
-                borderTop: '1px solid #EEF0F5',
-              }}
-            >
+            <div key={x.key} className={stil.kutu26}>
               <span>
-                <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700 }}>{x.ad}</span>
-                <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
-                  {x.not}
-                </span>
+                <span className={stil.metin31}>{x.ad}</span>
+                <span className={stil.metin21}>{x.not}</span>
               </span>
               <button
                 type="button"
@@ -721,64 +505,23 @@ export default function Moderasyon() {
                 aria-checked={x.acik}
                 aria-label={x.ad}
                 onClick={() => filtre(x.key, !x.acik)}
-                style={{
-                  flex: 'none',
-                  width: 52,
-                  height: 30,
-                  border: 0,
-                  borderRadius: 999,
-                  background: x.acik ? '#5B8CFF' : '#C9CFDB',
-                  position: 'relative',
-                  cursor: 'pointer',
-                }}
+                className={cx(stil.dugme13, x.acik ? stil.dugme14 : stil.dugme15)}
               >
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: 3,
-                    left: x.acik ? 25 : 3,
-                    width: 24,
-                    height: 24,
-                    borderRadius: '50%',
-                    background: '#FFFFFF',
-                  }}
-                />
+                <span className={cx(stil.metin32, x.acik ? stil.metin33 : stil.metin34)} />
               </button>
             </div>
           ))}
-          <div style={{ borderTop: '1px solid #EEF0F5', paddingTop: 12 }}>
-            <span style={{ display: 'block', fontSize: 14.5, fontWeight: 700, marginBottom: 8 }}>
-              Yasaklı kelimeler
-            </span>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+          <div className={stil.kutu27}>
+            <span className={stil.metin35}>Yasaklı kelimeler</span>
+            <div className={stil.kutu28}>
               {f.kelimeler.map((k) => (
-                <span
-                  key={k}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    background: '#F3F5FA',
-                    borderRadius: 999,
-                    padding: '6px 8px 6px 12px',
-                    fontSize: 13,
-                    fontWeight: 600,
-                  }}
-                >
+                <span key={k} className={stil.metin36}>
                   {k}
                   <button
                     type="button"
                     aria-label={`${k} kelimesini kaldır`}
                     onClick={() => kelimeSil(k)}
-                    style={{
-                      border: 0,
-                      background: 'transparent',
-                      cursor: 'pointer',
-                      color: '#5A6073',
-                      fontSize: 14,
-                      lineHeight: 1,
-                      padding: 0,
-                    }}
+                    className={stil.dugme16}
                   >
                     ×
                   </button>
@@ -789,18 +532,9 @@ export default function Moderasyon() {
                   e.preventDefault();
                   kelimeEkle();
                 }}
-                style={{ display: 'inline-flex', gap: 6 }}
+                className={stil.kutu29}
               >
-                <label
-                  htmlFor="ykelime"
-                  style={{
-                    position: 'absolute',
-                    width: 1,
-                    height: 1,
-                    overflow: 'hidden',
-                    clip: 'rect(0 0 0 0)',
-                  }}
-                >
+                <label htmlFor="ykelime" className={stil.etiket2}>
                   Yeni yasaklı kelime
                 </label>
                 <input
@@ -809,28 +543,9 @@ export default function Moderasyon() {
                   onChange={(e) => setYeni(e.target.value)}
                   placeholder="Kelime ekle"
                   maxLength={40}
-                  style={{
-                    border: '1px dashed #AEB5C4',
-                    borderRadius: 999,
-                    padding: '6px 12px',
-                    fontSize: 13,
-                    width: 140,
-                    fontFamily: 'inherit',
-                  }}
+                  className={stil.girdi2}
                 />
-                <button
-                  type="submit"
-                  style={{
-                    border: '1px solid #D5DAE5',
-                    background: '#FFFFFF',
-                    borderRadius: 999,
-                    padding: '6px 12px',
-                    fontSize: 13,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
-                >
+                <button type="submit" className={stil.dugme17}>
                   Ekle
                 </button>
               </form>

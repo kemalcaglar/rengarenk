@@ -2,6 +2,7 @@
 
 import { GORSEL_EN_AZ_GENISLIK, GORSEL_LISANSLARI } from '@rengarenk/shared';
 import { useState } from 'react';
+import stil from './yukle.module.css';
 
 export interface Hedef {
   tur: 'nesil' | 'kusak' | 'seri';
@@ -73,19 +74,8 @@ export function YuklemeFormu({
   }
 
   return (
-    <form
-      onSubmit={gonder}
-      style={{
-        marginTop: 12,
-        padding: 14,
-        border: '1px dashed #B9C3D9',
-        borderRadius: 12,
-        background: '#F8FAFF',
-        display: 'grid',
-        gap: 12,
-      }}
-    >
-      <p style={{ margin: 0, fontSize: 13, color: '#5A6073' }}>
+    <form onSubmit={gonder} className={stil.kutu1}>
+      <p className={stil.metin1}>
         Yalnızca kamu malı, CC0, CC BY, CC BY-SA lisanslı, kendi çektiğimiz ya da yazılı izinle kullandığımız
         fotoğraf (Karar 34). Başka sitelerdeki ilan fotoğrafları ve lisanssız üretici görselleri yüklenmez.
         JPEG, PNG ya da WEBP, en az {GORSEL_EN_AZ_GENISLIK} piksel genişlik; tercihen dış çekim, ön çapraz
@@ -100,8 +90,8 @@ export function YuklemeFormu({
           onChange={(e) => setDosya(e.target.files?.[0] ?? null)}
         />
       </label>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-        <label className="k-field" style={{ flex: '2 1 280px' }}>
+      <div className={stil.kutu2}>
+        <label className={`k-field ${stil.etiket1}`}>
           Kaynak sayfası
           <input
             type="url"
@@ -111,11 +101,11 @@ export function YuklemeFormu({
             onChange={(e) => setKaynak(e.target.value)}
           />
         </label>
-        <label className="k-field" style={{ flex: '1 1 180px' }}>
+        <label className={`k-field ${stil.etiket2}`}>
           Yazar ya da hak sahibi
           <input required value={yazar} onChange={(e) => setYazar(e.target.value)} />
         </label>
-        <label className="k-field" style={{ flex: '1 1 160px' }}>
+        <label className={`k-field ${stil.etiket3}`}>
           Lisans
           <select required value={lisans} onChange={(e) => setLisans(e.target.value)}>
             <option value="" disabled>
@@ -129,7 +119,7 @@ export function YuklemeFormu({
           </select>
         </label>
         {hedef.tur === 'nesil' ? (
-          <label className="k-field" style={{ flex: '1 1 150px' }}>
+          <label className={`k-field ${stil.etiket4}`}>
             Makyaj
             <select value={makyaj} onChange={(e) => setMakyaj(e.target.value)}>
               {MAKYAJLAR.map(([v, ad]) => (
@@ -142,7 +132,7 @@ export function YuklemeFormu({
         ) : null}
         {hedef.tur === 'seri' ? (
           <>
-            <label className="k-field" style={{ flex: '1 1 110px' }}>
+            <label className={`k-field ${stil.etiket5}`}>
               İlk yıl (isteğe bağlı)
               <input
                 inputMode="numeric"
@@ -151,7 +141,7 @@ export function YuklemeFormu({
                 onChange={(e) => setYilBas(e.target.value)}
               />
             </label>
-            <label className="k-field" style={{ flex: '1 1 110px' }}>
+            <label className={`k-field ${stil.etiket5}`}>
               Son yıl (isteğe bağlı)
               <input
                 inputMode="numeric"
@@ -164,11 +154,11 @@ export function YuklemeFormu({
         ) : null}
       </div>
       {hata ? (
-        <p className="k-error" role="alert" style={{ margin: 0 }}>
+        <p className={`k-error ${stil.metin2}`} role="alert">
           {hata}
         </p>
       ) : null}
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div className={stil.kutu3}>
         <button type="submit" className="k-btn-ok" disabled={mesgul}>
           {mesgul ? 'Yükleniyor…' : 'Yükle ve yayına al'}
         </button>

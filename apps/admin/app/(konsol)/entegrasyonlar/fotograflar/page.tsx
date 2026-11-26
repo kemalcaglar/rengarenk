@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { yonetim } from '../../../../lib/istemci';
+import stil from './page.module.css';
 import { type Alan, PlakaDuzenle } from './plaka';
 import { type Gorsel, onizleme, type Yer, YerKarti } from './yer';
 
@@ -95,13 +96,10 @@ export default function AracGorselleri() {
 
   return (
     <>
-      <Link
-        href="/entegrasyonlar"
-        style={{ display: 'inline-block', marginBottom: 8, fontSize: 13.5, fontWeight: 700 }}
-      >
+      <Link href="/entegrasyonlar" className={stil.bag1}>
         ‹ Entegrasyonlar
       </Link>
-      <div style={{ marginBottom: 16 }}>
+      <div className={stil.kutu1}>
         <h1 className="k-h1">Araç görselleri</h1>
         <p className="k-sub">
           Her talep görselle yayına girer. Fotoğraf nesle, kasaya ya da modele (model geneli) bağlanır;
@@ -122,8 +120,8 @@ export default function AracGorselleri() {
         </p>
       ) : null}
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
-        <fieldset className="k-chips" style={{ margin: 0 }}>
+      <div className={stil.kutu2}>
+        <fieldset className={`k-chips ${stil.kutu3}`}>
           <legend className="sr-only">Bölüm</legend>
           {(
             [
@@ -164,7 +162,7 @@ export default function AracGorselleri() {
       </div>
 
       {tab === 'ara' ? (
-        <div className="k-panel" style={{ padding: 16, marginBottom: 14 }}>
+        <div className={`k-panel ${stil.kutu4}`}>
           <label className="k-field">
             Marka ya da model
             <input
@@ -174,7 +172,7 @@ export default function AracGorselleri() {
             />
           </label>
           {seriler.length ? (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+            <div className={stil.kutu5}>
               {seriler.map((s) => (
                 <button
                   key={s.id}
@@ -189,7 +187,7 @@ export default function AracGorselleri() {
             </div>
           ) : null}
           {seri ? (
-            <p style={{ margin: '10px 0 0', fontSize: 13, color: '#5A6073' }}>
+            <p className={stil.metin1}>
               {seri.ad}: model geneli, nesiller ve kasalar aşağıda. Her birine fotoğraf seçebilir ya da
               yükleyebilirsin.
             </p>

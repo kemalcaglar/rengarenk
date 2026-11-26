@@ -10,6 +10,7 @@ import {
 } from '@rengarenk/shared';
 import { type FormEvent, useCallback, useEffect, useState } from 'react';
 import { yonetim } from '../../../lib/istemci';
+import stil from './page.module.css';
 
 interface CustomRole {
   id: string;
@@ -100,12 +101,8 @@ export default function Roller() {
       ) : null}
 
       {editing ? (
-        <form
-          onSubmit={save}
-          className="k-panel"
-          style={{ border: '1.5px solid #5B8CFF', padding: 18, marginBottom: 16 }}
-        >
-          <label className="k-field" style={{ display: 'block', maxWidth: 360 }}>
+        <form onSubmit={save} className={`k-panel ${stil.kutu1}`}>
+          <label className={`k-field ${stil.etiket1}`}>
             Rol adı
             <input
               required
@@ -116,19 +113,10 @@ export default function Roller() {
               placeholder="ör. Katalog sorumlusu"
             />
           </label>
-          <div style={{ marginTop: 14, display: 'grid', gap: 6 }}>
+          <div className={stil.kutu2}>
             {PERMISSIONS.map((p) => (
-              <div
-                key={p.key}
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  gap: '6px 12px',
-                  fontSize: 13.5,
-                }}
-              >
-                <span style={{ flex: '1 1 260px', fontWeight: 600 }}>{p.ad}</span>
+              <div key={p.key} className={stil.kutu3}>
+                <span className={stil.metin1}>{p.ad}</span>
                 <select
                   aria-label={p.ad}
                   value={editing.permissions[p.key] ?? ''}
@@ -139,12 +127,7 @@ export default function Roller() {
                     else delete next[p.key];
                     setEditing({ ...editing, permissions: next });
                   }}
-                  style={{
-                    border: '1px solid #D5DAE5',
-                    borderRadius: 8,
-                    padding: '6px 8px',
-                    font: 'inherit',
-                  }}
+                  className={stil.girdi1}
                 >
                   <option value="">– yetkisi yok</option>
                   {(['tam', 'oneri', 'maskeli', 'onay'] as const).map((l) => (
@@ -156,11 +139,11 @@ export default function Roller() {
               </div>
             ))}
           </div>
-          <p style={{ margin: '12px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+          <p className={stil.metin2}>
             Çalışan yönetimi ve iadede tam yetki yalnızca sahibe aittir. Özel roller onay kuyruğunda karar
             veremez.
           </p>
-          <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
+          <div className={stil.kutu4}>
             <button className="k-btn" type="submit" disabled={busy}>
               {editing.id ? 'Kaydet' : 'Rolü oluştur'}
             </button>
@@ -171,26 +154,21 @@ export default function Roller() {
         </form>
       ) : null}
 
-      <div className="k-panel" style={{ overflowX: 'auto' }}>
+      <div className={`k-panel ${stil.kutu5}`}>
         <div style={{ minWidth: 220 + columns.length * 78 }}>
           <div
+            className={stil.kutu6}
             style={{
-              display: 'grid',
               gridTemplateColumns: `minmax(220px, 2.4fr) repeat(${columns.length}, minmax(70px, 1fr))`,
-              background: '#F3F5FA',
-              fontSize: 11.5,
-              fontWeight: 800,
-              color: '#5A6073',
             }}
           >
-            <span style={{ padding: '12px 14px' }}>Yetki</span>
+            <span className={stil.metin3}>Yetki</span>
             {columns.map((c) => (
-              <span key={c.key} style={{ padding: '12px 4px', textAlign: 'center' }}>
+              <span key={c.key} className={stil.metin4}>
                 {c.custom ? (
                   <button
                     type="button"
-                    className="k-link"
-                    style={{ fontSize: 11.5, fontWeight: 800 }}
+                    className={`k-link ${stil.dugme1}`}
                     title={`${c.custom.members} çalışan · düzenle`}
                     onClick={() => setEditing({ id: c.custom?.id, name: c.ad, permissions: { ...c.grants } })}
                   >
@@ -205,30 +183,20 @@ export default function Roller() {
           {PERMISSIONS.map((p) => (
             <div
               key={p.key}
+              className={stil.kutu7}
               style={{
-                display: 'grid',
                 gridTemplateColumns: `minmax(220px, 2.4fr) repeat(${columns.length}, minmax(70px, 1fr))`,
-                borderTop: '1px solid #EEF0F5',
-                alignItems: 'center',
               }}
             >
-              <span style={{ padding: '10px 14px', fontSize: 13.5, fontWeight: 600 }}>{p.ad}</span>
+              <span className={stil.metin5}>{p.ad}</span>
               {columns.map((c) => {
                 const cell = CELL[c.grants[p.key] ?? 'yok'];
                 return (
-                  <span key={c.key} style={{ padding: '8px 4px', textAlign: 'center' }}>
+                  <span key={c.key} className={stil.metin6}>
                     <span
                       title={cell.ad}
-                      style={{
-                        display: 'inline-block',
-                        minWidth: 26,
-                        fontSize: 12,
-                        fontWeight: 800,
-                        padding: '3px 6px',
-                        borderRadius: 8,
-                        background: cell.bg,
-                        color: cell.fg,
-                      }}
+                      className={stil.metin7}
+                      style={{ background: cell.bg, color: cell.fg }}
                     >
                       {cell.t}
                     </span>
@@ -237,17 +205,7 @@ export default function Roller() {
               })}
             </div>
           ))}
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '8px 18px',
-              padding: '12px 14px',
-              borderTop: '1px solid #EEF0F5',
-              fontSize: 12.5,
-              color: '#3A4052',
-            }}
-          >
+          <div className={stil.kutu8}>
             {(['tam', 'oneri', 'maskeli', 'onay', 'yok'] as const).map((l) => (
               <span key={l}>
                 <strong style={{ color: CELL[l].fg === '#AEB5C4' ? '#8A91A3' : CELL[l].fg }}>

@@ -1,0 +1,111 @@
+/* Bu dosya page.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  margin-bottom: 16px;
+}
+.metin1 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: #5a6073;
+}
+.kutu2 {
+  padding: 14px;
+  margin-bottom: 10px;
+}
+.kutu3 {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+.kutu4 {
+  flex: 1 1 420px;
+}
+.metin2 {
+  font-size: 15px;
+}
+.metin3 {
+  color: #5a6073;
+}
+.metin4 {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: #5a6073;
+}
+.kutu5 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.metin5 {
+  background: #fff6dd;
+  color: #7a5a00;
+}
+.metin6 {
+  background: #ffeef6;
+  color: #8a1f4f;
+}
+.metin7 {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: #5a6073;
+}
+.dugme1 {
+  font-size: 13px;
+  padding: 6px 12px;
+}
+.kutu6 {
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.kutu7 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.etiket1 {
+  flex: 1 1 200px;
+}
+.etiket2 {
+  flex: 1 1 260px;
+}
+.kutu8 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.metin8 {
+  width: 100%;
+  font-size: 13px;
+  font-weight: 700;
+}
+.metin9 {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: #5a6073;
+}
+.kutu9 {
+  padding: 16px;
+  margin-bottom: 10px;
+}
+.metin10 {
+  margin-left: 8px;
+  background: #fff6dd;
+  color: #7a5a00;
+}
+.metin11 {
+  margin: 6px 0 0;
+  font-size: 14px;
+}
+.kutu10 {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.dugme2 {
+  font-size: 13px;
+  padding: 6px 12px;
+  color: #a3271f;
+}

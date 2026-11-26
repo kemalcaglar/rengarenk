@@ -4,6 +4,7 @@ import { BUILTIN_ROLES } from '@rengarenk/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { once, tarih, yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 interface ApprovalRow {
   id: string;
@@ -112,21 +113,10 @@ export default function Onaylar() {
     }
   }
 
-  const ikincil = {
-    border: '1px solid #D5DAE5',
-    background: '#FFFFFF',
-    borderRadius: 10,
-    padding: '10px 14px',
-    fontSize: 14,
-    fontWeight: 700,
-    color: '#1E2333',
-    cursor: 'pointer',
-  } as const;
-
   return (
     <>
-      <h1 style={{ margin: '0 0 4px', fontSize: 26, fontWeight: 800 }}>Onay kuyruğu</h1>
-      <p style={{ margin: '0 0 16px', fontSize: 14, color: '#5A6073' }}>
+      <h1 className={stil.baslik1}>Onay kuyruğu</h1>
+      <p className={stil.metin1}>
         Dört göz kuralına bağlı işlemler.{' '}
         {me.role === 'OWNER'
           ? 'İadeleri yalnızca sen onaylayabilirsin.'
@@ -142,63 +132,34 @@ export default function Onaylar() {
       ) : rows.length === 0 ? (
         <div className="k-panel k-empty">Onay bekleyen işlem yok.</div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className={stil.kutu1}>
           {rows.map((o) => {
             const k = KIND[o.kind] ?? { bg: '#F3F5FA', fg: '#3A4052', onay: 'Onayla' };
             const rol = ROL[o.requester.role];
             const geriCek = o.status === 'PENDING' && !o.canDecide && o.requester.id === me.id;
             return (
-              <article
-                key={o.id}
-                style={{
-                  background: '#FFFFFF',
-                  border: '1px solid #E3E6EF',
-                  borderRadius: 18,
-                  padding: '16px 18px',
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  gap: '10px 18px',
-                }}
-              >
-                <span style={{ flex: '999 1 360px', minWidth: 0 }}>
-                  <span style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '6px 8px' }}>
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 800,
-                        padding: '3px 9px',
-                        borderRadius: 999,
-                        background: k.bg,
-                        color: k.fg,
-                      }}
-                    >
+              <article key={o.id} className={stil.kutu2}>
+                <span className={stil.metin2}>
+                  <span className={stil.metin3}>
+                    <span className={stil.metin4} style={{ background: k.bg, color: k.fg }}>
                       {k.tur ?? o.kindName}
                     </span>
-                    <span style={{ fontSize: 12.5, color: '#5A6073' }}>
+                    <span className={stil.metin5}>
                       {o.requester.id === me.id ? 'Sen' : o.requester.name}
                       {rol && o.requester.id !== me.id ? ` (${rol})` : ''} · {once(o.createdAt)}
                     </span>
                   </span>
-                  <span style={{ display: 'block', fontSize: 15.5, fontWeight: 800, marginTop: 6 }}>
+                  <span className={stil.metin6}>
                     {o.title || `${o.kindName} isteği`}
                     {o.amountKurus ? ` · ${tl(o.amountKurus)}` : ''}
                   </span>
-                  {o.reason ? (
-                    <span style={{ display: 'block', fontSize: 13.5, color: '#3A4052', marginTop: 3 }}>
-                      {o.reason}
-                    </span>
-                  ) : null}
-                  <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 4 }}>
-                    {o.rule}
-                  </span>
+                  {o.reason ? <span className={stil.metin7}>{o.reason}</span> : null}
+                  <span className={stil.metin8}>{o.rule}</span>
                 </span>
                 {o.canDecide ? (
-                  <span
-                    style={{ flex: 'none', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}
-                  >
+                  <span className={stil.metin9}>
                     {o.kind === 'REFUND' && o.amountKurus ? (
-                      <label style={{ fontSize: 12.5, fontWeight: 700, color: '#5A6073' }}>
+                      <label className={stil.etiket1}>
                         Onaylanacak tutar (TL)
                         <input
                           inputMode="decimal"
@@ -209,22 +170,13 @@ export default function Onaylar() {
                             setIadeTutar((x) => ({ ...x, [o.id]: v }));
                           }}
                           title="Boş bırakırsan istenen tutar onaylanır; yalnızca düşürülebilir"
-                          style={{
-                            display: 'block',
-                            width: 110,
-                            marginTop: 4,
-                            border: '1px solid #D5DAE5',
-                            borderRadius: 10,
-                            padding: '8px 10px',
-                            fontSize: 14,
-                            fontFamily: 'inherit',
-                          }}
+                          className={stil.girdi1}
                         />
                       </label>
                     ) : null}
                     <button
                       type="button"
-                      style={ikincil}
+                      className={stil.dugme1}
                       disabled={busy === o.id}
                       onClick={() => decide(o.id, 'reject')}
                     >
@@ -232,16 +184,7 @@ export default function Onaylar() {
                     </button>
                     <button
                       type="button"
-                      style={{
-                        border: 0,
-                        background: '#3DD68C',
-                        borderRadius: 10,
-                        padding: '10px 16px',
-                        fontSize: 14,
-                        fontWeight: 800,
-                        color: '#1E2333',
-                        cursor: 'pointer',
-                      }}
+                      className={stil.dugme2}
                       disabled={busy === o.id}
                       onClick={() => decide(o.id, 'approve')}
                     >
@@ -251,7 +194,7 @@ export default function Onaylar() {
                 ) : geriCek ? (
                   <button
                     type="button"
-                    style={ikincil}
+                    className={stil.dugme1}
                     title={o.expiresAt ? `Karar verilmezse ${tarih(o.expiresAt)} tarihinde düşer` : undefined}
                     disabled={busy === o.id}
                     onClick={() => decide(o.id, 'cancel')}
@@ -260,7 +203,8 @@ export default function Onaylar() {
                   </button>
                 ) : o.status !== 'PENDING' ? (
                   <span
-                    style={{ flex: 'none', fontSize: 14, fontWeight: 800, color: SONUC[o.status][1] }}
+                    className={stil.metin10}
+                    style={{ color: SONUC[o.status][1] }}
                     title={
                       o.decider
                         ? `${o.decider.name} · ${tarih(o.decidedAt)}${o.decisionNote ? ` · ${o.decisionNote}` : ''}`

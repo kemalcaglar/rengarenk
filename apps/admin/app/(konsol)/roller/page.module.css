@@ -1,0 +1,94 @@
+/* Bu dosya page.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  border: 1.5px solid #5b8cff;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.etiket1 {
+  display: block;
+  max-width: 360px;
+}
+.kutu2 {
+  margin-top: 14px;
+  display: grid;
+  gap: 6px;
+}
+.kutu3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  font-size: 13.5px;
+}
+.metin1 {
+  flex: 1 1 260px;
+  font-weight: 600;
+}
+.girdi1 {
+  border: 1px solid #d5dae5;
+  border-radius: 8px;
+  padding: 6px 8px;
+  font: inherit;
+}
+.metin2 {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  color: #5a6073;
+}
+.kutu4 {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+.kutu5 {
+  overflow-x: auto;
+}
+.kutu6 {
+  display: grid;
+  background: #f3f5fa;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #5a6073;
+}
+.metin3 {
+  padding: 12px 14px;
+}
+.metin4 {
+  padding: 12px 4px;
+  text-align: center;
+}
+.dugme1 {
+  font-size: 11.5px;
+  font-weight: 800;
+}
+.kutu7 {
+  display: grid;
+  border-top: 1px solid #eef0f5;
+  align-items: center;
+}
+.metin5 {
+  padding: 10px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.metin6 {
+  padding: 8px 4px;
+  text-align: center;
+}
+.metin7 {
+  display: inline-block;
+  min-width: 26px;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 6px;
+  border-radius: 8px;
+}
+.kutu8 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding: 12px 14px;
+  border-top: 1px solid #eef0f5;
+  font-size: 12.5px;
+  color: #3a4052;
+}

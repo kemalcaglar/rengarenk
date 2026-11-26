@@ -1,0 +1,134 @@
+/* Bu dosya yasal.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  overflow: hidden;
+}
+.baslik1 {
+  margin: 0;
+  padding: 16px 18px;
+  font-size: 17px;
+  font-weight: 800;
+  border-bottom: 1px solid #eef0f5;
+}
+.metin1 {
+  margin: 10px 18px;
+}
+.kutu2 {
+  border-bottom: 1px solid #eef0f5;
+}
+.kutu3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 18px;
+}
+.metin2 {
+  flex: 999 1 260px;
+  min-width: 0;
+}
+.metin3 {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+}
+.metin4 {
+  display: block;
+  font-size: 12.5px;
+  color: #3a4052;
+  margin-top: 2px;
+}
+.metin5 {
+  flex: none;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.dugme1 {
+  font-size: 13px;
+  padding: 7px 12px;
+}
+.kutu4 {
+  padding: 14px 18px;
+  background: #f6f8fd;
+}
+.metin6 {
+  margin-top: 0;
+}
+.etiket1 {
+  display: block;
+}
+.etiket2 {
+  display: block;
+  margin-top: 10px;
+}
+.girdi1 {
+  display: block;
+  width: 100%;
+  margin-top: 5px;
+  border: 1px solid #d5dae5;
+  border-radius: 10px;
+  padding: 11px;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+.etiket3 {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin-top: 10px;
+  font-size: 13.5px;
+}
+.girdi2 {
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+}
+.kutu5 {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.kutu6 {
+  margin-top: 14px;
+}
+.kutu7 {
+  padding: 14px 18px;
+  background: #f6f8fd;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.kutu8 {
+  margin-bottom: 10px;
+}
+.kutu9 {
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+.kutu10 {
+  background: #fdecec;
+  border-left: 3px solid #e5484d;
+  padding: 6px 10px;
+  border-radius: 0 8px 8px 0;
+  color: #5c1a15;
+  margin-top: 4px;
+  white-space: pre-wrap;
+}
+.kutu11 {
+  background: #e7faf0;
+  border-left: 3px solid #3dd68c;
+  padding: 6px 10px;
+  border-radius: 0 8px 8px 0;
+  margin-top: 4px;
+  color: #0b4a2c;
+  white-space: pre-wrap;
+}
+.kutu12 {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: #3a4052;
+}

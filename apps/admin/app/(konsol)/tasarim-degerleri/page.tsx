@@ -11,8 +11,10 @@ import {
   type SeasonalTheme,
 } from '@rengarenk/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 interface Gorunum {
   yayinda: { surum: number; degerler: DesignTokens; tarih: string | null };
@@ -29,16 +31,7 @@ const DURUM_RENK: Record<string, { bg: string; fg: string }> = {
   Taslak: { bg: '#FFF6DF', fg: '#7A5300' },
   Bitti: { bg: '#F3F5FA', fg: '#5A6073' },
 };
-const kart = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 } as const;
 // `font` kısaltması önce: sonra gelen boyut ve kalınlık onu ezer
-const girdi = {
-  font: 'inherit',
-  border: '1px solid #D5DAE5',
-  borderRadius: 10,
-  padding: '7px 9px',
-  fontSize: 13.5,
-  fontWeight: 400,
-} as const;
 
 /** Köşe hazır seçimleri: sitedeki bütün köşeler bu üç değere oranla değişir */
 const KOSE_HAZIR = [
@@ -155,16 +148,7 @@ export default function TasarimDegerleri() {
   const R = d.renkler;
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
+      <div className={stil.kutu1}>
         <div>
           <h1 className="k-h1">Tasarım değerleri</h1>
           <p className="k-sub">
@@ -180,17 +164,11 @@ export default function TasarimDegerleri() {
             type="button"
             disabled={busy || onayda || sorunlar.length > 0}
             onClick={() => void gonder()}
-            style={{
-              border: 0,
-              background: '#3DD68C',
-              borderRadius: 12,
-              padding: '12px 18px',
-              fontSize: 14.5,
-              fontWeight: 800,
-              color: '#1E2333',
-              cursor: onayda ? 'default' : 'pointer',
-              opacity: sorunlar.length ? 0.6 : 1,
-            }}
+            className={cx(
+              stil.dugme1,
+              onayda ? stil.dugme2 : stil.dugme3,
+              sorunlar.length ? stil.dugme4 : stil.dugme5,
+            )}
           >
             {onayda ? `s.${v.taslak?.surum} onayda` : busy ? 'Gönderiliyor…' : 'Onaya gönder'}
           </button>
@@ -207,22 +185,17 @@ export default function TasarimDegerleri() {
         </p>
       ) : null}
       {onayda ? (
-        <div
-          className="k-ok"
-          role="status"
-          style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10 }}
-        >
-          <span style={{ flex: '1 1 300px' }}>
+        <div className={`k-ok ${stil.kutu2}`} role="status">
+          <span className={stil.metin1}>
             s.{v.taslak?.surum} onay bekliyor; değerler onaylanana ya da geri çekilene kadar kilitli. Onay
             kuyruğundan onaylayabilir ya da buradan geri çekip düzenlemeye devam edebilirsin.
           </span>
           {yazabilir ? (
             <button
               type="button"
-              className="k-btn-line"
+              className={`k-btn-line ${stil.dugme6}`}
               disabled={busy}
               onClick={() => void geriCek()}
-              style={{ fontSize: 13, padding: '6px 12px' }}
             >
               Geri çek ve düzenle
             </button>
@@ -235,43 +208,22 @@ export default function TasarimDegerleri() {
         </div>
       ) : null}
       {uyarilar.length ? (
-        <div
-          role="note"
-          style={{
-            background: '#FFF6DF',
-            color: '#5A3D00',
-            border: '1px solid #F4DC9A',
-            borderRadius: 12,
-            padding: '10px 14px',
-            fontSize: 13.5,
-            marginBottom: 12,
-          }}
-        >
+        <div role="note" className={stil.kutu3}>
           Uyarı (gönderilebilir): {uyarilar.join(' · ')}
         </div>
       ) : null}
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-start' }}>
-        <div style={{ flex: '999 1 480px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <section style={{ ...kart, padding: '16px 18px' }} aria-labelledby="renk">
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 10,
-                marginBottom: 4,
-              }}
-            >
-              <h2 id="renk" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+      <div className={stil.kutu4}>
+        <div className={stil.kutu5}>
+          <section className={stil.kutu6} aria-labelledby="renk">
+            <div className={stil.kutu7}>
+              <h2 id="renk" className={stil.baslik1}>
                 Renkler
               </h2>
               {yazabilir && !onayda ? (
                 <button
                   type="button"
-                  className="k-btn-line"
-                  style={{ fontSize: 12.5, padding: '5px 10px' }}
+                  className={`k-btn-line ${stil.dugme7}`}
                   onClick={() => set({ renkler: { ...DEFAULT_DESIGN.renkler } })}
                 >
                   Renkleri varsayılana döndür
@@ -280,37 +232,13 @@ export default function TasarimDegerleri() {
             </div>
             {renkGruplari.map(([grup, liste]) => (
               <div key={grup}>
-                <h3
-                  style={{
-                    margin: '14px 0 8px',
-                    fontSize: 13,
-                    fontWeight: 800,
-                    color: '#5A6073',
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.5,
-                  }}
-                >
-                  {grup}
-                </h3>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-                    gap: 12,
-                  }}
-                >
+                <h3 className={stil.baslik2}>{grup}</h3>
+                <div className={stil.kutu8}>
                   {liste.map((r) => (
-                    <div key={r.key} style={{ minWidth: 0 }}>
+                    <div key={r.key} className={stil.kutu9}>
                       <label
-                        style={{
-                          display: 'block',
-                          height: 56,
-                          borderRadius: 12,
-                          background: R[r.key],
-                          border: '1px solid #E3E6EF',
-                          cursor: yazabilir ? 'pointer' : 'default',
-                          position: 'relative',
-                        }}
+                        className={cx(stil.etiket1, yazabilir ? stil.dugme3 : stil.dugme2)}
+                        style={{ background: R[r.key] }}
                       >
                         <span className="sr-only">{r.ad} rengini seç</span>
                         <input
@@ -318,16 +246,10 @@ export default function TasarimDegerleri() {
                           value={R[r.key]}
                           disabled={!yazabilir || onayda}
                           onChange={(e) => set({ renkler: { ...R, [r.key]: e.target.value.toUpperCase() } })}
-                          style={{
-                            position: 'absolute',
-                            inset: 0,
-                            opacity: 0,
-                            width: '100%',
-                            height: '100%',
-                          }}
+                          className={stil.girdi1}
                         />
                       </label>
-                      <div style={{ fontSize: 13, fontWeight: 800, marginTop: 6 }}>{r.ad}</div>
+                      <div className={stil.kutu10}>{r.ad}</div>
                       <input
                         aria-label={`${r.ad} kodu`}
                         value={R[r.key]}
@@ -337,11 +259,9 @@ export default function TasarimDegerleri() {
                           /^#[0-9A-Fa-f]{0,6}$/.test(e.target.value) &&
                           set({ renkler: { ...R, [r.key]: e.target.value.toUpperCase() } })
                         }
-                        style={{ ...girdi, padding: '2px 6px', fontSize: 12, width: 90, marginTop: 2 }}
+                        className={stil.girdi2}
                       />
-                      <div style={{ fontSize: 11.5, color: '#5A6073', marginTop: 2 }}>
-                        {colorNote(r.key, d)}
-                      </div>
+                      <div className={stil.kutu11}>{colorNote(r.key, d)}</div>
                     </div>
                   ))}
                 </div>
@@ -349,24 +269,21 @@ export default function TasarimDegerleri() {
             ))}
           </section>
 
-          <section style={{ ...kart, padding: '16px 18px' }} aria-labelledby="yazi">
-            <h2 id="yazi" style={{ margin: '0 0 12px', fontSize: 17, fontWeight: 800 }}>
+          <section className={stil.kutu6} aria-labelledby="yazi">
+            <h2 id="yazi" className={stil.baslik3}>
               Yazı, köşe ve logo
             </h2>
             {(
               [
                 [
                   'Yazı tipi',
-                  <span
-                    key="f"
-                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}
-                  >
+                  <span key="f" className={stil.metin2}>
                     <select
                       aria-label="Yazı tipi"
                       value={d.yaziTipi}
                       disabled={!yazabilir || onayda}
                       onChange={(e) => set({ yaziTipi: e.target.value })}
-                      style={{ ...girdi, maxWidth: 260 }}
+                      className={stil.girdi3}
                     >
                       {gruplar.map(([tur, l]) => (
                         <optgroup key={tur} label={`${tur} · ${l.length}`}>
@@ -378,15 +295,15 @@ export default function TasarimDegerleri() {
                         </optgroup>
                       ))}
                     </select>
-                    <span style={{ fontFamily: font, fontSize: 14, color: '#3A4052' }}>
+                    <span className={stil.metin3} style={{ fontFamily: font }}>
                       Çağrı, ılık şöför İğdır’da güzel Ü ğ ş ı İ ö ç ·{' '}
-                      <b style={{ fontWeight: 800 }}>320i M Sport</b>
+                      <b className={stil.metin4}>320i M Sport</b>
                     </span>
                   </span>,
                 ],
                 [
                   'Köşeler',
-                  <span key="h" style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  <span key="h" className={stil.metin5}>
                     {KOSE_HAZIR.map((h) => {
                       const secili =
                         d.kartKose === h.kartKose &&
@@ -396,18 +313,12 @@ export default function TasarimDegerleri() {
                         <button
                           key={h.ad}
                           type="button"
-                          className="k-btn-line"
+                          className={cx('k-btn-line', stil.dugme7, secili ? stil.dugme8 : undefined)}
                           aria-pressed={secili}
                           disabled={!yazabilir || onayda}
                           onClick={() =>
                             set({ kartKose: h.kartKose, butonKose: h.butonKose, etiketKose: h.etiketKose })
                           }
-                          style={{
-                            fontSize: 12.5,
-                            padding: '5px 10px',
-                            background: secili ? '#EEF3FF' : undefined,
-                            borderColor: secili ? '#5B8CFF' : undefined,
-                          }}
                         >
                           {h.ad}
                         </button>
@@ -419,22 +330,10 @@ export default function TasarimDegerleri() {
                 ['Buton köşesi', 'butonKose', 28],
               ] as const
             ).map(([ad, x, ust]) => (
-              <div
-                key={ad}
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  gap: '6px 14px',
-                  padding: '9px 0',
-                  borderTop: '1px solid #EEF0F5',
-                  fontSize: 13.5,
-                }}
-              >
-                <span style={{ fontWeight: 700 }}>{ad}</span>
+              <div key={ad} className={stil.kutu12}>
+                <span className={stil.metin6}>{ad}</span>
                 {typeof x === 'string' ? (
-                  <span style={{ color: '#3A4052', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className={stil.metin7}>
                     <input
                       type="range"
                       aria-label={`${ad} kaydırıcı`}
@@ -443,7 +342,7 @@ export default function TasarimDegerleri() {
                       value={d[x as 'kartKose' | 'butonKose']}
                       disabled={!yazabilir || onayda}
                       onChange={(e) => set({ [x]: Number(e.target.value) })}
-                      style={{ width: 140 }}
+                      className={stil.girdi4}
                     />
                     <input
                       type="number"
@@ -455,7 +354,7 @@ export default function TasarimDegerleri() {
                       onChange={(e) =>
                         set({ [x]: Math.max(0, Math.min(Number(ust), Number(e.target.value) || 0)) })
                       }
-                      style={{ ...girdi, width: 64 }}
+                      className={stil.girdi5}
                     />{' '}
                     px
                   </span>
@@ -464,18 +363,9 @@ export default function TasarimDegerleri() {
                 )}
               </div>
             ))}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                gap: 14,
-                padding: '9px 0',
-                borderTop: '1px solid #EEF0F5',
-                fontSize: 13.5,
-              }}
-            >
-              <span style={{ fontWeight: 700 }}>Etiket köşesi</span>
-              <label style={{ color: '#3A4052', display: 'flex', gap: 6, alignItems: 'center' }}>
+            <div className={stil.kutu13}>
+              <span className={stil.metin6}>Etiket köşesi</span>
+              <label className={stil.etiket2}>
                 <input
                   type="checkbox"
                   checked={d.etiketKose >= 999}
@@ -493,7 +383,7 @@ export default function TasarimDegerleri() {
                       value={d.etiketKose}
                       disabled={!yazabilir || onayda}
                       onChange={(e) => set({ etiketKose: Number(e.target.value) })}
-                      style={{ width: 110 }}
+                      className={stil.girdi6}
                     />
                     <input
                       type="number"
@@ -505,54 +395,32 @@ export default function TasarimDegerleri() {
                       onChange={(e) =>
                         set({ etiketKose: Math.max(0, Math.min(20, Number(e.target.value) || 0)) })
                       }
-                      style={{ ...girdi, width: 56 }}
+                      className={stil.girdi7}
                     />{' '}
                     px
                   </>
                 ) : null}
               </label>
             </div>
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'space-between',
-                gap: '6px 14px',
-                padding: '9px 0',
-                borderTop: '1px solid #EEF0F5',
-                fontSize: 13.5,
-              }}
-            >
-              <span style={{ flex: '1 1 100%', fontSize: 12.5, color: '#5A6073', margin: '-4px 0 6px' }}>
+            <div className={stil.kutu14}>
+              <span className={stil.metin8}>
                 Sitedeki ve uygulamadaki bütün köşeler bu üç değere oranla değişir; 0 seçilirse köşeler
                 tamamen kalkar. Avatar ve nokta gibi tam daireler değişmez.
               </span>
-              <span style={{ fontWeight: 700 }}>Logo</span>
-              <span style={{ color: '#3A4052' }}>
-                Dört renkli çubuk + “rengarenk” · SVG, koyu ve açık sürüm
-              </span>
+              <span className={stil.metin6}>Logo</span>
+              <span className={stil.metin9}>Dört renkli çubuk + “rengarenk” · SVG, koyu ve açık sürüm</span>
             </div>
           </section>
 
-          <section style={{ ...kart, overflow: 'hidden' }} aria-labelledby="mevsim">
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: 10,
-                padding: '16px 18px',
-                borderBottom: '1px solid #EEF0F5',
-              }}
-            >
-              <h2 id="mevsim" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+          <section className={stil.kutu15} aria-labelledby="mevsim">
+            <div className={stil.kutu16}>
+              <h2 id="mevsim" className={stil.baslik1}>
                 Mevsimsel temalar
               </h2>
               {yazabilir && !onayda ? (
                 <button
                   type="button"
-                  className="k-btn-line"
-                  style={{ fontSize: 13, padding: '6px 12px' }}
+                  className={`k-btn-line ${stil.dugme6}`}
                   onClick={() => {
                     const id = `tema-${Date.now().toString(36)}`;
                     const bugun = new Date().toISOString().slice(0, 10);
@@ -584,42 +452,23 @@ export default function TasarimDegerleri() {
               const durum = satir?.durum ?? 'Taslak';
               const renk = DURUM_RENK[durum] ?? DURUM_RENK.Taslak;
               return (
-                <div key={t.id} style={{ borderBottom: '1px solid #EEF0F5' }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      alignItems: 'center',
-                      gap: '8px 16px',
-                      padding: '12px 18px',
-                    }}
-                  >
-                    <span style={{ flex: '999 1 260px', minWidth: 0 }}>
-                      <span style={{ display: 'block', fontSize: 14, fontWeight: 800 }}>{t.ad}</span>
-                      <span style={{ display: 'block', fontSize: 12.5, color: '#3A4052', marginTop: 2 }}>
+                <div key={t.id} className={stil.kutu17}>
+                  <div className={stil.kutu18}>
+                    <span className={stil.metin10}>
+                      <span className={stil.metin11}>{t.ad}</span>
+                      <span className={stil.metin12}>
                         {satir?.tarihler ?? `${t.baslangic} – ${t.bitis}`}
                         {t.rozet ? ` · rozet “${t.rozet}”` : ''}
                         {t.not ? ` · ${t.not}` : ''}
                       </span>
                     </span>
-                    <span
-                      style={{
-                        flex: 'none',
-                        fontSize: 12,
-                        fontWeight: 800,
-                        padding: '3px 9px',
-                        borderRadius: 999,
-                        background: renk?.bg,
-                        color: renk?.fg,
-                      }}
-                    >
+                    <span className={stil.metin13} style={{ background: renk?.bg, color: renk?.fg }}>
                       {durum}
                     </span>
                     {yazabilir && !onayda ? (
                       <button
                         type="button"
-                        className="k-btn-line"
-                        style={{ fontSize: 12.5, padding: '5px 10px' }}
+                        className={`k-btn-line ${stil.dugme7}`}
                         aria-expanded={acikTema === t.id}
                         onClick={() => setAcikTema(acikTema === t.id ? null : t.id)}
                       >
@@ -628,23 +477,14 @@ export default function TasarimDegerleri() {
                     ) : null}
                   </div>
                   {acikTema === t.id ? (
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))',
-                        gap: 10,
-                        padding: '0 18px 14px',
-                        fontSize: 12.5,
-                        fontWeight: 700,
-                      }}
-                    >
+                    <div className={stil.kutu19}>
                       <label>
                         Ad
                         <input
                           value={t.ad}
                           maxLength={60}
                           onChange={(e) => temaSet(t.id, { ad: e.target.value })}
-                          style={{ ...girdi, display: 'block', width: '100%' }}
+                          className={stil.girdi8}
                         />
                       </label>
                       <label>
@@ -653,7 +493,7 @@ export default function TasarimDegerleri() {
                           type="date"
                           value={t.baslangic}
                           onChange={(e) => temaSet(t.id, { baslangic: e.target.value })}
-                          style={{ ...girdi, display: 'block', width: '100%' }}
+                          className={stil.girdi8}
                         />
                       </label>
                       <label>
@@ -662,7 +502,7 @@ export default function TasarimDegerleri() {
                           type="date"
                           value={t.bitis}
                           onChange={(e) => temaSet(t.id, { bitis: e.target.value })}
-                          style={{ ...girdi, display: 'block', width: '100%' }}
+                          className={stil.girdi8}
                         />
                       </label>
                       <label>
@@ -671,7 +511,7 @@ export default function TasarimDegerleri() {
                           type="color"
                           value={t.ustBant}
                           onChange={(e) => temaSet(t.id, { ustBant: e.target.value.toUpperCase() })}
-                          style={{ display: 'block', width: '100%', height: 34 }}
+                          className={stil.girdi9}
                         />
                       </label>
                       <label>
@@ -680,7 +520,7 @@ export default function TasarimDegerleri() {
                           type="color"
                           value={t.ustYazi}
                           onChange={(e) => temaSet(t.id, { ustYazi: e.target.value.toUpperCase() })}
-                          style={{ display: 'block', width: '100%', height: 34 }}
+                          className={stil.girdi9}
                         />
                       </label>
                       <label>
@@ -689,27 +529,21 @@ export default function TasarimDegerleri() {
                           value={t.rozet}
                           maxLength={30}
                           onChange={(e) => temaSet(t.id, { rozet: e.target.value })}
-                          style={{ ...girdi, display: 'block', width: '100%' }}
+                          className={stil.girdi8}
                         />
                       </label>
-                      <label style={{ gridColumn: '1 / -1' }}>
+                      <label className={stil.etiket3}>
                         Not (ör. ana sayfa bannerı Banner ve vitrin’den zamanlanır)
                         <input
                           value={t.not}
                           maxLength={160}
                           onChange={(e) => temaSet(t.id, { not: e.target.value })}
-                          style={{ ...girdi, display: 'block', width: '100%' }}
+                          className={stil.girdi8}
                         />
                       </label>
                       <button
                         type="button"
-                        className="k-btn-line"
-                        style={{
-                          justifySelf: 'start',
-                          fontSize: 12.5,
-                          padding: '5px 10px',
-                          color: '#A3271F',
-                        }}
+                        className={`k-btn-line ${stil.dugme9}`}
                         onClick={() => set({ temalar: d.temalar.filter((x) => x.id !== t.id) })}
                       >
                         Temayı kaldır
@@ -721,27 +555,16 @@ export default function TasarimDegerleri() {
             })}
           </section>
           {yazabilir && !onayda ? (
-            <label className="k-field" style={{ display: 'block' }}>
+            <label className={`k-field ${stil.etiket4}`}>
               Değişiklik notu (onay isteğinde görünür)
               <input value={not} maxLength={500} onChange={(e) => setNot(e.target.value)} />
             </label>
           ) : null}
         </div>
 
-        <section
-          style={{ ...kart, flex: '1 1 300px', maxWidth: 380, minWidth: 0, padding: '16px 18px' }}
-          aria-labelledby="canli"
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 8,
-              marginBottom: 12,
-            }}
-          >
-            <h2 id="canli" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+        <section className={stil.kutu20} aria-labelledby="canli">
+          <div className={stil.kutu21}>
+            <h2 id="canli" className={stil.baslik1}>
               Önizleme
             </h2>
             {tema ? (
@@ -750,181 +573,101 @@ export default function TasarimDegerleri() {
                 role="switch"
                 aria-checked={onizTema}
                 onClick={() => setOnizTema(!onizTema)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  border: 0,
-                  background: 'transparent',
-                  padding: 0,
-                  cursor: 'pointer',
-                  fontSize: 12.5,
-                  fontWeight: 700,
-                  color: '#1E2333',
-                }}
+                className={stil.dugme10}
               >
-                <span
-                  style={{
-                    width: 36,
-                    height: 22,
-                    borderRadius: 999,
-                    background: onizTema ? '#3DD68C' : '#D5DAE5',
-                    position: 'relative',
-                  }}
-                >
-                  <span
-                    style={{
-                      position: 'absolute',
-                      top: 3,
-                      left: onizTema ? 17 : 3,
-                      width: 16,
-                      height: 16,
-                      borderRadius: '50%',
-                      background: '#FFFFFF',
-                      boxShadow: '0 1px 2px rgba(30,35,51,0.3)',
-                    }}
-                  />
+                <span className={cx(stil.metin14, onizTema ? stil.metin15 : stil.metin16)}>
+                  <span className={cx(stil.metin17, onizTema ? stil.metin18 : stil.metin19)} />
                 </span>
                 {tema.ad} teması
               </button>
             ) : null}
           </div>
-          <div
-            style={{ border: `1px solid ${R.cizgi}`, borderRadius: 16, overflow: 'hidden', fontFamily: font }}
-          >
-            <div
-              style={{
-                background: ozel ? tema.ustBant : R.kart,
-                padding: '12px 14px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
-            >
+          <div className={stil.kutu22} style={{ border: `1px solid ${R.cizgi}`, fontFamily: font }}>
+            <div className={stil.kutu23} style={{ background: ozel ? tema.ustBant : R.kart }}>
               {[R.mavi, R.pembe, R.sari, R.yesil].map((c, i) => (
                 <span
                   key={`${c}-${['a', 'b', 'c', 'd'][i]}`}
-                  style={{ width: 7, height: 16, borderRadius: 4, background: c }}
+                  className={stil.metin20}
+                  style={{ background: c }}
                 />
               ))}
-              <span
-                style={{
-                  fontSize: 15,
-                  fontWeight: 800,
-                  color: ozel ? tema.ustYazi : R.murekkep,
-                  marginLeft: 4,
-                }}
-              >
+              <span className={stil.metin21} style={{ color: ozel ? tema.ustYazi : R.murekkep }}>
                 rengarenk
               </span>
               {ozel && tema.rozet ? (
-                <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 700, color: tema.ustYazi }}>
+                <span className={stil.metin22} style={{ color: tema.ustYazi }}>
                   {tema.rozet}
                 </span>
               ) : null}
             </div>
-            <div
-              style={{ background: R.zemin, padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}
-            >
+            <div className={stil.kutu24} style={{ background: R.zemin }}>
               <div
+                className={stil.kutu25}
                 style={{
                   background: ozel ? tema.ustBant : '#EEF3FF',
                   borderRadius: d.kartKose,
-                  padding: 14,
                   color: ozel ? tema.ustYazi : R.murekkep,
                 }}
               >
-                <div style={{ fontSize: 17, fontWeight: 800 }}>
-                  {ozel ? 'Yeni yılda yeni araba' : 'Aradığın aracı yaz'}
-                </div>
-                <div style={{ fontSize: 12.5, marginTop: 3, opacity: 0.85 }}>
-                  Aradığın aracı yaz, satıcılar sana gelsin.
-                </div>
+                <div className={stil.kutu26}>{ozel ? 'Yeni yılda yeni araba' : 'Aradığın aracı yaz'}</div>
+                <div className={stil.kutu27}>Aradığın aracı yaz, satıcılar sana gelsin.</div>
               </div>
               <div
-                style={{
-                  background: R.kart,
-                  border: `1px solid ${R.cizgi}`,
-                  borderRadius: d.kartKose,
-                  padding: 12,
-                }}
+                className={stil.kutu28}
+                style={{ background: R.kart, border: `1px solid ${R.cizgi}`, borderRadius: d.kartKose }}
               >
-                <div style={{ fontSize: 14, fontWeight: 800, color: R.murekkep }}>
+                <div className={stil.kutu29} style={{ color: R.murekkep }}>
                   BMW 3 Serisi 320i · M Sport
                 </div>
-                <div style={{ fontSize: 12, color: R.soluk, marginTop: 2 }}>
+                <div className={stil.kutu30} style={{ color: R.soluk }}>
                   2020–2023 · İstanbul · ₺1,75 – 2,05 milyon
                 </div>
-                <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                <div className={stil.kutu31}>
                   <span
-                    style={{
-                      fontSize: 11.5,
-                      fontWeight: 800,
-                      padding: '3px 9px',
-                      borderRadius: d.etiketKose,
-                      background: R.pembe,
-                      color: R.pembeYazi,
-                    }}
+                    className={stil.metin23}
+                    style={{ borderRadius: d.etiketKose, background: R.pembe, color: R.pembeYazi }}
                   >
                     Acil arıyorum
                   </span>
                   <span
-                    style={{
-                      fontSize: 11.5,
-                      fontWeight: 800,
-                      padding: '3px 9px',
-                      borderRadius: d.etiketKose,
-                      background: R.yesil,
-                      color: R.yesilYazi,
-                    }}
+                    className={stil.metin23}
+                    style={{ borderRadius: d.etiketKose, background: R.yesil, color: R.yesilYazi }}
                   >
                     12 mesaj
                   </span>
                 </div>
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, whiteSpace: 'nowrap' }}>
+              <div className={stil.kutu32}>
                 <span
-                  style={{
-                    background: R.mavi,
-                    color: R.maviYazi,
-                    fontWeight: 800,
-                    fontSize: 13,
-                    padding: '9px 14px',
-                    borderRadius: d.butonKose,
-                  }}
+                  className={stil.metin24}
+                  style={{ background: R.mavi, color: R.maviYazi, borderRadius: d.butonKose }}
                 >
                   Talep oluştur
                 </span>
                 <span
+                  className={stil.metin25}
                   style={{
                     border: `1px solid ${R.cizgi}`,
                     background: R.kart,
                     color: R.murekkep,
-                    fontWeight: 700,
-                    fontSize: 13,
-                    padding: '9px 14px',
                     borderRadius: d.butonKose,
                   }}
                 >
                   Galeri ol
                 </span>
                 <span
-                  style={{
-                    background: R.sari,
-                    color: R.sariYazi,
-                    fontWeight: 800,
-                    fontSize: 13,
-                    padding: '9px 14px',
-                    borderRadius: d.butonKose,
-                  }}
+                  className={stil.metin24}
+                  style={{ background: R.sari, color: R.sariYazi, borderRadius: d.butonKose }}
                 >
                   Hak al
                 </span>
               </div>
-              <span style={{ fontSize: 12.5, color: R.baglanti, fontWeight: 700 }}>Tüm talepleri gör ›</span>
+              <span className={stil.metin26} style={{ color: R.baglanti }}>
+                Tüm talepleri gör ›
+              </span>
             </div>
           </div>
-          <p style={{ margin: '10px 0 0', fontSize: 12, color: '#5A6073' }}>
+          <p className={stil.metin27}>
             Önizleme taslaktaki değerlerle çizilir. Yayına girince web siteye, mobil uygulamaya (bir sonraki
             açılışta) ve e-postalara uygulanır.
           </p>

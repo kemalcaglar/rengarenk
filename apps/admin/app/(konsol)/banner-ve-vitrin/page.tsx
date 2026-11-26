@@ -10,10 +10,12 @@ import {
   type BannerPlatform,
   ILLER,
 } from '@rengarenk/shared';
-import { type CSSProperties, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
 import { Switch } from '../switch';
+import stil from './page.module.css';
 
 interface Icerik {
   baslik: string;
@@ -68,37 +70,6 @@ const BOS: Icerik = {
   baslangic: null,
   bitis: null,
   b: null,
-};
-
-const etiket: CSSProperties = { fontSize: 13, fontWeight: 700 };
-const alan: CSSProperties = {
-  display: 'block',
-  width: '100%',
-  boxSizing: 'border-box',
-  marginTop: 5,
-  border: '1px solid #D5DAE5',
-  borderRadius: 10,
-  padding: 10,
-  fontSize: 14,
-  background: '#FFFFFF',
-  fontFamily: 'inherit',
-};
-const kutu: CSSProperties = {
-  background: '#FFFFFF',
-  border: '1px solid #E3E6EF',
-  borderRadius: 18,
-  overflow: 'hidden',
-};
-const kucuk: CSSProperties = {
-  border: '1px solid #D5DAE5',
-  background: '#FFFFFF',
-  borderRadius: 10,
-  padding: '6px 12px',
-  fontSize: 13,
-  fontWeight: 700,
-  color: '#1E2333',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
 };
 
 /** Tarih kutusu (gün) ↔ Türkiye saatiyle gün başı; bitiş günü dahil (ertesi gün 00.00'a kadar) */
@@ -165,19 +136,10 @@ export default function BannerVeVitrin() {
 
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
+      <div className={stil.kutu1}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Banner, duyuru ve vitrin</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+          <h1 className={stil.baslik1}>Banner, duyuru ve vitrin</h1>
+          <p className={stil.metin1}>
             Yer, kitle, platform ve tarih seç; bitiş tarihinde kendiliğinden kalkar.
           </p>
         </div>
@@ -188,17 +150,7 @@ export default function BannerVeVitrin() {
             setDuzenlenen(null);
           }}
           aria-expanded={Boolean(form)}
-          style={{
-            border: 0,
-            background: '#5B8CFF',
-            borderRadius: 12,
-            padding: '12px 18px',
-            fontSize: 14.5,
-            fontWeight: 800,
-            color: '#1E2333',
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-          }}
+          className={stil.dugme1}
         >
           Yeni banner veya duyuru
         </button>
@@ -209,48 +161,29 @@ export default function BannerVeVitrin() {
         </p>
       ) : null}
       {bilgi ? (
-        <p
-          role="status"
-          style={{
-            background: '#E7FAF0',
-            color: '#11683F',
-            borderRadius: 12,
-            padding: '10px 14px',
-            fontSize: 14,
-            fontWeight: 700,
-          }}
-        >
+        <p role="status" className={stil.metin2}>
           {bilgi}
         </p>
       ) : null}
 
       {f ? (
-        <section
-          aria-label={duzenlenen ? 'Bannerı düzenle' : 'Yeni banner'}
-          style={{
-            background: '#FFFFFF',
-            border: '1.5px solid #5B8CFF',
-            borderRadius: 18,
-            padding: 18,
-            marginBottom: 16,
-          }}
-        >
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 12 }}>
-            <label style={{ ...etiket, flex: '2 1 240px' }}>
+        <section aria-label={duzenlenen ? 'Bannerı düzenle' : 'Yeni banner'} className={stil.kutu2}>
+          <div className={stil.kutu3}>
+            <label className={stil.etiket1}>
               Başlık
               <input
                 value={f.baslik}
                 maxLength={80}
                 onChange={(e) => setForm({ ...f, baslik: e.target.value })}
-                style={alan}
+                className={stil.girdi1}
               />
             </label>
-            <label style={{ ...etiket, flex: '1 1 160px' }}>
+            <label className={stil.etiket2}>
               Yer
               <select
                 value={f.yer}
                 onChange={(e) => setForm({ ...f, yer: e.target.value as BannerPlace })}
-                style={alan}
+                className={stil.girdi1}
               >
                 {(Object.keys(BANNER_PLACES) as BannerPlace[]).map((k) => (
                   <option key={k} value={k}>
@@ -259,7 +192,7 @@ export default function BannerVeVitrin() {
                 ))}
               </select>
             </label>
-            <label style={{ ...etiket, flex: '1 1 160px' }}>
+            <label className={stil.etiket2}>
               Kitle
               <select
                 value={f.kitle}
@@ -267,7 +200,7 @@ export default function BannerVeVitrin() {
                   const kitle = e.target.value as BannerAudience;
                   setForm({ ...f, kitle, il: kitle === 'bireysel' || kitle === 'galeri' ? f.il : null });
                 }}
-                style={alan}
+                className={stil.girdi1}
               >
                 {(Object.keys(BANNER_AUDIENCES) as BannerAudience[]).map((k) => (
                   <option key={k} value={k}>
@@ -277,12 +210,12 @@ export default function BannerVeVitrin() {
               </select>
             </label>
             {kurumsal ? (
-              <label style={{ ...etiket, flex: '1 1 140px' }}>
+              <label className={stil.etiket3}>
                 İl
                 <select
                   value={f.il ?? ''}
                   onChange={(e) => setForm({ ...f, il: e.target.value || null })}
-                  style={alan}
+                  className={stil.girdi1}
                 >
                   <option value="">Bütün iller</option>
                   {ILLER.map((i) => (
@@ -293,7 +226,7 @@ export default function BannerVeVitrin() {
                 </select>
               </label>
             ) : null}
-            <label style={{ ...etiket, flex: '1 1 140px' }}>
+            <label className={stil.etiket3}>
               Başlangıç
               <input
                 type="date"
@@ -305,29 +238,19 @@ export default function BannerVeVitrin() {
                     bitis: e.target.value ? f.bitis : null,
                   })
                 }
-                style={alan}
+                className={stil.girdi1}
               />
             </label>
-            <label style={{ ...etiket, flex: '1 1 140px' }}>
+            <label className={stil.etiket3}>
               Bitiş (dahil)
               <input
                 type="date"
                 value={gunYaz(f.bitis, true)}
                 onChange={(e) => setForm({ ...f, bitis: gunOku(e.target.value, true) })}
-                style={alan}
+                className={stil.girdi1}
               />
             </label>
-            <label
-              style={{
-                flex: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                fontSize: 13.5,
-                fontWeight: 700,
-                paddingBottom: 10,
-              }}
-            >
+            <label className={stil.etiket4}>
               <input
                 type="checkbox"
                 checked={Boolean(f.b)}
@@ -337,91 +260,80 @@ export default function BannerVeVitrin() {
                     b: e.target.checked ? { baslik: f.baslik, metin: f.metin, dugme: f.dugme } : null,
                   })
                 }
-                style={{ width: 18, height: 18 }}
+                className={stil.girdi2}
               />
               A/B testi
             </label>
           </div>
           {f.b ? (
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'flex-end',
-                gap: 12,
-                marginTop: 12,
-                padding: 12,
-                borderRadius: 12,
-                background: '#F3EFFF',
-              }}
-            >
-              <label style={{ ...etiket, flex: '2 1 240px' }}>
+            <div className={stil.kutu4}>
+              <label className={stil.etiket1}>
                 B · Başlık
                 <input
                   value={f.b.baslik}
                   maxLength={80}
                   onChange={(e) => setForm({ ...f, b: { ...(f.b as Varyant), baslik: e.target.value } })}
-                  style={alan}
+                  className={stil.girdi1}
                 />
               </label>
-              <label style={{ ...etiket, flex: '3 1 300px' }}>
+              <label className={stil.etiket5}>
                 B · Metin
                 <input
                   value={f.b.metin}
                   maxLength={160}
                   onChange={(e) => setForm({ ...f, b: { ...(f.b as Varyant), metin: e.target.value } })}
-                  style={alan}
+                  className={stil.girdi1}
                 />
               </label>
-              <label style={{ ...etiket, flex: '1 1 140px' }}>
+              <label className={stil.etiket3}>
                 B · Düğme
                 <input
                   value={f.b.dugme}
                   maxLength={30}
                   onChange={(e) => setForm({ ...f, b: { ...(f.b as Varyant), dugme: e.target.value } })}
-                  style={alan}
+                  className={stil.girdi1}
                 />
               </label>
-              <p style={{ flex: '1 1 100%', margin: 0, fontSize: 12.5, color: '#4B2FA6' }}>
+              <p className={stil.metin3}>
                 Görenler yarı yarıya ayrılır; ölçü tıklama oranı. Kazanan Raporlar › Deneyler’den herkese
                 açılır.
               </p>
             </div>
           ) : null}
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 12, marginTop: 12 }}>
-            <label style={{ ...etiket, flex: '3 1 300px' }}>
+          <div className={stil.kutu5}>
+            <label className={stil.etiket5}>
               Metin
               <input
                 value={f.metin}
                 maxLength={160}
                 onChange={(e) => setForm({ ...f, metin: e.target.value })}
-                style={alan}
+                className={stil.girdi1}
               />
             </label>
-            <label style={{ ...etiket, flex: '1 1 140px' }}>
+            <label className={stil.etiket3}>
               Düğme
               <input
                 value={f.dugme}
                 maxLength={30}
                 onChange={(e) => setForm({ ...f, dugme: e.target.value })}
-                style={alan}
+                className={stil.girdi1}
               />
             </label>
-            <label style={{ ...etiket, flex: '1 1 180px' }}>
+            <label className={stil.etiket6}>
               Bağlantı
               <input
                 value={f.url}
                 placeholder="/kurumsal-basvuru"
                 onChange={(e) => setForm({ ...f, url: e.target.value })}
-                style={alan}
+                className={stil.girdi1}
               />
             </label>
-            <label style={{ ...etiket, flex: '1 1 140px' }}>
+            <label className={stil.etiket3}>
               Platform
               <select
                 value={f.platform}
                 onChange={(e) => setForm({ ...f, platform: e.target.value as BannerPlatform })}
-                style={alan}
+                className={stil.girdi1}
               >
                 {(Object.keys(BANNER_PLATFORMS) as BannerPlatform[]).map((k) => (
                   <option key={k} value={k}>
@@ -430,9 +342,9 @@ export default function BannerVeVitrin() {
                 ))}
               </select>
             </label>
-            <fieldset style={{ flex: 'none', border: 0, padding: 0, margin: 0 }}>
-              <legend style={{ ...etiket, padding: 0 }}>Renk</legend>
-              <div style={{ display: 'flex', gap: 6, marginTop: 5 }}>
+            <fieldset className={stil.kutu6}>
+              <legend className={stil.baslik2}>Renk</legend>
+              <div className={stil.kutu7}>
                 {BANNER_COLORS.map((r) => (
                   <button
                     key={r}
@@ -440,101 +352,49 @@ export default function BannerVeVitrin() {
                     aria-label={`Renk ${r}`}
                     aria-pressed={f.renk === r}
                     onClick={() => setForm({ ...f, renk: r })}
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: 8,
-                      background: r,
-                      border: f.renk === r ? '3px solid #1E2333' : '3px solid #FFFFFF',
-                      boxShadow: '0 0 0 1px #D5DAE5',
-                      cursor: 'pointer',
-                    }}
+                    className={cx(stil.dugme2, f.renk === r ? stil.dugme3 : stil.dugme4)}
+                    style={{ background: r }}
                   />
                 ))}
               </div>
             </fieldset>
-            <button
-              type="button"
-              onClick={kaydet}
-              style={{
-                border: 0,
-                background: '#5B8CFF',
-                borderRadius: 12,
-                padding: '11px 18px',
-                fontSize: 14,
-                fontWeight: 800,
-                color: '#1E2333',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
+            <button type="button" onClick={kaydet} className={stil.dugme5}>
               Taslak olarak kaydet
             </button>
           </div>
         </section>
       ) : null}
 
-      <section aria-labelledby="bnr" style={kutu}>
-        <h2
-          id="bnr"
-          style={{
-            margin: 0,
-            padding: '16px 18px',
-            fontSize: 17,
-            fontWeight: 800,
-            borderBottom: '1px solid #EEF0F5',
-          }}
-        >
+      <section aria-labelledby="bnr" className={stil.kutu8}>
+        <h2 id="bnr" className={stil.baslik3}>
           Bannerlar ve duyurular
         </h2>
         {v === null ? (
           <p className="k-empty">Yükleniyor…</p>
         ) : v.bannerlar.length === 0 ? (
-          <p style={{ margin: 0, padding: '14px 18px', fontSize: 13.5, color: '#5A6073' }}>
-            Henüz banner yok. “Yeni banner veya duyuru” ile ilk taslağı hazırla.
-          </p>
+          <p className={stil.metin4}>Henüz banner yok. “Yeni banner veya duyuru” ile ilk taslağı hazırla.</p>
         ) : (
           v.bannerlar.map((b) => (
-            <div
-              key={b.id}
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                gap: '8px 16px',
-                padding: '13px 18px',
-                borderBottom: '1px solid #EEF0F5',
-              }}
-            >
+            <div key={b.id} className={stil.kutu9}>
               <span
                 aria-hidden="true"
-                style={{
-                  flex: 'none',
-                  width: 54,
-                  height: 36,
-                  borderRadius: 8,
-                  background: b.zemin,
-                  borderLeft: `4px solid ${b.renk}`,
-                }}
+                className={stil.metin5}
+                style={{ background: b.zemin, borderLeft: `4px solid ${b.renk}` }}
               />
-              <span style={{ flex: '999 1 260px', minWidth: 0 }}>
-                <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800 }}>{b.ad}</span>
-                <span style={{ display: 'block', fontSize: 12.5, color: '#3A4052', marginTop: 2 }}>
+              <span className={stil.metin6}>
+                <span className={stil.metin7}>{b.ad}</span>
+                <span className={stil.metin8}>
                   {b.yer} · {b.kitle} · {b.platform}
                 </span>
-                <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 2 }}>
-                  {b.tarih}
-                </span>
+                <span className={stil.metin9}>{b.tarih}</span>
               </span>
-              <span style={{ flex: '1 1 200px', minWidth: 0, fontSize: 12.5, color: '#3A4052' }}>
-                {b.sonuc}
-              </span>
-              <span style={{ flex: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span className={stil.metin10}>{b.sonuc}</span>
+              <span className={stil.metin11}>
                 {b.durumKey === 'taslak' ? (
                   <>
                     <button
                       type="button"
-                      style={kucuk}
+                      className={stil.dugme6}
                       onClick={() => {
                         setForm({ ...b.icerik });
                         setDuzenlenen(b.id);
@@ -546,7 +406,7 @@ export default function BannerVeVitrin() {
                     {tam ? (
                       <button
                         type="button"
-                        style={{ ...kucuk, border: 0, background: '#3DD68C', fontWeight: 800 }}
+                        className={stil.dugme7}
                         onClick={() =>
                           islem(
                             `banners/${b.id}/publish`,
@@ -561,7 +421,7 @@ export default function BannerVeVitrin() {
                     ) : null}
                     <button
                       type="button"
-                      style={{ ...kucuk, color: '#A3271F' }}
+                      className={stil.dugme8}
                       onClick={() => islem(`banners/${b.id}`, 'DELETE')}
                     >
                       Sil
@@ -571,7 +431,7 @@ export default function BannerVeVitrin() {
                   tam ? (
                     <button
                       type="button"
-                      style={kucuk}
+                      className={stil.dugme6}
                       onClick={() => islem(`banners/${b.id}/stop`, 'POST', undefined, 'Banner durduruldu.')}
                     >
                       Durdur
@@ -580,7 +440,7 @@ export default function BannerVeVitrin() {
                 ) : (
                   <button
                     type="button"
-                    style={kucuk}
+                    className={stil.dugme6}
                     onClick={() =>
                       islem(`banners/${b.id}/copy`, 'POST', undefined, 'Kopyası taslak olarak açıldı.')
                     }
@@ -588,16 +448,7 @@ export default function BannerVeVitrin() {
                     Kopyala
                   </button>
                 )}
-                <span
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 800,
-                    padding: '3px 9px',
-                    borderRadius: 999,
-                    background: b.bg,
-                    color: b.fg,
-                  }}
-                >
+                <span className={stil.metin12} style={{ background: b.bg, color: b.fg }}>
                   {b.durum}
                 </span>
               </span>
@@ -607,25 +458,15 @@ export default function BannerVeVitrin() {
       </section>
 
       {v ? (
-        <section aria-labelledby="vitrin" style={{ ...kutu, marginTop: 14 }}>
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 10,
-              padding: '16px 18px',
-              borderBottom: '1px solid #EEF0F5',
-            }}
-          >
+        <section aria-labelledby="vitrin" className={stil.kutu10}>
+          <div className={stil.kutu11}>
             <div>
-              <h2 id="vitrin" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+              <h2 id="vitrin" className={stil.baslik4}>
                 Ana sayfa vitrini
               </h2>
-              <p style={{ margin: '3px 0 0', fontSize: 12.5, color: '#5A6073' }}>{v.vitrin.not}</p>
+              <p className={stil.metin13}>{v.vitrin.not}</p>
             </div>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, fontWeight: 700 }}>
+            <span className={stil.metin14}>
               <Switch
                 on={v.vitrin.editor}
                 label="Boş yerlere editör seçimi koy"
@@ -635,14 +476,7 @@ export default function BannerVeVitrin() {
               Boş yerlere editör seçimi koy
             </span>
           </div>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(12, minmax(0, 1fr))',
-              gap: 6,
-              padding: '16px 18px',
-            }}
-          >
+          <div className={stil.kutu12}>
             {Array.from({ length: v.vitrin.yer }, (_, i) => {
               const ucretli = i < v.vitrin.ucretli;
               const editor = !ucretli && v.vitrin.editor;
@@ -657,19 +491,12 @@ export default function BannerVeVitrin() {
                         ? 'Editör seçimi: fotoğraflı, yayındaki talepler karışık sırayla'
                         : 'Boş yer'
                   }
+                  className={cx(stil.metin15, ucretli ? stil.metin16 : stil.metin17)}
                   style={{
-                    height: 34,
-                    borderRadius: 8,
                     background: ucretli ? '#5B8CFF' : editor ? '#F3EFFF' : '#FFFFFF',
                     border: `1px ${ucretli || editor ? 'solid' : 'dashed'} ${
                       ucretli ? '#5B8CFF' : editor ? '#C9B8FF' : '#AEB5C4'
                     }`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 11,
-                    fontWeight: 800,
-                    color: ucretli ? '#1E2333' : '#4B2FA6',
                   }}
                 >
                   {ucretli ? i + 1 : editor ? 'E' : ''}
@@ -677,34 +504,17 @@ export default function BannerVeVitrin() {
               );
             })}
           </div>
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '6px 16px',
-              padding: '0 18px 14px',
-              fontSize: 12.5,
-              color: '#3A4052',
-            }}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ width: 14, height: 14, borderRadius: 4, background: '#5B8CFF' }} />
+          <div className={stil.kutu13}>
+            <span className={stil.metin18}>
+              <span className={stil.metin19} />
               Ücretli vitrin
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span
-                style={{
-                  width: 14,
-                  height: 14,
-                  borderRadius: 4,
-                  background: '#F3EFFF',
-                  border: '1px solid #C9B8FF',
-                }}
-              />
+            <span className={stil.metin18}>
+              <span className={stil.metin20} />
               Editör seçimi
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ width: 14, height: 14, borderRadius: 4, border: '1px dashed #AEB5C4' }} />
+            <span className={stil.metin18}>
+              <span className={stil.metin21} />
               Boş
             </span>
           </div>

@@ -1,8 +1,10 @@
 'use client';
 
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 interface Satir {
   key: string;
@@ -34,20 +36,6 @@ interface Onizleme {
   whatsapp: { sablon: string; metin: string } | null;
 }
 type Kanal = 'eposta' | 'push' | 'whatsapp' | 'uygulama';
-
-const girdi: CSSProperties = {
-  display: 'block',
-  width: '100%',
-  boxSizing: 'border-box',
-  marginTop: 4,
-  border: '1px solid #D5DAE5',
-  borderRadius: 10,
-  padding: '9px 10px',
-  fontSize: 13.5,
-  lineHeight: 1.5,
-  fontFamily: 'inherit',
-};
-const etiket: CSSProperties = { display: 'block', fontSize: 12.5, fontWeight: 700, marginBottom: 10 };
 
 /**
  * Şablonlar (YonetimKampanya.dc.html › şablonlar; Karar 48): tek şablondan e-posta, push, WhatsApp ve uygulama içi metin.
@@ -133,64 +121,31 @@ export default function Sablonlar() {
 
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
-        <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Şablonlar</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+      <div className={stil.kutu1}>
+        <h1 className={stil.baslik1}>Şablonlar</h1>
+        <p className={stil.metin1}>
           Tek şablondan e-posta, push, WhatsApp ve uygulama içi metin. Değişkenler süslü parantezle yazılır.
         </p>
       </div>
-      {hata ? <p style={{ color: '#A3271F', fontWeight: 700 }}>{hata}</p> : null}
-      {bilgi ? <p style={{ color: '#11683F', fontWeight: 700 }}>{bilgi}</p> : null}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-start' }}>
-        <section
-          aria-label="Şablon listesi"
-          style={{
-            flex: '1 1 280px',
-            maxWidth: 340,
-            minWidth: 0,
-            background: '#FFFFFF',
-            border: '1px solid #E3E6EF',
-            borderRadius: 18,
-            padding: 8,
-          }}
-        >
+      {hata ? <p className={stil.metin2}>{hata}</p> : null}
+      {bilgi ? <p className={stil.metin3}>{bilgi}</p> : null}
+      <div className={stil.kutu2}>
+        <section aria-label="Şablon listesi" className={stil.kutu3}>
           {liste.map((s) => (
             <button
               key={s.key}
               type="button"
               onClick={() => setSec(s.key)}
               aria-current={s.key === sec}
-              style={{
-                width: '100%',
-                display: 'block',
-                textAlign: 'left',
-                border: 0,
-                background: s.key === sec ? '#F3EFFF' : 'transparent',
-                borderRadius: 12,
-                padding: '10px 12px',
-                cursor: 'pointer',
-                color: '#1E2333',
-                fontFamily: 'inherit',
-              }}
+              className={cx(stil.dugme1, s.key === sec ? stil.dugme2 : stil.dugme3)}
             >
-              <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                <span style={{ fontSize: 13.5, fontWeight: 800 }}>{s.ad}</span>
-                <span
-                  style={{
-                    flex: 'none',
-                    alignSelf: 'flex-start',
-                    fontSize: 11,
-                    fontWeight: 800,
-                    padding: '2px 7px',
-                    borderRadius: 999,
-                    background: s.tur === 'Ticari' ? '#FFEEF6' : '#EEF3FF',
-                    color: s.tur === 'Ticari' ? '#A3236A' : '#2450C8',
-                  }}
-                >
+              <span className={stil.metin4}>
+                <span className={stil.metin5}>{s.ad}</span>
+                <span className={cx(stil.metin6, s.tur === 'Ticari' ? stil.metin7 : stil.metin8)}>
                   {s.tur}
                 </span>
               </span>
-              <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 2 }}>
+              <span className={stil.metin9}>
                 {s.kanallar.join(', ')} · s.{s.surum}
               </span>
             </button>
@@ -198,77 +153,23 @@ export default function Sablonlar() {
         </section>
 
         {d && ic ? (
-          <section
-            aria-labelledby="sbad"
-            style={{
-              flex: '999 1 480px',
-              minWidth: 0,
-              background: '#FFFFFF',
-              border: '1px solid #E3E6EF',
-              borderRadius: 18,
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              style={{
-                padding: '16px 18px',
-                borderBottom: '1px solid #EEF0F5',
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 10,
-              }}
-            >
-              <h2 id="sbad" style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
-                {d.ad}{' '}
-                <span style={{ fontSize: 13, color: '#5A6073', fontWeight: 600 }}>· sürüm {d.surum}</span>
+          <section aria-labelledby="sbad" className={stil.kutu4}>
+            <div className={stil.kutu5}>
+              <h2 id="sbad" className={stil.baslik2}>
+                {d.ad} <span className={stil.metin10}>· sürüm {d.surum}</span>
               </h2>
-              <span style={{ display: 'flex', gap: 8 }}>
-                <button
-                  type="button"
-                  onClick={test}
-                  disabled={!ic.eposta}
-                  style={{
-                    border: '1px solid #D5DAE5',
-                    background: '#FFFFFF',
-                    borderRadius: 10,
-                    padding: '8px 12px',
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: '#1E2333',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
-                >
+              <span className={stil.metin11}>
+                <button type="button" onClick={test} disabled={!ic.eposta} className={stil.dugme4}>
                   Kendime test gönder
                 </button>
                 {duzenler ? (
-                  <button
-                    type="button"
-                    onClick={kaydet}
-                    style={{
-                      border: 0,
-                      background: '#3DD68C',
-                      borderRadius: 10,
-                      padding: '9px 14px',
-                      fontSize: 13,
-                      fontWeight: 800,
-                      color: '#1E2333',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
+                  <button type="button" onClick={kaydet} className={stil.dugme5}>
                     Yeni sürüm olarak kaydet
                   </button>
                 ) : null}
               </span>
             </div>
-            <div
-              role="tablist"
-              aria-label="Kanal"
-              style={{ display: 'flex', gap: 4, padding: '0 12px', borderBottom: '1px solid #EEF0F5' }}
-            >
+            <div role="tablist" aria-label="Kanal" className={stil.kutu6}>
               {kanallar.map(([k, ad, var_]) => (
                 <button
                   key={k}
@@ -277,27 +178,26 @@ export default function Sablonlar() {
                   aria-selected={kanal === k}
                   disabled={!var_}
                   onClick={() => setKanal(k)}
+                  className={cx(
+                    stil.dugme6,
+                    kanal === k ? stil.dugme7 : stil.dugme8,
+                    var_ ? stil.dugme9 : stil.dugme10,
+                  )}
                   style={{
                     border: 0,
                     borderBottom: `3px solid ${kanal === k ? '#5B8CFF' : 'transparent'}`,
-                    background: 'transparent',
-                    padding: '11px 10px',
-                    fontSize: 14,
-                    fontWeight: kanal === k ? 800 : 600,
                     color: var_ ? (kanal === k ? '#1E2333' : '#3A4052') : '#AEB5C4',
-                    cursor: var_ ? 'pointer' : 'default',
-                    fontFamily: 'inherit',
                   }}
                 >
                   {ad}
                 </button>
               ))}
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, padding: '16px 18px' }}>
-              <div style={{ flex: '1 1 260px', minWidth: 0 }}>
+            <div className={stil.kutu7}>
+              <div className={stil.kutu8}>
                 {kanal === 'eposta' && ic.eposta ? (
                   <>
-                    <label style={etiket}>
+                    <label className={stil.etiket1}>
                       Konu
                       <input
                         value={ic.eposta.konu}
@@ -308,10 +208,10 @@ export default function Sablonlar() {
                             eposta: { ...(ic.eposta as NonNullable<Icerik['eposta']>), konu: e.target.value },
                           })
                         }
-                        style={girdi}
+                        className={stil.girdi1}
                       />
                     </label>
-                    <label style={etiket}>
+                    <label className={stil.etiket1}>
                       Gövde (her satır bir paragraf)
                       <textarea
                         rows={6}
@@ -326,11 +226,11 @@ export default function Sablonlar() {
                             },
                           })
                         }
-                        style={girdi}
+                        className={stil.girdi1}
                       />
                     </label>
                     {ic.eposta.dugme ? (
-                      <label style={etiket}>
+                      <label className={stil.etiket1}>
                         Buton
                         <input
                           value={ic.eposta.dugme.yazi}
@@ -347,19 +247,19 @@ export default function Sablonlar() {
                               },
                             })
                           }
-                          style={girdi}
+                          className={stil.girdi1}
                         />
                       </label>
                     ) : null}
                   </>
                 ) : kanal === 'whatsapp' ? (
                   d?.whatsapp ? (
-                    <div style={{ fontSize: 13.5, lineHeight: 1.55 }}>
-                      <div style={etiket}>
+                    <div className={stil.kutu9}>
+                      <div className={stil.etiket1}>
                         Meta şablonu: <code>{d.whatsapp.sablon}</code>
                       </div>
-                      <textarea rows={3} value={d.whatsapp.onizleme} readOnly style={girdi} />
-                      <p style={{ margin: '8px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+                      <textarea rows={3} value={d.whatsapp.onizleme} readOnly className={stil.girdi1} />
+                      <p className={stil.metin12}>
                         WhatsApp metni Meta'da onaylı şablondadır, buradan değişmez. Değiştirmek için Meta'da
                         yeni şablon onaylatılır ve kodda adı güncellenir. Gövdedeki yerler sırasıyla:{' '}
                         {d.whatsapp.parametreler.map((v) => `{{${v}}}`).join(', ')}.
@@ -368,67 +268,42 @@ export default function Sablonlar() {
                   ) : null
                 ) : (
                   <>
-                    <label style={etiket}>
+                    <label className={stil.etiket1}>
                       Başlık
                       <input
                         value={ic.baslik}
                         readOnly={!duzenler}
                         onChange={(e) => setIc({ ...ic, baslik: e.target.value })}
-                        style={girdi}
+                        className={stil.girdi1}
                       />
                     </label>
-                    <label style={etiket}>
+                    <label className={stil.etiket1}>
                       Metin
                       <textarea
                         rows={3}
                         value={ic.metin}
                         readOnly={!duzenler}
                         onChange={(e) => setIc({ ...ic, metin: e.target.value })}
-                        style={girdi}
+                        className={stil.girdi1}
                       />
                     </label>
                   </>
                 )}
-                <div style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Değişkenler</div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                <div className={stil.kutu10}>Değişkenler</div>
+                <div className={stil.kutu11}>
                   {d.degiskenler.map((v) => (
-                    <span
-                      key={v}
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 700,
-                        padding: '4px 9px',
-                        borderRadius: 999,
-                        background: '#F3EFFF',
-                        color: '#4B2FA6',
-                      }}
-                    >
+                    <span key={v} className={stil.metin13}>
                       {`{{${v}}}`}
                     </span>
                   ))}
                 </div>
-                <p style={{ margin: '10px 0 0', fontSize: 12, color: '#5A6073' }}>{d.kural}</p>
+                <p className={stil.metin14}>{d.kural}</p>
               </div>
-              <div style={{ flex: '1 1 280px', minWidth: 0 }}>
-                <div style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Önizleme · Ayşe için</div>
+              <div className={stil.kutu12}>
+                <div className={stil.kutu10}>Önizleme · Ayşe için</div>
                 {kanal === 'eposta' && onz?.eposta ? (
-                  <div
-                    style={{
-                      border: '1px solid #E3E6EF',
-                      borderRadius: 14,
-                      overflow: 'hidden',
-                      background: '#F6F8FD',
-                    }}
-                  >
-                    <div
-                      style={{
-                        background: '#FFFFFF',
-                        padding: '10px 14px',
-                        borderBottom: '1px solid #E3E6EF',
-                        fontSize: 12,
-                        color: '#3A4052',
-                      }}
-                    >
+                  <div className={stil.kutu13}>
+                    <div className={stil.kutu14}>
                       <strong>{onz.eposta.kimden}</strong>
                       <br />
                       Konu: {onz.eposta.konu}
@@ -437,42 +312,24 @@ export default function Sablonlar() {
                       title="E-posta önizlemesi"
                       srcDoc={onz.eposta.html}
                       sandbox=""
-                      style={{ width: '100%', height: 420, border: 0, background: '#FFFFFF' }}
+                      className={stil.gorsel1}
                     />
                   </div>
                 ) : kanal === 'whatsapp' && onz?.whatsapp ? (
-                  <div style={{ background: '#EFEAE2', borderRadius: 14, padding: 14 }}>
-                    <div style={{ fontSize: 11.5, fontWeight: 800, color: '#5A6073' }}>
-                      Rengarenk · WhatsApp
-                    </div>
-                    <div
-                      style={{
-                        background: '#FFFFFF',
-                        borderRadius: 12,
-                        padding: '10px 12px',
-                        marginTop: 6,
-                        fontSize: 13.5,
-                      }}
-                    >
-                      {onz.whatsapp.metin}
-                    </div>
-                    <div style={{ fontSize: 11.5, color: '#5A6073', marginTop: 6 }}>
+                  <div className={stil.kutu15}>
+                    <div className={stil.kutu16}>Rengarenk · WhatsApp</div>
+                    <div className={stil.kutu17}>{onz.whatsapp.metin}</div>
+                    <div className={stil.kutu18}>
                       Meta şablonu {onz.whatsapp.sablon} · ücret Meta faturasında
                     </div>
                   </div>
                 ) : onz ? (
-                  <div style={{ background: '#1E2333', borderRadius: 16, padding: 14 }}>
-                    <div style={{ color: '#AEB5C4', fontSize: 11, textAlign: 'center' }}>10:00</div>
-                    <div
-                      style={{ background: '#FFFFFF', borderRadius: 12, padding: '10px 12px', marginTop: 8 }}
-                    >
-                      <div style={{ fontSize: 11, fontWeight: 800, color: '#5A6073' }}>RENGARENK · şimdi</div>
-                      <div style={{ fontSize: 13.5, fontWeight: 800, marginTop: 2 }}>
-                        {onz.uygulama.baslik}
-                      </div>
-                      <div style={{ fontSize: 12.5, color: '#3A4052', marginTop: 2 }}>
-                        {onz.uygulama.metin}
-                      </div>
+                  <div className={stil.kutu19}>
+                    <div className={stil.kutu20}>10:00</div>
+                    <div className={stil.kutu21}>
+                      <div className={stil.kutu22}>RENGARENK · şimdi</div>
+                      <div className={stil.kutu23}>{onz.uygulama.baslik}</div>
+                      <div className={stil.kutu24}>{onz.uygulama.metin}</div>
                     </div>
                   </div>
                 ) : null}

@@ -1,0 +1,130 @@
+/* Bu dosya yardim.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  padding: 14px 18px;
+  background: #f6f8fd;
+  border-bottom: 1px solid #eef0f5;
+}
+.kutu2 {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.etiket1 {
+  flex: 1 1 200px;
+}
+.etiket2 {
+  flex: 1 1 160px;
+}
+.etiket3 {
+  display: block;
+  margin-top: 10px;
+}
+.girdi1 {
+  display: block;
+  width: 100%;
+  margin-top: 5px;
+  border: 1px solid #d5dae5;
+  border-radius: 10px;
+  padding: 11px;
+  font: inherit;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+.kutu3 {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.kutu4 {
+  margin-top: 14px;
+  overflow: hidden;
+}
+.kutu5 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 18px;
+  border-bottom: 1px solid #eef0f5;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+}
+.dugme1 {
+  border: 1px solid #5b8cff;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #2450c8;
+  cursor: pointer;
+}
+.metin1 {
+  margin: 10px 18px;
+}
+.kutu6 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #eef0f5;
+  font-size: 13.5px;
+}
+.metin2 {
+  flex: 999 1 300px;
+  min-width: 0;
+}
+.metin3 {
+  display: block;
+  font-weight: 800;
+}
+.dugme2 {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 800;
+  color: #1e2333;
+  cursor: pointer;
+  text-align: left;
+}
+.metin4 {
+  margin-left: 8px;
+  background: #fff6df;
+  color: #7a5300;
+}
+.metin5 {
+  display: block;
+  font-size: 12.5px;
+  color: #5a6073;
+  margin-top: 2px;
+}
+.metin6 {
+  flex: 0 0 120px;
+  color: #3a4052;
+}
+.metin7 {
+  flex: 0 0 120px;
+  font-weight: 700;
+}
+.metin8 {
+  margin: 0;
+  padding: 12px 18px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #2e3344;
+  background: #f6f8fd;
+}
+.dugme3 {
+  font-size: 12.5px;
+  padding: 4px 10px;
+  margin-left: 4px;
+}

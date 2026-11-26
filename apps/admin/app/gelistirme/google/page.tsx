@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import stil from './page.module.css';
 import { SahteGoogle } from './sahte-google';
 
 /**
@@ -14,7 +15,7 @@ export default async function Gelistirme({
   const { state, redirect_uri } = await searchParams;
   if (!state || !redirect_uri) notFound();
   return (
-    <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24 }}>
+    <main className={stil.kutu1}>
       <SahteGoogle state={state} redirectUri={redirect_uri} />
     </main>
   );

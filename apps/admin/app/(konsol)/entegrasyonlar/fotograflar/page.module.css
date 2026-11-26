@@ -1,0 +1,34 @@
+/* Bu dosya page.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.bag1 {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.kutu1 {
+  margin-bottom: 16px;
+}
+.kutu2 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.kutu3 {
+  margin: 0;
+}
+.kutu4 {
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.kutu5 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.metin1 {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #5a6073;
+}

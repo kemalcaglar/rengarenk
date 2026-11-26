@@ -2,8 +2,10 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 interface Uyari {
   id: string;
@@ -94,61 +96,36 @@ export default function Uyarilar() {
         {(liste ?? []).map((u, i) => (
           <div
             key={u.id}
-            className="k-row"
-            style={{
-              borderTop: i === 0 ? 0 : undefined,
-              alignItems: 'flex-start',
-              background: u.okundu ? '#FFFFFF' : '#F6F8FD',
-            }}
+            className={cx(
+              'k-row',
+              stil.kutu1,
+              i === 0 ? stil.kutu2 : undefined,
+              u.okundu ? stil.kutu3 : stil.kutu4,
+            )}
           >
             <span
               aria-hidden="true"
-              style={{
-                flex: 'none',
-                width: 8,
-                height: 8,
-                marginTop: 7,
-                borderRadius: '50%',
-                background: u.okundu ? 'transparent' : u.kritik ? '#E5484D' : '#5B8CFF',
-              }}
+              className={stil.metin1}
+              style={{ background: u.okundu ? 'transparent' : u.kritik ? '#E5484D' : '#5B8CFF' }}
             />
-            <span style={{ flex: '999 1 320px', minWidth: 0 }}>
-              <span style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
-                {u.kritik ? (
-                  <span className="k-pill" style={{ background: '#FDECEC', color: '#A3271F' }}>
-                    Kritik
-                  </span>
-                ) : null}
-                <span className="k-pill" style={{ background: '#F3F5FA', color: '#3A4052' }}>
-                  {u.kuralAdi}
-                </span>
-                <span style={{ fontSize: 12.5, color: '#5A6073' }}>{zaman(u.zaman)}</span>
+            <span className={stil.metin2}>
+              <span className={stil.metin3}>
+                {u.kritik ? <span className={`k-pill ${stil.metin4}`}>Kritik</span> : null}
+                <span className={`k-pill ${stil.metin5}`}>{u.kuralAdi}</span>
+                <span className={stil.metin6}>{zaman(u.zaman)}</span>
               </span>
-              <span style={{ display: 'block', marginTop: 6, fontSize: 14.5, fontWeight: 800 }}>
+              <span className={stil.metin7}>
                 {u.okundu ? null : <span className="sr-only">Okunmadı: </span>}
                 {u.baslik}
               </span>
-              <span
-                style={{
-                  display: 'block',
-                  marginTop: 3,
-                  fontSize: 13.5,
-                  color: '#3A4052',
-                  lineHeight: 1.5,
-                  whiteSpace: 'pre-line',
-                }}
-              >
-                {u.metin}
-              </span>
-              <span style={{ display: 'block', marginTop: 4, fontSize: 12, color: '#5A6073' }}>
-                {EPOSTA[u.eposta]}
-              </span>
+              <span className={stil.metin8}>{u.metin}</span>
+              <span className={stil.metin9}>{EPOSTA[u.eposta]}</span>
             </span>
-            <span style={{ flex: 'none', display: 'flex', alignItems: 'center', gap: 14 }}>
+            <span className={stil.metin10}>
               <Link
                 href={u.yol}
                 onClick={() => (u.okundu ? undefined : oku({ ids: [u.id] }))}
-                style={{ fontSize: 13.5, fontWeight: 800 }}
+                className={stil.bag1}
               >
                 Aç
               </Link>

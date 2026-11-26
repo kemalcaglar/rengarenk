@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { bas, yonetim } from '../../lib/istemci';
 import type { Me } from '../../lib/oturum';
+import stil from './kabuk.module.css';
 
 const KonsolContext = createContext<{ me: Me; refresh: () => void } | null>(null);
 
@@ -175,7 +176,7 @@ export function Kabuk({ me: initial, logo, children }: { me: Me; logo: ReactNode
 
   return (
     <KonsolContext.Provider value={{ me, refresh }}>
-      <div style={{ minHeight: '100vh' }}>
+      <div className={stil.kutu1}>
         <header className="k-top">
           <div className="k-top-in">
             {logo}
@@ -188,7 +189,7 @@ export function Kabuk({ me: initial, logo, children }: { me: Me; logo: ReactNode
               <Link className="k-pending" href="/onaylar">
                 Onayını bekleyen {me.pendingApprovals}
               </Link>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span className={stil.metin1}>
                 <span className="k-avatar" aria-hidden="true">
                   {bas(me.name)}
                 </span>
@@ -203,8 +204,8 @@ export function Kabuk({ me: initial, logo, children }: { me: Me; logo: ReactNode
           </div>
         </header>
         {warn ? (
-          <div className="k-body" style={{ paddingBottom: 0 }}>
-            <p className="k-note" role="status" style={{ margin: 0, flex: '1 1 100%' }}>
+          <div className={`k-body ${stil.kutu2}`}>
+            <p className={`k-note ${stil.metin2}`} role="status">
               İşlem yapmazsan oturumun birkaç dakika içinde kapanacak.{' '}
               <button className="k-link" type="button" onClick={refresh}>
                 Oturumu sürdür
@@ -239,50 +240,32 @@ export function Kabuk({ me: initial, logo, children }: { me: Me; logo: ReactNode
                       >
                         {i.ad}
                         {i.rozet === 'onay' ? (
-                          <span style={{ fontSize: 11.5, fontWeight: 800, color: '#7A5300' }}>
-                            {me.pendingApprovals}
-                          </span>
+                          <span className={stil.metin3}>{me.pendingApprovals}</span>
                         ) : null}
                         {i.rozet === 'basvuru' && me.pendingGalleryApplications > 0 ? (
-                          <span style={{ fontSize: 11.5, fontWeight: 800, color: '#7A5300' }}>
-                            {me.pendingGalleryApplications}
-                          </span>
+                          <span className={stil.metin3}>{me.pendingGalleryApplications}</span>
                         ) : null}
                         {i.rozet === 'kvkk' && me.openKvkk > 0 ? (
-                          <span style={{ fontSize: 11.5, fontWeight: 800, color: '#7A5300' }}>
-                            {me.openKvkk}
-                          </span>
+                          <span className={stil.metin3}>{me.openKvkk}</span>
                         ) : null}
                         {i.rozet === 'destek' && me.openSupport > 0 ? (
-                          <span style={{ fontSize: 11.5, fontWeight: 800, color: '#5A6073' }}>
-                            {me.openSupport}
-                          </span>
+                          <span className={stil.metin4}>{me.openSupport}</span>
                         ) : null}
                         {i.rozet === 'moderasyon' && me.overdueReports > 0 ? (
-                          <span style={{ fontSize: 11.5, fontWeight: 800, color: '#A3271F' }}>
-                            {me.overdueReports} süre aştı
-                          </span>
+                          <span className={stil.metin5}>{me.overdueReports} süre aştı</span>
                         ) : null}
                         {i.rozet === 'gorsel' && (me.pendingImages ?? 0) > 0 ? (
-                          <span
-                            style={{ fontSize: 11.5, fontWeight: 800, color: '#A3271F' }}
-                            title="Görsel bekleyen yayındaki talepler"
-                          >
+                          <span className={stil.metin5} title="Görsel bekleyen yayındaki talepler">
                             {me.pendingImages} görselsiz
                           </span>
                         ) : null}
                         {i.rozet === 'teknik' && (me.openSpecReports ?? 0) > 0 ? (
-                          <span
-                            style={{ fontSize: 11.5, fontWeight: 800, color: '#A3271F' }}
-                            title="Açık teknik özellik bildirimleri"
-                          >
+                          <span className={stil.metin5} title="Açık teknik özellik bildirimleri">
                             {me.openSpecReports} bildirim
                           </span>
                         ) : null}
                         {i.rozet === 'entegrasyon' && me.integrationWarnings > 0 ? (
-                          <span style={{ fontSize: 11.5, fontWeight: 800, color: '#7A5300' }}>
-                            {me.integrationWarnings} uyarı
-                          </span>
+                          <span className={stil.metin3}>{me.integrationWarnings} uyarı</span>
                         ) : null}
                       </Link>
                     ),

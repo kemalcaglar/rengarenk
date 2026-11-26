@@ -9,9 +9,11 @@ import {
   type ReportFilter,
   type ReportTab,
 } from '@rengarenk/shared';
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 interface Deney {
   id: string;
@@ -44,33 +46,12 @@ interface Pano {
   filter: ReportFilter;
 }
 
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 };
-const secim: CSSProperties = {
-  display: 'block',
-  marginTop: 4,
-  border: '1px solid #D5DAE5',
-  borderRadius: 10,
-  padding: '8px 10px',
-  fontSize: 13.5,
-  background: '#FFFFFF',
-  fontFamily: 'inherit',
-};
-const etiket: CSSProperties = { fontSize: 12, fontWeight: 700, color: '#5A6073' };
-const ajan: CSSProperties = {
-  margin: '6px 0 0',
-  fontSize: 14,
-  lineHeight: 1.55,
-  color: '#2E3344',
-  background: '#F6F8FD',
-  borderRadius: 12,
-  padding: '12px 14px',
-};
 const sayi = (n: number) => new Intl.NumberFormat('tr-TR').format(n);
 const kucukKart = (ad: string, deger: string, not: string) => (
-  <div key={ad} style={{ ...kart, borderRadius: 16, padding: 14 }}>
-    <div style={{ fontSize: 12.5, fontWeight: 700, color: '#5A6073' }}>{ad}</div>
-    <div style={{ fontSize: 21, fontWeight: 800, marginTop: 4 }}>{deger}</div>
-    <div style={{ fontSize: 12, color: '#5A6073', marginTop: 3 }}>{not}</div>
+  <div key={ad} className={stil.kutu1}>
+    <div className={stil.kutu2}>{ad}</div>
+    <div className={stil.kutu3}>{deger}</div>
+    <div className={stil.kutu4}>{not}</div>
   </div>
 );
 
@@ -194,85 +175,38 @@ export default function Raporlar() {
 
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 14,
-        }}
-      >
+      <div className={stil.kutu5}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Raporlar</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+          <h1 className={stil.baslik1}>Raporlar</h1>
+          <p className={stil.metin1}>
             Kırılım için kontrol panelindeki ölçülere tıkla; burada süzgeçlerle daralt.
           </p>
         </div>
-        <span style={{ display: 'flex', gap: 8 }}>
-          <button
-            type="button"
-            onClick={panoyaKaydet}
-            style={{
-              border: '1px solid #D5DAE5',
-              background: '#FFFFFF',
-              borderRadius: 12,
-              padding: '10px 14px',
-              fontSize: 14,
-              fontWeight: 700,
-              color: '#1E2333',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
-          >
+        <span className={stil.metin2}>
+          <button type="button" onClick={panoyaKaydet} className={stil.dugme1}>
             Panoya kaydet
           </button>
           {disaAktarir ? (
-            <button
-              type="button"
-              onClick={disaAktar}
-              style={{
-                border: 0,
-                background: '#5B8CFF',
-                borderRadius: 12,
-                padding: '10px 16px',
-                fontSize: 14,
-                fontWeight: 800,
-                color: '#1E2333',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
+            <button type="button" onClick={disaAktar} className={stil.dugme2}>
               Excel'e aktar
             </button>
           ) : null}
         </span>
       </div>
       {bilgi ? (
-        <div
-          role="status"
-          style={{
-            background: '#E7FAF0',
-            color: '#11683F',
-            borderRadius: 12,
-            padding: '10px 14px',
-            fontWeight: 700,
-            marginBottom: 12,
-          }}
-        >
+        <div role="status" className={stil.kutu6}>
           {bilgi}
         </div>
       ) : null}
-      {hata ? <p style={{ color: '#A3271F', fontWeight: 700 }}>{hata}</p> : null}
+      {hata ? <p className={stil.metin3}>{hata}</p> : null}
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 14, alignItems: 'flex-end' }}>
-        <label style={etiket}>
+      <div className={stil.kutu7}>
+        <label className={stil.etiket1}>
           Tarih
           <select
             value={f.tarih}
             onChange={(e) => setF({ ...f, tarih: e.target.value as ReportFilter['tarih'] })}
-            style={secim}
+            className={stil.girdi1}
           >
             {REPORT_RANGES.map((r) => (
               <option key={r.key} value={r.key}>
@@ -281,12 +215,12 @@ export default function Raporlar() {
             ))}
           </select>
         </label>
-        <label style={etiket}>
+        <label className={stil.etiket1}>
           Karşılaştır
           <select
             value={f.karsilastir}
             onChange={(e) => setF({ ...f, karsilastir: e.target.value as ReportFilter['karsilastir'] })}
-            style={secim}
+            className={stil.girdi1}
           >
             {REPORT_COMPARE.map((r) => (
               <option key={r.key} value={r.key}>
@@ -295,12 +229,12 @@ export default function Raporlar() {
             ))}
           </select>
         </label>
-        <label style={etiket}>
+        <label className={stil.etiket1}>
           İl
           <select
             value={f.il ?? ''}
             onChange={(e) => setF({ ...f, il: e.target.value || undefined })}
-            style={secim}
+            className={stil.girdi1}
           >
             <option value="">Tüm Türkiye</option>
             {ILLER.map((i) => (
@@ -310,12 +244,12 @@ export default function Raporlar() {
             ))}
           </select>
         </label>
-        <label style={etiket}>
+        <label className={stil.etiket1}>
           Kategori
           <select
             value={f.kategori ?? ''}
             onChange={(e) => setF({ ...f, kategori: e.target.value || undefined })}
-            style={secim}
+            className={stil.girdi1}
           >
             <option value="">Tüm kategoriler</option>
             {kategoriler.map((k) => (
@@ -325,14 +259,14 @@ export default function Raporlar() {
             ))}
           </select>
         </label>
-        <label style={etiket}>
+        <label className={stil.etiket1}>
           Platform
           <select
             value={f.platform ?? ''}
             onChange={(e) =>
               setF({ ...f, platform: (e.target.value || undefined) as ReportFilter['platform'] })
             }
-            style={secim}
+            className={stil.girdi1}
           >
             <option value="">Hepsi</option>
             <option value="WEB">Web</option>
@@ -341,7 +275,7 @@ export default function Raporlar() {
           </select>
         </label>
         {panolar.length ? (
-          <label style={etiket}>
+          <label className={stil.etiket1}>
             Kayıtlı panolarım
             <select
               value=""
@@ -352,7 +286,7 @@ export default function Raporlar() {
                   setF(p.filter);
                 }
               }}
-              style={secim}
+              className={stil.girdi1}
             >
               <option value="">Seç</option>
               {panolar.map((p) => (
@@ -365,17 +299,7 @@ export default function Raporlar() {
         ) : null}
       </div>
 
-      <div
-        role="tablist"
-        aria-label="Rapor türü"
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 6,
-          borderBottom: '1px solid #E3E6EF',
-          marginBottom: 16,
-        }}
-      >
+      <div role="tablist" aria-label="Rapor türü" className={stil.kutu8}>
         {REPORT_TABS.map((t) => (
           <button
             key={t.key}
@@ -383,123 +307,56 @@ export default function Raporlar() {
             role="tab"
             aria-selected={sekme === t.key}
             onClick={() => setSekme(t.key)}
-            style={{
-              border: 0,
-              borderBottom: `3px solid ${sekme === t.key ? '#5B8CFF' : 'transparent'}`,
-              background: 'transparent',
-              padding: '10px 12px',
-              fontSize: 14,
-              fontWeight: sekme === t.key ? 800 : 600,
-              color: sekme === t.key ? '#1E2333' : '#3A4052',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
+            className={cx(stil.dugme3, sekme === t.key ? stil.dugme4 : stil.dugme5)}
+            style={{ border: 0, borderBottom: `3px solid ${sekme === t.key ? '#5B8CFF' : 'transparent'}` }}
           >
             {t.ad}
           </button>
         ))}
       </div>
 
-      {!gecerli ? <p style={{ color: '#5A6073' }}>Yükleniyor…</p> : null}
-      {gecerli?.filtreNotu ? (
-        <p style={{ margin: '0 0 10px', fontSize: 12.5, color: '#7A5300' }}>{gecerli.filtreNotu}</p>
-      ) : null}
+      {!gecerli ? <p className={stil.metin4}>Yükleniyor…</p> : null}
+      {gecerli?.filtreNotu ? <p className={stil.metin5}>{gecerli.filtreNotu}</p> : null}
       {gecerli?.bos ? (
-        <section style={{ ...kart, padding: '18px 20px' }}>
-          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
-            {REPORT_TABS.find((t) => t.key === sekme)?.ad}
-          </h2>
-          <p style={{ margin: '6px 0 0', fontSize: 14, color: '#3A4052', lineHeight: 1.55 }}>{gecerli.bos}</p>
+        <section className={stil.kutu9}>
+          <h2 className={stil.baslik2}>{REPORT_TABS.find((t) => t.key === sekme)?.ad}</h2>
+          <p className={stil.metin6}>{gecerli.bos}</p>
         </section>
       ) : null}
 
       {gecerli && sekme === 'deney' && Array.isArray(gecerli.deneyler) && gecerli.deneyler.length ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className={stil.kutu10}>
           {(gecerli.deneyler as Deney[]).map((d) => (
-            <article key={d.id} style={{ ...kart, padding: '16px 18px' }}>
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 8,
-                }}
-              >
-                <span style={{ fontSize: 15.5, fontWeight: 800 }}>{d.ad}</span>
-                <span
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 800,
-                    padding: '3px 9px',
-                    borderRadius: 999,
-                    background: d.bg,
-                    color: d.fg,
-                  }}
-                >
+            <article key={d.id} className={stil.kutu11}>
+              <div className={stil.kutu12}>
+                <span className={stil.metin7}>{d.ad}</span>
+                <span className={stil.metin8} style={{ background: d.bg, color: d.fg }}>
                   {d.durum}
                 </span>
               </div>
-              <p style={{ margin: '4px 0 12px', fontSize: 13, color: '#5A6073' }}>{d.olcu}</p>
+              <p className={stil.metin9}>{d.olcu}</p>
               {d.kollar.map((k) => (
-                <div key={k.ad} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                  <span style={{ flex: '0 0 260px', minWidth: 0, fontSize: 13.5, fontWeight: 700 }}>
-                    {k.ad}
+                <div key={k.ad} className={stil.kutu13}>
+                  <span className={stil.metin10}>{k.ad}</span>
+                  <span className={stil.metin11}>
+                    <span className={stil.metin12} style={{ width: `${k.w}%`, background: k.renk }} />
                   </span>
-                  <span style={{ flex: 1, minWidth: 0, height: 16 }}>
-                    <span
-                      style={{
-                        display: 'block',
-                        height: 16,
-                        width: `${k.w}%`,
-                        background: k.renk,
-                        borderRadius: '0 4px 4px 0',
-                      }}
-                    />
-                  </span>
-                  <span style={{ flex: '0 0 70px', fontSize: 13.5, fontWeight: 800, textAlign: 'right' }}>
-                    {k.deger}
-                  </span>
+                  <span className={stil.metin13}>{k.deger}</span>
                 </div>
               ))}
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 8,
-                  marginTop: 6,
-                }}
-              >
-                <span style={{ fontSize: 13, color: '#3A4052' }}>{d.sonuc}</span>
+              <div className={stil.kutu14}>
+                <span className={stil.metin14}>{d.sonuc}</span>
                 {d.eylem &&
                 (d.tur === 'fiyat'
                   ? ['tam', 'oneri'].includes(me.permissions['fiyat.degistir'] ?? '')
                   : d.tur === 'arayuz'
                     ? me.permissions['sistem.ayarla'] === 'tam'
                     : me.permissions['gorunum.duzenle'] === 'tam') ? (
-                  <button
-                    type="button"
-                    onClick={() => kazanan(d)}
-                    style={{
-                      border: 0,
-                      background: '#3DD68C',
-                      borderRadius: 10,
-                      padding: '9px 14px',
-                      fontSize: 13.5,
-                      fontWeight: 800,
-                      color: '#1E2333',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
+                  <button type="button" onClick={() => kazanan(d)} className={stil.dugme6}>
                     {d.eylem.yazi}
                   </button>
                 ) : null}
-                {d.bitti && d.tur === 'banner' ? (
-                  <span style={{ fontSize: 13.5, fontWeight: 800, color: '#11683F' }}>Herkese açıldı</span>
-                ) : null}
+                {d.bitti && d.tur === 'banner' ? <span className={stil.metin15}>Herkese açıldı</span> : null}
               </div>
             </article>
           ))}
@@ -507,11 +364,11 @@ export default function Raporlar() {
       ) : null}
 
       {gecerli && sekme === 'huni' && veri ? (
-        <section aria-labelledby="huni" style={{ ...kart, padding: '18px 20px' }}>
-          <h2 id="huni" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+        <section aria-labelledby="huni" className={stil.kutu9}>
+          <h2 id="huni" className={stil.baslik2}>
             Huni · {gecerli.donem}
           </h2>
-          <p style={{ margin: '4px 0 16px', fontSize: 13, color: '#5A6073' }}>
+          <p className={stil.metin16}>
             {veri.ust} {veri.ziyaretNotu}
           </p>
           {(
@@ -526,66 +383,30 @@ export default function Raporlar() {
             <div
               key={h.ad}
               title={`${h.ad}: ${sayi(h.sayi)}${h.fark ? ` · önceki döneme göre ${h.fark.metin}` : ''}`}
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                gap: '6px 16px',
-                marginBottom: 12,
-              }}
+              className={stil.kutu15}
             >
-              <span style={{ flex: '0 0 190px', fontSize: 14, fontWeight: 700 }}>{h.ad}</span>
-              <span
-                style={{
-                  flex: '1 1 300px',
-                  minWidth: 0,
-                  height: 28,
-                  background: '#F3F5FA',
-                  borderRadius: '0 6px 6px 0',
-                }}
-              >
-                <span
-                  style={{
-                    display: 'block',
-                    height: 28,
-                    width: `${h.w}%`,
-                    background: '#5B8CFF',
-                    borderRadius: '0 6px 6px 0',
-                  }}
-                />
+              <span className={stil.metin17}>{h.ad}</span>
+              <span className={stil.metin18}>
+                <span className={stil.metin19} style={{ width: `${h.w}%` }} />
               </span>
-              <span style={{ flex: '0 0 90px', fontSize: 15, fontWeight: 800, textAlign: 'right' }}>
-                {sayi(h.sayi)}
-              </span>
-              <span style={{ flex: '0 0 190px', fontSize: 12.5, color: '#3A4052' }}>{h.not}</span>
+              <span className={stil.metin20}>{sayi(h.sayi)}</span>
+              <span className={stil.metin21}>{h.not}</span>
             </div>
           ))}
-          <p style={ajan}>
+          <p className={stil.metin22}>
             <strong>Ajan:</strong> {gecerli.yorum}
           </p>
         </section>
       ) : null}
 
       {gecerli && sekme === 'harita' && veri ? (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, alignItems: 'flex-start' }}>
-          <section
-            aria-labelledby="harita"
-            style={{ ...kart, flex: '3 1 560px', minWidth: 0, padding: '18px 20px' }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 10,
-                marginBottom: 14,
-              }}
-            >
-              <h2 id="harita" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+        <div className={stil.kutu16}>
+          <section aria-labelledby="harita" className={stil.kutu17}>
+            <div className={stil.kutu18}>
+              <h2 id="harita" className={stil.baslik2}>
                 İl ve kategoriye göre arz-talep
               </h2>
-              <span style={{ display: 'flex', gap: 6 }}>
+              <span className={stil.metin23}>
                 {(
                   [
                     ['bos', 'Mesaj almayan talep oranı'],
@@ -597,17 +418,7 @@ export default function Raporlar() {
                     type="button"
                     aria-pressed={haritaOlcu === k}
                     onClick={() => setHaritaOlcu(k)}
-                    style={{
-                      border: haritaOlcu === k ? 0 : '1px solid #D5DAE5',
-                      background: haritaOlcu === k ? '#1E2333' : '#FFFFFF',
-                      borderRadius: 999,
-                      padding: haritaOlcu === k ? '7px 12px' : '6px 11px',
-                      fontSize: 13,
-                      fontWeight: haritaOlcu === k ? 800 : 700,
-                      color: haritaOlcu === k ? '#FFFFFF' : '#1E2333',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
+                    className={cx(stil.dugme7, haritaOlcu === k ? stil.dugme8 : stil.dugme9)}
                   >
                     {ad}
                   </button>
@@ -616,19 +427,14 @@ export default function Raporlar() {
             </div>
             {(veri.satirlar as unknown[]).length ? (
               <div
+                className={stil.kutu19}
                 style={{
-                  display: 'grid',
                   gridTemplateColumns: `110px repeat(${(veri.kategoriler as string[]).length}, minmax(0, 1fr))`,
-                  gap: 2,
-                  fontSize: 12.5,
                 }}
               >
                 <span />
                 {(veri.kategoriler as string[]).map((k) => (
-                  <span
-                    key={k}
-                    style={{ padding: '6px 4px', fontWeight: 800, color: '#5A6073', textAlign: 'center' }}
-                  >
+                  <span key={k} className={stil.metin24}>
                     {k}
                   </span>
                 ))}
@@ -645,7 +451,7 @@ export default function Raporlar() {
                     }[];
                   }[]
                 ).flatMap((s) => [
-                  <span key={s.il} style={{ padding: '10px 6px', fontWeight: 700 }}>
+                  <span key={s.il} className={stil.metin25}>
                     {s.il}
                   </span>,
                   ...s.hucre.map((h) => {
@@ -654,14 +460,8 @@ export default function Raporlar() {
                       <span
                         key={`${s.il}${h.kategori}`}
                         title={h.ipucu}
-                        style={{
-                          padding: '10px 4px',
-                          textAlign: 'center',
-                          fontWeight: 800,
-                          borderRadius: 6,
-                          background: adim < 0 ? '#F6F8FD' : HEAT_RAMP[adim],
-                          color: adim >= 3 ? '#FFFFFF' : '#1E2333',
-                        }}
+                        className={cx(stil.metin26, adim >= 3 ? stil.metin27 : stil.metin28)}
+                        style={{ background: adim < 0 ? '#F6F8FD' : HEAT_RAMP[adim] }}
                       >
                         {haritaOlcu === 'bos'
                           ? h.bos === null
@@ -674,85 +474,36 @@ export default function Raporlar() {
                 ])}
               </div>
             ) : (
-              <p style={{ margin: 0, fontSize: 13.5, color: '#5A6073' }}>Bu süzgeçte talep yok.</p>
+              <p className={stil.metin29}>Bu süzgeçte talep yok.</p>
             )}
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                gap: '6px 14px',
-                marginTop: 12,
-                fontSize: 12,
-                color: '#3A4052',
-              }}
-            >
-              <span style={{ fontWeight: 700 }}>
+            <div className={stil.kutu20}>
+              <span className={stil.metin30}>
                 {haritaOlcu === 'bos'
                   ? 'Talebin 48 saatte mesaj almayan payı (koyu = arz açığı):'
                   : `${gecerli.donem.charAt(0).toLocaleUpperCase('tr-TR')}${gecerli.donem.slice(1)} açılan talep:`}
               </span>
               {(veri.lejant as Record<string, string[]>)[haritaOlcu]?.map((ad, i) => (
-                <span key={ad} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <span
-                    style={{
-                      width: 14,
-                      height: 14,
-                      borderRadius: 4,
-                      background: HEAT_RAMP[i],
-                      border: '1px solid #E3E6EF',
-                    }}
-                  />
+                <span key={ad} className={stil.metin31}>
+                  <span className={stil.metin32} style={{ background: HEAT_RAMP[i] }} />
                   {ad}
                 </span>
               ))}
             </div>
           </section>
-          <section
-            aria-labelledby="acik"
-            style={{ ...kart, flex: '2 1 300px', minWidth: 0, overflow: 'hidden' }}
-          >
-            <h2
-              id="acik"
-              style={{
-                margin: 0,
-                padding: '16px 18px',
-                fontSize: 17,
-                fontWeight: 800,
-                borderBottom: '1px solid #EEF0F5',
-              }}
-            >
+          <section aria-labelledby="acik" className={stil.kutu21}>
+            <h2 id="acik" className={stil.baslik3}>
               En büyük arz açıkları
             </h2>
             {(veri.aciklar as { yer: string; oran: string; not: string }[]).map((a) => (
-              <div key={a.yer} style={{ padding: '12px 18px', borderBottom: '1px solid #EEF0F5' }}>
-                <span
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    gap: 8,
-                    fontSize: 14,
-                    fontWeight: 800,
-                  }}
-                >
+              <div key={a.yer} className={stil.kutu22}>
+                <span className={stil.metin33}>
                   <span>{a.yer}</span>
                   <span>{a.oran}</span>
                 </span>
-                <span style={{ display: 'block', fontSize: 12.5, color: '#3A4052', marginTop: 2 }}>
-                  {a.not}
-                </span>
+                <span className={stil.metin34}>{a.not}</span>
               </div>
             ))}
-            <p
-              style={{
-                margin: 0,
-                padding: '12px 18px',
-                fontSize: 13,
-                lineHeight: 1.5,
-                color: '#2E3344',
-                background: '#F6F8FD',
-              }}
-            >
+            <p className={stil.metin35}>
               <strong>Ajan:</strong> {gecerli.yorum}
             </p>
           </section>
@@ -761,153 +512,86 @@ export default function Raporlar() {
 
       {gecerli && sekme === 'gelir' && veri ? (
         <>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
-              gap: 10,
-              marginBottom: 14,
-            }}
-          >
+          <div className={stil.kutu23}>
             {(veri.sayilar as { ad: string; deger: string; not: string }[]).map((s) =>
               kucukKart(s.ad, s.deger, s.not),
             )}
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, alignItems: 'flex-start' }}>
-            <section
-              aria-labelledby="kalem"
-              style={{ ...kart, flex: '3 1 480px', minWidth: 0, padding: '18px 20px' }}
-            >
-              <h2 id="kalem" style={{ margin: '0 0 14px', fontSize: 17, fontWeight: 800 }}>
+          <div className={stil.kutu16}>
+            <section aria-labelledby="kalem" className={stil.kutu24}>
+              <h2 id="kalem" className={stil.baslik4}>
                 Gelir kalemleri · {gecerli.donem}
               </h2>
               {(veri.kalemler as { ad: string; tutar: string; w: number; ipucu: string }[]).length ? null : (
-                <p style={{ margin: 0, fontSize: 13.5, color: '#5A6073' }}>Bu dönemde ödeme yok.</p>
+                <p className={stil.metin29}>Bu dönemde ödeme yok.</p>
               )}
               {(veri.kalemler as { ad: string; tutar: string; w: number; ipucu: string }[]).map((k) => (
-                <div
-                  key={k.ad}
-                  title={k.ipucu}
-                  style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}
-                >
-                  <span style={{ flex: '0 0 200px', fontSize: 13.5, fontWeight: 700 }}>{k.ad}</span>
-                  <span style={{ flex: 1, minWidth: 0, height: 18 }}>
-                    <span
-                      style={{
-                        display: 'block',
-                        height: 18,
-                        width: `${k.w}%`,
-                        background: '#5B8CFF',
-                        borderRadius: '0 4px 4px 0',
-                      }}
-                    />
+                <div key={k.ad} title={k.ipucu} className={stil.kutu25}>
+                  <span className={stil.metin36}>{k.ad}</span>
+                  <span className={stil.metin37}>
+                    <span className={stil.metin38} style={{ width: `${k.w}%` }} />
                   </span>
-                  <span style={{ flex: '0 0 110px', fontSize: 13.5, fontWeight: 800, textAlign: 'right' }}>
-                    {k.tutar}
-                  </span>
+                  <span className={stil.metin39}>{k.tutar}</span>
                 </div>
               ))}
             </section>
-            <section
-              aria-labelledby="mrr"
-              style={{ ...kart, flex: '2 1 320px', minWidth: 0, padding: '18px 20px' }}
-            >
-              <h2 id="mrr" style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 800 }}>
+            <section aria-labelledby="mrr" className={stil.kutu26}>
+              <h2 id="mrr" className={stil.baslik5}>
                 Aylık tekrarlayan gelir
               </h2>
-              <p style={{ margin: '0 0 14px', fontSize: 12.5, color: '#5A6073' }}>
-                Galeri abonelikleri · KDV hariç · bu ay bugün itibarıyla
-              </p>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-end',
-                  gap: 10,
-                  height: 150,
-                  borderBottom: '1px solid #D5DAE5',
-                }}
-              >
+              <p className={stil.metin40}>Galeri abonelikleri · KDV hariç · bu ay bugün itibarıyla</p>
+              <div className={stil.kutu27}>
                 {(() => {
                   const m = veri.mrr as { ay: string; kurus: number; tutar: string }[];
                   const mx = Math.max(1, ...m.map((x) => x.kurus));
                   return m.map((x, i) => (
-                    <span
-                      key={x.ay}
-                      title={`${x.ay}: ${x.tutar}`}
-                      style={{
-                        flex: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'flex-end',
-                        alignItems: 'center',
-                        height: '100%',
-                      }}
-                    >
-                      <span style={{ fontSize: 11, fontWeight: 700, color: '#3A4052', marginBottom: 4 }}>
+                    <span key={x.ay} title={`${x.ay}: ${x.tutar}`} className={stil.metin41}>
+                      <span className={stil.metin42}>
                         {x.kurus >= 100_000_00
                           ? `${new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 1 }).format(x.kurus / 100_000)} bin`
                           : x.tutar}
                       </span>
                       <span
-                        style={{
-                          width: '100%',
-                          height: `${(x.kurus / mx) * 85}%`,
-                          background: i === m.length - 1 ? '#2450C8' : '#5B8CFF',
-                          borderRadius: '4px 4px 0 0',
-                        }}
+                        className={cx(stil.metin43, i === m.length - 1 ? stil.metin44 : stil.metin45)}
+                        style={{ height: `${(x.kurus / mx) * 85}%` }}
                       />
                     </span>
                   ));
                 })()}
               </div>
-              <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+              <div className={stil.kutu28}>
                 {(veri.mrr as { ay: string }[]).map((x) => (
-                  <span key={x.ay} style={{ flex: 1, textAlign: 'center', fontSize: 11.5, color: '#5A6073' }}>
+                  <span key={x.ay} className={stil.metin46}>
                     {x.ay}
                   </span>
                 ))}
               </div>
-              <p style={{ margin: '12px 0 0', fontSize: 12.5, color: '#3A4052' }}>{veri.platformPayi}</p>
+              <p className={stil.metin47}>{veri.platformPayi}</p>
             </section>
           </div>
         </>
       ) : null}
 
       {gecerli && sekme === 'model' && veri ? (
-        <section aria-labelledby="model" style={{ ...kart, overflow: 'hidden' }}>
-          <div style={{ padding: '16px 18px', borderBottom: '1px solid #EEF0F5' }}>
-            <h2 id="model" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+        <section aria-labelledby="model" className={stil.kutu29}>
+          <div className={stil.kutu30}>
+            <h2 id="model" className={stil.baslik2}>
               En çok talep edilen modeller · {gecerli.donem}
             </h2>
-            <p style={{ margin: '3px 0 0', fontSize: 13, color: '#5A6073' }}>
+            <p className={stil.metin48}>
               Uygun araç: aynı seriden, galeri portföylerinde yayında olan araç sayısı. {veri.aramaNotu}
             </p>
           </div>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '34px minmax(0, 2.4fr) repeat(3, minmax(0, 1fr)) minmax(0, 1.3fr)',
-              gap: 8,
-              padding: '10px 18px',
-              background: '#F3F5FA',
-              fontSize: 11.5,
-              fontWeight: 800,
-              color: '#5A6073',
-              textTransform: 'uppercase',
-              letterSpacing: 0.3,
-            }}
-          >
+          <div className={stil.kutu31}>
             <span>#</span>
             <span>Model</span>
-            <span style={{ textAlign: 'right' }}>Talep</span>
-            <span style={{ textAlign: 'right' }}>Arama</span>
-            <span style={{ textAlign: 'right' }}>Uygun araç</span>
+            <span className={stil.metin49}>Talep</span>
+            <span className={stil.metin49}>Arama</span>
+            <span className={stil.metin49}>Uygun araç</span>
             <span>Durum</span>
           </div>
           {(veri.modeller as { sira: number }[]).length ? null : (
-            <p style={{ margin: 0, padding: '12px 18px', fontSize: 13.5, color: '#5A6073' }}>
-              Bu süzgeçte talep yok.
-            </p>
+            <p className={stil.metin50}>Bu süzgeçte talep yok.</p>
           )}
           {(
             veri.modeller as {
@@ -921,49 +605,20 @@ export default function Raporlar() {
               fg: string;
             }[]
           ).map((m) => (
-            <div
-              key={m.sira}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '34px minmax(0, 2.4fr) repeat(3, minmax(0, 1fr)) minmax(0, 1.3fr)',
-                gap: 8,
-                alignItems: 'center',
-                padding: '11px 18px',
-                borderTop: '1px solid #EEF0F5',
-                fontSize: 13.5,
-              }}
-            >
-              <span style={{ fontWeight: 800, color: '#5A6073' }}>{m.sira}</span>
-              <span style={{ minWidth: 0, fontWeight: 800 }}>{m.ad}</span>
-              <span style={{ textAlign: 'right', fontWeight: 700 }}>{sayi(m.talep)}</span>
-              <span style={{ textAlign: 'right' }}>{m.arama === null ? '—' : sayi(m.arama)}</span>
-              <span style={{ textAlign: 'right' }}>{sayi(m.arac)}</span>
+            <div key={m.sira} className={stil.kutu32}>
+              <span className={stil.metin51}>{m.sira}</span>
+              <span className={stil.metin52}>{m.ad}</span>
+              <span className={stil.metin53}>{sayi(m.talep)}</span>
+              <span className={stil.metin49}>{m.arama === null ? '—' : sayi(m.arama)}</span>
+              <span className={stil.metin49}>{sayi(m.arac)}</span>
               <span>
-                <span
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 800,
-                    padding: '3px 9px',
-                    borderRadius: 999,
-                    background: m.bg,
-                    color: m.fg,
-                  }}
-                >
+                <span className={stil.metin8} style={{ background: m.bg, color: m.fg }}>
                   {m.durum}
                 </span>
               </span>
             </div>
           ))}
-          <p
-            style={{
-              margin: 0,
-              padding: '12px 18px',
-              fontSize: 13,
-              lineHeight: 1.5,
-              color: '#2E3344',
-              background: '#F6F8FD',
-            }}
-          >
+          <p className={stil.metin35}>
             <strong>Ajan:</strong> {gecerli.yorum}
           </p>
         </section>
@@ -971,63 +626,32 @@ export default function Raporlar() {
 
       {gecerli && sekme === 'reklam' && veri ? (
         <>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: 10,
-              marginBottom: 14,
-            }}
-          >
+          <div className={stil.kutu33}>
             {(veri.reklamSayilar as { ad: string; deger: string; not: string }[]).map((x) => (
-              <div key={x.ad} style={{ ...kart, borderRadius: 16, padding: 14 }}>
-                <div style={{ fontSize: 12.5, fontWeight: 700, color: '#5A6073' }}>{x.ad}</div>
-                <div style={{ fontSize: 21, fontWeight: 800, marginTop: 4 }}>{x.deger}</div>
-                <div style={{ fontSize: 12, color: '#5A6073', marginTop: 3 }}>{x.not}</div>
+              <div key={x.ad} className={stil.kutu1}>
+                <div className={stil.kutu2}>{x.ad}</div>
+                <div className={stil.kutu3}>{x.deger}</div>
+                <div className={stil.kutu4}>{x.not}</div>
               </div>
             ))}
           </div>
-          <section aria-labelledby="kampanya" style={{ ...kart, overflow: 'hidden' }}>
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'space-between',
-                gap: 8,
-                padding: '16px 18px',
-                borderBottom: '1px solid #EEF0F5',
-              }}
-            >
-              <h2 id="kampanya" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+          <section aria-labelledby="kampanya" className={stil.kutu29}>
+            <div className={stil.kutu34}>
+              <h2 id="kampanya" className={stil.baslik2}>
                 Kanal ve kampanya
               </h2>
-              <span style={{ fontSize: 12.5, color: '#5A6073' }}>{veri.cekimNotu}</span>
+              <span className={stil.metin54}>{veri.cekimNotu}</span>
             </div>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'minmax(0, 2.6fr) repeat(6, minmax(0, 1fr))',
-                gap: 8,
-                padding: '10px 18px',
-                background: '#F3F5FA',
-                fontSize: 11.5,
-                fontWeight: 800,
-                color: '#5A6073',
-                textTransform: 'uppercase',
-                letterSpacing: 0.3,
-              }}
-            >
+            <div className={stil.kutu35}>
               <span>Kampanya</span>
               {['Harcama', 'Üyelik', 'Talep', 'Yeni galeri', 'Üye başı', 'Getiri'].map((k) => (
-                <span key={k} style={{ textAlign: 'right' }}>
+                <span key={k} className={stil.metin49}>
                   {k}
                 </span>
               ))}
             </div>
             {(veri.kampanyalar as unknown[]).length ? null : (
-              <p style={{ margin: 0, padding: '12px 18px', fontSize: 13.5, color: '#5A6073' }}>
-                Bu dönemde yeni üye ve reklam harcaması yok.
-              </p>
+              <p className={stil.metin50}>Bu dönemde yeni üye ve reklam harcaması yok.</p>
             )}
             {(
               veri.kampanyalar as {
@@ -1041,77 +665,44 @@ export default function Raporlar() {
                 getiri: string;
               }[]
             ).map((k) => (
-              <div
-                key={`${k.kanal}|${k.ad}`}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'minmax(0, 2.6fr) repeat(6, minmax(0, 1fr))',
-                  gap: 8,
-                  alignItems: 'center',
-                  padding: '12px 18px',
-                  borderTop: '1px solid #EEF0F5',
-                  fontSize: 13.5,
-                }}
-              >
-                <span style={{ minWidth: 0 }}>
-                  <span style={{ display: 'block', fontWeight: 800, overflowWrap: 'anywhere' }}>{k.ad}</span>
-                  <span style={{ display: 'block', fontSize: 12, color: '#5A6073' }}>{k.kanal}</span>
+              <div key={`${k.kanal}|${k.ad}`} className={stil.kutu36}>
+                <span className={stil.metin55}>
+                  <span className={stil.metin56}>{k.ad}</span>
+                  <span className={stil.metin57}>{k.kanal}</span>
                 </span>
-                <span style={{ textAlign: 'right', fontWeight: 700 }}>{k.harcama}</span>
-                <span style={{ textAlign: 'right' }}>{k.uye}</span>
-                <span style={{ textAlign: 'right' }}>{k.talep}</span>
-                <span style={{ textAlign: 'right' }}>{k.galeri}</span>
-                <span style={{ textAlign: 'right' }}>{k.uyeBasi}</span>
-                <span style={{ textAlign: 'right', fontWeight: 800 }}>{k.getiri}</span>
+                <span className={stil.metin53}>{k.harcama}</span>
+                <span className={stil.metin49}>{k.uye}</span>
+                <span className={stil.metin49}>{k.talep}</span>
+                <span className={stil.metin49}>{k.galeri}</span>
+                <span className={stil.metin49}>{k.uyeBasi}</span>
+                <span className={stil.metin58}>{k.getiri}</span>
               </div>
             ))}
             {gecerli.yorum ? (
-              <p
-                style={{
-                  margin: 0,
-                  padding: '12px 18px',
-                  fontSize: 13,
-                  lineHeight: 1.5,
-                  color: '#2E3344',
-                  background: '#F6F8FD',
-                }}
-              >
+              <p className={stil.metin35}>
                 <strong>Ajan:</strong> {gecerli.yorum}
               </p>
             ) : null}
           </section>
-          <p style={{ margin: '10px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+          <p className={stil.metin59}>
             Getiri: kampanyadan gelen kullanıcıların 30 günlük ödemesi ÷ harcama. Üyeler ilk temaslarının
             kampanyasına bağlanır. Dönüşümler sunucu tarafından, ölçüme izin veren kullanıcılar için
             gönderilir (Karar 35).
           </p>
-          <section aria-labelledby="kanal" style={{ ...kart, overflow: 'hidden', marginTop: 14 }}>
-            <div style={{ padding: '16px 18px', borderBottom: '1px solid #EEF0F5' }}>
-              <h2 id="kanal" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+          <section aria-labelledby="kanal" className={stil.kutu37}>
+            <div className={stil.kutu30}>
+              <h2 id="kanal" className={stil.baslik2}>
                 Kanal kırılımı · {gecerli.donem}
               </h2>
-              <p style={{ margin: '3px 0 0', fontSize: 13, color: '#5A6073' }}>
+              <p className={stil.metin48}>
                 Reklam: tıklama kimliği ya da ücretli UTM. Bildirim ve e-posta: kendi iletilerimiz. Organik:
                 gerisi.
               </p>
             </div>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'minmax(0, 2fr) repeat(4, minmax(0, 1fr))',
-                gap: 8,
-                padding: '10px 18px',
-                background: '#F3F5FA',
-                fontSize: 11.5,
-                fontWeight: 800,
-                color: '#5A6073',
-                textTransform: 'uppercase',
-                letterSpacing: 0.3,
-              }}
-            >
+            <div className={stil.kutu38}>
               <span>Kanal</span>
               {['Üyelik', 'Talep', 'Yeni galeri', '30 günlük ödeme'].map((k) => (
-                <span key={k} style={{ textAlign: 'right' }}>
+                <span key={k} className={stil.metin49}>
                   {k}
                 </span>
               ))}
@@ -1126,22 +717,12 @@ export default function Raporlar() {
                 odeme: string;
               }[]
             ).map((k) => (
-              <div
-                key={k.kanal}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'minmax(0, 2fr) repeat(4, minmax(0, 1fr))',
-                  gap: 8,
-                  padding: '12px 18px',
-                  borderTop: '1px solid #EEF0F5',
-                  fontSize: 13.5,
-                }}
-              >
-                <span style={{ fontWeight: 800 }}>{k.ad}</span>
-                <span style={{ textAlign: 'right' }}>{sayi(k.uye)}</span>
-                <span style={{ textAlign: 'right' }}>{sayi(k.talep)}</span>
-                <span style={{ textAlign: 'right' }}>{sayi(k.galeri)}</span>
-                <span style={{ textAlign: 'right', fontWeight: 700 }}>{k.odeme}</span>
+              <div key={k.kanal} className={stil.kutu39}>
+                <span className={stil.metin60}>{k.ad}</span>
+                <span className={stil.metin49}>{sayi(k.uye)}</span>
+                <span className={stil.metin49}>{sayi(k.talep)}</span>
+                <span className={stil.metin49}>{sayi(k.galeri)}</span>
+                <span className={stil.metin53}>{k.odeme}</span>
               </div>
             ))}
           </section>
@@ -1150,36 +731,22 @@ export default function Raporlar() {
 
       {gecerli && sekme === 'birim' && veri ? (
         <>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: 10,
-              marginBottom: 14,
-            }}
-          >
+          <div className={stil.kutu40}>
             {(veri.sayilar as { ad: string; deger: string; not: string }[]).map((s) =>
               kucukKart(s.ad, s.deger, s.not),
             )}
           </div>
-          <section aria-labelledby="kohort" style={{ ...kart, padding: '18px 20px' }}>
-            <h2 id="kohort" style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 800 }}>
+          <section aria-labelledby="kohort" className={stil.kutu9}>
+            <h2 id="kohort" className={stil.baslik5}>
               Ücretli galeri tutma · kohort
             </h2>
-            <p style={{ margin: '0 0 14px', fontSize: 13, color: '#5A6073' }}>
+            <p className={stil.metin61}>
               Her satır o ay ücretliye geçen galeriler; hücreler sonraki aylarda hâlâ ödeyenlerin oranı.
             </p>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '130px repeat(5, minmax(0, 1fr))',
-                gap: 2,
-                fontSize: 13,
-              }}
-            >
+            <div className={stil.kutu41}>
               <span />
               {(veri.kohortBaslik as string[]).map((b) => (
-                <span key={b} style={{ padding: 6, textAlign: 'center', fontWeight: 800, color: '#5A6073' }}>
+                <span key={b} className={stil.metin62}>
                   {b}
                 </span>
               ))}
@@ -1190,25 +757,17 @@ export default function Raporlar() {
                   hucre: { v: number | null; adim: number; ipucu: string }[];
                 }[]
               ).flatMap((k) => [
-                <span key={k.ay} style={{ padding: '10px 6px', fontWeight: 700 }}>
+                <span key={k.ay} className={stil.metin25}>
                   {k.ay}
-                  <span style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#5A6073' }}>
-                    {k.adet} galeri
-                  </span>
+                  <span className={stil.metin63}>{k.adet} galeri</span>
                 </span>,
                 ...k.hucre.map((h, i) => (
                   <span
                     // biome-ignore lint/suspicious/noArrayIndexKey: ay sütunları sabit
                     key={`${k.ay}${i}`}
                     title={h.ipucu}
-                    style={{
-                      padding: '10px 4px',
-                      textAlign: 'center',
-                      fontWeight: 800,
-                      borderRadius: 6,
-                      background: h.adim < 0 ? 'transparent' : HEAT_RAMP[h.adim],
-                      color: h.adim >= 3 ? '#FFFFFF' : '#1E2333',
-                    }}
+                    className={cx(stil.metin26, h.adim >= 3 ? stil.metin27 : stil.metin28)}
+                    style={{ background: h.adim < 0 ? 'transparent' : HEAT_RAMP[h.adim] }}
                   >
                     {h.v === null ? '' : `%${h.v}`}
                   </span>

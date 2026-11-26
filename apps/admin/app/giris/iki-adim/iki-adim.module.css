@@ -1,0 +1,69 @@
+/* Bu dosya iki-adim.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  display: grid;
+  gap: 14px;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+}
+.metin1 {
+  margin: 0;
+  font-size: 14px;
+}
+.liste1 {
+  margin: 0;
+  padding: 14px 14px 14px 40px;
+  background: #f3f5fa;
+  border-radius: 12px;
+  columns: 2;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 15px;
+  line-height: 1.9;
+}
+.metin2 {
+  margin: 6px 0 0;
+  font-size: 14px;
+}
+.kutu2 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+.kutu3 {
+  width: 176px;
+  height: 176px;
+  border: 1px solid #e3e6ef;
+  border-radius: 12px;
+  padding: 8px;
+}
+.kutu4 {
+  flex: 1 1 180px;
+  min-width: 0;
+  font-size: 13px;
+}
+.kutu5 {
+  font-weight: 700;
+}
+.metin3 {
+  display: block;
+  margin-top: 6px;
+  word-break: break-all;
+  background: #f3f5fa;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 13.5px;
+}
+.girdi1 {
+  font-size: 20px;
+  letter-spacing: 3px;
+}
+.metin4 {
+  margin: 0;
+}
+.bag1 {
+  font-size: 13.5px;
+  text-align: center;
+}

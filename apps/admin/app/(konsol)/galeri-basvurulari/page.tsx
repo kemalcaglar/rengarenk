@@ -2,8 +2,10 @@
 
 import { APPLICATION_CHECKS, BUSINESS_KIND_DEFS, type BusinessKindKey } from '@rengarenk/shared';
 import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { goreli, yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 type Sonuc = 'gecti' | 'kaldi' | 'uyari' | 'yapilamadi';
 interface Satir {
@@ -48,18 +50,6 @@ const ALANLAR: [string, string][] = [
   ['yetkiNo', 'Yetki belgesi no'],
   ['adres', 'İşletme adresi'],
 ];
-
-const ikincil = {
-  border: '1px solid #D5DAE5',
-  background: '#FFFFFF',
-  borderRadius: 10,
-  padding: '8px 12px',
-  fontSize: 13,
-  fontWeight: 700,
-  color: '#1E2333',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-} as const;
 
 const alt = (s: Satir, zaman: string | null, ek: string) =>
   [s.tur, [s.il, s.ilce].filter(Boolean).join(', '), zaman ? `${ek} ${goreli(zaman)}` : null]
@@ -139,23 +129,20 @@ export default function GaleriBasvurulari() {
             `${s.ad} ${etiket[form.tur]}.`,
           );
         }}
-        style={{ marginTop: 10, background: '#F6F8FD', borderRadius: 12, padding: 12 }}
+        className={stil.kutu1}
       >
-        <label
-          htmlFor={`gerekce-${s.id}`}
-          style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#5A6073', marginBottom: 6 }}
-        >
+        <label htmlFor={`gerekce-${s.id}`} className={stil.etiket1}>
           {form.tur === 'request-docs'
             ? 'İstenen belge (başvurana gösterilir)'
             : 'Gerekçe (başvurana gösterilir)'}
         </label>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+        <div className={stil.kutu2}>
           {HAZIR.map((h) => (
             <button
               key={h}
               type="button"
               onClick={() => setForm({ ...form, metin: h })}
-              style={{ ...ikincil, padding: '5px 10px', fontSize: 12 }}
+              className={stil.dugme1}
             >
               {h}
             </button>
@@ -167,30 +154,17 @@ export default function GaleriBasvurulari() {
           onChange={(e) => setForm({ ...form, metin: e.target.value })}
           rows={2}
           maxLength={500}
-          style={{
-            width: '100%',
-            boxSizing: 'border-box',
-            border: '1px solid #D5DAE5',
-            borderRadius: 10,
-            padding: 10,
-            fontSize: 14,
-            fontFamily: 'inherit',
-          }}
+          className={stil.girdi1}
         />
-        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+        <div className={stil.kutu3}>
           <button
             type="submit"
             disabled={busy === s.id || form.metin.trim().length < 10}
-            style={{
-              ...ikincil,
-              border: 0,
-              background: form.tur === 'request-docs' ? '#FFC84A' : '#E5484D',
-              color: form.tur === 'request-docs' ? '#1E2333' : '#FFFFFF',
-            }}
+            className={cx(stil.dugme2, form.tur === 'request-docs' ? stil.dugme3 : stil.dugme4)}
           >
             {form.tur === 'request-docs' ? 'Belge iste' : form.tur === 'revoke' ? 'Onayı geri al' : 'Reddet'}
           </button>
-          <button type="button" onClick={() => setForm(null)} style={ikincil}>
+          <button type="button" onClick={() => setForm(null)} className={stil.dugme5}>
             Vazgeç
           </button>
         </div>
@@ -200,57 +174,33 @@ export default function GaleriBasvurulari() {
   const ayrintiBolumu = (id: string) => {
     const a = acik[id];
     if (!a) return null;
-    if (a === 'yukleniyor')
-      return <p style={{ margin: '10px 0 0', fontSize: 13, color: '#5A6073' }}>Yükleniyor…</p>;
+    if (a === 'yukleniyor') return <p className={stil.metin1}>Yükleniyor…</p>;
     const belgeAd = (k: string) =>
       (a.veri.tur ? BUSINESS_KIND_DEFS[a.veri.tur].belgeler.find((b) => b.key === k)?.ad : null) ?? k;
     return (
-      <div
-        style={{
-          marginTop: 10,
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 16,
-          background: '#F6F8FD',
-          borderRadius: 12,
-          padding: 12,
-        }}
-      >
-        <dl
-          style={{
-            flex: '2 1 320px',
-            margin: 0,
-            display: 'grid',
-            gridTemplateColumns: 'max-content 1fr',
-            gap: '4px 12px',
-            fontSize: 13,
-          }}
-        >
+      <div className={stil.kutu4}>
+        <dl className={stil.liste1}>
           {ALANLAR.filter(([k]) => a.veri[k]).map(([k, ad]) => (
-            <div key={k} style={{ display: 'contents' }}>
-              <dt style={{ color: '#5A6073' }}>{ad}</dt>
-              <dd style={{ margin: 0, fontWeight: 600 }}>{String(a.veri[k])}</dd>
+            <div key={k} className={stil.kutu5}>
+              <dt className={stil.metin2}>{ad}</dt>
+              <dd className={stil.metin3}>{String(a.veri[k])}</dd>
             </div>
           ))}
-          <dt style={{ color: '#5A6073' }}>Hesap sahibi</dt>
-          <dd style={{ margin: 0, fontWeight: 600 }}>
+          <dt className={stil.metin2}>Hesap sahibi</dt>
+          <dd className={stil.metin3}>
             {[a.veri.sahip?.ad, a.veri.sahip?.soyad].filter(Boolean).join(' ')} · {a.veri.sahip?.gorev} ·{' '}
             {a.veri.sahip?.eposta}
           </dd>
         </dl>
-        <div style={{ flex: '1 1 220px' }}>
-          <span
-            style={{ display: 'block', fontSize: 12.5, fontWeight: 700, color: '#5A6073', marginBottom: 6 }}
-          >
-            Belgeler
-          </span>
+        <div className={stil.kutu6}>
+          <span className={stil.etiket1}>Belgeler</span>
           {a.belgeler.map((b) => (
             <a
               key={b.id}
               href={`/api/yonetim/gallery-applications/${id}/documents/${b.id}`}
               target="_blank"
               rel="noreferrer"
-              style={{ display: 'block', fontSize: 13, fontWeight: 700, padding: '3px 0' }}
+              className={stil.bag1}
             >
               {belgeAd(b.kind)} · {b.ad} ({Math.max(1, Math.round(b.boyut / 1024))} KB)
             </a>
@@ -265,9 +215,9 @@ export default function GaleriBasvurulari() {
 
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
-        <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Galeri başvuruları</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+      <div className={stil.kutu7}>
+        <h1 className={stil.baslik1}>Galeri başvuruları</h1>
+        <p className={stil.metin4}>
           Tüm kontroller geçerse ajan onaylar ve sana bildirir; diğerleri burada seni bekler.
         </p>
       </div>
@@ -277,73 +227,34 @@ export default function GaleriBasvurulari() {
         </p>
       ) : null}
       {bilgi ? (
-        <p
-          role="status"
-          style={{
-            margin: '0 0 12px',
-            background: '#E7FAF0',
-            color: '#11683F',
-            borderRadius: 12,
-            padding: '10px 14px',
-            fontSize: 14,
-            fontWeight: 600,
-          }}
-        >
+        <p role="status" className={stil.metin5}>
           {bilgi}
         </p>
       ) : null}
 
-      <section
-        style={{ background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18, overflow: 'hidden' }}
-        aria-labelledby="bekleyen"
-      >
-        <h2
-          id="bekleyen"
-          style={{
-            margin: 0,
-            padding: '16px 18px',
-            fontSize: 17,
-            fontWeight: 800,
-            borderBottom: '1px solid #EEF0F5',
-          }}
-        >
+      <section className={stil.kutu8} aria-labelledby="bekleyen">
+        <h2 id="bekleyen" className={stil.baslik2}>
           Sana bırakılanlar · {insanda.length}
         </h2>
-        {veri && bekleyen.length === 0 ? (
-          <p style={{ margin: 0, padding: '18px', fontSize: 14, color: '#5A6073' }}>Bekleyen başvuru yok.</p>
-        ) : null}
+        {veri && bekleyen.length === 0 ? <p className={stil.metin6}>Bekleyen başvuru yok.</p> : null}
         {bekleyen.map((b) => (
-          <article key={b.id} style={{ padding: '14px 18px', borderBottom: '1px solid #EEF0F5' }}>
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 8,
-              }}
-            >
+          <article key={b.id} className={stil.kutu9}>
+            <div className={stil.kutu10}>
               <span>
-                <span style={{ fontSize: 15, fontWeight: 800 }}>{b.ad}</span>
-                <span style={{ display: 'block', fontSize: 12.5, color: '#3A4052', marginTop: 2 }}>
-                  {alt(b, b.gonderildi, 'başvuru')}
-                </span>
+                <span className={stil.metin7}>{b.ad}</span>
+                <span className={stil.metin8}>{alt(b, b.gonderildi, 'başvuru')}</span>
               </span>
               {b.durum === 'SUBMITTED' ? (
-                <span style={{ fontSize: 13.5, fontWeight: 800, color: '#5A6073' }}>
-                  Kontroller çalışıyor…
-                </span>
+                <span className={stil.metin9}>Kontroller çalışıyor…</span>
               ) : (
-                <span style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+                <span className={stil.metin10}>
                   {b.durum === 'DOCS_REQUESTED' ? (
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#7A5300' }}>
-                      Belge istendi · başvuran bekleniyor
-                    </span>
+                    <span className={stil.metin11}>Belge istendi · başvuran bekleniyor</span>
                   ) : (
                     <button
                       type="button"
                       onClick={() => setForm({ id: b.id, tur: 'request-docs', metin: '' })}
-                      style={ikincil}
+                      className={stil.dugme5}
                     >
                       Belge iste
                     </button>
@@ -351,7 +262,7 @@ export default function GaleriBasvurulari() {
                   <button
                     type="button"
                     onClick={() => setForm({ id: b.id, tur: 'reject', metin: '' })}
-                    style={{ ...ikincil, color: '#A3271F' }}
+                    className={stil.dugme6}
                   >
                     Reddet
                   </button>
@@ -366,24 +277,14 @@ export default function GaleriBasvurulari() {
                         `${b.ad} onaylandı; hoş geldin iletisi ve deneme süresi başladı.`,
                       )
                     }
-                    style={{
-                      border: 0,
-                      background: '#3DD68C',
-                      borderRadius: 10,
-                      padding: '9px 14px',
-                      fontSize: 13,
-                      fontWeight: 800,
-                      color: '#1E2333',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
+                    className={stil.dugme7}
                   >
                     Onayla
                   </button>
                 </span>
               )}
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+            <div className={stil.kutu11}>
               {APPLICATION_CHECKS.map((c) => {
                 const k = b.kontroller.find((x) => x.key === c.key);
                 if (!k) return null;
@@ -392,14 +293,8 @@ export default function GaleriBasvurulari() {
                   <span
                     key={c.key}
                     title={k.not ?? ''}
-                    style={{
-                      fontSize: 12,
-                      fontWeight: 800,
-                      padding: '3px 9px',
-                      borderRadius: 999,
-                      background: bg,
-                      color: fg,
-                    }}
+                    className={stil.metin12}
+                    style={{ background: bg, color: fg }}
                   >
                     {isaret} {c.ad}
                   </span>
@@ -409,78 +304,38 @@ export default function GaleriBasvurulari() {
                 type="button"
                 onClick={() => ayrinti(b.id)}
                 aria-expanded={Boolean(acik[b.id])}
-                style={{
-                  border: 0,
-                  background: 'transparent',
-                  padding: '3px 4px',
-                  fontSize: 12.5,
-                  fontWeight: 700,
-                  color: '#2450C8',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
+                className={stil.dugme8}
               >
                 {acik[b.id] ? 'Ayrıntıları gizle' : 'Ayrıntılar ve belgeler'}
               </button>
             </div>
             {b.ajan ? (
-              <p style={{ margin: '8px 0 0', fontSize: 13, color: '#2E3344' }}>
+              <p className={stil.metin13}>
                 <strong>Ajan:</strong> {b.ajan}
               </p>
             ) : null}
-            {b.not && b.durum === 'DOCS_REQUESTED' ? (
-              <p style={{ margin: '4px 0 0', fontSize: 13, color: '#7A5300' }}>İstenen: {b.not}</p>
-            ) : null}
+            {b.not && b.durum === 'DOCS_REQUESTED' ? <p className={stil.metin14}>İstenen: {b.not}</p> : null}
             {ayrintiBolumu(b.id)}
             {gerekceFormu(b)}
           </article>
         ))}
       </section>
 
-      <section
-        style={{
-          marginTop: 16,
-          background: '#FFFFFF',
-          border: '1px solid #E3E6EF',
-          borderRadius: 18,
-          overflow: 'hidden',
-        }}
-        aria-labelledby="ajanonay"
-      >
-        <h2
-          id="ajanonay"
-          style={{
-            margin: 0,
-            padding: '16px 18px',
-            fontSize: 17,
-            fontWeight: 800,
-            borderBottom: '1px solid #EEF0F5',
-          }}
-        >
+      <section className={stil.kutu12} aria-labelledby="ajanonay">
+        <h2 id="ajanonay" className={stil.baslik2}>
           Ajanın onayladıkları · son 7 gün
         </h2>
         {veri && veri.ajan.length === 0 ? (
-          <p style={{ margin: 0, padding: '18px', fontSize: 14, color: '#5A6073' }}>
-            Son 7 günde ajanın onayladığı başvuru yok.
-          </p>
+          <p className={stil.metin6}>Son 7 günde ajanın onayladığı başvuru yok.</p>
         ) : null}
         {(veri?.ajan ?? []).map((a) => (
-          <div
-            key={a.id}
-            style={{
-              padding: '12px 18px',
-              borderBottom: '1px solid #EEF0F5',
-              opacity: a.durum === 'REVOKED' ? 0.6 : 1,
-            }}
-          >
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px 16px' }}>
-              <span style={{ flex: '999 1 280px', minWidth: 0 }}>
-                <span style={{ display: 'block', fontSize: 14, fontWeight: 800 }}>{a.ad}</span>
-                <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
-                  {alt(a, a.karar, '')}
-                </span>
+          <div key={a.id} className={cx(stil.kutu13, a.durum === 'REVOKED' ? stil.kutu14 : stil.kutu15)}>
+            <div className={stil.kutu16}>
+              <span className={stil.metin15}>
+                <span className={stil.metin16}>{a.ad}</span>
+                <span className={stil.metin17}>{alt(a, a.karar, '')}</span>
               </span>
-              <span style={{ flex: 'none', fontSize: 12.5, fontWeight: 700, color: '#11683F' }}>
+              <span className={stil.metin18}>
                 {a.kontroller.filter((k) => k.sonuc === 'gecti').length}/{APPLICATION_CHECKS.length} kontrol
                 geçti
               </span>
@@ -488,14 +343,12 @@ export default function GaleriBasvurulari() {
                 <button
                   type="button"
                   onClick={() => setForm({ id: a.id, tur: 'revoke', metin: '' })}
-                  style={{ ...ikincil, flex: 'none', padding: '7px 12px' }}
+                  className={stil.dugme9}
                 >
                   Onayı geri al
                 </button>
               ) : (
-                <span style={{ flex: 'none', fontSize: 13, fontWeight: 700, color: '#7A5300' }}>
-                  Geri alındı · galeri bilgilendirildi
-                </span>
+                <span className={stil.metin19}>Geri alındı · galeri bilgilendirildi</span>
               )}
             </div>
             {gerekceFormu(a)}

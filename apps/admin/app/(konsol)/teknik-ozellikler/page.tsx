@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { tarih, yonetim } from '../../../lib/istemci';
 import { Duzenleyici } from './duzenleyici';
+import stil from './page.module.css';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_URL ?? 'http://localhost:3000';
 
@@ -116,7 +117,7 @@ export default function TeknikOzellikler() {
 
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
+      <div className={stil.kutu1}>
         <h1 className="k-h1">Teknik özellikler</h1>
         <p className="k-sub">
           Yayındaki taleplerde geçen ve bilgisi eksik araçlar, kullanıcıların "yanlış" bildirimleri ve araç
@@ -158,7 +159,7 @@ export default function TeknikOzellikler() {
           <div className="k-panel k-empty">Yayındaki taleplerin araçlarında eksik bilgi yok.</div>
         ) : (
           <>
-            <p style={{ margin: '0 0 10px', fontSize: 13, color: '#5A6073' }}>
+            <p className={stil.metin1}>
               Yayındaki taleplerde geçen motor sürümleri; vites, güç, tork, 0-100, azami hız, tüketim, depo,
               ölçüler, bagaj ya da ağırlık eksikse veya donanım girilmemişse listelenir. En çok talepte geçen
               önce.
@@ -167,19 +168,13 @@ export default function TeknikOzellikler() {
               const anahtar = x.modelId ?? `seri-${x.seriesId}`;
               return (
                 <div key={anahtar}>
-                  <section
-                    className="k-panel"
-                    style={{ padding: 14, marginBottom: 10 }}
-                    aria-label={`${x.arac} ${x.motor ?? ''}`}
-                  >
-                    <div
-                      style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 8 }}
-                    >
-                      <div style={{ flex: '1 1 420px' }}>
-                        <strong style={{ fontSize: 15 }}>
-                          {x.arac} {x.motor ?? <span style={{ color: '#5A6073' }}>(motor seçilmemiş)</span>}
+                  <section className={`k-panel ${stil.kutu2}`} aria-label={`${x.arac} ${x.motor ?? ''}`}>
+                    <div className={stil.kutu3}>
+                      <div className={stil.kutu4}>
+                        <strong className={stil.metin2}>
+                          {x.arac} {x.motor ?? <span className={stil.metin3}>(motor seçilmemiş)</span>}
                         </strong>
-                        <p style={{ margin: '4px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+                        <p className={stil.metin4}>
                           {x.talepSayisi} talep:{' '}
                           {x.talepler.map((no, i) => (
                             <span key={no}>
@@ -192,24 +187,18 @@ export default function TeknikOzellikler() {
                           {x.talepSayisi > x.talepler.length ? ' …' : ''}
                         </p>
                         {x.modelId ? (
-                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                          <div className={stil.kutu5}>
                             {x.eksik.map((e) => (
-                              <span
-                                key={e}
-                                className="k-pill"
-                                style={{ background: '#FFF6DD', color: '#7A5A00' }}
-                              >
+                              <span key={e} className={`k-pill ${stil.metin5}`}>
                                 {e}
                               </span>
                             ))}
                             {!x.donanimVar ? (
-                              <span className="k-pill" style={{ background: '#FFEEF6', color: '#8A1F4F' }}>
-                                Donanım yok
-                              </span>
+                              <span className={`k-pill ${stil.metin6}`}>Donanım yok</span>
                             ) : null}
                           </div>
                         ) : (
-                          <p style={{ margin: '6px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+                          <p className={stil.metin7}>
                             Talepte motor seçilmediği için modelin sürümlerinden birini seçip bilgi gir.
                           </p>
                         )}
@@ -218,8 +207,7 @@ export default function TeknikOzellikler() {
                         {x.modelId ? (
                           <button
                             type="button"
-                            className="k-btn-ok"
-                            style={{ fontSize: 13, padding: '6px 12px' }}
+                            className={`k-btn-ok ${stil.dugme1}`}
                             onClick={() => setAcikDuzelt((v) => (v === anahtar ? null : anahtar))}
                           >
                             {acikDuzelt === anahtar ? 'Kapat' : 'Bilgi gir'}
@@ -227,8 +215,7 @@ export default function TeknikOzellikler() {
                         ) : x.seriesId ? (
                           <button
                             type="button"
-                            className="k-btn-line"
-                            style={{ fontSize: 13, padding: '6px 12px' }}
+                            className={`k-btn-line ${stil.dugme1}`}
                             onClick={() => {
                               if (x.makeId) setMarka(x.makeId);
                               setSeri({ id: x.seriesId as string, ad: x.arac ?? '' });
@@ -257,14 +244,14 @@ export default function TeknikOzellikler() {
         )
       ) : tab === 'ara' ? (
         <>
-          <div className="k-panel" style={{ padding: 16, marginBottom: 14 }}>
-            <p style={{ margin: '0 0 10px', fontSize: 13, color: '#5A6073' }}>
+          <div className={`k-panel ${stil.kutu6}`}>
+            <p className={stil.metin1}>
               Türkiye'de satılan (TSB listesindeki) her araca istediğin zaman teknik özellik ve donanım
               girebilirsin: marka, model ve motor sürümünü seç; paket, vites ve yılları düzenleyicide
               seçersin.
             </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-              <label className="k-field" style={{ flex: '1 1 200px' }}>
+            <div className={stil.kutu7}>
+              <label className={`k-field ${stil.etiket1}`}>
                 Marka
                 <select
                   value={marka}
@@ -283,7 +270,7 @@ export default function TeknikOzellikler() {
                   ))}
                 </select>
               </label>
-              <label className="k-field" style={{ flex: '1 1 260px' }}>
+              <label className={`k-field ${stil.etiket2}`}>
                 Model
                 <select
                   value={seri?.id ?? ''}
@@ -308,8 +295,8 @@ export default function TeknikOzellikler() {
             </div>
             {seri && surumler ? (
               surumler.length ? (
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
-                  <span style={{ width: '100%', fontSize: 13, fontWeight: 700 }}>Motor sürümü</span>
+                <div className={stil.kutu8}>
+                  <span className={stil.metin8}>Motor sürümü</span>
                   {surumler.map((s) => (
                     <button
                       key={s.id}
@@ -325,9 +312,7 @@ export default function TeknikOzellikler() {
                   ))}
                 </div>
               ) : (
-                <p style={{ margin: '12px 0 0', fontSize: 13, color: '#5A6073' }}>
-                  Bu modelde Türkiye'de satılan motor sürümü yok.
-                </p>
+                <p className={stil.metin9}>Bu modelde Türkiye'de satılan motor sürümü yok.</p>
               )
             ) : null}
           </div>
@@ -342,26 +327,15 @@ export default function TeknikOzellikler() {
       ) : (
         liste.map((b) => (
           <div key={b.id}>
-            <section
-              className="k-panel"
-              style={{ padding: 16, marginBottom: 10 }}
-              aria-label={`${b.arac} ${b.motor}`}
-            >
-              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 8 }}>
+            <section className={`k-panel ${stil.kutu9}`} aria-label={`${b.arac} ${b.motor}`}>
+              <div className={stil.kutu3}>
                 <div>
-                  <strong style={{ fontSize: 15 }}>
+                  <strong className={stil.metin2}>
                     {b.arac} {b.motor}
                   </strong>
-                  {b.alanAd ? (
-                    <span
-                      className="k-pill"
-                      style={{ marginLeft: 8, background: '#FFF6DD', color: '#7A5A00' }}
-                    >
-                      {b.alanAd}
-                    </span>
-                  ) : null}
-                  <p style={{ margin: '6px 0 0', fontSize: 14 }}>{b.not}</p>
-                  <p style={{ margin: '6px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+                  {b.alanAd ? <span className={`k-pill ${stil.metin10}`}>{b.alanAd}</span> : null}
+                  <p className={stil.metin11}>{b.not}</p>
+                  <p className={stil.metin7}>
                     <a href={`${WEB}/talep/${b.talep}`} target="_blank" rel="noreferrer">
                       Talep #{b.talep}
                     </a>
@@ -371,12 +345,11 @@ export default function TeknikOzellikler() {
                   </p>
                 </div>
                 {b.durum === 'acik' ? (
-                  <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                  <div className={stil.kutu10}>
                     {b.modelId ? (
                       <button
                         type="button"
-                        className="k-btn-ok"
-                        style={{ fontSize: 13, padding: '6px 12px' }}
+                        className={`k-btn-ok ${stil.dugme1}`}
                         onClick={() => setAcikDuzelt((x) => (x === b.id ? null : b.id))}
                       >
                         {acikDuzelt === b.id ? 'Düzenleyiciyi kapat' : 'Düzelt'}
@@ -384,16 +357,14 @@ export default function TeknikOzellikler() {
                     ) : null}
                     <button
                       type="button"
-                      className="k-btn-line"
-                      style={{ fontSize: 13, padding: '6px 12px' }}
+                      className={`k-btn-line ${stil.dugme1}`}
                       onClick={() => karar(b, 'duzeltildi')}
                     >
                       Düzeltildi say
                     </button>
                     <button
                       type="button"
-                      className="k-btn-line"
-                      style={{ fontSize: 13, padding: '6px 12px', color: '#A3271F' }}
+                      className={`k-btn-line ${stil.dugme2}`}
                       onClick={() => karar(b, 'reddedildi')}
                     >
                       Reddet

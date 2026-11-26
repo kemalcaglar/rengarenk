@@ -1,0 +1,204 @@
+/* Bu dosya page.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  margin-bottom: 16px;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+}
+.metin1 {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #5a6073;
+}
+.metin2 {
+  color: #a3271f;
+  font-weight: 700;
+}
+.metin3 {
+  color: #11683f;
+  font-weight: 700;
+}
+.kutu2 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+.kutu3 {
+  background: #ffffff;
+  border: 1px solid #e3e6ef;
+  border-radius: 18px;
+  flex: 3 1 480px;
+  min-width: 0;
+  overflow: hidden;
+}
+.baslik2 {
+  margin: 0;
+  padding: 16px 18px;
+  font-size: 17px;
+  font-weight: 800;
+  border-bottom: 1px solid #eef0f5;
+}
+.kutu4 {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 8px;
+  padding: 10px 18px;
+  background: #f3f5fa;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #5a6073;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.kutu5 {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 8px;
+  padding: 10px 18px;
+  border-top: 1px solid #eef0f5;
+  font-size: 13px;
+}
+.metin4 {
+  font-weight: 700;
+}
+.metin5 {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #5a6073;
+}
+.metin6 {
+  color: #3a4052;
+}
+.metin7 {
+  margin: 0;
+  padding: 10px 18px 14px;
+  font-size: 12px;
+  color: #5a6073;
+  border-top: 1px solid #eef0f5;
+}
+.kutu6 {
+  flex: 2 1 320px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.kutu7 {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 16px 18px;
+}
+.baslik3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+}
+.metin8 {
+  margin: 4px 0 10px;
+  font-size: 12.5px;
+  color: #5a6073;
+}
+.dugme1 {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: #2450c8;
+  font-weight: 700;
+  font-size: 12.5px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.kutu8 {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 0;
+  border-top: 1px solid #eef0f5;
+  font-size: 13px;
+}
+.dugme2 {
+  margin-top: 12px;
+  width: 100%;
+  border: 0;
+  background: #5b8cff;
+  border-radius: 12px;
+  padding: 11px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #1e2333;
+  cursor: pointer;
+  font-family: inherit;
+}
+.metin9 {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: #5a6073;
+}
+.metin10 {
+  margin: 12px 0 0;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #11683f;
+}
+.metin11 {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #5a6073;
+  margin-top: 2px;
+}
+.kutu9 {
+  background: #ffffff;
+  border: 1px solid #e3e6ef;
+  border-radius: 18px;
+  padding: 16px 18px;
+}
+.kutu10 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.metin12 {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.metin13 {
+  background: #fdecec;
+  color: #a3271f;
+}
+.metin14 {
+  background: #e7faf0;
+  color: #11683f;
+}
+.kutu11 {
+  margin-top: 10px;
+}
+.kutu12 {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+.kutu13 {
+  height: 8px;
+  border-radius: 999px;
+  background: #eef0f5;
+  margin-top: 5px;
+}
+.kutu14 {
+  height: 8px;
+  border-radius: 999px;
+  background: #5b8cff;
+}
+.metin15 {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #5a6073;
+}

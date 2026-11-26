@@ -8,8 +8,10 @@ import {
   type FlowStep,
 } from '@rengarenk/shared';
 import { type CSSProperties, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 interface Satir {
   tip: string;
@@ -34,19 +36,6 @@ interface Akis {
   okunma: number | null;
 }
 
-const alan: CSSProperties = {
-  display: 'block',
-  width: '100%',
-  boxSizing: 'border-box',
-  marginTop: 5,
-  border: '1px solid #D5DAE5',
-  borderRadius: 10,
-  padding: 10,
-  fontSize: 14,
-  background: '#FFFFFF',
-  fontFamily: 'inherit',
-};
-const etiket: CSSProperties = { display: 'block', fontSize: 13, fontWeight: 700 };
 const ikincil: CSSProperties = {
   border: '1px solid #D5DAE5',
   background: '#FFFFFF',
@@ -163,9 +152,9 @@ export default function Akislar() {
     : [];
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
-        <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Otomatik akışlar</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+      <div className={stil.kutu1}>
+        <h1 className={stil.baslik1}>Otomatik akışlar</h1>
+        <p className={stil.metin1}>
           Tetikleyici, bekleme, koşul ve ileti adımlarıyla kurulur. Kişi hedefe ulaşınca akıştan çıkar.
         </p>
       </div>
@@ -175,45 +164,14 @@ export default function Akislar() {
         </p>
       ) : null}
       {bilgi ? (
-        <p
-          role="status"
-          style={{
-            background: '#E7FAF0',
-            color: '#11683F',
-            borderRadius: 12,
-            padding: '10px 14px',
-            fontSize: 14,
-            fontWeight: 700,
-          }}
-        >
+        <p role="status" className={stil.metin2}>
           {bilgi}
         </p>
       ) : null}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-start' }}>
-        <section
-          aria-label="Akışlar"
-          style={{
-            flex: '1 1 340px',
-            maxWidth: 420,
-            minWidth: 0,
-            background: '#FFFFFF',
-            border: '1px solid #E3E6EF',
-            borderRadius: 18,
-            padding: 8,
-          }}
-        >
+      <div className={stil.kutu2}>
+        <section aria-label="Akışlar" className={stil.kutu3}>
           {(liste ?? []).map((a) => (
-            <div
-              key={a.key}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                borderRadius: 12,
-                padding: 10,
-                background: a.key === sec ? '#F3EFFF' : 'transparent',
-              }}
-            >
+            <div key={a.key} className={cx(stil.kutu4, a.key === sec ? stil.kutu5 : stil.kutu6)}>
               <button
                 type="button"
                 onClick={() => {
@@ -222,20 +180,10 @@ export default function Akislar() {
                   setBilgi(null);
                 }}
                 aria-current={a.key === sec}
-                style={{
-                  flex: 1,
-                  minWidth: 0,
-                  textAlign: 'left',
-                  border: 0,
-                  background: 'transparent',
-                  padding: 0,
-                  cursor: 'pointer',
-                  color: '#1E2333',
-                  fontFamily: 'inherit',
-                }}
+                className={stil.dugme1}
               >
-                <span style={{ display: 'block', fontSize: 14, fontWeight: 800 }}>{a.ad}</span>
-                <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 2 }}>
+                <span className={stil.metin3}>{a.ad}</span>
+                <span className={stil.metin4}>
                   {a.tur} ·{' '}
                   {a.acik
                     ? `30 günde ${a.kisi.toLocaleString('tr-TR')} ileti · okunma ${yuzde(a.okunma)}`
@@ -249,115 +197,38 @@ export default function Akislar() {
                 aria-label={`${a.ad}: aç veya kapat`}
                 disabled={!duzenler}
                 onClick={() => degistir(a)}
-                style={{
-                  flex: 'none',
-                  border: 0,
-                  background: 'transparent',
-                  padding: 0,
-                  cursor: duzenler ? 'pointer' : 'default',
-                }}
+                className={cx(stil.dugme2, duzenler ? stil.dugme3 : stil.dugme4)}
               >
-                <span
-                  style={{
-                    display: 'block',
-                    width: 40,
-                    height: 24,
-                    borderRadius: 999,
-                    background: a.acik ? '#3DD68C' : '#D5DAE5',
-                    position: 'relative',
-                  }}
-                >
-                  <span
-                    style={{
-                      position: 'absolute',
-                      top: 3,
-                      left: a.acik ? 19 : 3,
-                      width: 18,
-                      height: 18,
-                      borderRadius: '50%',
-                      background: '#FFFFFF',
-                      boxShadow: '0 1px 2px rgba(30,35,51,0.3)',
-                    }}
-                  />
+                <span className={cx(stil.metin5, a.acik ? stil.metin6 : stil.metin7)}>
+                  <span className={cx(stil.metin8, a.acik ? stil.metin9 : stil.metin10)} />
                 </span>
               </button>
             </div>
           ))}
         </section>
         {akis ? (
-          <section
-            aria-labelledby="akisad"
-            style={{
-              flex: '999 1 420px',
-              minWidth: 0,
-              background: '#FFFFFF',
-              border: '1px solid #E3E6EF',
-              borderRadius: 18,
-              padding: 18,
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 10,
-              }}
-            >
-              <h2 id="akisad" style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
+          <section aria-labelledby="akisad" className={stil.kutu7}>
+            <div className={stil.kutu8}>
+              <h2 id="akisad" className={stil.baslik2}>
                 {akis.ad}
               </h2>
-              <span style={{ fontSize: 12.5, color: '#5A6073' }}>
+              <span className={stil.metin11}>
                 {akis.acik
                   ? `Son 30 gün: ${akis.kisi.toLocaleString('tr-TR')} ileti · uygulamada okunma ${yuzde(akis.okunma)}`
                   : 'Kapalı'}
               </span>
             </div>
-            <div style={{ marginTop: 16 }}>
+            <div className={stil.kutu9}>
               {tumu.map((ad, i) => (
-                <div key={`${ad.ek}-${ad.tip}-${ad.baslik}`} style={{ display: 'flex', gap: 12 }}>
-                  <span
-                    style={{ flex: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
-                  >
-                    <span
-                      style={{
-                        width: 30,
-                        height: 30,
-                        borderRadius: '50%',
-                        background: RENK[ad.tip] ?? '#EEF0F5',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: 13,
-                        fontWeight: 800,
-                      }}
-                    >
+                <div key={`${ad.ek}-${ad.tip}-${ad.baslik}`} className={stil.kutu10}>
+                  <span className={stil.metin12}>
+                    <span className={stil.metin13} style={{ background: RENK[ad.tip] ?? '#EEF0F5' }}>
                       {i + 1}
                     </span>
-                    <span
-                      style={{
-                        flex: 1,
-                        width: 2,
-                        background: '#E3E6EF',
-                        minHeight: 14,
-                        opacity: i === tumu.length - 1 ? 0 : 1,
-                      }}
-                    />
+                    <span className={cx(stil.metin14, i === tumu.length - 1 ? stil.metin15 : stil.metin16)} />
                   </span>
-                  <div style={{ flex: 1, minWidth: 0, paddingBottom: 14 }}>
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        gap: 10,
-                        fontSize: 11.5,
-                        fontWeight: 800,
-                        textTransform: 'uppercase',
-                        letterSpacing: 0.4,
-                        color: '#5A6073',
-                      }}
-                    >
+                  <div className={stil.kutu11}>
+                    <div className={stil.kutu12}>
                       <span>{ad.ek >= 0 ? `${ad.tip} · eklendi` : ad.tip}</span>
                       {ad.ek >= 0 && duzenler ? (
                         <button
@@ -368,61 +239,26 @@ export default function Akislar() {
                               'Adım kaldırıldı. Akışta olan kişiler başladıkları sürümle devam eder.',
                             )
                           }
-                          style={{
-                            border: 0,
-                            background: 'transparent',
-                            padding: 0,
-                            color: '#A3271F',
-                            fontSize: 12.5,
-                            fontWeight: 700,
-                            textTransform: 'none',
-                            letterSpacing: 0,
-                            cursor: 'pointer',
-                            fontFamily: 'inherit',
-                          }}
+                          className={stil.dugme5}
                         >
                           Kaldır
                         </button>
                       ) : null}
                     </div>
-                    <div style={{ fontSize: 14.5, fontWeight: 800, marginTop: 2 }}>{ad.baslik}</div>
-                    <div style={{ fontSize: 12.5, color: '#3A4052', marginTop: 2 }}>{ad.detay}</div>
+                    <div className={stil.kutu13}>{ad.baslik}</div>
+                    <div className={stil.kutu14}>{ad.detay}</div>
                   </div>
                 </div>
               ))}
             </div>
             {akis.ekAdimlar.length && akis.ekAdimlar.at(-1)?.tip !== 'ileti' ? (
-              <p
-                role="status"
-                style={{
-                  margin: '0 0 14px',
-                  background: '#FFF6DF',
-                  color: '#7A5300',
-                  borderRadius: 12,
-                  padding: '10px 14px',
-                  fontSize: 13,
-                  fontWeight: 700,
-                }}
-              >
+              <p role="status" className={stil.metin17}>
                 {`Son eklenen adım ${akis.ekAdimlar.at(-1)?.tip === 'bekle' ? 'bir bekleme' : 'bir koşul'}; ardından bir ileti eklemezsen kişi bu adımdan sonra akıştan çıkar.`}
               </p>
             ) : null}
             {ekle ? (
-              <div
-                style={{
-                  border: '1.5px solid #5B8CFF',
-                  borderRadius: 14,
-                  padding: 14,
-                  marginBottom: 14,
-                  display: 'grid',
-                  gap: 10,
-                }}
-              >
-                <div
-                  role="radiogroup"
-                  aria-label="Adım türü"
-                  style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}
-                >
+              <div className={stil.kutu15}>
+                <div role="radiogroup" aria-label="Adım türü" className={stil.kutu16}>
                   {(
                     [
                       ['bekle', 'Bekle'],
@@ -449,9 +285,13 @@ export default function Akislar() {
                   ))}
                 </div>
                 {ekle === 'bekle' ? (
-                  <label style={etiket}>
+                  <label className={stil.etiket1}>
                     Bekleme süresi
-                    <select value={saat} onChange={(e) => setSaat(Number(e.target.value))} style={alan}>
+                    <select
+                      value={saat}
+                      onChange={(e) => setSaat(Number(e.target.value))}
+                      className={stil.girdi1}
+                    >
                       {[1, 3, 6, 12, 24, 48, 72, 168].map((h) => (
                         <option key={h} value={h}>
                           {h % 24 === 0 ? `${h / 24} gün` : `${h} saat`}
@@ -461,12 +301,12 @@ export default function Akislar() {
                   </label>
                 ) : null}
                 {ekle === 'kosul' ? (
-                  <label style={etiket}>
+                  <label className={stil.etiket1}>
                     Koşul (sağlanmazsa kişi akıştan çıkar)
                     <select
                       value={kosul}
                       onChange={(e) => setKosul(e.target.value as FlowCondition)}
-                      style={alan}
+                      className={stil.girdi1}
                     >
                       {(Object.keys(FLOW_CONDITIONS) as FlowCondition[]).map((k) => (
                         <option key={k} value={k}>
@@ -478,50 +318,41 @@ export default function Akislar() {
                 ) : null}
                 {ekle === 'ileti' ? (
                   <>
-                    <label style={etiket}>
+                    <label className={stil.etiket1}>
                       Başlık
                       <input
                         value={ileti.baslik}
                         maxLength={80}
                         onChange={(e) => setIleti({ ...ileti, baslik: e.target.value })}
-                        style={alan}
+                        className={stil.girdi1}
                       />
                     </label>
-                    <label style={etiket}>
+                    <label className={stil.etiket1}>
                       Metin
                       <textarea
                         value={ileti.metin}
                         maxLength={300}
                         rows={3}
                         onChange={(e) => setIleti({ ...ileti, metin: e.target.value })}
-                        style={{ ...alan, resize: 'vertical' }}
+                        className={stil.girdi2}
                       />
                     </label>
-                    <label style={etiket}>
+                    <label className={stil.etiket1}>
                       Düğme
                       <input
                         value={ileti.dugme}
                         maxLength={30}
                         onChange={(e) => setIleti({ ...ileti, dugme: e.target.value })}
-                        style={alan}
+                        className={stil.girdi1}
                       />
                     </label>
-                    <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
-                      <legend style={{ ...etiket, padding: 0 }}>Kanal</legend>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginTop: 6 }}>
+                    <fieldset className={stil.kutu17}>
+                      <legend className={stil.baslik3}>Kanal</legend>
+                      <div className={stil.kutu18}>
                         {(Object.keys(FLOW_CHANNELS) as FlowChannel[]).map((k) => {
                           const kapali = k === 'eposta' && !akis.epostaVar;
                           return (
-                            <label
-                              key={k}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 6,
-                                fontSize: 13.5,
-                                color: kapali ? '#9AA0B0' : '#1E2333',
-                              }}
-                            >
+                            <label key={k} className={cx(stil.etiket2, kapali ? stil.etiket3 : stil.etiket4)}>
                               <input
                                 type="checkbox"
                                 disabled={kapali}
@@ -537,60 +368,37 @@ export default function Akislar() {
                         })}
                       </div>
                     </fieldset>
-                    <p style={{ margin: 0, fontSize: 12.5, color: '#5A6073' }}>
+                    <p className={stil.metin18}>
                       Kullanılabilir değişkenler: {akis.degiskenler.map((v) => `{{${v}}}`).join(', ')}.
                       WhatsApp yalnızca kritik iletilerde kullanılır.
                     </p>
                   </>
                 ) : null}
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button
-                    type="button"
-                    onClick={adimEkle}
-                    style={{
-                      border: 0,
-                      background: '#5B8CFF',
-                      borderRadius: 10,
-                      padding: '9px 16px',
-                      fontSize: 13.5,
-                      fontWeight: 800,
-                      color: '#1E2333',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
+                <div className={stil.kutu19}>
+                  <button type="button" onClick={adimEkle} className={stil.dugme6}>
                     Hedeften önce ekle
                   </button>
-                  <button type="button" onClick={() => setEkle(null)} style={ikincil}>
+                  <button type="button" onClick={() => setEkle(null)} className={stil.dugme7}>
                     Vazgeç
                   </button>
                 </div>
               </div>
             ) : null}
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                gap: 8,
-                borderTop: '1px solid #EEF0F5',
-                paddingTop: 14,
-              }}
-            >
+            <div className={stil.kutu20}>
               {duzenler ? (
                 <button
                   type="button"
                   onClick={() => setEkle((x) => (x ? null : 'bekle'))}
                   aria-expanded={Boolean(ekle)}
-                  style={ikincil}
+                  className={stil.dugme7}
                 >
                   Adım ekle
                 </button>
               ) : null}
-              <button type="button" onClick={test} style={ikincil}>
+              <button type="button" onClick={test} className={stil.dugme7}>
                 Test kişisine gönder
               </button>
-              <span style={{ flex: '1 1 200px', fontSize: 12.5, color: '#5A6073' }}>
+              <span className={stil.metin19}>
                 {akis.akista.toLocaleString('tr-TR')} kişi akışta · son 30 günde{' '}
                 {akis.hedefte.toLocaleString('tr-TR')} kişi hedefe ulaştı
                 {akis.surum ? ` · sürüm ${akis.surum}` : ''}

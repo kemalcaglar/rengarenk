@@ -1,15 +1,14 @@
 'use client';
 
-import { type CSSProperties, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { tarih, yonetim } from '../../../lib/istemci';
+import stil from './page.module.css';
 
 interface Gecmis {
   kisi: { ad: string; userId: string } | null;
   gecmis: { ad: string; durum: 'Verdi' | 'Vermedi'; surum: string; zaman: string; kanal: string }[];
 }
-
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 };
-const SUTUN = 'minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.2fr)';
 const zaman = (iso: string) =>
   new Intl.DateTimeFormat('tr-TR', {
     day: 'numeric',
@@ -53,45 +52,28 @@ export default function Riza() {
 
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
-        <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Rıza ve çerez kayıtları</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+      <div className={stil.kutu1}>
+        <h1 className={stil.baslik1}>Rıza ve çerez kayıtları</h1>
+        <p className={stil.metin1}>
           Her rıza tarih, metin sürümü ve kanalıyla saklanır. Ticari ileti izinleri İYS'ye CSV ile yüklenir.
         </p>
       </div>
-      {hata ? <p style={{ color: '#A3271F', fontWeight: 700 }}>{hata}</p> : null}
+      {hata ? <p className={stil.metin2}>{hata}</p> : null}
       {sayilar ? (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
-            gap: 10,
-            marginBottom: 14,
-          }}
-        >
+        <div className={stil.kutu2}>
           {sayilar.map((s) => (
-            <div key={s.ad} style={{ ...kart, borderRadius: 16, padding: 14 }}>
-              <div style={{ fontSize: 12.5, fontWeight: 700, color: '#5A6073' }}>{s.ad}</div>
-              <div style={{ fontSize: 21, fontWeight: 800, marginTop: 4 }}>{s.deger}</div>
-              <div style={{ fontSize: 12, color: '#5A6073', marginTop: 3 }}>{s.not}</div>
+            <div key={s.ad} className={stil.kutu3}>
+              <div className={stil.kutu4}>{s.ad}</div>
+              <div className={stil.kutu5}>{s.deger}</div>
+              <div className={stil.kutu6}>{s.not}</div>
             </div>
           ))}
         </div>
       ) : null}
       <IysAktarim />
-      <section aria-labelledby="rizag" style={{ ...kart, overflow: 'hidden' }}>
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 10,
-            padding: '14px 18px',
-            borderBottom: '1px solid #EEF0F5',
-          }}
-        >
-          <h2 id="rizag" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+      <section aria-labelledby="rizag" className={stil.kutu7}>
+        <div className={stil.kutu8}>
+          <h2 id="rizag" className={stil.baslik2}>
             {g?.kisi ? `${g.kisi.ad} · rıza geçmişi` : 'Rıza geçmişi'}
           </h2>
           <input
@@ -100,77 +82,38 @@ export default function Riza() {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Ad ya da telefonun son haneleri"
-            style={{
-              flex: '0 1 260px',
-              border: '1px solid #D5DAE5',
-              borderRadius: 10,
-              padding: '8px 12px',
-              fontSize: 13.5,
-              fontFamily: 'inherit',
-            }}
+            className={stil.girdi1}
           />
         </div>
-        <div style={{ overflowX: 'auto' }}>
-          <div style={{ minWidth: 640 }}>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: SUTUN,
-                gap: 8,
-                padding: '10px 18px',
-                background: '#F3F5FA',
-                fontSize: 11.5,
-                fontWeight: 800,
-                color: '#5A6073',
-                textTransform: 'uppercase',
-                letterSpacing: 0.3,
-              }}
-            >
+        <div className={stil.kutu9}>
+          <div className={stil.kutu10}>
+            <div className={stil.kutu11}>
               <span>Rıza</span>
               <span>Durum</span>
               <span>Metin sürümü</span>
               <span>Tarih ve kanal</span>
             </div>
             {!g ? (
-              <p style={{ margin: 0, padding: '14px 18px', fontSize: 13.5, color: '#5A6073' }}>
+              <p className={stil.metin3}>
                 Bir kişinin rıza geçmişini görmek için adını ya da telefonunun son hanelerini yaz.
               </p>
             ) : !g.kisi ? (
-              <p style={{ margin: 0, padding: '14px 18px', fontSize: 13.5, color: '#5A6073' }}>
-                Kişi bulunamadı.
-              </p>
+              <p className={stil.metin3}>Kişi bulunamadı.</p>
             ) : (
               g.gecmis.map((r, i) => (
                 <div
                   // biome-ignore lint/suspicious/noArrayIndexKey: geçmiş sırası sabit
                   key={i}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: SUTUN,
-                    gap: 8,
-                    alignItems: 'center',
-                    padding: '10px 18px',
-                    borderTop: '1px solid #EEF0F5',
-                    fontSize: 13,
-                  }}
+                  className={stil.kutu12}
                 >
-                  <span style={{ fontWeight: 700 }}>{r.ad}</span>
+                  <span className={stil.metin4}>{r.ad}</span>
                   <span>
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 800,
-                        padding: '3px 9px',
-                        borderRadius: 999,
-                        background: r.durum === 'Verdi' ? '#E7FAF0' : '#F3F5FA',
-                        color: r.durum === 'Verdi' ? '#11683F' : '#3A4052',
-                      }}
-                    >
+                    <span className={cx(stil.metin5, r.durum === 'Verdi' ? stil.metin6 : stil.metin7)}>
                       {r.durum}
                     </span>
                   </span>
                   <span>{r.surum}</span>
-                  <span style={{ color: '#3A4052' }}>
+                  <span className={stil.metin8}>
                     {zaman(r.zaman)} · {r.kanal}
                   </span>
                 </div>
@@ -201,28 +144,6 @@ interface IysOzet {
     yukleyen: string | null;
   }[];
 }
-
-const dugme: CSSProperties = {
-  border: 0,
-  borderRadius: 10,
-  padding: '9px 14px',
-  fontSize: 13.5,
-  fontWeight: 800,
-  fontFamily: 'inherit',
-  cursor: 'pointer',
-  background: '#1F55E8',
-  color: '#FFFFFF',
-};
-const ikincil: CSSProperties = {
-  ...dugme,
-  background: '#FFFFFF',
-  color: '#1F2433',
-  border: '1px solid #D5DAE5',
-  padding: '6px 11px',
-  fontSize: 12.5,
-  textDecoration: 'none',
-  display: 'inline-block',
-};
 
 /**
  * İYS'ye elle aktarım: izin değişince kanal başına (e-posta; eski SMS onaylarının retleri mesaj) satır birikir; "CSV'yi hazırla" en eski 50 satırı
@@ -264,21 +185,13 @@ function IysAktarim() {
   };
   const b = o?.bekleyen;
   return (
-    <section aria-labelledby="iysg" style={{ ...kart, padding: '16px 18px', marginBottom: 14 }}>
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 10,
-        }}
-      >
+    <section aria-labelledby="iysg" className={stil.kutu13}>
+      <div className={stil.kutu14}>
         <div>
-          <h2 id="iysg" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+          <h2 id="iysg" className={stil.baslik2}>
             İYS'ye aktarım
           </h2>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: '#5A6073', maxWidth: 640 }}>
+          <p className={stil.metin9}>
             Ticari ileti onayı ya da reti 3 iş günü içinde İYS'ye yüklenmeli. Gün sonunda CSV dosyasını indir,
             İYS Web'de İzin Ekle › Dosyadan Çoklu İzin Yükle ekranından "Bireysel" olarak yükle, sonra paketi
             "Yüklendi" diye işaretle. İYS bir dosyada en fazla {IYS_SINIR} izin alır; her paket bir dosyadır.
@@ -288,7 +201,7 @@ function IysAktarim() {
         </div>
         <button
           type="button"
-          style={{ ...dugme, opacity: !b?.toplam || mesgul ? 0.5 : 1 }}
+          className={cx(stil.dugme1, !b?.toplam || mesgul ? stil.dugme2 : stil.dugme3)}
           disabled={!b?.toplam || mesgul}
           onClick={() =>
             calistir(async () => {
@@ -300,16 +213,9 @@ function IysAktarim() {
           {b?.toplam ? `CSV'yi hazırla ve indir (${Math.min(b.toplam, IYS_SINIR)})` : 'Bekleyen izin yok'}
         </button>
       </div>
-      {hata ? <p style={{ color: '#A3271F', fontWeight: 700, margin: '10px 0 0' }}>{hata}</p> : null}
+      {hata ? <p className={stil.metin10}>{hata}</p> : null}
       {b?.toplam ? (
-        <p
-          style={{
-            margin: '10px 0 0',
-            fontSize: 13,
-            fontWeight: 700,
-            color: b.gecikti ? '#A3271F' : '#3A4052',
-          }}
-        >
+        <p className={cx(stil.metin11, b.gecikti ? stil.metin12 : stil.metin8)}>
           Bekleyen: e-posta {b.eposta.onay} onay, {b.eposta.ret} ret · mesaj {b.mesaj.onay} onay,{' '}
           {b.mesaj.ret} ret · en eskisi {tarih(b.enEski)}
           {b.gecikti ? ' · 3 iş günü doldu' : ''}
@@ -319,62 +225,29 @@ function IysAktarim() {
         </p>
       ) : null}
       {o?.paketler.length ? (
-        <div style={{ marginTop: 12, overflowX: 'auto' }}>
-          <div style={{ minWidth: 560 }}>
+        <div className={stil.kutu15}>
+          <div className={stil.kutu16}>
             {o.paketler.map((p) => (
-              <div
-                key={p.id}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'minmax(0, 0.6fr) minmax(0, 1.4fr) minmax(0, 1.4fr) auto',
-                  gap: 8,
-                  alignItems: 'center',
-                  padding: '9px 0',
-                  borderTop: '1px solid #EEF0F5',
-                  fontSize: 13,
-                }}
-              >
-                <span style={{ fontWeight: 800 }}>Paket {p.no}</span>
-                <span style={{ color: '#3A4052' }}>
+              <div key={p.id} className={stil.kutu17}>
+                <span className={stil.metin13}>Paket {p.no}</span>
+                <span className={stil.metin8}>
                   {p.sayi} satır · {tarih(p.zaman)} · {p.indiren}
                 </span>
                 <span>
                   {p.yuklendi ? (
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 800,
-                        padding: '3px 9px',
-                        borderRadius: 999,
-                        background: '#E7FAF0',
-                        color: '#11683F',
-                      }}
-                    >
-                      Yüklendi · {tarih(p.yuklendi)}
-                    </span>
+                    <span className={stil.metin14}>Yüklendi · {tarih(p.yuklendi)}</span>
                   ) : (
-                    <span
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 800,
-                        padding: '3px 9px',
-                        borderRadius: 999,
-                        background: '#FFF6DF',
-                        color: '#7A5200',
-                      }}
-                    >
-                      İYS'ye yüklenmedi
-                    </span>
+                    <span className={stil.metin15}>İYS'ye yüklenmedi</span>
                   )}
                 </span>
-                <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                  <button type="button" style={ikincil} onClick={() => indir(p.id)}>
+                <span className={stil.metin16}>
+                  <button type="button" className={stil.dugme4} onClick={() => indir(p.id)}>
                     İndir
                   </button>
                   {p.yuklendi ? null : (
                     <button
                       type="button"
-                      style={ikincil}
+                      className={stil.dugme4}
                       disabled={mesgul}
                       onClick={() =>
                         calistir(() => yonetim(`iys/paket/${p.id}/yuklendi`, { method: 'POST' }))

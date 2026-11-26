@@ -10,8 +10,10 @@ import {
   UI_EXPERIMENTS,
 } from '@rengarenk/shared';
 import { type FormEvent, useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { tarih, yonetim } from '../../../lib/istemci';
 import { Switch } from '../switch';
+import stil from './page.module.css';
 
 interface Flag {
   key: string;
@@ -99,7 +101,7 @@ export default function Sistem() {
 
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
+      <div className={stil.kutu1}>
         <h1 className="k-h1">Özellik anahtarları ve bakım</h1>
         <p className="k-sub">
           Yeni özellik önce küçük bir gruba açılır; sorun çıkarsa kod değişmeden kapatılır (Karar 47).
@@ -112,39 +114,20 @@ export default function Sistem() {
       ) : null}
 
       <section className="k-panel" aria-labelledby="oz">
-        <h2
-          id="oz"
-          style={{
-            margin: 0,
-            padding: '16px 18px',
-            fontSize: 17,
-            fontWeight: 800,
-            borderBottom: '1px solid #EEF0F5',
-          }}
-        >
+        <h2 id="oz" className={stil.baslik1}>
           Özellik anahtarları
         </h2>
         {flags === null ? (
           <div className="k-empty">Yükleniyor…</div>
         ) : (
           flags.map((f) => (
-            <div key={f.key} style={{ borderBottom: '1px solid #EEF0F5' }}>
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  gap: '8px 16px',
-                  padding: '12px 18px',
-                }}
-              >
-                <span style={{ flex: '999 1 280px', minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 14, fontWeight: 800 }}>{f.ad}</span>
-                  <span style={{ display: 'block', fontSize: 12.5, color: '#3A4052', marginTop: 2 }}>
-                    {f.not}
-                  </span>
+            <div key={f.key} className={stil.kutu2}>
+              <div className={stil.kutu3}>
+                <span className={stil.metin1}>
+                  <span className={stil.metin2}>{f.ad}</span>
+                  <span className={stil.metin3}>{f.not}</span>
                   {UI_EXPERIMENTS[f.key as FeatureFlagKey] ? (
-                    <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 2 }}>
+                    <span className={stil.metin4}>
                       {f.enabled && f.audience === 'ALL' && f.percent > 0 && f.percent < 100
                         ? 'Deney sürüyor · sonuç Raporlar › Deneyler’de'
                         : 'Yüzde 1–99 arası deney başlatır (kitle Herkes); sonuç Raporlar › Deneyler’de'}
@@ -153,15 +136,8 @@ export default function Sistem() {
                 </span>
                 <button
                   type="button"
-                  className="k-link"
+                  className={`k-link ${stil.dugme1}`}
                   title="Kapsamı değiştir"
-                  style={{
-                    flex: '1 1 200px',
-                    minWidth: 0,
-                    textAlign: 'left',
-                    fontSize: 12.5,
-                    color: '#3A4052',
-                  }}
                   aria-expanded={open === f.key}
                   aria-label={`${f.ad} kapsamı: ${scope(f)}. Değiştir`}
                   onClick={() => setOpen(open === f.key ? null : f.key)}
@@ -176,16 +152,8 @@ export default function Sistem() {
                 />
               </div>
               {open === f.key ? (
-                <div
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 14,
-                    padding: '0 18px 14px',
-                    alignItems: 'flex-end',
-                  }}
-                >
-                  <label className="k-field" style={{ flex: '1 1 200px' }}>
+                <div className={stil.kutu4}>
+                  <label className={`k-field ${stil.etiket1}`}>
                     Kitle
                     <select
                       value={f.audience}
@@ -199,7 +167,7 @@ export default function Sistem() {
                       ))}
                     </select>
                   </label>
-                  <label className="k-field" style={{ flex: '0 1 140px' }}>
+                  <label className={`k-field ${stil.etiket2}`}>
                     Yüzde
                     <input
                       type="number"
@@ -213,22 +181,11 @@ export default function Sistem() {
                       }}
                     />
                   </label>
-                  <fieldset
-                    style={{
-                      flex: '1 1 220px',
-                      border: 0,
-                      padding: 0,
-                      margin: 0,
-                      fontSize: 13,
-                      fontWeight: 700,
-                    }}
-                  >
-                    <legend style={{ padding: 0, marginBottom: 8 }}>
-                      Platform (hiçbiri seçili değilse hepsi)
-                    </legend>
-                    <span style={{ display: 'flex', gap: 14, fontWeight: 600 }}>
+                  <fieldset className={stil.kutu5}>
+                    <legend className={stil.baslik2}>Platform (hiçbiri seçili değilse hepsi)</legend>
+                    <span className={stil.metin5}>
                       {FLAG_PLATFORMS.map((p) => (
-                        <label key={p} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                        <label key={p} className={stil.etiket3}>
                           <input
                             type="checkbox"
                             checked={f.platforms.includes(p)}
@@ -246,7 +203,7 @@ export default function Sistem() {
                       ))}
                     </span>
                   </fieldset>
-                  <p style={{ flex: '1 1 100%', margin: 0, fontSize: 12.5, color: '#5A6073' }}>
+                  <p className={stil.metin6}>
                     Yüzde, giriş yapmış kullanıcılara uygulanır; aynı kişi hep aynı sonucu görür.
                     {f.updatedAt ? ` Son değişiklik: ${tarih(f.updatedAt)}.` : ''}
                   </p>
@@ -257,37 +214,23 @@ export default function Sistem() {
         )}
       </section>
 
-      <section className="k-panel" style={{ marginTop: 16 }} aria-labelledby="bakim">
-        <div style={{ padding: '16px 18px', borderBottom: '1px solid #EEF0F5' }}>
-          <h2 id="bakim" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+      <section className={`k-panel ${stil.kutu6}`} aria-labelledby="bakim">
+        <div className={stil.kutu7}>
+          <h2 id="bakim" className={stil.baslik3}>
             Bakım modu
           </h2>
-          <p style={{ margin: '3px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+          <p className={stil.metin7}>
             Yalnız sahip ve yönetici. Açılınca kullanıcılara üst şeritte duyuru kendiliğinden çıkar.
           </p>
         </div>
         {maintenance.map((b) => {
           const area = b.key;
           return (
-            <div
-              key={area}
-              style={{
-                padding: '12px 18px',
-                borderBottom: '1px solid #EEF0F5',
-                background: b.enabled ? '#FFF7F6' : undefined,
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 14, fontWeight: 800 }}>{b.ad}</span>
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 12.5,
-                      color: b.enabled ? '#A3271F' : '#5A6073',
-                      marginTop: 2,
-                    }}
-                  >
+            <div key={area} className={cx(stil.kutu8, b.enabled ? stil.kutu9 : undefined)}>
+              <div className={stil.kutu10}>
+                <span className={stil.metin8}>
+                  <span className={stil.metin2}>{b.ad}</span>
+                  <span className={cx(stil.metin9, b.enabled ? stil.metin10 : stil.metin11)}>
                     {b.enabled ? 'Bakımda · kullanıcılara duyuru şeridi gösteriliyor' : b.not}
                   </span>
                 </span>
@@ -313,7 +256,7 @@ export default function Sistem() {
                 />
               </div>
               {b.enabled ? (
-                <label className="k-field" style={{ display: 'block', marginTop: 8 }}>
+                <label className={`k-field ${stil.etiket4}`}>
                   <span className="sr-only">{b.ad} duyuru metni</span>
                   <input
                     placeholder="Duyuru metni: Rengarenk kısa bir bakımda. Birazdan yeniden deneyebilirsin."
@@ -329,7 +272,7 @@ export default function Sistem() {
                           }),
                         );
                     }}
-                    style={{ fontSize: 13.5, padding: 9 }}
+                    className={stil.girdi1}
                   />
                 </label>
               ) : null}
@@ -337,20 +280,20 @@ export default function Sistem() {
           );
         })}
       </section>
-      <section className="k-panel" style={{ marginTop: 16 }} aria-labelledby="deneme">
-        <div style={{ padding: '16px 18px', borderBottom: '1px solid #EEF0F5' }}>
-          <h2 id="deneme" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+      <section className={`k-panel ${stil.kutu6}`} aria-labelledby="deneme">
+        <div className={stil.kutu7}>
+          <h2 id="deneme" className={stil.baslik3}>
             Çalışanların kullanıcı hesapları
           </h2>
-          <p style={{ margin: '3px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+          <p className={stil.metin7}>
             Kapsamı "Yalnızca çalışanlar" olan özellikler bu hesaplara açılır. Çalışanın uygulamaya kendi
             telefonuyla bir kez giriş yapmış olması gerekir.
           </p>
         </div>
         {testers.map((t) => (
-          <div key={t.userId} className="k-row" style={{ borderTop: 0, borderBottom: '1px solid #EEF0F5' }}>
-            <span style={{ flex: '999 1 200px', fontWeight: 700 }}>{t.name ?? 'Adsız kullanıcı'}</span>
-            <span style={{ flex: '1 1 160px', fontSize: 13, color: '#3A4052' }}>{t.phone}</span>
+          <div key={t.userId} className={`k-row ${stil.kutu11}`}>
+            <span className={stil.metin12}>{t.name ?? 'Adsız kullanıcı'}</span>
+            <span className={stil.metin13}>{t.phone}</span>
             <button
               className="k-btn-danger"
               type="button"
@@ -361,11 +304,8 @@ export default function Sistem() {
             </button>
           </div>
         ))}
-        <form
-          onSubmit={addTester}
-          style={{ display: 'flex', flexWrap: 'wrap', gap: 10, padding: '12px 18px', alignItems: 'flex-end' }}
-        >
-          <label className="k-field" style={{ flex: '1 1 220px' }}>
+        <form onSubmit={addTester} className={stil.kutu12}>
+          <label className={`k-field ${stil.etiket5}`}>
             Cep telefonu
             <input
               inputMode="tel"

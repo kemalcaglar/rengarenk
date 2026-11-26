@@ -1,0 +1,53 @@
+/* Bu dosya page.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.metin1 {
+  margin-bottom: 16px;
+}
+.girdi1 {
+  flex: 1 1 240px;
+  min-width: 0;
+  border: 1px solid #d5dae5;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 13.5px;
+}
+.kutu1 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #eef0f5;
+  font-size: 13.5px;
+}
+.metin2 {
+  flex: 0 0 96px;
+  color: #5a6073;
+  font-weight: 600;
+}
+.metin3 {
+  flex: 0 0 150px;
+  font-weight: 800;
+}
+.metin4 {
+  flex: 999 1 300px;
+  min-width: 0;
+}
+.metin5 {
+  display: block;
+  font-weight: 700;
+}
+.metin6 {
+  display: block;
+  font-size: 12.5px;
+  color: #3a4052;
+  margin-top: 2px;
+  overflow-wrap: anywhere;
+}
+.metin7 {
+  flex: 0 0 150px;
+  font-size: 12.5px;
+  color: #5a6073;
+}
+.dugme1 {
+  margin-top: 12px;
+}

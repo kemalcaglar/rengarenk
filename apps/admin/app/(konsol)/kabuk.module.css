@@ -1,0 +1,31 @@
+/* Bu dosya kabuk.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  min-height: 100vh;
+}
+.metin1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.kutu2 {
+  padding-bottom: 0;
+}
+.metin2 {
+  margin: 0;
+  flex: 1 1 100%;
+}
+.metin3 {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #7a5300;
+}
+.metin4 {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #5a6073;
+}
+.metin5 {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #a3271f;
+}

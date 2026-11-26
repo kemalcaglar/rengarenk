@@ -11,6 +11,7 @@ import {
 } from '@rengarenk/shared';
 import { type CSSProperties, useEffect, useState } from 'react';
 import { yonetim } from '../../../lib/istemci';
+import stil from './page.module.css';
 
 interface Onizleme {
   adimlar: { alan: string; op: string; deger: string; sayi: number }[];
@@ -26,15 +27,6 @@ interface Kayitli {
   kim: string;
 }
 
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 };
-const kucuk: CSSProperties = {
-  border: '1px solid #D5DAE5',
-  borderRadius: 8,
-  padding: '5px 8px',
-  fontSize: 13,
-  background: '#FFFFFF',
-  fontFamily: 'inherit',
-};
 const cip = (on: boolean): CSSProperties => ({
   border: `1px solid ${on ? '#5B8CFF' : '#D5DAE5'}`,
   background: on ? '#EEF3FF' : '#FFFFFF',
@@ -120,7 +112,7 @@ export default function Segmentler() {
           <select
             value={r.deger}
             onChange={(e) => degistir(i, { ...r, deger: e.target.value as typeof r.deger })}
-            style={kucuk}
+            className={stil.girdi1}
           >
             {SEGMENT_ROLES.map((x) => (
               <option key={x.key} value={x.key}>
@@ -135,7 +127,7 @@ export default function Segmentler() {
           <select
             value={r.deger}
             onChange={(e) => degistir(i, { ...r, deger: e.target.value as 'evet' | 'hayir' })}
-            style={kucuk}
+            className={stil.girdi1}
           >
             <option value="evet">Evet</option>
             <option value="hayir">Hayır</option>
@@ -146,7 +138,7 @@ export default function Segmentler() {
           <select
             value={r.deger}
             onChange={(e) => degistir(i, { ...r, deger: e.target.value as 'hic' | 'var' })}
-            style={kucuk}
+            className={stil.girdi1}
           >
             <option value="hic">Hiç ödemedi</option>
             <option value="var">En az bir kez ödedi</option>
@@ -154,11 +146,11 @@ export default function Segmentler() {
         );
       case 'son_giris':
         return (
-          <span style={{ display: 'flex', gap: 6 }}>
+          <span className={stil.metin1}>
             <select
               value={r.yon}
               onChange={(e) => degistir(i, { ...r, yon: e.target.value as 'icinde' | 'once' })}
-              style={kucuk}
+              className={stil.girdi1}
             >
               <option value="icinde">son … gün içinde</option>
               <option value="once">en az … gündür yok</option>
@@ -166,7 +158,7 @@ export default function Segmentler() {
             <select
               value={r.gun}
               onChange={(e) => degistir(i, { ...r, gun: Number(e.target.value) })}
-              style={kucuk}
+              className={stil.girdi1}
             >
               {[7, 14, 30, 60, 90, 180].map((g) => (
                 <option key={g} value={g}>
@@ -178,13 +170,13 @@ export default function Segmentler() {
         );
       case 'il':
         return (
-          <span style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+          <span className={stil.metin2}>
             {r.deger.map((il) => (
               <button
                 key={il}
                 type="button"
                 onClick={() => degistir(i, { ...r, deger: listeDegistir(r.deger, il) })}
-                style={cip(true)}
+                className={stil.dugme1}
                 title="Çıkar"
               >
                 {il} ×
@@ -195,7 +187,7 @@ export default function Segmentler() {
               onChange={(e) =>
                 e.target.value && degistir(i, { ...r, deger: [...new Set([...r.deger, e.target.value])] })
               }
-              style={kucuk}
+              className={stil.girdi1}
             >
               <option value="">+ il ekle</option>
               {ILLER.filter((x) => !r.deger.includes(x.ad)).map((x) => (
@@ -208,7 +200,7 @@ export default function Segmentler() {
         );
       case 'kategori':
         return (
-          <span style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          <span className={stil.metin3}>
             {kategoriler.map((k) => (
               <button
                 key={k.slug}
@@ -223,7 +215,7 @@ export default function Segmentler() {
         );
       case 'platform':
         return (
-          <span style={{ display: 'flex', gap: 6 }}>
+          <span className={stil.metin1}>
             {SEGMENT_PLATFORMS.map((p) => (
               <button
                 key={p.key}
@@ -238,7 +230,7 @@ export default function Segmentler() {
         );
       default:
         return (
-          <span style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          <span className={stil.metin3}>
             {SEGMENT_PLANS.map((p) => (
               <button
                 key={p.key}
@@ -272,144 +264,64 @@ export default function Segmentler() {
 
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
-        <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Segmentler</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+      <div className={stil.kutu1}>
+        <h1 className={stil.baslik1}>Segmentler</h1>
+        <p className={stil.metin4}>
           Kurallar “ve” ile birleşir. Kişi sayısı anında hesaplanır; kayıtlı segmentler her gönderimde yeniden
           hesaplanır.
         </p>
       </div>
       {bilgi ? (
-        <div
-          role="status"
-          style={{
-            background: '#F3EFFF',
-            color: '#4B2FA6',
-            borderRadius: 12,
-            padding: '10px 14px',
-            fontWeight: 700,
-            marginBottom: 12,
-          }}
-        >
+        <div role="status" className={stil.kutu2}>
           {bilgi}
         </div>
       ) : null}
-      {hata ? <p style={{ color: '#A3271F', fontWeight: 700 }}>{hata}</p> : null}
+      {hata ? <p className={stil.metin5}>{hata}</p> : null}
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-start' }}>
-        <section aria-labelledby="kural" style={{ ...kart, flex: '999 1 480px', minWidth: 0, padding: 18 }}>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 700 }}>
+      <div className={stil.kutu3}>
+        <section aria-labelledby="kural" className={stil.kutu4}>
+          <label className={stil.etiket1}>
             Segment adı
             <input
               value={ad}
               onChange={(e) => setAd(e.target.value)}
               placeholder="Örn. Aktif talebi olan bireyseller · son 14 gün"
-              style={{
-                display: 'block',
-                width: '100%',
-                boxSizing: 'border-box',
-                marginTop: 5,
-                border: '1px solid #D5DAE5',
-                borderRadius: 10,
-                padding: 10,
-                fontSize: 14,
-                fontFamily: 'inherit',
-              }}
+              className={stil.girdi2}
             />
           </label>
-          <h2 id="kural" style={{ margin: '16px 0 10px', fontSize: 15, fontWeight: 800 }}>
+          <h2 id="kural" className={stil.baslik2}>
             Kurallar
           </h2>
           {kurallar.map((r, i) => (
-            <div
-              key={r.alan}
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                gap: 8,
-                border: '1px solid #E3E6EF',
-                borderRadius: 12,
-                padding: '9px 12px',
-                marginBottom: 8,
-              }}
-            >
-              <span style={{ flex: '0 0 150px', fontSize: 13.5, fontWeight: 800 }}>
-                {SEGMENT_FIELDS[r.alan]}
-              </span>
-              <span style={{ flex: '1 1 220px', minWidth: 0 }}>{editor(r, i)}</span>
-              <span style={{ flex: 'none', fontSize: 12.5, color: '#5A6073' }}>
-                {o?.adimlar[i] ? `→ ${sayi(o.adimlar[i].sayi)} kişi` : ''}
-              </span>
+            <div key={r.alan} className={stil.kutu5}>
+              <span className={stil.metin6}>{SEGMENT_FIELDS[r.alan]}</span>
+              <span className={stil.metin7}>{editor(r, i)}</span>
+              <span className={stil.metin8}>{o?.adimlar[i] ? `→ ${sayi(o.adimlar[i].sayi)} kişi` : ''}</span>
               {kurallar.length > 1 ? (
                 <button
                   type="button"
                   aria-label="Kuralı kaldır"
                   onClick={() => setKurallar(kurallar.filter((_, j) => j !== i))}
-                  style={{
-                    flex: 'none',
-                    border: 0,
-                    background: 'transparent',
-                    fontSize: 12.5,
-                    fontWeight: 700,
-                    color: '#A3271F',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
+                  className={stil.dugme2}
                 >
                   Kaldır
                 </button>
               ) : null}
             </div>
           ))}
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: 8,
-              border: '1px solid #E3E6EF',
-              borderRadius: 12,
-              padding: '9px 12px',
-              marginBottom: 8,
-              background: '#F6F8FD',
-              fontSize: 13.5,
-            }}
-          >
-            <span style={{ flex: '0 0 150px', fontWeight: 800 }}>Ticari ileti onayı</span>
-            <span style={{ flex: '1 1 220px', color: '#3A4052' }}>kanala göre · İYS’de onaylı</span>
-            <span style={{ flex: 'none', fontSize: 12.5, color: '#5A6073' }}>gönderimde uygulanır</span>
-            <span
-              style={{
-                flex: 'none',
-                fontSize: 11.5,
-                fontWeight: 800,
-                padding: '2px 8px',
-                borderRadius: 999,
-                background: '#F3F5FA',
-                color: '#5A6073',
-              }}
-            >
-              Otomatik
-            </span>
+          <div className={stil.kutu6}>
+            <span className={stil.metin9}>Ticari ileti onayı</span>
+            <span className={stil.metin10}>kanala göre · İYS’de onaylı</span>
+            <span className={stil.metin8}>gönderimde uygulanır</span>
+            <span className={stil.metin11}>Otomatik</span>
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 4 }}>
+          <div className={stil.kutu7}>
             {eklenebilir.map((f) => (
               <button
                 key={f}
                 type="button"
                 onClick={() => setKurallar([...kurallar, BASLANGIC[f]])}
-                style={{
-                  border: '1px dashed #AEB5C4',
-                  background: '#FFFFFF',
-                  borderRadius: 999,
-                  padding: '6px 11px',
-                  fontSize: 12.5,
-                  fontWeight: 700,
-                  color: '#1E2333',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
+                className={stil.dugme3}
               >
                 + {SEGMENT_FIELDS[f]}
               </button>
@@ -417,59 +329,41 @@ export default function Segmentler() {
           </div>
         </section>
 
-        <section
-          aria-labelledby="sayi"
-          style={{ ...kart, flex: '1 1 280px', maxWidth: 360, minWidth: 0, overflow: 'hidden' }}
-        >
-          <div style={{ padding: '16px 18px', borderBottom: '1px solid #EEF0F5' }}>
-            <h2 id="sayi" style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#5A6073' }}>
+        <section aria-labelledby="sayi" className={stil.kutu8}>
+          <div className={stil.kutu9}>
+            <h2 id="sayi" className={stil.baslik3}>
               Segmentteki kişi
             </h2>
-            <div style={{ fontSize: 30, fontWeight: 800 }}>{u ? sayi(u.toplam) : '—'}</div>
+            <div className={stil.kutu10}>{u ? sayi(u.toplam) : '—'}</div>
             {u ? (
-              <div style={{ fontSize: 12, color: '#5A6073' }}>
+              <div className={stil.kutu11}>
                 {sayi(u.onayli)} kişinin ticari ileti onayı var
                 {u.sinirda ? ` · ${sayi(u.sinirda)} kişi bu hafta sınırda` : ''}
               </div>
             ) : null}
           </div>
           {kanal.map((k) => (
-            <div key={k.ad} style={{ padding: '10px 18px', borderBottom: '1px solid #EEF0F5' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-                <span style={{ fontWeight: 700 }}>{k.ad}</span>
-                <span style={{ fontWeight: 800 }}>{sayi(k.sayi)}</span>
+            <div key={k.ad} className={stil.kutu12}>
+              <div className={stil.kutu13}>
+                <span className={stil.metin12}>{k.ad}</span>
+                <span className={stil.metin13}>{sayi(k.sayi)}</span>
               </div>
-              <div style={{ height: 6, background: '#EEF0F5', borderRadius: '0 4px 4px 0', marginTop: 5 }}>
+              <div className={stil.kutu14}>
                 <div
-                  style={{
-                    height: 6,
-                    width: `${u?.toplam ? (k.sayi / u.toplam) * 100 : 0}%`,
-                    background: '#5B8CFF',
-                    borderRadius: '0 4px 4px 0',
-                  }}
+                  className={stil.kutu15}
+                  style={{ width: `${u?.toplam ? (k.sayi / u.toplam) * 100 : 0}%` }}
                 />
               </div>
-              <div style={{ fontSize: 11.5, color: '#5A6073', marginTop: 3 }}>{k.not}</div>
+              <div className={stil.kutu16}>{k.not}</div>
             </div>
           ))}
-          <div style={{ padding: '14px 18px' }}>
+          <div className={stil.kutu17}>
             <button
               type="button"
               disabled={ad.trim().length < 3}
               onClick={kaydet}
-              style={{
-                width: '100%',
-                border: 0,
-                background: '#5B8CFF',
-                borderRadius: 12,
-                padding: 12,
-                fontSize: 14.5,
-                fontWeight: 800,
-                color: '#1E2333',
-                cursor: 'pointer',
-                opacity: ad.trim().length < 3 ? 0.5 : 1,
-                fontFamily: 'inherit',
-              }}
+              className={stil.dugme4}
+              style={{ opacity: ad.trim().length < 3 ? 0.5 : 1 }}
             >
               {ad.trim().length < 3
                 ? 'Segmente ad ver'
@@ -481,38 +375,14 @@ export default function Segmentler() {
         </section>
       </div>
 
-      <section aria-labelledby="kayitli" style={{ ...kart, marginTop: 16, overflow: 'hidden' }}>
-        <h2
-          id="kayitli"
-          style={{
-            margin: 0,
-            padding: '16px 18px',
-            fontSize: 17,
-            fontWeight: 800,
-            borderBottom: '1px solid #EEF0F5',
-          }}
-        >
+      <section aria-labelledby="kayitli" className={stil.kutu18}>
+        <h2 id="kayitli" className={stil.baslik4}>
           Kayıtlı segmentler
         </h2>
-        {kayitli.length ? null : (
-          <p style={{ margin: 0, padding: '12px 18px', fontSize: 13.5, color: '#5A6073' }}>
-            Henüz kayıtlı segment yok.
-          </p>
-        )}
+        {kayitli.length ? null : <p className={stil.metin14}>Henüz kayıtlı segment yok.</p>}
         {kayitli.map((s) => (
-          <div
-            key={s.id}
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: '6px 16px',
-              padding: '12px 18px',
-              borderBottom: '1px solid #EEF0F5',
-              fontSize: 13.5,
-            }}
-          >
-            <span style={{ flex: '999 1 280px', minWidth: 0 }}>
+          <div key={s.id} className={stil.kutu19}>
+            <span className={stil.metin15}>
               <button
                 type="button"
                 onClick={() => {
@@ -521,29 +391,14 @@ export default function Segmentler() {
                   setKurallar(s.kurallar);
                   setBilgi(null);
                 }}
-                style={{
-                  display: 'block',
-                  border: 0,
-                  background: 'transparent',
-                  padding: 0,
-                  fontSize: 14,
-                  fontWeight: 800,
-                  color: '#1E2333',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  fontFamily: 'inherit',
-                }}
+                className={stil.dugme5}
               >
                 {s.ad}
               </button>
-              <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
-                {s.ozet}
-              </span>
+              <span className={stil.metin16}>{s.ozet}</span>
             </span>
-            <span style={{ flex: '0 0 110px', fontWeight: 800, textAlign: 'right' }}>
-              {s.sayi === null ? '—' : `${sayi(s.sayi)} kişi`}
-            </span>
-            <span style={{ flex: '0 0 170px', color: '#5A6073' }}>{s.kim}</span>
+            <span className={stil.metin17}>{s.sayi === null ? '—' : `${sayi(s.sayi)} kişi`}</span>
+            <span className={stil.metin18}>{s.kim}</span>
           </div>
         ))}
       </section>

@@ -29,6 +29,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { cx } from '../../../lib/cx';
 import { goreli, yonetim } from '../../../lib/istemci';
 import {
   currentDefinition,
@@ -41,32 +42,10 @@ import {
   withField,
 } from '../../../lib/kategori';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 type Sekme = 'alan' | 'kural' | 'surum';
 
-const GRID = 'minmax(0, 2.2fr) minmax(0, 1.2fr) 70px 70px minmax(0, 1.6fr) minmax(0, 1.5fr)';
-
-const ikincil: CSSProperties = {
-  border: '1px solid #D5DAE5',
-  background: '#FFFFFF',
-  borderRadius: 10,
-  padding: '9px 14px',
-  fontSize: 13.5,
-  fontWeight: 700,
-  color: '#1E2333',
-  cursor: 'pointer',
-};
-const kutu: CSSProperties = {
-  display: 'block',
-  width: '100%',
-  boxSizing: 'border-box',
-  marginTop: 4,
-  border: '1px solid #D5DAE5',
-  borderRadius: 10,
-  padding: 9,
-  fontSize: 14,
-  background: '#FFFFFF',
-};
 const pill = (bg: string, fg: string): CSSProperties => ({
   fontSize: 12,
   fontWeight: 800,
@@ -261,35 +240,14 @@ export default function Kategoriler() {
   return (
     <>
       {bildirim ? (
-        <div
-          role="status"
-          style={{
-            marginBottom: 14,
-            background: '#E7FAF0',
-            border: '1px solid #B9EBD1',
-            borderRadius: 12,
-            padding: '11px 14px',
-            fontSize: 13.5,
-            fontWeight: 700,
-            color: '#11683F',
-          }}
-        >
+        <div role="status" className={stil.kutu1}>
           {bildirim}
         </div>
       ) : null}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
+      <div className={stil.kutu2}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Kategoriler ve alanlar</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+          <h1 className={stil.baslik1}>Kategoriler ve alanlar</h1>
+          <p className={stil.metin1}>
             Kod değiştirmeden kategori ve alan ekle. Her değişiklik taslakta hazırlanır, önizlenir ve dört göz
             onayıyla yayınlanır.
           </p>
@@ -297,16 +255,7 @@ export default function Kategoriler() {
         <button
           type="button"
           onClick={() => setEkle(ekle ? null : { name: '', vertical: 'vasita', parentId: '' })}
-          style={{
-            border: '1px solid #5B8CFF',
-            background: '#FFFFFF',
-            borderRadius: 12,
-            padding: '11px 16px',
-            fontSize: 14.5,
-            fontWeight: 800,
-            color: '#2450C8',
-            cursor: 'pointer',
-          }}
+          className={stil.dugme1}
         >
           Kategori ekle
         </button>
@@ -333,19 +282,9 @@ export default function Kategoriler() {
               setSecili(c.id);
             }, `${ekle.name.trim()} taslak olarak eklendi. Alanlarını hazırla, yayına gönder; yayına girene kadar kapalı kalır.`);
           }}
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'flex-end',
-            gap: 10,
-            padding: '14px 18px',
-            marginBottom: 16,
-            background: '#F6F8FD',
-            border: '1px solid #E3E6EF',
-            borderRadius: 18,
-          }}
+          className={stil.kutu3}
         >
-          <label style={{ flex: '2 1 200px', fontSize: 12.5, fontWeight: 700 }}>
+          <label className={stil.etiket1}>
             Kategori adı
             <input
               required
@@ -353,15 +292,15 @@ export default function Kategoriler() {
               maxLength={60}
               value={ekle.name}
               onChange={(e) => setEkle({ ...ekle, name: e.target.value })}
-              style={kutu}
+              className={stil.girdi1}
             />
           </label>
-          <label style={{ flex: '1 1 140px', fontSize: 12.5, fontWeight: 700 }}>
+          <label className={stil.etiket2}>
             Dikey
             <select
               value={ekle.vertical}
               onChange={(e) => setEkle({ ...ekle, vertical: e.target.value, parentId: '' })}
-              style={kutu}
+              className={stil.girdi1}
             >
               {VERTICALS.map((v) => (
                 <option key={v.key} value={v.key}>
@@ -370,12 +309,12 @@ export default function Kategoriler() {
               ))}
             </select>
           </label>
-          <label style={{ flex: '1 1 180px', fontSize: 12.5, fontWeight: 700 }}>
+          <label className={stil.etiket3}>
             Üst kategori
             <select
               value={ekle.parentId}
               onChange={(e) => setEkle({ ...ekle, parentId: e.target.value })}
-              style={kutu}
+              className={stil.girdi1}
             >
               <option value="">Yok (ana kategori)</option>
               {ustler.map((c) => (
@@ -385,55 +324,19 @@ export default function Kategoriler() {
               ))}
             </select>
           </label>
-          <button
-            type="submit"
-            disabled={busy}
-            style={{
-              border: 0,
-              background: '#5B8CFF',
-              borderRadius: 10,
-              padding: '10px 16px',
-              fontSize: 14,
-              fontWeight: 800,
-              color: '#1E2333',
-              cursor: 'pointer',
-            }}
-          >
+          <button type="submit" disabled={busy} className={stil.dugme2}>
             Taslak olarak ekle
           </button>
         </form>
       ) : null}
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-start' }}>
-        <section
-          aria-label="Kategori ağacı"
-          style={{
-            flex: '1 1 250px',
-            maxWidth: 290,
-            minWidth: 0,
-            background: '#FFFFFF',
-            border: '1px solid #E3E6EF',
-            borderRadius: 18,
-            padding: 10,
-          }}
-        >
+      <div className={stil.kutu4}>
+        <section aria-label="Kategori ağacı" className={stil.kutu5}>
           {tree === null ? <p className="muted">Yükleniyor…</p> : null}
           {dikeyler.map((dk) => (
             <div key={dk}>
               {dikeyler.length > 1 && dk !== 'vasita' ? (
-                <span
-                  style={{
-                    display: 'block',
-                    padding: '12px 10px 6px',
-                    fontSize: 11.5,
-                    fontWeight: 800,
-                    letterSpacing: 0.6,
-                    textTransform: 'uppercase',
-                    color: '#5A6073',
-                  }}
-                >
-                  {VERTICALS.find((v) => v.key === dk)?.ad}
-                </span>
+                <span className={stil.metin2}>{VERTICALS.find((v) => v.key === dk)?.ad}</span>
               ) : null}
               {(tree ?? [])
                 .filter((c) => c.vertical === dk)
@@ -445,39 +348,16 @@ export default function Kategoriler() {
                       type="button"
                       onClick={() => sec(k.id)}
                       aria-current={on ? 'true' : undefined}
-                      style={{
-                        width: '100%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 8,
-                        border: 0,
-                        background: on ? '#F3EFFF' : 'transparent',
-                        borderRadius: 10,
-                        padding: `8px 10px 8px ${k.parentId ? 26 : 10}px`,
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        color: '#1E2333',
-                      }}
+                      className={cx(stil.dugme3, on ? stil.dugme4 : stil.dugme5)}
+                      style={{ padding: `8px 10px 8px ${k.parentId ? 26 : 10}px` }}
                     >
                       <span
-                        style={{
-                          minWidth: 0,
-                          fontSize: 13.5,
-                          fontWeight: on ? 800 : k.parentId ? 600 : 700,
-                          color: k.enabled ? '#1E2333' : '#8A91A3',
-                        }}
+                        className={cx(stil.metin3, k.enabled ? stil.metin4 : stil.metin5)}
+                        style={{ fontWeight: on ? 800 : k.parentId ? 600 : 700 }}
                       >
                         {k.name}
                       </span>
-                      <span
-                        style={{
-                          flex: 'none',
-                          fontSize: 11.5,
-                          fontWeight: 700,
-                          color: k.enabled ? '#5A6073' : '#A3271F',
-                        }}
-                      >
+                      <span className={cx(stil.metin6, k.enabled ? stil.metin7 : stil.metin8)}>
                         {k.enabled ? `${sayi(k.activeDemands)} talep` : k.published ? 'Kapalı' : 'Taslak'}
                       </span>
                     </button>
@@ -485,110 +365,53 @@ export default function Kategoriler() {
                 })}
             </div>
           ))}
-          <div
-            style={{
-              margin: '8px 4px 2px',
-              padding: 10,
-              border: '1.5px dashed #D5DAE5',
-              borderRadius: 12,
-              fontSize: 12.5,
-              color: '#3A4052',
-            }}
-          >
+          <div className={stil.kutu6}>
             <strong>Yeni dikey:</strong> Emlak ve İkinci el aynı yapıyla eklenir (Karar 23). Taslak olarak
             hazırlanabilir, yayına kapalı tutulur.
           </div>
         </section>
 
-        <section
-          aria-labelledby="sema"
-          style={{
-            flex: '999 1 560px',
-            minWidth: 0,
-            background: '#FFFFFF',
-            border: '1px solid #E3E6EF',
-            borderRadius: 18,
-            overflow: 'hidden',
-          }}
-        >
+        <section aria-labelledby="sema" className={stil.kutu7}>
           {!detay || !def || !sel ? (
-            <p className="muted" style={{ padding: 18 }}>
-              {secili ? 'Yükleniyor…' : 'Kategori seç.'}
-            </p>
+            <p className={`muted ${stil.metin9}`}>{secili ? 'Yükleniyor…' : 'Kategori seç.'}</p>
           ) : (
             <>
-              <div
-                style={{
-                  padding: '16px 18px',
-                  borderBottom: '1px solid #EEF0F5',
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 10,
-                }}
-              >
-                <div style={{ minWidth: 0 }}>
-                  <h2
-                    id="sema"
-                    style={{
-                      margin: 0,
-                      fontSize: 19,
-                      fontWeight: 800,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                    }}
-                  >
+              <div className={stil.kutu8}>
+                <div className={stil.kutu9}>
+                  <h2 id="sema" className={stil.baslik2}>
                     <button
                       type="button"
                       aria-label="Nokta rengi"
                       aria-expanded={renkAcik}
                       title="Menüdeki nokta rengi"
                       onClick={() => setRenkAcik(!renkAcik)}
-                      style={{
-                        width: 12,
-                        height: 12,
-                        borderRadius: 999,
-                        border: 0,
-                        padding: 0,
-                        background: sel.dot,
-                        cursor: 'pointer',
-                        flex: 'none',
-                      }}
+                      className={stil.dugme6}
+                      style={{ background: sel.dot }}
                     />
                     {detay.category.name}
                   </h2>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 6 }}>
+                  <div className={stil.kutu10}>
                     {detay.published ? (
-                      <span style={pill('#E7FAF0', '#11683F')}>
+                      <span className={stil.metin10}>
                         Yayında · s.{detay.published.version}
                         {detay.published.publishedAt ? ` · ${kisaTarih(detay.published.publishedAt)}` : ''}
                       </span>
                     ) : (
-                      <span style={pill('#F3F5FA', '#5A6073')}>Yayında değil</span>
+                      <span className={stil.metin11}>Yayında değil</span>
                     )}
-                    <span style={pill('#FFF6DF', '#7A5300')}>
+                    <span className={stil.metin12}>
                       {detay.draft
                         ? `${onayda ? 'Onayda' : 'Taslak'} s.${detay.draft.version} · ${detay.draft.diff.changes.length} değişiklik`
                         : 'Taslak yok'}
                     </span>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: '#5A6073', padding: '3px 0' }}>
+                    <span className={stil.metin13}>
                       {detay.category.activeDemands
                         ? `${sayi(detay.category.activeDemands)} aktif talep`
                         : 'Aktif talep yok'}
                     </span>
                   </div>
                   {renkAcik ? (
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        alignItems: 'center',
-                        gap: 6,
-                        marginTop: 10,
-                      }}
-                    >
+                    <div className={stil.kutu11}>
                       {DOTS.map((c) => (
                         <button
                           key={c}
@@ -600,15 +423,8 @@ export default function Kategoriler() {
                               yonetim(`categories/${secili}`, { method: 'PATCH', body: { color: c } }),
                             )
                           }
-                          style={{
-                            width: 22,
-                            height: 22,
-                            borderRadius: 999,
-                            background: c,
-                            cursor: 'pointer',
-                            border: detay.category.color === c ? '2px solid #1E2333' : '2px solid #FFFFFF',
-                            boxShadow: '0 0 0 1px #D5DAE5',
-                          }}
+                          className={cx(stil.dugme7, detay.category.color === c ? stil.dugme8 : stil.dugme9)}
+                          style={{ background: c }}
                         />
                       ))}
                       <button
@@ -625,7 +441,7 @@ export default function Kategoriler() {
                     </div>
                   ) : null}
                 </div>
-                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span className={stil.metin14}>
                   {(['up', 'down'] as const).map((m) => (
                     <button
                       key={m}
@@ -635,17 +451,7 @@ export default function Kategoriler() {
                       onClick={() =>
                         islem(() => yonetim(`categories/${secili}`, { method: 'PATCH', body: { move: m } }))
                       }
-                      style={{
-                        flex: 'none',
-                        width: 30,
-                        height: 30,
-                        border: '1px solid #D5DAE5',
-                        background: '#FFFFFF',
-                        borderRadius: 8,
-                        fontSize: 13,
-                        color: '#1E2333',
-                        cursor: 'pointer',
-                      }}
+                      className={stil.dugme10}
                     >
                       {m === 'up' ? '↑' : '↓'}
                     </button>
@@ -664,40 +470,11 @@ export default function Kategoriler() {
                         }),
                       )
                     }
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      border: 0,
-                      background: 'transparent',
-                      padding: 0,
-                      cursor: 'pointer',
-                      fontSize: 13.5,
-                      fontWeight: 700,
-                      color: '#1E2333',
-                      marginLeft: 6,
-                    }}
+                    className={stil.dugme11}
                   >
-                    <span
-                      style={{
-                        width: 40,
-                        height: 24,
-                        borderRadius: 999,
-                        background: detay.category.enabled ? '#3DD68C' : '#D5DAE5',
-                        position: 'relative',
-                      }}
-                    >
+                    <span className={cx(stil.metin15, detay.category.enabled ? stil.metin16 : stil.metin17)}>
                       <span
-                        style={{
-                          position: 'absolute',
-                          top: 3,
-                          left: detay.category.enabled ? 19 : 3,
-                          width: 18,
-                          height: 18,
-                          borderRadius: '50%',
-                          background: '#FFFFFF',
-                          boxShadow: '0 1px 2px rgba(30,35,51,0.3)',
-                        }}
+                        className={cx(stil.metin18, detay.category.enabled ? stil.metin19 : stil.metin20)}
                       />
                     </span>
                     {detay.category.enabled ? 'Kategori açık' : 'Kategori kapalı'}
@@ -705,11 +482,7 @@ export default function Kategoriler() {
                 </span>
               </div>
 
-              <div
-                role="tablist"
-                aria-label="Kategori ayarları"
-                style={{ display: 'flex', gap: 4, padding: '0 12px', borderBottom: '1px solid #EEF0F5' }}
-              >
+              <div role="tablist" aria-label="Kategori ayarları" className={stil.kutu12}>
                 {(
                   [
                     ['alan', 'Alanlar'],
@@ -723,15 +496,10 @@ export default function Kategoriler() {
                     role="tab"
                     aria-selected={sekme === k}
                     onClick={() => setSekme(k)}
+                    className={cx(stil.dugme12, sekme === k ? stil.dugme13 : stil.dugme14)}
                     style={{
                       border: 0,
                       borderBottom: `3px solid ${sekme === k ? '#5B8CFF' : 'transparent'}`,
-                      background: 'transparent',
-                      padding: '11px 10px',
-                      fontSize: 14,
-                      fontWeight: sekme === k ? 800 : 600,
-                      color: sekme === k ? '#1E2333' : '#3A4052',
-                      cursor: 'pointer',
                     }}
                   >
                     {ad}
@@ -789,25 +557,13 @@ export default function Kategoriler() {
                             } · ${kisaTarih(v.publishedAt ?? v.createdAt)}`
                           : `İlk kurulum · ${kisaTarih(v.publishedAt ?? v.createdAt)}`;
                     return (
-                      <div
-                        key={v.version}
-                        style={{
-                          display: 'flex',
-                          flexWrap: 'wrap',
-                          alignItems: 'center',
-                          gap: '8px 16px',
-                          padding: '13px 18px',
-                          borderTop: '1px solid #EEF0F5',
-                        }}
-                      >
-                        <span style={{ flex: '0 0 60px', fontSize: 15, fontWeight: 800 }}>s.{v.version}</span>
-                        <span style={{ flex: '999 1 280px', minWidth: 0 }}>
-                          <span style={{ display: 'block', fontSize: 13.5, fontWeight: 700 }}>
+                      <div key={v.version} className={stil.kutu13}>
+                        <span className={stil.metin21}>s.{v.version}</span>
+                        <span className={stil.metin22}>
+                          <span className={stil.metin23}>
                             {v.changes.length ? v.changes.join(' · ') : 'Değişiklik yok'}
                           </span>
-                          <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
-                            {kim}
-                          </span>
+                          <span className={stil.metin24}>{kim}</span>
                         </span>
                         <span style={{ flex: 'none', ...pill(d.bg, d.fg) }}>{d.ad}</span>
                         {v.status === 'RETIRED' ? (
@@ -825,7 +581,7 @@ export default function Kategoriler() {
                                 );
                               })
                             }
-                            style={{ ...ikincil, flex: 'none', padding: '7px 12px', fontSize: 13 }}
+                            className={stil.dugme15}
                           >
                             Bu sürüme dön
                           </button>
@@ -891,20 +647,12 @@ function Alanlar(p: {
     return (
       <div
         key={f.key}
-        style={{
-          display: 'grid',
-          gridTemplateColumns: GRID,
-          gap: 8,
-          alignItems: 'center',
-          padding: '9px 18px',
-          borderTop: '1px solid #EEF0F5',
-          fontSize: 13,
-          background: kilit ? '#FAFBFD' : rozet ? '#FFFCF3' : '#FFFFFF',
-        }}
+        className={stil.kutu14}
+        style={{ background: kilit ? '#FAFBFD' : rozet ? '#FFFCF3' : '#FFFFFF' }}
       >
-        <span style={{ minWidth: 0, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
+        <span className={stil.metin25}>
           {kilit ? (
-            <span style={{ fontWeight: 700, color: '#5A6073' }}>{f.label}</span>
+            <span className={stil.metin26}>{f.label}</span>
           ) : (
             <button
               type="button"
@@ -920,16 +668,7 @@ function Alanlar(p: {
                   unit: f.unit ?? '',
                 })
               }
-              style={{
-                border: 0,
-                background: 'transparent',
-                padding: 0,
-                font: 'inherit',
-                fontWeight: 700,
-                color: '#1E2333',
-                cursor: kilitli ? 'default' : 'pointer',
-                textAlign: 'left',
-              }}
+              className={cx(stil.dugme16, kilitli ? stil.dugme17 : stil.dugme18)}
             >
               {f.label}
             </button>
@@ -937,11 +676,8 @@ function Alanlar(p: {
           {rozet ? (
             <span
               title={d?.notes.join(' · ') || undefined}
+              className={stil.metin27}
               style={{
-                fontSize: 11,
-                fontWeight: 800,
-                padding: '2px 7px',
-                borderRadius: 999,
                 background: kilit ? '#F3F5FA' : rozet === 'Yeni' ? '#F3EFFF' : '#FFF6DF',
                 color: kilit ? '#5A6073' : rozet === 'Yeni' ? '#4B2FA6' : '#7A5300',
               }}
@@ -950,15 +686,11 @@ function Alanlar(p: {
             </span>
           ) : null}
         </span>
-        <span style={{ color: '#3A4052' }}>{FIELD_TYPE_NAMES[f.type]}</span>
+        <span className={stil.metin28}>{FIELD_TYPE_NAMES[f.type]}</span>
         {kilit ? (
           <>
-            <span style={{ textAlign: 'center', fontWeight: 800, color: '#8A91A3' }}>
-              {f.required ? '✓' : '–'}
-            </span>
-            <span style={{ textAlign: 'center', fontWeight: 800, color: '#8A91A3' }}>
-              {f.filter ? '✓' : '–'}
-            </span>
+            <span className={stil.metin29}>{f.required ? '✓' : '–'}</span>
+            <span className={stil.metin29}>{f.filter ? '✓' : '–'}</span>
           </>
         ) : (
           <>
@@ -984,10 +716,10 @@ function Alanlar(p: {
             </button>
           </>
         )}
-        <span style={{ color: '#1E2333', fontWeight: 600 }} title={matchHint(f)}>
+        <span className={stil.metin30} title={matchHint(f)}>
           {matchLabel(f)}
         </span>
-        <span style={{ fontSize: 12, color: '#5A6073' }}>{sourceLabel(f)}</span>
+        <span className={stil.metin31}>{sourceLabel(f)}</span>
       </div>
     );
   };
@@ -996,24 +728,11 @@ function Alanlar(p: {
 
   return (
     <>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: GRID,
-          gap: 8,
-          padding: '10px 18px',
-          background: '#F3F5FA',
-          fontSize: 11.5,
-          fontWeight: 800,
-          color: '#5A6073',
-          textTransform: 'uppercase',
-          letterSpacing: 0.3,
-        }}
-      >
+      <div className={stil.kutu15}>
         <span>Alan</span>
         <span>Tip</span>
-        <span style={{ textAlign: 'center' }}>Zorunlu</span>
-        <span style={{ textAlign: 'center' }}>Filtrede</span>
+        <span className={stil.metin32}>Zorunlu</span>
+        <span className={stil.metin32}>Filtrede</span>
         <span>Eşleşmede</span>
         <span>Kaynak</span>
       </div>
@@ -1024,33 +743,14 @@ function Alanlar(p: {
         ),
       )}
       {detay.category.hasChildren && def.fields.length === 0 ? (
-        <p
-          style={{
-            margin: 0,
-            padding: '12px 18px',
-            borderTop: '1px solid #EEF0F5',
-            fontSize: 13,
-            color: '#3A4052',
-          }}
-        >
+        <p className={stil.metin33}>
           Bu kategoride talep alt kategoriden açılır; alanlar alt kategorilerin sayfasında.
         </p>
       ) : null}
 
       {form ? (
-        <form
-          onSubmit={p.alanKaydet}
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'flex-end',
-            gap: 10,
-            padding: '14px 18px',
-            borderTop: '1px solid #EEF0F5',
-            background: '#F6F8FD',
-          }}
-        >
-          <label style={{ flex: '2 1 180px', fontSize: 12.5, fontWeight: 700 }}>
+        <form onSubmit={p.alanKaydet} className={stil.kutu16}>
+          <label className={stil.etiket4}>
             Alan adı
             <input
               required
@@ -1059,10 +759,10 @@ function Alanlar(p: {
               value={form.label}
               placeholder="Örn. Sunroof"
               onChange={(e) => setForm({ ...form, label: e.target.value })}
-              style={kutu}
+              className={stil.girdi1}
             />
           </label>
-          <label style={{ flex: '1 1 140px', fontSize: 12.5, fontWeight: 700 }}>
+          <label className={stil.etiket2}>
             Tip
             <select
               value={form.type}
@@ -1071,7 +771,7 @@ function Alanlar(p: {
                 const type = e.target.value as CategoryField['type'];
                 setForm({ ...form, type, eslesme: type === 'text' ? 'none' : form.eslesme });
               }}
-              style={kutu}
+              className={stil.girdi1}
             >
               {sistemTipi ? <option value={form.type}>{FIELD_TYPE_NAMES[form.type]}</option> : null}
               {EDITABLE_FIELD_TYPES.map((t) => (
@@ -1081,13 +781,13 @@ function Alanlar(p: {
               ))}
             </select>
           </label>
-          <label style={{ flex: '1 1 140px', fontSize: 12.5, fontWeight: 700 }}>
+          <label className={stil.etiket2}>
             Eşleşmede
             <select
               value={form.eslesme}
               disabled={form.type === 'text'}
               onChange={(e) => setForm({ ...form, eslesme: e.target.value })}
-              style={kutu}
+              className={stil.girdi1}
             >
               {agirlikSec.map((w) => (
                 <option key={w} value={`w:${w}`}>
@@ -1106,50 +806,36 @@ function Alanlar(p: {
             </select>
           </label>
           {secim && duzenlenen?.source !== 'katalog' ? (
-            <label style={{ flex: '3 1 260px', fontSize: 12.5, fontWeight: 700 }}>
+            <label className={stil.etiket5}>
               Seçenekler (virgülle ayır)
               <input
                 required
                 value={form.secenekler}
                 placeholder="Örn. Cam tavan, Açılır tavan"
                 onChange={(e) => setForm({ ...form, secenekler: e.target.value })}
-                style={kutu}
+                className={stil.girdi1}
               />
             </label>
           ) : null}
           {form.type === 'number' || form.type === 'range' ? (
-            <label style={{ flex: '0 1 100px', fontSize: 12.5, fontWeight: 700 }}>
+            <label className={stil.etiket6}>
               Birim
               <input
                 maxLength={12}
                 value={form.unit}
                 placeholder="km"
                 onChange={(e) => setForm({ ...form, unit: e.target.value })}
-                style={kutu}
+                className={stil.girdi1}
               />
             </label>
           ) : null}
-          <button
-            type="submit"
-            disabled={kilitli}
-            style={{
-              border: 0,
-              background: '#5B8CFF',
-              borderRadius: 10,
-              padding: '10px 16px',
-              fontSize: 14,
-              fontWeight: 800,
-              color: '#1E2333',
-              cursor: 'pointer',
-            }}
-          >
+          <button type="submit" disabled={kilitli} className={stil.dugme2}>
             {form.key ? 'Taslağa kaydet' : 'Taslağa ekle'}
           </button>
           {form.key ? (
             <button
               type="button"
-              className="k-link"
-              style={{ color: '#A3271F', paddingBottom: 10 }}
+              className={`k-link ${stil.dugme19}`}
               disabled={kilitli}
               onClick={() => {
                 if (form.key) p.kaydet(withField(def, form.key, null));
@@ -1162,38 +848,28 @@ function Alanlar(p: {
         </form>
       ) : null}
 
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 10,
-          padding: '14px 18px',
-          borderTop: '1px solid #EEF0F5',
-        }}
-      >
-        <span style={{ display: 'flex', gap: 8 }}>
+      <div className={stil.kutu17}>
+        <span className={stil.metin34}>
           <button
             type="button"
             disabled={kilitli}
             onClick={() => setForm(form && !form.key ? null : YENI_ALAN)}
-            style={ikincil}
+            className={stil.dugme20}
           >
             Alan ekle
           </button>
-          <button type="button" onClick={() => p.setOnizleme(!p.onizleme)} style={ikincil}>
+          <button type="button" onClick={() => p.setOnizleme(!p.onizleme)} className={stil.dugme20}>
             {p.onizleme ? 'Önizlemeyi kapat' : 'Önizle'}
           </button>
         </span>
         {detay.draft?.status === 'PENDING' ? (
-          <Link href="/onaylar" style={{ fontSize: 13.5, fontWeight: 800, color: '#7A5300' }}>
+          <Link href="/onaylar" className={stil.bag1}>
             {onay?.status === 'APPROVED'
               ? 'Onaylandı · yayına alınıyor'
               : 'Sahip veya yönetici onayında · dört göz'}
           </Link>
         ) : detay.draft ? (
-          <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span className={stil.metin35}>
             {detay.published ? (
               <button type="button" className="k-link" disabled={kilitli} onClick={p.sil}>
                 Taslağı sil
@@ -1203,40 +879,23 @@ function Alanlar(p: {
               type="button"
               disabled={kilitli || (degisim === 0 && !detay.draft.restoredFrom)}
               onClick={p.gonder}
-              style={{
-                border: 0,
-                background: '#3DD68C',
-                borderRadius: 10,
-                padding: '10px 16px',
-                fontSize: 14,
-                fontWeight: 800,
-                color: '#1E2333',
-                cursor: 'pointer',
-              }}
+              className={stil.dugme21}
             >
               Yayına gönder · {degisim} değişiklik
             </button>
           </span>
         ) : null}
       </div>
-      <p style={{ margin: 0, padding: '0 18px 14px', fontSize: 12.5, color: '#5A6073' }}>
+      <p className={stil.metin36}>
         Kilitli satırlar taban şemadan gelir ve tüm kategorilerde ortaktır. Yayındaki talepler eski sürümle
         kalır; yeni alan onlar için “belirtilmemiş” sayılır.
       </p>
 
       {p.onizleme ? (
-        <div style={{ borderTop: '1px solid #EEF0F5', background: '#F6F8FD', padding: '16px 18px' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 10,
-              marginBottom: 12,
-            }}
-          >
-            <span style={{ fontSize: 14, fontWeight: 800 }}>Önizleme · talep sihirbazı, 3. adım</span>
-            <span style={{ display: 'flex', gap: 6 }}>
+        <div className={stil.kutu18}>
+          <div className={stil.kutu19}>
+            <span className={stil.metin37}>Önizleme · talep sihirbazı, 3. adım</span>
+            <span className={stil.metin38}>
               {(
                 [
                   ['web', 'Web'],
@@ -1248,70 +907,30 @@ function Alanlar(p: {
                   type="button"
                   aria-pressed={p.cihaz === k}
                   onClick={() => p.setCihaz(k)}
-                  style={
-                    p.cihaz === k
-                      ? {
-                          border: 0,
-                          background: '#1E2333',
-                          borderRadius: 999,
-                          padding: '6px 12px',
-                          fontSize: 12.5,
-                          fontWeight: 800,
-                          color: '#FFFFFF',
-                          cursor: 'pointer',
-                        }
-                      : {
-                          border: '1px solid #D5DAE5',
-                          background: '#FFFFFF',
-                          borderRadius: 999,
-                          padding: '5px 11px',
-                          fontSize: 12.5,
-                          fontWeight: 700,
-                          color: '#1E2333',
-                          cursor: 'pointer',
-                        }
-                  }
+                  className={cx(p.cihaz === k ? stil.dugme22 : stil.dugme23)}
                 >
                   {ad}
                 </button>
               ))}
             </span>
           </div>
-          <div
-            style={{
-              maxWidth: p.cihaz === 'mobil' ? 360 : '100%',
-              margin: '0 auto',
-              background: '#FFFFFF',
-              border: '1px solid #E3E6EF',
-              borderRadius: 16,
-              padding: 16,
-            }}
-          >
-            <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>Aradığın aracın özellikleri</div>
+          <div className={cx(stil.kutu20, p.cihaz === 'mobil' ? stil.kutu21 : stil.kutu22)}>
+            <div className={stil.kutu23}>Aradığın aracın özellikleri</div>
             <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: `repeat(${p.cihaz === 'mobil' ? 1 : 3}, minmax(0, 1fr))`,
-                gap: 10,
-              }}
+              className={stil.kutu24}
+              style={{ gridTemplateColumns: `repeat(${p.cihaz === 'mobil' ? 1 : 3}, minmax(0, 1fr))` }}
             >
               {onizAlan.map((f) => {
                 const yeni = diff[f.key]?.status === 'yeni';
                 return (
-                  <div key={f.key} style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}>
+                  <div key={f.key} className={stil.kutu9}>
+                    <div className={stil.kutu25}>
                       {f.label}
                       {f.required ? ' *' : ''}
                     </div>
                     <div
-                      style={{
-                        border: `1px solid ${yeni ? '#9B7BFF' : '#D5DAE5'}`,
-                        borderRadius: 10,
-                        padding: '9px 10px',
-                        fontSize: 13,
-                        color: '#5A6073',
-                        background: yeni ? '#FAF7FF' : '#FFFFFF',
-                      }}
+                      className={cx(stil.kutu26, yeni ? stil.kutu27 : stil.kutu28)}
+                      style={{ border: `1px solid ${yeni ? '#9B7BFF' : '#D5DAE5'}` }}
                     >
                       {yerTutucu(f)}
                     </div>
@@ -1338,40 +957,17 @@ function Kurallar({
 }) {
   const [metin, setMetin] = useState(rules.legalNotice ?? '');
   useEffect(() => setMetin(rules.legalNotice ?? ''), [rules.legalNotice]);
-  const deger: CSSProperties = {
-    flex: '1 1 300px',
-    boxSizing: 'border-box',
-    border: '1px solid #D5DAE5',
-    borderRadius: 10,
-    padding: '9px 12px',
-    fontSize: 13.5,
-    fontWeight: 600,
-    background: '#FFFFFF',
-    color: '#1E2333',
-    fontFamily: 'inherit',
-    minWidth: 0,
-  };
   const satir = (ad: string, not: string, el: ReactNode) => (
-    <div
-      key={ad}
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        gap: '8px 16px',
-        padding: '13px 18px',
-        borderTop: '1px solid #EEF0F5',
-      }}
-    >
-      <span style={{ flex: '999 1 280px', minWidth: 0 }}>
-        <span style={{ display: 'block', fontSize: 14, fontWeight: 800 }}>{ad}</span>
-        <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>{not}</span>
+    <div key={ad} className={stil.kutu13}>
+      <span className={stil.metin22}>
+        <span className={stil.metin39}>{ad}</span>
+        <span className={stil.metin24}>{not}</span>
       </span>
       {el}
     </div>
   );
   const sayiKutusu = (k: 'listingDays' | 'freeFirstMessages', min: number, max: number, ek?: string) => (
-    <span style={{ ...deger, display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px' }}>
+    <span className={stil.metin40}>
       <input
         key={`${k}-${rules[k]}`}
         type="number"
@@ -1384,14 +980,7 @@ function Kurallar({
           const n = Number(e.target.value);
           if (Number.isInteger(n) && n >= min && n <= max && n !== rules[k]) kaydet({ [k]: n });
         }}
-        style={{
-          width: 70,
-          border: 0,
-          fontSize: 13.5,
-          fontWeight: 600,
-          padding: '5px 0',
-          fontFamily: 'inherit',
-        }}
+        className={stil.girdi2}
       />
       {ek}
     </span>
@@ -1410,7 +999,7 @@ function Kurallar({
           disabled={kilitli}
           value={rules.tariff}
           onChange={(e) => kaydet({ tariff: e.target.value as CategoryRules['tariff'] })}
-          style={deger}
+          className={stil.girdi3}
         >
           {TARIFFS.map((t) => (
             <option key={t.key} value={t.key}>
@@ -1433,13 +1022,13 @@ function Kurallar({
             const v = metin.trim() || null;
             if (v !== rules.legalNotice) kaydet({ legalNotice: v });
           }}
-          style={{ ...deger, resize: 'vertical' }}
+          className={stil.girdi4}
         />,
       )}
       {satir(
         'Galeri için zorunlu doğrulama',
         'Bu kategoride ilk mesaj gönderebilmek için',
-        <span style={{ ...deger, display: 'flex', flexWrap: 'wrap', gap: 6, padding: '7px 9px' }}>
+        <span className={stil.metin41}>
           {VERIFICATIONS.map((v) => {
             const on = rules.verifications.includes(v.key);
             return (
@@ -1457,16 +1046,7 @@ function Kurallar({
                         ),
                   })
                 }
-                style={{
-                  border: on ? '1px solid #B9EBD1' : '1px solid #D5DAE5',
-                  background: on ? '#E7FAF0' : '#FFFFFF',
-                  color: on ? '#11683F' : '#3A4052',
-                  borderRadius: 999,
-                  padding: '4px 10px',
-                  fontSize: 12.5,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                }}
+                className={cx(stil.dugme24, on ? stil.dugme25 : stil.dugme26)}
               >
                 {v.ad}
               </button>
@@ -1481,7 +1061,7 @@ function Kurallar({
           disabled={kilitli}
           value={rules.catalog}
           onChange={(e) => kaydet({ catalog: e.target.value as CategoryRules['catalog'] })}
-          style={deger}
+          className={stil.girdi3}
         >
           {CATALOG_SOURCES.map((c) => (
             <option key={c.key} value={c.key}>

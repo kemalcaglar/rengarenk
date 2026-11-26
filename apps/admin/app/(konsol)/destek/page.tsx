@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
+import stil from './page.module.css';
 
 interface Satir {
   id: string;
@@ -37,8 +39,6 @@ interface Detay {
   ajan: { taslak: string | null; guven: number | null; not: string | null; yanitladi: boolean } | null;
   makrolar: { ad: string; metin: string }[];
 }
-
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 };
 
 function sure(s: Satir, simdi: number): [string, string] {
   if (s.durum === 'cozuldu') return ['Çözüldü', '#11683F'];
@@ -126,39 +126,27 @@ export default function Destek() {
   const taslakVar = Boolean(d?.ajan?.taslak || d?.oneri);
   return (
     <>
-      <div style={{ marginBottom: 14 }}>
-        <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Destek</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+      <div className={stil.kutu1}>
+        <h1 className={stil.baslik1}>Destek</h1>
+        <p className={stil.metin1}>
           Uygulama içi sohbet ve e-posta tek kuyrukta. Telefon desteği ilk sürümde yok.
         </p>
       </div>
-      {hata ? <p style={{ color: '#A3271F', fontWeight: 700 }}>{hata}</p> : null}
+      {hata ? <p className={stil.metin2}>{hata}</p> : null}
       {q ? (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
-            gap: 10,
-            marginBottom: 14,
-          }}
-        >
+        <div className={stil.kutu2}>
           {q.sayilar.map((s) => (
-            <div key={s.ad} style={{ ...kart, borderRadius: 16, padding: 14 }}>
-              <div style={{ fontSize: 12.5, fontWeight: 700, color: '#5A6073' }}>{s.ad}</div>
-              <div style={{ fontSize: 21, fontWeight: 800, marginTop: 4 }}>{s.deger}</div>
-              <div style={{ fontSize: 12, color: '#5A6073', marginTop: 3 }}>{s.not}</div>
+            <div key={s.ad} className={stil.kutu3}>
+              <div className={stil.kutu4}>{s.ad}</div>
+              <div className={stil.kutu5}>{s.deger}</div>
+              <div className={stil.kutu6}>{s.not}</div>
             </div>
           ))}
         </div>
       ) : null}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-start' }}>
-        <section
-          aria-label="Destek talepleri"
-          style={{ ...kart, flex: '1 1 300px', maxWidth: 360, minWidth: 0, padding: 8 }}
-        >
-          {q && !satirlar.length ? (
-            <p style={{ margin: 0, padding: 12, fontSize: 13.5, color: '#5A6073' }}>Destek talebi yok.</p>
-          ) : null}
+      <div className={stil.kutu7}>
+        <section aria-label="Destek talepleri" className={stil.kutu8}>
+          {q && !satirlar.length ? <p className={stil.metin3}>Destek talebi yok.</p> : null}
           {satirlar.map((s) => {
             const on = s.id === sec;
             const [st, sr] = sure(s, simdi);
@@ -171,48 +159,17 @@ export default function Destek() {
                   setBilgi(null);
                 }}
                 aria-current={on}
-                style={{
-                  width: '100%',
-                  display: 'block',
-                  textAlign: 'left',
-                  border: 0,
-                  background: on ? '#F3EFFF' : 'transparent',
-                  borderRadius: 12,
-                  padding: '10px 12px',
-                  cursor: 'pointer',
-                  color: '#1E2333',
-                  fontFamily: 'inherit',
-                }}
+                className={cx(stil.dugme1, on ? stil.dugme2 : stil.dugme3)}
               >
-                <span
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    gap: 8,
-                    fontSize: 11.5,
-                    fontWeight: 800,
-                  }}
-                >
-                  <span style={{ color: '#5A6073' }}>
+                <span className={stil.metin4}>
+                  <span className={stil.metin5}>
                     {s.no} · {s.kanal}
                     {s.oncelikli && s.durum !== 'cozuldu' ? ' · öncelikli' : ''}
                   </span>
                   <span style={{ color: sr }}>{st}</span>
                 </span>
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 14,
-                    fontWeight: 800,
-                    marginTop: 4,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {s.konu}
-                </span>
-                <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 2 }}>
+                <span className={stil.metin6}>{s.konu}</span>
+                <span className={stil.metin7}>
                   {s.kim} · {s.etiket}
                 </span>
               </button>
@@ -220,97 +177,46 @@ export default function Destek() {
           })}
         </section>
 
-        <section
-          aria-labelledby="dt"
-          style={{ ...kart, flex: '999 1 480px', minWidth: 0, overflow: 'hidden' }}
-        >
+        <section aria-labelledby="dt" className={stil.kutu9}>
           {d ? (
             <>
-              <div
-                style={{
-                  padding: '16px 18px',
-                  borderBottom: '1px solid #EEF0F5',
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  justifyContent: 'space-between',
-                  gap: 8,
-                }}
-              >
-                <span style={{ minWidth: 0 }}>
-                  <h2 id="dt" style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
+              <div className={stil.kutu10}>
+                <span className={stil.metin8}>
+                  <h2 id="dt" className={stil.baslik2}>
                     {d.konu}
                   </h2>
-                  <span style={{ display: 'block', fontSize: 13, color: '#3A4052', marginTop: 3 }}>
+                  <span className={stil.metin9}>
                     {d.numara} · {d.kisi.ad} · {d.kanal} · {d.konuTur}
                     {d.referans ? ` · No ${d.referans}` : ''}
                   </span>
                 </span>
                 {d.kisi.userId ? (
-                  <Link
-                    href={`/kullanicilar?kisi=${d.kisi.userId}`}
-                    style={{ fontSize: 13.5, fontWeight: 700, color: '#2450C8' }}
-                  >
+                  <Link href={`/kullanicilar?kisi=${d.kisi.userId}`} className={stil.bag1}>
                     Kullanıcı kartını aç
                   </Link>
                 ) : null}
               </div>
-              <div style={{ padding: '14px 18px', background: '#F6F8FD' }}>
+              <div className={stil.kutu11}>
                 {d.mesajlar.map((m) => (
                   <div
                     key={m.id}
-                    style={{
-                      display: 'flex',
-                      justifyContent: m.taraf === 'destek' ? 'flex-end' : 'flex-start',
-                      marginBottom: 8,
-                    }}
+                    className={cx(stil.kutu12, m.taraf === 'destek' ? stil.kutu13 : stil.kutu14)}
                   >
-                    <div
-                      style={{
-                        maxWidth: '80%',
-                        background: m.taraf === 'destek' ? '#EEF3FF' : '#FFFFFF',
-                        border: '1px solid #E3E6EF',
-                        borderRadius: 14,
-                        padding: '9px 12px',
-                        fontSize: 13.5,
-                        lineHeight: 1.5,
-                        whiteSpace: 'pre-wrap',
-                        overflowWrap: 'anywhere',
-                      }}
-                    >
-                      <span style={{ display: 'block', fontSize: 11.5, fontWeight: 800, color: '#5A6073' }}>
-                        {m.kim}
-                      </span>
+                    <div className={cx(stil.kutu15, m.taraf === 'destek' ? stil.kutu16 : stil.kutu17)}>
+                      <span className={stil.metin10}>{m.kim}</span>
                       {m.metin}
                     </div>
                   </div>
                 ))}
               </div>
               {d.durum !== 'cozuldu' && d.ajan?.not && !d.ajan.taslak ? (
-                <p
-                  style={{
-                    margin: 0,
-                    padding: '12px 18px 0',
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: '#7A5300',
-                  }}
-                >
-                  Ajan: {d.ajan.not}
-                </p>
+                <p className={stil.metin11}>Ajan: {d.ajan.not}</p>
               ) : null}
               {d.durum !== 'cozuldu' ? (
-                <div style={{ padding: '14px 18px', borderTop: '1px solid #EEF0F5' }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      gap: 8,
-                      fontSize: 12.5,
-                      fontWeight: 800,
-                    }}
-                  >
-                    <span style={{ color: '#4B2FA6' }}>{taslakVar ? 'Ajanın taslağı' : 'Yanıt'}</span>
-                    <span style={{ color: '#5A6073' }}>
+                <div className={stil.kutu18}>
+                  <div className={stil.kutu19}>
+                    <span className={stil.metin12}>{taslakVar ? 'Ajanın taslağı' : 'Yanıt'}</span>
+                    <span className={stil.metin5}>
                       {d.ajan?.taslak
                         ? `Güven %${d.ajan.guven ?? 0} · eşik %90 altında, onayın gerekiyor`
                         : d.oneri
@@ -318,16 +224,7 @@ export default function Destek() {
                           : ''}
                     </span>
                   </div>
-                  <label
-                    htmlFor="yanit"
-                    style={{
-                      position: 'absolute',
-                      width: 1,
-                      height: 1,
-                      overflow: 'hidden',
-                      clip: 'rect(0 0 0 0)',
-                    }}
-                  >
+                  <label htmlFor="yanit" className={stil.etiket1}>
                     Yanıt metni
                   </label>
                   <textarea
@@ -336,132 +233,51 @@ export default function Destek() {
                     onChange={(e) => setMetin(e.target.value)}
                     rows={5}
                     maxLength={4000}
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      boxSizing: 'border-box',
-                      marginTop: 6,
-                      border: `1.5px solid ${taslakVar ? '#C9B8FF' : '#D5DAE5'}`,
-                      background: taslakVar ? '#FAF7FF' : '#FFFFFF',
-                      borderRadius: 12,
-                      padding: '10px 12px',
-                      fontSize: 13.5,
-                      lineHeight: 1.55,
-                      fontFamily: 'inherit',
-                      resize: 'vertical',
-                    }}
+                    className={cx(stil.girdi1, taslakVar ? stil.girdi2 : stil.kutu17)}
+                    style={{ border: `1.5px solid ${taslakVar ? '#C9B8FF' : '#D5DAE5'}` }}
                   />
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+                  <div className={stil.kutu20}>
                     {d.makrolar.map((h) => (
                       <button
                         key={h.ad}
                         type="button"
                         onClick={() => setMetin((m) => (m.trim() ? `${m.trim()}\n\n${h.metin}` : h.metin))}
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 700,
-                          padding: '5px 10px',
-                          borderRadius: 999,
-                          border: '1px dashed #AEB5C4',
-                          background: '#FFFFFF',
-                          cursor: 'pointer',
-                          fontFamily: 'inherit',
-                        }}
+                        className={stil.dugme4}
                       >
                         {h.ad}
                       </button>
                     ))}
                   </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
-                    <button
-                      type="button"
-                      onClick={() => gonder(false)}
-                      style={{
-                        border: '1px solid #D5DAE5',
-                        background: '#FFFFFF',
-                        borderRadius: 10,
-                        padding: '9px 14px',
-                        fontSize: 13.5,
-                        fontWeight: 700,
-                        color: '#1E2333',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
-                    >
+                  <div className={stil.kutu21}>
+                    <button type="button" onClick={() => gonder(false)} className={stil.dugme5}>
                       Gönder
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => gonder(true)}
-                      style={{
-                        border: 0,
-                        background: '#5B8CFF',
-                        borderRadius: 10,
-                        padding: '10px 16px',
-                        fontSize: 13.5,
-                        fontWeight: 800,
-                        color: '#1E2333',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
-                    >
+                    <button type="button" onClick={() => gonder(true)} className={stil.dugme6}>
                       Gönder ve çözüldü say
                     </button>
-                    <button
-                      type="button"
-                      onClick={coz}
-                      style={{
-                        border: 0,
-                        background: 'transparent',
-                        padding: '9px 6px',
-                        fontSize: 13,
-                        fontWeight: 700,
-                        color: '#5A6073',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
-                    >
+                    <button type="button" onClick={coz} className={stil.dugme7}>
                       Yanıtsız kapat
                     </button>
                   </div>
-                  <p style={{ margin: '10px 0 0', fontSize: 12, color: '#5A6073' }}>
+                  <p className={stil.metin13}>
                     İade, hesap silme ve hukuki konular her zaman insana kalır. İade gerekiyorsa{' '}
                     <Link href="/odemeler">Ödemeler ekranında öner</Link>; iadeyi yalnızca sahip onaylar.
                   </p>
                 </div>
               ) : (
-                <div
-                  style={{
-                    padding: '14px 18px',
-                    borderTop: '1px solid #EEF0F5',
-                    fontSize: 13.5,
-                    fontWeight: 700,
-                    color: '#11683F',
-                  }}
-                >
+                <div className={stil.kutu22}>
                   {bilgi ?? (d.ajan?.yanitladi ? `Ajan çözdü · ${d.ajan.not ?? ''}` : 'Çözüldü')}
                   {d.puan ? ` · memnuniyet ${d.puan}/5` : ''}
                 </div>
               )}
               {bilgi && d.durum !== 'cozuldu' ? (
-                <p
-                  role="status"
-                  style={{
-                    margin: 0,
-                    padding: '0 18px 14px',
-                    fontSize: 13,
-                    color: '#11683F',
-                    fontWeight: 700,
-                  }}
-                >
+                <p role="status" className={stil.metin14}>
                   {bilgi}
                 </p>
               ) : null}
             </>
           ) : (
-            <p style={{ margin: 0, padding: 18, fontSize: 13.5, color: '#5A6073' }}>
-              {q ? 'Bir destek talebi seç.' : 'Yükleniyor…'}
-            </p>
+            <p className={stil.metin15}>{q ? 'Bir destek talebi seç.' : 'Yükleniyor…'}</p>
           )}
         </section>
       </div>

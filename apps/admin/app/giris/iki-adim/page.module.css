@@ -1,0 +1,13 @@
+/* Bu dosya page.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.kutu2 {
+  max-width: 480px;
+  width: 100%;
+  display: grid;
+  gap: 16px;
+}

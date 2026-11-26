@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { cx } from '../../../../lib/cx';
 import { yonetim } from '../../../../lib/istemci';
 import type { Alan } from './plaka';
+import stil from './yer.module.css';
 import { type Hedef, YuklemeFormu } from './yukle';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
@@ -102,29 +104,22 @@ export function YerKarti({
   }
 
   return (
-    <section className="k-panel" style={{ padding: 16, marginBottom: 14 }} aria-label={yer.baslik}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 8 }}>
+    <section className={`k-panel ${stil.kutu1}`} aria-label={yer.baslik}>
+      <div className={stil.kutu2}>
         <div>
-          <span className="k-pill" style={{ background: '#EEF3FF', color: '#2B4FB8', marginRight: 8 }}>
-            {TUR_ADI[h.tur]}
-          </span>
-          <strong style={{ fontSize: 15.5 }}>{yer.baslik}</strong>
-          {yer.yillar ? <span style={{ color: '#5A6073', fontSize: 13.5 }}> · {yer.yillar}</span> : null}
+          <span className={`k-pill ${stil.metin1}`}>{TUR_ADI[h.tur]}</span>
+          <strong className={stil.metin2}>{yer.baslik}</strong>
+          {yer.yillar ? <span className={stil.metin3}> · {yer.yillar}</span> : null}
         </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            className="k-btn-line"
-            style={{ fontSize: 13, padding: '6px 10px' }}
-            onClick={() => setYukle((v) => !v)}
-          >
+        <div className={stil.kutu3}>
+          <button type="button" className={`k-btn-line ${stil.dugme1}`} onClick={() => setYukle((v) => !v)}>
             {yukle ? 'Yüklemeyi kapat' : 'Fotoğraf yükle'}
           </button>
         </div>
       </div>
 
       {yer.talepler?.length ? (
-        <p style={{ margin: '8px 0 0', fontSize: 13, color: '#3A4052' }}>
+        <p className={stil.metin4}>
           <strong>{yer.talepler.length} talep görsel bekliyor:</strong>{' '}
           {yer.talepler.slice(0, 8).map((t, n) => (
             <span key={t.no}>
@@ -140,7 +135,7 @@ export function YerKarti({
       ) : null}
 
       <form
-        style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'flex-end', marginTop: 12 }}
+        className={stil.kutu4}
         onSubmit={(e) => {
           e.preventDefault();
           void act(`ara-${h.id}`, async () => {
@@ -155,7 +150,7 @@ export function YerKarti({
           });
         }}
       >
-        <label className="k-field" style={{ flex: '1 1 260px', margin: 0 }}>
+        <label className={`k-field ${stil.etiket1}`}>
           Commons kategorisi
           <input value={kategori} onChange={(e) => setKategori(e.target.value)} />
         </label>
@@ -166,7 +161,7 @@ export function YerKarti({
           href={`https://commons.wikimedia.org/wiki/Category:${encodeURIComponent(kategori.replace(/ /g, '_'))}`}
           target="_blank"
           rel="noreferrer"
-          style={{ fontSize: 13, paddingBottom: 12 }}
+          className={stil.bag1}
         >
           Commons'ta aç
         </a>
@@ -185,74 +180,39 @@ export function YerKarti({
       ) : null}
 
       {yer.adaylar.length === 0 ? (
-        <p style={{ margin: '12px 0 0', fontSize: 13.5, color: '#5A6073' }}>
+        <p className={stil.metin5}>
           Henüz aday yok. Commons'ta kategoriyle ara ya da bulduğun fotoğrafı kaynağı ve lisansıyla yükle.
         </p>
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: 12,
-            marginTop: 12,
-          }}
-        >
+        <div className={stil.kutu5}>
           {[...secili, ...adaylar].map((i) => (
-            <figure
-              key={i.id}
-              style={{
-                margin: 0,
-                border: i.status === 'secildi' ? '1.5px solid #5B8CFF' : '1px solid #E3E6EF',
-                borderRadius: 12,
-                overflow: 'hidden',
-                background: '#fff',
-              }}
-            >
+            <figure key={i.id} className={cx(stil.kutu6, i.status === 'secildi' ? stil.kutu7 : stil.kutu8)}>
               <a href={galeri(i) ? `${WEB}${i.pageUrl}` : i.pageUrl} target="_blank" rel="noreferrer">
                 {/* biome-ignore lint/performance/noImgElement: konsol önizlemesi, Next görsel iyileştirmesi gerekmez */}
                 <img
                   src={onizleme(i)}
                   alt={galeri(i) ? `${i.author} portföy fotoğrafı` : i.commonsFile}
                   loading="lazy"
-                  style={{ width: '100%', aspectRatio: '3 / 2', objectFit: 'cover', display: 'block' }}
+                  className={stil.gorsel1}
                 />
               </a>
-              <figcaption style={{ padding: 10, fontSize: 12, color: '#3A4052' }}>
+              <figcaption className={stil.metin6}>
                 {i.origin !== 'commons' ? (
-                  <span
-                    className="k-pill"
-                    style={{
-                      background: '#FFF6DD',
-                      color: '#7A5A00',
-                      marginBottom: 6,
-                      display: 'inline-block',
-                    }}
-                  >
+                  <span className={`k-pill ${stil.metin7}`}>
                     {galeri(i) ? 'Galeri fotoğrafı' : 'Elle yüklendi'}
                   </span>
                 ) : null}
-                <span style={{ display: 'block', fontWeight: 700, overflowWrap: 'anywhere' }}>
-                  {i.origin === 'commons' ? i.commonsFile : i.author}
-                </span>
-                <span style={{ display: 'block', color: '#5A6073' }}>
+                <span className={stil.metin8}>{i.origin === 'commons' ? i.commonsFile : i.author}</span>
+                <span className={stil.metin9}>
                   {galeri(i) ? 'Galeri portföyü' : i.author} · {i.license} · {i.width}×{i.height}
                 </span>
                 {i.status === 'secildi' ? (
-                  <span
-                    style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap', alignItems: 'center' }}
-                  >
-                    <span className="k-pill" style={{ background: '#E7FAF0', color: '#11683F' }}>
-                      Yayında · {i.makyajAd}
-                    </span>
-                    {i.edited ? (
-                      <span className="k-pill" style={{ background: '#FFEEF6', color: '#A0256A' }}>
-                        Plaka bulanık
-                      </span>
-                    ) : null}
+                  <span className={stil.metin10}>
+                    <span className={`k-pill ${stil.metin11}`}>Yayında · {i.makyajAd}</span>
+                    {i.edited ? <span className={`k-pill ${stil.metin12}`}>Plaka bulanık</span> : null}
                     <button
                       type="button"
-                      className="k-btn-line"
-                      style={{ fontSize: 13, padding: '6px 10px' }}
+                      className={`k-btn-line ${stil.dugme1}`}
                       disabled={mesgul !== null}
                       onClick={() => plakaAc(i)}
                     >
@@ -261,8 +221,7 @@ export function YerKarti({
                     {i.edited && !galeri(i) ? (
                       <button
                         type="button"
-                        className="k-btn-line"
-                        style={{ fontSize: 13, padding: '6px 10px' }}
+                        className={`k-btn-line ${stil.dugme1}`}
                         disabled={mesgul !== null}
                         onClick={() =>
                           act(i.id, async () => {
@@ -277,8 +236,7 @@ export function YerKarti({
                     ) : null}
                     <button
                       type="button"
-                      className="k-btn-line"
-                      style={{ fontSize: 13, padding: '6px 10px', color: '#A3271F' }}
+                      className={`k-btn-line ${stil.dugme2}`}
                       disabled={mesgul !== null}
                       onClick={() => {
                         if (
@@ -298,11 +256,10 @@ export function YerKarti({
                     </button>
                   </span>
                 ) : (
-                  <span style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+                  <span className={stil.metin13}>
                     <button
                       type="button"
-                      className="k-btn-line"
-                      style={{ fontSize: 13, padding: '6px 10px' }}
+                      className={`k-btn-line ${stil.dugme1}`}
                       disabled={mesgul !== null}
                       onClick={() =>
                         act(i.id, async () => {
@@ -319,12 +276,7 @@ export function YerKarti({
                         aria-label={`Makyaj · ${i.commonsFile}`}
                         value={makyajOf(i)}
                         onChange={(e) => setMakyaj((m) => ({ ...m, [i.id]: e.target.value }))}
-                        style={{
-                          fontSize: 13,
-                          padding: '5px 6px',
-                          borderRadius: 8,
-                          border: '1px solid #D5DAE5',
-                        }}
+                        className={stil.girdi1}
                       >
                         {MAKYAJLAR.map(([v, ad]) => (
                           <option key={v} value={v}>
@@ -337,8 +289,7 @@ export function YerKarti({
                       <>
                         <button
                           type="button"
-                          className="k-btn-ok"
-                          style={{ fontSize: 13, padding: '6px 10px' }}
+                          className={`k-btn-ok ${stil.dugme1}`}
                           disabled={mesgul !== null}
                           onClick={() => plakaAc(i, (alanlar) => sec(i, { alanlar }))}
                         >
@@ -346,8 +297,7 @@ export function YerKarti({
                         </button>
                         <button
                           type="button"
-                          className="k-btn-line"
-                          style={{ fontSize: 13, padding: '6px 10px' }}
+                          className={`k-btn-line ${stil.dugme1}`}
                           disabled={mesgul !== null}
                           onClick={() => sec(i, { plakaYok: true })}
                         >
@@ -357,8 +307,7 @@ export function YerKarti({
                     ) : (
                       <button
                         type="button"
-                        className="k-btn-ok"
-                        style={{ fontSize: 13, padding: '6px 10px' }}
+                        className={`k-btn-ok ${stil.dugme1}`}
                         disabled={mesgul !== null}
                         onClick={() => sec(i)}
                       >

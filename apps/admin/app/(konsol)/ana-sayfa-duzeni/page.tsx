@@ -11,10 +11,12 @@ import {
   type HomeSection,
   homeLayoutChanges,
 } from '@rengarenk/shared';
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
 import { Switch } from '../switch';
+import stil from './page.module.css';
 
 interface Veri {
   bolumler: Record<HomeAudience, HomeSection[]>;
@@ -23,58 +25,11 @@ interface Veri {
   surumler: { no: string; surum: number; not: string; kim: string; durum: string; don: boolean }[];
 }
 
-const kutu: CSSProperties = {
-  background: '#FFFFFF',
-  border: '1px solid #E3E6EF',
-  borderRadius: 18,
-  overflow: 'hidden',
-};
-const ok: CSSProperties = {
-  flex: 'none',
-  width: 30,
-  height: 30,
-  border: '1px solid #D5DAE5',
-  background: '#FFFFFF',
-  borderRadius: 8,
-  fontSize: 13,
-  color: '#1E2333',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
 const kopya = (d: HomeLayout) => JSON.parse(JSON.stringify(d)) as HomeLayout;
 
 function Hap({ on, ad, pick }: { on: boolean; ad: string; pick: () => void }) {
   return (
-    <button
-      type="button"
-      aria-pressed={on}
-      onClick={pick}
-      style={
-        on
-          ? {
-              border: 0,
-              background: '#1E2333',
-              borderRadius: 999,
-              padding: '8px 14px',
-              fontSize: 13.5,
-              fontWeight: 800,
-              color: '#FFFFFF',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }
-          : {
-              border: '1px solid #D5DAE5',
-              background: '#FFFFFF',
-              borderRadius: 999,
-              padding: '7px 13px',
-              fontSize: 13.5,
-              fontWeight: 700,
-              color: '#1E2333',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }
-      }
-    >
+    <button type="button" aria-pressed={on} onClick={pick} className={cx(on ? stil.dugme1 : stil.dugme2)}>
       {ad}
     </button>
   );
@@ -161,39 +116,20 @@ export default function AnaSayfaDuzeni() {
   const mob = platform === 'mobil';
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
+      <div className={stil.kutu1}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Ana sayfa düzeni</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+          <h1 className={stil.baslik1}>Ana sayfa düzeni</h1>
+          <p className={stil.metin1}>
             Her kitle için ayrı düzen. Bölümleri sırala, aç ya da kapat; önizleme anında değişir.
           </p>
         </div>
         {tam ? (
-          <span style={{ display: 'flex', gap: 8 }}>
+          <span className={stil.metin2}>
             <button
               type="button"
               onClick={() => setZamanAc((x) => !x)}
               aria-expanded={zamanAc}
-              style={{
-                border: '1px solid #D5DAE5',
-                background: '#FFFFFF',
-                borderRadius: 12,
-                padding: '10px 14px',
-                fontSize: 14,
-                fontWeight: 700,
-                color: '#1E2333',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
+              className={stil.dugme3}
             >
               Zamanla
             </button>
@@ -201,18 +137,7 @@ export default function AnaSayfaDuzeni() {
               type="button"
               onClick={() => yayinla(false)}
               disabled={!degisim.length}
-              style={{
-                border: 0,
-                background: '#3DD68C',
-                borderRadius: 12,
-                padding: '10px 16px',
-                fontSize: 14,
-                fontWeight: 800,
-                color: '#1E2333',
-                cursor: degisim.length ? 'pointer' : 'default',
-                opacity: degisim.length ? 1 : 0.5,
-                fontFamily: 'inherit',
-              }}
+              className={cx(stil.dugme4, degisim.length ? stil.dugme5 : stil.dugme6)}
             >
               Yayınla
             </button>
@@ -225,122 +150,57 @@ export default function AnaSayfaDuzeni() {
         </p>
       ) : null}
       {bilgi ? (
-        <p
-          role="status"
-          style={{
-            background: '#E7FAF0',
-            color: '#11683F',
-            borderRadius: 12,
-            padding: '10px 14px',
-            fontSize: 14,
-            fontWeight: 700,
-          }}
-        >
+        <p role="status" className={stil.metin3}>
           {bilgi}
         </p>
       ) : null}
       {zamanAc ? (
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'flex-end',
-            gap: 10,
-            background: '#FFFFFF',
-            border: '1.5px solid #5B8CFF',
-            borderRadius: 14,
-            padding: 14,
-            marginBottom: 14,
-          }}
-        >
-          <label style={{ fontSize: 13, fontWeight: 700 }}>
+        <div className={stil.kutu2}>
+          <label className={stil.etiket1}>
             Yayın zamanı
             <input
               type="datetime-local"
               value={zaman}
               onChange={(e) => setZaman(e.target.value)}
-              style={{
-                display: 'block',
-                marginTop: 5,
-                border: '1px solid #D5DAE5',
-                borderRadius: 10,
-                padding: 9,
-                fontSize: 14,
-                fontFamily: 'inherit',
-              }}
+              className={stil.girdi1}
             />
           </label>
           <button
             type="button"
             onClick={() => yayinla(true)}
             disabled={!degisim.length}
-            style={{
-              border: 0,
-              background: '#5B8CFF',
-              borderRadius: 10,
-              padding: '10px 16px',
-              fontSize: 14,
-              fontWeight: 800,
-              color: '#1E2333',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
+            className={stil.dugme7}
           >
             Bu zamanda yayınla
           </button>
-          <span style={{ fontSize: 12.5, color: '#5A6073' }}>
-            Bekleyen başka bir zamanlama varsa yerine geçer.
-          </span>
+          <span className={stil.metin4}>Bekleyen başka bir zamanlama varsa yerine geçer.</span>
         </div>
       ) : null}
       {v.zamanli ? (
-        <p
-          role="status"
-          style={{
-            background: '#EEF3FF',
-            color: '#2450C8',
-            borderRadius: 12,
-            padding: '10px 14px',
-            fontSize: 13.5,
-            fontWeight: 700,
-          }}
-        >
+        <p role="status" className={stil.metin5}>
           s.{v.zamanli.surum} zamanlandı · {v.zamanli.zaman}’da yayına girer.
         </p>
       ) : null}
-      {degisim.length ? (
-        <p style={{ margin: '0 0 12px', fontSize: 13, color: '#7A5300' }}>
-          Yayınlanmamış değişiklik: {degisim.join(' · ')}
-        </p>
-      ) : null}
+      {degisim.length ? <p className={stil.metin6}>Yayınlanmamış değişiklik: {degisim.join(' · ')}</p> : null}
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 18px', marginBottom: 14 }}>
-        <span style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 12.5, fontWeight: 800, color: '#5A6073', marginRight: 4 }}>Kitle</span>
+      <div className={stil.kutu3}>
+        <span className={stil.metin7}>
+          <span className={stil.metin8}>Kitle</span>
           {HOME_AUDIENCE_KEYS.map((k) => (
             <Hap key={k} on={kitle === k} ad={HOME_AUDIENCES[k]} pick={() => setKitle(k)} />
           ))}
         </span>
-        <span style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontSize: 12.5, fontWeight: 800, color: '#5A6073', marginRight: 4 }}>Platform</span>
+        <span className={stil.metin7}>
+          <span className={stil.metin8}>Platform</span>
           {HOME_PLATFORM_KEYS.map((p) => (
             <Hap key={p} on={platform === p} ad={HOME_PLATFORMS[p]} pick={() => setPlatform(p)} />
           ))}
         </span>
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-start' }}>
-        <section aria-labelledby="bolum" style={{ ...kutu, flex: '1 1 380px', minWidth: 0 }}>
-          <h2
-            id="bolum"
-            style={{
-              margin: 0,
-              padding: '16px 18px',
-              fontSize: 17,
-              fontWeight: 800,
-              borderBottom: '1px solid #EEF0F5',
-            }}
-          >
+      <div className={stil.kutu4}>
+        <section aria-labelledby="bolum" className={stil.kutu5}>
+          <h2 id="bolum" className={stil.baslik2}>
             Bölümler
           </h2>
           {d.sira.map((key, i) => {
@@ -349,31 +209,18 @@ export default function AnaSayfaDuzeni() {
             const gizli = d.gizli.includes(key);
             const sabit = key === 'karsi';
             return (
-              <div
-                key={key}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '10px 14px 10px 18px',
-                  borderBottom: '1px solid #EEF0F5',
-                  opacity: gizli ? 0.5 : 1,
-                }}
-              >
-                <span
-                  aria-hidden="true"
-                  style={{ flex: 'none', width: 12, height: 28, borderRadius: 4, background: b.renk }}
-                />
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 14, fontWeight: 800 }}>{b.ad}</span>
-                  <span style={{ display: 'block', fontSize: 12, color: '#5A6073' }}>{b.not}</span>
+              <div key={key} className={cx(stil.kutu6, gizli ? stil.kutu7 : stil.kutu8)}>
+                <span aria-hidden="true" className={stil.metin9} style={{ background: b.renk }} />
+                <span className={stil.metin10}>
+                  <span className={stil.metin11}>{b.ad}</span>
+                  <span className={stil.metin12}>{b.not}</span>
                 </span>
                 <button
                   type="button"
                   aria-label={`${b.ad}: yukarı taşı`}
                   disabled={!tam || sabit || i < 2}
                   onClick={() => tasi(key, -1)}
-                  style={{ ...ok, opacity: !tam || sabit || i < 2 ? 0.4 : 1 }}
+                  className={cx(stil.dugme8, !tam || sabit || i < 2 ? stil.dugme9 : stil.kutu8)}
                 >
                   ↑
                 </button>
@@ -382,7 +229,10 @@ export default function AnaSayfaDuzeni() {
                   aria-label={`${b.ad}: aşağı taşı`}
                   disabled={!tam || sabit || i === d.sira.length - 1}
                   onClick={() => tasi(key, 1)}
-                  style={{ ...ok, opacity: !tam || sabit || i === d.sira.length - 1 ? 0.4 : 1 }}
+                  className={cx(
+                    stil.dugme8,
+                    !tam || sabit || i === d.sira.length - 1 ? stil.dugme9 : stil.kutu8,
+                  )}
                 >
                   ↓
                 </button>
@@ -399,34 +249,22 @@ export default function AnaSayfaDuzeni() {
               </div>
             );
           })}
-          <div style={{ padding: '12px 18px', fontSize: 12.5, color: '#5A6073' }}>
+          <div className={stil.kutu9}>
             Karşılama ve arama bölümü her zaman en üsttedir. Bölüm içerikleri (vitrin, duyuru) kendi
             ekranlarından yönetilir.
           </div>
         </section>
 
-        <section
-          aria-labelledby="oniz"
-          style={{ ...kutu, flex: '1 1 380px', minWidth: 0, padding: '16px 18px', overflow: 'visible' }}
-        >
-          <h2 id="oniz" style={{ margin: '0 0 12px', fontSize: 17, fontWeight: 800 }}>
+        <section aria-labelledby="oniz" className={stil.kutu10}>
+          <h2 id="oniz" className={stil.baslik3}>
             Önizleme · {HOME_AUDIENCES[kitle]} · {mob ? 'mobil' : 'web'}
           </h2>
-          <div
-            style={{
-              maxWidth: mob ? 230 : '100%',
-              margin: '0 auto',
-              border: '1px solid #E3E6EF',
-              borderRadius: mob ? 24 : 12,
-              padding: 10,
-              background: '#F6F8FD',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 8 }}>
+          <div className={cx(stil.kutu11, mob ? stil.kutu12 : stil.kutu13)}>
+            <div className={stil.kutu14}>
               {['#5B8CFF', '#FF6FB5', '#FFC84A', '#3DD68C'].map((r) => (
-                <span key={r} style={{ width: 6, height: 14, borderRadius: 3, background: r }} />
+                <span key={r} className={stil.metin13} style={{ background: r }} />
               ))}
-              <span style={{ fontSize: 12, fontWeight: 800, marginLeft: 4 }}>rengarenk</span>
+              <span className={stil.metin14}>rengarenk</span>
             </div>
             {d.sira
               .filter((k) => !d.gizli.includes(k))
@@ -436,19 +274,8 @@ export default function AnaSayfaDuzeni() {
                 return (
                   <div
                     key={k}
-                    style={{
-                      height: Math.round(b.h * (mob ? 1.15 : 1)),
-                      marginBottom: 6,
-                      borderRadius: 8,
-                      background: '#FFFFFF',
-                      borderLeft: `4px solid ${b.renk}`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '0 10px',
-                      fontSize: 12,
-                      fontWeight: 800,
-                      color: '#1E2333',
-                    }}
+                    className={stil.kutu15}
+                    style={{ height: Math.round(b.h * (mob ? 1.15 : 1)), borderLeft: `4px solid ${b.renk}` }}
                   >
                     {b.ad}
                   </div>
@@ -458,60 +285,25 @@ export default function AnaSayfaDuzeni() {
         </section>
       </div>
 
-      <section aria-labelledby="gecmis" style={{ ...kutu, marginTop: 14 }}>
-        <h2
-          id="gecmis"
-          style={{
-            margin: 0,
-            padding: '14px 18px',
-            fontSize: 16,
-            fontWeight: 800,
-            borderBottom: '1px solid #EEF0F5',
-          }}
-        >
+      <section aria-labelledby="gecmis" className={stil.kutu16}>
+        <h2 id="gecmis" className={stil.baslik4}>
           Sürümler
         </h2>
         {v.surumler.length === 0 ? (
-          <p style={{ margin: 0, padding: '12px 18px', fontSize: 13.5, color: '#5A6073' }}>
+          <p className={stil.metin15}>
             Henüz yayın yok; ana sayfa varsayılan düzenle (tasarımdaki bölümler) görünüyor.
           </p>
         ) : (
           v.surumler.map((s) => (
-            <div
-              key={s.no}
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                gap: '6px 16px',
-                padding: '11px 18px',
-                borderBottom: '1px solid #EEF0F5',
-                fontSize: 13.5,
-              }}
-            >
-              <span style={{ flex: '0 0 52px', fontWeight: 800 }}>{s.no}</span>
-              <span style={{ flex: '999 1 280px', minWidth: 0 }}>{s.not}</span>
-              <span style={{ flex: 'none', color: '#5A6073' }}>
+            <div key={s.no} className={stil.kutu17}>
+              <span className={stil.metin16}>{s.no}</span>
+              <span className={stil.metin17}>{s.not}</span>
+              <span className={stil.metin18}>
                 {s.kim}
                 {s.durum ? ` · ${s.durum}` : ''}
               </span>
               {s.don && tam ? (
-                <button
-                  type="button"
-                  onClick={() => geriDon(s.surum)}
-                  style={{
-                    flex: 'none',
-                    border: '1px solid #D5DAE5',
-                    background: '#FFFFFF',
-                    borderRadius: 10,
-                    padding: '6px 12px',
-                    fontSize: 13,
-                    fontWeight: 700,
-                    color: '#1E2333',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
-                >
+                <button type="button" onClick={() => geriDon(s.surum)} className={stil.dugme10}>
                   Geri dön
                 </button>
               ) : null}

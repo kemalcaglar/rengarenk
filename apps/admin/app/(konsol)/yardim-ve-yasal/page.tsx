@@ -1,6 +1,7 @@
 'use client';
 
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 import { YardimMakaleleri } from './yardim';
 import { YasalMetinler } from './yasal';
 
@@ -15,7 +16,7 @@ export default function YardimVeYasal() {
   const gorunum = me.permissions['gorunum.duzenle'];
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
+      <div className={stil.kutu1}>
         <h1 className="k-h1">Yardım ve yasal metinler</h1>
         <p className="k-sub">
           Yasal metinler sürümlüdür; her kullanıcının hangi sürümü ne zaman onayladığı saklanır.

@@ -8,7 +8,9 @@ import {
   VEHICLE_ACTIONS,
 } from '@rengarenk/shared';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
+import stil from './page.module.css';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 const WEB = process.env.NEXT_PUBLIC_WEB_URL ?? 'http://localhost:3000';
@@ -21,7 +23,6 @@ const TON: Record<ListingRow['ton'], { bg: string; fg: string }> = {
   mavi: { bg: '#EEF3FF', fg: '#2450C8' },
   gri: { bg: '#F3F5FA', fg: '#5A6073' },
 };
-const KOLON = '36px minmax(0, 2.6fr) minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.2fr)';
 
 /**
  * Pazar › Talepler ve portföy (YonetimPazar.dc.html › talep; Karar 53). Seçip toplu işlem: talepte düzeltme iste, gizle,
@@ -111,23 +112,13 @@ export default function TaleplerVePortfoy() {
 
   return (
     <>
-      <div style={{ marginBottom: 14 }}>
+      <div className={stil.kutu1}>
         <h1 className="k-h1">Talepler ve portföy</h1>
         <p className="k-sub">
           Seçip toplu işlem yapabilirsin. Gizlenen talebin sahibine gerekçe şablonla bildirilir.
         </p>
       </div>
-      <div
-        role="tablist"
-        aria-label="Tür"
-        style={{
-          display: 'flex',
-          gap: 6,
-          borderBottom: '1px solid #E3E6EF',
-          marginBottom: 14,
-          flexWrap: 'wrap',
-        }}
-      >
+      <div role="tablist" aria-label="Tür" className={stil.kutu2}>
         {(
           [
             ['talep', 'Talepler'],
@@ -145,16 +136,8 @@ export default function TaleplerVePortfoy() {
               setIslem(null);
               setBilgi(null);
             }}
-            style={{
-              border: 0,
-              borderBottom: `3px solid ${tur === k ? '#5B8CFF' : 'transparent'}`,
-              background: 'transparent',
-              padding: '10px 12px',
-              fontSize: 14,
-              fontWeight: tur === k ? 800 : 600,
-              color: tur === k ? '#1E2333' : '#3A4052',
-              cursor: 'pointer',
-            }}
+            className={cx(stil.dugme1, tur === k ? stil.dugme2 : stil.dugme3)}
+            style={{ border: 0, borderBottom: `3px solid ${tur === k ? '#5B8CFF' : 'transparent'}` }}
           >
             {ad}
           </button>
@@ -165,7 +148,7 @@ export default function TaleplerVePortfoy() {
             e.preventDefault();
             setAranan(ara.trim());
           }}
-          style={{ marginLeft: 'auto', display: 'flex', gap: 6, alignItems: 'center', paddingBottom: 6 }}
+          className={stil.kutu3}
         >
           <label className="sr-only" htmlFor="ara">
             Ara
@@ -175,15 +158,9 @@ export default function TaleplerVePortfoy() {
             value={ara}
             onChange={(e) => setAra(e.target.value)}
             placeholder={tur === 'talep' ? 'Talep no ya da başlık' : 'Araç no ya da galeri'}
-            style={{
-              border: '1px solid #D5DAE5',
-              borderRadius: 10,
-              padding: '7px 10px',
-              fontSize: 13.5,
-              width: 220,
-            }}
+            className={stil.girdi1}
           />
-          <button type="submit" className="k-btn-line" style={{ fontSize: 13, padding: '7px 12px' }}>
+          <button type="submit" className={`k-btn-line ${stil.dugme4}`}>
             Ara
           </button>
         </form>
@@ -201,53 +178,31 @@ export default function TaleplerVePortfoy() {
       ) : null}
 
       {secili.length ? (
-        <div
-          style={{
-            background: '#1E2333',
-            color: '#FFFFFF',
-            borderRadius: 14,
-            padding: '10px 14px',
-            marginBottom: 12,
-          }}
-        >
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 13.5, fontWeight: 800, marginRight: 8 }}>{secili.length} seçili</span>
+        <div className={stil.kutu4}>
+          <div className={stil.kutu5}>
+            <span className={stil.metin1}>{secili.length} seçili</span>
             {Object.entries(islemler).map(([k, ad]) => (
               <button
                 key={k}
                 type="button"
                 aria-pressed={islem === k}
                 onClick={() => sec(k)}
-                style={{
-                  border: `1px solid ${islem === k ? '#FFFFFF' : '#5A6073'}`,
-                  background: islem === k ? '#3A4052' : 'transparent',
-                  borderRadius: 10,
-                  padding: '7px 12px',
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: '#FFFFFF',
-                  cursor: 'pointer',
-                }}
+                className={cx(stil.dugme5, islem === k ? stil.dugme6 : stil.dugme7)}
+                style={{ border: `1px solid ${islem === k ? '#FFFFFF' : '#5A6073'}` }}
               >
                 {ad}
               </button>
             ))}
           </div>
           {islem ? (
-            <div style={{ marginTop: 10, display: 'grid', gap: 8 }}>
+            <div className={stil.kutu6}>
               {islem === 'kategori' ? (
-                <label style={{ fontSize: 12.5, fontWeight: 700 }}>
+                <label className={stil.etiket1}>
                   Önerilen kategori
                   <select
                     value={kategori}
                     onChange={(e) => setKategori(e.target.value)}
-                    style={{
-                      display: 'block',
-                      marginTop: 4,
-                      borderRadius: 8,
-                      padding: '6px 8px',
-                      fontSize: 13.5,
-                    }}
+                    className={stil.girdi2}
                   >
                     <option value="">Seç</option>
                     {kategoriler.map((k) => (
@@ -259,19 +214,12 @@ export default function TaleplerVePortfoy() {
                 </label>
               ) : null}
               {sablonlar.length > 1 ? (
-                <label style={{ fontSize: 12.5, fontWeight: 700 }}>
+                <label className={stil.etiket1}>
                   Gerekçe şablonu
                   <select
                     value={sablonlar.includes(gerekce) ? gerekce : ''}
                     onChange={(e) => e.target.value && setGerekce(e.target.value)}
-                    style={{
-                      display: 'block',
-                      marginTop: 4,
-                      borderRadius: 8,
-                      padding: '6px 8px',
-                      fontSize: 13.5,
-                      maxWidth: '100%',
-                    }}
+                    className={stil.girdi3}
                   >
                     <option value="">Kendim yazacağım</option>
                     {sablonlar.map((t) => (
@@ -282,27 +230,17 @@ export default function TaleplerVePortfoy() {
                   </select>
                 </label>
               ) : null}
-              <label style={{ fontSize: 12.5, fontWeight: 700 }}>
+              <label className={stil.etiket1}>
                 Sahibine giden gerekçe
                 <textarea
                   value={gerekce}
                   onChange={(e) => setGerekce(e.target.value)}
                   rows={2}
                   maxLength={500}
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    marginTop: 4,
-                    borderRadius: 8,
-                    padding: 8,
-                    font: 'inherit',
-                    fontSize: 13.5,
-                    fontWeight: 400,
-                    boxSizing: 'border-box',
-                  }}
+                  className={stil.girdi4}
                 />
               </label>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div className={stil.kutu7}>
                 <button
                   type="button"
                   className="k-btn-ok"
@@ -311,23 +249,11 @@ export default function TaleplerVePortfoy() {
                 >
                   {busy ? 'Uygulanıyor…' : `${secili.length} kayda uygula`}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setIslem(null)}
-                  style={{
-                    border: '1px solid #5A6073',
-                    background: 'transparent',
-                    color: '#FFFFFF',
-                    borderRadius: 10,
-                    padding: '7px 12px',
-                    fontSize: 13,
-                    cursor: 'pointer',
-                  }}
-                >
+                <button type="button" onClick={() => setIslem(null)} className={stil.dugme8}>
                   Vazgeç
                 </button>
                 {islem === 'gizle' ? (
-                  <span style={{ fontSize: 12.5, color: '#D5DAE5', alignSelf: 'center' }}>
+                  <span className={stil.metin2}>
                     Moderasyon kararı olarak kaydedilir; sahibi itiraz edebilir.
                   </span>
                 ) : null}
@@ -337,21 +263,8 @@ export default function TaleplerVePortfoy() {
         </div>
       ) : null}
 
-      <section className="k-panel" style={{ overflow: 'hidden' }}>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: KOLON,
-            gap: 8,
-            padding: '10px 18px',
-            background: '#F3F5FA',
-            fontSize: 11.5,
-            fontWeight: 800,
-            color: '#5A6073',
-            textTransform: 'uppercase',
-            letterSpacing: 0.3,
-          }}
-        >
+      <section className={`k-panel ${stil.kutu8}`}>
+        <div className={stil.kutu9}>
           <span />
           <span>{basliklar.a}</span>
           <span>{basliklar.b}</span>
@@ -364,19 +277,7 @@ export default function TaleplerVePortfoy() {
           const on = Boolean(secim[t.id]);
           const ton = TON[t.ton];
           return (
-            <div
-              key={t.id}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: KOLON,
-                gap: 8,
-                alignItems: 'center',
-                padding: '11px 18px',
-                borderTop: '1px solid #EEF0F5',
-                fontSize: 13.5,
-                background: on ? '#F6F8FD' : '#FFFFFF',
-              }}
-            >
+            <div key={t.id} className={cx(stil.kutu10, on ? stil.kutu11 : stil.kutu12)}>
               {/* biome-ignore lint/a11y/useSemanticElements: tasarımdaki düğme biçimli seçim kutusu (YonetimPazar) */}
               <button
                 type="button"
@@ -384,45 +285,21 @@ export default function TaleplerVePortfoy() {
                 aria-checked={on}
                 aria-label={`Seç: ${t.ad}`}
                 onClick={() => setSecim((s) => ({ ...s, [t.id]: !s[t.id] }))}
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: 5,
-                  border: `2px solid ${on ? '#5B8CFF' : '#AEB5C4'}`,
-                  background: on ? '#5B8CFF' : '#FFFFFF',
-                  color: '#FFFFFF',
-                  fontSize: 12,
-                  lineHeight: '16px',
-                  padding: 0,
-                  cursor: 'pointer',
-                }}
+                className={cx(stil.dugme9, on ? stil.dugme10 : stil.kutu12)}
+                style={{ border: `2px solid ${on ? '#5B8CFF' : '#AEB5C4'}` }}
               >
                 {on ? '✓' : ''}
               </button>
-              <span style={{ minWidth: 0 }}>
-                <a
-                  href={`${WEB}${t.url}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ display: 'block', fontWeight: 800, color: '#1E2333' }}
-                >
+              <span className={stil.metin3}>
+                <a href={`${WEB}${t.url}`} target="_blank" rel="noreferrer" className={stil.bag1}>
                   {t.ad}
                 </a>
-                <span style={{ display: 'block', fontSize: 12, color: '#5A6073' }}>{t.alt}</span>
+                <span className={stil.metin4}>{t.alt}</span>
               </span>
-              <span style={{ color: '#3A4052' }}>{t.b}</span>
-              <span style={{ color: '#3A4052' }}>{t.c}</span>
+              <span className={stil.metin5}>{t.b}</span>
+              <span className={stil.metin5}>{t.c}</span>
               <span>
-                <span
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 800,
-                    padding: '3px 9px',
-                    borderRadius: 999,
-                    background: ton.bg,
-                    color: ton.fg,
-                  }}
-                >
+                <span className={stil.metin6} style={{ background: ton.bg, color: ton.fg }}>
                   {t.durum}
                 </span>
               </span>

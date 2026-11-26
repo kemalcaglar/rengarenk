@@ -3,8 +3,10 @@
 import { VEHICLE_CATEGORIES } from '@rengarenk/shared';
 import Link from 'next/link';
 import { type ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../../lib/cx';
 import { tarih, yonetim } from '../../../../lib/istemci';
 import { Switch } from '../../switch';
+import stil from './page.module.css';
 
 interface Source {
   key: string;
@@ -160,13 +162,10 @@ export default function Katalog() {
 
   return (
     <>
-      <Link
-        href="/entegrasyonlar"
-        style={{ display: 'inline-block', marginBottom: 8, fontSize: 13.5, fontWeight: 700 }}
-      >
+      <Link href="/entegrasyonlar" className={stil.bag1}>
         ‹ Entegrasyonlar
       </Link>
-      <div style={{ marginBottom: 16 }}>
+      <div className={stil.kutu1}>
         <h1 className="k-h1">Katalog kaynakları</h1>
         <p className="k-sub">
           Katalog kaynaklardan kendiliğinden güncellenir; kalite kontrolünü geçmeyen dosya yayımlanmaz ve
@@ -195,24 +194,11 @@ export default function Katalog() {
                 ? ['Sağlıklı', '#E7FAF0', '#11683F']
                 : ['Beklemede', '#EEF3FF', '#2450C8'];
           return (
-            <section
-              key={s.key}
-              className="k-panel"
-              style={{ padding: 18, marginBottom: 16 }}
-              aria-label={s.name}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'flex-start',
-                  justifyContent: 'space-between',
-                  gap: 12,
-                }}
-              >
-                <span style={{ minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 16, fontWeight: 800 }}>{s.name}</span>
-                  <span style={{ display: 'block', fontSize: 13, color: '#5A6073', marginTop: 2 }}>
+            <section key={s.key} className={`k-panel ${stil.kutu2}`} aria-label={s.name}>
+              <div className={stil.kutu3}>
+                <span className={stil.metin1}>
+                  <span className={stil.metin2}>{s.name}</span>
+                  <span className={stil.metin3}>
                     {SOURCE_ROLE[s.key] ?? 'Katalog kaynağı'} · {s.license}
                   </span>
                 </span>
@@ -223,16 +209,7 @@ export default function Katalog() {
                   {s.active ? durum : 'Kapalı · katalogda görünmüyor'}
                 </span>
               </div>
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '6px 24px',
-                  marginTop: 12,
-                  fontSize: 13.5,
-                  color: '#3A4052',
-                }}
-              >
+              <div className={stil.kutu4}>
                 <span>Son başarılı: {tarih(s.lastSuccessAt)}</span>
                 <span>Sürüm: {s.lastVersion ?? '—'}</span>
                 <span>Dosya: {s.lastFileName ?? '—'}</span>
@@ -247,17 +224,13 @@ export default function Katalog() {
                 <span>Son kontrol: {tarih(s.lastCheckedAt)}</span>
               </div>
               {s.lastError ? (
-                <p className="k-note" style={{ margin: '12px 0 0' }}>
+                <p className={`k-note ${stil.metin4}`}>
                   Son deneme: {s.lastError}
                   {s.stale ? ' · 48 saattir güncellenemedi, sahibe uyarı gitti.' : ''}
                 </p>
               ) : null}
-              <div
-                style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 14, marginTop: 14 }}
-              >
-                <span
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 700 }}
-                >
+              <div className={stil.kutu5}>
+                <span className={stil.metin5}>
                   <Switch
                     on={s.active}
                     label="Etkin"
@@ -281,9 +254,7 @@ export default function Katalog() {
                   />
                   Etkin
                 </span>
-                <span
-                  style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 700 }}
-                >
+                <span className={stil.metin5}>
                   <Switch
                     on={s.autoFetch}
                     label="Otomatik çekme"
@@ -345,10 +316,7 @@ export default function Katalog() {
                     >
                       Arşivi yükle (eski yıllar)
                     </button>
-                    <label
-                      className="k-btn"
-                      style={{ fontSize: 14, padding: '10px 16px', opacity: busy ? 0.6 : 1 }}
-                    >
+                    <label className={cx('k-btn', stil.etiket1, busy ? stil.etiket2 : stil.etiket3)}>
                       {busy ? 'İşleniyor…' : 'Dosya yükle (.xlsx)'}
                       <input
                         type="file"
@@ -359,7 +327,7 @@ export default function Katalog() {
                       />
                     </label>
                     {s.url ? (
-                      <a href={s.url} target="_blank" rel="noreferrer" style={{ fontSize: 13.5 }}>
+                      <a href={s.url} target="_blank" rel="noreferrer" className={stil.bag2}>
                         TSB sayfası
                       </a>
                     ) : null}
@@ -372,16 +340,7 @@ export default function Katalog() {
       )}
 
       <section className="k-panel" aria-labelledby="gecmis">
-        <h2
-          id="gecmis"
-          style={{
-            margin: 0,
-            padding: '16px 18px',
-            fontSize: 17,
-            fontWeight: 800,
-            borderBottom: '1px solid #EEF0F5',
-          }}
-        >
+        <h2 id="gecmis" className={stil.baslik1}>
           İçe aktarma geçmişi
         </h2>
         {imports.length === 0 ? (
@@ -391,49 +350,34 @@ export default function Katalog() {
             const [ad, bg, fg] = STATUS[i.status];
             const issues = [...(i.quality.blocking ?? []), ...(i.quality.warnings ?? [])];
             return (
-              <div
-                key={i.id}
-                className="k-row"
-                style={{ borderTop: 0, borderBottom: '1px solid #EEF0F5', alignItems: 'flex-start' }}
-              >
-                <span style={{ flex: '0 0 140px', fontSize: 13, color: '#5A6073', fontWeight: 600 }}>
-                  {tarih(i.createdAt)}
-                </span>
-                <span style={{ flex: '999 1 320px', minWidth: 0 }}>
-                  <span style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+              <div key={i.id} className={`k-row ${stil.kutu6}`}>
+                <span className={stil.metin6}>{tarih(i.createdAt)}</span>
+                <span className={stil.metin7}>
+                  <span className={stil.metin8}>
                     <span className="k-pill" style={{ background: bg, color: fg }}>
                       {ad}
                     </span>
                     <strong>{i.version ?? 'sürüm okunamadı'}</strong>
-                    <span style={{ fontSize: 12.5, color: '#5A6073' }}>
+                    <span className={stil.metin9}>
                       {i.fileName ?? ''} · {i.trigger}
                     </span>
                   </span>
                   {i.status === 'APPLIED' ? (
-                    <span style={{ display: 'block', fontSize: 12.5, color: '#3A4052', marginTop: 4 }}>
+                    <span className={stil.metin10}>
                       {sayi(i.stats.items)} tip · {sayi(i.stats.added)} yeni · {sayi(i.stats.updated)}{' '}
                       güncellendi · {sayi(i.stats.missing)} listeden düştü (silinmedi) ·{' '}
                       {sayi(i.stats.outOfScope)} kapsam dışı
                     </span>
                   ) : null}
                   {i.status === 'SKIPPED' ? (
-                    <span style={{ display: 'block', fontSize: 12.5, color: '#3A4052', marginTop: 4 }}>
-                      Aynı dosya daha önce işlendi.
-                    </span>
+                    <span className={stil.metin10}>Aynı dosya daha önce işlendi.</span>
                   ) : null}
                   {issues.map((q) => (
-                    <span
-                      key={q.kod + q.mesaj}
-                      style={{ display: 'block', fontSize: 12.5, color: '#7A5300', marginTop: 4 }}
-                    >
+                    <span key={q.kod + q.mesaj} className={stil.metin11}>
                       {q.mesaj}
                     </span>
                   ))}
-                  {i.error ? (
-                    <span style={{ display: 'block', fontSize: 12.5, color: '#A3271F', marginTop: 4 }}>
-                      {i.error}
-                    </span>
-                  ) : null}
+                  {i.error ? <span className={stil.metin12}>{i.error}</span> : null}
                 </span>
               </div>
             );
@@ -477,32 +421,23 @@ function Gezgin() {
         .then(setDetail)
         .catch(() => undefined);
   }, [seri, yil]);
-
-  const select = {
-    border: '1px solid #D5DAE5',
-    borderRadius: 10,
-    padding: 10,
-    font: 'inherit',
-    fontSize: 14,
-    background: '#fff',
-  };
   return (
-    <section className="k-panel" style={{ marginTop: 16 }} aria-labelledby="gezgin">
-      <div style={{ padding: '16px 18px', borderBottom: '1px solid #EEF0F5' }}>
-        <h2 id="gezgin" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+    <section className={`k-panel ${stil.kutu7}`} aria-labelledby="gezgin">
+      <div className={stil.kutu8}>
+        <h2 id="gezgin" className={stil.baslik2}>
           Katalog gezgini
         </h2>
-        <p style={{ margin: '3px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+        <p className={stil.metin13}>
           Sihirbaz ve portföyün göreceği seçenekler. Kasa kuşağı vehicle-makes-models'tan, nesil kodu ve
           makyaj sırası Wikidata'dan; kodu olmayan yıllarda makyaj TSB'deki işaretten (LCI, FL) okunur.
         </p>
       </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, padding: '14px 18px' }}>
+      <div className={stil.kutu9}>
         <select
           aria-label="Kategori"
           value={kategori}
           onChange={(e) => setKategori(e.target.value)}
-          style={select}
+          className={stil.girdi1}
         >
           {VEHICLE_CATEGORIES.map((c) => (
             <option key={c.slug} value={c.slug}>
@@ -510,7 +445,12 @@ function Gezgin() {
             </option>
           ))}
         </select>
-        <select aria-label="Marka" value={make} onChange={(e) => setMake(e.target.value)} style={select}>
+        <select
+          aria-label="Marka"
+          value={make}
+          onChange={(e) => setMake(e.target.value)}
+          className={stil.girdi1}
+        >
           <option value="">Marka ({makes.length})</option>
           {makes.map((m) => (
             <option key={m.id} value={m.id}>
@@ -522,7 +462,7 @@ function Gezgin() {
           aria-label="Seri"
           value={seri}
           onChange={(e) => setSeri(e.target.value)}
-          style={select}
+          className={stil.girdi1}
           disabled={!make}
         >
           <option value="">Seri ({series.length})</option>
@@ -536,7 +476,7 @@ function Gezgin() {
           aria-label="Model yılı"
           value={yil}
           onChange={(e) => setYil(e.target.value)}
-          style={select}
+          className={stil.girdi1}
           disabled={!seri}
         >
           <option value="">Tüm yıllar</option>
@@ -548,15 +488,7 @@ function Gezgin() {
         </select>
       </div>
       {detail ? (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: 16,
-            padding: '0 18px 18px',
-            fontSize: 13.5,
-          }}
-        >
+        <div className={stil.kutu10}>
           <div>
             <strong>Modeller</strong>
             {detail.models.map((m) => (
@@ -577,7 +509,7 @@ function Gezgin() {
                 </div>
               ))}
               {detail.codes.length ? (
-                <div className="muted" style={{ marginTop: 6 }}>
+                <div className={`muted ${stil.kutu11}`}>
                   Nesiller:{' '}
                   {detail.codes
                     .map((c) => `${c.code ?? c.name} ${c.startYear}–${c.endYear ?? '…'}`)
@@ -597,7 +529,7 @@ function Gezgin() {
             ) : (
               <div className="muted">Kaynakta yazmıyor</div>
             )}
-            <strong style={{ display: 'block', marginTop: 10 }}>Makyaj</strong>
+            <strong className={stil.metin14}>Makyaj</strong>
             <div>
               Makyajsız <span className="muted">· {range(detail.makyaj.makyajsiz)}</span>
             </div>

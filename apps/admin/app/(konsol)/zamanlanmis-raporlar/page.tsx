@@ -2,10 +2,12 @@
 
 import { REPORT_FREQUENCIES, type ScheduledSource } from '@rengarenk/shared';
 import Link from 'next/link';
-import { type CSSProperties, type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
 import { Switch } from '../switch';
+import stil from './page.module.css';
 
 interface Kural {
   key: string;
@@ -39,40 +41,6 @@ interface Veri {
   kaynaklar: { kaynak: ScheduledSource; ad: string }[];
   calisanlar: { id: string; ad: string }[];
 }
-
-const kutu: CSSProperties = {
-  background: '#FFFFFF',
-  border: '1px solid #E3E6EF',
-  borderRadius: 18,
-  overflow: 'hidden',
-};
-const baslik2: CSSProperties = {
-  margin: 0,
-  padding: '16px 18px',
-  fontSize: 17,
-  fontWeight: 800,
-  borderBottom: '1px solid #EEF0F5',
-};
-const etiket: CSSProperties = { fontSize: 13, fontWeight: 700 };
-const alan: CSSProperties = {
-  display: 'block',
-  width: '100%',
-  boxSizing: 'border-box',
-  marginTop: 5,
-  border: '1px solid #D5DAE5',
-  borderRadius: 10,
-  padding: 10,
-  fontSize: 14,
-  background: '#FFFFFF',
-};
-const anaDugme: CSSProperties = {
-  border: 0,
-  background: '#5B8CFF',
-  borderRadius: 12,
-  fontWeight: 800,
-  color: '#1E2333',
-  cursor: 'pointer',
-};
 
 /**
  * Büyüme › Zamanlanmış raporlar ve uyarılar (YonetimRapor.dc.html › zaman; Karar 44). Ajanın günlük özeti ve uyarılar
@@ -162,33 +130,19 @@ export default function ZamanlanmisRaporlar() {
   const diger = (kurallar ?? []).filter((k) => !k.kritik && k.key !== 'ajan_ozet');
 
   const anahtar = (on: boolean, label: string, disabled: boolean, durum: string, onChange: () => void) => (
-    <span
-      style={{ flex: 'none', display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700 }}
-    >
+    <span className={stil.metin1}>
       <Switch on={on} label={label} disabled={disabled} onChange={onChange} />
       {durum}
     </span>
   );
 
   const satir = (k: Kural) => (
-    <div
-      key={k.key}
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: '6px 14px',
-        padding: '12px 18px',
-        borderBottom: '1px solid #EEF0F5',
-        fontSize: 13.5,
-      }}
-    >
-      <span style={{ flex: '999 1 280px', minWidth: 0 }}>
-        <span style={{ display: 'block', fontWeight: 700 }}>{k.kosul}</span>
-        <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 2 }}>{k.ad}</span>
+    <div key={k.key} className={stil.kutu1}>
+      <span className={stil.metin2}>
+        <span className={stil.metin3}>{k.kosul}</span>
+        <span className={stil.metin4}>{k.ad}</span>
       </span>
-      <span style={{ flex: 'none', color: '#3A4052' }}>
+      <span className={stil.metin5}>
         {k.kanal} · {k.alicilar.join(', ')}
       </span>
       {k.kritik
@@ -205,24 +159,12 @@ export default function ZamanlanmisRaporlar() {
     ek: string | null,
     sag: ReactNode,
   ) => (
-    <div
-      key={key}
-      style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        gap: '8px 16px',
-        padding: '13px 18px',
-        borderBottom: '1px solid #EEF0F5',
-      }}
-    >
-      <span style={{ flex: '999 1 300px', minWidth: 0 }}>
-        <span style={{ display: 'block', fontSize: 14.5, fontWeight: 800 }}>{ad}</span>
-        <span style={{ display: 'block', fontSize: 12.5, color: '#3A4052', marginTop: 2 }}>{zaman}</span>
-        <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 2 }}>{bicim}</span>
-        {ek ? (
-          <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 2 }}>{ek}</span>
-        ) : null}
+    <div key={key} className={stil.kutu2}>
+      <span className={stil.metin6}>
+        <span className={stil.metin7}>{ad}</span>
+        <span className={stil.metin8}>{zaman}</span>
+        <span className={stil.metin4}>{bicim}</span>
+        {ek ? <span className={stil.metin4}>{ek}</span> : null}
       </span>
       {sag}
     </div>
@@ -230,29 +172,15 @@ export default function ZamanlanmisRaporlar() {
 
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
+      <div className={stil.kutu3}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Zamanlanmış raporlar ve uyarılar</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+          <h1 className={stil.baslik1}>Zamanlanmış raporlar ve uyarılar</h1>
+          <p className={stil.metin9}>
             Raporlar ve uyarılar şirket e-postana gelir; uyarılar konsolda{' '}
             <Link href="/uyarilar">Uyarılar</Link> listesinde de görünür.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setForm((f) => !f)}
-          aria-expanded={form}
-          style={{ ...anaDugme, padding: '12px 18px', fontSize: 14.5 }}
-        >
+        <button type="button" onClick={() => setForm((f) => !f)} aria-expanded={form} className={stil.dugme1}>
           Yeni zamanlanmış rapor
         </button>
       </div>
@@ -262,36 +190,21 @@ export default function ZamanlanmisRaporlar() {
         </p>
       ) : null}
       {bilgi ? (
-        <p
-          role="status"
-          style={{
-            background: '#E7FAF0',
-            color: '#11683F',
-            borderRadius: 12,
-            padding: '10px 14px',
-            fontSize: 14,
-            fontWeight: 700,
-          }}
-        >
+        <p role="status" className={stil.metin10}>
           {bilgi}
         </p>
       ) : null}
 
       {form && v ? (
-        <section
-          aria-label="Yeni zamanlanmış rapor"
-          style={{
-            background: '#FFFFFF',
-            border: '1.5px solid #5B8CFF',
-            borderRadius: 18,
-            padding: 18,
-            marginBottom: 16,
-          }}
-        >
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 12 }}>
-            <label style={{ ...etiket, flex: '2 1 220px' }}>
+        <section aria-label="Yeni zamanlanmış rapor" className={stil.kutu4}>
+          <div className={stil.kutu5}>
+            <label className={stil.etiket1}>
               Rapor
-              <select value={kaynak} onChange={(e) => setKaynak(Number(e.target.value))} style={alan}>
+              <select
+                value={kaynak}
+                onChange={(e) => setKaynak(Number(e.target.value))}
+                className={stil.girdi1}
+              >
                 {v.kaynaklar.map((k, i) => (
                   <option key={k.ad} value={i}>
                     {k.ad}
@@ -299,9 +212,9 @@ export default function ZamanlanmisRaporlar() {
                 ))}
               </select>
             </label>
-            <label style={{ ...etiket, flex: '1 1 150px' }}>
+            <label className={stil.etiket2}>
               Sıklık
-              <select value={siklik} onChange={(e) => setSiklik(e.target.value)} style={alan}>
+              <select value={siklik} onChange={(e) => setSiklik(e.target.value)} className={stil.girdi1}>
                 {REPORT_FREQUENCIES.map((f) => (
                   <option key={f.key} value={f.key}>
                     {f.ad}
@@ -309,13 +222,18 @@ export default function ZamanlanmisRaporlar() {
                 ))}
               </select>
             </label>
-            <label style={{ ...etiket, flex: '0 1 100px' }}>
+            <label className={stil.etiket3}>
               Saat
-              <input type="time" value={saat} onChange={(e) => setSaat(e.target.value)} style={alan} />
+              <input
+                type="time"
+                value={saat}
+                onChange={(e) => setSaat(e.target.value)}
+                className={stil.girdi1}
+              />
             </label>
-            <fieldset style={{ flex: '2 1 220px', border: 0, padding: 0, margin: 0, minWidth: 0 }}>
-              <legend style={{ ...etiket, padding: 0 }}>Alıcılar</legend>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 5 }}>
+            <fieldset className={stil.kutu6}>
+              <legend className={stil.baslik2}>Alıcılar</legend>
+              <div className={stil.kutu7}>
                 {v.calisanlar.map((c) => {
                   const on = alicilar.includes(c.id);
                   return (
@@ -324,16 +242,8 @@ export default function ZamanlanmisRaporlar() {
                       type="button"
                       aria-pressed={on}
                       onClick={() => setAlicilar((a) => (on ? a.filter((x) => x !== c.id) : [...a, c.id]))}
-                      style={{
-                        border: `1px solid ${on ? '#5B8CFF' : '#D5DAE5'}`,
-                        background: on ? '#EEF3FF' : '#FFFFFF',
-                        color: on ? '#2450C8' : '#3A4052',
-                        borderRadius: 999,
-                        padding: '8px 12px',
-                        fontSize: 13,
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                      }}
+                      className={cx(stil.dugme2, on ? stil.dugme3 : stil.dugme4)}
+                      style={{ border: `1px solid ${on ? '#5B8CFF' : '#D5DAE5'}` }}
                     >
                       {on ? '✓ ' : ''}
                       {c.ad}
@@ -346,20 +256,20 @@ export default function ZamanlanmisRaporlar() {
               type="button"
               onClick={kaydet}
               disabled={!alicilar.length}
-              style={{ ...anaDugme, padding: '11px 18px', fontSize: 14, opacity: alicilar.length ? 1 : 0.5 }}
+              className={cx(stil.dugme5, alicilar.length ? stil.dugme6 : stil.dugme7)}
             >
               Kaydet
             </button>
           </div>
-          <p style={{ margin: '10px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+          <p className={stil.metin11}>
             Alıcılar yalnızca raporları görebilen çalışanlar arasından seçilir; rapor PDF olarak gelir ve
             kişisel veri içermez.
           </p>
         </section>
       ) : null}
 
-      <section aria-labelledby="planli" style={kutu}>
-        <h2 id="planli" style={baslik2}>
+      <section aria-labelledby="planli" className={stil.kutu8}>
+        <h2 id="planli" className={stil.baslik3}>
           Raporlar
         </h2>
         {ozet
@@ -390,21 +300,9 @@ export default function ZamanlanmisRaporlar() {
               [r.son ? `Son gönderim: ${r.son}` : null, r.sonraki ? `Sıradaki: ${r.sonraki}` : null]
                 .filter(Boolean)
                 .join(' · ') || null,
-              <span style={{ flex: 'none', display: 'flex', alignItems: 'center', gap: 14 }}>
+              <span className={stil.metin12}>
                 {r.silinebilir ? (
-                  <button
-                    type="button"
-                    onClick={() => sil(r)}
-                    style={{
-                      border: 0,
-                      background: 'transparent',
-                      padding: 0,
-                      color: '#A3271F',
-                      fontSize: 13,
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                    }}
-                  >
+                  <button type="button" onClick={() => sil(r)} className={stil.dugme8}>
                     Sil
                   </button>
                 ) : null}
@@ -417,55 +315,43 @@ export default function ZamanlanmisRaporlar() {
         )}
       </section>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginTop: 14, alignItems: 'flex-start' }}>
-        <section aria-labelledby="uyari" style={{ ...kutu, flex: '3 1 460px', minWidth: 0 }}>
-          <h2 id="uyari" style={baslik2}>
+      <div className={stil.kutu9}>
+        <section aria-labelledby="uyari" className={stil.kutu10}>
+          <h2 id="uyari" className={stil.baslik3}>
             Kritik uyarılar
           </h2>
           {kurallar === null ? <p className="k-empty">Yükleniyor…</p> : kritik.map(satir)}
-          <p style={{ margin: 0, padding: '12px 18px', fontSize: 12.5, color: '#5A6073' }}>
+          <p className={stil.metin13}>
             Kritik uyarılar kapatılamaz ve e-postanın konusunda “Kritik” olarak gelir.
           </p>
         </section>
-        <section aria-labelledby="pano" style={{ ...kutu, flex: '2 1 300px', minWidth: 0 }}>
-          <h2 id="pano" style={baslik2}>
+        <section aria-labelledby="pano" className={stil.kutu11}>
+          <h2 id="pano" className={stil.baslik3}>
             Kayıtlı panolar
           </h2>
           {v === null ? (
             <p className="k-empty">Yükleniyor…</p>
           ) : v.panolar.length ? (
             v.panolar.map((p) => (
-              <Link
-                key={p.id}
-                href={`/raporlar?pano=${p.id}`}
-                style={{
-                  display: 'block',
-                  padding: '12px 18px',
-                  borderBottom: '1px solid #EEF0F5',
-                  color: '#1E2333',
-                  textDecoration: 'none',
-                }}
-              >
-                <span style={{ display: 'block', fontSize: 14, fontWeight: 800 }}>{p.ad}</span>
-                <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
-                  {p.not}
-                </span>
+              <Link key={p.id} href={`/raporlar?pano=${p.id}`} className={stil.bag1}>
+                <span className={stil.metin14}>{p.ad}</span>
+                <span className={stil.metin15}>{p.not}</span>
               </Link>
             ))
           ) : (
-            <p style={{ margin: 0, padding: '12px 18px', fontSize: 13, color: '#5A6073' }}>
+            <p className={stil.metin16}>
               Raporlar ekranında “Panoya kaydet” ile kaydedilen görünümler burada listelenir.
             </p>
           )}
         </section>
       </div>
 
-      <section aria-labelledby="diger" style={{ ...kutu, marginTop: 14 }}>
-        <h2 id="diger" style={baslik2}>
+      <section aria-labelledby="diger" className={stil.kutu12}>
+        <h2 id="diger" className={stil.baslik3}>
           Diğer uyarılar
         </h2>
         {kurallar === null ? <p className="k-empty">Yükleniyor…</p> : diger.map(satir)}
-        <p style={{ margin: 0, padding: '12px 18px', fontSize: 12.5, color: '#5A6073' }}>
+        <p className={stil.metin13}>
           {sahip
             ? 'Kapattığın uyarı kimseye gitmez; değişiklik işlem kaydına girer.'
             : 'Uyarıları yalnızca sahip açıp kapatır.'}

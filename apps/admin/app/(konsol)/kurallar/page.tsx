@@ -12,10 +12,11 @@ import {
   type PriceBook,
   packageValueText,
 } from '@rengarenk/shared';
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
 import { FiyatDeneyleri } from './fiyat-deneyleri';
+import stil from './page.module.css';
 
 interface Degisiklik {
   id: string;
@@ -32,47 +33,6 @@ interface Ozet {
   degisiklikler: Degisiklik[];
 }
 
-const kart: CSSProperties = {
-  background: '#FFFFFF',
-  border: '1px solid #E3E6EF',
-  borderRadius: 18,
-  overflow: 'hidden',
-};
-const baslik: CSSProperties = {
-  margin: 0,
-  padding: '16px 18px',
-  fontSize: 17,
-  fontWeight: 800,
-  borderBottom: '1px solid #EEF0F5',
-};
-const ustSatir: CSSProperties = {
-  display: 'grid',
-  gap: 8,
-  padding: '10px 18px',
-  background: '#F3F5FA',
-  fontSize: 11.5,
-  fontWeight: 800,
-  color: '#5A6073',
-  textTransform: 'uppercase',
-  letterSpacing: 0.3,
-};
-const satir: CSSProperties = {
-  display: 'grid',
-  gap: 8,
-  alignItems: 'center',
-  padding: '9px 18px',
-  borderTop: '1px solid #EEF0F5',
-  fontSize: 13.5,
-};
-const kutu: CSSProperties = {
-  width: '100%',
-  boxSizing: 'border-box',
-  border: '1px solid #D5DAE5',
-  borderRadius: 8,
-  padding: '6px 8px',
-  fontSize: 13.5,
-  fontFamily: 'inherit',
-};
 const tl = (n: number) => `${new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 2 }).format(n)} TL`;
 const tarih = (s: string) =>
   new Intl.DateTimeFormat('tr-TR', {
@@ -186,77 +146,39 @@ export default function Kurallar() {
 
   return (
     <>
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
+      <div className={stil.kutu1}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Kurallar ve fiyatlar</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+          <h1 className={stil.baslik1}>Kurallar ve fiyatlar</h1>
+          <p className={stil.metin1}>
             Fiyat ve paket değişikliği dört göz onayı ister ve ileri tarihe zamanlanır. Mevcut aboneler
             yenileme tarihine kadar eski fiyattan devam eder.
           </p>
         </div>
         {yazabilir && o ? (
           duzen ? (
-            <span style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
-              <label style={{ fontSize: 12.5, fontWeight: 700 }}>
+            <span className={stil.metin2}>
+              <label className={stil.etiket1}>
                 Yürürlük
                 <input
                   type="date"
                   value={gun}
                   onChange={(e) => setGun(e.target.value)}
-                  style={{ ...kutu, display: 'block', marginTop: 3, width: 150, padding: 8 }}
+                  className={stil.girdi1}
                 />
               </label>
-              <label style={{ fontSize: 12.5, fontWeight: 700 }}>
+              <label className={stil.etiket1}>
                 Not
                 <input
                   value={not}
                   onChange={(e) => setNot(e.target.value)}
                   placeholder="İsteğe bağlı"
-                  style={{ ...kutu, display: 'block', marginTop: 3, width: 180, padding: 8 }}
+                  className={stil.girdi2}
                 />
               </label>
-              <button
-                type="button"
-                onClick={() => setTaslak(null)}
-                style={{
-                  border: 0,
-                  background: 'transparent',
-                  padding: '11px 8px',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: '#5A6073',
-                  cursor: 'pointer',
-                  alignSelf: 'flex-end',
-                  fontFamily: 'inherit',
-                }}
-              >
+              <button type="button" onClick={() => setTaslak(null)} className={stil.dugme1}>
                 Vazgeç
               </button>
-              <button
-                type="button"
-                onClick={gonder}
-                style={{
-                  border: 0,
-                  background: '#3DD68C',
-                  borderRadius: 12,
-                  padding: '11px 16px',
-                  fontSize: 14,
-                  fontWeight: 800,
-                  color: '#1E2333',
-                  cursor: 'pointer',
-                  alignSelf: 'flex-end',
-                  fontFamily: 'inherit',
-                }}
-              >
+              <button type="button" onClick={gonder} className={stil.dugme2}>
                 Onaya gönder
               </button>
             </span>
@@ -264,17 +186,7 @@ export default function Kurallar() {
             <button
               type="button"
               onClick={() => setTaslak(structuredClone(o.yururlukte.kitap))}
-              style={{
-                border: '1px solid #5B8CFF',
-                background: '#FFFFFF',
-                borderRadius: 12,
-                padding: '11px 16px',
-                fontSize: 14,
-                fontWeight: 800,
-                color: '#2450C8',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
+              className={stil.dugme3}
             >
               Düzenle
             </button>
@@ -282,52 +194,31 @@ export default function Kurallar() {
         ) : null}
       </div>
       {bilgi ? (
-        <p
-          role="status"
-          style={{
-            background: '#E7FAF0',
-            color: '#11683F',
-            borderRadius: 12,
-            padding: '10px 14px',
-            fontWeight: 700,
-          }}
-        >
+        <p role="status" className={stil.metin3}>
           {bilgi}
         </p>
       ) : null}
       {hata ? (
-        <p
-          role="alert"
-          style={{
-            background: '#FDECEC',
-            color: '#A3271F',
-            borderRadius: 12,
-            padding: '10px 14px',
-            fontWeight: 700,
-          }}
-        >
+        <p role="alert" className={stil.metin4}>
           {hata}
         </p>
       ) : null}
 
       {kitap ? (
         <>
-          <section style={kart} aria-labelledby="paket">
-            <h2 id="paket" style={baslik}>
+          <section className={stil.kutu2} aria-labelledby="paket">
+            <h2 id="paket" className={stil.baslik2}>
               Galeri paketleri
             </h2>
-            <div style={{ ...ustSatir, gridTemplateColumns: 'minmax(0, 2fr) repeat(3, minmax(0, 1fr))' }}>
+            <div className={stil.kutu3}>
               <span>Özellik</span>
               {PAID_PLAN_KEYS.map((k) => (
                 <span key={k}>{GALLERY_PLANS[k].ad}</span>
               ))}
             </div>
             {PACKAGE_ROWS.map((r) => (
-              <div
-                key={r.alan}
-                style={{ ...satir, gridTemplateColumns: 'minmax(0, 2fr) repeat(3, minmax(0, 1fr))' }}
-              >
-                <span style={{ fontWeight: 700 }}>{r.ad}</span>
+              <div key={r.alan} className={stil.kutu4}>
+                <span className={stil.metin5}>{r.ad}</span>
                 {PAID_PLAN_KEYS.map((k) =>
                   duzen ? (
                     <input
@@ -339,7 +230,7 @@ export default function Kurallar() {
                           : String(kitap.paketler[k][r.alan] ?? '')
                       }
                       onChange={(e) => paketYaz(k, r.alan, e.target.value)}
-                      style={kutu}
+                      className={stil.girdi3}
                     />
                   ) : (
                     <span key={k}>{packageValueText(r.alan, kitap.paketler[k][r.alan])}</span>
@@ -347,136 +238,88 @@ export default function Kurallar() {
                 )}
               </div>
             ))}
-            <p
-              style={{
-                margin: 0,
-                padding: '10px 18px',
-                fontSize: 12,
-                color: '#5A6073',
-                borderTop: '1px solid #EEF0F5',
-              }}
-            >
+            <p className={stil.metin6}>
               Fiyatlar KDV hariç; yıllık ödemede 2 ay ücretsiz. Galeri abonelikleri yalnızca web’den alınır.
               Deneme: 30 gün, Profesyonel özellikleri, 15 araç, günde 10 ilk mesaj.
               {o?.yururlukte.since ? ` Bu liste ${tarih(o.yururlukte.since)} tarihinden beri geçerli.` : ''}
             </p>
           </section>
 
-          <div
-            style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 16, alignItems: 'flex-start' }}
-          >
-            <section style={{ ...kart, flex: '3 1 460px', minWidth: 0 }} aria-labelledby="urun">
-              <h2 id="urun" style={baslik}>
+          <div className={stil.kutu5}>
+            <section className={stil.kutu6} aria-labelledby="urun">
+              <h2 id="urun" className={stil.baslik2}>
                 Bireysel ürünler · KDV dahil
               </h2>
-              <div
-                style={{ ...ustSatir, gridTemplateColumns: 'minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1fr)' }}
-              >
+              <div className={stil.kutu7}>
                 <span>Ürün</span>
-                <span style={{ textAlign: 'right' }}>Web</span>
-                <span style={{ textAlign: 'right' }}>Mobil (mağaza)</span>
+                <span className={stil.metin7}>Web</span>
+                <span className={stil.metin7}>Mobil (mağaza)</span>
               </div>
               {PRODUCTS.map((p) => (
-                <div
-                  key={p.key}
-                  style={{ ...satir, gridTemplateColumns: 'minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1fr)' }}
-                >
-                  <span style={{ fontWeight: 700 }}>{p.ad}</span>
+                <div key={p.key} className={stil.kutu8}>
+                  <span className={stil.metin5}>{p.ad}</span>
                   {duzen ? (
                     <input
                       aria-label={`${p.ad} · web fiyatı`}
                       value={String(kitap.urunler[p.key] ?? '').replace('.', ',')}
                       onChange={(e) => urunYaz(p.key, e.target.value)}
-                      style={{ ...kutu, textAlign: 'right' }}
+                      className={stil.girdi4}
                     />
                   ) : (
-                    <span style={{ textAlign: 'right', fontWeight: 800 }}>
-                      {tl(kitap.urunler[p.key] ?? p.tl)}
-                    </span>
+                    <span className={stil.metin8}>{tl(kitap.urunler[p.key] ?? p.tl)}</span>
                   )}
-                  <span style={{ textAlign: 'right', color: '#5A6073' }}>{tl(p.mobil)}</span>
+                  <span className={stil.metin9}>{tl(p.mobil)}</span>
                 </div>
               ))}
-              <p
-                style={{
-                  margin: 0,
-                  padding: '10px 18px',
-                  fontSize: 12,
-                  color: '#5A6073',
-                  borderTop: '1px solid #EEF0F5',
-                }}
-              >
+              <p className={stil.metin6}>
                 Mobil fiyatlar App Store Connect ve Google Play Console’dan değişir; burada yalnızca
                 gösterilir.
               </p>
             </section>
-            <section style={{ ...kart, flex: '2 1 340px', minWidth: 0 }} aria-labelledby="kural">
-              <h2 id="kural" style={baslik}>
+            <section className={stil.kutu9} aria-labelledby="kural">
+              <h2 id="kural" className={stil.baslik2}>
                 Kullanım kuralları
               </h2>
               {o?.kurallar.map((k) => (
-                <div
-                  key={k.ad}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    gap: 10,
-                    padding: '10px 18px',
-                    borderBottom: '1px solid #EEF0F5',
-                  }}
-                >
-                  <span style={{ minWidth: 0 }}>
-                    <span style={{ display: 'block', fontSize: 13.5, fontWeight: 700 }}>{k.ad}</span>
-                    <span style={{ display: 'block', fontSize: 12, color: '#5A6073' }}>{k.not}</span>
+                <div key={k.ad} className={stil.kutu10}>
+                  <span className={stil.metin10}>
+                    <span className={stil.metin11}>{k.ad}</span>
+                    <span className={stil.metin12}>{k.not}</span>
                   </span>
-                  <span style={{ flex: 'none', fontSize: 14, fontWeight: 800 }}>{k.deger}</span>
+                  <span className={stil.metin13}>{k.deger}</span>
                 </div>
               ))}
             </section>
           </div>
 
           {/* Rozet eşikleri (Karar 55, 56; tasarıma ek): aynı listeyle ve aynı onayla değişir */}
-          <section style={{ ...kart, marginTop: 16 }} aria-labelledby="rozet">
-            <h2 id="rozet" style={baslik}>
+          <section className={stil.kutu11} aria-labelledby="rozet">
+            <h2 id="rozet" className={stil.baslik2}>
               Rozet eşikleri
             </h2>
             {BADGE_THRESHOLD_ROWS.map((r) => {
               const deger = badgeThresholdsOf(kitap)[r.alan];
               return (
-                <div
-                  key={r.alan}
-                  style={{
-                    ...satir,
-                    gridTemplateColumns: 'minmax(0, 2.4fr) minmax(0, 1fr) minmax(0, 1.4fr)',
-                  }}
-                >
-                  <span style={{ fontWeight: 700 }}>{r.ad}</span>
+                <div key={r.alan} className={stil.kutu12}>
+                  <span className={stil.metin5}>{r.ad}</span>
                   {duzen ? (
                     <input
                       aria-label={r.ad}
                       inputMode="decimal"
                       value={rozetHam[r.alan] ?? String(deger).replace('.', ',')}
                       onChange={(e) => rozetYaz(r.alan, e.target.value)}
-                      style={{ ...kutu, textAlign: 'right' }}
+                      className={stil.girdi4}
                     />
                   ) : (
-                    <span style={{ textAlign: 'right', fontWeight: 800 }}>
+                    <span className={stil.metin8}>
                       {new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 1 }).format(deger)}
                     </span>
                   )}
-                  <span style={{ color: '#5A6073' }}>{r.birim}</span>
+                  <span className={stil.metin14}>{r.birim}</span>
                 </div>
               );
             })}
-            <p
-              style={{
-                margin: 0,
-                padding: '10px 18px',
-                fontSize: 12,
-                color: '#5A6073',
-                borderTop: '1px solid #EEF0F5',
-              }}
-            >
+            <p className={stil.metin6}>
               Rozetler her gece yeniden hesaplanır; değişiklik yürürlüğe girdiği gecenin hesabıyla görünür.
             </p>
           </section>
@@ -484,64 +327,27 @@ export default function Kurallar() {
       ) : null}
 
       {o?.degisiklikler.length ? (
-        <section style={{ ...kart, marginTop: 16 }} aria-labelledby="gecmis">
-          <h2 id="gecmis" style={baslik}>
+        <section className={stil.kutu11} aria-labelledby="gecmis">
+          <h2 id="gecmis" className={stil.baslik2}>
             Fiyat değişiklikleri
           </h2>
           {o.degisiklikler.map((d) => {
             const [ad, bg, fg] = DURUM[d.durum];
             return (
-              <div
-                key={d.id}
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  gap: '6px 14px',
-                  padding: '12px 18px',
-                  borderBottom: '1px solid #EEF0F5',
-                  fontSize: 13.5,
-                }}
-              >
-                <span
-                  style={{
-                    flex: 'none',
-                    fontSize: 12,
-                    fontWeight: 800,
-                    padding: '3px 9px',
-                    borderRadius: 999,
-                    background: bg,
-                    color: fg,
-                  }}
-                >
+              <div key={d.id} className={stil.kutu13}>
+                <span className={stil.metin15} style={{ background: bg, color: fg }}>
                   {ad}
                 </span>
-                <span style={{ flex: '1 1 300px', minWidth: 0 }}>
-                  <span style={{ display: 'block', fontWeight: 800 }}>Yürürlük {tarih(d.yururluk)}</span>
-                  <span style={{ display: 'block', fontSize: 12.5, color: '#3A4052', marginTop: 2 }}>
-                    {d.degisiklikler.join(' · ')}
-                  </span>
-                  <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 2 }}>
+                <span className={stil.metin16}>
+                  <span className={stil.metin17}>Yürürlük {tarih(d.yururluk)}</span>
+                  <span className={stil.metin18}>{d.degisiklikler.join(' · ')}</span>
+                  <span className={stil.metin19}>
                     {d.kim} · {tarih(d.zaman)}
                     {d.not ? ` · “${d.not}”` : ''}
                   </span>
                 </span>
                 {d.durum === 'zamanlandi' && yazabilir ? (
-                  <button
-                    type="button"
-                    onClick={() => iptal(d.id)}
-                    style={{
-                      flex: 'none',
-                      border: '1px solid #D5DAE5',
-                      background: '#FFFFFF',
-                      borderRadius: 10,
-                      padding: '7px 12px',
-                      fontSize: 13,
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
-                  >
+                  <button type="button" onClick={() => iptal(d.id)} className={stil.dugme4}>
                     İptal et
                   </button>
                 ) : null}

@@ -1,0 +1,42 @@
+/* Bu dosya yukle.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px dashed #b9c3d9;
+  border-radius: 12px;
+  background: #f8faff;
+  display: grid;
+  gap: 12px;
+}
+.metin1 {
+  margin: 0;
+  font-size: 13px;
+  color: #5a6073;
+}
+.kutu2 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.etiket1 {
+  flex: 2 1 280px;
+}
+.etiket2 {
+  flex: 1 1 180px;
+}
+.etiket3 {
+  flex: 1 1 160px;
+}
+.etiket4 {
+  flex: 1 1 150px;
+}
+.etiket5 {
+  flex: 1 1 110px;
+}
+.metin2 {
+  margin: 0;
+}
+.kutu3 {
+  display: flex;
+  gap: 8px;
+}

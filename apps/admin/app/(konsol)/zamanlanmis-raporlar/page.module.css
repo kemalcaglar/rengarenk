@@ -1,0 +1,277 @@
+/* Bu dosya page.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.metin1 {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.kutu1 {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px 14px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #eef0f5;
+  font-size: 13.5px;
+}
+.metin2 {
+  flex: 999 1 280px;
+  min-width: 0;
+}
+.metin3 {
+  display: block;
+  font-weight: 700;
+}
+.metin4 {
+  display: block;
+  font-size: 12px;
+  color: #5a6073;
+  margin-top: 2px;
+}
+.metin5 {
+  flex: none;
+  color: #3a4052;
+}
+.kutu2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 13px 18px;
+  border-bottom: 1px solid #eef0f5;
+}
+.metin6 {
+  flex: 999 1 300px;
+  min-width: 0;
+}
+.metin7 {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 800;
+}
+.metin8 {
+  display: block;
+  font-size: 12.5px;
+  color: #3a4052;
+  margin-top: 2px;
+}
+.kutu3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+}
+.metin9 {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #5a6073;
+}
+.dugme1 {
+  border: 0;
+  background: #5b8cff;
+  border-radius: 12px;
+  font-weight: 800;
+  color: #1e2333;
+  cursor: pointer;
+  padding: 12px 18px;
+  font-size: 14.5px;
+}
+.metin10 {
+  background: #e7faf0;
+  color: #11683f;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.kutu4 {
+  background: #ffffff;
+  border: 1.5px solid #5b8cff;
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.kutu5 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+.etiket1 {
+  font-size: 13px;
+  font-weight: 700;
+  flex: 2 1 220px;
+}
+.girdi1 {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 5px;
+  border: 1px solid #d5dae5;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
+  background: #ffffff;
+}
+.etiket2 {
+  font-size: 13px;
+  font-weight: 700;
+  flex: 1 1 150px;
+}
+.etiket3 {
+  font-size: 13px;
+  font-weight: 700;
+  flex: 0 1 100px;
+}
+.kutu6 {
+  flex: 2 1 220px;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.baslik2 {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 0;
+}
+.kutu7 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 5px;
+}
+.dugme2 {
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dugme3 {
+  background: #eef3ff;
+  color: #2450c8;
+}
+.dugme4 {
+  background: #ffffff;
+  color: #3a4052;
+}
+.dugme5 {
+  border: 0;
+  background: #5b8cff;
+  border-radius: 12px;
+  font-weight: 800;
+  color: #1e2333;
+  cursor: pointer;
+  padding: 11px 18px;
+  font-size: 14px;
+}
+.dugme6 {
+  opacity: 1;
+}
+.dugme7 {
+  opacity: 0.5;
+}
+.metin11 {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: #5a6073;
+}
+.kutu8 {
+  background: #ffffff;
+  border: 1px solid #e3e6ef;
+  border-radius: 18px;
+  overflow: hidden;
+}
+.baslik3 {
+  margin: 0;
+  padding: 16px 18px;
+  font-size: 17px;
+  font-weight: 800;
+  border-bottom: 1px solid #eef0f5;
+}
+.metin12 {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.dugme8 {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #a3271f;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.kutu9 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 14px;
+  align-items: flex-start;
+}
+.kutu10 {
+  background: #ffffff;
+  border: 1px solid #e3e6ef;
+  border-radius: 18px;
+  overflow: hidden;
+  flex: 3 1 460px;
+  min-width: 0;
+}
+.metin13 {
+  margin: 0;
+  padding: 12px 18px;
+  font-size: 12.5px;
+  color: #5a6073;
+}
+.kutu11 {
+  background: #ffffff;
+  border: 1px solid #e3e6ef;
+  border-radius: 18px;
+  overflow: hidden;
+  flex: 2 1 300px;
+  min-width: 0;
+}
+.bag1 {
+  display: block;
+  padding: 12px 18px;
+  border-bottom: 1px solid #eef0f5;
+  color: #1e2333;
+  text-decoration: none;
+}
+.metin14 {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+}
+.metin15 {
+  display: block;
+  font-size: 12.5px;
+  color: #5a6073;
+  margin-top: 2px;
+}
+.metin16 {
+  margin: 0;
+  padding: 12px 18px;
+  font-size: 13px;
+  color: #5a6073;
+}
+.kutu12 {
+  background: #ffffff;
+  border: 1px solid #e3e6ef;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-top: 14px;
+}

@@ -2,7 +2,9 @@
 
 import type { LegalDiffLine, LegalKey } from '@rengarenk/shared';
 import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
+import stil from './yasal.module.css';
 
 interface Satir {
   key: LegalKey;
@@ -116,26 +118,17 @@ export function YasalMetinler({ yazabilir }: { yazabilir: boolean }) {
   }
 
   return (
-    <section className="k-panel" style={{ overflow: 'hidden' }} aria-labelledby="yasal">
-      <h2
-        id="yasal"
-        style={{
-          margin: 0,
-          padding: '16px 18px',
-          fontSize: 17,
-          fontWeight: 800,
-          borderBottom: '1px solid #EEF0F5',
-        }}
-      >
+    <section className={`k-panel ${stil.kutu1}`} aria-labelledby="yasal">
+      <h2 id="yasal" className={stil.baslik1}>
         Yasal metinler
       </h2>
       {hata ? (
-        <p className="k-error" role="alert" style={{ margin: '10px 18px' }}>
+        <p className={`k-error ${stil.metin1}`} role="alert">
           {hata}
         </p>
       ) : null}
       {bilgi ? (
-        <p className="k-ok" role="status" style={{ margin: '10px 18px' }}>
+        <p className={`k-ok ${stil.metin1}`} role="status">
           {bilgi}
         </p>
       ) : null}
@@ -147,40 +140,19 @@ export function YasalMetinler({ yazabilir }: { yazabilir: boolean }) {
           ? (s.yayinda?.version ?? (s.taslak.version > 1 ? s.taslak.version - 1 : null))
           : null;
         return (
-          <div key={s.key} style={{ borderBottom: '1px solid #EEF0F5' }}>
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                gap: '8px 16px',
-                padding: '12px 18px',
-              }}
-            >
-              <span style={{ flex: '999 1 260px', minWidth: 0 }}>
-                <span style={{ display: 'block', fontSize: 14, fontWeight: 800 }}>{s.ad}</span>
-                <span style={{ display: 'block', fontSize: 12.5, color: '#3A4052', marginTop: 2 }}>
-                  {not}
-                </span>
+          <div key={s.key} className={stil.kutu2}>
+            <div className={stil.kutu3}>
+              <span className={stil.metin2}>
+                <span className={stil.metin3}>{s.ad}</span>
+                <span className={stil.metin4}>{not}</span>
               </span>
-              <span
-                style={{
-                  flex: 'none',
-                  fontSize: 12,
-                  fontWeight: 800,
-                  padding: '3px 9px',
-                  borderRadius: 999,
-                  background: durum.bg,
-                  color: durum.fg,
-                }}
-              >
+              <span className={stil.metin5} style={{ background: durum.bg, color: durum.fg }}>
                 {durum.ad}
               </span>
               {karsi ? (
                 <button
                   type="button"
-                  className="k-btn-line"
-                  style={{ fontSize: 13, padding: '7px 12px' }}
+                  className={`k-btn-line ${stil.dugme1}`}
                   aria-expanded={acik?.key === s.key && acik.mod === 'fark'}
                   onClick={() =>
                     acik?.key === s.key && acik.mod === 'fark' ? setAcik(null) : void ac(s.key, 'fark', karsi)
@@ -192,8 +164,7 @@ export function YasalMetinler({ yazabilir }: { yazabilir: boolean }) {
               {yazabilir ? (
                 <button
                   type="button"
-                  className="k-btn-line"
-                  style={{ fontSize: 13, padding: '7px 12px' }}
+                  className={`k-btn-line ${stil.dugme1}`}
                   aria-expanded={acik?.key === s.key && acik.mod === 'duzenle'}
                   onClick={() =>
                     acik?.key === s.key && acik.mod === 'duzenle' ? setAcik(null) : void ac(s.key, 'duzenle')
@@ -207,20 +178,20 @@ export function YasalMetinler({ yazabilir }: { yazabilir: boolean }) {
               acik.mod === 'fark' ? (
                 <Fark d={d} />
               ) : form ? (
-                <div style={{ padding: '14px 18px', background: '#F6F8FD' }}>
+                <div className={stil.kutu4}>
                   {d.taslak?.kilitli ? (
-                    <p className="k-note" style={{ marginTop: 0 }}>
+                    <p className={`k-note ${stil.metin6}`}>
                       Kullanıcılar s.{d.taslak.version} taslağını onayladı; kaydedince yeni sürüm (s.
                       {d.taslak.version + 1}) açılır, onaylanan metin değişmez.
                     </p>
                   ) : null}
                   {d.taslak?.onayda ? (
-                    <p className="k-note" style={{ marginTop: 0 }}>
+                    <p className={`k-note ${stil.metin6}`}>
                       Bu taslak sahip onayında. Kaydedersen yeni sürüm açılır ve yeniden onaya gönderilmesi
                       gerekir.
                     </p>
                   ) : null}
-                  <label className="k-field" style={{ display: 'block' }}>
+                  <label className={`k-field ${stil.etiket1}`}>
                     Başlık
                     <input
                       value={form.title}
@@ -228,28 +199,16 @@ export function YasalMetinler({ yazabilir }: { yazabilir: boolean }) {
                       maxLength={160}
                     />
                   </label>
-                  <label className="k-field" style={{ display: 'block', marginTop: 10 }}>
+                  <label className={`k-field ${stil.etiket2}`}>
                     Metin (Markdown: ## başlık, boş satırla paragraf)
                     <textarea
                       value={form.body}
                       onChange={(e) => setForm({ ...form, body: e.target.value })}
                       rows={16}
-                      style={{
-                        display: 'block',
-                        width: '100%',
-                        marginTop: 5,
-                        border: '1px solid #D5DAE5',
-                        borderRadius: 10,
-                        padding: 11,
-                        font: 'inherit',
-                        fontSize: 13.5,
-                        fontWeight: 400,
-                        lineHeight: 1.5,
-                        boxSizing: 'border-box',
-                      }}
+                      className={stil.girdi1}
                     />
                   </label>
-                  <label className="k-field" style={{ display: 'block', marginTop: 10 }}>
+                  <label className={`k-field ${stil.etiket2}`}>
                     Değişiklik notu (onay isteğinde görünür)
                     <input
                       value={form.not}
@@ -258,27 +217,19 @@ export function YasalMetinler({ yazabilir }: { yazabilir: boolean }) {
                       placeholder="Ör. madde 7.2 iade koşulu avukat önerisiyle güncellendi"
                     />
                   </label>
-                  <label
-                    style={{
-                      display: 'flex',
-                      gap: 8,
-                      alignItems: 'flex-start',
-                      marginTop: 10,
-                      fontSize: 13.5,
-                    }}
-                  >
+                  <label className={stil.etiket3}>
                     <input
                       type="checkbox"
                       checked={form.material}
                       onChange={(e) => setForm({ ...form, material: e.target.checked })}
-                      style={{ width: 18, height: 18, margin: '1px 0 0' }}
+                      className={stil.girdi2}
                     />
                     <span>
                       <strong>Esaslı değişiklik</strong>: yayınlanınca kullanıcılara bildirim gider ve bir
                       sonraki girişte yeni sürüm onaylatılır.
                     </span>
                   </label>
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
+                  <div className={stil.kutu5}>
                     <button
                       type="button"
                       className="k-btn-line"
@@ -327,7 +278,7 @@ export function YasalMetinler({ yazabilir }: { yazabilir: boolean }) {
                     </button>
                   </div>
                   {d.fark.satirlar.length ? (
-                    <div style={{ marginTop: 14 }}>
+                    <div className={stil.kutu6}>
                       <Fark d={d} />
                     </div>
                   ) : null}
@@ -353,44 +304,21 @@ function Fark({ d }: { d: Detay }) {
   });
   const taslak = d.taslak && d.fark.yeni === d.taslak.version;
   return (
-    <div style={{ padding: '14px 18px', background: '#F6F8FD', fontSize: 13, lineHeight: 1.6 }}>
+    <div className={stil.kutu7}>
       {gruplar.length === 0 ? (
         <div>
           s.{d.fark.eski} ile s.{d.fark.yeni} arasında metin farkı yok.
         </div>
       ) : (
         gruplar.map((g) => (
-          <div key={g.id} style={{ marginBottom: 10 }}>
-            <div style={{ fontWeight: 800, marginBottom: 6 }}>
+          <div key={g.id} className={stil.kutu8}>
+            <div className={stil.kutu9}>
               {d.ad} · s.{d.fark.eski} → s.{d.fark.yeni}
               {taslak ? ' taslak' : ''}
               {g.bolum ? ` · ${g.bolum}` : ''}
             </div>
             {g.satirlar.map((s) => (
-              <div
-                key={s.id}
-                style={
-                  s.tip === 'sil'
-                    ? {
-                        background: '#FDECEC',
-                        borderLeft: '3px solid #E5484D',
-                        padding: '6px 10px',
-                        borderRadius: '0 8px 8px 0',
-                        color: '#5C1A15',
-                        marginTop: 4,
-                        whiteSpace: 'pre-wrap',
-                      }
-                    : {
-                        background: '#E7FAF0',
-                        borderLeft: '3px solid #3DD68C',
-                        padding: '6px 10px',
-                        borderRadius: '0 8px 8px 0',
-                        marginTop: 4,
-                        color: '#0B4A2C',
-                        whiteSpace: 'pre-wrap',
-                      }
-                }
-              >
+              <div key={s.id} className={cx(s.tip === 'sil' ? stil.kutu10 : stil.kutu11)}>
                 {s.tip === 'sil' ? '− ' : '+ '}
                 {s.metin}
               </div>
@@ -399,7 +327,7 @@ function Fark({ d }: { d: Detay }) {
         ))
       )}
       {d.taslak ? (
-        <div style={{ marginTop: 8, fontSize: 12.5, color: '#3A4052' }}>
+        <div className={stil.kutu12}>
           {d.taslak.material
             ? 'Esaslı değişiklik: yayınlanınca kullanıcılara bildirim gider ve bir sonraki girişte yeni sürüm onaylatılır. '
             : 'Esaslı değişiklik değil: yayınlanınca kullanıcılardan yeniden onay istenmez. '}

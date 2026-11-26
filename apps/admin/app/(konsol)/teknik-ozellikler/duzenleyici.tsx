@@ -17,7 +17,9 @@ import {
   teknikMetniOku,
 } from '@rengarenk/shared';
 import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { tarih, yonetim } from '../../../lib/istemci';
+import stil from './duzenleyici.module.css';
 
 interface ModelVerisi {
   id: string;
@@ -93,15 +95,6 @@ function formaYaz(d: TeknikDuzeltme): Record<string, string | string[]> {
   }
   return out;
 }
-
-const kutu = {
-  width: '100%',
-  border: '1px solid #D5DAE5',
-  borderRadius: 8,
-  padding: '7px 9px',
-  font: 'inherit',
-  fontSize: 13.5,
-} as const;
 
 /**
  * Bir motor sürümünün teknik değerlerini ve donanımını elle girme (sahip isteği, 17 ve 18 Kasım 2026). Üstteki kutuya
@@ -314,47 +307,30 @@ export function Duzenleyici({
   if (!veri) return <div className="k-panel k-empty">{hata ?? 'Yükleniyor…'}</div>;
   const donanimOnizleme = donanimMetni.trim() ? donanimOku(donanimMetni) : [];
   return (
-    <section
-      className="k-panel"
-      style={{ padding: 16, marginBottom: 14 }}
-      aria-label={`${veri.ad} teknik değerleri ve donanımı`}
-    >
-      <strong style={{ fontSize: 15.5 }}>
+    <section className={`k-panel ${stil.kutu1}`} aria-label={`${veri.ad} teknik değerleri ve donanımı`}>
+      <strong className={stil.metin1}>
         {veri.arac} {veri.ad}
       </strong>
-      <p style={{ margin: '4px 0 12px', fontSize: 13, color: '#5A6073' }}>
+      <p className={stil.metin2}>
         Yalnızca değiştirmek ya da eklemek istediğin alanı doldur; boş alan kaynaklardan (ADEME,
         vehicle-makes-models, TSB) gelmeye devam eder. Aralık için "150–170", liste için virgül kullan.
       </p>
 
-      <div
-        id={`hedef-${modelId}`}
-        style={{
-          border: yerine ? '2px solid #4F7BF7' : '1px solid #D5DAE5',
-          borderRadius: 10,
-          padding: 12,
-          marginBottom: 14,
-        }}
-      >
-        <p style={{ margin: '0 0 8px', fontSize: 14, fontWeight: 800 }}>
+      <div id={`hedef-${modelId}`} className={cx(stil.kutu2, yerine ? stil.kutu3 : stil.kutu4)}>
+        <p className={stil.metin3}>
           {yerine ? 'Kaydı düzenliyorsun: hangi araçlara uygulanacak?' : '1. Hangi araçlara uygulanacak?'}
         </p>
         {yerine ? (
-          <p style={{ margin: '0 0 10px', fontSize: 13, color: '#2B4FB8' }}>
+          <p className={stil.metin4}>
             Değerler ve donanım aşağıya yüklendi. Kaydedince bu kayıt eskisinin yerine geçer (eskisi silinmez,
             kaldırılır).{' '}
-            <button
-              type="button"
-              className="k-btn-line"
-              style={{ fontSize: 12.5, padding: '3px 9px' }}
-              onClick={vazgec}
-            >
+            <button type="button" className={`k-btn-line ${stil.dugme1}`} onClick={vazgec}>
               Düzenlemeyi bırak
             </button>
           </p>
         ) : null}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-          <label className="k-field" style={{ flex: '0 1 120px' }}>
+        <div className={stil.kutu5}>
+          <label className={`k-field ${stil.etiket1}`}>
             İlk yıl
             <input
               inputMode="numeric"
@@ -363,7 +339,7 @@ export function Duzenleyici({
               onChange={(e) => setYilBas(e.target.value)}
             />
           </label>
-          <label className="k-field" style={{ flex: '0 1 120px' }}>
+          <label className={`k-field ${stil.etiket1}`}>
             Son yıl
             <input
               inputMode="numeric"
@@ -372,7 +348,7 @@ export function Duzenleyici({
               onChange={(e) => setYilSon(e.target.value)}
             />
           </label>
-          <label className="k-field" style={{ flex: '0 1 220px' }}>
+          <label className={`k-field ${stil.etiket2}`}>
             Paket
             <select value={paket} onChange={(e) => setPaket(e.target.value)}>
               <option value="">Bütün paketler</option>
@@ -384,7 +360,7 @@ export function Duzenleyici({
               ))}
             </select>
           </label>
-          <label className="k-field" style={{ flex: '0 1 180px' }}>
+          <label className={`k-field ${stil.etiket3}`}>
             Vites
             <select value={vites} onChange={(e) => setVites(e.target.value)}>
               <option value="">Bütün vitesler</option>
@@ -396,17 +372,17 @@ export function Duzenleyici({
             </select>
           </label>
         </div>
-        <p style={{ margin: '8px 0 4px', fontSize: 13, fontWeight: 700 }}>
+        <p className={stil.metin5}>
           {veri.tipler.length
             ? `Bu kayıt Türkiye'de satılan şu ${veri.tipler.length} tipe uygulanır:`
             : 'Bu yıl, paket ve vitesle satılan tip yok; seçimi değiştir.'}
         </p>
         {veri.tipler.length ? (
-          <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, color: '#3A4052', columns: '2 280px' }}>
+          <ul className={stil.liste1}>
             {(tumTipler ? veri.tipler : veri.tipler.slice(0, 10)).map((t) => (
               <li key={`${t.ad}-${t.paket}-${t.vites}`}>
                 {t.ad}
-                <span style={{ color: '#5A6073' }}>
+                <span className={stil.metin6}>
                   {' '}
                   · {t.vites ? (VITES_AD[t.vites] ?? t.vites) : 'vites belirtilmemiş'}
                   {t.yillar ? ` · ${t.yillar[0]}–${t.yillar[1]}` : ''}
@@ -418,22 +394,21 @@ export function Duzenleyici({
         {veri.tipler.length > 10 ? (
           <button
             type="button"
-            className="k-btn-line"
-            style={{ fontSize: 12.5, padding: '3px 9px', marginTop: 6 }}
+            className={`k-btn-line ${stil.dugme2}`}
             onClick={() => setTumTipler((v) => !v)}
           >
             {tumTipler ? 'Daha az göster' : `Hepsini göster (${veri.tipler.length})`}
           </button>
         ) : null}
-        <p style={{ margin: '8px 0 0', fontSize: 12, color: '#5A6073' }}>
+        <p className={stil.metin7}>
           Talep açan kişi bu yılları, paketi ve vitesi seçtiğinde teknik sekmesinde bu kaydı görür; başka
           paket ya da vites seçene başka kayıt girebilirsin. Vitesi TSB adında yazmayan tipler yalnızca "Bütün
           vitesler" kaydını alır.
         </p>
       </div>
 
-      <div style={{ background: '#F6F8FC', borderRadius: 10, padding: 12, marginBottom: 14 }}>
-        <label className="k-field" style={{ margin: 0 }}>
+      <div className={stil.kutu6}>
+        <label className={`k-field ${stil.etiket4}`}>
           2. Metinden doldur (isteğe bağlı)
           <textarea
             value={metin}
@@ -442,10 +417,10 @@ export function Duzenleyici({
               '--Genel Bakış--\nMotor Gücü\t90 hp\nŞanzıman / Çekiş\tX-Tronic / Önden Çekiş\n…\n--Donanım--\n-Güvenlik-\nABS'
             }
             onChange={(e) => setMetin(e.target.value)}
-            style={{ ...kutu, fontFamily: 'ui-monospace, Consolas, monospace', fontSize: 12.5 }}
+            className={stil.girdi1}
           />
         </label>
-        <p style={{ margin: '6px 0 8px', fontSize: 12.5, color: '#5A6073' }}>
+        <p className={stil.metin8}>
           Teknik özellik ve donanım metnini olduğu gibi yapıştır. Tanınan satırlar aşağıdaki alanlara, üretim
           yılı yıl aralığına, "--Donanım--" bölümü donanım kutusuna yazılır. Hiçbir şey kaydedilmez; kontrol
           edip kaydet.
@@ -454,11 +429,9 @@ export function Duzenleyici({
           Metni oku ve doldur
         </button>
         {okunamayan.length ? (
-          <div style={{ marginTop: 10 }}>
-            <p style={{ margin: '0 0 4px', fontSize: 13, fontWeight: 700, color: '#7A5A00' }}>
-              Okunamayan satırlar ({okunamayan.length}): gerekirse elle gir
-            </p>
-            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, color: '#5A6073' }}>
+          <div className={stil.kutu7}>
+            <p className={stil.metin9}>Okunamayan satırlar ({okunamayan.length}): gerekirse elle gir</p>
+            <ul className={stil.liste2}>
               {okunamayan.map((x) => (
                 <li key={x}>{x}</li>
               ))}
@@ -466,25 +439,19 @@ export function Duzenleyici({
           </div>
         ) : null}
         {adaylar.length ? (
-          <div style={{ marginTop: 10 }}>
-            <p style={{ margin: '0 0 6px', fontSize: 13, fontWeight: 700 }}>
+          <div className={stil.kutu7}>
+            <p className={stil.metin10}>
               Bunları teknik tabloya ek satır olarak ekleyebilirsin:{' '}
-              <button
-                type="button"
-                className="k-btn-line"
-                style={{ fontSize: 12.5, padding: '3px 9px' }}
-                onClick={() => adayEkle(adaylar)}
-              >
+              <button type="button" className={`k-btn-line ${stil.dugme1}`} onClick={() => adayEkle(adaylar)}>
                 Hepsini ekle ({adaylar.length})
               </button>
             </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            <div className={stil.kutu8}>
               {adaylar.map((a) => (
                 <button
                   key={`${a.bolum}|${a.etiket}`}
                   type="button"
-                  className="k-btn-line"
-                  style={{ fontSize: 12.5, padding: '4px 9px' }}
+                  className={`k-btn-line ${stil.dugme3}`}
                   title={`${a.bolum} bölümüne eklenir`}
                   onClick={() => adayEkle([a])}
                 >
@@ -497,21 +464,21 @@ export function Duzenleyici({
       </div>
 
       <form onSubmit={kaydet}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginBottom: 12 }}>
-          <label className="k-field" style={{ flex: '1 1 240px' }}>
+        <div className={stil.kutu9}>
+          <label className={`k-field ${stil.etiket5}`}>
             Not (isteğe bağlı, kaynak ya da gerekçe)
             <input value={not} maxLength={500} onChange={(e) => setNot(e.target.value)} />
           </label>
         </div>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13.5 }}>
+        <div className={stil.kutu10}>
+          <table className={stil.tablo1}>
             <thead>
-              <tr style={{ textAlign: 'left', color: '#5A6073', fontSize: 12 }}>
-                <th style={{ padding: '6px 8px' }}>Alan</th>
-                <th style={{ padding: '6px 8px' }}>Şu an gösterilen</th>
-                <th style={{ padding: '6px 8px' }}>Kaynaktaki</th>
-                <th style={{ padding: '6px 8px', minWidth: 220 }}>Yeni değer</th>
-                <th style={{ padding: '6px 8px', whiteSpace: 'nowrap' }}>Talep sayfasında</th>
+              <tr className={stil.tablo2}>
+                <th className={stil.tablo3}>Alan</th>
+                <th className={stil.tablo3}>Şu an gösterilen</th>
+                <th className={stil.tablo3}>Kaynaktaki</th>
+                <th className={stil.tablo4}>Yeni değer</th>
+                <th className={stil.tablo5}>Talep sayfasında</th>
               </tr>
             </thead>
             <tbody>
@@ -530,31 +497,24 @@ export function Duzenleyici({
                 return (
                   <tr
                     key={a.key}
-                    style={{
-                      borderTop: '1px solid #EEF0F5',
-                      background: buKayit ? '#FFF4F4' : dolu ? '#F2FBF6' : undefined,
-                    }}
+                    className={stil.tablo6}
+                    style={{ background: buKayit ? '#FFF4F4' : dolu ? '#F2FBF6' : undefined }}
                   >
-                    <td style={{ padding: '6px 8px', fontWeight: 700 }}>
+                    <td className={stil.tablo7}>
                       {a.ad}
-                      {a.birim ? (
-                        <span style={{ color: '#5A6073', fontWeight: 400 }}> ({a.birim})</span>
-                      ) : null}
+                      {a.birim ? <span className={stil.metin11}> ({a.birim})</span> : null}
                     </td>
-                    <td style={{ padding: '6px 8px', color: simdi !== kaynak ? '#2B4FB8' : undefined }}>
+                    <td className={cx(stil.tablo3, simdi !== kaynak ? stil.tablo8 : undefined)}>
                       {simdi || '—'}
                     </td>
-                    <td style={{ padding: '6px 8px', color: '#5A6073' }}>{kaynak || '—'}</td>
-                    <td style={{ padding: '6px 8px' }}>
+                    <td className={stil.tablo9}>{kaynak || '—'}</td>
+                    <td className={stil.tablo3}>
                       {a.tur === 'secim' ? (
-                        <span style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                        <span className={stil.metin12}>
                           {a.secenekler?.map(([v, ad]) => {
                             const secili = ((form[a.key] as string[] | undefined) ?? []).includes(v);
                             return (
-                              <label
-                                key={v}
-                                style={{ display: 'flex', gap: 4, alignItems: 'center', fontSize: 13 }}
-                              >
+                              <label key={v} className={stil.etiket6}>
                                 <input
                                   type="checkbox"
                                   checked={secili}
@@ -576,14 +536,14 @@ export function Duzenleyici({
                           value={(form[a.key] as string | undefined) ?? ''}
                           placeholder={a.ipucu ?? (a.tur === 'aralik' ? 'ör. 150 ya da 150–170' : '')}
                           onChange={(e) => setForm((f) => ({ ...f, [a.key]: e.target.value }))}
-                          style={kutu}
+                          className={stil.girdi2}
                         />
                       )}
                     </td>
-                    <td style={{ padding: '6px 8px', whiteSpace: 'nowrap', fontSize: 12.5 }}>
+                    <td className={stil.tablo10}>
                       {satirVar ? (
                         <label
-                          style={{ display: 'flex', gap: 6, alignItems: 'center', cursor: 'pointer' }}
+                          className={stil.etiket7}
                           title="İşareti kaldırırsan bu satır bu araçta gösterilmez"
                         >
                           <input
@@ -594,15 +554,15 @@ export function Duzenleyici({
                             onChange={() => gizleDegistir(a.key)}
                           />
                           {buKayit ? (
-                            <span style={{ color: '#A3271F', fontWeight: 700 }}>Gizlenecek</span>
+                            <span className={stil.metin13}>Gizlenecek</span>
                           ) : baskaKayit ? (
-                            <span style={{ color: '#A3271F' }}>Başka kayıtta gizli</span>
+                            <span className={stil.metin14}>Başka kayıtta gizli</span>
                           ) : (
                             'Göster'
                           )}
                         </label>
                       ) : (
-                        <span style={{ color: '#5A6073' }}>{SATIR_ICINDE[a.key] ?? '—'}</span>
+                        <span className={stil.metin6}>{SATIR_ICINDE[a.key] ?? '—'}</span>
                       )}
                     </td>
                   </tr>
@@ -612,9 +572,9 @@ export function Duzenleyici({
           </table>
         </div>
 
-        <div style={{ marginTop: 16 }}>
-          <p style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 800 }}>Ek satırlar</p>
-          <p style={{ margin: '0 0 8px', fontSize: 12.5, color: '#5A6073' }}>
+        <div className={stil.kutu11}>
+          <p className={stil.metin15}>Ek satırlar</p>
+          <p className={stil.metin16}>
             Tabloda olmayan bir bilgiyi ekle (ör. Genel › Garanti: 5 yıl). Var olan bir bölümü seçebilir ya da
             yeni bölüm adı yazabilirsin; aynı bölümde aynı adlı satır varsa onun yerine geçer.
           </p>
@@ -627,7 +587,7 @@ export function Duzenleyici({
             <div
               // biome-ignore lint/suspicious/noArrayIndexKey: satırlar yalnızca sırayla düzenlenir
               key={i}
-              style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 6, alignItems: 'center' }}
+              className={stil.kutu12}
             >
               <input
                 aria-label="Bölüm"
@@ -636,7 +596,7 @@ export function Duzenleyici({
                 placeholder="Bölüm"
                 maxLength={60}
                 onChange={(x) => ekGuncelle(i, 'bolum', x.target.value)}
-                style={{ ...kutu, flex: '1 1 170px', width: 'auto' }}
+                className={stil.girdi3}
               />
               <input
                 aria-label="Etiket"
@@ -644,7 +604,7 @@ export function Duzenleyici({
                 placeholder="Etiket (ör. Garanti)"
                 maxLength={80}
                 onChange={(x) => ekGuncelle(i, 'etiket', x.target.value)}
-                style={{ ...kutu, flex: '1 1 170px', width: 'auto' }}
+                className={stil.girdi3}
               />
               <input
                 aria-label="Değer"
@@ -652,12 +612,11 @@ export function Duzenleyici({
                 placeholder="Değer (ör. 5 yıl)"
                 maxLength={200}
                 onChange={(x) => ekGuncelle(i, 'deger', x.target.value)}
-                style={{ ...kutu, flex: '2 1 220px', width: 'auto' }}
+                className={stil.girdi4}
               />
               <button
                 type="button"
-                className="k-btn-line"
-                style={{ fontSize: 12.5, padding: '5px 9px', color: '#A3271F' }}
+                className={`k-btn-line ${stil.dugme4}`}
                 onClick={() => setEkSatirlar((l) => l.filter((_, j) => j !== i))}
               >
                 Sil
@@ -666,22 +625,21 @@ export function Duzenleyici({
           ))}
           <button
             type="button"
-            className="k-btn-line"
-            style={{ fontSize: 13, padding: '5px 10px' }}
+            className={`k-btn-line ${stil.dugme5}`}
             onClick={() => setEkSatirlar((l) => [...l, { bolum: 'Genel', etiket: '', deger: '' }])}
           >
             + Satır ekle
           </button>
           {veri.sonuc?.ekSatirlar?.length && !yerine ? (
-            <p style={{ margin: '8px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+            <p className={stil.metin17}>
               Şu an eklenmiş:{' '}
               {veri.sonuc.ekSatirlar.map((e) => `${e.bolum} › ${e.etiket}: ${e.deger}`).join(' · ')}
             </p>
           ) : null}
         </div>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 16 }}>
-          <label className="k-field" style={{ flex: '1 1 320px', margin: 0 }}>
+        <div className={stil.kutu13}>
+          <label className={`k-field ${stil.etiket8}`}>
             Donanım
             {paket ? ` (${veri.paketler.find((p) => p.id === paket)?.ad} paketi)` : ' (bütün paketler)'}
             <textarea
@@ -689,38 +647,38 @@ export function Duzenleyici({
               rows={10}
               placeholder={'-Güvenlik-\nABS\nIsofix\n-Konfor-\nHız Sabitleme Sistemi'}
               onChange={(e) => setDonanimMetni(e.target.value)}
-              style={{ ...kutu, fontSize: 13 }}
+              className={stil.girdi5}
             />
-            <span style={{ fontSize: 12, color: '#5A6073', fontWeight: 400 }}>
+            <span className={stil.metin18}>
               Her grup "-Grup adı-" satırıyla başlar, altında her satır bir öğe. Kaydedilen liste bu paketin
               önceki listesinin yerine geçer.
             </span>
           </label>
-          <div style={{ flex: '1 1 260px', fontSize: 13 }}>
-            <p style={{ margin: '0 0 6px', fontWeight: 700 }}>
+          <div className={stil.kutu14}>
+            <p className={stil.metin19}>
               {donanimOnizleme.length
                 ? `Kaydedilecek: ${ogeSayisi(donanimOnizleme)} öğe, ${donanimOnizleme.length} grup`
                 : `Şu an gösterilen: ${veri.donanim ? `${ogeSayisi(veri.donanim)} öğe` : 'donanım yok'}`}
             </p>
             {(donanimOnizleme.length ? donanimOnizleme : (veri.donanim ?? [])).map((g) => (
-              <p key={g.ad} style={{ margin: '0 0 4px', color: '#5A6073' }}>
-                <strong style={{ color: '#1B1F2A' }}>{g.ad}:</strong> {g.ogeler.join(', ')}
+              <p key={g.ad} className={stil.metin20}>
+                <strong className={stil.metin21}>{g.ad}:</strong> {g.ogeler.join(', ')}
               </p>
             ))}
           </div>
         </div>
 
         {hata ? (
-          <p className="k-error" role="alert" style={{ marginTop: 12 }}>
+          <p className={`k-error ${stil.metin22}`} role="alert">
             {hata}
           </p>
         ) : null}
         {mesaj ? (
-          <p className="k-ok" role="status" style={{ marginTop: 12 }}>
+          <p className={`k-ok ${stil.metin22}`} role="status">
             {mesaj}
           </p>
         ) : null}
-        <button type="submit" className="k-btn-ok" disabled={mesgul} style={{ marginTop: 12 }}>
+        <button type="submit" className={`k-btn-ok ${stil.metin22}`} disabled={mesgul}>
           {mesgul
             ? 'Kaydediliyor…'
             : yerine
@@ -731,24 +689,13 @@ export function Duzenleyici({
         </button>
       </form>
 
-      <h3 style={{ fontSize: 14, margin: '20px 0 8px' }}>Etkin kayıtlar</h3>
+      <h3 className={stil.baslik1}>Etkin kayıtlar</h3>
       {veri.duzeltmeler.length === 0 ? (
-        <p style={{ margin: 0, fontSize: 13, color: '#5A6073' }}>Bu sürümde elle girilmiş kayıt yok.</p>
+        <p className={stil.metin23}>Bu sürümde elle girilmiş kayıt yok.</p>
       ) : (
         veri.duzeltmeler.map((d) => (
-          <div
-            key={d.id}
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'space-between',
-              gap: 8,
-              padding: '8px 0',
-              borderTop: '1px solid #EEF0F5',
-              fontSize: 13,
-            }}
-          >
-            <span style={{ flex: '1 1 400px' }}>
+          <div key={d.id} className={stil.kutu15}>
+            <span className={stil.metin24}>
               <strong>
                 {d.yillar[0] || d.yillar[1] ? `${d.yillar[0] ?? '…'}–${d.yillar[1] ?? '…'}` : 'Bütün yıllar'}
                 {d.paket ? ` · ${d.paket} paketi` : ' · bütün paketler'}
@@ -760,25 +707,19 @@ export function Duzenleyici({
               {d.ekSatirlar.length
                 ? ` · Ek: ${d.ekSatirlar.map((e) => `${e.etiket}: ${e.deger}`).join(', ')}`
                 : ''}
-              {d.not ? <span style={{ color: '#5A6073' }}> · {d.not}</span> : null}
-              <span style={{ color: '#5A6073' }}> · {tarih(d.zaman)}</span>
+              {d.not ? <span className={stil.metin6}> · {d.not}</span> : null}
+              <span className={stil.metin6}> · {tarih(d.zaman)}</span>
             </span>
-            <span style={{ display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+            <span className={stil.metin25}>
               <button
                 type="button"
-                className="k-btn-line"
-                style={{ fontSize: 13, padding: '5px 10px' }}
+                className={`k-btn-line ${stil.dugme5}`}
                 disabled={yerine === d.id}
                 onClick={() => duzenle(d)}
               >
                 {yerine === d.id ? 'Düzenleniyor' : 'Düzenle'}
               </button>
-              <button
-                type="button"
-                className="k-btn-line"
-                style={{ fontSize: 13, padding: '5px 10px', color: '#A3271F' }}
-                onClick={() => kaldir(d.id)}
-              >
+              <button type="button" className={`k-btn-line ${stil.dugme6}`} onClick={() => kaldir(d.id)}>
                 Kaldır
               </button>
             </span>

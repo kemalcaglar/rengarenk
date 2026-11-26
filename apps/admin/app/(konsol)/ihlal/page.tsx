@@ -1,7 +1,9 @@
 'use client';
 
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
+import stil from './page.module.css';
 
 interface Adim {
   no: number;
@@ -46,31 +48,6 @@ interface Kisi {
   ad: string;
   alt: string;
 }
-
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 };
-const girdi: CSSProperties = {
-  display: 'block',
-  width: '100%',
-  boxSizing: 'border-box',
-  marginTop: 5,
-  border: '1px solid #D5DAE5',
-  borderRadius: 10,
-  padding: '9px 11px',
-  fontSize: 13.5,
-  fontFamily: 'inherit',
-};
-const ikincil: CSSProperties = {
-  border: '1px solid #D5DAE5',
-  background: '#FFFFFF',
-  borderRadius: 10,
-  padding: '7px 12px',
-  fontSize: 13,
-  fontWeight: 700,
-  color: '#1E2333',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
-const birincil: CSSProperties = { ...ikincil, border: 0, background: '#5B8CFF', fontWeight: 800 };
 const DURUM_RENK: Record<Resmi['durum'], [string, string]> = {
   belge_bekleniyor: ['#FFF6DF', '#7A5300'],
   inceleniyor: ['#EEF3FF', '#2450C8'],
@@ -167,125 +144,51 @@ export default function IhlalVeResmi() {
 
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
-        <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>İhlal ve resmi talepler</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
-          Yalnız sahip ve yönetici görür. Her adım işlem kaydına girer.
-        </p>
+      <div className={stil.kutu1}>
+        <h1 className={stil.baslik1}>İhlal ve resmi talepler</h1>
+        <p className={stil.metin1}>Yalnız sahip ve yönetici görür. Her adım işlem kaydına girer.</p>
       </div>
       {hata ? (
-        <p role="alert" style={{ color: '#A3271F', fontWeight: 700 }}>
+        <p role="alert" className={stil.metin2}>
           {hata}
         </p>
       ) : null}
       {i ? (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-start' }}>
-          <section
-            aria-labelledby="ihl"
-            style={{
-              ...kart,
-              border: `1.5px solid ${kenar}`,
-              flex: '1 1 380px',
-              minWidth: 0,
-              padding: '16px 18px',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-              <h2 id="ihl" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+        <div className={stil.kutu2}>
+          <section aria-labelledby="ihl" className={stil.kutu3} style={{ border: `1.5px solid ${kenar}` }}>
+            <div className={stil.kutu4}>
+              <h2 id="ihl" className={stil.baslik2}>
                 Veri ihlali prosedürü
               </h2>
-              <span
-                style={{
-                  fontSize: 12,
-                  fontWeight: 800,
-                  padding: '3px 9px',
-                  borderRadius: 999,
-                  background: a ? '#FDECEC' : '#E7FAF0',
-                  color: a ? '#A3271F' : '#11683F',
-                }}
-              >
-                {durum}
-              </span>
+              <span className={cx(stil.metin3, a ? stil.metin4 : stil.metin5)}>{durum}</span>
             </div>
             {a ? (
-              <div style={{ marginTop: 12, background: '#FDECEC', borderRadius: 12, padding: '12px 14px' }}>
-                <div style={{ fontSize: 12.5, fontWeight: 800, color: '#A3271F' }}>
+              <div className={stil.kutu5}>
+                <div className={stil.kutu6}>
                   {a.kurulBildirildi ? 'Kurul’a bildirildi' : 'Kurul’a bildirim için kalan süre'}
                 </div>
-                {!a.kurulBildirildi ? (
-                  <div style={{ fontSize: 30, fontWeight: 800, color: '#A3271F' }}>
-                    {kalan(a.sonTarih, simdi)}
-                  </div>
-                ) : null}
-                <div style={{ fontSize: 12, color: '#5C1A15' }}>
+                {!a.kurulBildirildi ? <div className={stil.kutu7}>{kalan(a.sonTarih, simdi)}</div> : null}
+                <div className={stil.kutu8}>
                   {a.tatbikat ? 'Tatbikat' : 'İhlal'} · öğrenilme: {saat(a.ogrenildi)} · {a.ozet}
                 </div>
               </div>
             ) : null}
             {i.adimlar.map((s) => (
-              <div
-                key={s.key}
-                style={{
-                  display: 'flex',
-                  gap: 10,
-                  padding: '9px 0',
-                  borderTop: '1px solid #EEF0F5',
-                  marginTop: 8,
-                  fontSize: 13,
-                }}
-              >
-                <span
-                  style={{
-                    flex: 'none',
-                    width: 22,
-                    height: 22,
-                    borderRadius: '50%',
-                    background: s.tamam ? '#E7FAF0' : '#F3EFFF',
-                    color: s.tamam ? '#11683F' : '#4B2FA6',
-                    fontSize: 12,
-                    fontWeight: 800,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
+              <div key={s.key} className={stil.kutu9}>
+                <span className={cx(stil.metin6, s.tamam ? stil.metin5 : stil.metin7)}>
                   {s.tamam ? '✓' : s.no}
                 </span>
-                <span style={{ minWidth: 0, flex: 1 }}>
-                  <span style={{ display: 'block', fontWeight: 800 }}>{s.ad}</span>
-                  <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 1 }}>
-                    {s.not}
-                  </span>
+                <span className={stil.metin8}>
+                  <span className={stil.metin9}>{s.ad}</span>
+                  <span className={stil.metin10}>{s.not}</span>
                   {a && s.key === 'kurul' && !s.tamam ? (
-                    <span style={{ display: 'block', fontSize: 12, color: '#3A4052', marginTop: 4 }}>
-                      Form: {i.form.join(' · ')}
-                    </span>
+                    <span className={stil.metin11}>Form: {i.form.join(' · ')}</span>
                   ) : null}
                   {a && s.key === 'kisiler' && !s.tamam ? (
-                    <span
-                      style={{
-                        display: 'block',
-                        fontSize: 12,
-                        color: '#3A4052',
-                        marginTop: 4,
-                        background: '#F3F5FA',
-                        borderRadius: 8,
-                        padding: '6px 8px',
-                      }}
-                    >
-                      {i.kisiBildirimi}
-                    </span>
+                    <span className={stil.metin12}>{i.kisiBildirimi}</span>
                   ) : null}
                   {s.tamam ? (
-                    <span
-                      style={{
-                        display: 'block',
-                        fontSize: 12,
-                        color: '#11683F',
-                        marginTop: 2,
-                        fontWeight: 700,
-                      }}
-                    >
+                    <span className={stil.metin13}>
                       {saat(s.tamam.zaman)} · {s.tamam.calisan}
                       {s.tamam.not ? ` · ${s.tamam.not}` : ''}
                     </span>
@@ -294,7 +197,7 @@ export default function IhlalVeResmi() {
                 {a && !s.tamam && s.key !== 'kapat' ? (
                   <button
                     type="button"
-                    style={{ ...ikincil, flex: 'none', alignSelf: 'center' }}
+                    className={stil.dugme1}
                     onClick={() =>
                       calistir(() => yonetim(`breach/${a.id}/steps/${s.key}`, { method: 'POST', body: {} }))
                     }
@@ -305,20 +208,21 @@ export default function IhlalVeResmi() {
               </div>
             ))}
             {a ? (
-              <div style={{ marginTop: 10 }}>
-                <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700 }}>
+              <div className={stil.kutu10}>
+                <label className={stil.etiket1}>
                   Rapor (neden, alınan önlemler, tekrarını önleme)
                   <textarea
                     rows={3}
                     value={rapor}
                     onChange={(e) => setRapor(e.target.value)}
-                    style={{ ...girdi, resize: 'vertical' }}
+                    className={stil.girdi1}
                   />
                 </label>
                 <button
                   type="button"
                   disabled={rapor.trim().length < 20}
-                  style={{ ...birincil, marginTop: 8, opacity: rapor.trim().length < 20 ? 0.55 : 1 }}
+                  className={stil.dugme2}
+                  style={{ opacity: rapor.trim().length < 20 ? 0.55 : 1 }}
                   onClick={() =>
                     calistir(async () => {
                       await yonetim(`breach/${a.id}/close`, { method: 'POST', body: { rapor } });
@@ -331,9 +235,7 @@ export default function IhlalVeResmi() {
               </div>
             ) : (
               <>
-                <div
-                  style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center', marginTop: 12 }}
-                >
+                <div className={stil.kutu11}>
                   <button
                     type="button"
                     onClick={() =>
@@ -344,43 +246,29 @@ export default function IhlalVeResmi() {
                         }),
                       )
                     }
-                    style={{
-                      border: '1.5px solid #E5A6A1',
-                      background: '#FFFFFF',
-                      borderRadius: 12,
-                      padding: '10px 14px',
-                      fontSize: 13.5,
-                      fontWeight: 800,
-                      color: '#A3271F',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
+                    className={stil.dugme3}
                   >
                     Tatbikat başlat
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => setGercek((x) => !x)}
-                    style={{ ...ikincil, border: 0, padding: 0, color: '#A3271F', background: 'none' }}
-                  >
+                  <button type="button" onClick={() => setGercek((x) => !x)} className={stil.dugme4}>
                     Gerçek ihlal kaydı aç
                   </button>
                 </div>
                 {gercek ? (
-                  <div style={{ marginTop: 10 }}>
-                    <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700 }}>
+                  <div className={stil.kutu10}>
+                    <label className={stil.etiket1}>
                       Ne oldu? (kişisel veri yazma)
                       <textarea
                         rows={2}
                         value={ozet}
                         onChange={(e) => setOzet(e.target.value)}
-                        style={{ ...girdi, resize: 'vertical' }}
+                        className={stil.girdi1}
                       />
                     </label>
                     <button
                       type="button"
                       disabled={ozet.trim().length < 5}
-                      style={{ ...birincil, marginTop: 8, background: '#E5484D', color: '#FFFFFF' }}
+                      className={stil.dugme5}
                       onClick={() =>
                         calistir(async () => {
                           await yonetim('breach', { method: 'POST', body: { tatbikat: false, ozet } });
@@ -395,62 +283,48 @@ export default function IhlalVeResmi() {
                 ) : null}
               </>
             )}
-            <p style={{ margin: '10px 0 0', fontSize: 12, color: '#5A6073' }}>
+            <p className={stil.metin14}>
               Sorumlu: {i.sorumlu}
               {i.yedek ? ` · yedek: ${i.yedek}` : ''} ·{' '}
               {i.sonTatbikat ? `son tatbikat ${gun(i.sonTatbikat)}` : 'henüz tatbikat yapılmadı'}
             </p>
           </section>
 
-          <section
-            aria-labelledby="resmi"
-            style={{ ...kart, flex: '1 1 380px', minWidth: 0, overflow: 'hidden' }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: 8,
-                padding: '16px 18px',
-                borderBottom: '1px solid #EEF0F5',
-              }}
-            >
-              <h2 id="resmi" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+          <section aria-labelledby="resmi" className={stil.kutu12}>
+            <div className={stil.kutu13}>
+              <h2 id="resmi" className={stil.baslik2}>
                 Resmi makam talepleri
               </h2>
-              <button type="button" style={ikincil} onClick={() => setYeni((x) => !x)}>
+              <button type="button" className={stil.dugme6} onClick={() => setYeni((x) => !x)}>
                 {yeni ? 'Vazgeç' : 'Yeni talep'}
               </button>
             </div>
             {yeni ? (
-              <div style={{ padding: '12px 18px', borderBottom: '1px solid #EEF0F5', background: '#F7F8FC' }}>
-                <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700 }}>
+              <div className={stil.kutu14}>
+                <label className={stil.etiket1}>
                   Makam
                   <input
                     value={form.makam}
                     onChange={(e) => setForm({ ...form, makam: e.target.value })}
                     placeholder="Ör. İstanbul Cumhuriyet Başsavcılığı"
-                    style={girdi}
+                    className={stil.girdi2}
                   />
                 </label>
-                <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, marginTop: 8 }}>
+                <label className={stil.etiket2}>
                   Konu
                   <input
                     value={form.konu}
                     onChange={(e) => setForm({ ...form, konu: e.target.value })}
                     placeholder="Ör. Kullanıcı bilgisi talebi"
-                    style={girdi}
+                    className={stil.girdi2}
                   />
                 </label>
-                <div style={{ display: 'block', fontSize: 12.5, fontWeight: 700, marginTop: 8 }}>
+                <div className={stil.etiket2}>
                   <span id="ilgili">İlgili kişi ya da galeri</span>
                   {secili ? (
-                    <span
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5, fontSize: 13.5 }}
-                    >
+                    <span className={stil.metin15}>
                       <strong>{secili.ad}</strong>
-                      <button type="button" style={ikincil} onClick={() => setSecili(null)}>
+                      <button type="button" className={stil.dugme6} onClick={() => setSecili(null)}>
                         Değiştir
                       </button>
                     </span>
@@ -460,7 +334,7 @@ export default function IhlalVeResmi() {
                       value={q}
                       onChange={(e) => setQ(e.target.value)}
                       placeholder="Ad, galeri adı ya da telefonun son haneleri"
-                      style={girdi}
+                      className={stil.girdi2}
                     />
                   )}
                 </div>
@@ -472,23 +346,12 @@ export default function IhlalVeResmi() {
                       setSecili(k);
                       setQ('');
                     }}
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      textAlign: 'left',
-                      border: 0,
-                      borderBottom: '1px solid #EEF0F5',
-                      background: '#FFFFFF',
-                      padding: '7px 10px',
-                      fontSize: 13,
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
+                    className={stil.dugme7}
                   >
-                    <strong>{k.ad}</strong> <span style={{ color: '#5A6073' }}>· {k.alt}</span>
+                    <strong>{k.ad}</strong> <span className={stil.metin16}>· {k.alt}</span>
                   </button>
                 ))}
-                <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 13, marginTop: 8 }}>
+                <label className={stil.etiket3}>
                   <input
                     type="checkbox"
                     checked={form.bildirimYasak}
@@ -499,7 +362,7 @@ export default function IhlalVeResmi() {
                 <button
                   type="button"
                   disabled={form.makam.trim().length < 3 || form.konu.trim().length < 5}
-                  style={{ ...birincil, marginTop: 10 }}
+                  className={stil.dugme8}
                   onClick={() =>
                     calistir(async () => {
                       await yonetim('official', {
@@ -519,62 +382,36 @@ export default function IhlalVeResmi() {
                 </button>
               </div>
             ) : null}
-            {r.length === 0 ? (
-              <p style={{ margin: 0, padding: '12px 18px', fontSize: 13, color: '#5A6073' }}>
-                Henüz resmi makam talebi yok.
-              </p>
-            ) : null}
+            {r.length === 0 ? <p className={stil.metin17}>Henüz resmi makam talebi yok.</p> : null}
             {r.map((x) => {
               const [bg, fg] = DURUM_RENK[x.durum];
               const on = acik === x.id;
               return (
-                <div key={x.id} style={{ borderBottom: '1px solid #EEF0F5' }}>
+                <div key={x.id} className={stil.kutu15}>
                   <button
                     type="button"
                     aria-expanded={on}
                     onClick={() => setAcik(on ? null : x.id)}
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      textAlign: 'left',
-                      border: 0,
-                      background: on ? '#F7F8FC' : '#FFFFFF',
-                      padding: '12px 18px',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                      color: '#1E2333',
-                    }}
+                    className={cx(stil.dugme9, on ? stil.dugme10 : stil.dugme11)}
                   >
-                    <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                      <span style={{ fontSize: 14, fontWeight: 800 }}>{x.makam}</span>
-                      <span
-                        style={{
-                          flex: 'none',
-                          fontSize: 11.5,
-                          fontWeight: 800,
-                          padding: '2px 8px',
-                          borderRadius: 999,
-                          background: bg,
-                          color: fg,
-                        }}
-                      >
+                    <span className={stil.metin18}>
+                      <span className={stil.metin19}>{x.makam}</span>
+                      <span className={stil.metin20} style={{ background: bg, color: fg }}>
                         {x.durumAd}
                       </span>
                     </span>
-                    <span style={{ display: 'block', fontSize: 12.5, color: '#3A4052', marginTop: 3 }}>
-                      {x.detay}
-                    </span>
+                    <span className={stil.metin21}>{x.detay}</span>
                   </button>
                   {on && secilen ? (
-                    <div style={{ padding: '0 18px 14px', background: '#F7F8FC', fontSize: 13 }}>
-                      <p style={{ margin: '0 0 8px', color: '#5A6073', fontSize: 12.5 }}>
+                    <div className={stil.kutu16}>
+                      <p className={stil.metin22}>
                         {secilen.no}
                         {secilen.bildirimYasak ? ' · yazı kullanıcıya bildirimi yasaklıyor' : ''}
                       </p>
                       {secilen.belge ? (
                         <button
                           type="button"
-                          style={ikincil}
+                          className={stil.dugme6}
                           onClick={() =>
                             calistir(async () => {
                               const res = await fetch(`/api/yonetim/official/${secilen.id}/document`);
@@ -587,12 +424,12 @@ export default function IhlalVeResmi() {
                         </button>
                       ) : null}
                       {secilen.durum === 'belge_bekleniyor' || secilen.durum === 'inceleniyor' ? (
-                        <label style={{ display: 'block', fontSize: 12.5, fontWeight: 700, marginTop: 8 }}>
+                        <label className={stil.etiket2}>
                           {secilen.belge ? 'Resmi yazıyı değiştir' : 'Resmi yazıyı yükle (PDF ya da görsel)'}
                           <input
                             type="file"
                             accept="application/pdf,image/jpeg,image/png"
-                            style={{ display: 'block', marginTop: 5, fontSize: 13 }}
+                            className={stil.girdi3}
                             onChange={(e) => {
                               const f = e.target.files?.[0];
                               if (!f) return;
@@ -612,7 +449,7 @@ export default function IhlalVeResmi() {
                         </label>
                       ) : null}
                       {secilen.verilen.length ? (
-                        <ul style={{ margin: '10px 0 0', paddingLeft: 18, color: '#3A4052' }}>
+                        <ul className={stil.liste1}>
                           {secilen.verilen.map((v) => (
                             <li key={v.zaman}>
                               {v.ne} · {saat(v.zaman)} · {v.calisan}
@@ -621,17 +458,17 @@ export default function IhlalVeResmi() {
                         </ul>
                       ) : null}
                       {secilen.durum === 'inceleniyor' ? (
-                        <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                        <div className={stil.kutu17}>
                           <input
                             value={verilen}
                             onChange={(e) => setVerilen(e.target.value)}
                             placeholder="Verilen veri (ör. 3 Kas–5 Kas mesaj kayıtları)"
-                            style={{ ...girdi, marginTop: 0 }}
+                            className={stil.girdi4}
                           />
                           <button
                             type="button"
                             disabled={verilen.trim().length < 3}
-                            style={{ ...ikincil, flex: 'none' }}
+                            className={stil.dugme12}
                             onClick={() =>
                               calistir(async () => {
                                 await yonetim(`official/${secilen.id}/give`, {
@@ -647,19 +484,19 @@ export default function IhlalVeResmi() {
                         </div>
                       ) : null}
                       {secilen.durum === 'belge_bekleniyor' || secilen.durum === 'inceleniyor' ? (
-                        <div style={{ marginTop: 10 }}>
+                        <div className={stil.kutu10}>
                           <input
                             value={yanit}
                             onChange={(e) => setYanit(e.target.value)}
                             placeholder="Karar notu"
-                            style={girdi}
+                            className={stil.girdi2}
                           />
-                          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                          <div className={stil.kutu18}>
                             {secilen.durum === 'inceleniyor' ? (
                               <button
                                 type="button"
                                 disabled={yanit.trim().length < 5}
-                                style={birincil}
+                                className={stil.dugme13}
                                 onClick={() =>
                                   calistir(async () => {
                                     await yonetim(`official/${secilen.id}/reply`, {
@@ -676,7 +513,7 @@ export default function IhlalVeResmi() {
                             <button
                               type="button"
                               disabled={yanit.trim().length < 5}
-                              style={ikincil}
+                              className={stil.dugme6}
                               onClick={() =>
                                 calistir(async () => {
                                   await yonetim(`official/${secilen.id}/reply`, {
@@ -697,7 +534,7 @@ export default function IhlalVeResmi() {
                 </div>
               );
             })}
-            <p style={{ margin: 0, padding: '12px 18px', fontSize: 12, color: '#5A6073' }}>
+            <p className={stil.metin23}>
               Talep yazısı yüklenir, verilen her veri kaydedilir. Kullanıcıya bildirim, talep yazısı aksini
               söylemiyorsa yapılır.
             </p>

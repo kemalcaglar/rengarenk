@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { yonetim } from '../../../lib/istemci';
+import stil from './yardim.module.css';
 
 type Durum = 'taslak' | 'yayinda' | 'arsiv';
 interface Makale {
@@ -68,9 +69,9 @@ export function YardimMakaleleri({ yazabilir }: { yazabilir: boolean }) {
     setForm({ id: m.id, topic: m.topic, title: m.title, body: m.body, status: m.status });
 
   const formu = form ? (
-    <div style={{ padding: '14px 18px', background: '#F6F8FD', borderBottom: '1px solid #EEF0F5' }}>
-      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-        <label className="k-field" style={{ flex: '1 1 200px' }}>
+    <div className={stil.kutu1}>
+      <div className={stil.kutu2}>
+        <label className={`k-field ${stil.etiket1}`}>
           Bölüm
           <select value={form.topic} onChange={(e) => setForm({ ...form, topic: e.target.value })}>
             {v?.konular.map((k) => (
@@ -80,7 +81,7 @@ export function YardimMakaleleri({ yazabilir }: { yazabilir: boolean }) {
             ))}
           </select>
         </label>
-        <label className="k-field" style={{ flex: '1 1 160px' }}>
+        <label className={`k-field ${stil.etiket2}`}>
           Durum
           <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as Durum })}>
             <option value="taslak">Taslak</option>
@@ -89,7 +90,7 @@ export function YardimMakaleleri({ yazabilir }: { yazabilir: boolean }) {
           </select>
         </label>
       </div>
-      <label className="k-field" style={{ display: 'block', marginTop: 10 }}>
+      <label className={`k-field ${stil.etiket3}`}>
         Soru (başlık)
         <input
           value={form.title}
@@ -97,29 +98,17 @@ export function YardimMakaleleri({ yazabilir }: { yazabilir: boolean }) {
           onChange={(e) => setForm({ ...form, title: e.target.value })}
         />
       </label>
-      <label className="k-field" style={{ display: 'block', marginTop: 10 }}>
+      <label className={`k-field ${stil.etiket3}`}>
         Yanıt
         <textarea
           value={form.body}
           rows={7}
           maxLength={5000}
           onChange={(e) => setForm({ ...form, body: e.target.value })}
-          style={{
-            display: 'block',
-            width: '100%',
-            marginTop: 5,
-            border: '1px solid #D5DAE5',
-            borderRadius: 10,
-            padding: 11,
-            font: 'inherit',
-            fontWeight: 400,
-            fontSize: 14,
-            lineHeight: 1.5,
-            boxSizing: 'border-box',
-          }}
+          className={stil.girdi1}
         />
       </label>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
+      <div className={stil.kutu3}>
         <button
           type="button"
           className="k-btn-ok"
@@ -148,19 +137,9 @@ export function YardimMakaleleri({ yazabilir }: { yazabilir: boolean }) {
   ) : null;
 
   return (
-    <section className="k-panel" style={{ marginTop: 14, overflow: 'hidden' }} aria-labelledby="makale">
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 10,
-          padding: '16px 18px',
-          borderBottom: '1px solid #EEF0F5',
-        }}
-      >
-        <h2 id="makale" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+    <section className={`k-panel ${stil.kutu4}`} aria-labelledby="makale">
+      <div className={stil.kutu5}>
+        <h2 id="makale" className={stil.baslik1}>
           Yardım makaleleri
         </h2>
         {yazabilir ? (
@@ -175,28 +154,19 @@ export function YardimMakaleleri({ yazabilir }: { yazabilir: boolean }) {
                 status: 'taslak',
               })
             }
-            style={{
-              border: '1px solid #5B8CFF',
-              background: '#FFFFFF',
-              borderRadius: 10,
-              padding: '8px 14px',
-              fontSize: 13.5,
-              fontWeight: 800,
-              color: '#2450C8',
-              cursor: 'pointer',
-            }}
+            className={stil.dugme1}
           >
             Makale ekle
           </button>
         ) : null}
       </div>
       {hata ? (
-        <p className="k-error" role="alert" style={{ margin: '10px 18px' }}>
+        <p className={`k-error ${stil.metin1}`} role="alert">
           {hata}
         </p>
       ) : null}
       {bilgi ? (
-        <p className="k-ok" role="status" style={{ margin: '10px 18px' }}>
+        <p className={`k-ok ${stil.metin1}`} role="status">
           {bilgi}
         </p>
       ) : null}
@@ -204,34 +174,15 @@ export function YardimMakaleleri({ yazabilir }: { yazabilir: boolean }) {
       {v === null ? <div className="k-empty">Yükleniyor…</div> : null}
       {v?.makaleler.map((m) => (
         <div key={m.id}>
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: '6px 16px',
-              padding: '12px 18px',
-              borderBottom: '1px solid #EEF0F5',
-              fontSize: 13.5,
-            }}
-          >
-            <span style={{ flex: '999 1 300px', minWidth: 0 }}>
-              <span style={{ display: 'block', fontWeight: 800 }}>
+          <div className={stil.kutu6}>
+            <span className={stil.metin2}>
+              <span className={stil.metin3}>
                 {yazabilir ? (
                   <button
                     type="button"
                     onClick={() => (form?.id === m.id ? setForm(null) : duzenle(m))}
                     aria-expanded={form?.id === m.id}
-                    style={{
-                      border: 0,
-                      background: 'none',
-                      padding: 0,
-                      font: 'inherit',
-                      fontWeight: 800,
-                      color: '#1E2333',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                    }}
+                    className={stil.dugme2}
                   >
                     {m.title}
                   </button>
@@ -239,22 +190,19 @@ export function YardimMakaleleri({ yazabilir }: { yazabilir: boolean }) {
                   m.title
                 )}
                 {m.status === 'taslak' ? (
-                  <span className="k-pill" style={{ marginLeft: 8, background: '#FFF6DF', color: '#7A5300' }}>
+                  <span className={`k-pill ${stil.metin4}`}>
                     {m.source === 'ajan' ? 'Ajan taslağı' : 'Taslak'}
                   </span>
                 ) : null}
               </span>
-              <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073', marginTop: 2 }}>
+              <span className={stil.metin5}>
                 {m.konu} · güncelleme {m.tarih}
               </span>
             </span>
-            <span style={{ flex: '0 0 120px', color: '#3A4052' }}>{sayi(m.okunma)} okunma</span>
+            <span className={stil.metin6}>{sayi(m.okunma)} okunma</span>
             <span
-              style={{
-                flex: '0 0 120px',
-                fontWeight: 700,
-                color: m.faydali === null ? '#5A6073' : m.faydali >= 75 ? '#11683F' : '#7A5300',
-              }}
+              className={stil.metin7}
+              style={{ color: m.faydali === null ? '#5A6073' : m.faydali >= 75 ? '#11683F' : '#7A5300' }}
             >
               {m.faydali === null ? 'oy yok' : `%${m.faydali} faydalı`}
             </span>
@@ -263,23 +211,13 @@ export function YardimMakaleleri({ yazabilir }: { yazabilir: boolean }) {
         </div>
       ))}
       {v?.ajan ? (
-        <p
-          style={{
-            margin: 0,
-            padding: '12px 18px',
-            fontSize: 13,
-            lineHeight: 1.5,
-            color: '#2E3344',
-            background: '#F6F8FD',
-          }}
-        >
+        <p className={stil.metin8}>
           <strong>Ajan:</strong> {v.ajan.metin} Taslağı ben hazırlarım; yayın senin ya da pazarlamanın
           onayıyla.{' '}
           {yazabilir ? (
             <button
               type="button"
-              className="k-btn-line"
-              style={{ fontSize: 12.5, padding: '4px 10px', marginLeft: 4 }}
+              className={`k-btn-line ${stil.dugme3}`}
               disabled={busy}
               onClick={() =>
                 islem(async () => {

@@ -1,6 +1,7 @@
 'use client';
 
 import { type FormEvent, useState } from 'react';
+import stil from './sahte-google.module.css';
 
 const toBase64Url = (s: string) =>
   btoa(String.fromCharCode(...new TextEncoder().encode(s)))
@@ -30,15 +31,11 @@ export function SahteGoogle({ state, redirectUri }: { state: string; redirectUri
   }
 
   return (
-    <form
-      onSubmit={submit}
-      className="card"
-      style={{ maxWidth: 420, width: '100%', display: 'grid', gap: 14 }}
-    >
-      <p className="k-note" style={{ margin: 0 }}>
+    <form onSubmit={submit} className={`card ${stil.kutu1}`}>
+      <p className={`k-note ${stil.metin1}`}>
         Geliştirme ortamı: Google girişi taklit ediliyor. Canlıda gerçek Google Workspace kullanılır.
       </p>
-      <h1 style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>Hesap seç</h1>
+      <h1 className={stil.baslik1}>Hesap seç</h1>
       <label className="k-field" htmlFor="eposta">
         Şirket e-postası
         <input
@@ -50,7 +47,7 @@ export function SahteGoogle({ state, redirectUri }: { state: string; redirectUri
           onChange={(e) => setEmail(e.target.value)}
         />
       </label>
-      <p className="muted" style={{ margin: 0, fontSize: 13 }}>
+      <p className={`muted ${stil.metin2}`}>
         Gerçek bir e-posta kutusu gerekmez. Konsola kayıtlı bir çalışanın adresini yaz: seed'deki Sahip `.env`
         içindeki SEED_OWNER_EMAIL, davet ettiklerin de kendi adresleriyle girer. Alan adı STAFF_EMAIL_DOMAINS
         içinde olmalı.

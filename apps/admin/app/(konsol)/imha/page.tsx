@@ -1,8 +1,10 @@
 'use client';
 
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 interface Ozet {
   saklama: { key: string; ad: string; dayanak: string; sure: string; sonra: string }[];
@@ -20,9 +22,6 @@ interface Ozet {
   verbis: { zorunlu: boolean; olcutler: { ad: string; deger: string; w: number }[]; envanter: string | null };
   disinda: string[];
 }
-
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 };
-const SUTUN = 'minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.4fr)';
 const gun = (iso: string, yil = true) =>
   new Intl.DateTimeFormat('tr-TR', {
     day: 'numeric',
@@ -84,125 +83,68 @@ export default function Imha() {
   const onaylandi = d?.durum === 'onaylandi';
   return (
     <>
-      <div style={{ marginBottom: 16 }}>
-        <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Saklama, imha ve VERBİS</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+      <div className={stil.kutu1}>
+        <h1 className={stil.baslik1}>Saklama, imha ve VERBİS</h1>
+        <p className={stil.metin1}>
           Periyodik imha 6 ayda bir. Ajan süresi dolan kayıtları listeler; imha sahip onayıyla yapılır ve
           tutanağı saklanır.
         </p>
       </div>
       {hata ? (
-        <p role="alert" style={{ color: '#A3271F', fontWeight: 700 }}>
+        <p role="alert" className={stil.metin2}>
           {hata}
         </p>
       ) : null}
       {bilgi ? (
-        <p role="status" style={{ color: '#11683F', fontWeight: 700 }}>
+        <p role="status" className={stil.metin3}>
           {bilgi}
         </p>
       ) : null}
       {o && d ? (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-start' }}>
-          <section
-            aria-labelledby="sure"
-            style={{ ...kart, flex: '3 1 480px', minWidth: 0, overflow: 'hidden' }}
-          >
-            <h2
-              id="sure"
-              style={{
-                margin: 0,
-                padding: '16px 18px',
-                fontSize: 17,
-                fontWeight: 800,
-                borderBottom: '1px solid #EEF0F5',
-              }}
-            >
+        <div className={stil.kutu2}>
+          <section aria-labelledby="sure" className={stil.kutu3}>
+            <h2 id="sure" className={stil.baslik2}>
               Saklama süreleri
             </h2>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: SUTUN,
-                gap: 8,
-                padding: '10px 18px',
-                background: '#F3F5FA',
-                fontSize: 11.5,
-                fontWeight: 800,
-                color: '#5A6073',
-                textTransform: 'uppercase',
-                letterSpacing: 0.3,
-              }}
-            >
+            <div className={stil.kutu4}>
               <span>Veri</span>
               <span>Süre</span>
               <span>Süre dolunca</span>
             </div>
             {o.saklama.map((s) => (
-              <div
-                key={s.key}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: SUTUN,
-                  gap: 8,
-                  padding: '10px 18px',
-                  borderTop: '1px solid #EEF0F5',
-                  fontSize: 13,
-                }}
-              >
-                <span style={{ fontWeight: 700 }}>
+              <div key={s.key} className={stil.kutu5}>
+                <span className={stil.metin4}>
                   {s.ad}
-                  <span style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#5A6073' }}>
-                    {s.dayanak}
-                  </span>
+                  <span className={stil.metin5}>{s.dayanak}</span>
                 </span>
                 <span>{s.sure}</span>
-                <span style={{ color: '#3A4052' }}>{s.sonra}</span>
+                <span className={stil.metin6}>{s.sonra}</span>
               </div>
             ))}
-            <p
-              style={{
-                margin: 0,
-                padding: '10px 18px 14px',
-                fontSize: 12,
-                color: '#5A6073',
-                borderTop: '1px solid #EEF0F5',
-              }}
-            >
+            <p className={stil.metin7}>
               {o.disinda.join(', ')} yalnızca ekleme yapılan kayıtlardır; satırları hiç değiştirilmez ve
               silinmez. İşlem kaydındaki IP adresleri dönem anahtarıyla şifrelidir; 2 yıl dolunca anahtar imha
               edilir ve IP okunamaz olur. Hesap kapanınca bu kayıtların kişiyle bağı kopar.
             </p>
           </section>
 
-          <div style={{ flex: '2 1 320px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className={stil.kutu6}>
             <section
               aria-labelledby="donem"
-              style={{
-                ...kart,
-                border: `1.5px solid ${onaylandi ? '#B9EBD1' : '#5B8CFF'}`,
-                padding: '16px 18px',
-              }}
+              className={stil.kutu7}
+              style={{ border: `1.5px solid ${onaylandi ? '#B9EBD1' : '#5B8CFF'}` }}
             >
-              <h2 id="donem" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+              <h2 id="donem" className={stil.baslik3}>
                 Sıradaki periyodik imha · {gun(d.tarih)}
               </h2>
-              <p style={{ margin: '4px 0 10px', fontSize: 12.5, color: '#5A6073' }}>
+              <p className={stil.metin8}>
                 {o.onceki ? (
                   <>
                     Önceki: {gun(o.onceki.tarih)} · tutanak{' '}
                     <button
                       type="button"
                       onClick={() => o.onceki && tutanak(o.onceki.id, o.onceki.no)}
-                      style={{
-                        border: 0,
-                        background: 'none',
-                        padding: 0,
-                        color: '#2450C8',
-                        fontWeight: 700,
-                        fontSize: 12.5,
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
+                      className={stil.dugme1}
                     >
                       {o.onceki.no}
                     </button>
@@ -213,58 +155,24 @@ export default function Imha() {
                 {d.sayim ? ` · ajanın son sayımı ${kisaGun(d.sayim)}` : ''}
               </p>
               {d.liste.map((k) => (
-                <div
-                  key={k.kalem}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    gap: 8,
-                    padding: '7px 0',
-                    borderTop: '1px solid #EEF0F5',
-                    fontSize: 13,
-                  }}
-                >
+                <div key={k.kalem} className={stil.kutu8}>
                   <span>{k.ad}</span>
                   <strong>{sayi(k.sayi)}</strong>
                 </div>
               ))}
               {d.durum === 'liste' && me.role === 'OWNER' ? (
-                <button
-                  type="button"
-                  onClick={onayla}
-                  style={{
-                    marginTop: 12,
-                    width: '100%',
-                    border: 0,
-                    background: '#5B8CFF',
-                    borderRadius: 12,
-                    padding: 11,
-                    fontSize: 14,
-                    fontWeight: 800,
-                    color: '#1E2333',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
-                >
+                <button type="button" onClick={onayla} className={stil.dugme2}>
                   Listeyi onayla · {gunde(d.tarih)} imha et
                 </button>
               ) : d.durum === 'liste' ? (
-                <p style={{ margin: '12px 0 0', fontSize: 13, color: '#5A6073' }}>
+                <p className={stil.metin9}>
                   Listeyi yalnızca sahip onaylar; onaylanmayan liste imha edilmez.
                 </p>
               ) : (
-                <p style={{ margin: '12px 0 0', fontSize: 13.5, fontWeight: 800, color: '#11683F' }}>
+                <p className={stil.metin10}>
                   Onaylandı · {gun(d.tarih, false)} 03.00’te çalışacak · tutanak {d.no} hazırlanacak
                   {d.onaylayan ? (
-                    <span
-                      style={{
-                        display: 'block',
-                        fontSize: 12,
-                        fontWeight: 600,
-                        color: '#5A6073',
-                        marginTop: 2,
-                      }}
-                    >
+                    <span className={stil.metin11}>
                       Onaylayan: {d.onaylayan}
                       {d.onayTarihi ? ` · ${kisaGun(d.onayTarihi)}` : ''}
                     </span>
@@ -273,36 +181,27 @@ export default function Imha() {
               )}
             </section>
 
-            <section aria-labelledby="verbis" style={{ ...kart, padding: '16px 18px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-                <h2 id="verbis" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+            <section aria-labelledby="verbis" className={stil.kutu9}>
+              <div className={stil.kutu10}>
+                <h2 id="verbis" className={stil.baslik3}>
                   VERBİS
                 </h2>
-                <span
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 800,
-                    padding: '3px 9px',
-                    borderRadius: 999,
-                    background: o.verbis.zorunlu ? '#FDECEC' : '#E7FAF0',
-                    color: o.verbis.zorunlu ? '#A3271F' : '#11683F',
-                  }}
-                >
+                <span className={cx(stil.metin12, o.verbis.zorunlu ? stil.metin13 : stil.metin14)}>
                   {o.verbis.zorunlu ? 'Kayıt gerekiyor' : 'Kayıt şimdilik zorunlu değil'}
                 </span>
               </div>
               {o.verbis.olcutler.map((v) => (
-                <div key={v.ad} style={{ marginTop: 10 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                <div key={v.ad} className={stil.kutu11}>
+                  <div className={stil.kutu12}>
                     <span>{v.ad}</span>
                     <strong>{v.deger}</strong>
                   </div>
-                  <div style={{ height: 8, borderRadius: 999, background: '#EEF0F5', marginTop: 5 }}>
-                    <div style={{ height: 8, width: `${v.w}%`, borderRadius: 999, background: '#5B8CFF' }} />
+                  <div className={stil.kutu13}>
+                    <div className={stil.kutu14} style={{ width: `${v.w}%` }} />
                   </div>
                 </div>
               ))}
-              <p style={{ margin: '10px 0 0', fontSize: 12, lineHeight: 1.5, color: '#5A6073' }}>
+              <p className={stil.metin15}>
                 Muafiyet: 50’den az çalışan ve 100 milyon TL’den az yıllık bilanço, ana faaliyet özel
                 nitelikli veri işleme değil. Eşiklerden biri aşılırsa ajan hatırlatır. Kişisel veri envanteri
                 yine tutulur

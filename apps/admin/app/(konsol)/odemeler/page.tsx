@@ -4,6 +4,7 @@ import { tlYaz } from '@rengarenk/shared';
 import { useCallback, useEffect, useState } from 'react';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 interface Veri {
   ozet: {
@@ -112,8 +113,6 @@ const KANAL: Record<string, string> = {
   ios: 'App Store',
   android: 'Google Play',
 };
-
-const kart = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 } as const;
 const gun = (iso: string | null) =>
   iso
     ? new Intl.DateTimeFormat('tr-TR', {
@@ -123,40 +122,11 @@ const gun = (iso: string | null) =>
         timeZone: 'Europe/Istanbul',
       }).format(new Date(iso))
     : '—';
-const baslikSatiri = {
-  display: 'flex',
-  gap: 14,
-  padding: '12px 18px',
-  background: '#F3F5FA',
-  fontSize: 12.5,
-  fontWeight: 700,
-  color: '#5A6073',
-  textTransform: 'uppercase',
-  letterSpacing: 0.4,
-} as const;
-const satir = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  alignItems: 'center',
-  gap: '8px 14px',
-  padding: '13px 18px',
-  borderTop: '1px solid #EEF0F5',
-  fontSize: 14,
-} as const;
 
 function Rozet({ durum, ad }: { durum: string; ad: string }) {
   const [bg, fg] = RENK[durum] ?? ['#F3F5FA', '#3A4052'];
   return (
-    <span
-      style={{
-        fontSize: 12.5,
-        fontWeight: 700,
-        padding: '3px 9px',
-        borderRadius: 999,
-        background: bg,
-        color: fg,
-      }}
-    >
+    <span className={stil.metin1} style={{ background: bg, color: fg }}>
       {ad}
     </span>
   );
@@ -258,34 +228,27 @@ export default function Odemeler() {
 
   return (
     <>
-      <h1 style={{ margin: '0 0 16px', fontSize: 26, fontWeight: 800 }}>Ödemeler ve faturalar</h1>
-      {hata ? <p style={{ color: '#A3271F' }}>{hata}</p> : null}
+      <h1 className={stil.baslik1}>Ödemeler ve faturalar</h1>
+      {hata ? <p className={stil.metin2}>{hata}</p> : null}
       {bilgi ? (
-        <p
-          role="status"
-          style={{
-            background: '#E7FAF0',
-            color: '#11683F',
-            borderRadius: 12,
-            padding: '10px 14px',
-            fontWeight: 700,
-          }}
-        >
+        <p role="status" className={stil.metin3}>
           {bilgi}
         </p>
       ) : null}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+      <div className={stil.kutu1}>
         {kutular.map(([ad, deger, not, renk]) => (
-          <section key={ad} style={{ ...kart, padding: 16 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#5A6073' }}>{ad}</div>
-            <div style={{ fontSize: 26, fontWeight: 800, color: renk, marginTop: 2 }}>{deger}</div>
-            <div style={{ fontSize: 12.5, color: '#5A6073', marginTop: 4 }}>{not}</div>
+          <section key={ad} className={stil.kutu2}>
+            <div className={stil.kutu3}>{ad}</div>
+            <div className={stil.kutu4} style={{ color: renk }}>
+              {deger}
+            </div>
+            <div className={stil.kutu5}>{not}</div>
           </section>
         ))}
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, margin: '18px 0 12px' }}>
+      <div className={stil.kutu6}>
         {DURUMLAR.map(([k, ad]) => (
           <button
             key={k}
@@ -297,7 +260,7 @@ export default function Odemeler() {
             {ad}
           </button>
         ))}
-        <span style={{ width: 1, background: '#E3E6EF', margin: '0 4px' }} aria-hidden="true" />
+        <span className={stil.metin4} aria-hidden="true" />
         {TURLER.map(([k, ad]) => (
           <button key={k} type="button" className="k-chip" aria-pressed={tur === k} onClick={() => setTur(k)}>
             {ad}
@@ -305,52 +268,31 @@ export default function Odemeler() {
         ))}
       </div>
 
-      <div style={{ ...kart, overflow: 'hidden' }}>
-        <div style={baslikSatiri}>
-          <span style={{ flex: '999 1 220px' }}>Müşteri ve kalem</span>
-          <span style={{ flex: '1 1 110px' }}>Tutar</span>
-          <span style={{ flex: '1 1 120px' }}>Durum</span>
-          <span style={{ flex: '1 1 120px' }}>Fatura</span>
+      <div className={stil.kutu7}>
+        <div className={stil.kutu8}>
+          <span className={stil.metin5}>Müşteri ve kalem</span>
+          <span className={stil.metin6}>Tutar</span>
+          <span className={stil.metin7}>Durum</span>
+          <span className={stil.metin7}>Fatura</span>
         </div>
-        {v && !v.siparisler.length ? (
-          <p style={{ margin: 0, padding: '14px 18px', borderTop: '1px solid #EEF0F5', color: '#5A6073' }}>
-            Bu seçimle ödeme yok.
-          </p>
-        ) : null}
+        {v && !v.siparisler.length ? <p className={stil.metin8}>Bu seçimle ödeme yok.</p> : null}
         {v?.siparisler.map((s) => (
-          <div key={s.id} style={satir}>
-            <span style={{ flex: '999 1 220px', minWidth: 0 }}>
-              <span style={{ display: 'block', fontWeight: 800 }}>{s.musteri}</span>
-              <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073' }}>
+          <div key={s.id} className={stil.kutu9}>
+            <span className={stil.metin9}>
+              <span className={stil.metin10}>{s.musteri}</span>
+              <span className={stil.metin11}>
                 {s.kalem} · {gun(s.tarih)} · {KANAL[s.kanal] ?? s.kanal} · {s.no}
               </span>
             </span>
-            <span style={{ flex: '1 1 110px', fontWeight: 800 }}>{tlYaz(s.tutarKurus)}</span>
-            <span style={{ flex: '1 1 120px' }}>
+            <span className={stil.metin12}>{tlYaz(s.tutarKurus)}</span>
+            <span className={stil.metin7}>
               <Rozet durum={s.durum} ad={s.durumAd} />
             </span>
-            <span style={{ flex: '1 1 120px', fontSize: 13.5 }}>
+            <span className={stil.metin13}>
               {s.fatura}
-              {s.sozlesme ? (
-                <span style={{ display: 'block', fontSize: 12, color: '#5A6073' }}>{s.sozlesme}</span>
-              ) : null}
+              {s.sozlesme ? <span className={stil.metin14}>{s.sozlesme}</span> : null}
               {iadeYetkisi && s.iadeEdilebilir ? (
-                <button
-                  type="button"
-                  onClick={() => iadeAc(s.id)}
-                  style={{
-                    display: 'block',
-                    marginTop: 4,
-                    border: 0,
-                    background: 'none',
-                    padding: 0,
-                    fontSize: 13,
-                    fontWeight: 800,
-                    color: '#A3271F',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }}
-                >
+                <button type="button" onClick={() => iadeAc(s.id)} className={stil.dugme1}>
                   İade öner
                 </button>
               ) : null}
@@ -360,34 +302,20 @@ export default function Odemeler() {
       </div>
 
       {teklif ? (
-        <section
-          aria-labelledby="iade"
-          style={{ ...kart, padding: 20, marginTop: 16, border: '2px solid #FFB4AE' }}
-        >
-          <h2 id="iade" style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>
+        <section aria-labelledby="iade" className={stil.kutu10}>
+          <h2 id="iade" className={stil.baslik2}>
             İade önerisi · {teklif.siparis.musteri} · {teklif.siparis.no}
           </h2>
-          <p style={{ margin: '4px 0 12px', fontSize: 13.5, color: '#5A6073' }}>
+          <p className={stil.metin15}>
             Ödenen {tlYaz(teklif.siparis.tutarKurus)} · {teklif.gun} gün önce
             {teklif.iadeEdilenKurus ? ` · daha önce ${tlYaz(teklif.iadeEdilenKurus)} iade edildi` : ''} ·
             cayma süresi {teklif.sure} gün. İadeyi yalnızca Sahip onaylar; onaylarken tutarı düşürebilir.
           </p>
           {teklif.kalemler.map((k) => (
-            <div
-              key={k.ad}
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'space-between',
-                gap: 8,
-                padding: '8px 0',
-                borderTop: '1px solid #EEF0F5',
-                fontSize: 14,
-              }}
-            >
-              <span style={{ flex: '1 1 260px' }}>
+            <div key={k.ad} className={stil.kutu11}>
+              <span className={stil.metin16}>
                 <strong>{k.ad}</strong>
-                <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073' }}>{k.not}</span>
+                <span className={stil.metin11}>{k.not}</span>
               </span>
               <span>
                 {tlYaz(k.tutarKurus)} → <strong>{tlYaz(k.onerilenKurus)}</strong>
@@ -395,35 +323,26 @@ export default function Odemeler() {
             </div>
           ))}
           {teklif.iadeEdilemez ? (
-            <p style={{ margin: '12px 0 0', fontWeight: 700, color: '#A3271F' }}>{teklif.iadeEdilemez}</p>
+            <p className={stil.metin17}>{teklif.iadeEdilemez}</p>
           ) : (
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 iadeIste();
               }}
-              style={{ display: 'grid', gap: 10, marginTop: 12 }}
+              className={stil.kutu12}
             >
-              <label style={{ fontSize: 13.5, fontWeight: 700 }}>
+              <label className={stil.etiket1}>
                 İade tutarı (TL) · önerilen {tlYaz(teklif.onerilenKurus)}, en çok {tlYaz(teklif.enFazlaKurus)}
                 <input
                   inputMode="decimal"
                   required
                   value={tutar}
                   onChange={(e) => setTutar(e.target.value)}
-                  style={{
-                    display: 'block',
-                    width: 180,
-                    marginTop: 6,
-                    border: '1px solid #D5DAE5',
-                    borderRadius: 10,
-                    padding: 10,
-                    fontSize: 15,
-                    fontFamily: 'inherit',
-                  }}
+                  className={stil.girdi1}
                 />
               </label>
-              <label style={{ fontSize: 13.5, fontWeight: 700 }}>
+              <label className={stil.etiket1}>
                 Gerekçe
                 <textarea
                   required
@@ -432,20 +351,10 @@ export default function Odemeler() {
                   onChange={(e) => setNeden(e.target.value)}
                   placeholder="Ör. Kullanıcı 14 gün içinde cayma hakkını kullandı, destek kaydı 1234"
                   rows={2}
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    marginTop: 6,
-                    border: '1px solid #D5DAE5',
-                    borderRadius: 10,
-                    padding: 10,
-                    fontSize: 14,
-                    fontFamily: 'inherit',
-                  }}
+                  className={stil.girdi2}
                 />
               </label>
-              <span style={{ display: 'flex', gap: 8 }}>
+              <span className={stil.metin18}>
                 <button type="submit" className="k-chip" aria-pressed="true">
                   Sahibin onayına gönder
                 </button>
@@ -460,63 +369,57 @@ export default function Odemeler() {
 
       {iadeler.length ? (
         <>
-          <h2 style={{ margin: '24px 0 10px', fontSize: 18, fontWeight: 800 }}>İadeler</h2>
-          <div style={{ ...kart, overflow: 'hidden' }}>
+          <h2 className={stil.baslik3}>İadeler</h2>
+          <div className={stil.kutu7}>
             {iadeler.map((r) => (
-              <div key={r.id} style={satir}>
-                <span style={{ flex: '999 1 220px', minWidth: 0 }}>
-                  <span style={{ display: 'block', fontWeight: 800 }}>{r.siparis ?? '—'}</span>
-                  <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073' }}>
+              <div key={r.id} className={stil.kutu9}>
+                <span className={stil.metin9}>
+                  <span className={stil.metin10}>{r.siparis ?? '—'}</span>
+                  <span className={stil.metin11}>
                     {r.neden ?? ''}
                     {r.onaylayan ? ` · onaylayan ${r.onaylayan}` : ''}
                     {r.yurutulme ? ` · ${gun(r.yurutulme)}` : ''}
                   </span>
-                  {r.not ? (
-                    <span style={{ display: 'block', fontSize: 12.5, color: '#A3271F' }}>{r.not}</span>
-                  ) : null}
+                  {r.not ? <span className={stil.metin19}>{r.not}</span> : null}
                 </span>
-                <span style={{ flex: '1 1 110px', fontWeight: 800 }}>{tlYaz(r.tutarKurus)}</span>
-                <span style={{ flex: '1 1 120px' }}>
+                <span className={stil.metin12}>{tlYaz(r.tutarKurus)}</span>
+                <span className={stil.metin7}>
                   <Rozet durum={r.durum} ad={r.durumAd} />
                 </span>
-                <span style={{ flex: '1 1 120px', fontSize: 13.5 }}>{r.fatura}</span>
+                <span className={stil.metin13}>{r.fatura}</span>
               </div>
             ))}
           </div>
         </>
       ) : null}
 
-      <h2 style={{ margin: '24px 0 10px', fontSize: 18, fontWeight: 800 }}>Galeri abonelikleri</h2>
-      <div style={{ ...kart, overflow: 'hidden' }}>
-        <div style={baslikSatiri}>
-          <span style={{ flex: '999 1 220px' }}>Galeri ve paket</span>
-          <span style={{ flex: '1 1 140px' }}>Yenileme</span>
-          <span style={{ flex: '1 1 120px' }}>Durum</span>
-          <span style={{ flex: '1 1 160px' }}>Kart ve deneme</span>
+      <h2 className={stil.baslik3}>Galeri abonelikleri</h2>
+      <div className={stil.kutu7}>
+        <div className={stil.kutu8}>
+          <span className={stil.metin5}>Galeri ve paket</span>
+          <span className={stil.metin20}>Yenileme</span>
+          <span className={stil.metin7}>Durum</span>
+          <span className={stil.metin21}>Kart ve deneme</span>
         </div>
-        {v && !v.abonelikler.length ? (
-          <p style={{ margin: 0, padding: '14px 18px', borderTop: '1px solid #EEF0F5', color: '#5A6073' }}>
-            Henüz abonelik yok.
-          </p>
-        ) : null}
+        {v && !v.abonelikler.length ? <p className={stil.metin8}>Henüz abonelik yok.</p> : null}
         {v?.abonelikler.map((a) => (
-          <div key={a.id} style={satir}>
-            <span style={{ flex: '999 1 220px', minWidth: 0 }}>
-              <span style={{ display: 'block', fontWeight: 800 }}>{a.galeri}</span>
-              <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073' }}>
+          <div key={a.id} className={stil.kutu9}>
+            <span className={stil.metin9}>
+              <span className={stil.metin10}>{a.galeri}</span>
+              <span className={stil.metin11}>
                 {a.plan} · {a.donem}
               </span>
             </span>
-            <span style={{ flex: '1 1 140px' }}>
-              <span style={{ display: 'block', fontWeight: 800 }}>{tlYaz(a.yenilemeKurus)}</span>
-              <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073' }}>
+            <span className={stil.metin20}>
+              <span className={stil.metin10}>{tlYaz(a.yenilemeKurus)}</span>
+              <span className={stil.metin11}>
                 {a.durum === 'ENDED' ? `Bitti ${gun(a.bitis)}` : gun(a.bitis)}
               </span>
             </span>
-            <span style={{ flex: '1 1 120px' }}>
+            <span className={stil.metin7}>
               <Rozet durum={a.durum} ad={a.durumAd} />
             </span>
-            <span style={{ flex: '1 1 160px', fontSize: 13.5 }}>
+            <span className={stil.metin22}>
               {a.durum === 'PAST_DUE'
                 ? `${a.basarisizDeneme}. deneme başarısız${a.sonrakiDeneme ? ` · sonraki ${gun(a.sonrakiDeneme)}` : ''}`
                 : a.durum === 'ENDED'
@@ -531,20 +434,16 @@ export default function Odemeler() {
 
       {v?.magaza.length ? (
         <>
-          <h2 style={{ margin: '24px 0 4px', fontSize: 18, fontWeight: 800 }}>
-            İncelenecek mağaza bildirimleri
-          </h2>
-          <p style={{ margin: '0 0 10px', fontSize: 13.5, color: '#5A6073' }}>
-            Eşleşmeyen satış ve iadeler; destek ilgili kullanıcıyla eşler.
-          </p>
-          <div style={{ ...kart, overflow: 'hidden' }}>
+          <h2 className={stil.baslik4}>İncelenecek mağaza bildirimleri</h2>
+          <p className={stil.metin23}>Eşleşmeyen satış ve iadeler; destek ilgili kullanıcıyla eşler.</p>
+          <div className={stil.kutu7}>
             {v.magaza.map((m) => (
-              <div key={m.id} style={satir}>
-                <span style={{ flex: '999 1 220px', fontWeight: 700 }}>{m.not ?? m.tur}</span>
-                <span style={{ flex: '1 1 160px', fontSize: 13 }}>
+              <div key={m.id} className={stil.kutu9}>
+                <span className={stil.metin24}>{m.not ?? m.tur}</span>
+                <span className={stil.metin25}>
                   {m.magaza} · {m.urun ?? '—'}
                 </span>
-                <span style={{ flex: '1 1 120px', fontSize: 13, color: '#5A6073' }}>{gun(m.tarih)}</span>
+                <span className={stil.metin26}>{gun(m.tarih)}</span>
               </div>
             ))}
           </div>

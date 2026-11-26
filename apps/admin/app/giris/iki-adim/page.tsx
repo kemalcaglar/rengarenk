@@ -1,5 +1,6 @@
 import { Logo } from '../../logo';
 import { IkiAdim } from './iki-adim';
+import stil from './page.module.css';
 
 export default async function IkiAdimSayfa({
   searchParams,
@@ -8,8 +9,8 @@ export default async function IkiAdimSayfa({
 }) {
   const { kurulum } = await searchParams;
   return (
-    <main style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24 }}>
-      <div className="card" style={{ maxWidth: 480, width: '100%', display: 'grid', gap: 16 }}>
+    <main className={stil.kutu1}>
+      <div className={`card ${stil.kutu2}`}>
         <Logo />
         <IkiAdim setup={kurulum === '1'} />
       </div>

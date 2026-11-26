@@ -10,9 +10,11 @@ import {
   REVEAL_SECONDS,
 } from '@rengarenk/shared';
 import Link from 'next/link';
-import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 type Tip = 'kisi' | 'galeri';
 interface Sonuc {
@@ -75,19 +77,6 @@ const DURUM: Record<string, [string, string]> = {
   Askıda: ['#FDECEC', '#A3271F'],
   Engelli: ['#FDECEC', '#A3271F'],
   Kapalı: ['#F3F5FA', '#5A6073'],
-};
-const kart: CSSProperties = { background: '#FFFFFF', border: '1px solid #E3E6EF', borderRadius: 18 };
-const girdi: CSSProperties = {
-  display: 'block',
-  width: '100%',
-  boxSizing: 'border-box',
-  marginTop: 4,
-  border: '1px solid #D5DAE5',
-  borderRadius: 10,
-  padding: 9,
-  fontSize: 14,
-  background: '#FFFFFF',
-  fontFamily: 'inherit',
 };
 const KARAR_FORM: Record<'uyari' | 'aski' | 'engel', [string, string]> = {
   uyari: [
@@ -278,32 +267,20 @@ export default function Kullanicilar() {
 
   return (
     <>
-      <div style={{ marginBottom: 14 }}>
-        <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Kullanıcılar ve galeriler</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+      <div className={stil.kutu1}>
+        <h1 className={stil.baslik1}>Kullanıcılar ve galeriler</h1>
+        <p className={stil.metin1}>
           Kişisel veriler maskeli gelir. Açmak gerekçe ister ve işlem kaydına girer.
         </p>
       </div>
-      {hata ? <p style={{ color: '#A3271F', fontWeight: 700 }}>{hata}</p> : null}
+      {hata ? <p className={stil.metin2}>{hata}</p> : null}
       {bilgi ? (
-        <p
-          role="status"
-          style={{
-            background: '#E7FAF0',
-            color: '#11683F',
-            borderRadius: 12,
-            padding: '10px 14px',
-            fontWeight: 700,
-          }}
-        >
+        <p role="status" className={stil.metin3}>
           {bilgi}
         </p>
       ) : null}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
-        <label
-          htmlFor="ara"
-          style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}
-        >
+      <div className={stil.kutu2}>
+        <label htmlFor="ara" className={stil.etiket1}>
           Kullanıcı ara
         </label>
         <input
@@ -312,16 +289,7 @@ export default function Kullanicilar() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Ad, galeri adı, talep no veya e-postanın ilk harfleri"
-          style={{
-            flex: '1 1 320px',
-            minWidth: 0,
-            border: '1px solid #D5DAE5',
-            borderRadius: 12,
-            padding: '11px 14px',
-            fontSize: 14,
-            background: '#FFFFFF',
-            fontFamily: 'inherit',
-          }}
+          className={stil.girdi1}
         />
         {PEOPLE_FILTERS.map(([key, ad]) => (
           <button
@@ -329,45 +297,16 @@ export default function Kullanicilar() {
             type="button"
             onClick={() => setTur(key)}
             aria-pressed={tur === key}
-            style={
-              tur === key
-                ? {
-                    border: 0,
-                    background: '#1E2333',
-                    borderRadius: 999,
-                    padding: '9px 14px',
-                    fontSize: 13.5,
-                    fontWeight: 800,
-                    color: '#FFFFFF',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }
-                : {
-                    border: '1px solid #D5DAE5',
-                    background: '#FFFFFF',
-                    borderRadius: 999,
-                    padding: '8px 13px',
-                    fontSize: 13.5,
-                    fontWeight: 700,
-                    color: '#1E2333',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                  }
-            }
+            className={cx(tur === key ? stil.dugme1 : stil.dugme2)}
           >
             {ad}
           </button>
         ))}
       </div>
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-start' }}>
-        <section
-          aria-label="Sonuçlar"
-          style={{ ...kart, flex: '1 1 260px', maxWidth: 300, minWidth: 0, padding: 8 }}
-        >
-          {!liste.length ? (
-            <p style={{ margin: 0, padding: 12, fontSize: 13.5, color: '#5A6073' }}>Sonuç yok.</p>
-          ) : null}
+      <div className={stil.kutu3}>
+        <section aria-label="Sonuçlar" className={stil.kutu4}>
+          {!liste.length ? <p className={stil.metin4}>Sonuç yok.</p> : null}
           {liste.map((x) => {
             const on = sec?.id === x.id;
             const [db, df] = DURUM[x.durum] ?? DURUM.Aktif;
@@ -380,53 +319,16 @@ export default function Kullanicilar() {
                   setBilgi(null);
                 }}
                 aria-current={on}
-                style={{
-                  width: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  textAlign: 'left',
-                  border: 0,
-                  background: on ? '#F3EFFF' : 'transparent',
-                  borderRadius: 12,
-                  padding: 10,
-                  cursor: 'pointer',
-                  color: '#1E2333',
-                  fontFamily: 'inherit',
-                }}
+                className={cx(stil.dugme3, on ? stil.dugme4 : stil.dugme5)}
               >
-                <span
-                  aria-hidden="true"
-                  style={{
-                    flex: 'none',
-                    width: 36,
-                    height: 36,
-                    borderRadius: '50%',
-                    background: x.renk,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 12.5,
-                    fontWeight: 800,
-                  }}
-                >
+                <span aria-hidden="true" className={stil.metin5} style={{ background: x.renk }}>
                   {x.bas}
                 </span>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 14, fontWeight: 800 }}>{x.ad}</span>
-                  <span style={{ display: 'block', fontSize: 12, color: '#5A6073' }}>{x.alt}</span>
+                <span className={stil.metin6}>
+                  <span className={stil.metin7}>{x.ad}</span>
+                  <span className={stil.metin8}>{x.alt}</span>
                 </span>
-                <span
-                  style={{
-                    flex: 'none',
-                    fontSize: 11,
-                    fontWeight: 800,
-                    padding: '2px 7px',
-                    borderRadius: 999,
-                    background: db,
-                    color: df,
-                  }}
-                >
+                <span className={stil.metin9} style={{ background: db, color: df }}>
                   {x.durum}
                 </span>
               </button>
@@ -434,84 +336,37 @@ export default function Kullanicilar() {
           })}
         </section>
 
-        <section
-          aria-labelledby="kart"
-          style={{ ...kart, flex: '999 1 520px', minWidth: 0, overflow: 'hidden' }}
-        >
+        <section aria-labelledby="kart" className={stil.kutu5}>
           {k ? (
             <>
-              <div
-                style={{
-                  padding: 18,
-                  borderBottom: '1px solid #EEF0F5',
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: 14,
-                  alignItems: 'flex-start',
-                }}
-              >
-                <span
-                  aria-hidden="true"
-                  style={{
-                    flex: 'none',
-                    width: 56,
-                    height: 56,
-                    borderRadius: 16,
-                    background: k.renk,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 18,
-                    fontWeight: 800,
-                  }}
-                >
+              <div className={stil.kutu6}>
+                <span aria-hidden="true" className={stil.metin10} style={{ background: k.renk }}>
                   {k.bas}
                 </span>
-                <div style={{ flex: '999 1 280px', minWidth: 0 }}>
-                  <h2 id="kart" style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>
+                <div className={stil.kutu7}>
+                  <h2 id="kart" className={stil.baslik2}>
                     {k.ad}
                   </h2>
-                  <div style={{ fontSize: 13, color: '#3A4052', marginTop: 2 }}>{k.alt}</div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                  <div className={stil.kutu8}>{k.alt}</div>
+                  <div className={stil.kutu9}>
                     {k.rozetler.map((r) => (
-                      <span
-                        key={r.t}
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 800,
-                          padding: '3px 9px',
-                          borderRadius: 999,
-                          background: r.bg,
-                          color: r.fg,
-                        }}
-                      >
+                      <span key={r.t} className={stil.metin11} style={{ background: r.bg, color: r.fg }}>
                         {r.t}
                       </span>
                     ))}
                   </div>
                 </div>
-                <div
-                  style={{
-                    flex: '1 1 220px',
-                    minWidth: 0,
-                    background: '#F6F8FD',
-                    borderRadius: 12,
-                    padding: '10px 12px',
-                    fontSize: 13,
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                    <span style={{ color: '#5A6073' }}>Telefon</span>
+                <div className={stil.kutu10}>
+                  <div className={stil.kutu11}>
+                    <span className={stil.metin12}>Telefon</span>
                     <strong>{acik?.telefon ?? k.telefon}</strong>
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 4 }}>
-                    <span style={{ color: '#5A6073' }}>E-posta</span>
-                    <strong style={{ overflowWrap: 'anywhere', textAlign: 'right' }}>
-                      {acik?.eposta ?? k.eposta}
-                    </strong>
+                  <div className={stil.kutu12}>
+                    <span className={stil.metin12}>E-posta</span>
+                    <strong className={stil.metin13}>{acik?.eposta ?? k.eposta}</strong>
                   </div>
                   {acik ? (
-                    <div style={{ marginTop: 8, fontSize: 11.5, color: '#7A5300', fontWeight: 700 }}>
+                    <div className={stil.kutu13}>
                       Açıldı · işlem kaydına yazıldı · 5 dakika sonra yeniden maskelenir
                     </div>
                   ) : gerekceAc ? (
@@ -520,100 +375,43 @@ export default function Kullanicilar() {
                         e.preventDefault();
                         goster();
                       }}
-                      style={{ display: 'flex', gap: 6, marginTop: 8 }}
+                      className={stil.kutu14}
                     >
                       <input
                         value={gerekce}
                         onChange={(e) => setGerekce(e.target.value)}
                         aria-label="Gerekçe"
                         placeholder="Ör. Destek talebi D-20952, geri dönüş"
-                        style={{
-                          flex: 1,
-                          minWidth: 0,
-                          border: '1px solid #D5DAE5',
-                          borderRadius: 8,
-                          padding: '6px 8px',
-                          fontSize: 12.5,
-                          fontFamily: 'inherit',
-                        }}
+                        className={stil.girdi2}
                       />
-                      <button
-                        type="submit"
-                        style={{
-                          border: 0,
-                          background: '#5B8CFF',
-                          borderRadius: 8,
-                          padding: '6px 10px',
-                          fontSize: 12.5,
-                          fontWeight: 800,
-                          color: '#1E2333',
-                          cursor: 'pointer',
-                          fontFamily: 'inherit',
-                        }}
-                      >
+                      <button type="submit" className={stil.dugme6}>
                         Göster
                       </button>
                     </form>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={() => setGerekceAc(true)}
-                      style={{
-                        marginTop: 8,
-                        border: 0,
-                        background: 'transparent',
-                        padding: 0,
-                        fontSize: 12.5,
-                        fontWeight: 700,
-                        color: '#2450C8',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                      }}
-                    >
+                    <button type="button" onClick={() => setGerekceAc(true)} className={stil.dugme7}>
                       Gerekçe yazıp göster
                     </button>
                   )}
                 </div>
               </div>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-                  borderBottom: '1px solid #EEF0F5',
-                }}
-              >
+              <div className={stil.kutu15}>
                 {k.sayilar.map((n) => (
-                  <div key={n.ad} style={{ padding: '12px 16px', borderRight: '1px solid #EEF0F5' }}>
-                    <div style={{ fontSize: 18, fontWeight: 800 }}>{n.deger}</div>
-                    <div style={{ fontSize: 12, color: '#5A6073' }}>{n.ad}</div>
+                  <div key={n.ad} className={stil.kutu16}>
+                    <div className={stil.kutu17}>{n.deger}</div>
+                    <div className={stil.kutu18}>{n.ad}</div>
                   </div>
                 ))}
               </div>
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: 8,
-                  padding: '14px 18px',
-                  borderBottom: '1px solid #EEF0F5',
-                }}
-              >
+              <div className={stil.kutu19}>
                 {dugmeler.map(([ad, ne, var_, kenar, renk]) =>
                   ne === 'iade' ? (
                     var_ ? (
                       <Link
                         key={ad}
                         href="/odemeler"
-                        style={{
-                          border: `1px solid ${kenar}`,
-                          background: '#FFFFFF',
-                          borderRadius: 10,
-                          padding: '8px 12px',
-                          fontSize: 13,
-                          fontWeight: 700,
-                          color: renk,
-                          textDecoration: 'none',
-                        }}
+                        className={stil.bag1}
+                        style={{ border: `1px solid ${kenar}`, color: renk }}
                       >
                         {ad}
                       </Link>
@@ -635,17 +433,12 @@ export default function Kullanicilar() {
                               )
                             : setForm(form === ne ? null : (ne as Form))
                       }
-                      style={{
-                        border: `1px solid ${kenar}`,
-                        background: form === ne ? '#F6F8FD' : '#FFFFFF',
-                        borderRadius: 10,
-                        padding: '8px 12px',
-                        fontSize: 13,
-                        fontWeight: 700,
-                        color: var_ ? renk : '#AEB5C4',
-                        cursor: var_ ? 'pointer' : 'default',
-                        fontFamily: 'inherit',
-                      }}
+                      className={cx(
+                        stil.dugme8,
+                        form === ne ? stil.dugme9 : stil.dugme10,
+                        var_ ? stil.dugme11 : stil.dugme12,
+                      )}
+                      style={{ border: `1px solid ${kenar}`, color: var_ ? renk : '#AEB5C4' }}
                     >
                       {ad}
                     </button>
@@ -653,23 +446,13 @@ export default function Kullanicilar() {
                 )}
               </div>
               {form === 'hak' ? (
-                <div
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'flex-end',
-                    gap: 10,
-                    padding: '14px 18px',
-                    borderBottom: '1px solid #EEF0F5',
-                    background: '#F6F8FD',
-                  }}
-                >
-                  <label style={{ flex: '1 1 180px', fontSize: 12.5, fontWeight: 700 }}>
+                <div className={stil.kutu20}>
+                  <label className={stil.etiket2}>
                     Hak
                     <select
                       value={hak.tur}
                       onChange={(e) => setHak({ ...hak, tur: e.target.value as GrantKind })}
-                      style={girdi}
+                      className={stil.girdi3}
                     >
                       {(Object.keys(GRANT_KINDS) as GrantKind[]).map((g) => (
                         <option key={g} value={g}>
@@ -678,7 +461,7 @@ export default function Kullanicilar() {
                       ))}
                     </select>
                   </label>
-                  <label style={{ flex: '0 1 90px', fontSize: 12.5, fontWeight: 700 }}>
+                  <label className={stil.etiket3}>
                     Adet
                     <input
                       type="number"
@@ -686,16 +469,16 @@ export default function Kullanicilar() {
                       max={10}
                       value={hak.adet}
                       onChange={(e) => setHak({ ...hak, adet: Number(e.target.value) })}
-                      style={girdi}
+                      className={stil.girdi3}
                     />
                   </label>
-                  <label style={{ flex: '2 1 220px', fontSize: 12.5, fontWeight: 700 }}>
+                  <label className={stil.etiket4}>
                     Gerekçe
                     <input
                       value={hak.gerekce}
                       onChange={(e) => setHak({ ...hak, gerekce: e.target.value })}
                       placeholder="Ör. Acil etiketi hatası nedeniyle gönül alma"
-                      style={girdi}
+                      className={stil.girdi3}
                     />
                   </label>
                   <button
@@ -707,44 +490,24 @@ export default function Kullanicilar() {
                         `${hak.adet} ${GRANT_KINDS[hak.tur].toLocaleLowerCase('tr-TR')} tanımlandı; kişiye bildirim gitti.`,
                       )
                     }
-                    style={{
-                      border: 0,
-                      background: '#5B8CFF',
-                      borderRadius: 10,
-                      padding: '10px 16px',
-                      fontSize: 14,
-                      fontWeight: 800,
-                      color: '#1E2333',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
+                    className={stil.dugme13}
                   >
                     Tanımla
                   </button>
-                  <p style={{ flex: '1 1 100%', margin: 0, fontSize: 12, color: '#5A6073' }}>
+                  <p className={stil.metin14}>
                     Destek rolü kişi başına ayda en fazla 10 hak tanımlayabilir; üstü yönetici onayı ister.
                     İade bu ekrandan yapılmaz, yalnızca önerilir.
                   </p>
                 </div>
               ) : form === 'not' || form === 'uyari' || form === 'aski' || form === 'engel' ? (
-                <div
-                  style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'flex-end',
-                    gap: 10,
-                    padding: '14px 18px',
-                    borderBottom: '1px solid #EEF0F5',
-                    background: '#F6F8FD',
-                  }}
-                >
-                  <label style={{ flex: '1 1 320px', fontSize: 12.5, fontWeight: 700 }}>
+                <div className={stil.kutu20}>
+                  <label className={stil.etiket5}>
                     {form === 'not' ? 'Not (yalnızca çalışanlar görür)' : 'Gerekçe (kullanıcıya gider)'}
                     <input
                       value={metin}
                       onChange={(e) => setMetin(e.target.value)}
                       maxLength={500}
-                      style={girdi}
+                      className={stil.girdi3}
                     />
                   </label>
                   <button
@@ -762,79 +525,45 @@ export default function Kullanicilar() {
                                 : 'Uyarı gönderildi ve işlem kaydına yazıldı.',
                           )
                     }
-                    style={{
-                      border: 0,
-                      background: form === 'engel' ? '#E5484D' : '#5B8CFF',
-                      borderRadius: 10,
-                      padding: '10px 16px',
-                      fontSize: 14,
-                      fontWeight: 800,
-                      color: form === 'engel' ? '#FFFFFF' : '#1E2333',
-                      cursor: 'pointer',
-                      fontFamily: 'inherit',
-                    }}
+                    className={cx(stil.dugme14, form === 'engel' ? stil.dugme15 : stil.dugme16)}
                   >
                     {form === 'not' ? 'Ekle' : KARAR_FORM[form][0]}
                   </button>
-                  {form !== 'not' ? (
-                    <p style={{ flex: '1 1 100%', margin: 0, fontSize: 12, color: '#5A6073' }}>
-                      {KARAR_FORM[form][1]}
-                    </p>
-                  ) : null}
+                  {form !== 'not' ? <p className={stil.metin14}>{KARAR_FORM[form][1]}</p> : null}
                 </div>
               ) : null}
               {k.musteri ? (
                 <>
-                  <h3 style={{ margin: 0, padding: '14px 18px 6px', fontSize: 14, fontWeight: 800 }}>
-                    Müşteri yönetimi
-                  </h3>
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: '10px 24px',
-                      padding: '4px 18px 10px',
-                      fontSize: 13,
-                    }}
-                  >
-                    <span style={{ flex: '1 1 200px' }}>
-                      <span style={{ display: 'block', fontSize: 12, color: '#5A6073' }}>Ayrılma riski</span>
+                  <h3 className={stil.baslik3}>Müşteri yönetimi</h3>
+                  <div className={stil.kutu21}>
+                    <span className={stil.metin15}>
+                      <span className={stil.metin8}>Ayrılma riski</span>
                       <span
-                        style={{
-                          display: 'inline-block',
-                          marginTop: 3,
-                          fontSize: 12,
-                          fontWeight: 800,
-                          padding: '3px 9px',
-                          borderRadius: 999,
-                          background: k.musteri.risk.bg,
-                          color: k.musteri.risk.fg,
-                        }}
+                        className={stil.metin16}
+                        style={{ background: k.musteri.risk.bg, color: k.musteri.risk.fg }}
                       >
                         {k.musteri.risk.ad} · {k.musteri.risk.puan}
                       </span>
                       {k.musteri.risk.gerekceler.length ? (
-                        <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 4 }}>
-                          {k.musteri.risk.gerekceler.join(' · ')}
-                        </span>
+                        <span className={stil.metin17}>{k.musteri.risk.gerekceler.join(' · ')}</span>
                       ) : null}
                     </span>
-                    <span style={{ flex: '1 1 160px' }}>
-                      <span style={{ display: 'block', fontSize: 12, color: '#5A6073' }}>Yenileme</span>
-                      <span style={{ display: 'block', fontWeight: 700, marginTop: 3 }}>
+                    <span className={stil.metin18}>
+                      <span className={stil.metin8}>Yenileme</span>
+                      <span className={stil.metin19}>
                         {k.musteri.yenileme
                           ? `${k.musteri.yenileme.ne} · ${new Date(k.musteri.yenileme.tarih).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}`
                           : 'Yenileme yok'}
                       </span>
                     </span>
-                    <span style={{ flex: '1 1 180px', fontSize: 12, color: '#5A6073' }}>
+                    <span className={stil.metin20}>
                       <label htmlFor="sorumlu-calisan">Sorumlu çalışan</label>
                       {me.permissions['galeri_basvuru.onayla'] === 'tam' ? (
                         <select
                           id="sorumlu-calisan"
                           value={k.musteri.sorumlu?.id ?? ''}
                           onChange={(e) => sorumluAta(e.target.value)}
-                          style={{ ...girdi, marginTop: 3, padding: '7px 10px', fontSize: 13 }}
+                          className={stil.girdi4}
                         >
                           <option value="">Sorumlu yok</option>
                           {k.musteri.calisanlar.map((c) => (
@@ -844,9 +573,7 @@ export default function Kullanicilar() {
                           ))}
                         </select>
                       ) : (
-                        <span style={{ display: 'block', fontWeight: 700, color: '#1E2333', marginTop: 3 }}>
-                          {k.musteri.sorumlu?.ad ?? 'Sorumlu yok'}
-                        </span>
+                        <span className={stil.metin21}>{k.musteri.sorumlu?.ad ?? 'Sorumlu yok'}</span>
                       )}
                     </span>
                   </div>
@@ -854,59 +581,21 @@ export default function Kullanicilar() {
               ) : null}
               {k.cihazlar?.length ? (
                 <>
-                  <h3 style={{ margin: 0, padding: '14px 18px 6px', fontSize: 14, fontWeight: 800 }}>
-                    Cihazlar
-                  </h3>
+                  <h3 className={stil.baslik3}>Cihazlar</h3>
                   {k.cihazlar.map((c) => (
-                    <div
-                      key={c.id}
-                      style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        alignItems: 'center',
-                        gap: '4px 12px',
-                        padding: '7px 18px',
-                        fontSize: 13,
-                      }}
-                    >
-                      <span style={{ flex: '1 1 220px', minWidth: 0 }}>
-                        <span style={{ fontWeight: 700 }}>{c.ad}</span>
-                        <span style={{ color: '#5A6073' }}>
+                    <div key={c.id} className={stil.kutu22}>
+                      <span className={stil.metin22}>
+                        <span className={stil.metin23}>{c.ad}</span>
+                        <span className={stil.metin12}>
                           {' '}
                           · ilk giriş {new Date(c.ilkGiris).toLocaleDateString('tr-TR')} · son{' '}
                           {new Date(c.sonGiris).toLocaleDateString('tr-TR')}
                         </span>
                       </span>
                       {c.karaListede ? (
-                        <span
-                          style={{
-                            flex: 'none',
-                            fontSize: 12,
-                            fontWeight: 800,
-                            padding: '3px 9px',
-                            borderRadius: 999,
-                            background: '#FDECEC',
-                            color: '#A3271F',
-                          }}
-                        >
-                          Kara listede
-                        </span>
+                        <span className={stil.metin24}>Kara listede</span>
                       ) : c.engellenebilir && me.permissions['sikayet.coz'] === 'tam' ? (
-                        <button
-                          type="button"
-                          onClick={() => cihazEngelle(c.id)}
-                          style={{
-                            flex: 'none',
-                            border: '1px solid #D5DAE5',
-                            background: '#FFFFFF',
-                            borderRadius: 10,
-                            padding: '6px 10px',
-                            fontSize: 12.5,
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            fontFamily: 'inherit',
-                          }}
-                        >
+                        <button type="button" onClick={() => cihazEngelle(c.id)} className={stil.dugme17}>
                           Kara listeye al
                         </button>
                       ) : null}
@@ -914,52 +603,36 @@ export default function Kullanicilar() {
                   ))}
                 </>
               ) : null}
-              <h3 style={{ margin: 0, padding: '14px 18px 6px', fontSize: 14, fontWeight: 800 }}>Geçmiş</h3>
+              <h3 className={stil.baslik3}>Geçmiş</h3>
               {k.gecmis.map((g, i) => (
                 <div
                   // biome-ignore lint/suspicious/noArrayIndexKey: geçmiş sırası sabit
                   key={i}
-                  style={{ display: 'flex', gap: 12, padding: '9px 18px', fontSize: 13 }}
+                  className={stil.kutu23}
                 >
-                  <span style={{ flex: '0 0 82px', color: '#5A6073', fontWeight: 600 }}>{g.zamanYazi}</span>
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      flex: 'none',
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      marginTop: 6,
-                      background: g.renk,
-                    }}
-                  />
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{ fontWeight: 700 }}>{g.olay}</span>
-                    {g.detay ? (
-                      <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 1 }}>
-                        {g.detay}
-                      </span>
-                    ) : null}
+                  <span className={stil.metin25}>{g.zamanYazi}</span>
+                  <span aria-hidden="true" className={stil.metin26} style={{ background: g.renk }} />
+                  <span className={stil.metin6}>
+                    <span className={stil.metin23}>{g.olay}</span>
+                    {g.detay ? <span className={stil.metin27}>{g.detay}</span> : null}
                   </span>
                 </div>
               ))}
-              <div style={{ height: 10 }} />
+              <div className={stil.kutu24} />
             </>
           ) : (
-            <p style={{ margin: 0, padding: 18, fontSize: 13.5, color: '#5A6073' }}>
-              {sec ? 'Yükleniyor…' : 'Soldan bir kişi ya da galeri seç.'}
-            </p>
+            <p className={stil.metin28}>{sec ? 'Yükleniyor…' : 'Soldan bir kişi ya da galeri seç.'}</p>
           )}
         </section>
       </div>
 
       {izin.kara ? (
-        <section style={{ ...kart, marginTop: 16, overflow: 'hidden' }} aria-labelledby="kara">
-          <div style={{ padding: '16px 18px', borderBottom: '1px solid #EEF0F5' }}>
-            <h2 id="kara" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+        <section className={stil.kutu25} aria-labelledby="kara">
+          <div className={stil.kutu26}>
+            <h2 id="kara" className={stil.baslik4}>
               Kara liste
             </h2>
-            <p style={{ margin: '3px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+            <p className={stil.metin29}>
               Listedeki telefon ve IP adresine giriş kodu gönderilmez; IBAN içeren mesaj gizlenir ve
               moderasyona kritik olarak düşer. Değerin kendisi saklanmaz.
             </p>
@@ -969,24 +642,16 @@ export default function Kullanicilar() {
               e.preventDefault();
               karaEkle();
             }}
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'flex-end',
-              gap: 10,
-              padding: '14px 18px',
-              borderBottom: '1px solid #EEF0F5',
-              background: '#F6F8FD',
-            }}
+            className={stil.kutu20}
           >
-            <label style={{ flex: '0 1 150px', fontSize: 12.5, fontWeight: 700 }}>
+            <label className={stil.etiket6}>
               Tür
               <select
                 value={yeniKara.tur}
                 onChange={(e) =>
                   setYeniKara({ ...yeniKara, tur: e.target.value as (typeof BLOCK_MANUAL_KINDS)[number] })
                 }
-                style={girdi}
+                className={stil.girdi3}
               >
                 {BLOCK_MANUAL_KINDS.map((b) => (
                   <option key={b} value={b}>
@@ -995,7 +660,7 @@ export default function Kullanicilar() {
                 ))}
               </select>
             </label>
-            <label style={{ flex: '1 1 220px', fontSize: 12.5, fontWeight: 700 }}>
+            <label className={stil.etiket7}>
               Değer
               <input
                 value={yeniKara.deger}
@@ -1007,73 +672,32 @@ export default function Kullanicilar() {
                       ? 'TR00 0000 …'
                       : '203.0.113.7'
                 }
-                style={girdi}
+                className={stil.girdi3}
               />
             </label>
-            <label style={{ flex: '2 1 220px', fontSize: 12.5, fontWeight: 700 }}>
+            <label className={stil.etiket4}>
               Not
               <input
                 value={yeniKara.not}
                 onChange={(e) => setYeniKara({ ...yeniKara, not: e.target.value })}
                 placeholder="Ör. Kapora dolandırıcılığı, S-1024"
-                style={girdi}
+                className={stil.girdi3}
               />
             </label>
-            <button
-              type="submit"
-              style={{
-                border: 0,
-                background: '#E5484D',
-                borderRadius: 10,
-                padding: '10px 16px',
-                fontSize: 14,
-                fontWeight: 800,
-                color: '#FFFFFF',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
+            <button type="submit" className={stil.dugme18}>
               Listeye ekle
             </button>
           </form>
-          {!kara.length ? (
-            <p style={{ margin: 0, padding: '12px 18px', fontSize: 13.5, color: '#5A6073' }}>
-              Kara liste boş.
-            </p>
-          ) : null}
+          {!kara.length ? <p className={stil.metin30}>Kara liste boş.</p> : null}
           {kara.map((x) => (
-            <div
-              key={x.id}
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                gap: '6px 16px',
-                padding: '11px 18px',
-                borderBottom: '1px solid #EEF0F5',
-                fontSize: 13.5,
-              }}
-            >
-              <span style={{ flex: '0 0 90px', fontWeight: 800 }}>{x.turAd}</span>
-              <span style={{ flex: '1 1 200px', fontWeight: 700 }}>{x.deger}</span>
-              <span style={{ flex: '2 1 240px', color: '#5A6073', fontSize: 12.5 }}>
+            <div key={x.id} className={stil.kutu27}>
+              <span className={stil.metin31}>{x.turAd}</span>
+              <span className={stil.metin32}>{x.deger}</span>
+              <span className={stil.metin33}>
                 {x.not ? `${x.not} · ` : ''}
                 {x.kim}
               </span>
-              <button
-                type="button"
-                onClick={() => karaCikar(x.id)}
-                style={{
-                  border: 0,
-                  background: 'transparent',
-                  padding: '6px 4px',
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: '#5A6073',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
-              >
+              <button type="button" onClick={() => karaCikar(x.id)} className={stil.dugme19}>
                 Listeden çıkar
               </button>
             </div>

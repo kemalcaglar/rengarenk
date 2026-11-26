@@ -1,0 +1,19 @@
+/* Bu dosya sahte-google.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  max-width: 420px;
+  width: 100%;
+  display: grid;
+  gap: 14px;
+}
+.metin1 {
+  margin: 0;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+}
+.metin2 {
+  margin: 0;
+  font-size: 13px;
+}

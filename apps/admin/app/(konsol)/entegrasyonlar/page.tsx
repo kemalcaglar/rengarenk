@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { goreli, yonetim } from '../../../lib/istemci';
+import stil from './page.module.css';
 
 interface Source {
   key: string;
@@ -216,96 +218,63 @@ export default function Entegrasyonlar() {
     }
   }
 
-  const btn = {
-    border: '1px solid #D5DAE5',
-    background: '#FFFFFF',
-    borderRadius: 8,
-    padding: '6px 10px',
-    fontSize: 12.5,
-    fontWeight: 700,
-    color: '#1E2333',
-    cursor: 'pointer',
-  } as const;
-
   return (
     <>
       {notice ? (
-        <p className="k-ok" role="status" style={{ margin: '0 0 14px' }}>
+        <p className={`k-ok ${stil.metin1}`} role="status">
           {notice}
         </p>
       ) : null}
       {error ? (
-        <p className="k-error" role="alert" style={{ margin: '0 0 14px' }}>
+        <p className={`k-error ${stil.metin1}`} role="alert">
           {error}
         </p>
       ) : null}
-      <div style={{ marginBottom: 16 }}>
-        <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Entegrasyonlar</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+      <div className={stil.kutu1}>
+        <h1 className={stil.baslik1}>Entegrasyonlar</h1>
+        <p className={stil.metin2}>
           Gizli anahtarlar hiçbir zaman gösterilmez; yalnızca yenilenir. Yenileme işlem kaydına girer.
         </p>
       </div>
       {d === null && !error ? <div className="k-panel k-empty">Yükleniyor…</div> : null}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 12 }}>
+      <div className={stil.kutu2}>
         {kartlar.map((k) => {
           const [bg, fg] = ED[k.durum];
           const uyari = k.durum === 'Uyarı';
           return (
             <div
               key={k.ad}
-              style={{
-                background: '#FFFFFF',
-                border: `1px solid ${uyari ? '#F4DC9A' : '#E3E6EF'}`,
-                borderRadius: 16,
-                padding: 14,
-              }}
+              className={stil.kutu3}
+              style={{ border: `1px solid ${uyari ? '#F4DC9A' : '#E3E6EF'}` }}
             >
-              <div
-                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}
-              >
-                <span style={{ minWidth: 0 }}>
-                  <span style={{ display: 'block', fontSize: 14, fontWeight: 800 }}>{k.ad}</span>
-                  <span style={{ display: 'block', fontSize: 12, color: '#5A6073', marginTop: 2 }}>
-                    {k.amac}
-                  </span>
+              <div className={stil.kutu4}>
+                <span className={stil.metin3}>
+                  <span className={stil.metin4}>{k.ad}</span>
+                  <span className={stil.metin5}>{k.amac}</span>
                 </span>
-                <span
-                  style={{
-                    flex: 'none',
-                    fontSize: 11.5,
-                    fontWeight: 800,
-                    padding: '3px 8px',
-                    borderRadius: 999,
-                    background: bg,
-                    color: fg,
-                  }}
-                >
+                <span className={stil.metin6} style={{ background: bg, color: fg }}>
                   {k.durum}
                 </span>
               </div>
-              <div style={{ fontSize: 12, color: '#3A4052', marginTop: 8 }}>Son başarılı: {k.son}</div>
-              <div
-                style={{ fontSize: 12, color: uyari ? '#7A5300' : '#5A6073', marginTop: 2, fontWeight: 700 }}
-              >
-                {k.anahtar}
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 10 }}>
+              <div className={stil.kutu5}>Son başarılı: {k.son}</div>
+              <div className={cx(stil.kutu6, uyari ? stil.kutu7 : stil.kutu8)}>{k.anahtar}</div>
+              <div className={stil.kutu9}>
                 <button
                   type="button"
-                  style={{ ...btn, opacity: k.test ? 1 : 0.5, cursor: k.test ? 'pointer' : 'default' }}
+                  className={cx(stil.dugme1, k.test ? stil.dugme2 : stil.dugme3)}
                   disabled={!k.test || busy !== null}
                   onClick={() => test(k)}
                 >
                   {busy === k.ad ? 'Deneniyor…' : 'Test et'}
                 </button>
-                <button type="button" style={{ ...btn, opacity: 0.5, cursor: 'default' }} disabled>
+                <button type="button" className={stil.dugme4} disabled>
                   Anahtarı yenile
                 </button>
               </div>
               {k.baglanti ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginTop: 8 }}>
+                <div className={stil.kutu10}>
                   {k.baglanti.map((b) => (
-                    <Link key={b.href + b.ad} href={b.href} style={{ fontSize: 12.5, fontWeight: 700 }}>
+                    <Link key={b.href + b.ad} href={b.href} className={stil.bag1}>
                       {b.ad} ›
                     </Link>
                   ))}

@@ -4,6 +4,7 @@ import { BUILTIN_ROLES, STAFF_INVITE_HOURS } from '@rengarenk/shared';
 import { type FormEvent, useCallback, useEffect, useState } from 'react';
 import { bas, gunSaat, once, yonetim } from '../../../lib/istemci';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 interface Member {
   id: string;
@@ -53,18 +54,6 @@ function buHafta(w: Member['week'], self: boolean) {
   if (w.islem) p.push(`${w.islem} işlem`);
   return p.length ? p.join(', ') : '—';
 }
-
-const satirDugme = (renk: string) =>
-  ({
-    border: 0,
-    background: 'transparent',
-    padding: 0,
-    fontFamily: 'inherit',
-    fontSize: 12.5,
-    fontWeight: 700,
-    color: renk,
-    cursor: 'pointer',
-  }) as const;
 
 /** Çalışanlar (tasarım: YonetimEkip › Çalışanlar). Davet, rol değişikliği, hesap kapatma. */
 export default function Calisanlar() {
@@ -144,19 +133,9 @@ export default function Calisanlar() {
       </div>
 
       {invite ? (
-        <form
-          onSubmit={submitInvite}
-          aria-label="Davet"
-          style={{
-            background: '#FFFFFF',
-            border: '1.5px solid #5B8CFF',
-            borderRadius: 18,
-            padding: 18,
-            marginBottom: 16,
-          }}
-        >
-          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', gap: 12 }}>
-            <label className="k-field" style={{ flex: '2 1 260px' }}>
+        <form onSubmit={submitInvite} aria-label="Davet" className={stil.kutu1}>
+          <div className={stil.kutu2}>
+            <label className={`k-field ${stil.etiket1}`}>
               Şirket e-postası
               <input
                 type="email"
@@ -166,7 +145,7 @@ export default function Calisanlar() {
                 placeholder="ad.soyad@rengarenksite.com"
               />
             </label>
-            <label className="k-field" style={{ flex: '1 1 180px' }}>
+            <label className={`k-field ${stil.etiket2}`}>
               Rol
               <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
                 {roleOptions.map((o) => (
@@ -180,7 +159,7 @@ export default function Calisanlar() {
               Daveti gönder
             </button>
           </div>
-          <p style={{ margin: '10px 0 0', fontSize: 12.5, color: '#5A6073' }}>
+          <p className={stil.metin1}>
             Davet {STAFF_INVITE_HOURS} saat geçerlidir. İlk girişte doğrulama uygulaması kurulmadan konsol
             açılmaz.
           </p>
@@ -200,11 +179,11 @@ export default function Calisanlar() {
 
       <div className="k-panel">
         <div className="k-thead">
-          <span style={{ flex: '999 1 220px' }}>Çalışan</span>
-          <span style={{ flex: '1 1 110px' }}>Rol</span>
-          <span style={{ flex: '1 1 120px' }}>Son giriş</span>
-          <span style={{ flex: '1 1 180px' }}>Bu hafta</span>
-          <span style={{ flex: '1 1 140px' }}>Durum</span>
+          <span className={stil.metin2}>Çalışan</span>
+          <span className={stil.metin3}>Rol</span>
+          <span className={stil.metin4}>Son giriş</span>
+          <span className={stil.etiket2}>Bu hafta</span>
+          <span className={stil.metin5}>Durum</span>
         </div>
         {rows === null ? (
           <div className="k-empty">Yükleniyor…</div>
@@ -226,27 +205,17 @@ export default function Calisanlar() {
                     : ['2 adım kurulmadı', '#FFF6DF', '#7A5300'];
             return (
               <div key={m.id} className="k-row">
-                <span
-                  style={{ flex: '999 1 220px', minWidth: 0, display: 'flex', alignItems: 'center', gap: 10 }}
-                >
+                <span className={stil.metin6}>
                   <span
-                    className="k-avatar"
-                    style={{
-                      background: davetli ? '#F3F5FA' : AVATAR[i % AVATAR.length],
-                      color: '#1E2333',
-                      fontSize: 12.5,
-                    }}
+                    className={`k-avatar ${stil.metin7}`}
+                    style={{ background: davetli ? '#F3F5FA' : AVATAR[i % AVATAR.length] }}
                     aria-hidden="true"
                   >
                     {davetli && m.name === m.email ? '?' : bas(m.name)}
                   </span>
-                  <span style={{ minWidth: 0 }}>
-                    <span style={{ display: 'block', fontWeight: 800, overflowWrap: 'anywhere' }}>
-                      {self ? 'Sen' : m.name}
-                    </span>
-                    <span
-                      style={{ display: 'block', fontSize: 12.5, color: '#5A6073', overflowWrap: 'anywhere' }}
-                    >
+                  <span className={stil.metin8}>
+                    <span className={stil.metin9}>{self ? 'Sen' : m.name}</span>
+                    <span className={stil.metin10}>
                       {davetli && m.name === m.email
                         ? kalanSaat > 0
                           ? `Davet gönderildi · ${kalanSaat} saat geçerli`
@@ -255,7 +224,7 @@ export default function Calisanlar() {
                     </span>
                   </span>
                 </span>
-                <span style={{ flex: '1 1 110px', fontWeight: 700 }}>
+                <span className={stil.metin11}>
                   {editable ? (
                     <select
                       aria-label={`${m.name} rolü`}
@@ -271,17 +240,7 @@ export default function Calisanlar() {
                           `${m.name} için rol değiştirildi.`,
                         )
                       }
-                      style={{
-                        border: 0,
-                        background: 'transparent',
-                        padding: 0,
-                        fontFamily: 'inherit',
-                        fontSize: 14,
-                        fontWeight: 700,
-                        color: '#1E2333',
-                        cursor: 'pointer',
-                        maxWidth: '100%',
-                      }}
+                      className={stil.girdi1}
                     >
                       {roleOptions.map((o) => (
                         <option key={o.value} value={o.value}>
@@ -293,28 +252,16 @@ export default function Calisanlar() {
                     roleName(m)
                   )}
                 </span>
-                <span style={{ flex: '1 1 120px', fontSize: 13, color: '#3A4052' }}>
-                  {self ? 'Şimdi · bu cihaz' : sonGiris(m.lastLoginAt)}
-                </span>
-                <span style={{ flex: '1 1 180px', fontSize: 13, color: '#3A4052' }}>
-                  {davetli ? '—' : buHafta(m.week, self)}
-                </span>
-                <span
-                  style={{
-                    flex: '1 1 140px',
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'center',
-                    gap: 8,
-                  }}
-                >
+                <span className={stil.metin12}>{self ? 'Şimdi · bu cihaz' : sonGiris(m.lastLoginAt)}</span>
+                <span className={stil.metin13}>{davetli ? '—' : buHafta(m.week, self)}</span>
+                <span className={stil.metin14}>
                   <span className="k-pill" style={{ background: bg, color: fg }}>
                     {durum}
                   </span>
                   {editable && davetli ? (
                     <button
                       type="button"
-                      style={satirDugme('#2450C8')}
+                      className={stil.dugme1}
                       disabled={busy}
                       onClick={() =>
                         act(() => yonetim(`members/${m.id}/reinvite`, { method: 'POST' }), 'Davet yenilendi.')
@@ -326,7 +273,7 @@ export default function Calisanlar() {
                   {editable && m.twoFactorEnabled ? (
                     <button
                       type="button"
-                      style={satirDugme('#2450C8')}
+                      className={stil.dugme1}
                       disabled={busy}
                       onClick={() => {
                         if (
@@ -346,7 +293,7 @@ export default function Calisanlar() {
                   {editable ? (
                     <button
                       type="button"
-                      style={satirDugme('#A3271F')}
+                      className={stil.dugme2}
                       disabled={busy}
                       onClick={() => {
                         if (confirm(`${m.name} hesabı ve açık oturumları kapatılsın mı?`))
@@ -366,32 +313,24 @@ export default function Calisanlar() {
         )}
         {rows && ajan ? (
           <div className="k-row">
-            <span
-              style={{ flex: '999 1 220px', minWidth: 0, display: 'flex', alignItems: 'center', gap: 10 }}
-            >
-              <span
-                className="k-avatar"
-                style={{ background: '#E7FAF0', color: '#1E2333', fontSize: 12.5 }}
-                aria-hidden="true"
-              >
+            <span className={stil.metin6}>
+              <span className={`k-avatar ${stil.metin15}`} aria-hidden="true">
                 AJ
               </span>
-              <span style={{ minWidth: 0 }}>
-                <span style={{ display: 'block', fontWeight: 800 }}>Rengarenk Ajanı</span>
-                <span style={{ display: 'block', fontSize: 12.5, color: '#5A6073' }}>Ajan rolü</span>
+              <span className={stil.metin8}>
+                <span className={stil.metin16}>Rengarenk Ajanı</span>
+                <span className={stil.metin17}>Ajan rolü</span>
               </span>
             </span>
-            <span style={{ flex: '1 1 110px', fontWeight: 700 }}>Ajan</span>
-            <span style={{ flex: '1 1 120px', fontSize: 13, color: '#3A4052' }}>Sürekli</span>
-            <span style={{ flex: '1 1 180px', fontSize: 13, color: '#3A4052' }}>
+            <span className={stil.metin11}>Ajan</span>
+            <span className={stil.metin12}>Sürekli</span>
+            <span className={stil.metin13}>
               {ajan.toplam7} işlem · %
               {new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 1 }).format(ajan.geriOran * 100)} geri
               alındı
             </span>
-            <span style={{ flex: '1 1 140px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span className="k-pill" style={{ background: '#E7FAF0', color: '#11683F' }}>
-                {ajan.calisiyor ? 'Çalışıyor' : 'Durduruldu'}
-              </span>
+            <span className={stil.metin18}>
+              <span className={`k-pill ${stil.metin19}`}>{ajan.calisiyor ? 'Çalışıyor' : 'Durduruldu'}</span>
             </span>
           </div>
         ) : null}

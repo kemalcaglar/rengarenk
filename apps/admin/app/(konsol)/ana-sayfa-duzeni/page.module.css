@@ -1,0 +1,334 @@
+/* Bu dosya page.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.dugme1 {
+  border: 0;
+  background: #1e2333;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+}
+.dugme2 {
+  border: 1px solid #d5dae5;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 7px 13px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e2333;
+  cursor: pointer;
+  font-family: inherit;
+}
+.kutu1 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+}
+.metin1 {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #5a6073;
+}
+.metin2 {
+  display: flex;
+  gap: 8px;
+}
+.dugme3 {
+  border: 1px solid #d5dae5;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e2333;
+  cursor: pointer;
+  font-family: inherit;
+}
+.dugme4 {
+  border: 0;
+  background: #3dd68c;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #1e2333;
+  font-family: inherit;
+}
+.dugme5 {
+  cursor: pointer;
+  opacity: 1;
+}
+.dugme6 {
+  cursor: default;
+  opacity: 0.5;
+}
+.metin3 {
+  background: #e7faf0;
+  color: #11683f;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.kutu2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  background: #ffffff;
+  border: 1.5px solid #5b8cff;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.etiket1 {
+  font-size: 13px;
+  font-weight: 700;
+}
+.girdi1 {
+  display: block;
+  margin-top: 5px;
+  border: 1px solid #d5dae5;
+  border-radius: 10px;
+  padding: 9px;
+  font-size: 14px;
+  font-family: inherit;
+}
+.dugme7 {
+  border: 0;
+  background: #5b8cff;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #1e2333;
+  cursor: pointer;
+  font-family: inherit;
+}
+.metin4 {
+  font-size: 12.5px;
+  color: #5a6073;
+}
+.metin5 {
+  background: #eef3ff;
+  color: #2450c8;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.metin6 {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: #7a5300;
+}
+.kutu3 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-bottom: 14px;
+}
+.metin7 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.metin8 {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #5a6073;
+  margin-right: 4px;
+}
+.kutu4 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+}
+.kutu5 {
+  background: #ffffff;
+  border: 1px solid #e3e6ef;
+  border-radius: 18px;
+  overflow: hidden;
+  flex: 1 1 380px;
+  min-width: 0;
+}
+.baslik2 {
+  margin: 0;
+  padding: 16px 18px;
+  font-size: 17px;
+  font-weight: 800;
+  border-bottom: 1px solid #eef0f5;
+}
+.kutu6 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px 10px 18px;
+  border-bottom: 1px solid #eef0f5;
+}
+.kutu7 {
+  opacity: 0.5;
+}
+.kutu8 {
+  opacity: 1;
+}
+.metin9 {
+  flex: none;
+  width: 12px;
+  height: 28px;
+  border-radius: 4px;
+}
+.metin10 {
+  flex: 1;
+  min-width: 0;
+}
+.metin11 {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+}
+.metin12 {
+  display: block;
+  font-size: 12px;
+  color: #5a6073;
+}
+.dugme8 {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #d5dae5;
+  background: #ffffff;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1e2333;
+  cursor: pointer;
+  font-family: inherit;
+}
+.dugme9 {
+  opacity: 0.4;
+}
+.kutu9 {
+  padding: 12px 18px;
+  font-size: 12.5px;
+  color: #5a6073;
+}
+.kutu10 {
+  background: #ffffff;
+  border: 1px solid #e3e6ef;
+  border-radius: 18px;
+  overflow: visible;
+  flex: 1 1 380px;
+  min-width: 0;
+  padding: 16px 18px;
+}
+.baslik3 {
+  margin: 0 0 12px;
+  font-size: 17px;
+  font-weight: 800;
+}
+.kutu11 {
+  margin: 0 auto;
+  border: 1px solid #e3e6ef;
+  padding: 10px;
+  background: #f6f8fd;
+}
+.kutu12 {
+  max-width: 230px;
+  border-radius: 24px;
+}
+.kutu13 {
+  max-width: 100%;
+  border-radius: 12px;
+}
+.kutu14 {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.metin13 {
+  width: 6px;
+  height: 14px;
+  border-radius: 3px;
+}
+.metin14 {
+  font-size: 12px;
+  font-weight: 800;
+  margin-left: 4px;
+}
+.kutu15 {
+  margin-bottom: 6px;
+  border-radius: 8px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #1e2333;
+}
+.kutu16 {
+  background: #ffffff;
+  border: 1px solid #e3e6ef;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-top: 14px;
+}
+.baslik4 {
+  margin: 0;
+  padding: 14px 18px;
+  font-size: 16px;
+  font-weight: 800;
+  border-bottom: 1px solid #eef0f5;
+}
+.metin15 {
+  margin: 0;
+  padding: 12px 18px;
+  font-size: 13.5px;
+  color: #5a6073;
+}
+.kutu17 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  padding: 11px 18px;
+  border-bottom: 1px solid #eef0f5;
+  font-size: 13.5px;
+}
+.metin16 {
+  flex: 0 0 52px;
+  font-weight: 800;
+}
+.metin17 {
+  flex: 999 1 280px;
+  min-width: 0;
+}
+.metin18 {
+  flex: none;
+  color: #5a6073;
+}
+.dugme10 {
+  flex: none;
+  border: 1px solid #d5dae5;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e2333;
+  cursor: pointer;
+  font-family: inherit;
+}

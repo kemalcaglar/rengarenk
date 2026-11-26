@@ -1,0 +1,138 @@
+/* Bu dosya page.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  background: #ffffff;
+  border: 1.5px solid #5b8cff;
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.kutu2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+.etiket1 {
+  flex: 2 1 260px;
+}
+.etiket2 {
+  flex: 1 1 180px;
+}
+.metin1 {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: #5a6073;
+}
+.metin2 {
+  flex: 999 1 220px;
+}
+.metin3 {
+  flex: 1 1 110px;
+}
+.metin4 {
+  flex: 1 1 120px;
+}
+.metin5 {
+  flex: 1 1 140px;
+}
+.metin6 {
+  flex: 999 1 220px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.metin7 {
+  color: #1e2333;
+  font-size: 12.5px;
+}
+.metin8 {
+  min-width: 0;
+}
+.metin9 {
+  display: block;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.metin10 {
+  display: block;
+  font-size: 12.5px;
+  color: #5a6073;
+  overflow-wrap: anywhere;
+}
+.metin11 {
+  flex: 1 1 110px;
+  font-weight: 700;
+}
+.girdi1 {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e2333;
+  cursor: pointer;
+  max-width: 100%;
+}
+.metin12 {
+  flex: 1 1 120px;
+  font-size: 13px;
+  color: #3a4052;
+}
+.metin13 {
+  flex: 1 1 180px;
+  font-size: 13px;
+  color: #3a4052;
+}
+.metin14 {
+  flex: 1 1 140px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.dugme1 {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #2450c8;
+  cursor: pointer;
+}
+.dugme2 {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #a3271f;
+  cursor: pointer;
+}
+.metin15 {
+  background: #e7faf0;
+  color: #1e2333;
+  font-size: 12.5px;
+}
+.metin16 {
+  display: block;
+  font-weight: 800;
+}
+.metin17 {
+  display: block;
+  font-size: 12.5px;
+  color: #5a6073;
+}
+.metin18 {
+  flex: 1 1 140px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.metin19 {
+  background: #e7faf0;
+  color: #11683f;
+}

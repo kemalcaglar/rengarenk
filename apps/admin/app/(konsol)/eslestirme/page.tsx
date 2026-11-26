@@ -11,9 +11,11 @@ import {
 } from '@rengarenk/shared';
 import Link from 'next/link';
 import { type CSSProperties, useCallback, useEffect, useState } from 'react';
+import { cx } from '../../../lib/cx';
 import { yonetim } from '../../../lib/istemci';
 import { currentDefinition, type Detail, type TreeRow } from '../../../lib/kategori';
 import { useKonsol } from '../kabuk';
+import stil from './page.module.css';
 
 const ADIM = 2;
 
@@ -160,37 +162,16 @@ export default function Eslestirme() {
   return (
     <>
       {bildirim ? (
-        <div
-          role="status"
-          style={{
-            marginBottom: 14,
-            background: '#E7FAF0',
-            border: '1px solid #B9EBD1',
-            borderRadius: 12,
-            padding: '11px 14px',
-            fontSize: 13.5,
-            fontWeight: 700,
-            color: '#11683F',
-          }}
-        >
+        <div role="status" className={stil.kutu1}>
           {bildirim}
         </div>
       ) : null}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          marginBottom: 16,
-        }}
-      >
+      <div className={stil.kutu2}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 800 }}>Eşleştirme ayarı · {kat?.name ?? ''}</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 14, color: '#5A6073' }}>
+          <h1 className={stil.baslik1}>Eşleştirme ayarı · {kat?.name ?? ''}</h1>
+          <p className={stil.metin1}>
             Ağırlıkları değiştir, yayından önce gerçek bir talep üzerinde sonucunu gör.{' '}
-            <label style={{ fontWeight: 700, color: '#1E2333', whiteSpace: 'nowrap' }}>
+            <label className={stil.etiket1}>
               Kategori{' '}
               <select
                 value={secili ?? ''}
@@ -203,14 +184,7 @@ export default function Eslestirme() {
                     `?k=${tree?.find((c) => c.id === e.target.value)?.slug ?? ''}`,
                   );
                 }}
-                style={{
-                  border: '1px solid #D5DAE5',
-                  borderRadius: 8,
-                  padding: '3px 6px',
-                  font: 'inherit',
-                  fontWeight: 600,
-                  background: '#FFFFFF',
-                }}
+                className={stil.girdi1}
               >
                 {(tree ?? []).map((c) => (
                   <option key={c.id} value={c.id}>
@@ -221,9 +195,9 @@ export default function Eslestirme() {
             </label>
           </p>
         </div>
-        <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <span className={stil.metin2}>
           {onayda ? (
-            <Link href="/onaylar" style={{ fontSize: 13.5, fontWeight: 800, color: '#7A5300' }}>
+            <Link href="/onaylar" className={stil.bag1}>
               {detay?.draft?.approval?.status === 'APPROVED'
                 ? 'Onaylandı · yayına alınıyor'
                 : 'Sahip veya yönetici onayında · dört göz'}
@@ -276,62 +250,29 @@ export default function Eslestirme() {
         </p>
       ) : null}
       {detay?.draft && !onayda && (detay.draft.diff.changes.length ?? 0) > 0 ? (
-        <p className="k-note" style={{ marginTop: 0 }}>
+        <p className={`k-note ${stil.metin3}`}>
           Taslakta {detay.draft.diff.changes.length} değişiklik var; yayına gönderince alan değişiklikleri de
           birlikte gider. <Link href={`/kategoriler?k=${kat?.slug ?? ''}`}>Kategoriler ve alanlar</Link>
         </p>
       ) : null}
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-start' }}>
-        <section
-          aria-labelledby="agirlik"
-          style={{
-            flex: '1 1 320px',
-            maxWidth: 380,
-            minWidth: 0,
-            background: '#FFFFFF',
-            border: '1px solid #E3E6EF',
-            borderRadius: 18,
-            overflow: 'hidden',
-          }}
-        >
-          <h2 id="agirlik" style={{ margin: 0, padding: '16px 18px 4px', fontSize: 17, fontWeight: 800 }}>
+      <div className={stil.kutu3}>
+        <section aria-labelledby="agirlik" className={stil.kutu4}>
+          <h2 id="agirlik" className={stil.baslik2}>
             Ağırlıklar
           </h2>
-          <p style={{ margin: 0, padding: '0 18px 10px', fontSize: 12.5, color: '#5A6073' }}>
-            Toplam {toplam} · skor, ağırlıklı uyumun yüzdesidir.
-          </p>
-          {!def ? (
-            <p className="muted" style={{ padding: '0 18px 14px' }}>
-              Yükleniyor…
-            </p>
-          ) : null}
+          <p className={stil.metin4}>Toplam {toplam} · skor, ağırlıklı uyumun yüzdesidir.</p>
+          {!def ? <p className={`muted ${stil.metin5}`}>Yükleniyor…</p> : null}
           {satirlar.map((f) => {
             const y = yayinW.get(f.key) ?? 0;
             const df = f.weight - y;
             const set = (d: number) =>
               def && kaydet(agirlikla(def, f.key, Math.max(0, Math.min(MAX_WEIGHT, f.weight + d))));
             return (
-              <div
-                key={f.key}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '8px 18px',
-                  borderTop: '1px solid #EEF0F5',
-                }}
-              >
-                <span style={{ flex: 1, minWidth: 0, fontSize: 13.5, fontWeight: 700 }}>
+              <div key={f.key} className={stil.kutu5}>
+                <span className={stil.metin6}>
                   {f.matchName ?? f.label}
-                  <span
-                    style={{
-                      display: 'block',
-                      fontSize: 11.5,
-                      fontWeight: 600,
-                      color: df ? '#7A5300' : '#5A6073',
-                    }}
-                  >
+                  <span className={cx(stil.metin7, df ? stil.metin8 : stil.metin9)}>
                     {df ? `yayında ${y} · ${df > 0 ? '+' : ''}${df}` : 'yayındaki değer'}
                   </span>
                 </span>
@@ -344,9 +285,7 @@ export default function Eslestirme() {
                 >
                   −
                 </button>
-                <span style={{ flex: '0 0 30px', textAlign: 'center', fontSize: 15, fontWeight: 800 }}>
-                  {f.weight}
-                </span>
+                <span className={stil.metin10}>{f.weight}</span>
                 <button
                   type="button"
                   aria-label="Artır"
@@ -359,34 +298,17 @@ export default function Eslestirme() {
               </div>
             );
           })}
-          <div
-            style={{
-              padding: '12px 18px',
-              borderTop: '1px solid #EEF0F5',
-              background: '#F6F8FD',
-              fontSize: 12.5,
-              lineHeight: 1.55,
-              color: '#3A4052',
-            }}
-          >
+          <div className={stil.kutu6}>
             <strong>Sert koşullar</strong> skordan önce uygulanır: konum (alıcının seçtiği il veya mesafe),
             bütçe üst sınırı (%5 tolerans), alıcı “kesin” dediyse vites ve yakıt.
             {/* Konum kapsamı (tasarıma ek; Teknik tasarım §6 komşu il 0,5) */}
-            <label style={{ display: 'block', marginTop: 8, fontWeight: 700, color: '#1E2333' }}>
+            <label className={stil.etiket2}>
               Konum{' '}
               <select
                 value={def?.konumKapsami ?? 'il'}
                 disabled={busy || onayda || !def}
                 onChange={(e) => def && kaydet({ ...def, konumKapsami: e.target.value as LocationScope })}
-                style={{
-                  border: '1px solid #D5DAE5',
-                  borderRadius: 8,
-                  padding: '3px 6px',
-                  font: 'inherit',
-                  fontWeight: 600,
-                  background: '#FFFFFF',
-                  maxWidth: '100%',
-                }}
+                className={stil.girdi2}
               >
                 {LOCATION_SCOPES.map((k) => (
                   <option key={k} value={k}>
@@ -398,28 +320,10 @@ export default function Eslestirme() {
           </div>
         </section>
 
-        <section
-          aria-labelledby="deneme"
-          style={{
-            flex: '999 1 480px',
-            minWidth: 0,
-            background: '#FFFFFF',
-            border: '1px solid #E3E6EF',
-            borderRadius: 18,
-            overflow: 'hidden',
-          }}
-        >
-          <div style={{ padding: '16px 18px', borderBottom: '1px solid #EEF0F5' }}>
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: 10,
-              }}
-            >
-              <h2 id="deneme" style={{ margin: 0, fontSize: 17, fontWeight: 800 }}>
+        <section aria-labelledby="deneme" className={stil.kutu7}>
+          <div className={stil.kutu8}>
+            <div className={stil.kutu9}>
+              <h2 id="deneme" className={stil.baslik3}>
                 Deneme alanı
               </h2>
               <form
@@ -428,7 +332,7 @@ export default function Eslestirme() {
                   const n = Number.parseInt(talepNo, 10);
                   setAranan(Number.isFinite(n) && n > 0 ? n : undefined);
                 }}
-                style={{ display: 'flex', gap: 6 }}
+                className={stil.kutu10}
               >
                 <input
                   aria-label="Talep no"
@@ -436,35 +340,20 @@ export default function Eslestirme() {
                   placeholder="Talep no"
                   value={talepNo}
                   onChange={(e) => setTalepNo(e.target.value.replace(/\D/g, ''))}
-                  style={{
-                    width: 120,
-                    border: '1px solid #D5DAE5',
-                    borderRadius: 10,
-                    padding: '7px 10px',
-                    fontSize: 13.5,
-                  }}
+                  className={stil.girdi3}
                 />
-                <button type="submit" style={{ ...ikincil, padding: '7px 12px', fontSize: 13 }}>
+                <button type="submit" className={stil.dugme1}>
                   Göster
                 </button>
               </form>
             </div>
-            <div
-              style={{
-                marginTop: 10,
-                background: '#F6F8FD',
-                borderRadius: 12,
-                padding: '12px 14px',
-                fontSize: 13.5,
-                lineHeight: 1.5,
-              }}
-            >
+            <div className={stil.kutu11}>
               {deneme?.talep ? (
                 <>
                   <strong>
                     Talep No {deneme.talep.no} · {deneme.talep.baslik}
                   </strong>
-                  <span style={{ display: 'block', color: '#3A4052' }}>
+                  <span className={stil.metin11}>
                     {[
                       deneme.talep.yilMin || deneme.talep.yilMax
                         ? `${deneme.talep.yilMin ?? ''}–${deneme.talep.yilMax ?? ''}`
@@ -481,14 +370,14 @@ export default function Eslestirme() {
               ) : (
                 <>
                   <strong>{deneme ? 'Bu kategoride yayında talep yok' : 'Yükleniyor…'}</strong>
-                  <span style={{ display: 'block', color: '#3A4052' }}>
+                  <span className={stil.metin11}>
                     Deneme alanı gerçek bir talebi seçip sert koşullara uyan portföy araçlarının skorunu bu
                     ayarla ve yayındaki ayarla yan yana gösterir.
                   </span>
                 </>
               )}
             </div>
-            <p style={{ margin: '10px 0 0', fontSize: 13, color: '#3A4052' }}>
+            <p className={stil.metin12}>
               Galeriye “sana uygun talep” bildirimi eşiği:{' '}
               <strong>skor %{deneme?.esik ?? def?.rules.matchThreshold ?? 80}</strong>
               {deneme?.talep
@@ -496,113 +385,49 @@ export default function Eslestirme() {
                 : ''}
             </p>
           </div>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '34px minmax(0, 2.6fr) minmax(0, 2fr) 70px 70px',
-              gap: 8,
-              padding: '10px 18px',
-              background: '#F3F5FA',
-              fontSize: 11.5,
-              fontWeight: 800,
-              color: '#5A6073',
-              textTransform: 'uppercase',
-              letterSpacing: 0.3,
-            }}
-          >
+          <div className={stil.kutu12}>
             <span>Sıra</span>
             <span>Portföy aracı</span>
             <span>Skor</span>
-            <span style={{ textAlign: 'right' }}>Yayında</span>
-            <span style={{ textAlign: 'right' }}>Değişim</span>
+            <span className={stil.metin13}>Yayında</span>
+            <span className={stil.metin13}>Değişim</span>
           </div>
           {deneme?.talep && !deneme.adaylar.length ? (
-            <p style={{ margin: 0, padding: '14px 18px', fontSize: 13, color: '#5A6073' }}>
-              Bu talebin sert koşullarına uyan yayında portföy aracı yok.
-            </p>
+            <p className={stil.metin14}>Bu talebin sert koşullarına uyan yayında portföy aracı yok.</p>
           ) : null}
           {(deneme?.adaylar ?? []).map((c) => {
             const esik = deneme?.esik ?? 80;
             const fark = c.eskiSira - c.sira;
             return (
-              <div
-                key={c.id}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '34px minmax(0, 2.6fr) minmax(0, 2fr) 70px 70px',
-                  gap: 8,
-                  alignItems: 'center',
-                  padding: '11px 18px',
-                  borderTop: '1px solid #EEF0F5',
-                  fontSize: 13,
-                }}
-              >
-                <span style={{ fontSize: 15, fontWeight: 800 }}>{c.sira}</span>
-                <span style={{ minWidth: 0 }}>
-                  <span style={{ display: 'block', fontWeight: 800 }}>{c.ad}</span>
-                  <span style={{ display: 'block', fontSize: 12, color: '#5A6073' }}>{c.detay}</span>
+              <div key={c.id} className={stil.kutu13}>
+                <span className={stil.metin15}>{c.sira}</span>
+                <span className={stil.metin16}>
+                  <span className={stil.metin17}>{c.ad}</span>
+                  <span className={stil.metin18}>{c.detay}</span>
                 </span>
-                <span
-                  style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-                  title={`${c.ad}: yeni skor %${c.skor}, yayında %${c.eski}`}
-                >
-                  <span
-                    style={{
-                      flex: 1,
-                      height: 10,
-                      background: '#F3F5FA',
-                      borderRadius: '0 4px 4px 0',
-                      position: 'relative',
-                    }}
-                  >
+                <span className={stil.metin19} title={`${c.ad}: yeni skor %${c.skor}, yayında %${c.eski}`}>
+                  <span className={stil.metin20}>
                     <span
-                      style={{
-                        position: 'absolute',
-                        left: 0,
-                        top: 0,
-                        bottom: 0,
-                        width: `${c.skor}%`,
-                        background: c.skor >= esik ? '#2450C8' : '#A9C2FF',
-                        borderRadius: '0 4px 4px 0',
-                      }}
+                      className={cx(stil.metin21, c.skor >= esik ? stil.metin22 : stil.metin23)}
+                      style={{ width: `${c.skor}%` }}
                     />
-                    <span
-                      style={{
-                        position: 'absolute',
-                        top: -3,
-                        bottom: -3,
-                        left: `${esik}%`,
-                        width: 2,
-                        background: '#1E2333',
-                      }}
-                    />
+                    <span className={stil.metin24} style={{ left: `${esik}%` }} />
                   </span>
-                  <span style={{ flex: '0 0 42px', fontWeight: 800 }}>%{c.skor}</span>
+                  <span className={stil.metin25}>%{c.skor}</span>
                 </span>
-                <span style={{ textAlign: 'right', color: '#5A6073' }}>
+                <span className={stil.metin26}>
                   %{c.eski} · {c.eskiSira}.
                 </span>
                 <span
-                  style={{
-                    textAlign: 'right',
-                    fontWeight: 800,
-                    color: fark > 0 ? '#11683F' : fark < 0 ? '#A3271F' : '#5A6073',
-                  }}
+                  className={stil.metin27}
+                  style={{ color: fark > 0 ? '#11683F' : fark < 0 ? '#A3271F' : '#5A6073' }}
                 >
                   {fark > 0 ? `▲ ${fark}` : fark < 0 ? `▼ ${-fark}` : '—'}
                 </span>
               </div>
             );
           })}
-          <p
-            style={{
-              margin: 0,
-              padding: '12px 18px',
-              fontSize: 12.5,
-              color: '#5A6073',
-              borderTop: '1px solid #EEF0F5',
-            }}
-          >
+          <p className={stil.metin28}>
             Siyah çizgi bildirim eşiğidir; koyu mavi çubuklar eşiği geçen araçlardır. Yayın, sahip veya
             yönetici onayıyla yapılır ve işlem kaydına girer.
           </p>

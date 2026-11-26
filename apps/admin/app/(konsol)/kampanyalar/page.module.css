@@ -1,0 +1,526 @@
+/* Bu dosya page.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  margin-bottom: 16px;
+}
+.baslik1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+}
+.metin1 {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #5a6073;
+}
+.kutu2 {
+  background: #f3efff;
+  color: #4b2fa6;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.metin2 {
+  color: #a3271f;
+  font-weight: 700;
+}
+.kutu3 {
+  background: #ffffff;
+  border: 1px solid #e3e6ef;
+  border-radius: 18px;
+  overflow: hidden;
+}
+.baslik2 {
+  margin: 0;
+  padding: 16px 18px;
+  font-size: 17px;
+  font-weight: 800;
+  border-bottom: 1px solid #eef0f5;
+}
+.metin3 {
+  margin: 0;
+  padding: 12px 18px;
+  font-size: 13.5px;
+  color: #5a6073;
+}
+.kutu4 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #eef0f5;
+}
+.metin4 {
+  flex: 999 1 280px;
+  min-width: 0;
+}
+.metin5 {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 800;
+}
+.metin6 {
+  display: block;
+  font-size: 12.5px;
+  color: #3a4052;
+  margin-top: 2px;
+}
+.metin7 {
+  flex: 1 1 240px;
+  min-width: 0;
+  font-size: 12.5px;
+  color: #3a4052;
+}
+.dugme1 {
+  flex: none;
+  border: 0;
+  background: transparent;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #5a6073;
+  cursor: pointer;
+  font-family: inherit;
+}
+.metin8 {
+  flex: none;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.kutu5 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+  margin-top: 16px;
+}
+.kutu6 {
+  background: #ffffff;
+  border: 1.5px solid #5b8cff;
+  border-radius: 18px;
+  flex: 999 1 480px;
+  min-width: 0;
+  padding: 18px;
+}
+.baslik3 {
+  margin: 0 0 14px;
+  font-size: 17px;
+  font-weight: 800;
+}
+.metin9 {
+  margin: 0 0 12px;
+  font-size: 13.5px;
+  color: #7a5300;
+  font-weight: 700;
+}
+.kutu7 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.etiket1 {
+  font-size: 13px;
+  font-weight: 700;
+  flex: 2 1 260px;
+}
+.girdi1 {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 5px;
+  border: 1px solid #d5dae5;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
+  background: #ffffff;
+  font-family: inherit;
+}
+.etiket2 {
+  font-size: 13px;
+  font-weight: 700;
+  flex: 1 1 180px;
+}
+.kutu8 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+.etiket3 {
+  font-size: 13px;
+  font-weight: 700;
+  flex: 2 1 220px;
+}
+.etiket4 {
+  font-size: 13px;
+  font-weight: 700;
+  flex: 1 1 160px;
+}
+.etiket5 {
+  font-size: 13px;
+  font-weight: 700;
+  display: block;
+  margin-top: 12px;
+}
+.girdi2 {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 5px;
+  border: 1px solid #d5dae5;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
+  background: #ffffff;
+  font-family: inherit;
+  resize: vertical;
+}
+.kutu9 {
+  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.kutu10 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+.metin10 {
+  display: flex;
+  align-items: center;
+  border: 1px dashed #d5dae5;
+  border-radius: 12px;
+  padding: 9px 12px;
+  font-size: 13.5px;
+  color: #5a6073;
+}
+.dugme2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 12px;
+  padding: 9px 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e2333;
+  cursor: pointer;
+  font-family: inherit;
+}
+.dugme3 {
+  background: #eef3ff;
+}
+.dugme4 {
+  background: #ffffff;
+}
+.metin11 {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 11px;
+  line-height: 14px;
+  text-align: center;
+}
+.metin12 {
+  background: #5b8cff;
+}
+.kutu11 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 14px;
+}
+.etiket6 {
+  font-size: 13px;
+  font-weight: 700;
+  flex: 1 1 200px;
+}
+.etiket7 {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+  padding-top: 26px;
+}
+.girdi3 {
+  width: 18px;
+  height: 18px;
+}
+.kutu12 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #f3efff;
+}
+.etiket8 {
+  font-size: 13px;
+  font-weight: 700;
+  flex: 2 1 240px;
+}
+.etiket9 {
+  font-size: 13px;
+  font-weight: 700;
+  flex: 1 1 100%;
+}
+.metin13 {
+  margin: 0;
+  font-size: 12.5px;
+  color: #4b2fa6;
+}
+.kutu13 {
+  background: #ffffff;
+  border: 1px solid #e3e6ef;
+  border-radius: 18px;
+  flex: 1 1 300px;
+  max-width: 380px;
+  min-width: 0;
+  overflow: hidden;
+}
+.kutu14 {
+  padding: 14px 18px;
+  border-bottom: 1px solid #eef0f5;
+}
+.kutu15 {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #5a6073;
+}
+.kutu16 {
+  font-size: 26px;
+  font-weight: 800;
+}
+.kutu17 {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 18px;
+  border-bottom: 1px solid #eef0f5;
+  font-size: 13.5px;
+}
+.metin14 {
+  min-width: 0;
+}
+.metin15 {
+  display: block;
+  font-weight: 700;
+}
+.metin16 {
+  display: block;
+  font-size: 12px;
+  color: #5a6073;
+}
+.metin17 {
+  flex: none;
+  font-weight: 800;
+}
+.metin18 {
+  font-weight: 800;
+  color: #11683f;
+}
+.kutu18 {
+  padding: 14px 18px;
+}
+.metin19 {
+  margin: 0 0 10px;
+  font-size: 12.5px;
+  color: #7a5300;
+  font-weight: 700;
+}
+.dugme5 {
+  width: 100%;
+  border: 0;
+  background: #5b8cff;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #1e2333;
+  cursor: pointer;
+  font-family: inherit;
+}
+.dugme6 {
+  opacity: 0.5;
+}
+.dugme7 {
+  opacity: 1;
+}
+.metin20 {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #2e3344;
+  border: 1px solid #e3e6ef;
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+.kutu19 {
+  background: #ffffff;
+  border: 1px solid #e3e6ef;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-top: 16px;
+}
+.kutu20 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 18px;
+  border-bottom: 1px solid #eef0f5;
+}
+.baslik4 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+}
+.metin21 {
+  margin: 3px 0 0;
+  font-size: 12.5px;
+  color: #5a6073;
+}
+.dugme8 {
+  border: 1px solid #d5dae5;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e2333;
+  cursor: pointer;
+  font-family: inherit;
+}
+.kutu21 {
+  padding: 14px 18px;
+  border-bottom: 1px solid #eef0f5;
+  background: #f6f8fd;
+}
+.kutu22 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+.etiket10 {
+  font-size: 13px;
+  font-weight: 700;
+  flex: 1 1 130px;
+}
+.etiket11 {
+  font-size: 13px;
+  font-weight: 700;
+  flex: 0 1 100px;
+}
+.etiket12 {
+  font-size: 13px;
+  font-weight: 700;
+  flex: 1 1 140px;
+}
+.etiket13 {
+  font-size: 13px;
+  font-weight: 700;
+  flex: 0 1 130px;
+}
+.kutu23 {
+  border: 0;
+  padding: 0;
+  margin: 12px 0 0;
+}
+.baslik5 {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 0;
+}
+.kutu24 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 6px;
+}
+.etiket14 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+}
+.kutu25 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+.dugme9 {
+  border: 0;
+  background: #5b8cff;
+  border-radius: 12px;
+  padding: 11px 18px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #1e2333;
+  cursor: pointer;
+  font-family: inherit;
+}
+.metin22 {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #7a5300;
+}
+.metin23 {
+  margin: 0;
+  padding: 14px 18px;
+  font-size: 13.5px;
+  color: #5a6073;
+}
+.kutu26 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #eef0f5;
+}
+.metin24 {
+  flex: 0 0 96px;
+  font-size: 14.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+.metin25 {
+  flex: 999 1 260px;
+  min-width: 0;
+}
+.metin26 {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+}
+.metin27 {
+  display: block;
+  font-size: 12.5px;
+  color: #5a6073;
+  margin-top: 2px;
+}
+.metin28 {
+  flex: 1 1 180px;
+  font-size: 12.5px;
+  color: #3a4052;
+}
+.dugme10 {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #a3271f;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}

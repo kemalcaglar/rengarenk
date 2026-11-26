@@ -1,0 +1,133 @@
+/* Bu dosya yer.tsx içindeki satır içi stillerden üretildi; değerler birebir aynıdır. */
+.kutu1 {
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.kutu2 {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+}
+.metin1 {
+  background: #eef3ff;
+  color: #2b4fb8;
+  margin-right: 8px;
+}
+.metin2 {
+  font-size: 15.5px;
+}
+.metin3 {
+  color: #5a6073;
+  font-size: 13.5px;
+}
+.kutu3 {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dugme1 {
+  font-size: 13px;
+  padding: 6px 10px;
+}
+.metin4 {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #3a4052;
+}
+.kutu4 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-end;
+  margin-top: 12px;
+}
+.etiket1 {
+  flex: 1 1 260px;
+  margin: 0;
+}
+.bag1 {
+  font-size: 13px;
+  padding-bottom: 12px;
+}
+.metin5 {
+  margin: 12px 0 0;
+  font-size: 13.5px;
+  color: #5a6073;
+}
+.kutu5 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.kutu6 {
+  margin: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+.kutu7 {
+  border: 1.5px solid #5b8cff;
+}
+.kutu8 {
+  border: 1px solid #e3e6ef;
+}
+.gorsel1 {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  display: block;
+}
+.metin6 {
+  padding: 10px;
+  font-size: 12px;
+  color: #3a4052;
+}
+.metin7 {
+  background: #fff6dd;
+  color: #7a5a00;
+  margin-bottom: 6px;
+  display: inline-block;
+}
+.metin8 {
+  display: block;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.metin9 {
+  display: block;
+  color: #5a6073;
+}
+.metin10 {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.metin11 {
+  background: #e7faf0;
+  color: #11683f;
+}
+.metin12 {
+  background: #ffeef6;
+  color: #a0256a;
+}
+.dugme2 {
+  font-size: 13px;
+  padding: 6px 10px;
+  color: #a3271f;
+}
+.metin13 {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.girdi1 {
+  font-size: 13px;
+  padding: 5px 6px;
+  border-radius: 8px;
+  border: 1px solid #d5dae5;
+}
